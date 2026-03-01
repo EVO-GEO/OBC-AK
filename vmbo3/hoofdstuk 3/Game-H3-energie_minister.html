@@ -1,0 +1,1879 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Energieminister — Jij bepaalt de koers!</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Sans:wght@300;400;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap');
+
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --card: #1c2330;
+    --border: #30363d;
+    --green: #3fb950;
+    --green-dim: #1a4d22;
+    --yellow: #d29922;
+    --yellow-dim: #4d3800;
+    --red: #f85149;
+    --red-dim: #4d1a19;
+    --blue: #58a6ff;
+    --blue-dim: #0d2a4d;
+    --orange: #f0883e;
+    --purple: #bc8cff;
+    --purple-dim: #2d1a4d;
+    --text: #e6edf3;
+    --muted: #8b949e;
+    --accent: #f0883e;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'IBM Plex Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(48,54,61,0.3) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(48,54,61,0.3) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  #app { position: relative; z-index: 1; }
+
+  .screen { display: none; min-height: 100vh; }
+  .screen.active { display: flex; flex-direction: column; align-items: center; }
+
+  /* ========= INTRO ========= */
+  #intro {
+    justify-content: center;
+    padding: 40px 20px;
+    text-align: center;
+  }
+
+  .intro-badge {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: var(--orange);
+    text-transform: uppercase;
+    border: 1px solid var(--orange);
+    padding: 4px 12px;
+    margin-bottom: 24px;
+    display: inline-block;
+  }
+
+  .intro-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(48px, 10vw, 96px);
+    line-height: 0.9;
+    margin-bottom: 16px;
+    background: linear-gradient(135deg, #f0883e 0%, #d29922 50%, #3fb950 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .intro-sub {
+    font-size: 16px;
+    color: var(--muted);
+    max-width: 520px;
+    line-height: 1.6;
+    margin-bottom: 40px;
+  }
+
+  .intro-info {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    max-width: 580px;
+    width: 100%;
+    margin-bottom: 40px;
+  }
+
+  .intro-stat {
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 16px 12px;
+    border-radius: 8px;
+  }
+
+  .intro-stat-label {
+    font-size: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 6px;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  .intro-stat-val {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    color: var(--accent);
+  }
+
+  .btn-primary {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 2px;
+    background: var(--orange);
+    color: #000;
+    border: none;
+    padding: 14px 48px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.15s;
+  }
+  .btn-primary:hover { background: #fff; transform: translateY(-2px); }
+
+  /* ========= CHOOSE COUNTRY ========= */
+  #choose-country {
+    justify-content: center;
+    padding: 40px 20px;
+    text-align: center;
+  }
+
+  .section-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(36px, 7vw, 64px);
+    margin-bottom: 8px;
+  }
+
+  .section-sub {
+    color: var(--muted);
+    font-size: 14px;
+    margin-bottom: 40px;
+  }
+
+  .country-cards {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .country-card {
+    background: var(--card);
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 32px 28px;
+    width: 260px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: left;
+  }
+
+  .country-card:hover {
+    border-color: var(--accent);
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(240,136,62,0.15);
+  }
+
+  .country-flag { font-size: 48px; margin-bottom: 16px; }
+  .country-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 32px;
+    margin-bottom: 8px;
+  }
+  .country-desc { font-size: 13px; color: var(--muted); line-height: 1.5; }
+
+  /* ========= GAME SCREEN ========= */
+  #game {
+    padding: 0;
+    align-items: stretch;
+  }
+
+  .game-header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 10px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .game-title-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .game-country-flag { font-size: 24px; }
+
+  .game-title-text {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
+    color: var(--accent);
+    letter-spacing: 1px;
+  }
+
+  .year-badge {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    background: var(--border);
+    padding: 4px 10px;
+    border-radius: 20px;
+    color: var(--muted);
+  }
+
+  .stats-bar {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .stat-pill {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+    transition: border-color 0.3s;
+  }
+
+  .stat-pill .icon { font-size: 14px; }
+  .stat-pill .val {
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: 600;
+  }
+
+  .stat-good .val { color: var(--green); }
+  .stat-warn .val { color: var(--yellow); }
+  .stat-bad .val { color: var(--red); }
+
+  /* Budget pill */
+  .budget-pill {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--purple-dim);
+    border: 1px solid var(--purple);
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+  }
+  .budget-pill .val {
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: 600;
+    color: var(--purple);
+  }
+
+  /* ========= GAME BODY ========= */
+  .game-body {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 0;
+    flex: 1;
+    min-height: calc(100vh - 60px);
+  }
+
+  @media (max-width: 768px) {
+    .game-body { grid-template-columns: 1fr; }
+    .sidebar { display: none; }
+  }
+
+  /* ========= MAIN AREA ========= */
+  .main-area {
+    padding: 28px;
+    overflow-y: auto;
+  }
+
+  .round-indicator {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--orange);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .event-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--accent);
+    border-radius: 8px;
+    padding: 24px;
+    margin-bottom: 28px;
+    animation: slideIn 0.3s ease;
+  }
+
+  .event-card.crisis {
+    border-left-color: var(--red);
+    background: rgba(248,81,73,0.05);
+  }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .event-icon { font-size: 32px; margin-bottom: 12px; }
+
+  .event-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    margin-bottom: 10px;
+    color: var(--accent);
+  }
+
+  .crisis .event-title { color: var(--red); }
+
+  .crisis-banner {
+    display: none;
+    background: var(--red-dim);
+    border: 1px solid var(--red);
+    border-radius: 4px;
+    padding: 6px 12px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--red);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    width: fit-content;
+  }
+  .crisis .crisis-banner { display: block; }
+
+  .event-text {
+    font-size: 14px;
+    color: var(--muted);
+    line-height: 1.7;
+    margin-bottom: 16px;
+  }
+
+  .event-fact {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 12px 16px;
+    font-size: 13px;
+    color: var(--blue);
+    font-style: italic;
+    line-height: 1.5;
+  }
+
+  .choices-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+
+  .choices-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+
+  @media (max-width: 600px) {
+    .choices-grid { grid-template-columns: 1fr; }
+  }
+
+  .choice-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 18px 16px;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.15s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .choice-btn:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .choice-btn.selected { border-color: var(--accent); background: rgba(240,136,62,0.08); }
+
+  .choice-cost {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: var(--purple);
+    background: var(--purple-dim);
+    border-radius: 10px;
+    padding: 2px 8px;
+    display: inline-block;
+    margin-bottom: 6px;
+  }
+
+  .choice-title {
+    font-weight: 700;
+    font-size: 14px;
+    margin-bottom: 6px;
+  }
+
+  .choice-desc {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.5;
+    margin-bottom: 10px;
+  }
+
+  .choice-effects {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .effect-tag {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-weight: 600;
+  }
+
+  .eff-green { background: var(--green-dim); color: var(--green); }
+  .eff-red { background: var(--red-dim); color: var(--red); }
+  .eff-yellow { background: var(--yellow-dim); color: var(--yellow); }
+  .eff-blue { background: var(--blue-dim); color: var(--blue); }
+  .eff-purple { background: var(--purple-dim); color: var(--purple); }
+
+  .btn-confirm {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
+    letter-spacing: 2px;
+    background: var(--accent);
+    color: #000;
+    border: none;
+    padding: 14px 40px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.15s;
+    width: 100%;
+    margin-bottom: 12px;
+  }
+  .btn-confirm:hover { background: #fff; }
+  .btn-confirm:disabled { opacity: 0.3; cursor: not-allowed; }
+
+  /* ========= FEEDBACK ========= */
+  .feedback-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .feedback-overlay.show { display: flex; }
+
+  .feedback-box {
+    background: var(--card);
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 36px;
+    max-width: 520px;
+    width: 100%;
+    text-align: center;
+    animation: popIn 0.3s cubic-bezier(0.34,1.56,0.64,1);
+  }
+
+  @keyframes popIn {
+    from { transform: scale(0.8); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+
+  .feedback-icon { font-size: 52px; margin-bottom: 16px; }
+
+  .feedback-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 32px;
+    margin-bottom: 12px;
+  }
+
+  .feedback-explanation {
+    font-size: 14px;
+    color: var(--text);
+    line-height: 1.7;
+    margin-bottom: 20px;
+    background: var(--surface);
+    border-left: 3px solid var(--accent);
+    border-radius: 4px;
+    padding: 12px 16px;
+    text-align: left;
+  }
+
+  .stat-changes {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 24px;
+  }
+
+  .stat-change {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 8px 14px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+  }
+
+  .change-up { color: var(--green); }
+  .change-down { color: var(--red); }
+
+  /* ========= PROFILES GRID ========= */
+  .end-profiles-section {
+    width: 100%;
+    max-width: 640px;
+    margin: 0 auto 28px;
+    text-align: left;
+  }
+  .profiles-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 10px;
+    margin-top: 12px;
+  }
+  .profile-chip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    border: 2px solid var(--border);
+    background: var(--surface);
+    color: var(--muted);
+    transition: all 0.2s;
+    position: relative;
+  }
+  .profile-chip.unlocked {
+    border-color: var(--accent);
+    background: var(--card);
+    color: var(--text);
+    box-shadow: 0 0 0 2px rgba(88,166,255,0.15);
+  }
+  .profile-chip.unlocked::after {
+    content: '✓';
+    position: absolute;
+    top: 4px; right: 6px;
+    font-size: 10px;
+    color: var(--green);
+  }
+  .profile-chip-icon { font-size: 18px; flex-shrink: 0; }
+  .profile-chip-name { font-weight: 600; line-height: 1.2; }
+  .profile-chip-hint { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+  /* ========= DECISION LOG ========= */
+  .end-decision-log {
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto 28px;
+    text-align: left;
+  }
+
+  .log-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    margin-bottom: 6px;
+    font-size: 13px;
+    background: var(--surface);
+    border-left: 3px solid var(--border);
+  }
+  .log-row.log-good { border-left-color: var(--green); }
+  .log-row.log-bad { border-left-color: var(--red); }
+  .log-row.log-neutral { border-left-color: var(--yellow); }
+
+  .log-icon { font-size: 16px; flex-shrink: 0; }
+  .log-label { flex: 1; color: var(--text); }
+  .log-deltas { display: flex; gap: 6px; flex-shrink: 0; }
+  .log-deltas span { font-family: 'IBM Plex Mono', monospace; font-size: 11px; padding: 2px 5px; border-radius: 3px; background: var(--card); }
+  .log-pos { color: var(--green); }
+  .log-neg { color: var(--red); }
+
+
+  .sidebar {
+    background: var(--surface);
+    border-left: 1px solid var(--border);
+    padding: 24px;
+    overflow-y: auto;
+  }
+
+  .sidebar-section {
+    margin-bottom: 28px;
+  }
+
+  .sidebar-title {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .energy-mix {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .energy-bar-row {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .energy-bar-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .energy-bar-track {
+    height: 6px;
+    background: var(--border);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .energy-bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.6s ease;
+  }
+
+  .bar-fossil { background: var(--red); }
+  .bar-nuclear { background: var(--yellow); }
+  .bar-renewable { background: var(--green); }
+
+  .history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-height: 300px;
+    overflow-y: auto;
+  }
+
+  .history-item {
+    font-size: 12px;
+    color: var(--muted);
+    padding: 7px 10px;
+    background: var(--card);
+    border-radius: 6px;
+    border-left: 3px solid var(--border);
+    line-height: 1.4;
+  }
+
+  .history-item.good { border-color: var(--green); }
+  .history-item.bad { border-color: var(--red); }
+  .history-item.neutral { border-color: var(--yellow); }
+  .history-item.crisis { border-color: var(--purple); }
+
+  /* Budget bar in sidebar */
+  .budget-bar-row {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-top: 8px;
+  }
+  .budget-bar-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .budget-bar-track {
+    height: 8px;
+    background: var(--border);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .budget-bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    background: var(--purple);
+    transition: width 0.6s ease;
+  }
+
+  /* ========= PROGRESS ========= */
+  .progress-dots {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+    margin-bottom: 24px;
+  }
+
+  .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--border);
+    transition: background 0.3s;
+  }
+  .dot.done { background: var(--green); }
+  .dot.active { background: var(--accent); }
+  .dot.crisis { background: var(--red); }
+
+  /* ========= END SCREEN ========= */
+  #end-screen {
+    justify-content: center;
+    padding: 40px 20px;
+    text-align: center;
+  }
+
+  .end-score-ring {
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 24px auto;
+    flex-direction: column;
+  }
+
+  .end-score-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 52px;
+    line-height: 1;
+  }
+
+  .end-score-label {
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  .end-verdict {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(28px, 6vw, 52px);
+    margin-bottom: 12px;
+  }
+
+  .end-text {
+    font-size: 15px;
+    color: var(--muted);
+    max-width: 520px;
+    line-height: 1.7;
+    margin: 0 auto 32px;
+  }
+
+  .end-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    max-width: 520px;
+    width: 100%;
+    margin: 0 auto 32px;
+  }
+
+  .end-stat-box {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 12px;
+    text-align: center;
+  }
+
+  .end-stat-val {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 32px;
+  }
+
+  .end-stat-lbl {
+    font-size: 10px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-family: 'IBM Plex Mono', monospace;
+    margin-top: 4px;
+  }
+
+  .end-facts {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px;
+    max-width: 520px;
+    width: 100%;
+    margin: 0 auto 28px;
+    text-align: left;
+  }
+
+  .end-facts-title {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+
+  .fact-item {
+    font-size: 13px;
+    color: var(--text);
+    line-height: 1.6;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .fact-item:last-child { border-bottom: none; }
+
+  .btn-restart {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
+    letter-spacing: 2px;
+    background: transparent;
+    color: var(--text);
+    border: 1px solid var(--border);
+    padding: 12px 36px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.15s;
+    margin-top: 8px;
+  }
+  .btn-restart:hover { border-color: var(--accent); color: var(--accent); }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- INTRO -->
+  <div id="intro" class="screen active">
+    <div class="intro-badge">🎮 Aardrijkskunde — Energie</div>
+    <div class="intro-title">Energie<br>Minister</div>
+    <p class="intro-sub">Jij bent de energieminister. Neem 10 beslissingen over de energietoekomst van jouw land. Let op: er breken crises uit! Elke keuze heeft gevolgen voor het klimaat, de economie en de mensen in jouw land.</p>
+    <div class="intro-info">
+      <div class="intro-stat"><div class="intro-stat-label">Rondes</div><div class="intro-stat-val">10</div></div>
+      <div class="intro-stat"><div class="intro-stat-label">Landen</div><div class="intro-stat-val">3</div></div>
+      <div class="intro-stat"><div class="intro-stat-label">Jaar</div><div class="intro-stat-val">2043</div></div>
+      <div class="intro-stat"><div class="intro-stat-label">Crises</div><div class="intro-stat-val">⚡</div></div>
+    </div>
+    <button class="btn-primary" onclick="showScreen('choose-country')">Start het spel →</button>
+  </div>
+
+  <!-- CHOOSE COUNTRY -->
+  <div id="choose-country" class="screen">
+    <div style="padding: 60px 20px; text-align:center; width:100%;">
+      <div class="section-title">Kies je land</div>
+      <p class="section-sub">Elk land heeft een andere energiesituatie — net als in het echte leven. Kies een land en ontdek welke uitdagingen er spelen.</p>
+      <div class="country-cards">
+        <div class="country-card" onclick="startGame('nl')">
+          <div class="country-flag">🇳🇱</div>
+          <div class="country-name">Nederland</div>
+          <p class="country-desc">Haalt nog veel energie uit aardgas. Grote havens voor energietransport. Slechts 15% groene energie. Doel: 70% groene stroom in 2030.</p>
+          <div style="margin-top:14px; display:flex; gap:8px; flex-wrap:wrap;">
+            <span class="effect-tag eff-red">Veel fossiel</span>
+            <span class="effect-tag eff-green">Windkust</span>
+            <span class="effect-tag eff-yellow">Pijpleidingen</span>
+          </div>
+        </div>
+        <div class="country-card" onclick="startGame('fr')">
+          <div class="country-flag">🇫🇷</div>
+          <div class="country-name">Frankrijk</div>
+          <p class="country-desc">70% van de stroom komt uit kerncentrales. Veel waterkracht dankzij de Alpen. Doel: geen CO₂-uitstoot meer in 2050.</p>
+          <div style="margin-top:14px; display:flex; gap:8px; flex-wrap:wrap;">
+            <span class="effect-tag eff-yellow">Kernenergie</span>
+            <span class="effect-tag eff-green">Waterkracht</span>
+            <span class="effect-tag eff-blue">Lage CO₂</span>
+          </div>
+        </div>
+        <div class="country-card" onclick="startGame('de')">
+          <div class="country-flag">🇩🇪</div>
+          <div class="country-name">Duitsland</div>
+          <p class="country-desc">Stopte met kernenergie na de ramp in Fukushima. Nog veel kolen, maar ook de meeste windmolens van Europa. Doel: 80% duurzame stroom in 2030.</p>
+          <div style="margin-top:14px; display:flex; gap:8px; flex-wrap:wrap;">
+            <span class="effect-tag eff-red">Kolen</span>
+            <span class="effect-tag eff-green">Windkracht</span>
+            <span class="effect-tag eff-blue">Groot plan</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- GAME -->
+  <div id="game" class="screen">
+    <div class="game-header">
+      <div class="game-title-bar">
+        <span class="game-country-flag" id="hdr-flag">🇳🇱</span>
+        <span class="game-title-text" id="hdr-title">Energieminister van Nederland</span>
+        <span class="year-badge" id="hdr-year">Jaar 2025</span>
+      </div>
+      <div class="stats-bar">
+        <div class="stat-pill" id="pill-eco">
+          <span class="icon">💰</span>
+          <span>Economie:</span>
+          <span class="val" id="stat-eco">50</span>
+        </div>
+        <div class="stat-pill" id="pill-cli">
+          <span class="icon">🌍</span>
+          <span>Klimaat:</span>
+          <span class="val" id="stat-cli">50</span>
+        </div>
+        <div class="stat-pill" id="pill-pop">
+          <span class="icon">👥</span>
+          <span>Bevolking:</span>
+          <span class="val" id="stat-pop">50</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="game-body">
+      <div class="main-area">
+        <div class="progress-dots" id="progress-dots"></div>
+        <div class="round-indicator" id="round-indicator">Ronde 1 van 10</div>
+        <div class="event-card" id="event-card">
+          <div class="crisis-banner">⚠️ Crisis!</div>
+          <div class="event-icon" id="ev-icon">⚡</div>
+          <div class="event-title" id="ev-title">Titel</div>
+          <div class="event-text" id="ev-text">Tekst</div>
+          <div class="event-fact" id="ev-fact">📚 Feitje</div>
+        </div>
+        <div class="choices-label">Jouw keuze als minister:</div>
+        <div class="choices-grid" id="choices-grid"></div>
+        <button class="btn-confirm" id="btn-confirm" disabled onclick="confirmChoice()">Bevestig keuze →</button>
+      </div>
+
+      <div class="sidebar">
+        <div class="sidebar-section">
+          <div class="sidebar-title">Hoeveel stroom komt waaruit?</div>
+          <div class="energy-mix">
+            <div class="energy-bar-row">
+              <div class="energy-bar-label"><span>🛢️ Fossiel</span><span id="mix-fossil">70%</span></div>
+              <div class="energy-bar-track"><div class="energy-bar-fill bar-fossil" id="bar-fossil" style="width:70%"></div></div>
+            </div>
+            <div class="energy-bar-row">
+              <div class="energy-bar-label"><span>⚛️ Kern</span><span id="mix-nuclear">0%</span></div>
+              <div class="energy-bar-track"><div class="energy-bar-fill bar-nuclear" id="bar-nuclear" style="width:0%"></div></div>
+            </div>
+            <div class="energy-bar-row">
+              <div class="energy-bar-label"><span>🌿 Duurzaam</span><span id="mix-renewable">30%</span></div>
+              <div class="energy-bar-track"><div class="energy-bar-fill bar-renewable" id="bar-renewable" style="width:30%"></div></div>
+            </div>
+          </div>
+        </div>
+        <div class="sidebar-section">
+          <div class="sidebar-title">Jouw beslissingen</div>
+          <div class="history-list" id="history-list">
+            <div style="font-size:12px; color:var(--muted);">Nog geen keuzes gemaakt.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- END SCREEN -->
+  <div id="end-screen" class="screen">
+    <div class="intro-badge" id="end-badge">Eindresultaat</div>
+    <div class="end-verdict" id="end-verdict">Goed gedaan!</div>
+    <div class="end-score-ring" id="end-ring">
+      <div class="end-score-num" id="end-score">72</div>
+      <div class="end-score-label">Eindscore</div>
+    </div>
+    <p class="end-text" id="end-text">Beschrijving</p>
+    <div class="end-stats-grid" style="grid-template-columns: repeat(3,1fr)">
+      <div class="end-stat-box"><div class="end-stat-val" id="end-eco" style="color:var(--yellow)">-</div><div class="end-stat-lbl">Economie</div></div>
+      <div class="end-stat-box"><div class="end-stat-val" id="end-cli" style="color:var(--green)">-</div><div class="end-stat-lbl">Klimaat</div></div>
+      <div class="end-stat-box"><div class="end-stat-val" id="end-pop" style="color:var(--blue)">-</div><div class="end-stat-lbl">Bevolking</div></div>
+    </div>
+    <div class="end-stats-grid" style="grid-template-columns: repeat(3,1fr); margin-top:8px;">
+      <div class="end-stat-box"><div class="end-stat-val" id="end-fossil" style="color:#e06c75">-</div><div class="end-stat-lbl">🛢️ Fossiel %</div></div>
+      <div class="end-stat-box"><div class="end-stat-val" id="end-nuclear" style="color:#d19a66">-</div><div class="end-stat-lbl">⚛️ Kern %</div></div>
+      <div class="end-stat-box"><div class="end-stat-val" id="end-renewable" style="color:#98c379">-</div><div class="end-stat-lbl">🌿 Duurzaam %</div></div>
+    </div>
+
+    <!-- Alle profielen — welke heb je al ontgrendeld? -->
+    <div class="end-profiles-section">
+      <div class="end-facts-title">🏅 Alle ministerprofielen — welke kun jij nog halen?</div>
+      <div class="profiles-grid" id="profiles-grid"></div>
+    </div>
+
+    <div class="end-facts">
+      <div class="end-facts-title">📚 Wat je hebt geleerd</div>
+      <div id="learned-facts"></div>
+    </div>
+    <div class="end-decision-log">
+      <div class="end-facts-title">📋 Jouw beslissingen</div>
+      <div id="decision-log"></div>
+    </div>
+    <button class="btn-primary" onclick="showScreen('choose-country')" style="margin-bottom:12px;">🔄 Opnieuw spelen — probeer een ander profiel!</button><br>
+    <button class="btn-restart" onclick="showScreen('intro')">Terug naar start</button>
+  </div>
+
+  <!-- FEEDBACK OVERLAY -->
+  <div class="feedback-overlay" id="feedback-overlay">
+    <div class="feedback-box">
+      <div class="feedback-icon" id="fb-icon">✅</div>
+      <div class="feedback-title" id="fb-title">Goed!</div>
+      <div class="feedback-explanation" id="fb-explanation"></div>
+      <div class="stat-changes" id="stat-changes"></div>
+      <div id="fb-pop-impact" style="display:none;margin:10px 0 4px;padding:8px 12px;background:var(--surface);border-radius:6px;font-size:13px;color:var(--text);text-align:left;border-left:3px solid var(--blue)"></div>
+      <button class="btn-primary" onclick="nextRound()">Volgende ronde →</button>
+    </div>
+  </div>
+
+</div>
+<script>
+
+// ========= EVENTS DATA =========
+const EVENTS = {
+  nl: [
+    {
+      icon: '🏭', title: 'Gaswinning stopt — wat nu?',
+      text: `De gaswinning in Groningen veroorzaakte aardbevingen en bodemdaling. Veel huizen zijn beschadigd en soms onbewoonbaar. De gaswinning is gestopt. Maar Nederland heeft nog veel energie nodig. Wat doe jij als minister?`,
+      fact: `📚 Nederland won jarenlang aardgas in Groningen — één van de grootste gasvelden van Europa. Door de aardbevingen is de winning gestopt. Nederland koopt nu gas in Noorwegen en de VS.`,
+      isCrisis: false,
+      choices: [
+        { title: 'Meer windparken op zee', desc: 'Investeer fors in windmolens op de Noordzee.', delta: {eco:-2, cli:15, pop:5}, mix: {fossil:-10, renewable:10}, good: true, histLabel: 'Windparken op zee gebouwd',
+          context: `Windmolens op zee zijn de belangrijkste keuze voor groene stroom in Nederland. Ze staan ver van mensen af, dus weinig klachten. Nadeel: het duurt jaren voordat ze klaar zijn, en het stroomnetwerk op land loopt al vol.` },
+        { title: 'Meer gas importeren', desc: 'Vergroot de haven-terminals en importeer vloeibaar aardgas per schip.', delta: {eco:10, cli:-10, pop:5}, mix: {fossil:5}, good: false, histLabel: 'Extra LNG-import via Rotterdam',
+          context: `Vloeibaar gas per schip is duurder dan gas via een pijpleiding en stoot meer CO₂ uit. Nederland haalt al gas binnen via de haven van Rotterdam, maar zo blijf je afhankelijk van fossiele energie.` },
+        { title: 'Kerncentrale bouwen', desc: 'Start de bouw van een nieuwe kerncentrale voor betrouwbare stroomlevering.', delta: {eco:-3, cli:10, pop:-5}, mix: {fossil:-5, nuclear:10}, good: null, histLabel: 'Kerncentrale gepland',
+          context: `Nederland heeft één kerncentrale: in Borssele (gebouwd in 1973). De overheid onderzoekt twee nieuwe. Voordelen: stabiele stroom, weinig CO₂. Nadelen: bouwen duurt 15 jaar of langer en kost enorm veel geld.` },
+        { title: 'Biomassacentrales', desc: 'Verbrand houtsnippers en afval als tijdelijke oplossing.', delta: {eco:5, cli:-5, pop:0}, mix: {renewable:5, fossil:-5}, good: null, histLabel: 'Biomassacentrales geopend',
+          context: `Biomassa heet officieel "duurzame energie", maar bij verbranding komt meteen CO₂ vrij. Critici zeggen dat nieuwe bomen er tientallen jaren over doen om die CO₂ weer op te nemen. Anderen zien het als noodzakelijke tijdelijke stap.` }
+      ]
+    },
+    {
+      icon: '🚗', title: 'Elektrisch rijden overbelast het net',
+      text: `Steeds meer Nederlanders kopen een elektrische auto. Goed voor het klimaat, maar het elektriciteitsnet raakt overbelast. Nieuwe bedrijven kunnen soms geen stroomaansluiting krijgen. Wat doe jij als minister?`,
+      fact: `📚 Door elektrische auto's en warmtepompen groeit de stroomvraag enorm snel. Het stroomnetwerk kan dit nauwelijks bijhouden — sommige wijken wachten jaren op een zwaarder net.`,
+      isCrisis: false,
+      choices: [
+        { title: 'Netwerk uitbreiden', desc: 'Investeer in nieuwe stroomkabels en transformatorstations.', delta: {eco:-3, cli:5, pop:15}, mix: {}, good: true, histLabel: 'Elektriciteitsnet uitgebreid',
+          context: `Netbeheerders als TenneT en Liander investeren al tientallen miljarden in een zwaarder netwerk. Het is de enige echte oplossing, maar de uitvoering loopt vast op te weinig technici, vergunningen en materialen.` },
+        { title: 'Zonnepanelen stimuleren', desc: 'Geef subsidie voor zonnepanelen op woningen.', delta: {eco:-1, cli:10, pop:10}, mix: {renewable:8, fossil:-5}, good: true, histLabel: 'Zonnepanelen gesubsidieerd',
+          context: `Zonnepanelen op daken zorgen dat stroom dichtbij opgewekt wordt. Dat helpt het netwerk. Nederland heeft al miljoenen zonnepanelen. Maar de subsidie om stroom terug te leveren aan het net wordt langzaam afgebouwd.` },
+        { title: 'Wachten en bezuinigen', desc: 'De markt lost het vanzelf op. Geen extra investeringen nu.', delta: {eco:5, cli:0, pop:-15}, mix: {}, good: false, histLabel: 'Geen actie op netproblemen',
+          context: `In de praktijk wachten bedrijven al jaren op een stroomaansluiting. Sommige bedrijven vertrekken daardoor naar andere landen. De schade door een vol netwerk wordt geraamd op miljarden per jaar.` },
+        { title: 'Slimme meters verplicht', desc: 'Verplicht slimme meters die stroom verdelen op rustige momenten.', delta: {eco:5, cli:5, pop:0}, mix: {}, good: null, histLabel: 'Slimme meters ingevoerd',
+          context: `Met slimme meters kunnen elektrische auto's 's nachts opladen, als er weinig vraag is. Dat ontlast het netwerk. In Nederland kan dit al via variabele stroomtarieven, maar de meeste mensen doen het nog niet.` }
+      ]
+    },
+    {
+      icon: '🚢', title: 'Rotterdam als Europese energiehaven',
+      text: `Rotterdam en Amsterdam zijn grote havens voor het doorsluizen van kolen en olie naar Duitsland en België. Buurlanden willen meer fossiele brandstoffen doorvoer via Nederland. Maar klimaatorganisaties protesteren.`,
+      fact: `📚 Nederland heeft meer dan 150.000 km aan gaspijpleidingen. Gas uit Noorwegen en de VS wordt doorgevoerd naar andere landen in Europa.`,
+      isCrisis: false,
+      choices: [
+        { title: 'Doorvoer uitbreiden', desc: 'Bouw nieuwe terminals voor meer fossiele energie doorvoer.', delta: {eco:20, cli:-10, pop:5}, mix: {}, good: null, histLabel: 'Havendoorvoer uitgebreid',
+          context: `Rotterdam verdient jaarlijks miljarden aan het doorvoeren van kolen en olie. Maar milieuorganisaties wijzen erop dat Nederland zo helpt om de CO₂-uitstoot van andere landen te verhogen.` },
+        { title: 'Omschakelen naar waterstof', desc: 'Gebruik de pijpleidingen straks voor groene waterstof in plaats van gas.', delta: {eco:-3, cli:15, pop:5}, mix: {renewable:5}, good: true, histLabel: 'Pijpleidingen voor waterstof',
+          context: `Nederland heeft een uniek voordeel: bestaande gaspijpleidingen zijn deels geschikt voor waterstof. Gasunie werkt al aan een waterstofleiding van Rotterdam via Groningen naar Duitsland — een nieuwe exportkans voor Nederland.` },
+        { title: 'Doorvoer beperken', desc: 'Stel klimaatregels in voor de doorvoer van fossiele brandstoffen.', delta: {eco:-2, cli:10, pop:-5}, mix: {}, good: null, histLabel: 'Fossiele doorvoer beperkt',
+          context: `Beperkingen zijn juridisch lastig: internationale handelsverdragen beschermen het vrij vervoeren van goederen. Bovendien zijn Duitsland en België nog afhankelijk van fossiele energie — een plotseling stop leidt tot ruzie met buurlanden.` },
+        { title: 'Status quo handhaven', desc: 'Laat alles zoals het is — Nederland verdient goed aan zijn positie.', delta: {eco:10, cli:-5, pop:0}, mix: {}, good: false, histLabel: 'Doorvoerstatus ongewijzigd',
+          context: `De haven van Rotterdam verwerkt meer dan 400 miljoen ton goederen per jaar. Een groot deel is fossiele energie. Dat levert banen op, maar past steeds minder bij de Europese klimaatplannen.` }
+      ]
+    },
+    {
+      icon: '⚡', title: 'Stroomstoring treft Noord-Nederland',
+      text: `Een technische storing veroorzaakt een grote stroomstoring in Noord-Nederland. Ziekenhuizen draaien op noodstroom. Het incident laat zien hoe kwetsbaar ons netwerk is.`,
+      fact: `📚 In 2023 was er grote overbelasting van het netwerk doordat zonneparken tegelijk te veel stroom teruggaven. Vraag en aanbod in balans houden is een grote uitdaging bij veel duurzame energie.`,
+      isCrisis: true,
+      choices: [
+        { title: 'Noodaggregaten inzetten', desc: 'Zet noodgeneratoren op diesel in voor ziekenhuizen en andere kritieke plekken.', delta: {eco:-2, cli:-5, pop:15}, mix: {}, good: null, histLabel: 'Noodaggregaten ingezet',
+          context: `Dieselgeneratoren zijn duur en vervuilend, maar onmisbaar als alles uitvalt. Ziekenhuizen, datacenters en watergemalen zijn wettelijk verplicht een eigen noodstroominstallatie te hebben.` },
+        { title: 'Stroomrantsoenering', desc: 'Verdeel de beschikbare stroom: fabrieken gaan voor, dan pas huishoudens.', delta: {eco:5, cli:0, pop:-15}, mix: {}, good: null, histLabel: 'Stroomrantsoenering ingevoerd',
+          context: `Rantsoenering — dus bepalen wie wel en wie geen stroom krijgt — gebeurde in Europa al tijdens de energiecrisis van 2022. Fabrieken krijgen voorrang omdat uitval ze per uur enorm veel geld kost.` },
+        { title: 'Stroom importeren uit Duitsland', desc: 'Importeer direct stroom van buurlanden als noodoplossing.', delta: {eco:-2, cli:0, pop:10}, mix: {}, good: true, histLabel: 'Stroom geïmporteerd van buurlanden',
+          context: `Nederland is via dikke stroomkabels verbonden met Duitsland, België en het VK. Import is mogelijk maar beperkt door de capaciteit van die kabels. Een Europees netwerk van netbeheerders regelt noodleveringen tussen landen.` },
+        { title: 'Crisis als wake-up call', desc: 'Gebruik de storing als aanleiding voor grote netinvesteringen.', delta: {eco:-3, cli:5, pop:10}, mix: {}, good: true, histLabel: 'Crisismomentum benut voor netinvestering',
+          context: `Crises kunnen dingen in beweging zetten: na de energiecrisis van 2022 versnelde Nederland de bouw van gasterminals en windparken. Een storing kan jaren aan trage vergunningsprocedures inkorten.` }
+      ]
+    },
+    {
+      icon: '🌬️', title: 'Groot windpark in de polder?',
+      text: `Er zijn plannen voor een groot windpark in een polderlandschap — genoeg stroom voor 50.000 huishoudens. Maar omwonenden protesteren: turbines zijn lelijk en zouden schadelijk zijn voor de gezondheid.`,
+      fact: `📚 Eén gemiddelde windturbine levert stroom voor meer dan 1500 huishoudens. Windmolens op zee zijn populairder omdat ze verder weg staan van mensen.`,
+      isCrisis: false,
+      choices: [
+        { title: 'Windpark op land goedkeuren', desc: 'Geef toestemming voor het windpark. De klimaatdoelen vereisen actie.', delta: {eco:5, cli:15, pop:-10}, mix: {renewable:10, fossil:-8}, good: true, histLabel: 'Windpark in de polder gebouwd',
+          context: `Nederland heeft weinig ruimte voor windmolens op land. Omwonenden klagen over geluid en schaduw van de wieken. Rechtszaken houden veel projecten jaren vast. Toch is een windmolen op land goedkoper dan één op zee.` },
+        { title: 'Windpark op zee', desc: 'Kies voor een windpark op de Noordzee. Duurder, maar minder overlast.', delta: {eco:-2, cli:12, pop:10}, mix: {renewable:10, fossil:-8}, good: true, histLabel: 'Offshore windpark gekozen',
+          context: `Op zee waait het harder en regelmatiger. Nederland heeft al grote windparken op zee, zoals Hollandse Kust Noord. Nadeel: de stroomkabels van zee naar land vormen een knelpunt.` },
+        { title: 'Volksraadpleging houden', desc: 'Laat omwonenden meebeslissen via een referendum in de regio.', delta: {eco:-1, cli:0, pop:15}, mix: {}, good: null, histLabel: 'Referendum over windpark',
+          context: `Mensen laten meepraten zorgt voor meer draagvlak, maar vertraagt de beslissing. Soms leidt het tot een betere plek voor het windpark; soms blokkeren kleine groepen goede plannen.` },
+        { title: 'Windpark afwijzen', desc: 'Bescherm het landschap en wijs het plan af.', delta: {eco:0, cli:-10, pop:5}, mix: {}, good: false, histLabel: 'Windpark op land afgewezen',
+          context: `Als je het windpark afwijst, moet de stroom ergens anders vandaan komen. Nederland haalt zijn klimaatdoelen voor 2030 alleen als er én windmolens op land staan, én op zee, én veel zonnepanelen.` }
+      ]
+    },
+    {
+      icon: '🏠', title: 'Aardgasvrije nieuwbouw',
+      text: `De overheid wil dat alle nieuwe woningen geen gasaansluiting meer krijgen. Huizen moeten verwarmd worden met warmtepompen. Bouwbedrijven zijn positief, maar bewoners maken zich zorgen over de kosten.`,
+      fact: `📚 In Nederland verwarmen de meeste huizen met aardgas. Dat moet veranderen om de klimaatdoelen te halen. Warmtepompen zijn zuiniger maar vragen méér elektriciteit van het toch al drukke netwerk.`,
+      isCrisis: false,
+      choices: [
+        { title: 'Aardgasvrij verplichten', desc: 'Alle nieuwbouw moet per direct zonder gas gebouwd worden.', delta: {eco:-2, cli:15, pop:5}, mix: {fossil:-5, renewable:5}, good: true, histLabel: 'Aardgasvrije nieuwbouw verplicht',
+          context: `Sinds 2018 is nieuwbouw in Nederland al verplicht gasloos. Een warmtepomp verbruikt 3 tot 4 keer minder energie dan een cv-ketel, maar vraagt wel meer stroom. Dat maakt een zwaarder netwerk nog belangrijker.` },
+        { title: 'Subsidie voor isolatie', desc: 'Geef subsidie aan huishoudens om hun woning te isoleren.', delta: {eco:-2, cli:10, pop:15}, mix: {fossil:-5}, good: true, histLabel: 'Subsidie voor woningisolatie',
+          context: `Nederland heeft 3 miljoen slecht geïsoleerde woningen. Isolatie is de goedkoopste manier om energie te besparen. Er is al subsidie beschikbaar, maar de wachttijden bij installateurs lopen op tot wel een jaar.` },
+        { title: 'Warmtenet aanleggen', desc: 'Leg stadsverwarming aan met restwarmte uit fabrieken of uit de aarde.', delta: {eco:-3, cli:10, pop:10}, mix: {renewable:5, fossil:-5}, good: true, histLabel: 'Warmtenetten aangelegd',
+          context: `Een warmtenet pompt warm water door buizen in de grond om huizen te verwarmen. De warmte komt uit fabrieken of uit de aarde zelf. Rotterdam heeft al een groot warmtenet. Nadeel: je bent afhankelijk van één aanbieder.` },
+        { title: 'Vrijwillig laten', desc: 'Bewoners mogen zelf kiezen — geen verplichting, wel voorlichting.', delta: {eco:5, cli:-5, pop:10}, mix: {}, good: false, histLabel: 'Vrijwillige transitie gekozen',
+          context: `Vrijwillige aanpak werkt te langzaam. De meeste huiseigenaren investeren alleen in betere isolatie als ze toch al aan het verbouwen zijn. Zonder verplichting of prikkel haalt Nederland de klimaatdoelen niet op tijd.` }
+      ]
+    },
+    {
+      icon: '☀️', title: 'Zonneparken op landbouwgrond',
+      text: `Boeren bieden hun weilanden aan voor zonneparken — dat levert meer geld op dan gewassen verbouwen. Maar critici vrezen dat we zo waardevolle landbouwgrond kwijtraken.`,
+      fact: `📚 Nederland heeft weinig ruimte vergeleken met hoeveel energie het nodig heeft. Combinaties van zonnepanelen en landbouw op hetzelfde stuk grond (agri-solar) zijn in opkomst.`,
+      isCrisis: false,
+      choices: [
+        { title: 'Zonne- en landbouw combineren', desc: 'Stimuleer panelen boven gewassen: zo gebruik je de grond dubbel.', delta: {eco:-2, cli:12, pop:10}, mix: {renewable:8}, good: true, histLabel: 'Agri-solar ingevoerd',
+          context: `Bij agri-solar hangen zonnepanelen op palen boven gewassen. Verrassend voordeel: sommige planten groeien juist beter in de schaduw, en de panelen houden vocht in de grond vast. In Nederland zijn al meerdere succesvolle pilots.` },
+        { title: 'Alleen op daken toestaan', desc: 'Verbied zonneparken op weilanden — panelen mogen alleen op gebouwen.', delta: {eco:0, cli:5, pop:10}, mix: {renewable:3}, good: null, histLabel: 'Zonne-energie alleen op daken',
+          context: `In theorie is er genoeg dak voor veel zonnestroom, maar veel daken zijn te oud, te schaduwrijk of eigendom van verhuurders die niet willen investeren. Alleen daken is te weinig om de klimaatdoelen te halen.` },
+        { title: 'Vrije markt: boer bepaalt', desc: 'Laat boeren zelf kiezen wat ze met hun grond doen.', delta: {eco:5, cli:8, pop:0}, mix: {renewable:6}, good: null, histLabel: 'Vrije markt voor zonnepanelen',
+          context: `Boeren verdienen aan zonnepanelen vaak meer dan aan landbouw. Dat beïnvloedt de voedselprijzen en de grondprijzen. Provincies stellen steeds vaker regels: een zonnepark mag alleen als er geen betere plek is.` },
+        { title: 'Zonnepark verbieden', desc: 'Bescherm landbouwgrond: geen zonneparken op weilanden.', delta: {eco:-1, cli:-10, pop:5}, mix: {}, good: false, histLabel: 'Zonneparken op land verboden',
+          context: `Sommige gemeenten weigeren vergunningen voor zonneparken. Dat duwt investeerders naar andere regio's of duurder offshore — meer kosten en meer problemen met het netwerk.` }
+      ]
+    },
+    {
+      icon: '💧', title: 'Droogte raakt energieproductie',
+      text: `Een uitzonderlijk droge zomer: rivieren staan laag. Kolencentrales langs de Rijn kunnen niet goed gekoeld worden en moeten terugschakelen. De klimaatcrisis raakt nu ook de energieproductie.`,
+      fact: `📚 Kolencentrales en kerncentrales hebben rivierwater nodig om te koelen. Bij extreme droogte moeten ze verplicht minder produceren — dit is in Europa al meerdere keren gebeurd.`,
+      isCrisis: true,
+      choices: [
+        { title: 'Stroomtekort accepteren', desc: 'Accepteer minder stroom en roep op tot energiebesparing.', delta: {eco:-2, cli:5, pop:-10}, mix: {}, good: null, histLabel: 'Stroomtekort geaccepteerd tijdens droogte',
+          context: `Oproepen tot vrijwillig minder verbruiken werken maar gedeeltelijk. Tijdens de energiecrisis van 2022 daalde het gasverbruik in Nederland met 20% dankzij zulke oproepen. Maar een langdurig tekort schaadt de economie.` },
+        { title: 'Gascentrale tijdelijk aan', desc: 'Zet een gascentrale tijdelijk aan als noodoplossing.', delta: {eco:-1, cli:-10, pop:10}, mix: {fossil:5}, good: false, histLabel: 'Gascentrale als noodbackup droogte',
+          context: `Gas als noodoplossing is duurder dan kolen maar stoot minder CO₂ uit. In Duitsland werden gasvoorraden aangesproken tijdens de droge zomer van 2022. Zo laat klimaatverandering zien dat het ook de stroomlevering bedreigt.` },
+        { title: 'Stroom importeren', desc: 'Importeer stroom van landen met meer capaciteit.', delta: {eco:-2, cli:0, pop:5}, mix: {}, good: true, histLabel: 'Stroom geïmporteerd bij droogte',
+          context: `Importeren helpt, maar heeft een grens: als heel Europa te maken heeft met droogte, heeft niemand stroom over. Noorwegen (met veel waterkrachtcentrales) is betrouwbaar als er op het continent weinig water is.` },
+        { title: 'Investeer in wateropslag', desc: 'Bouw waterreservoirs zodat centrales ook bij droogte genoeld kunnen worden.', delta: {eco:-3, cli:10, pop:5}, mix: {}, good: true, histLabel: 'Wateropslag voor centrale koeling gebouwd',
+          context: `Waterreservoirs bij energiecentrales zijn een bewezen oplossing. In Spanje en Frankrijk zijn al centrales die met opgeslagen water koelen. Het is een eenmalige investering die tientallen jaren droogteproblemen voorkomt.` }
+      ]
+    },
+    {
+      icon: '🔬', title: 'Waterstoffabriek in Zeeland',
+      text: `Een groep bedrijven wil in Zeeland de grootste waterstoffabriek van Europa bouwen. Groene waterstof wordt gemaakt met windstroom en kan worden opgeslagen voor periodes zonder wind of zon.`,
+      fact: `📚 Nederland wil de waterstof-hub van Europa worden. Via de bestaande gaspijpleidingen kan groene waterstof naar Duitsland getransporteerd worden — een grote kans voor de economie.`,
+      isCrisis: false,
+      choices: [
+        { title: 'Volledig ondersteunen', desc: 'Geef subsidies en vergunningen voor de waterstoffabriek.', delta: {eco:-3, cli:20, pop:5}, mix: {renewable:5}, good: true, histLabel: 'Waterstoffabriek Zeeland gesteund',
+          context: `Zeeland heeft al een industriegebied met goede havenverbindingen en pijpleidingen. Groene waterstof kan vuile waterstof in de chemische industrie vervangen. Nederland heeft hier een unieke kans om een grote rol te spelen.` },
+        { title: 'Beperkte subsidie', desc: 'Geef gedeeltelijke steun en laat de markt de rest financieren.', delta: {eco:-2, cli:10, pop:5}, mix: {renewable:3}, good: true, histLabel: 'Beperkte waterstofsubsidie',
+          context: `Waterstof produceren is nog duur: groene waterstof kost 3 tot 5 keer meer dan gewone waterstof uit aardgas. Subsidies helpen om de markt op gang te brengen, maar te veel subsidie is verspilling van belastinggeld.` },
+        { title: 'Overheid investeert zelf', desc: 'De overheid bouwt en bezit de fabriek zelf.', delta: {eco:-3, cli:15, pop:10}, mix: {renewable:5}, good: null, histLabel: 'Nationaal waterstofproject gestart',
+          context: `Staatsbedrijven in energie bestaan in veel landen: Vattenfall (Zweden) en EDF (Frankrijk) zijn voorbeelden. Voordeel: de overheid heeft de controle. Nadeel: overheden zijn zelden goede ondernemers.` },
+        { title: 'Project afwijzen', desc: 'Waterstof is nog te onzeker — wacht op betere technologie.', delta: {eco:5, cli:-5, pop:0}, mix: {}, good: false, histLabel: 'Waterstofproject afgewezen',
+          context: `Sceptici hebben een punt: groene waterstof is duur en er zijn nog nauwelijks grote afnemers. Maar wachten betekent dat andere landen (Duitsland, Spanje, Portugal) de markt overnemen die Nederland laat liggen.` }
+      ]
+    },
+    {
+      icon: '🎯', title: 'Klimaatakkoord 2030 — eindsprint!',
+      text: `Het jaar 2030 nadert. Nederland heeft afgesproken: 70% groene stroom en de uitstoot van broeikasgassen halveren. Kolencentrales moeten dicht. Maar de industrie maakt zich zorgen over hoge energieprijzen.`,
+      fact: `📚 Het Nederlandse klimaatakkoord schrijft voor: 70% groene stroom in 2030, uitstoot halveren, kolencentrales sluiten, en investeren in waterstof.`,
+      isCrisis: false,
+      choices: [
+        { title: 'Kolencentrales snel sluiten', desc: 'Sluit alle kolencentrales voor 2030, ook als dat risico op stroomtekort geeft.', delta: {eco:-3, cli:20, pop:-5}, mix: {fossil:-20, renewable:10}, good: true, histLabel: 'Kolencentrales gesloten',
+          context: `Nederland heeft drie grote kolencentrales die in 2030 moeten sluiten. Duitsland deed dit eerder en had tijdelijk minder stroom, opgelost door import uit buurlanden. Snel sluiten geeft het sterkste klimaatsignaal.` },
+        { title: 'Stapsgewijze sluiting', desc: 'Sluit kolencentrales langzaam en help werknemers aan een nieuwe baan.', delta: {eco:0, cli:10, pop:10}, mix: {fossil:-10, renewable:8}, good: true, histLabel: 'Stapsgewijze kolensluiting',
+          context: `Langzaam sluiten geeft bedrijven tijd om te veranderen en werknemers om zich om te scholen. Duitsland gaf miljarden uit aan steun voor mensen in de kolensector. Dat kostte veel, maar voorkwam grote sociale onrust.` },
+        { title: 'Waterstof als prioriteit', desc: 'Investeer zwaar in groene waterstof als toekomstige energiebron.', delta: {eco:-3, cli:15, pop:5}, mix: {renewable:5}, good: null, histLabel: 'Waterstofstrategie gelanceerd',
+          context: `Waterstof is een aanvulling op groene stroom, geen vervanging. Voor zware industrie als staal en chemie is waterstof onmisbaar. Nederland investeert al via het Nationaal Groeifonds in waterstofinfrastructuur.` },
+        { title: 'Klimaatdoelen verzachten', desc: 'Lobby in Brussel om de doelen minder streng te maken vanwege economische druk.', delta: {eco:10, cli:-20, pop:-10}, mix: {}, good: false, histLabel: 'Klimaatdoelen verzacht',
+          context: `Meerdere EU-landen hebben geprobeerd klimaatdoelen bij te stellen. Dat leidt altijd tot hevige kritiek van klimaatwetenschappers en jongeren. In 2024 verloor Nederland een rechtszaak van Milieudefensie over zijn klimaatbeleid.` }
+      ]
+    }
+  ],
+
+  fr: [
+    {
+      icon: '⚛️', title: 'Kerncentrales verouderen',
+      text: `Frankrijk heeft tientallen kerncentrales die al decennia oud zijn. Ze leveren 70% van alle elektriciteit. Maar ze worden ouder, onderhoud is duur, en in hete zomers is er te weinig koelwater.`,
+      fact: `📚 Na de oliecrisis van 1973 besloot Frankrijk massaal in te zetten op kernenergie. Vandaag de dag levert kernenergie 70% van de Franse elektriciteit — meer dan in enig ander land ter wereld.`,
+      isCrisis: false,
+      choices: [
+        { title: 'Oude reactoren langer open houden', desc: 'Verleng de levensduur van bestaande reactoren na een grondige inspectie.', delta: {eco:10, cli:5, pop:-5}, mix: {nuclear:5}, good: null, histLabel: 'Kerncentrales verlengd',
+          context: `Het Franse energiebedrijf EDF hield al meerdere reactoren open tot hun 50ste of 60ste jaar. Dat is goedkoper dan nieuw bouwen, maar vereist zware revisies. Critici waarschuwen dat de veiligheidssystemen niet zijn gebouwd voor extreme hitte.` },
+        { title: 'Nieuwe kerncentrale bouwen', desc: 'Start de bouw van een gloednieuwe, modernere kerncentrale.', delta: {eco:-3, cli:10, pop:5}, mix: {nuclear:10}, good: true, histLabel: 'Nieuwe kerncentrale gebouwd',
+          context: `De Franse president Macron kondigde in 2022 de bouw van 6 nieuwe kerncentrales aan. De eerste nieuwe centrale in Flamanville liep 12 jaar vertraging op en kostte 4 keer zoveel als gepland. Nieuw bouwen is een gok op de lange termijn.` },
+        { title: 'Kernenergie afbouwen', desc: 'Sluit kerncentrales langzaam en vervang ze door zon en wind.', delta: {eco:-3, cli:10, pop:-10}, mix: {nuclear:-15, renewable:15}, good: null, histLabel: 'Kernafbouw gestart',
+          context: `De Franse president Hollande beloofde in 2012 kernenergie te halveren. Macron draaide dat terug. Als kernenergie 70% van je stroom levert, is afbouwen een gigantische opgave — dat moet je ergens anders vandaan halen.` },
+        { title: 'Waterkracht uitbreiden', desc: 'Investeer in extra waterkrachtcentrales in de Alpen.', delta: {eco:-1, cli:10, pop:5}, mix: {renewable:8}, good: true, histLabel: 'Extra waterkracht in Alpen',
+          context: `Waterkracht is de oudste duurzame energiebron van Frankrijk en levert betrouwbare stroom. De beste plekken zijn al benut. Nieuwe centrales komen in kwetsbare bergnatuur en vereisen lange vergunningsprocedures.` }
+      ]
+    },
+    {
+      icon: '💧', title: 'Droge zomer: waterkracht valt weg',
+      text: `Door klimaatverandering worden zomers droger. Rivieren staan laag: waterkrachtcentrales produceren minder en kerncentrales hebben problemen met koelwater.`,
+      fact: `📚 Waterkracht levert 10% van de Franse stroomproductie. Meer dan 2000 kleine en grote centrales staan verspreid door de Alpen en het Centraal Massief.`,
+      isCrisis: true,
+      choices: [
+        { title: 'Noodplan activeren', desc: 'Zet tijdelijk gasgestookte centrales aan als noodoplossing.', delta: {eco:-1, cli:-15, pop:10}, mix: {fossil:10}, good: false, histLabel: 'Gascentrales als noodbackup',
+          context: `In de zomer van 2022 moest Frankrijk voor het eerst in decennia stroom importeren. Gascentrales draaiden als noodoplossing, wat de CO₂-uitstoot tijdelijk verhoogde en de afhankelijkheid van Russisch gas duidelijk maakte.` },
+        { title: 'Besparingsoproep', desc: 'Vraag burgers minder stroom te gebruiken tijdens de crisis.', delta: {eco:0, cli:5, pop:5}, mix: {}, good: null, histLabel: 'Besparingsoproep gedaan',
+          context: `De Franse overheid lanceerde in 2022 het "EcoWatt"-systeem: een kleurencode (groen, oranje, rood) die aangeeft hoe krap het stroomaanbod is. Bij code rood daalde het verbruik aantoonbaar door vrijwillige besparing.` },
+        { title: 'Zonne-energie versnellen', desc: 'Gebruik de crisis om snel grote zonneparken te bouwen.', delta: {eco:-2, cli:15, pop:5}, mix: {renewable:12, fossil:-5}, good: true, histLabel: 'Versnelde zonne-energie bouw',
+          context: `Juist in droge zomers schijnt de zon het hardst. Zonne-energie en waterkracht vullen elkaar goed aan: als waterkracht wegvalt door droogte, is er meer zon. Een slimme combinatie voor een betrouwbaar groen stroomsysteem.` },
+        { title: 'Stroom importeren', desc: 'Importeer elektriciteit van buurlanden.', delta: {eco:-2, cli:0, pop:10}, mix: {}, good: null, histLabel: 'Stroom geïmporteerd',
+          context: `Normaal exporteert Frankrijk stroom naar buurlanden. In 2022 importeerde het voor het eerst meer dan het exporteerde. Dat liet zien hoe kwetsbaar zelfs een kernenergieland is bij een combinatie van hitte en technische problemen.` }
+      ]
+    },
+    {
+      icon: '☢️', title: 'Radioactief afval: waar naartoe?',
+      text: `Radioactief afval blijft duizenden jaren gevaarlijk. Frankrijk onderzoekt opslag diep in de grond in kleilagen. Mensen die vlakbij mogelijke opslaglocaties wonen zijn fel tegen.`,
+      fact: `📚 Radioactief afval kan duizenden jaren gevaarlijk blijven. In Frankrijk onderzoekt men of opslag diep in de grond veilig is — het project heet Cigéo.`,
+      isCrisis: false,
+      choices: [
+        { title: 'Opslag diep in de grond goedkeuren', desc: 'Geef toestemming voor opslag in diepe kleilagen na wetenschappelijk onderzoek.', delta: {eco:10, cli:5, pop:-15}, mix: {}, good: null, histLabel: 'Ondergrondse afvalopslag goedgekeurd',
+          context: `Het Cigéo-project in de Meuse-regio is de meest onderzochte opslaglocatie voor kernafval ter wereld. Klei absorbeert straling goed. Wetenschappers zijn grotendeels positief, maar omwonenden en milieuorganisaties zijn fel tegenstander.` },
+        { title: 'Meer onderzoek eerst', desc: 'Stel de beslissing uit totdat er meer zekerheid is over de veiligheid.', delta: {eco:-1, cli:0, pop:10}, mix: {}, good: null, histLabel: 'Afvalonderzoek verlengd',
+          context: `Finland is het eerste land ter wereld dat een definitieve opslagplaats voor kernafval bouwt (klaar rond 2025). Meer onderzoek is logisch, maar uitstel betekent dat het afval bovengronds blijft — ook dat is niet zonder risico.` },
+        { title: 'Kernenergie verminderen', desc: 'Los het afvalprobleem op door simpelweg minder kernenergie te gebruiken.', delta: {eco:-2, cli:5, pop:-5}, mix: {nuclear:-10, fossil:5}, good: null, histLabel: 'Kernenergie verminderd',
+          context: `Minder kernenergie zorgt voor minder nieuw afval, maar lost het afval dat er al is niet op. Bovendien heb je op de korte termijn meer fossiele energie nodig als je kernenergie vermindert.` },
+        { title: 'Samenwerken in de EU', desc: 'Werk met EU-landen samen voor een gezamenlijke opslaglocatie.', delta: {eco:5, cli:5, pop:5}, mix: {}, good: true, histLabel: 'EU-samenwerking kernafval',
+          context: `De EU onderzoekt gezamenlijke opslag al decennia, maar de politieke weerstand is groot: geen enkel land wil kernafval van andere landen op zijn grondgebied. Samen de kosten delen klinkt aantrekkelijk, maar akkoorden komen moeilijk tot stand.` }
+      ]
+    },
+    {
+      icon: '💥', title: 'Incident in kerncentrale!',
+      text: `Er is een technisch incident in een kerncentrale in Normandië. Er is geen straling naar buiten gekomen, maar burgers zijn bang. Milieuorganisaties eisen de sluiting van alle oude centrales.`,
+      fact: `📚 Na de kernramp in Fukushima (2011) sloot Duitsland alle kerncentrales. Frankrijk koos ervoor door te gaan, maar controleerde de veiligheid voortaan veel strenger.`,
+      isCrisis: true,
+      choices: [
+        { title: 'Centrale tijdelijk sluiten', desc: 'Sluit de betrokken centrale voor uitgebreid veiligheidsonderzoek.', delta: {eco:-2, cli:5, pop:10}, mix: {nuclear:-5, fossil:5}, good: null, histLabel: 'Kerncentrale tijdelijk gesloten na incident',
+          context: `Tijdelijk sluiten voor onderzoek is de standaardprocedure. In 2022 lagen meer dan de helft van de Franse reactoren stil door onderhoud en roestproblemen — dat veroorzaakte een stroomtekort en zorgde ervoor dat Frankrijk stroom moest importeren.` },
+        { title: 'Alle oude centrales sluiten', desc: 'Sluit alle centrales die ouder zijn dan 40 jaar direct.', delta: {eco:-3, cli:5, pop:15}, mix: {nuclear:-20, fossil:10}, good: false, histLabel: 'Alle oude kerncentrales gesloten',
+          context: `Als alle oude reactoren dichtgaan, valt 70% van de Franse stroomproductie weg. Duitsland deed iets vergelijkbaars, maar had toen al 30% duurzame stroom. Voor Frankrijk zou dit chaos betekenen en een grote toename van fossiele energie.` },
+        { title: 'Voorlichting aan burgers', desc: 'Leg uit dat het incident klein was en dat kernenergie veilig is.', delta: {eco:5, cli:0, pop:-5}, mix: {}, good: null, histLabel: 'Veiligheidscampagne gelanceerd',
+          context: `Kernenergie is statistisch gezien een van de veiligste energiebronnen: per opgewekte eenheid stroom vallen er minder doden dan bij kolen, gas of zelfs zonnepanelen. Maar angst voor een ramp is moeilijk weg te nemen met cijfers.` },
+        { title: 'Onafhankelijk onderzoek', desc: 'Stel een onafhankelijke commissie in om alle centrales te onderzoeken.', delta: {eco:-1, cli:5, pop:15}, mix: {}, good: true, histLabel: 'Onafhankelijk kernonderzoek gestart',
+          context: `De Franse veiligheidswaakhond voor kernenergie (ASN) is de officiële toezichthouder. Extra onafhankelijke commissies verhogen het vertrouwen van burgers, maar vertragen beslissingen. Openheid en transparantie zijn cruciaal.` }
+      ]
+    },
+    {
+      icon: '🛢️', title: 'Olie-import via Le Havre',
+      text: `Frankrijk importeert dagelijks meer dan een miljoen vaten ruwe olie via havens als Le Havre en Marseille. De olieprijzen zijn instabiel door conflicten in olielanden.`,
+      fact: `📚 Ruwe olie komt per tankschip aan in Le Havre en Marseille, waar het wordt omgezet in benzine, diesel en kerosine. Gas komt via pijpleidingen uit Noorwegen en Algerije.`,
+      isCrisis: false,
+      choices: [
+        { title: 'Meer gasterminals bouwen', desc: 'Bouw meer terminals voor vloeibaar gas zodat je gas van meerdere landen kunt kopen.', delta: {eco:-2, cli:-5, pop:10}, mix: {fossil:5}, good: null, histLabel: 'Meer LNG-terminals gebouwd',
+          context: `Meer gasterminals zorgen voor meer keuzevrijheid: je kunt dan gas kopen in de VS, Qatar of Australië, in plaats van afhankelijk te zijn van één land. Maar ze zijn duur en binden je nog tientallen jaren aan fossiel gas.` },
+        { title: 'Elektrisch rijden stimuleren', desc: 'Stimuleer elektrisch rijden om de vraag naar benzine en diesel te verminderen.', delta: {eco:-2, cli:15, pop:10}, mix: {fossil:-10, renewable:5}, good: true, histLabel: 'Elektrisch rijden gestimuleerd',
+          context: `Transport is verantwoordelijk voor 30% van de CO₂-uitstoot in Frankrijk. Elektrische auto's zijn in combinatie met Franse kernstroom bijna uitstootvrij. Renault en Peugeot zijn al grote producenten van elektrische auto's — goed voor de Franse economie.` },
+        { title: 'Biobrandstoffen inzetten', desc: 'Vervang een deel van diesel door brandstof gemaakt van gewassen.', delta: {eco:-1, cli:5, pop:0}, mix: {renewable:5, fossil:-5}, good: null, histLabel: 'Biobrandstoffen ingevoerd',
+          context: `Biobrandstoffen zijn omstreden: ze nemen landbouwgrond in beslag die ook voor voedsel gebruikt kan worden. En hun CO₂-voordeel valt in de praktijk tegen. De EU beperkt dit soort brandstof al vanwege die zorgen.` },
+        { title: 'Strategische oliereserves uitbreiden', desc: 'Sla meer olie op als buffer bij plotselinge prijsstijgingen.', delta: {eco:-1, cli:-5, pop:5}, mix: {}, good: null, histLabel: 'Oliereserves vergroot',
+          context: `Alle landen in de internationale energieclub (IEA) moeten verplicht een voorraad van 90 dagen olie aanhouden. Extra reserves geven zekerheid bij politieke crises, maar lossen de afhankelijkheid van fossiele energie niet op.` }
+      ]
+    },
+    {
+      icon: '🌊', title: 'Getijdenenergie langs de kust',
+      text: `Bij Saint-Malo is al decennialang een getijdencentrale actief. Er zijn plannen voor meer. Maar ze zijn duur en hun invloed op het zeeleven is onduidelijk.`,
+      fact: `📚 De getijdencentrale bij Saint-Malo is de oudste en grootste van Europa en werkt al sinds 1966. Getijdenenergie maakt gebruik van het verschil tussen eb en vloed.`,
+      isCrisis: false,
+      choices: [
+        { title: 'Meer getijdencentrales bouwen', desc: 'Investeer in nieuwe getijdencentrales langs de Atlantische kust.', delta: {eco:-3, cli:10, pop:5}, mix: {renewable:10}, good: true, histLabel: 'Nieuwe getijdencentrales gebouwd',
+          context: `Getijdenenergie heeft een groot voordeel: je weet precies wanneer eb en vloed zijn. Daardoor is het veel voorspelbaarder dan wind of zon. De kust bij Bretagne heeft het grootste verschil tussen eb en vloed van Europa — technisch ideaal.` },
+        { title: 'Windparken op zee', desc: 'Kies voor windmolens op zee als goedkoper alternatief.', delta: {eco:-1, cli:12, pop:5}, mix: {renewable:10, fossil:-5}, good: true, histLabel: 'Offshore windparken gepland',
+          context: `Windmolens op zee zijn bewezen technologie en goedkoper dan getijdencentrales. Frankrijk loopt achter op het VK en Denemarken in deze sector. De Atlantische kust heeft goede windcondities.` },
+        { title: 'Eerst meer onderzoek', desc: 'Doe eerst onderzoek naar het effect op de natuur voordat je beslist.', delta: {eco:0, cli:0, pop:5}, mix: {}, good: null, histLabel: 'Milieu-onderzoek getijdenenergie',
+          context: `De centrale bij Saint-Malo deed in 50 jaar weinig schade aan het zeeleven, maar grotere installaties kunnen anders uitpakken. Wetenschappers willen weten hoe turbines de bodem, het sediment en de vismigratie beïnvloeden.` },
+        { title: 'Voorlopig fossiel houden', desc: 'Getijdenenergie is te duur — vertrouw nu nog op fossiele energie.', delta: {eco:10, cli:-10, pop:0}, mix: {fossil:5}, good: false, histLabel: 'Getijdenenergie afgewezen',
+          context: `Goedkoop nu, duur later. Elke euro die nu niet in duurzame energie gaat, betekent meer CO₂ en meer schade door klimaatverandering. De kosten van overstromingen, droogtes en oogstmislukkingen zijn veel hoger dan de investering in groene energie.` }
+      ]
+    },
+    {
+      icon: '🏗️', title: 'Energiearmoede in grote steden',
+      text: `Stijgende energieprijzen zorgen ervoor dat steeds meer Parijzenaren de energierekening niet meer kunnen betalen. Dit heet energiearmoede.`,
+      fact: `📚 In Europa kunnen meer dan 50 miljoen mensen hun energierekening nauwelijks betalen. In Frankrijk zijn dat naar schatting 5 miljoen mensen.`,
+      isCrisis: false,
+      choices: [
+        { title: 'Maximale energieprijs instellen', desc: 'Stel een maximumprijs in voor energie zodat niemand een te hoge rekening krijgt.', delta: {eco:-3, cli:-5, pop:20}, mix: {}, good: null, histLabel: 'Energieprijsplafond ingevoerd',
+          context: `Frankrijk voerde in 2022 een prijsplafond in dat de stijging van gasprijzen beperkte tot 15%. Dit kostte de staat 25 miljard euro maar hield de sociale rust. Nadeel: als energie kunstmatig goedkoop is, spaar je er minder op.` },
+        { title: 'Gerichte toeslagen', desc: 'Geef extra geld aan huishoudens met de laagste inkomens.', delta: {eco:-2, cli:0, pop:15}, mix: {}, good: true, histLabel: 'Gerichte energietoeslagen',
+          context: `Gerichte steun is efficiënter dan een algemeen prijsplafond: het geld gaat naar wie het echt nodig heeft. Nadeel: er zijn veel regels voor nodig, en niet iedereen die recht heeft op de toeslag vraagt hem ook aan.` },
+        { title: 'Subsidie voor betere isolatie', desc: 'Betaal voor isolatie van woningen in arme wijken.', delta: {eco:-3, cli:8, pop:15}, mix: {fossil:-3}, good: true, histLabel: 'Isolatiesubsidie arme wijken',
+          context: `Betere isolatie verlaagt de energierekening structureel — dus niet alleen nu, maar ook de komende jaren. In Frankrijk is er al een subsidiesysteem voor renovaties. Slechte woningen in arme wijken profiteren het meest. Elke euro subsidie levert gemiddeld 3 euro besparing op.` },
+        { title: 'De markt zijn werk laten doen', desc: 'Geen overheidsinterventie — de markt regelt de prijzen vanzelf.', delta: {eco:5, cli:0, pop:-20}, mix: {}, good: false, histLabel: 'Markt bepaalt energieprijzen',
+          context: `Energie is geen gewoon product. Mensen kunnen niet snel kiezen voor minder energie — ze hebben het nodig om te koken, warm te blijven en licht te hebben. Bij schaarste kunnen marktprijzen tien keer zo hoog worden als normaal.` }
+      ]
+    },
+    {
+      icon: '🌍', title: 'EU Groene Deal: strengere normen',
+      text: `Brussel legt strengere klimaateisen op. Voor Frankrijk betekent dit dat het aandeel duurzame energie snel omhoog moet. De industrie verzet zich.`,
+      fact: `📚 De EU Groene Deal wil Europa in 2050 klimaatneutraal maken. Alle lidstaten moeten nationale plannen indienen om dat doel te halen.`,
+      isCrisis: false,
+      choices: [
+        { title: 'Ambitieus meewerken', desc: 'Ga verder dan de EU-normen — zet Frankrijk neer als klimaatleider.', delta: {eco:-3, cli:20, pop:5}, mix: {renewable:10, fossil:-8}, good: true, histLabel: 'Ambitieuze EU-klimaatleider rol',
+          context: `Landen die vroeg investeren in schone technologie bouwen een voorsprong op. Duitsland deed dit met windenergie — nog steeds sterk — maar verloor de markt voor zonnepanelen uiteindelijk aan China. Vroeg beginnen loont.` },
+        { title: 'Precies aan de norm voldoen', desc: 'Haal precies wat de EU vraagt, niet meer en niet minder.', delta: {eco:-1, cli:8, pop:5}, mix: {renewable:5, fossil:-3}, good: null, histLabel: 'EU-minimumstandaard behaald',
+          context: `Veel landen kiezen voor de minimale aanpak, mede door druk van grote bedrijven. Dat is toegestaan, maar als iedereen zo denkt, haalt de EU zijn klimaatdoelen nooit. De EU kan landen die de normen niet halen beboeten.` },
+        { title: 'Industrie beschermen', desc: 'Lobby in Brussel voor uitzonderingen voor de zware industrie.', delta: {eco:10, cli:-10, pop:0}, mix: {}, good: false, histLabel: 'Uitzonderingen EU-normen gelobbied',
+          context: `De staal-, chemie- en cementindustrie hebben in Brussel al veel uitzonderingen weten te regelen. Maar als Europa steeds meer uitzonderingen toestaat, verliest het zijn geloofwaardigheid als klimaatleider ten opzichte van de VS en China.` },
+        { title: 'Kernenergie als groen bestempelen', desc: 'Pleit er in Brussel voor dat kernenergie meetelt als duurzame energie.', delta: {eco:5, cli:5, pop:5}, mix: {nuclear:3}, good: null, histLabel: 'Kernenergie als EU-duurzaamheid gelobbied',
+          context: `In 2022 besloot de EU dat kernenergie mag worden gezien als "groene investering", mede dankzij Franse lobby. Dat maakt het makkelijker om erin te investeren. Duitsland en Oostenrijk waren fel tegenstander.` }
+      ]
+    },
+    {
+      icon: '🎯', title: 'Doel 2050: CO₂-neutraal!',
+      text: `Frankrijk wil in 2050 geen CO₂ meer uitstoten. In 2030 moet al bijna een derde van alle energie duurzaam zijn. Dit is jouw laatste beslissing als minister van Frankrijk.`,
+      fact: `📚 Dankzij kernenergie en waterkracht stoot Frankrijk al minder CO₂ per persoon uit dan Nederland. Maar transport en industrie lopen nog sterk achter.`,
+      isCrisis: false,
+      choices: [
+        { title: 'Massief zonnepark in het zuiden', desc: 'Bouw enorme zonneparken in het zonnige zuiden van Frankrijk.', delta: {eco:-3, cli:20, pop:5}, mix: {renewable:15, fossil:-10}, good: true, histLabel: 'Mega zonneparken in het zuiden',
+          context: `Zuid-Frankrijk heeft gemiddeld 300 zonnedagen per jaar — vergelijkbaar met Spanje. Grote zonneparken zijn hier goedkoper dan bijna overal in Europa. Combineer je dit met kernenergie, dan heb je een stabiel en schoon stroomsysteem.` },
+        { title: 'Kernenergie + windmolens combineren', desc: 'Zet kernenergie als stabiele basis in, aangevuld met windmolens.', delta: {eco:-2, cli:15, pop:10}, mix: {nuclear:5, renewable:10, fossil:-10}, good: true, histLabel: 'Kern + wind combinatie',
+          context: `Dit is het officiële Franse plan: kernenergie levert de vaste stroom, wind en zon vullen aan. Critici zeggen dat kernenergie en duurzame energie slecht samengaan. Voorstanders wijzen op de laagste CO₂-uitstoot van Europa.` },
+        { title: 'Aardwarmte uitrollen', desc: 'Gebruik warmte uit de aarde om gebouwen te verwarmen.', delta: {eco:-2, cli:10, pop:10}, mix: {renewable:8, fossil:-5}, good: true, histLabel: 'Geothermie uitgerold',
+          context: `Parijs heeft al een van de grootste verwarmingssystemen op aardwarmte ter wereld — gebouwd in de jaren '70. Uitbreiding kan de vraag naar gas voor verwarming drastisch verminderen. Veel potentieel, ook in het zuiden van Frankrijk.` },
+        { title: "Niets extra's — later wel", desc: 'De doelen zijn ambitieus maar er is nog tijd. Economie gaat voor.', delta: {eco:10, cli:-15, pop:-5}, mix: {}, good: false, histLabel: 'Klimaatinvestering uitgesteld',
+          context: `Uitstellen is de duurste keuze. Elk jaar dat je wacht, stijgen de kosten van klimaatschade: overstromingen, hittegolven, misoogsten. Wetenschappers berekenden dat vroeg handelen tien keer goedkoper is dan te laat ingrijpen.` }
+      ]
+    }
+  ],
+
+  de: [
+    {
+      icon: '⚡', title: 'Kernenergie uitfaseren: de Energiewende',
+      text: `Duitsland heeft besloten alle kerncentrales te sluiten na de kernramp in Fukushima. Nu moet de stroom ergens anders vandaan komen — kolen, gas of duurzame energie. Dit is jouw eerste grote uitdaging.`,
+      fact: `📚 De "Energiewende" is het ambitieuze plan van Duitsland om volledig over te stappen op duurzame energie. Duitsland is de grootste economie van Europa — zijn keuzes beïnvloeden het hele continent.`,
+      isCrisis: false,
+      choices: [
+        { title: 'Kolencentrales tijdelijk openhouden', desc: 'Gebruik kolencentrales tijdelijk om het stroomgat op te vullen.', delta: {eco:10, cli:-15, pop:5}, mix: {fossil:15}, good: false, histLabel: 'Kolencentrales als kernenergie backup',
+          context: `Dit is precies wat Duitsland deed. Na het sluiten van kerncentrales steeg de kolenproductie. Internationale critici noemden het "de duurste energiebeslissing ooit" — de CO₂-uitstoot steeg juist op het moment dat Europa die wilde verlagen.` },
+        { title: 'Windmolens snel uitrollen', desc: 'Investeer snel in windparken als vervanger van kernenergie.', delta: {eco:-3, cli:15, pop:5}, mix: {renewable:12, fossil:-5}, good: true, histLabel: 'Windenergie versneld uitgerold',
+          context: `Duitsland bouwde tussen 2000 en 2020 massaal windmolens en werd de Europese windleider. Maar lange vergunningsprocedures vertraagden de groei sterk. In de slechtste jaren werden slechts 500 nieuwe turbines gebouwd terwijl er 2000 nodig waren.` },
+        { title: 'Gas als tijdelijke brug', desc: 'Gebruik aardgas als tussenoplossing terwijl duurzame energie groeit.', delta: {eco:0, cli:-8, pop:5}, mix: {fossil:8}, good: null, histLabel: 'Gas als energiebrug',
+          context: `Gas stoot half zoveel CO₂ uit als kolen en leek de logische tussenstap. Maar Duitsland werd daardoor afhankelijk van Russisch gas (55% van de gasimport). Toen Rusland Oekraïne binnenviel, bleek dit een grote strategische fout.` },
+        { title: 'Kernenergiebeslissing heroverwegen', desc: 'Kijk opnieuw naar de keuze: zijn de kerncentrales toch nog nodig?', delta: {eco:5, cli:5, pop:-15}, mix: {nuclear:5, fossil:-5}, good: null, histLabel: 'Kernenergie heroverweging',
+          context: `In 2022 debatteerde Duitsland opnieuw over kernenergie. Drie nog actieve centrales werden tijdelijk langer opengehouden voor de winter. Maar politiek was de keuze al gemaakt — technici waren weg en kennis verloren gegaan.` }
+      ]
+    },
+    {
+      icon: '💨', title: 'Duitsland bouwt meeste windturbines van Europa',
+      text: `Duitsland heeft de meeste windmolens van Europa. Maar lange vergunningsprocedures kosten jaren, burgers protesteren, en de stroom moet van het winderige noorden naar het industriële zuiden.`,
+      fact: `📚 Duitsland heeft meer dan 30.000 windturbines. Het vervoer van stroom van het winderige noorden naar het industriële Bayern is een groot technisch en politiek probleem.`,
+      isCrisis: false,
+      choices: [
+        { title: 'Vergunningen sneller regelen', desc: 'Vereenvoudig de regels zodat windparken sneller gebouwd kunnen worden.', delta: {eco:5, cli:15, pop:-5}, mix: {renewable:12}, good: true, histLabel: 'Windvergunningen versneld',
+          context: `In Duitsland duurde een vergunning voor een windpark soms tien jaar door bezwaarprocedures. Onder de coalitie van 2021 werd dit teruggebracht naar twee jaar. Resultaat: het aantal vergunningsaanvragen verdubbelde. Snellere procedures zijn cruciaal.` },
+        { title: 'Stroomkabels van noord naar zuid', desc: 'Bouw nieuwe hoogspanningsleidingen van het winderige noorden naar het zuiden.', delta: {eco:-3, cli:10, pop:5}, mix: {}, good: true, histLabel: 'Stroomkabels N-Z gebouwd',
+          context: `De "SuedLink" (Noord-Zuidkabel) in Duitsland is een van de grootste infrastructuurprojecten in Europa. Verwachte oplevering: 2028. Na massaal protest tegen bovengrondse kabels gaat hij grotendeels ondergronds.` },
+        { title: 'Meer windparken op zee', desc: 'Investeer in windparken op de Noordzee.', delta: {eco:-3, cli:15, pop:5}, mix: {renewable:10}, good: true, histLabel: 'Offshore windparken Nordzee',
+          context: `De Noordzee heeft de beste windcondities van Europa. Duitsland heeft al 9 GW windvermogen op zee en wil uitbreiden naar 30 GW in 2030. Windmolens op zee draaien ook 's nachts en in de winter — een goede aanvulling op zonnepanelen.` },
+        { title: 'Windgroei afremmen', desc: 'Vertraag nieuwe windparken vanwege protest van omwonenden.', delta: {eco:0, cli:-10, pop:10}, mix: {fossil:5}, good: false, histLabel: 'Windgroei vertraagd',
+          context: `In Bayern gold jarenlang de "10H-regel": een windmolen moest tien keer zijn hoogte van de dichtstbijzijnde woning af staan. Dat maakte 90% van Bayern ongeschikt voor windenergie. De regel werd pas in 2022 versoepeld.` }
+      ]
+    },
+    {
+      icon: '🏭', title: 'Kolenmijnen sluiten in het Ruhrgebied',
+      text: `De kolenmijnen en -centrales in het Ruhrgebied moeten in 2030 dicht. Tienduizenden mijnwerkers dreigen hun baan te verliezen. Maar kolen zijn nu goed voor 30% van de elektriciteit.`,
+      fact: `📚 Het Ruhrgebied was decennia het industriehart van Europa. De omschakeling naar een nieuwe economie is een grote sociale en economische uitdaging voor de mensen die er wonen.`,
+      isCrisis: false,
+      choices: [
+        { title: 'Snel sluiten met omscholing', desc: 'Sluit kolenmijnen snel, maar geef mijnwerkers gratis omscholing voor een nieuwe baan.', delta: {eco:-3, cli:15, pop:10}, mix: {fossil:-15, renewable:8}, good: true, histLabel: 'Kolensluiting met omscholing',
+          context: `Duitsland investeerde 40 miljard euro in de omschakeling van de kolenregio's. Mijnwerkers kregen opleidingsbudgetten en vroegpensioenregelingen. De resultaten zijn gemengd: sommige regio's gaan goed, anderen worstelen nog.` },
+        { title: 'Langzaam sluiten tot 2035', desc: 'Stel de sluiting uit tot 2035 zodat mensen meer tijd hebben om zich aan te passen.', delta: {eco:5, cli:-5, pop:5}, mix: {fossil:5}, good: null, histLabel: 'Kolensluiting uitgesteld naar 2035',
+          context: `Later sluiten is politiek makkelijker maar klimatologisch kostbaar. Elke extra kolencentrale stoot per jaar meer CO₂ uit dan een gemiddelde Nederlandse stad. Duitsland haalde zijn klimaatdoel voor 2020 niet, mede door de langzame kolensluiting.` },
+        { title: 'Ruhr omvormen tot groene industrie', desc: 'Investeer zwaar in groene industrie en waterstof in de regio.', delta: {eco:-3, cli:10, pop:15}, mix: {renewable:5}, good: true, histLabel: 'Groene Ruhr-industrie gestart',
+          context: `Staalgigant Thyssenkrupp experimenteert al met "groen staal" gemaakt met waterstof in Duisburg. Als dit werkt, kan het Ruhrgebied veranderen van kolenregio naar centrum voor groene industrie — maar het vereist enorme investeringen.` },
+        { title: 'Hoge compensatie voor gedupeerden', desc: 'Sluit snel, maar betaal een hoge vergoeding aan mijnwerkers en bedrijven.', delta: {eco:-3, cli:8, pop:15}, mix: {fossil:-10}, good: null, histLabel: 'Kolensluiting met schadevergoeding',
+          context: `Energiebedrijf RWE onderhandelde met de overheid over miljarden aan compensatie. Dat is juridisch netjes maar lost de echte vraag niet op: hoe zorg je voor echte, duurzame werkgelegenheid in de regio na de sluiting?` }
+      ]
+    },
+    {
+      icon: '🔥', title: 'Gascrisis: Rusland stopt de levering',
+      text: `Rusland stopt de levering van aardgas via de Nord Stream pijpleiding. Duitsland haalde 50% van zijn gas uit Rusland. Fabrieken en huishoudens dreigen zonder verwarming te zitten.`,
+      fact: `📚 Duitsland was sterk afhankelijk van Russisch gas. Na de Russische invasie in Oekraïne in 2022 werd deze afhankelijkheid een groot gevaar: Rusland kon zo druk zetten op heel Europa.`,
+      isCrisis: true,
+      choices: [
+        { title: 'Drijvende gasterminals bouwen', desc: 'Bouw snel drijvende terminals voor vloeibaar gas uit andere landen.', delta: {eco:-3, cli:-5, pop:10}, mix: {fossil:5}, good: null, histLabel: 'Nood-LNG terminals gebouwd',
+          context: `Duitsland bouwde in recordtijd (6 maanden) vier drijvende gasterminals. Normaal duurt zo'n terminal jaren. Een crisis dwingt soms tot verbazingwekkende snelheid: wat bureaucratisch jaren duurt, ging nu in maanden.` },
+        { title: 'Gasrantsoenering invoeren', desc: 'Verdeel het beschikbare gas: fabrieken gaan voor, huishoudens daarna.', delta: {eco:-3, cli:0, pop:-10}, mix: {}, good: null, histLabel: 'Gasrantsoenering ingevoerd',
+          context: `Duitsland activeerde in 2022 een noodplan voor gas. Fabrieken kregen voorrang boven particulieren. Energie-intensieve bedrijven zoals aluminiumfabrieken moesten sterk terugschakelen in hun productie.` },
+        { title: 'Gesloten kolencentrales heropenen', desc: 'Zet tijdelijk gesloten kolencentrales opnieuw aan als noodoplossing.', delta: {eco:5, cli:-20, pop:10}, mix: {fossil:20}, good: false, histLabel: 'Kolencentrales heropend bij gascrisis',
+          context: `Duitsland haalde gesloten kolencentrales letterlijk uit de mottenballen. Dit is de grootste tegenstelling van de Energiewende: kerncentrales sluiten, gas te duur, en dus terug naar de vuilste brandstof van allemaal. De CO₂-uitstoot steeg scherp.` },
+        { title: 'Duurzame energie versnellen', desc: 'Gebruik de crisis als aanleiding om veel sneller te investeren in groene energie.', delta: {eco:-3, cli:15, pop:5}, mix: {renewable:10, fossil:-5}, good: true, histLabel: 'Duurzame versnelling na gascrisis',
+          context: `De gascrisis maakte energieonafhankelijkheid plotseling net zo belangrijk als klimaat. Duitsland versnelde zijn plannen: van 65% naar 80% duurzame stroom in 2030. Een crisis kan soms de aanzet zijn voor een grote, noodzakelijke verandering.` }
+      ]
+    },
+    {
+      icon: '☀️', title: 'Zonne-energie boom in Beieren',
+      text: `In de zuidelijke deelstaat Beieren is een grote zonne-energieboom gaande. Maar het stroomnetwerk is niet sterk genoeg en veel stroom gaat verloren. Bovendien willen boeren subsidies voor zonnepanelen op hun daken.`,
+      fact: `📚 Beieren heeft veel zon maar wil geen windmolens vanwege het landschap. Zonne-energie is daardoor de hoofdstrategie, maar opslag en netcapaciteit zijn grote problemen.`,
+      isCrisis: false,
+      choices: [
+        { title: 'Batterijopslag stimuleren', desc: 'Geef subsidie voor grote batterijen die overtollige zonnestroom opslaan voor later.', delta: {eco:-2, cli:15, pop:5}, mix: {renewable:8}, good: true, histLabel: 'Batterijopslag gestimuleerd',
+          context: `Thuisbatterijen zijn populair in Duitsland: in 2024 zijn er al een miljoen geïnstalleerd. Grote batterijen voor het stroomnetwerk balanceren vraag en aanbod. Batterijen zijn inmiddels 90% goedkoper dan in 2010.` },
+        { title: 'Boerensubsidie voor zonnedaken', desc: 'Betaal boeren om zonnepanelen op stallen en schuren te zetten.', delta: {eco:-2, cli:10, pop:15}, mix: {renewable:6}, good: true, histLabel: 'Boerensubsidie zonnedaken',
+          context: `Boerenstallen hebben enorm veel dakoppervlak. Duitsland heeft 300.000 boerenbedrijven met grote daken. Zonnepanelen op een staldak concurreren niet met landbouwgrond. Bayern startte al een proefprogramma en de reacties waren overweldigend positief.` },
+        { title: 'Stroomnetwerk in Beieren versterken', desc: 'Investeer in zwaardere stroomkabels en stations in Beieren.', delta: {eco:-3, cli:8, pop:8}, mix: {renewable:5}, good: true, histLabel: 'Netuitbreiding Beieren',
+          context: `Beieren heeft een paradox: veel zonnestroom, maar het netwerk kan het niet verwerken. Soms moeten zonnepanelen worden uitgezet omdat het net vol is — dat kostte Duitsland in 2023 miljarden aan gemiste groene energie.` },
+        { title: 'Niks doen: markt regelt het', desc: 'De markt lost het vanzelf op via de prijzen.', delta: {eco:5, cli:-5, pop:0}, mix: {}, good: false, histLabel: 'Zonne-overproductie onopgelost',
+          context: `Als er te veel zonne- of windstroom is en te weinig vraag, worden stroomprijzen soms negatief — producenten betalen dan om hun stroom kwijt te raken. Dat is verspilling van groene energie die je eigenlijk zou willen opslaan of gebruiken.` }
+      ]
+    },
+    {
+      icon: '🔋', title: 'Waterstof: Duitsland als Europese hub?',
+      text: `Duitsland wil het middelpunt worden van de Europese waterstofmarkt: groene waterstof importeren en verdelen via bestaande gaspijpleidingen. Een ambitieus plan — maar is het realistisch?`,
+      fact: `📚 Groene waterstof wordt gemaakt met duurzame energie. Duitsland wil het straks importeren uit landen als Namibië, Marokko en Australië.`,
+      isCrisis: false,
+      choices: [
+        { title: 'Vol inzetten op waterstof', desc: 'Investeer fors in waterstofinfrastructuur en internationale samenwerkingen.', delta: {eco:-3, cli:20, pop:5}, mix: {renewable:5}, good: true, histLabel: 'Waterstofhub strategie gestart',
+          context: `Duitsland sloot al samenwerkingsakkoorden met Namibië, Canada en Australië. De chemische industrie en de staalindustrie kunnen zonder groene waterstof hun CO₂-uitstoot niet verlagen. Waterstof is voor die sectoren onmisbaar.` },
+        { title: 'Klein proefproject starten', desc: 'Begin met een klein proefproject om ervaring op te doen.', delta: {eco:-2, cli:8, pop:5}, mix: {renewable:2}, good: null, histLabel: 'Waterstof pilotproject',
+          context: `Voorzichtig beginnen met proefprojecten is logisch bij nieuwe technologie. Maar waterstof is geen experiment meer: in Rotterdam, Hamburg en Antwerpen draaien al commerciële waterstofinstallaties. Kleine stappen kunnen kansen mislopen.` },
+        { title: 'Eigen waterstof produceren', desc: 'Gebruik overtollige wind- en zonnestroom om zelf waterstof te maken.', delta: {eco:-3, cli:12, pop:5}, mix: {renewable:5}, good: true, histLabel: 'Binnenlandse waterstofproductie',
+          context: `Als er te veel groene stroom is, kun je die gebruiken om water te splitsen in waterstof en zuurstof. Dat lost twee problemen tegelijk op: een te vol netwerk én gebrek aan waterstof. Het proces is nog niet erg efficiënt (70%).` },
+        { title: 'Afwachten wat er gebeurt', desc: 'Wacht af hoe de waterstoftechnologie zich verder ontwikkelt.', delta: {eco:5, cli:-3, pop:0}, mix: {}, good: null, histLabel: 'Waterstof afgewacht',
+          context: `Sceptici hebben een punt: waterstof is duur en de productie kost veel energie. Maar afwachten betekent dat Spanje en Portugal de waterstofmarkt inpikken. De strijd om schone industrie in Europa is al begonnen.` }
+      ]
+    },
+    {
+      icon: '🏙️', title: 'Steden willen energieneutrale wijken',
+      text: `Berlijn, Hamburg en München willen wijken bouwen die net zoveel energie opwekken als ze verbruiken. Ze vragen subsidies van de nationale overheid.`,
+      fact: `📚 Een energieneutrale wijk gebruikt zonnepanelen, warmtepompen en goede isolatie om evenveel energie op te wekken als te verbruiken. In Duitsland zijn al meerdere proefwijken succesvol.`,
+      isCrisis: false,
+      choices: [
+        { title: 'Nationale subsidie aan steden geven', desc: 'Geef steden grote subsidies voor energieneutrale wijkprojecten.', delta: {eco:-3, cli:15, pop:15}, mix: {renewable:5, fossil:-5}, good: true, histLabel: 'Nationale subsidie energieneutrale wijken',
+          context: `Berlijn heeft al een verplichting: op nieuwe daken moeten zonnepanelen. Hamburg's HafenCity-wijk is een voorbeeld voor energieneutrale stadsontwikkeling met warmtepompen, zonnepanelen en slimme netjes.` },
+        { title: 'Steden zelf laten betalen', desc: 'Steden mogen het zelf regelen — de overheid helpt alleen met regels.', delta: {eco:5, cli:5, pop:-5}, mix: {}, good: null, histLabel: 'Steden zelf financieren wijken',
+          context: `Grote steden als München hebben al eigen klimaatfondsen en willen klimaatneutraal zijn in 2035. Maar kleinere gemeenten missen het geld en de kennis — nationale hulp helpt om ervaringen te delen en kosten te drukken.` },
+        { title: 'Publiek-private samenwerking', desc: 'Overheid en bedrijfsleven betalen samen.', delta: {eco:-2, cli:10, pop:10}, mix: {renewable:3, fossil:-3}, good: true, histLabel: 'PPS energieneutrale wijken',
+          context: `Samenwerking tussen overheid en bedrijven werkt goed voor energie-infrastructuur. Netbeheerder E.ON bouwt wijkverwarmingsnetten samen met gemeenten. Bouwbedrijf Vonovia installeert warmtepompen voor 500.000 huurders tegelijk.` },
+        { title: 'Energieneutraal bouwen verplichten', desc: 'Verplicht alle nieuwe wijken energieneutraal te bouwen.', delta: {eco:-1, cli:8, pop:-5}, mix: {renewable:2}, good: null, histLabel: 'Energieneutraal bouwen verplicht gesteld',
+          context: `De EU verplicht al bijna-energieneutrale nieuwbouw. Strengere nationale regels zijn mogelijk, maar leiden soms tot minder nieuwbouw als bouwen duurder wordt — dat is slecht voor de woningmarkt.` }
+      ]
+    },
+    {
+      icon: '⚡', title: 'Extreme storm beschadigt windparken',
+      text: `Een zware storm beschadigt tientallen windturbines in Noord-Duitsland. Reparaties duren maanden. Een deel van de groene stroom valt weg, juist in de winter.`,
+      fact: `📚 Extreme stormen zijn een risico voor windturbines. Moderne turbines schakelen zichzelf uit bij te harde wind, maar de hevigste stormen kunnen alsnog schade aanrichten.`,
+      isCrisis: true,
+      choices: [
+        { title: 'Noodgas inzetten', desc: 'Schakel gasgestookte centrales in als tijdelijke aanvulling.', delta: {eco:-2, cli:-10, pop:10}, mix: {fossil:8}, good: null, histLabel: 'Noodgas ingezet na storm',
+          context: `Gas als noodoplossing voor windtekort is in heel Europa gebruikelijk. Energieplanners houden altijd een reserve achter de hand voor dit soort situaties. Zonder die buffer zijn stroomnetten kwetsbaar voor extreme weersomstandigheden.` },
+        { title: 'Besparingscampagne starten', desc: 'Roep burgers op om tijdens de reparatieperiode minder te verbruiken.', delta: {eco:0, cli:5, pop:5}, mix: {}, good: null, histLabel: 'Besparingscampagne storm',
+          context: `Oproepen tot energiebesparing werken verrassend goed. In Frankrijk en Duitsland daalde het verbruik met 5 tot 20% in piekperiodes dankzij dit soort campagnes. Bewuster omgaan met energie heeft ook op de lange termijn effect.` },
+        { title: 'Versneld repareren', desc: 'Investeer extra in nacht- en weekendwerk zodat de turbines snel weer draaien.', delta: {eco:-3, cli:5, pop:10}, mix: {}, good: true, histLabel: 'Windturbines versneld gerepareerd',
+          context: `Turbines repareren vereist gespecialiseerde technici die op grote hoogte kunnen werken. Europa heeft een groot tekort aan zulke vakmensen: de sector groeit sneller dan het aantal beschikbare monteurs.` },
+        { title: 'Stroom importeren van buurlanden', desc: 'Importeer tijdelijk stroom van buurlanden.', delta: {eco:-2, cli:0, pop:10}, mix: {}, good: true, histLabel: 'Stroom geïmporteerd na storm',
+          context: `Duitsland is via 14 grensverbindingen gekoppeld aan buurlanden. Een Europees netwerk van netbeheerders regelt dit soort noodleveringen. Dit is een van de sterkste punten van de EU: landen kunnen elkaar helpen bij stroomtekorten.` }
+      ]
+    },
+    {
+      icon: '🎯', title: 'Eindsprint: 80% duurzaam in 2030!',
+      text: `Duitslands grote klimaatdoel: 80% van alle elektriciteit duurzaam in 2030. Kolen zijn bijna weg, maar er is nog een groot gat. Hoe halen jullie de finish?`,
+      fact: `📚 Duitsland heeft al meer dan 60% duurzame elektriciteit bereikt. Maar pieken in de vraag, gebrek aan opslag en een te langzaam uitgebreid netwerk maken 80% in 2030 nog een flinke uitdaging.`,
+      isCrisis: false,
+      choices: [
+        { title: 'Massief windmolens bijbouwen', desc: 'Bouw in twee jaar tijd duizenden extra windturbines door heel Duitsland.', delta: {eco:-3, cli:25, pop:-5}, mix: {renewable:20, fossil:-15}, good: true, histLabel: 'Massieve windexpansie eindspurt',
+          context: `Duitsland moet tussen 2024 en 2030 elk jaar het equivalent van 5 tot 6 GW windvermogen toevoegen. In recordjaren was al 7 GW haalbaar. Maar dan moeten vergunningen sneller, er moeten meer vakmensen zijn, en het netwerk moet meegroeien.` },
+        { title: 'Zon + wind + batterijen combineren', desc: 'Combineer zonne-energie, windmolens en grote batterijen voor opslag.', delta: {eco:-3, cli:20, pop:10}, mix: {renewable:15, fossil:-10}, good: true, histLabel: 'Gebalanceerd duurzaam pakket',
+          context: `De combinatie van zon, wind en batterijen is de slimste aanpak. Zonne-energie piekt in de zomer overdag; wind in de winter en 's nachts. Batterijen vullen de gaten op. Samen kunnen ze betrouwbaar 80% of meer leveren.` },
+        { title: 'Industrie buiten de doelen houden', desc: 'Haal 80% voor huishoudens, maar stel de industrie vrij van de doelen.', delta: {eco:10, cli:5, pop:5}, mix: {renewable:8, fossil:-5}, good: null, histLabel: 'Industrie vrijgesteld van klimaatdoelen',
+          context: `Grote industriebedrijven betalen al minder voor CO₂-rechten om te voorkomen dat ze naar landen zonder klimaatregels verhuizen. Maar vrijstellingen stapelen zich op en ondermijnen op den duur de klimaatdoelen.` },
+        { title: 'Kerncentrales heropenen', desc: 'Draai de beslissing terug en open kerncentrales opnieuw als aanvulling.', delta: {eco:5, cli:10, pop:-20}, mix: {nuclear:15, fossil:-10}, good: null, histLabel: 'Kerncentrales heropend',
+          context: `Technisch is heropening bijna onmogelijk: de centrales zijn al deels gesloopt of worden gesloopt. De technici zijn weg, de kennis is verloren gegaan. Politiek is het een taboe — maar het debat laait elke koude winter op.` }
+      ]
+    }
+  ]
+};
+
+
+const FACTS_LEARNED = {
+  nl: [
+    'De gaswinning in Groningen is gestopt vanwege gevaarlijke aardbevingen',
+    'Rotterdam en Amsterdam zijn grote doorvoerhavens voor energie in Europa',
+    'De belangrijkste duurzame energiebronnen in Nederland zijn wind, zon en biomassa',
+    'Nederland heeft meer dan 150.000 km aan gaspijpleidingen in de grond',
+    'Doel voor 2030: 70% groene stroom en de helft minder broeikasgassen',
+    `Door elektrische auto's en warmtepompen heeft Nederland steeds meer stroom nodig`,
+    'De bestaande gaspijpleidingen kunnen straks misschien ook waterstof vervoeren',
+    'Veel Nederlandse huishoudens hebben moeite met het betalen van hun energierekening'
+  ],
+  fr: [
+    'Kernenergie levert 70% van alle elektriciteit in Frankrijk',
+    'Waterkracht — stroom uit stromend water — is de grootste duurzame bron van Frankrijk',
+    'Na de oliecrisis van 1973 koos Frankrijk massaal voor kerncentrales',
+    'Radioactief afval van kerncentrales blijft duizenden jaren gevaarlijk',
+    'De getijdencentrale bij Saint-Malo draait al sinds 1966 op eb en vloed',
+    'Doel voor 2050: geen CO₂ meer uitstoten; in 2030 al een derde duurzame energie',
+    'Meer dan 5 miljoen Fransen kunnen hun energierekening nauwelijks betalen',
+    'De EU wil dat alle landen in 2050 geen broeikasgassen meer uitstoten'
+  ],
+  de: [
+    'Duitsland heeft meer dan 30.000 windturbines — meer dan welk ander land in Europa',
+    'De "Energiewende" is het Duitse plan voor 80% duurzame elektriciteit in 2030',
+    'Na de kernramp in Fukushima (2011) besloot Duitsland alle kerncentrales te sluiten',
+    'Het Ruhrgebied was ooit het industriehart van Europa, maar de kolenmijnen zijn gesloten',
+    'Duitsland kocht veel gas bij Rusland — dat bleek een groot risico toen er oorlog uitbrak',
+    'Groene waterstof zou een belangrijk exportproduct voor Duitsland kunnen worden',
+    'Noord-Duitsland heeft veel wind; het zonnige zuiden wil liever geen windturbines',
+    'Batterijen zijn belangrijk om groene stroom op te slaan voor als de zon niet schijnt'
+  ]
+};
+
+// ========= STATE =========
+let state = {
+  country: 'nl',
+  round: 0,
+  eco: 50, cli: 50, pop: 50,
+  fossil: 70, nuclear: 0, renewable: 30,
+  prevEco: 50, prevCli: 50, prevPop: 50,
+  selectedChoice: null,
+  history: []
+};
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function startGame(country) {
+  state.country = country;
+  state.round = 0;
+  state.eco = 50; state.cli = 50; state.pop = 50;
+  state.prevEco = 50; state.prevCli = 50; state.prevPop = 50;
+  state.history = [];
+  state.selectedChoice = null;
+
+  const configs = {
+    nl: { fossil: 85, nuclear: 0, renewable: 15, flag: '🇳🇱', title: 'Energieminister van Nederland' },
+    fr: { fossil: 10, nuclear: 70, renewable: 20, flag: '🇫🇷', title: 'Energieminister van Frankrijk' },
+    de: { fossil: 50, nuclear: 0, renewable: 50, flag: '🇩🇪', title: 'Energieminister van Duitsland' }
+  };
+
+  const cfg = configs[country];
+  state.fossil = cfg.fossil;
+  state.nuclear = cfg.nuclear;
+  state.renewable = cfg.renewable;
+
+  document.getElementById('hdr-flag').textContent = cfg.flag;
+  document.getElementById('hdr-title').textContent = cfg.title;
+
+  showScreen('game');
+  renderRound();
+}
+
+function renderRound() {
+  const events = EVENTS[state.country];
+  const ev = events[state.round];
+
+  document.getElementById('round-indicator').textContent = `Ronde ${state.round + 1} van ${events.length}`;
+  document.getElementById('hdr-year').textContent = `Jaar ${2025 + state.round * 2}`;
+
+  // Progress dots
+  const dots = document.getElementById('progress-dots');
+  dots.innerHTML = '';
+  for (let i = 0; i < events.length; i++) {
+    const d = document.createElement('div');
+    const evI = events[i];
+    d.className = 'dot' + (i < state.round ? ' done' : i === state.round ? ' active' : '') + (evI.isCrisis ? ' crisis' : '');
+    d.title = evI.isCrisis ? '⚠️ Crisis!' : '';
+    dots.appendChild(d);
+  }
+
+  // Event card crisis styling
+  const card = document.getElementById('event-card');
+  card.className = 'event-card' + (ev.isCrisis ? ' crisis' : '');
+
+  document.getElementById('ev-icon').textContent = ev.icon;
+  document.getElementById('ev-title').textContent = ev.title;
+  document.getElementById('ev-text').textContent = ev.text;
+  document.getElementById('ev-fact').textContent = ev.fact;
+
+  // Choices — generate effects dynamically from actual delta values
+  const grid = document.getElementById('choices-grid');
+  grid.innerHTML = '';
+  ev.choices.forEach((c, i) => {
+    const btn = document.createElement('div');
+    btn.className = 'choice-btn';
+    btn.onclick = () => selectChoice(i);
+    btn.id = `choice-${i}`;
+
+    const effects = []; // scores verborgen tot na bevestiging
+    if (c.mix) {
+      // mix-tags verborgen tot na bevestiging
+    }
+
+    btn.innerHTML = `
+      <div class="choice-title">${c.title}</div>
+      <div class="choice-desc">${c.desc}</div>
+      <div class="choice-effects">${effects.join('')}</div>
+    `;
+    grid.appendChild(btn);
+  });
+
+  state.selectedChoice = null;
+  document.getElementById('btn-confirm').disabled = true;
+
+  updateStats();
+  updateMix();
+  renderHistory();
+}
+
+function selectChoice(i) {
+  state.selectedChoice = i;
+  document.querySelectorAll('.choice-btn').forEach((b, idx) => {
+    b.classList.toggle('selected', idx === i);
+  });
+  document.getElementById('btn-confirm').disabled = false;
+}
+
+
+function confirmChoice() {
+  const ev = EVENTS[state.country][state.round];
+  const c = ev.choices[state.selectedChoice];
+
+  // Apply delta
+  state.eco = Math.max(0, Math.min(100, state.eco + c.delta.eco));
+  state.cli = Math.max(0, Math.min(100, state.cli + c.delta.cli));
+  state.pop = Math.max(0, Math.min(100, state.pop + c.delta.pop));
+
+  // Apply mix
+  if (c.mix) {
+    if (c.mix.fossil !== undefined) state.fossil = Math.max(0, Math.min(100, state.fossil + c.mix.fossil));
+    if (c.mix.nuclear !== undefined) state.nuclear = Math.max(0, Math.min(100, state.nuclear + c.mix.nuclear));
+    if (c.mix.renewable !== undefined) state.renewable = Math.max(0, Math.min(100, state.renewable + c.mix.renewable));
+    const total = state.fossil + state.nuclear + state.renewable;
+    if (total > 0) {
+      state.fossil = Math.round(state.fossil / total * 100);
+      state.nuclear = Math.round(state.nuclear / total * 100);
+      state.renewable = 100 - state.fossil - state.nuclear;
+    }
+  }
+
+  // Track for trends and history
+  state.prevEco = state.eco;
+  state.prevCli = state.cli;
+  state.prevPop = state.pop;
+  state.history.push({ label: c.histLabel, good: c.good, d: { eco: c.delta.eco, cli: c.delta.cli, pop: c.delta.pop } });
+
+  // Feedback overlay
+  document.getElementById('fb-icon').textContent = c.good === true ? '✅' : c.good === false ? '⚠️' : '🤔';
+  document.getElementById('fb-title').textContent = `Ronde ${state.round + 1} van ${EVENTS[state.country].length}`;
+  document.getElementById('fb-explanation').textContent = c.context || '';
+
+  // Stat changes
+  const changes = document.getElementById('stat-changes');
+  changes.innerHTML = [
+    { label: '💰 Economie', val: c.delta.eco },
+    { label: '🌍 Klimaat',  val: c.delta.cli },
+    { label: '👥 Bevolking', val: c.delta.pop }
+  ].map(s =>
+    `<div class="stat-change"><div style="font-size:11px;color:var(--muted)">${s.label}</div><div class="${s.val >= 0 ? 'change-up' : 'change-down'}">${s.val >= 0 ? '+' : ''}${s.val}</div></div>`
+  ).join('');
+
+  // Bevolkingsimpact: extra toelichting als pop significant beweegt
+  const popEl = document.getElementById('fb-pop-impact');
+  if (popEl) {
+    const pop = c.delta.pop;
+    let popMsg = '';
+    if (pop >= 10) popMsg = '👥 Mensen zijn blij met deze keuze — draagvlak stijgt sterk.';
+    else if (pop >= 5) popMsg = '👥 De meeste mensen steunen deze richting.';
+    else if (pop >= 1) popMsg = '👥 Lichte steun vanuit de samenleving.';
+    else if (pop === 0) popMsg = '👥 De bevolking reageert neutraal op deze keuze.';
+    else if (pop >= -4) popMsg = '👥 Lichte weerstand bij de bevolking.';
+    else if (pop >= -9) popMsg = '👥 Flink wat mensen zijn het er niet mee eens.';
+    else popMsg = '👥 Grote onvrede — dit is impopulair.';
+    popEl.textContent = popMsg;
+    popEl.style.display = 'block';
+  }
+
+  document.getElementById('feedback-overlay').classList.add('show');
+}
+
+function nextRound() {
+  document.getElementById('feedback-overlay').classList.remove('show');
+  state.round++;
+  if (state.round >= EVENTS[state.country].length) {
+    showEndScreen();
+  } else {
+    renderRound();
+  }
+}
+
+function updateStats() {
+  const prevMap = { eco: state.prevEco, cli: state.prevCli, pop: state.prevPop };
+  ['eco', 'cli', 'pop'].forEach(k => {
+    const el = document.getElementById(`stat-${k}`);
+    const pill = document.getElementById(`pill-${k}`);
+    const v = state[k];
+    const prev = prevMap[k];
+    const diff = v - prev;
+    const arrow = diff > 0 ? ' ↑' : diff < 0 ? ' ↓' : '';
+    const arrowColor = diff > 0 ? 'var(--green)' : diff < 0 ? 'var(--red)' : 'var(--muted)';
+    el.innerHTML = `${v}<span style="font-size:12px;color:${arrowColor};font-family:sans-serif">${arrow}</span>`;
+    pill.className = 'stat-pill ' + (v >= 60 ? 'stat-good' : v >= 35 ? 'stat-warn' : 'stat-bad');
+  });
+}
+
+function updateMix() {
+  ['fossil', 'nuclear', 'renewable'].forEach(k => {
+    document.getElementById(`mix-${k}`).textContent = state[k] + '%';
+    document.getElementById(`bar-${k}`).style.width = state[k] + '%';
+  });
+  updateStats();
+}
+
+function renderHistory() {
+  const list = document.getElementById('history-list');
+  if (state.history.length === 0) {
+    list.innerHTML = '<div style="font-size:12px; color:var(--muted);">Nog geen keuzes gemaakt.</div>';
+    return;
+  }
+  list.innerHTML = [...state.history].reverse().map(h =>
+    `<div class="history-item ${h.good === true ? 'good' : h.good === false ? 'bad' : 'neutral'}">
+      ${h.good === true ? '✅' : h.good === false ? '⚠️' : '🔶'} ${h.label}
+    </div>`
+  ).join('');
+}
+
+function showEndScreen() {
+  showScreen('end-screen');
+
+  const ring = document.getElementById('end-ring');
+  const countryNames = { nl: 'Nederland', fr: 'Frankrijk', de: 'Duitsland' };
+  const name = countryNames[state.country];
+
+  // Eindscore: gemiddelde van eco/cli/pop
+  const score = Math.round((state.eco + state.cli + state.pop) / 3);
+  document.getElementById('end-score').textContent = score;
+
+  // ── Eindprofielen ──────────────────────────────────────────────────────
+  // Profielen op basis van combinaties van eco/cli/pop én energiemix (fossil/nuclear/renewable).
+  // Volgorde = prioriteit (eerste match wint).
+
+
+  // Profielen op basis van eindverhouding van de drie stats + kernenergiemix.
+  const E = state.eco, C = state.cli, P = state.pop;
+  const N = state.nuclear;
+
+  const PROFILES = [
+    {
+      id: 'atoomminister',
+      match: () => N >= 50 && C >= 52,
+      icon: '⚛️', name: 'Atoomminister',
+      color: '#d19a66', bg: 'rgba(209,154,102,0.12)',
+      hint: 'Kernenergie ≥50% in eindmix + klimaat redelijk (alleen via Frankrijk)',
+      desc: `Jij koos in ${name} voor kernenergie als ruggengraat van de energievoorziening. Het klimaat hield stand en de centrales bleven draaien — precies zoals Frankrijk het al decennia doet. Maar het debat over kernafval en veiligheid is er niet mee opgelost.`
+    },
+    {
+      id: 'staatsman',
+      match: () => E >= 65 && C >= 65 && P >= 65,
+      icon: '🌟', name: 'Staatsman/-vrouw',
+      color: 'var(--green)', bg: 'rgba(63,185,80,0.12)',
+      hint: 'Economie + Klimaat + Bevolking alle drie ≥65',
+      desc: `Alle fronten staan er uitstekend voor in ${name}. Economie, klimaat én bevolking zijn tegelijk gegroeid. Dit profiel is zeldzaam — ook in de echte politiek lukt dit vrijwel nooit.`
+    },
+    {
+      id: 'welvaartsbouwer',
+      match: () => C <= E && C <= P,
+      icon: '💰', name: 'Welvaartsbouwer',
+      color: 'var(--yellow)', bg: 'rgba(210,153,34,0.12)',
+      hint: 'Klimaat eindigde als laagste stat (economie of bevolking dominant)',
+      desc: `In ${name} eindigde het klimaat als de laagste prioriteit. Jij koos — bewust of onbewust — steeds voor economie of populariteit boven de energietransitie. In de echte politiek zijn er landen die precies deze keuze maken. De vraag is: hoe lang is dat houdbaar?`
+    },
+    {
+      id: 'volksleider',
+      match: () => P >= E && P >= C,
+      icon: '👥', name: 'Volksleider',
+      color: 'var(--blue)', bg: 'rgba(88,166,255,0.12)',
+      hint: 'Bevolking eindigde als hoogste stat',
+      desc: `De bevolking van ${name} staat bovenaan in jouw eindresultaat. Draagvlak en populariteit kwamen voor harde keuzes. Stemmen winnen is herkenbaar in de politiek — maar het is iets anders dan de toekomst veiligstellen.`
+    },
+    {
+      id: 'klimaatstrijder',
+      match: () => true,
+      icon: '♻️', name: 'Klimaatstrijder',
+      color: '#4ec9b0', bg: 'rgba(78,201,176,0.12)',
+      hint: 'Klimaat eindigde als hoogste stat (eco was laagst)',
+      desc: `Het klimaat van ${name} is de grote winnaar van jouw beleid. Jij koos consequent voor de energietransitie — ook als dat pijn deed voor de economie of niet iedereen blij maakte. Dit zijn de ministers die over twintig jaar in de geschiedenisboeken staan.`
+    }
+  ];
+
+    const profile = PROFILES.find(pr => pr.match());
+  ring.style.border = `6px solid ${profile.color}`;
+  ring.style.background = profile.bg;
+  document.getElementById('end-verdict').textContent = `${profile.icon} ${profile.name}`;
+  document.getElementById('end-text').textContent = profile.desc;
+  document.getElementById('end-badge').textContent = `${profile.icon} ${profile.name}`;
+
+  // Render all profiles — reuse PROFILES array (excluding fallback pragmaticus)
+  const grid = document.getElementById('profiles-grid');
+  grid.innerHTML = PROFILES.map(pr => `
+    <div class="profile-chip ${pr.id === profile.id ? 'unlocked' : ''}">
+      <div class="profile-chip-icon">${pr.icon}</div>
+      <div>
+        <div class="profile-chip-name">${pr.name}</div>
+        <div class="profile-chip-hint">${pr.id === profile.id ? '✓ Jouw profiel!' : pr.hint}</div>
+      </div>
+    </div>
+  `).join('');
+
+  document.getElementById('end-eco').textContent = state.eco;
+  document.getElementById('end-cli').textContent = state.cli;
+  document.getElementById('end-pop').textContent = state.pop;
+  document.getElementById('end-fossil').textContent = state.fossil + '%';
+  document.getElementById('end-nuclear').textContent = state.nuclear + '%';
+  document.getElementById('end-renewable').textContent = state.renewable + '%';
+
+  document.getElementById('end-eco').style.color = state.eco >= 60 ? 'var(--green)' : state.eco >= 35 ? 'var(--yellow)' : 'var(--red)';
+  document.getElementById('end-cli').style.color = state.cli >= 60 ? 'var(--green)' : state.cli >= 35 ? 'var(--yellow)' : 'var(--red)';
+  document.getElementById('end-pop').style.color = state.pop >= 60 ? 'var(--green)' : state.pop >= 35 ? 'var(--yellow)' : 'var(--red)';
+  document.getElementById('end-fossil').style.color = state.fossil >= 60 ? 'var(--red)' : state.fossil >= 35 ? 'var(--yellow)' : 'var(--green)';
+  document.getElementById('end-nuclear').style.color = state.nuclear >= 40 ? 'var(--yellow)' : '#9e9e9e';
+  document.getElementById('end-renewable').style.color = state.renewable >= 60 ? 'var(--green)' : state.renewable >= 35 ? 'var(--yellow)' : 'var(--red)';
+
+  const facts = FACTS_LEARNED[state.country];
+  document.getElementById('learned-facts').innerHTML = facts.map(f =>
+    `<div class="fact-item">📌 ${f}</div>`
+  ).join('');
+
+  // Decision log
+  const log = document.getElementById('decision-log');
+  if (log) {
+    log.innerHTML = state.history.map((h, i) => {
+      const d = h.d || {};
+      const ecoStr = d.eco != null ? (d.eco > 0 ? `+${d.eco}` : `${d.eco}`) : '';
+      const cliStr = d.cli != null ? (d.cli > 0 ? `+${d.cli}` : `${d.cli}`) : '';
+      const popStr = d.pop != null ? (d.pop > 0 ? `+${d.pop}` : `${d.pop}`) : '';
+      const icon = h.good === true ? '✅' : h.good === false ? '⚠️' : '🔶';
+      const cls = h.good === true ? 'log-good' : h.good === false ? 'log-bad' : 'log-neutral';
+      return `<div class="log-row ${cls}">
+        <span class="log-icon">${icon}</span>
+        <span class="log-label">${h.label}</span>
+        <span class="log-deltas">
+          ${ecoStr ? `<span class="${d.eco>=0?'log-pos':'log-neg'}">💰${ecoStr}</span>` : ''}
+          ${cliStr ? `<span class="${d.cli>=0?'log-pos':'log-neg'}">🌍${cliStr}</span>` : ''}
+          ${popStr ? `<span class="${d.pop>=0?'log-pos':'log-neg'}">👥${popStr}</span>` : ''}
+        </span>
+      </div>`;
+    }).join('');
+  }
+}
+</script>
+</body>
+</html>
