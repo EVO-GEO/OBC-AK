@@ -1,0 +1,1576 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vida Brasileira 🇧🇷</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap');
+
+:root {
+  --bg-dark: #1a0a2e;
+  --bg-mid: #2d1b4e;
+  --green-br: #009c3b;
+  --yellow-br: #ffdf00;
+  --blue-br: #002776;
+  --text-light: #f0e6d3;
+  --text-dim: #a89b8c;
+  --pixel-shadow: #0a0512;
+  --accent-warm: #e8721c;
+  --accent-red: #c43e3e;
+  --accent-water: #2e86de;
+  --accent-sugar: #7ed957;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: var(--bg-dark);
+  color: var(--text-light);
+  font-family: 'VT323', monospace;
+  min-height: 100vh;
+  overflow-x: hidden;
+  image-rendering: pixelated;
+}
+
+/* ============ TITLE SCREEN ============ */
+#title-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 20px;
+  background: linear-gradient(180deg, #002776 0%, #009c3b 50%, #ffdf00 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+#title-screen::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0,0,0,0.1) 2px,
+    rgba(0,0,0,0.1) 4px
+  );
+  pointer-events: none;
+}
+
+.title-logo {
+  font-family: 'Press Start 2P', monospace;
+  font-size: clamp(24px, 5vw, 48px);
+  color: var(--yellow-br);
+  text-shadow: 4px 4px 0 var(--pixel-shadow), -2px -2px 0 var(--green-br);
+  text-align: center;
+  margin-bottom: 8px;
+  animation: titlePulse 2s ease-in-out infinite;
+  line-height: 1.4;
+}
+
+.title-sub {
+  font-family: 'VT323', monospace;
+  font-size: clamp(18px, 3vw, 28px);
+  color: white;
+  text-shadow: 2px 2px 0 var(--pixel-shadow);
+  margin-bottom: 40px;
+  text-align: center;
+}
+
+@keyframes titlePulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+}
+
+.character-select {
+  display: flex;
+  gap: 30px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.char-card {
+  background: rgba(0,0,0,0.6);
+  border: 4px solid var(--yellow-br);
+  padding: 20px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+  width: 220px;
+  position: relative;
+}
+
+.char-card:hover {
+  transform: translateY(-4px);
+  border-color: white;
+  box-shadow: 0 8px 0 rgba(0,0,0,0.4);
+}
+
+.char-card canvas {
+  display: block;
+  margin: 0 auto 12px;
+  border: 2px solid var(--text-dim);
+  background: #1a0a2e;
+}
+
+.char-name {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 16px;
+  color: var(--yellow-br);
+  margin-bottom: 8px;
+}
+
+.char-desc {
+  font-size: 18px;
+  color: var(--text-dim);
+  line-height: 1.3;
+}
+
+/* ============ GAME SCREEN ============ */
+#game-screen {
+  display: none;
+  max-width: 800px;
+  margin: 0 auto;
+  min-height: 100vh;
+  position: relative;
+}
+
+.scene-container {
+  padding: 0 16px 120px;
+}
+
+/* Year/chapter header */
+.year-header {
+  font-family: 'Press Start 2P', monospace;
+  font-size: clamp(14px, 3vw, 20px);
+  color: var(--yellow-br);
+  text-align: center;
+  padding: 20px 0 4px;
+  text-shadow: 2px 2px 0 var(--pixel-shadow);
+}
+
+.chapter-title {
+  font-family: 'VT323', monospace;
+  font-size: clamp(22px, 4vw, 32px);
+  color: var(--accent-warm);
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+/* Pixel art scene */
+.scene-art {
+  width: 100%;
+  max-width: 760px;
+  margin: 0 auto 20px;
+  border: 4px solid var(--text-dim);
+  box-shadow: 0 6px 0 var(--pixel-shadow), inset 0 0 40px rgba(0,0,0,0.3);
+  background: #0a0512;
+  display: block;
+}
+
+/* Story text */
+.story-text {
+  font-size: clamp(20px, 3.5vw, 26px);
+  line-height: 1.6;
+  color: var(--text-light);
+  padding: 0 8px;
+  margin-bottom: 20px;
+}
+
+.story-text .highlight {
+  color: var(--yellow-br);
+  font-weight: bold;
+}
+
+.story-text .fact {
+  color: var(--accent-water);
+}
+
+/* Info box */
+.info-box {
+  background: rgba(46, 134, 222, 0.15);
+  border-left: 4px solid var(--accent-water);
+  padding: 12px 16px;
+  margin: 16px 8px;
+  font-size: 20px;
+  line-height: 1.5;
+}
+
+.info-box .info-icon {
+  color: var(--accent-water);
+  font-family: 'Press Start 2P', monospace;
+  font-size: 12px;
+  margin-right: 8px;
+}
+
+/* Choices */
+.choices-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 8px;
+  margin-top: 12px;
+}
+
+.choice-btn {
+  font-family: 'VT323', monospace;
+  font-size: clamp(18px, 3vw, 24px);
+  background: rgba(255, 223, 0, 0.1);
+  border: 3px solid var(--yellow-br);
+  color: var(--yellow-br);
+  padding: 14px 20px;
+  cursor: pointer;
+  transition: all 0.15s;
+  text-align: left;
+  line-height: 1.4;
+}
+
+.choice-btn:hover {
+  background: var(--yellow-br);
+  color: var(--bg-dark);
+  transform: translateX(6px);
+  box-shadow: -6px 0 0 var(--accent-warm);
+}
+
+.choice-btn .choice-arrow {
+  margin-right: 10px;
+  display: inline-block;
+}
+
+/* Ending screen */
+.ending-badge {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 12px;
+  display: inline-block;
+  padding: 6px 12px;
+  margin-bottom: 16px;
+  background: var(--green-br);
+  color: white;
+}
+
+.ending-summary {
+  background: rgba(0,156,59,0.12);
+  border: 2px solid var(--green-br);
+  padding: 16px;
+  margin: 16px 8px;
+  font-size: 20px;
+  line-height: 1.6;
+}
+
+.ending-summary h3 {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 11px;
+  color: var(--green-br);
+  margin-bottom: 10px;
+}
+
+/* Restart button */
+.restart-btn {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 14px;
+  background: var(--accent-warm);
+  border: none;
+  color: white;
+  padding: 16px 32px;
+  cursor: pointer;
+  display: block;
+  margin: 30px auto;
+  transition: all 0.2s;
+}
+
+.restart-btn:hover {
+  background: var(--yellow-br);
+  color: var(--bg-dark);
+  transform: scale(1.05);
+}
+
+/* Progress bar */
+.progress-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 4px;
+  background: var(--yellow-br);
+  transition: width 0.5s ease;
+  z-index: 100;
+  box-shadow: 0 0 10px var(--yellow-br);
+}
+
+/* Fade in animation */
+.fade-in {
+  animation: fadeIn 0.6s ease forwards;
+  opacity: 0;
+}
+
+@keyframes fadeIn {
+  to { opacity: 1; }
+}
+
+.fade-in-delay-1 { animation-delay: 0.2s; }
+.fade-in-delay-2 { animation-delay: 0.5s; }
+.fade-in-delay-3 { animation-delay: 0.8s; }
+
+/* Typewriter for story */
+.typewriter {
+  overflow: hidden;
+}
+
+/* Scanline overlay */
+.scanlines {
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0,0,0,0.04) 2px,
+    rgba(0,0,0,0.04) 4px
+  );
+  pointer-events: none;
+  z-index: 99;
+}
+
+/* Mobile responsive */
+@media (max-width: 500px) {
+  .char-card { width: 170px; padding: 14px; }
+  .scene-container { padding: 0 8px 100px; }
+}
+</style>
+</head>
+<body>
+
+<div class="scanlines"></div>
+<div class="progress-bar" id="progress-bar"></div>
+
+<!-- TITLE SCREEN -->
+<div id="title-screen">
+  <div class="title-logo">VIDA<br>BRASILEIRA</div>
+  <div class="title-sub">Het verhaal van Brazilië's opkomst — door jouw ogen</div>
+  <div class="character-select">
+    <div class="char-card" onclick="startGame('carlos')">
+      <canvas id="carlos-portrait" width="96" height="96"></canvas>
+      <div class="char-name">CARLOS</div>
+      <div class="char-desc">Geboren bij de suikerrietvelden van São Paulo</div>
+    </div>
+    <div class="char-card" onclick="startGame('ana')">
+      <canvas id="ana-portrait" width="96" height="96"></canvas>
+      <div class="char-name">ANA</div>
+      <div class="char-desc">Geboren in een vissersdorp bij Rio de Janeiro</div>
+    </div>
+  </div>
+</div>
+
+<!-- GAME SCREEN -->
+<div id="game-screen">
+  <div class="scene-container" id="scene-container"></div>
+</div>
+
+
+<script>
+// ============================================================
+// ENHANCED PIXEL ART ENGINE — Stardew-Valley-inspired
+// ============================================================
+const PX = 2;
+const IW = 380, IH = 150;
+
+const P = {
+  skin1:'#f0c8a0', skin2:'#d4a574', skin3:'#b8895a',
+  hairDk:'#1a0f05', hairBr:'#3d2510',
+  leafLt:'#7ed957', leafMd:'#5cb340', leafDk:'#3d8a28',
+  caneLt:'#a8e06a', caneMd:'#7ed957', caneDk:'#5aad3a', caneStk:'#8bba5c',
+  waterLt:'#6ac4f0', waterMd:'#4a9ed9', waterDk:'#2d7ab8', waterFm:'#d4eef7',
+  sandLt:'#f5e6c8', sandMd:'#e8d4a8', sandDk:'#c4aa78',
+  woodLt:'#c49a6c', woodMd:'#a07840', woodDk:'#704c28', woodVDk:'#4a3018',
+  roofR:'#c44830', roofRS:'#8c3020', roofO:'#e07830', roofOS:'#a85820',
+  wallWh:'#f0ece4', wallCr:'#e8dcc8', wallPk:'#e8b8a8', wallBl:'#a8c8e0', wallYl:'#f0e0a0',
+  concLt:'#b0b8c0', concMd:'#8a9298', concDk:'#6a7278', concVDk:'#4a5258',
+  metalLt:'#c8ccd0', metalDk:'#7a8088',
+  roadMd:'#505050', roadDk:'#383838',
+  brG:'#009c3b', brY:'#ffdf00', brB:'#002776',
+  black:'#0a0a0a', white:'#ffffff', red:'#d04040',
+  orange:'#e88030', grassLt:'#6abf4b', grassMd:'#4a9e2f', grassDk:'#357a1e',
+  cloudW:'#f5f5f5', cloudS:'#d4dce8',
+  sunY:'#fff176', sunO:'#ffb74d',
+  treeTr:'#5c3a1a', treeTrS:'#3d2510'
+};
+
+function px(c,x,y,col){c.fillStyle=col;c.fillRect(x*PX,y*PX,PX,PX);}
+function rect(c,x,y,w,h,col){c.fillStyle=col;c.fillRect(x*PX,y*PX,w*PX,h*PX);}
+function hexRgb(h){const n=parseInt(h.slice(1),16);return[(n>>16)&255,(n>>8)&255,n&255];}
+function lerp(a,b,t){const A=hexRgb(a),B=hexRgb(b);return`rgb(${A.map((v,i)=>Math.round(v+(B[i]-v)*t))})`;}
+
+function drawSky(c,w,h,stops){
+  for(let y=0;y<h;y++){
+    const t=y/h;let col=stops[0].c;
+    for(let i=0;i<stops.length-1;i++){
+      if(t>=stops[i].y&&t<stops[i+1].y){
+        col=lerp(stops[i].c,stops[i+1].c,(t-stops[i].y)/(stops[i+1].y-stops[i].y));break;
+      }
+      if(t>=stops[stops.length-1].y)col=stops[stops.length-1].c;
+    }
+    rect(c,0,y,w,1,col);
+  }
+}
+
+function drawCloud(c,x,y,w){
+  rect(c,x+2,y,w-4,3,P.cloudW);rect(c,x,y+1,w,2,P.cloudW);
+  rect(c,x+1,y+3,w-2,1,P.cloudS);px(c,x+3,y,'#ffffff');
+}
+
+function drawPerson(c,x,y,o){
+  const s=o.skin||P.skin2,hr=o.hair||P.hairDk,sh=o.shirt||P.orange,
+        pa=o.pants||P.brB,f=o.female,au=o.armUp,hat=o.hasHat;
+  // Shadow
+  rect(c,x-1,y+14,6,1,'rgba(0,0,0,0.15)');
+  // Feet
+  px(c,x,y+13,P.woodDk);px(c,x+3,y+13,P.woodDk);
+  // Legs
+  rect(c,x,y+10,2,3,pa);rect(c,x+2,y+10,2,3,pa);
+  // Body
+  rect(c,x-1,y+5,6,5,sh);
+  px(c,x,y+6,lerp(sh,'#000000',0.15));px(c,x+4,y+6,lerp(sh,'#ffffff',0.12));
+  // Arms
+  if(au){px(c,x-2,y+4,s);px(c,x-2,y+3,s);px(c,x+5,y+4,s);px(c,x+5,y+3,s);}
+  else{px(c,x-1,y+5,s);px(c,x-1,y+6,s);px(c,x+4,y+5,s);px(c,x+4,y+6,s);}
+  // Head
+  rect(c,x,y+1,4,4,s);px(c,x+3,y+2,lerp(s,'#000000',0.1));
+  // Eyes
+  px(c,x+1,y+2,P.black);px(c,x+2,y+2,P.black);
+  // Mouth
+  px(c,x+1,y+3,lerp(s,'#000000',0.25));
+  // Hair
+  rect(c,x-(f?1:0),y,4+(f?2:1),2,hr);px(c,x-(f?1:0),y+1,hr);px(c,x+3+(f?1:0),y+1,hr);
+  if(f){for(let i=2;i<5;i++){px(c,x-1,y+i,hr);px(c,x+4,y+i,hr);}}
+  if(hat){rect(c,x-2,y-1,8,2,P.brY);rect(c,x-1,y-2,6,2,P.brY);}
+}
+
+function drawHouse(c,x,y,wc,rc,rs,w,h){
+  w=w||18;h=h||12;
+  rect(c,x,y,w,h,wc);
+  rect(c,x+w-1,y,1,h,lerp(wc,'#000000',0.12));
+  for(let r=0;r<5;r++)rect(c,x-2+r,y-5+r,w+4-r*2,1,r<2?rc:rs);
+  rect(c,x-2,y-5,w+4,1,lerp(rc,'#ffffff',0.15));
+  rect(c,x+Math.floor(w/2)-2,y+h-7,4,7,P.woodDk);
+  px(c,x+Math.floor(w/2)+1,y+h-4,P.brY);
+  rect(c,x+2,y+2,4,4,'#87ceeb');
+  px(c,x+4,y+2,P.woodDk);px(c,x+2,y+4,P.woodDk);
+  rect(c,x+2,y+2,4,1,P.woodMd);
+}
+
+function drawPalm(c,x,y,h){
+  for(let i=0;i<h;i++){
+    const cv=Math.sin(i/h*1.5)*3;
+    px(c,x+cv,y-i,P.woodMd);px(c,x+cv+1,y-i,P.woodDk);
+    if(i%4===0)px(c,x+cv-1,y-i,P.woodLt);
+  }
+  const top=y-h;
+  for(let f=0;f<7;f++){
+    const a=(f/7)*Math.PI*2+0.3,len=8+(f%2)*3;
+    for(let i=0;i<len;i++){
+      const fx=x+Math.cos(a)*i+Math.sin(i*0.5)*0.5,fy=top+Math.sin(a)*i*0.5+i*0.3;
+      px(c,Math.round(fx),Math.round(fy),i<len*0.4?P.leafLt:(i<len*0.7?P.leafMd:P.leafDk));
+      if(i%2===0)px(c,Math.round(fx),Math.round(fy)+1,i<len*0.5?P.leafMd:P.leafDk);
+    }
+  }
+}
+
+function drawTree(c,x,y,sz){
+  rect(c,x,y,Math.max(2,sz/3|0),sz,P.treeTr);
+  const cx=x-sz+(sz/6|0),cy=y-sz*1.8,cw=sz*2.5,ch=sz*2;
+  for(let dy=2;dy<ch;dy++){
+    const ww=Math.sin((dy/ch)*Math.PI)*cw/2;
+    for(let dx=-ww;dx<ww;dx++){
+      const n=((Math.floor(cx+cw/2+dx)+Math.floor(cy+dy))%3);
+      px(c,Math.round(cx+cw/2+dx),Math.round(cy+dy),n===0?P.leafLt:n===1?P.leafMd:P.leafDk);
+    }
+  }
+}
+
+// ============================================================
+// SCENE 1: Sugar Fields 1975 — golden hour warmth
+// ============================================================
+function drawSugarFields1975(ctx,w,h){
+  const c=ctx;
+  drawSky(c,IW,IH,[{y:0,c:'#4a78c8'},{y:0.15,c:'#7baae0'},{y:0.25,c:'#c8a870'},{y:0.32,c:'#e8a850'},{y:0.38,c:'#f0c870'}]);
+  // Sun
+  for(let r=12;r>0;r--)for(let a=0;a<40;a++){const ang=(a/40)*Math.PI;
+    px(c,Math.round(320+Math.cos(ang)*r),Math.round(48+Math.sin(ang)*r*0.6-r*0.3),r>8?'#f0c87030':r>4?P.sunO:P.sunY);}
+  // Mountains
+  for(let x=0;x<IW;x++){const mh=Math.sin(x*0.015)*12+Math.sin(x*0.04)*6+Math.cos(x*0.008)*8+20;
+    for(let y=0;y<mh;y++){const t=y/mh;px(c,x,56-mh+y,t<0.3?'#6a5a8a':t<0.6?'#5a4a7a':'#4a3a6a');}}
+  // Ground
+  for(let x=0;x<IW;x++){const gy=58+Math.sin(x*0.02)*3;
+    for(let y=gy;y<IH;y++){const t=(y-gy)/(IH-gy),n=(x+y*3)%5;
+      px(c,x,y,t<0.15?(n<2?'#8a7a30':'#7a6a28'):t<0.5?(n<2?'#6a5a20':'#5a4a18'):(n<2?'#4a3a14':'#3a2a10'));}}
+  // Dirt path
+  for(let x=0;x<IW;x++){const pc=120+Math.sin(x*0.01)*20;
+    if(Math.abs(x-pc)<6)for(let y=62;y<IH;y++)px(c,x,y,Math.abs(x-pc)>4?'#8a7040':'#a08850');}
+  // Sugar cane layers
+  for(let L=0;L<5;L++){const bY=44+L*6,d=L<2?3:2;
+    for(let x=0;x<IW;x+=d){if(x>110&&x<140)continue;
+      const ch=14+Math.sin(x*0.3+L*2)*4+L*2,sw=Math.sin(x*0.1+L);const dk=L>2;
+      for(let y=0;y<ch;y++){const sx=x+sw*(y/ch);
+        px(c,Math.round(sx),bY+ch-y,dk?(y%6<3?P.caneDk:P.caneStk):(y%6<3?P.caneMd:P.caneLt));}
+      if(x%(d*2)===0){const tx=x+sw;px(c,Math.round(tx-1),bY-1,dk?P.caneDk:P.leafLt);
+        px(c,Math.round(tx+1),bY-2,dk?P.caneDk:P.leafMd);}}}
+  // House
+  const hx=114,hy=50;drawHouse(c,hx,hy,P.wallCr,P.roofR,P.roofRS,20,14);
+  px(c,hx+3,hy+3,'#ffcc44');px(c,hx+4,hy+3,'#ffcc44');px(c,hx+3,hy+4,'#ffaa22');
+  rect(c,hx+14,hy-7,2,4,P.concDk);px(c,hx+14,hy-9,'#c8c0b8');px(c,hx+15,hy-11,'#d0c8c0');
+  // Father
+  drawPerson(c,90,56,{shirt:'#d08030',pants:'#5a4020',hasHat:true,skin:P.skin3});
+  // Baby
+  rect(c,hx+9,hy+10,3,4,P.skin2);rect(c,hx+9,hy+9,3,2,P.hairDk);
+  // Trees
+  drawTree(c,15,62,4);drawTree(c,350,60,5);
+  // Fireflies
+  [[50,40],[200,35],[280,42],[350,38]].forEach(([a,b])=>px(c,a,b,'#ffe87060'));
+}
+
+// ============================================================
+// SCENE 2: Itaipu Dam — on an old TV
+// ============================================================
+function drawItaipuDam(ctx,w,h){
+  const c=ctx;
+  rect(c,0,0,IW,IH,'#2a2018');rect(c,10,5,IW-20,IH-15,'#3a3028');rect(c,12,7,IW-24,IH-19,'#4a4038');
+  const sx=20,sy=10,sw=IW-60,sh=IH-25;
+  // Sky in screen
+  for(let y=0;y<sh*0.4;y++){const t=y/(sh*0.4);for(let x=0;x<sw;x++)px(c,sx+x,sy+y,lerp('#88aabb','#aabbcc',t));}
+  // Water behind dam
+  for(let y=sy+sh*0.3;y<sy+sh*0.55;y++)for(let x=0;x<sw;x++)
+    px(c,sx+x,y,Math.sin(x*0.2+y*0.5)>0.7?'#99bbcc':'#7799aa');
+  // Dam
+  const dx=sx+sw*0.15,dw=sw*0.7,dt=sy+sh*0.2,db=sy+sh*0.7;
+  for(let y=dt;y<db;y++)for(let x=0;x<dw;x++){const t=(y-dt)/(db-dt);const s=(Math.floor(x/8)%2===0);
+    px(c,dx+x,y,s?lerp('#889098','#667078',t):lerp('#8898a0','#607078',t));}
+  rect(c,dx-3,dt-1,dw+6,2,'#99a0a8');
+  // Spillways
+  for(let i=0;i<5;i++){const spx=dx+15+i*(dw-30)/5;rect(c,spx,dt+10,6,20,'#556068');
+    for(let y=0;y<15;y++){px(c,spx+2,db+y,'#aaddee');px(c,spx+3,db+y,'#88bbcc');px(c,spx+4,db+y,'#aaddee');}
+    for(let m=0;m<3;m++)px(c,spx+1+Math.floor(Math.random()*4),db-2+Math.floor(Math.random()*4),'#ccddee');}
+  // Water below
+  for(let y=db+2;y<sy+sh;y++)for(let x=0;x<sw;x++)
+    px(c,sx+x,y,(y<db+8&&Math.random()>0.6)?'#bbddee':((x+y)%3===0?'#6699aa':'#558899'));
+  // Scan lines
+  for(let y=sy;y<sy+sh;y+=2)rect(c,sx,y,sw,1,'rgba(0,0,0,0.06)');
+  // TV controls
+  rect(c,IW-35,20,20,100,'#3a3028');
+  for(let i=0;i<3;i++){rect(c,IW-30,30+i*25,8,8,'#555');rect(c,IW-28,32+i*25,4,4,'#777');}
+  for(let i=0;i<8;i++)rect(c,IW-32,95+i*3,14,1,'#444');
+  // Legs & antenna
+  rect(c,60,IH-10,4,8,P.woodDk);rect(c,IW-80,IH-10,4,8,P.woodDk);
+  for(let i=1;i<6;i++){px(c,IW/2-i,3-i*0.5,P.metalLt);px(c,IW/2+i,3-i*0.5,P.metalLt);}
+}
+
+// ============================================================
+// SCENE 3: FlexFuel Car — sunny street
+// ============================================================
+function drawFlexFuelCar(ctx,w,h){
+  const c=ctx;
+  drawSky(c,IW,IH,[{y:0,c:'#3a88d0'},{y:0.2,c:'#68aae8'},{y:0.35,c:'#a8d0f0'}]);
+  drawCloud(c,40,6,16);drawCloud(c,200,3,20);drawCloud(c,310,8,14);
+  // Buildings
+  [{x:0,w:32,h:38,cl:P.wallPk,r:P.roofO,rs:P.roofOS},{x:36,w:28,h:30,cl:P.wallYl,r:P.roofR,rs:P.roofRS},
+   {x:68,w:40,h:45,cl:P.wallCr,r:P.roofR,rs:P.roofRS},{x:260,w:35,h:35,cl:P.wallBl,r:P.roofO,rs:P.roofOS},
+   {x:300,w:30,h:28,cl:P.wallPk,r:P.roofR,rs:P.roofRS},{x:334,w:46,h:42,cl:P.wallYl,r:P.roofO,rs:P.roofOS}
+  ].forEach(b=>{const by=55-b.h;rect(c,b.x,by,b.w,b.h+20,b.cl);
+    rect(c,b.x+b.w-1,by,1,b.h+20,lerp(b.cl,'#000000',0.1));
+    rect(c,b.x-1,by-3,b.w+2,3,b.r);rect(c,b.x,by-2,b.w,1,b.rs);
+    for(let wy=by+4;wy<55;wy+=10)for(let wx=b.x+3;wx<b.x+b.w-5;wx+=8){
+      rect(c,wx,wy,4,5,'#87ceeb');px(c,wx+2,wy,P.woodMd);px(c,wx,wy+2,P.woodMd);}});
+  // Sidewalk
+  rect(c,0,55,IW,8,'#c8bca8');rect(c,0,55,IW,1,'#b0a490');
+  for(let x=0;x<IW;x+=12)rect(c,x,55,1,8,'#b8ac98');
+  // Road
+  rect(c,0,63,IW,IH-63,P.roadMd);rect(c,0,63,IW,2,P.roadDk);
+  for(let x=0;x<IW;x+=16)rect(c,x,82,10,1,P.brY);
+  for(let x=0;x<IW;x+=7)px(c,x,70+(x%3),'#484848');
+  // THE CAR
+  const cx=130,cy=70;
+  rect(c,cx-2,cy+16,54,2,'rgba(0,0,0,0.2)');
+  rect(c,cx,cy,50,14,'#2a8c3a');rect(c,cx+1,cy+1,48,12,'#30a044');
+  rect(c,cx+10,cy-8,28,10,'#2a8c3a');rect(c,cx+11,cy-7,26,8,'#30a044');
+  rect(c,cx+12,cy-6,10,6,'#88ccee');rect(c,cx+24,cy-6,10,6,'#88ccee');
+  px(c,cx+22,cy-6,'#2a8c3a');px(c,cx+22,cy-4,'#2a8c3a');
+  px(c,cx+13,cy-5,'#aaddff');px(c,cx+25,cy-5,'#aaddff');
+  rect(c,cx+48,cy+2,3,4,P.brY);px(c,cx+48,cy+3,'#fff');
+  rect(c,cx-1,cy+2,2,4,P.red);
+  for(const wx of[cx+8,cx+38]){rect(c,wx,cy+12,8,8,'#1a1a1a');rect(c,wx+1,cy+13,6,6,'#333');
+    rect(c,wx+2,cy+14,4,4,'#555');px(c,wx+3,cy+15,'#888');}
+  rect(c,cx+16,cy+4,18,5,P.brY);rect(c,cx+17,cy+5,16,3,'#e8c800');
+  px(c,cx-3,cy+11,'#90d07080');px(c,cx-5,cy+10,'#90d07050');
+  // Gas station
+  rect(c,260,48,36,22,P.wallWh);rect(c,258,45,40,4,P.brG);
+  rect(c,272,54,6,14,P.brG);rect(c,273,51,4,4,'#e0e0e0');
+  // Uncle
+  drawPerson(c,cx+54,cy-6,{shirt:P.brG,pants:'#4a4a4a',skin:P.skin3,armUp:true});
+  drawTree(c,240,54,3);
+  // Power lines
+  for(let x=0;x<IW;x++){const sag=Math.pow((x%120-60)/60,2)*4;px(c,x,18+sag,'#333');}
+  for(const lx of[5,125,245,365])rect(c,lx,10,2,48,'#555');
+}
+
+// ============================================================
+// SCENE 4: Night City — studying, nuclear plant
+// ============================================================
+function drawCityStudy(ctx,w,h){
+  const c=ctx;
+  drawSky(c,IW,IH,[{y:0,c:'#080c1e'},{y:0.3,c:'#101830'},{y:0.6,c:'#182040'},{y:1,c:'#1a2244'}]);
+  // Stars
+  for(let i=0;i<60;i++){const sx=Math.random()*IW|0,sy=Math.random()*40|0;
+    px(c,sx,sy,Math.random()>0.7?'#fff':'#aabbcc');}
+  // Moon
+  for(let r=6;r>0;r--)for(let a=0;a<30;a++){const ang=(a/30)*Math.PI*2;
+    px(c,Math.round(50+Math.cos(ang)*r),Math.round(12+Math.sin(ang)*r),r>4?'#ffffff20':r>2?'#dde8f0':'#f0f4f8');}
+  // Buildings
+  const blds=[{x:0,w:20,h:50},{x:22,w:16,h:35},{x:40,w:24,h:65},{x:66,w:18,h:40},{x:86,w:30,h:80},
+    {x:118,w:14,h:30},{x:134,w:22,h:55},{x:158,w:28,h:70},{x:188,w:16,h:38},{x:206,w:26,h:60},
+    {x:234,w:20,h:45},{x:256,w:32,h:75},{x:290,w:18,h:42},{x:310,w:24,h:58},{x:336,w:20,h:48},{x:358,w:22,h:55}];
+  blds.forEach((b,i)=>{const tY=100-b.h;
+    for(let y=tY;y<100;y++)rect(c,b.x,y,b.w,1,lerp(i%3===0?'#1a2040':i%3===1?'#1e2444':'#162038','#141830',(y-tY)/b.h));
+    rect(c,b.x,tY,1,b.h,lerp('#1a2040','#2a3060',0.3));
+    for(let wy=tY+3;wy<97;wy+=5)for(let wx=b.x+2;wx<b.x+b.w-3;wx+=4){
+      if(Math.random()>0.35){const wm=Math.random();
+        rect(c,wx,wy,2,3,wm>0.6?'#ffcc44':wm>0.3?'#ff9944':'#ffee88');
+      }else rect(c,wx,wy,2,3,'#0c1020');}
+    if(b.h>50){rect(c,b.x+b.w/2-1,tY-3,2,3,'#ff3030');px(c,b.x+b.w/2-1,tY-3,'#ff5050');}});
+  // Nuclear plant
+  const nx=340,ny=60;
+  for(let y=0;y<30;y++){const t=y/30,ww=6+Math.abs(t-0.5)*8;
+    rect(c,nx+8-ww/2,ny+y,ww,1,t<0.5?'#2a3050':'#222840');}
+  for(let i=0;i<5;i++){px(c,Math.round(nx+8+Math.sin(i)*3-1),ny-3-i*3,`rgba(180,190,210,${0.3-i*0.04})`);
+    px(c,Math.round(nx+9+Math.sin(i)*3),ny-3-i*3,`rgba(180,190,210,${0.2-i*0.03})`);}
+  rect(c,nx-6,ny+16,12,14,'#1e2844');px(c,nx,ny+18,'#ffcc44');
+  // Ground & street lights
+  rect(c,0,100,IW,50,'#0c0e18');
+  for(let lx=30;lx<IW;lx+=80){rect(c,lx,85,1,15,'#444');rect(c,lx-1,84,3,2,'#666');px(c,lx,84,'#ffcc66');
+    for(let ly=0;ly<8;ly++)for(let ldx=-ly*0.8;ldx<ly*0.8;ldx++)
+      px(c,Math.round(lx+ldx),100+ly,`rgba(255,200,100,${0.05-ly*0.005})`);}
+}
+
+// ============================================================
+// SCENE 5: Economic Boom — electronics store
+// ============================================================
+function drawEconomicBoom(ctx,w,h){
+  const c=ctx;
+  // Ceiling
+  rect(c,0,0,IW,25,'#e8e0d0');
+  for(let lx=30;lx<IW;lx+=60){rect(c,lx,8,30,2,'#fff');rect(c,lx-2,10,34,8,'rgba(255,255,240,0.15)');}
+  // Wall
+  rect(c,0,25,IW,45,P.wallWh);
+  // Floor checkered
+  for(let y=70;y<IH;y+=6)for(let x=0;x<IW;x+=6)
+    rect(c,x,y,6,6,((x/6+y/6)%2===0)?'#e0d8cc':'#c8c0b4');
+  for(let x=0;x<IW;x+=20)rect(c,x,72,8,1,'#f0e8dc');
+  // SALE banner
+  rect(c,IW/2-30,26,60,10,P.red);rect(c,IW/2-28,27,56,8,'#e03030');
+  // Fridge
+  rect(c,30,32,18,36,'#f8f8f8');rect(c,31,33,16,15,'#e8eaec');rect(c,31,50,16,16,'#f0f2f4');
+  rect(c,46,39,2,6,'#aaa');rect(c,46,56,2,6,'#aaa');rect(c,32,28,12,4,P.brY);
+  // TV
+  rect(c,85,38,28,22,'#222');rect(c,87,40,24,16,'#4488cc');
+  rect(c,91,48,2,4,'#fff');rect(c,101,48,2,4,P.brY);px(c,96,49,'#fff');
+  rect(c,93,60,12,3,'#333');rect(c,91,63,16,2,'#444');rect(c,89,34,12,4,P.brY);
+  px(c,89,41,'#88bbee');
+  // Airco
+  rect(c,155,30,26,10,'#f0f0f0');rect(c,156,33,24,4,'#d8e8f0');
+  for(let i=0;i<4;i++)px(c,160+i*5,42+i,'#88ccee40');
+  // Washing machine
+  rect(c,215,42,16,18,'#e8e8e8');rect(c,220,49,6,6,'#88ccee');
+  rect(c,217,43,4,2,'#888');px(c,225,43,P.red);
+  // Car through window
+  rect(c,280,28,60,38,'#88ccee');rect(c,278,26,64,3,P.woodMd);rect(c,278,66,64,2,P.woodMd);
+  rect(c,290,44,30,10,P.brG);rect(c,295,38,18,8,P.brG);
+  rect(c,297,39,6,5,'#88ccee');rect(c,305,39,6,5,'#88ccee');
+  rect(c,293,52,5,5,'#222');rect(c,312,52,5,5,'#222');
+  // Shoppers
+  drawPerson(c,60,72,{shirt:P.brG,skin:P.skin2,female:true});
+  drawPerson(c,120,74,{shirt:P.orange,skin:P.skin3});
+  drawPerson(c,180,73,{shirt:P.red,skin:P.skin2,female:true});
+  drawPerson(c,250,72,{shirt:'#5588cc',skin:P.skin3,armUp:true});
+  rect(c,63,79,4,5,P.brY);rect(c,183,80,4,5,P.red);
+}
+
+// ============================================================
+// SCENE 6: Oil Discovery — sunset ocean + platform
+// ============================================================
+function drawOilDiscovery(ctx,w,h){
+  const c=ctx;
+  drawSky(c,IW,IH,[{y:0,c:'#d06030'},{y:0.1,c:'#e88844'},{y:0.2,c:'#f0a858'},{y:0.3,c:'#f0c870'},{y:0.38,c:'#88a8c0'}]);
+  // Sun
+  for(let r=14;r>0;r--)for(let a=0;a<40;a++){const ang=(a/40)*Math.PI;
+    px(c,Math.round(100+Math.cos(ang)*r),Math.round(52+Math.sin(ang)*r*0.5-r*0.2),r>10?'#f0a05020':r>6?P.sunO:P.sunY);}
+  // Sun reflection
+  for(let y=56;y<80;y++){const wr=12-(y-56)*0.3;
+    for(let x=-wr;x<wr;x++)if((x+y)%3===0)px(c,Math.round(100+x),y,'#f0a05030');}
+  // Ocean
+  for(let y=55;y<IH;y++)for(let x=0;x<IW;x++){const t=(y-55)/(IH-55),w2=Math.sin(x*0.08+y*0.2)*0.5,d=t+w2*0.1;
+    px(c,x,y,d<0.2?((x+y)%2===0?'#5a98c0':'#4a88b0'):d<0.5?((x+y)%3===0?'#3a78a0':'#2a6890'):((x+y)%2===0?'#1a5880':'#1a5070'));}
+  for(let x=0;x<IW;x+=3)px(c,x,Math.round(55+Math.sin(x*0.06)*2),'#88c8e8');
+  // Coast
+  for(let x=0;x<60;x++){const ch2=4+Math.sin(x*0.1)*3;
+    for(let y=0;y<ch2;y++)px(c,x,54-ch2+y,y<2?'#4a8a4a':'#3a6a3a');}
+  for(let i=0;i<5;i++)rect(c,8+i*10,50-(3+Math.floor(Math.random()*5)),5,3+Math.floor(Math.random()*5),'#8888aa');
+  // Cristo silhouette
+  rect(c,35,38,2,8,'#667788');rect(c,32,39,8,2,'#667788');px(c,35,37,'#778899');
+  // OIL PLATFORM
+  const ox=220,oy=20;
+  for(const leg of[ox+5,ox+25,ox+45])for(let y=oy+20;y<70;y++){px(c,leg,y,y<55?P.concDk:'#4a6878');px(c,leg+1,y,y<55?P.concVDk:'#3a5868');}
+  for(let y=oy+25;y<55;y+=10)rect(c,ox+5,y,42,1,'#6a7a88');
+  rect(c,ox,oy+14,52,8,P.concMd);rect(c,ox+1,oy+15,50,5,P.concLt);rect(c,ox,oy+21,52,1,P.concDk);
+  rect(c,ox+4,oy+4,18,11,P.concDk);rect(c,ox+5,oy+5,16,9,'#888');
+  for(let i=0;i<3;i++)rect(c,ox+7+i*5,oy+7,3,3,'#ffcc44');
+  rect(c,ox+32,oy-16,3,32,P.metalDk);
+  for(const yy of[oy-10,oy-5,oy])rect(c,ox+28+(yy===oy-10?0:yy===oy-5?2:1),yy,yy===oy-10?10:yy===oy-5?6:8,1,P.metalLt);
+  rect(c,ox+32,oy-22,3,6,P.orange);rect(c,ox+31,oy-24,5,4,P.brY);px(c,ox+33,oy-26,P.red);
+  px(c,ox+34,oy-28,'rgba(100,100,100,0.3)');px(c,ox+35,oy-30,'rgba(100,100,100,0.2)');
+  rect(c,ox+2,oy+15,8,5,P.brY);px(c,ox+6,oy+17,P.white);
+  // Newspaper
+  rect(c,30,IH-32,IW-60,28,'#f5f0e0');rect(c,32,IH-30,IW-64,2,'#222');
+  for(let i=0;i<3;i++)rect(c,36,IH-24+i*5,IW*0.35,2,'#555');
+  rect(c,IW-120,IH-28,50,20,'#ddd');
+}
+
+// ============================================================
+// SCENE 7: World Cup 2014 — stadium + living room
+// ============================================================
+function drawWorldCup2014(ctx,w,h){
+  const c=ctx;
+  drawSky(c,IW,IH*0.5,[{y:0,c:'#0a0e20'},{y:0.4,c:'#141e38'},{y:1,c:'#1e2848'}]);
+  // Fireworks
+  const fc=['#ff4444','#ffdd44','#44ff88','#ff88ff','#44ccff','#ff8844'];
+  for(let f=0;f<10;f++){const fx=20+(f*37)%(IW-40),fy=5+(f*13)%25;
+    for(let r=0;r<10;r++){const a=(r/10)*Math.PI*2+f*0.7,d=4+f%3*2;
+      px(c,Math.round(fx+Math.cos(a)*d),Math.round(fy+Math.sin(a)*d),fc[f%6]);
+      if(d>4)px(c,Math.round(fx+Math.cos(a)*d*0.6),Math.round(fy+Math.sin(a)*d*0.6),fc[f%6]+'80');}
+    px(c,fx,fy,'#fff');}
+  // Stadium
+  for(let x=20;x<IW-20;x++){const ah=Math.sin(((x-20)/(IW-40))*Math.PI)*20;
+    for(let y=0;y<ah;y++)px(c,x,50-ah+y,y<3?'#445566':'#334455');}
+  // Crowd
+  for(let r=0;r<6;r++)for(let x=25;x<IW-25;x++){
+    px(c,x,36+r*3,[P.brG,P.brY,'#fff',P.brG,P.brY,P.brG][Math.floor(Math.random()*6)]);}
+  // Pitch
+  for(let y=54;y<72;y++)rect(c,25,y,IW-50,1,Math.floor(y/3)%2===0?'#2a8a2a':'#258825');
+  rect(c,IW/2,54,1,18,'rgba(255,255,255,0.2)');
+  // Players
+  for(let i=0;i<8;i++){const ppx=60+i*35+Math.sin(i)*10,ppy=58+(i%3)*5;
+    px(c,ppx,ppy,i<4?P.brY:'#fff');px(c,ppx,ppy+1,i<4?P.brG:'#4444cc');}
+  px(c,180,62,'#fff');
+  // Floodlights
+  for(const lx of[30,IW-30]){rect(c,lx,25,2,30,'#556');rect(c,lx-1,24,4,2,'#eee');px(c,lx,24,'#ffffcc');}
+  // Living room
+  rect(c,0,75,IW,IH-75,'#2a1e14');
+  rect(c,0,IH-20,IW,20,P.woodDk);for(let x=0;x<IW;x+=15)rect(c,x,IH-20,1,20,P.woodVDk);
+  // Couch
+  rect(c,80,IH-40,200,16,'#8a5a30');rect(c,82,IH-42,196,4,'#9a6a3a');
+  rect(c,76,IH-44,8,20,'#7a4a28');rect(c,276,IH-44,8,20,'#7a4a28');
+  // People celebrating
+  for(let i=0;i<5;i++)drawPerson(c,95+i*38,IH-56,{shirt:i%2===0?P.brG:P.brY,skin:i%3===0?P.skin2:P.skin3,armUp:true,female:i%2===1});
+  // Flags
+  rect(c,100,IH-60,6,4,P.brG);rect(c,101,IH-59,4,2,P.brY);
+  rect(c,250,IH-58,6,4,P.brG);
+  // TV
+  rect(c,20,IH-55,40,25,'#222');rect(c,22,IH-53,36,19,'#226622');
+  rect(c,15,IH-30,50,10,P.woodMd);
+  // Snacks
+  rect(c,140,IH-26,80,4,P.woodLt);
+  rect(c,148,IH-30,8,4,P.brY);rect(c,168,IH-30,6,4,'#884422');rect(c,188,IH-30,10,4,P.orange);
+  // Vuvuzela
+  rect(c,300,IH-22,20,3,P.brY);rect(c,320,IH-24,6,7,P.brY);
+}
+
+// ============================================================
+// ENDINGS
+// ============================================================
+function drawFutureEnding(ctx,w,h,type){
+  const c=ctx;
+  if(type===1){
+    drawSky(c,IW,IH,[{y:0,c:'#e08040'},{y:0.15,c:'#f0a060'},{y:0.25,c:'#f0c880'},{y:0.35,c:'#a0c0d0'}]);
+    [{x:10,w:20,h:60},{x:35,w:28,h:80},{x:68,w:22,h:50},{x:95,w:30,h:90},{x:130,w:18,h:55},{x:152,w:35,h:100},{x:192,w:24,h:65}
+    ].forEach(b=>{const by=90-b.h;for(let y=by;y<90;y++)rect(c,b.x,y,b.w,1,lerp('#2a4050','#3a5060',(y-by)/b.h));
+      for(let wy=by+3;wy<88;wy+=5)for(let wx=b.x+2;wx<b.x+b.w-3;wx+=4)
+        if(Math.random()>0.3)rect(c,wx,wy,2,3,Math.random()>0.5?'#ffcc44':'#ffee88');});
+    for(let x=230;x<IW;x++){const gh=20+Math.sin(x*0.03)*8;
+      for(let y=0;y<gh;y++)px(c,x,90-gh+y,(x+y)%3===0?P.grassMd:P.grassDk);}
+    for(let x=280;x<360;x+=3){const ch2=10+Math.sin(x*0.2)*3;for(let y=0;y<ch2;y++)px(c,x,70-y,y%3===0?P.caneLt:P.caneMd);}
+    rect(c,0,90,IW,12,P.roadMd);
+    rect(c,100,92,30,8,P.brG);rect(c,107,88,16,5,P.brG);rect(c,104,99,4,4,'#222');rect(c,122,99,4,4,'#222');
+    rect(c,0,102,IW,IH-102,P.grassDk);
+    rect(c,IW-25,75,16,10,P.brG);rect(c,IW-21,78,8,4,P.brY);rect(c,IW-25,72,1,20,'#666');
+  }else if(type===2){
+    drawSky(c,IW,IH,[{y:0,c:'#4488cc'},{y:0.2,c:'#66aadd'},{y:0.35,c:'#88c0e8'}]);
+    drawCloud(c,60,5,18);drawCloud(c,200,8,14);
+    rect(c,20,40,60,20,P.concMd);for(let i=0;i<4;i++)rect(c,28+i*12,48,4,12,P.waterMd);
+    rect(c,0,38,30,14,P.waterLt);
+    for(let i=0;i<5;i++){rect(c,200+i*22,52,18,8,'#224488');rect(c,201+i*22,53,16,6,'#3355aa');px(c,203+i*22,53,'#5577cc');}
+    rect(c,140,38,24,22,'#667');rect(c,145,28,4,12,'#778');
+    for(let x=0;x<IW;x++){const gy=60+Math.sin(x*0.02)*3;
+      for(let y=gy;y<IH;y++)px(c,x,y,(x+y)%3===0?(y-gy<10?P.grassLt:P.grassMd):(y-gy<10?P.grassMd:P.grassDk));}
+    for(let i=0;i<3;i++){const wtx=320+i*25;rect(c,wtx,30,2,30,'#ddd');
+      for(let b=0;b<3;b++){const a=(b/3)*Math.PI*2+i*0.5;for(let bl=0;bl<10;bl++)px(c,Math.round(wtx+1+Math.cos(a)*bl),Math.round(30+Math.sin(a)*bl),'#eee');}
+      px(c,wtx,30,'#888');}
+    drawPerson(c,170,62,{shirt:'#5577aa',skin:P.skin2,pants:'#444'});
+    rect(c,178,70,3,4,'#8a5a30');
+  }else{
+    drawSky(c,IW,IH,[{y:0,c:'#3098d0'},{y:0.15,c:'#58b8e0'},{y:0.3,c:'#80d0e8'},{y:0.38,c:'#a0e0c0'}]);
+    drawCloud(c,100,4,22);drawCloud(c,250,7,16);
+    for(let x=0;x<IW;x++){const hh=30+Math.sin(x*0.015)*15+Math.sin(x*0.04)*8;
+      for(let y=0;y<hh;y++)px(c,x,IH-hh+y,(x+y)%3===0?(y/hh<0.3?P.grassLt:P.grassMd):(y/hh<0.3?P.caneLt:P.grassDk));}
+    for(let i=0;i<5;i++){const wtx=30+i*75,wty=20+Math.sin(i*1.5)*10;rect(c,wtx,wty,2,40+i*2,'#eee');
+      for(let b=0;b<3;b++){const a=(b/3)*Math.PI*2+i*0.8;for(let bl=0;bl<14;bl++)px(c,Math.round(wtx+1+Math.cos(a)*bl),Math.round(wty+Math.sin(a)*bl),'#f0f0f0');}
+      px(c,wtx,wty,'#aaa');}
+    for(let x=0;x<IW;x++){const ry=100+Math.sin(x*0.02)*4;for(let y=ry;y<ry+12;y++)px(c,x,y,(x+y)%2===0?P.waterLt:P.waterMd);
+      if(x%8===0)px(c,x,ry,P.waterFm);}
+    for(let i=0;i<6;i++){rect(c,200+i*20,80-Math.sin(i*0.5)*3,16,7,'#224488');px(c,202+i*20,81-Math.sin(i*0.5)*3,'#4466bb');}
+    for(let x=120;x<190;x+=3){const ch2=12+Math.sin(x*0.3)*3;for(let y=0;y<ch2;y++)px(c,x,85-y,y%3===0?P.caneLt:P.caneMd);}
+    drawPerson(c,90,74,{shirt:P.brG,skin:P.skin2});
+    rect(c,100,82,3,3,P.skin2);rect(c,100,81,3,2,P.hairDk);rect(c,99,85,5,5,P.brY);rect(c,100,90,2,3,P.brB);
+    px(c,98,82,P.skin2);
+    drawPalm(c,50,88,25);
+    for(let i=0;i<5;i++){const bx=130+i*30,by=8+i*3;px(c,bx-1,by,'#334');px(c,bx,by-1,'#334');px(c,bx+1,by,'#334');}
+    rect(c,IW-20,60,14,9,P.brG);rect(c,IW-17,63,8,3,P.brY);rect(c,IW-20,55,1,18,'#666');
+  }
+}
+
+// ============================================================
+// FISHING VILLAGE (Ana scene 1)
+// ============================================================
+function drawFishingVillage(ctx,w,h){
+  const c=ctx;
+  drawSky(c,IW,IH,[{y:0,c:'#d87040'},{y:0.1,c:'#e89860'},{y:0.2,c:'#f0b878'},{y:0.3,c:'#90b8d0'},{y:0.38,c:'#70a8c8'}]);
+  // Ocean
+  for(let y=55;y<75;y++)for(let x=0;x<IW;x++){const wv=Math.sin(x*0.06+y*0.3);
+    px(c,x,y,wv>0.3?P.waterLt:wv>-0.3?P.waterMd:P.waterDk);}
+  for(let x=0;x<IW;x++)px(c,x,Math.round(73+Math.sin(x*0.08)*1.5),P.waterFm);
+  // Beach
+  for(let y=74;y<IH;y++)for(let x=0;x<IW;x++)px(c,x,y,(x+y)%4===0?P.sandLt:(y<85?P.sandMd:P.sandDk));
+  // Boat
+  for(let xb=0;xb<24;xb++){const dp=Math.sin((xb/24)*Math.PI)*5;
+    for(let yb=0;yb<dp;yb++)px(c,50+xb,58+yb,yb<dp/2?'#c04828':'#883020');}
+  rect(c,60,40,1,18,P.woodMd);
+  for(let ys=0;ys<12;ys++){const sw2=8-ys*0.5;rect(c,61,41+ys,Math.round(sw2),1,ys<4?'#fff':'#e8e4d8');}
+  // Hill + houses
+  for(let x=130;x<320;x++){const hh=25+Math.sin(x*0.02)*8+Math.sin(x*0.06)*4;
+    for(let y=0;y<hh;y++)px(c,x,70-hh+y,(x+y)%3===0?P.grassLt:P.grassMd);}
+  [{x:140,y:62,c2:'#e88030',r:P.roofO},{x:170,y:58,c2:'#d04040',r:P.roofR},{x:200,y:64,c2:'#4488cc',r:'#3366aa'},
+   {x:230,y:56,c2:'#e8c030',r:P.roofO},{x:258,y:60,c2:'#40aa60',r:'#308a48'},{x:285,y:66,c2:'#cc6688',r:'#aa4466'}
+  ].forEach(h2=>drawHouse(c,h2.x,h2.y,h2.c2,h2.r,lerp(h2.r,'#000000',0.2),16,10));
+  // Palms
+  drawPalm(c,125,68,22);drawPalm(c,315,72,18);drawPalm(c,340,70,24);
+  // Mom + baby
+  drawPerson(c,100,82,{shirt:'#cc5555',skin:P.skin2,female:true});
+  rect(c,107,88,4,4,'#ffaaaa');rect(c,108,87,3,2,P.skin1);
+  // Fish rack
+  rect(c,350,78,1,12,P.woodMd);rect(c,362,78,1,12,P.woodMd);rect(c,350,80,13,1,P.woodLt);
+  for(let i=0;i<3;i++)rect(c,352+i*4,79,3,2,'#b8b0a0');
+  // Seagulls
+  for(let i=0;i<4;i++){const gx=160+i*50,gy=15+i*5;px(c,gx-1,gy,'#fff');px(c,gx,gy-1,'#fff');px(c,gx+1,gy,'#fff');}
+}
+
+// ============================================================
+// ELECTRICITY scene (Ana scene 2)
+// ============================================================
+function drawElectricity(ctx,w,h){
+  const c=ctx;
+  rect(c,0,0,IW,IH,'#1a1018');rect(c,8,5,IW-16,IH-15,'#2a2028');
+  for(let y=IH-25;y<IH-8;y++)rect(c,8,y,IW-16,1,y%4<2?'#3a2820':'#2a1e18');
+  for(let x=8;x<IW-8;x+=18)rect(c,x,IH-25,1,17,'#221a14');
+  // LIGHTBULB + glow
+  const lx=IW/2,ly=15;rect(c,lx,5,1,ly-5,'#555');
+  for(let r=20;r>0;r--)for(let a=0;a<40;a++){const ang=(a/40)*Math.PI*2;
+    px(c,Math.round(lx+Math.cos(ang)*r),Math.round(ly+6+Math.sin(ang)*r*0.8),`rgba(255,220,120,${(20-r)/20*0.12})`);}
+  rect(c,lx-2,ly,5,3,'#888');
+  for(let r=3;r>0;r--)for(let a=0;a<20;a++){const ang=(a/20)*Math.PI*2;
+    px(c,Math.round(lx+Math.cos(ang)*r),Math.round(ly+5+Math.sin(ang)*r),r>2?'#ffe880':r>1?'#fff4c0':'#fffff0');}
+  px(c,lx,ly+5,'#fff');
+  // Room glow
+  for(let y=20;y<IH-10;y++)for(let x=20;x<IW-20;x++){const d=Math.sqrt((x-lx)**2+(y-ly-6)**2);
+    if(d<80)px(c,x,y,`rgba(255,220,120,${Math.max(0,0.12-d*0.0015)})`);}
+  // Candle
+  rect(c,40,62,3,8,'#e8e0d0');px(c,41,60,'#ff8800');px(c,41,59,'#ffaa00');
+  // Table + book
+  rect(c,IW/2-30,70,60,3,P.woodMd);rect(c,IW/2-28,73,3,18,P.woodDk);rect(c,IW/2+25,73,3,18,P.woodDk);
+  rect(c,IW/2-10,66,12,4,'#cc3030');rect(c,IW/2-9,67,10,2,'#f0e8d0');
+  // Ana reading
+  drawPerson(c,IW/2-4,52,{shirt:'#cc5555',skin:P.skin2,female:true});
+  // Window
+  rect(c,IW-60,20,30,25,'#3a5878');rect(c,IW-62,18,34,3,P.woodMd);rect(c,IW-62,45,34,3,P.woodMd);
+  rect(c,IW-62,18,3,30,P.woodMd);rect(c,IW-31,18,3,30,P.woodMd);
+  rect(c,IW-46,18,2,30,P.woodDk);rect(c,IW-62,32,34,2,P.woodDk);
+  px(c,IW-55,23,'#fff');px(c,IW-40,26,'#dde');px(c,IW-35,22,'#fff');
+  rect(c,IW-42,20,1,20,'#445');rect(c,IW-46,24,8,1,'#445');
+}
+
+// ============================================================
+// Restaurant / Sugar route (Scene 4 variant)
+// ============================================================
+function drawRestaurantOrSugarRoute(ctx,w,h,isCarlos){
+  const c=ctx;
+  if(isCarlos){
+    drawSky(c,IW,IH,[{y:0,c:'#4a90d0'},{y:0.2,c:'#70aae0'},{y:0.35,c:'#90c4e8'}]);
+    drawCloud(c,80,5,18);drawCloud(c,260,3,20);
+    for(let x=0;x<IW;x++)for(let y=58;y<IH;y++)px(c,x,y,(x+y)%3===0?'#8a7a30':'#7a6a28');
+    rect(c,120,28,80,32,P.concMd);rect(c,122,30,76,28,P.concLt);
+    for(let i=0;i<5;i++){rect(c,128+i*14,34,8,10,'#88ccee');px(c,132+i*14,34,P.concDk);}
+    rect(c,185,14,6,16,P.concDk);
+    for(let i=0;i<4;i++){px(c,186+Math.sin(i)*2,10-i*3,`rgba(180,180,180,${0.4-i*0.08})`);px(c,188+Math.cos(i)*2,8-i*3,`rgba(180,180,180,${0.3-i*0.06})`);}
+    rect(c,30,58,40,12,'#666');rect(c,70,56,20,10,P.brG);rect(c,31,56,38,4,'#888');
+    for(let i=0;i<8;i++)rect(c,33+i*5,50,2,8,P.caneMd);
+    rect(c,36,69,5,5,'#222');rect(c,60,69,5,5,'#222');
+    for(let i=0;i<6;i++){rect(c,230+i*18,56,12,14,P.woodMd);rect(c,231+i*18,58,10,3,P.brY);}
+    drawPerson(c,215,54,{shirt:P.orange,skin:P.skin3,hasHat:true});
+    rect(c,120,24,40,5,P.brY);
+  }else{
+    drawSky(c,IW,IH,[{y:0,c:'#e08850'},{y:0.15,c:'#f0a868'},{y:0.25,c:'#e8b880'},{y:0.35,c:'#80a8c0'}]);
+    for(let y=50;y<65;y++)for(let x=0;x<IW;x++)px(c,x,y,(x+y)%2===0?P.waterLt:P.waterMd);
+    for(let y=65;y<IH;y++)rect(c,0,y,IW,1,y<75?P.sandLt:P.sandMd);
+    rect(c,80,40,200,34,P.wallCr);rect(c,78,36,204,5,P.roofR);rect(c,79,37,202,3,P.roofRS);
+    for(let i=0;i<4;i++){rect(c,92+i*44,46,20,14,'#87ceeb');rect(c,92+i*44,46,20,1,P.woodMd);rect(c,101+i*44,46,2,14,P.woodMd);}
+    rect(c,170,52,14,22,P.woodDk);px(c,182,62,P.brY);
+    for(let i=0;i<3;i++){const tx=100+i*70;rect(c,tx,78,18,2,P.woodLt);rect(c,tx+7,80,3,8,P.woodMd);
+      for(let u=-8;u<9;u++)px(c,tx+9+u,78-Math.round(3-Math.abs(u)*0.2)-3,i%2===0?P.brG:P.red);}
+    rect(c,96,50,6,10,'#f8f8f8');px(c,101,53,'#aaa');rect(c,94,48,10,3,P.brY);
+    drawPerson(c,160,62,{shirt:'#cc5555',skin:P.skin2,female:true});
+    rect(c,168,68,8,1,'#aaa');rect(c,170,66,4,2,P.orange);
+    drawPalm(c,310,72,20);
+  }
+}
+
+// ============================================================
+// PORTRAITS (title screen)
+// ============================================================
+function drawCarlosPortrait(ctx,w,h){
+  const s=2,c2=ctx;
+  for(let y=0;y<48;y++)for(let x=0;x<48;x++){
+    c2.fillStyle=y/48<0.4?lerp('#c8a050','#a08838',y/48*2.5):((x+y)%3===0?'#4a8c2a':'#3a6a1e');
+    c2.fillRect(x*s,y*s,s,s);}
+  for(let i=0;i<8;i++){const sx=4+i*6;for(let y=0;y<20;y++){c2.fillStyle=y%4<2?'#7ed957':'#5aad3a';c2.fillRect(sx*s,y*s,s,s);}}
+  for(let y=0;y<12;y++)for(let x=0;x<10;x++){
+    c2.fillStyle=(x<1||x>8)?'transparent':(x<3?'#d07020':x>6?'#c06018':'#e08030');
+    c2.fillRect((19+x)*s,(30+y)*s,s,s);}
+  for(let y=0;y<10;y++)for(let x=0;x<8;x++){
+    c2.fillStyle=(x===0||x===7||y===0||y===9)?'#b8895a':'#d4a574';
+    c2.fillRect((20+x)*s,(20+y)*s,s,s);}
+  for(let x=0;x<9;x++){c2.fillStyle='#1a0f05';c2.fillRect((19+x)*s,18*s,s,s*3);
+    if(x===0||x===8)c2.fillRect((19+x)*s,21*s,s,s*2);}
+  c2.fillStyle='#0a0a0a';c2.fillRect(22*s,24*s,s,s);c2.fillRect(25*s,24*s,s,s);
+  c2.fillStyle='#fff';c2.fillRect(22*s+1,24*s+1,1,1);c2.fillRect(25*s+1,24*s+1,1,1);
+  c2.fillStyle='#a06840';c2.fillRect(23*s,27*s,s*2,s);
+}
+
+function drawAnaPortrait(ctx,w,h){
+  const s=2,c2=ctx;
+  for(let y=0;y<48;y++)for(let x=0;x<48;x++){
+    c2.fillStyle=y/48<0.3?lerp('#ff8860','#f0a070',y/48*3.3):((x+y)%2===0?'#5a98c0':'#4a88b0');
+    c2.fillRect(x*s,y*s,s,s);}
+  for(let x=0;x<48;x++){c2.fillStyle='#88c8e8';c2.fillRect(x*s,Math.round(18+Math.sin(x*0.3)*1.5)*s,s,s);}
+  for(let y=0;y<12;y++)for(let x=0;x<10;x++){
+    c2.fillStyle=(x<1||x>8)?'transparent':(x<3?'#b83030':x>6?'#a02828':'#cc3838');
+    c2.fillRect((19+x)*s,(30+y)*s,s,s);}
+  for(let y=0;y<10;y++)for(let x=0;x<8;x++){
+    c2.fillStyle=(x===0||x===7||y===0||y===9)?'#b8895a':'#d4a574';
+    c2.fillRect((20+x)*s,(20+y)*s,s,s);}
+  for(let x=0;x<11;x++){c2.fillStyle='#1a0a00';c2.fillRect((18+x)*s,17*s,s,s*3);
+    if(x<=1||x>=9)for(let y=0;y<14;y++)c2.fillRect((18+x)*s,(20+y)*s,s,s);}
+  c2.fillStyle='#ffdd44';c2.fillRect(27*s,18*s,s*2,s*2);
+  c2.fillStyle='#ff4444';c2.fillRect(27*s+1,18*s+1,s,s);
+  c2.fillStyle='#0a0a0a';c2.fillRect(22*s,24*s,s,s);c2.fillRect(25*s,24*s,s,s);
+  c2.fillStyle='#fff';c2.fillRect(22*s+1,24*s+1,1,1);c2.fillRect(25*s+1,24*s+1,1,1);
+  c2.fillStyle='#a06840';c2.fillRect(23*s,27*s,s*2,s);
+}
+
+function drawPixelScene(id, fn, w, h) {
+  const cv = document.getElementById(id); if(!cv) return;
+  cv.width = w||cv.width; cv.height = h||cv.height;
+  const ctx = cv.getContext('2d'); ctx.imageSmoothingEnabled = false; fn(ctx, cv.width, cv.height);
+}
+
+// GAME DATA
+// ============================================================
+
+const gameData = {
+  carlos: {
+    scenes: [
+      {
+        year: '1975',
+        title: 'Geboren in de Suiker',
+        artFunc: drawSugarFields1975,
+        text: `Carlos komt ter wereld in een klein houten huisje, midden tussen eindeloze <span class="highlight">suikerrietvelden</span> in de staat São Paulo. Zijn vader werkt van zonsopgang tot zonsondergang op het land. Het gezin is arm — zoals bijna iedereen hier.
+
+Op de krakende radio klinkt het nieuws: Brazilië geeft <span class="highlight">veel te veel geld uit aan het importeren van aardolie</span>. De regering heeft een plan: <span class="fact">suikerriet omzetten in bio-ethanol</span>, een brandstof die gewoon op het land groeit!
+
+Papa schudt zijn hoofd. "Brandstof uit suikerriet? Dat geloof ik pas als ik het zie."`,
+        infoBox: `🌱 WIST JE DAT? In 1975 startte Brazilië met het verbouwen van suikerriet voor bio-ethanol. Het land was toen volledig afhankelijk van dure olie-import.`,
+        choices: [
+          { text: '▸ Ga met papa mee het suikerrietveld in — je wilt alles leren!', tag: 'land' },
+          { text: '▸ Ga met mama naar de markt in het dorp — er is zoveel te zien!', tag: 'markt' }
+        ]
+      },
+      {
+        year: '1982',
+        title: 'De Grootste Dam ter Wereld',
+        artFunc: drawItaipuDam,
+        text: `Carlos is 7 jaar oud. Het gezin heeft eindelijk een kleine zwart-wit televisie! En wat hij daar ziet... de <span class="highlight">Itaipu-dam</span> is af. Eén van de <span class="fact">grootste waterkrachtcentrales ter wereld</span>, gebouwd samen met buurland Paraguay.
+
+Het water dendert naar beneden alsof de rivier zelf boos is. Maar dat water maakt stroom — heel veel stroom.
+
+Papa zet grote ogen op: "Dát is pas magie, jongen. <span class="highlight">Stroom uit water.</span> Geen olie nodig."
+
+Carlos staart naar het scherm. De dam is zo groot dat hij er drie keer in zijn ogen moet knipperen.`,
+        infoBox: `⚡ WIST JE DAT? Ongeveer 70% van alle elektriciteit in Brazilië komt van waterkrachtcentrales. Brazilië heeft twee van de grootste centrales ter wereld! Omdat waterkracht geen CO₂ uitstoot, is de energievoorziening relatief schoon.`,
+        choices: [
+          { text: '▸ "Ik wil later met machines werken! Ik wil zo\'n dam bouwen!"', tag: 'techniek' },
+          { text: '▸ "Het land is ook mooi, papa. Net als jij wil ik buiten werken."', tag: 'land' }
+        ]
+      },
+      {
+        year: '1990',
+        title: 'De Eerste Flexfuel',
+        artFunc: drawFlexFuelCar,
+        text: `Carlos is 15 en het suikerrietplan van de regering? Dat is <em>gelukt</em>. Overal verschijnen <span class="highlight">flexfuel-auto's</span> — auto's die zowel op benzine als op ethanol uit suikerriet kunnen rijden.
+
+Oom Ricardo koopt er trots eentje. Een groene sedan. Hij poetst hem elke zondag.
+
+"Goedkoper dan benzine, neefje! En het <span class="fact">groeit gewoon op het land</span>. Hoe gek is dat?"
+
+Carlos kijkt naar de stad aan de horizon. São Paulo groeit als een gek. Daar liggen kansen... maar het suikerriet is alles wat hij kent.`,
+        infoBox: `🚗 WIST JE DAT? Ruim 80% van alle Brazilianen rijdt in een flexfuel-auto die op een mix van ethanol en benzine rijdt. De ethanol wordt gemaakt van suikerriet — een hernieuwbare brandstof!`,
+        choices: [
+          { text: '▸ Naar de stad! Carlos wil studeren in São Paulo.', tag: 'stad', path: 'city' },
+          { text: '▸ Blijven! Carlos gaat werken in de suikerrietindustrie.', tag: 'platteland', path: 'rural' }
+        ]
+      },
+      {
+        year: '1998',
+        title: 'Nieuwe Wegen',
+        artFunc: (ctx, w, h) => drawCityStudy(ctx, w, h),
+        getText: (state) => {
+          if (state.path === 'city') {
+            return `Carlos woont nu in São Paulo en studeert als een gek. De stad is overweldigend — miljoenen mensen, overal claxons, en het ruikt naar... nou ja, naar stad.
+
+Op college leert hij over de <span class="highlight">kerncentrale van Angra dos Reis</span>, aan de kust. "Slechts <span class="fact">3% van alle stroom</span>," zegt de professor, "maar belangrijk voor de stabiliteit."
+
+Zijn studiegenoot Pedro stoot hem aan: "En we hebben <span class="fact">zelf uranium in de grond</span>! We hoeven het niet eens te importeren."
+
+Carlos denkt aan de suikerrietvelden thuis. Brazilië heeft zoveel manieren om energie te maken...`;
+          } else {
+            return `Carlos werkt nu op een moderne suikerrietplantage. Geen klein boerderijtje meer — dit is <em>industrie</em>. Enorme machines oogsten het riet, en in de fabriek ernaast wordt het omgezet in <span class="highlight">bio-ethanol</span>.
+
+Hij leert de hele keten: van <span class="fact">suikerriet tot brandstof</span>. Planten, oogsten, persen, fermenteren, destilleren. Het is zwaar werk, maar Carlos is er trots op.
+
+"Wij maken de brandstof waar het hele land op rijdt," zegt zijn baas. "En het groeit gewoon opnieuw. Probeer dat maar eens met olie!"
+
+Ondertussen hoort hij dat er ergens een <span class="highlight">kerncentrale</span> staat die <span class="fact">3% van de stroom</span> levert. En dat Brazilië genoeg <span class="fact">uranium in eigen bodem</span> heeft.`;
+          }
+        },
+        infoBox: `☢️ WIST JE DAT? Ongeveer 3% van de Braziliaanse elektriciteit komt van kernenergie. Er is één grote kerncentrale (Angra) en er zijn plannen voor uitbreiding. Brazilië heeft genoeg uranium in eigen bodem.`,
+        choices: [
+          { text: '▸ Carlos kiest voor de energie-sector — daar ligt de toekomst!', tag: 'energie' },
+          { text: '▸ Carlos gaat ondernemen — met zijn kennis start hij iets eigens.', tag: 'ondernemer' }
+        ]
+      },
+      {
+        year: '2003',
+        title: '¡Boom! De Economie Explodeert',
+        artFunc: drawEconomicBoom,
+        text: `De buurvrouw heeft een koelkast. De buurman een tv. Die ander een airco. En zijn neef? Die heeft alles <em>tegelijk</em> gekocht.
+
+Brazilië verdient <span class="highlight">goud geld</span> met de export van <span class="fact">grondstoffen, vooral ijzererts</span>. De economie groeit als nooit tevoren! De regering voert <span class="highlight">anti-armoedebeleid</span>: miljoenen Brazilianen stijgen uit de armoede.
+
+Carlos kan het nauwelijks geloven. Het straatbeeld verandert: nieuwe winkels, nieuwe auto's, nieuwe dromen.
+
+Maar meer welvaart betekent ook <span class="fact">meer energieverbruik</span>. Al die koelkasten, airco's en tv's slurpen stroom...
+
+"Ach," zegt oom Ricardo, "dat lossen die waterkrachtcentrales wel op!"`,
+        infoBox: `📈 WIST JE DAT? Door de economische groei en het anti-armoedebeleid steeg het inkomen van miljoenen Brazilianen. Maar meer welvaart = meer energievraag! Andere factoren: groeiende industrie en bevolkingsgroei. Toch ligt het energieverbruik per Braziliaan nog 3x lager dan dat van een Nederlander.`,
+        choices: [
+          { text: '▸ Carlos koopt zijn eerste auto — een flexfuel, natuurlijk!', tag: 'auto' },
+          { text: '▸ Carlos investeert in een beter huis — eerst een dak, dan luxe.', tag: 'huis' }
+        ]
+      },
+      {
+        year: '2007',
+        title: 'Zwart Goud!',
+        artFunc: drawOilDiscovery,
+        text: `De krant valt uit Carlos\' handen.
+
+<span class="highlight">ENORM OLIEVELD ONTDEKT VOOR DE KUST VAN RIO DE JANEIRO!</span>
+
+Brazilië — het land dat altijd olie moest <em>importeren</em> — is opeens een <span class="fact">olie-exporteur</span>! Het veld is gigantisch. De economie krijgt nóg een boost.
+
+Maar Carlos fronst. Hij denkt aan het suikerriet, de waterkracht, alles waar Brazilië zo hard aan heeft gewerkt...
+
+"Mooi," zegt zijn collega, "maar <span class="fact">aardgas importeren</span> we nog steeds. Dat gebruiken we om stroom op te wekken."
+
+"Moeten we niet juist <em>van</em> fossiele brandstoffen af?" vraagt Carlos.
+
+Zijn collega lacht: "Vriend, we hebben álles. Water, suikerriet, olie, uranium. Welk land kan dat zeggen?"`,
+        infoBox: `🛢️ WIST JE DAT? In 2007 werd voor de kust van Rio de Janeiro een enorm olieveld ontdekt. Brazilië ging van olie-importeur naar exporteur! Aardgas wordt echter nog steeds geïmporteerd en gebruikt voor stroomopwekking.`,
+        choices: [
+          { text: '▸ "Dit is geweldig! Eindelijk zijn we onafhankelijk!"', tag: 'optimist', ending: 1 },
+          { text: '▸ "We moeten oppassen — water en suikerriet zijn de echte toekomst."', tag: 'duurzaam', ending: 3 },
+          { text: '▸ "Mooi, maar we zijn er nog lang niet. Er is nog zoveel werk."', tag: 'realist', ending: 2 }
+        ]
+      },
+      {
+        year: '2014',
+        title: 'Copa do Mundo! 🏆',
+        artFunc: drawWorldCup2014,
+        text: `GOOOOOL! Het WK voetbal is in Brazilië en het hele land is GEK!
+
+Carlos kijkt met de hele buurt, de hele straat, de hele <em>wijk</em>. Vuvuzela's, geel-groene vlaggen, en iemand heeft een BBQ op het trottoir gezet.
+
+Maar tussen het bier en de samba door denkt Carlos na. Het land is zo veranderd sinds zijn geboorte. Van arm suikerrietdorp tot economische macht.
+
+Zijn zoon/dochter trekt aan zijn mouw: "Papa, wat voor land is Brazilië eigenlijk?"
+
+Carlos glimlacht. Hoe leg je dat uit aan een kind?
+
+<span class="fact">Waterkracht, biobrandstof, eigen olie, kernenergie</span> — Brazilië heeft een van de <span class="highlight">meest diverse en relatief duurzame energiemixen</span> ter wereld. En het begon allemaal met suikerriet en een gekke droom.`,
+        infoBox: `🌍 SAMENVATTING: Brazilië's energiemix is relatief duurzaam dankzij ~70% waterkracht en grootschalig gebruik van biobrandstoffen. Daarnaast: eigen olie (export!), geïmporteerd aardgas, en 3% kernenergie met eigen uranium. De energievraag groeit door welvaart, industrie en bevolkingsgroei.`,
+        choices: [
+          { text: '▸ "Een land van kansen — wij zijn van niks naar alles gegaan!"', tag: 'kansen', ending: 1 },
+          { text: '▸ "Een land dat nog veel moet leren — we gebruiken nog steeds 3x minder energie dan Nederlanders."', tag: 'leren', ending: 2 },
+          { text: '▸ "Een land met de slimste energie ter wereld — suikerriet in de tank, water voor de stroom!"', tag: 'slim', ending: 3 }
+        ]
+      }
+    ],
+    endings: {
+      1: {
+        title: 'De Ondernemer',
+        artType: 1,
+        text: `<strong>2024 — Carlos, 49 jaar</strong>
+
+Carlos staat op het dak van zijn kantoor en kijkt uit over São Paulo. Van suikerrietveld tot hier. Niet slecht voor een boerenjongen.
+
+Hij denkt aan papa, die nog steeds niet helemaal gelooft dat je brandstof uit suikerriet kunt maken. (Papa rijdt inmiddels wél flexfuel, maar dat is "gewoon omdat het goedkoper is.")
+
+Brazilië is niet perfect. Maar het heeft iets dat bijna geen enkel land heeft: <span class="highlight">70% waterkracht, biobrandstof in elke tank, eigen olie én uranium</span>.
+
+"Niet slecht," mompelt Carlos, "voor een land dat in 1975 niet eens zijn eigen olie kon betalen."`,
+        summary: `Carlos werd ondernemer in Brazilië's groeiende economie. Hij zag zijn land transformeren van een arm, olie-afhankelijk land naar een diverse economische macht met een unieke energiemix.`
+      },
+      2: {
+        title: 'De Realist',
+        artType: 2,
+        text: `<strong>2024 — Carlos, 49 jaar</strong>
+
+Carlos zit aan zijn keukentafel met een kop koffie en de krant. De koppen gaan over energie, zoals altijd.
+
+Hij weet: Brazilië heeft enorme stappen gezet. Waterkracht, biobrandstof, eigen olie — het is indrukwekkend. Maar het <span class="highlight">energieverbruik per Braziliaan is nog steeds drie keer lager dan dat van een Nederlander</span>.
+
+"Als we ooit op dat niveau komen," mompelt hij, "hebben we véél meer nodig dan wat we nu hebben."
+
+De vraag groeit — door de <span class="highlight">industrie, de bevolking, en alle nieuwe koelkasten</span>. En niet alles kan van waterkracht komen.
+
+"We moeten slim blijven kiezen. Zoals we in 1975 al deden."`,
+        summary: `Carlos werd een realist met diep inzicht in Brazilië's energieuitdagingen. Hij begrijpt dat ondanks de relatief duurzame energiemix, de groeiende vraag door welvaart, industrie en bevolkingsgroei nieuwe oplossingen vereist.`
+      },
+      3: {
+        title: 'De Groene Dromer',
+        artType: 3,
+        text: `<strong>2024 — Carlos, 49 jaar</strong>
+
+Carlos staat voor een klas studenten en wijst naar een kaart van Brazilië.
+
+"In 1975," zegt hij, "kon mijn vader zich geen liter benzine veroorloven. Weet je wat ze toen deden? <span class="highlight">Ze maakten brandstof van suikerriet.</span> Uit pure noodzaak."
+
+De studenten luisteren.
+
+"Nu hebben we <span class="highlight">70% waterkracht</span>. Biobrandstof in elke auto. Eigen olie voor als het nodig is. Een kerncentrale met <span class="fact">eigen uranium</span>."
+
+Hij glimlacht. "Wij begonnen uit armoede en noodzaak. Maar we hebben <em>per ongeluk</em> het energiemodel van de toekomst gebouwd."
+
+Een student steekt zijn hand op: "Maar is het genoeg?"
+
+Carlos knikt. "Goede vraag. Dat is júllie uitdaging."`,
+        summary: `Carlos werd een voorvechter van duurzame energie. Hij zag hoe Brazilië uit noodzaak (armoede, dure olie-import) keuzes maakte die het land een van de meest duurzame energiemixen ter wereld gaven: waterkracht, biobrandstof, en eigen grondstoffen.`
+      }
+    }
+  },
+
+  ana: {
+    scenes: [
+      {
+        year: '1975',
+        title: 'Het Meisje van de Kust',
+        artFunc: drawFishingVillage,
+        text: `Ana wordt geboren in een kleurrijk vissersdorpje aan de kust, niet ver van Rio de Janeiro. De huisjes zijn oranje, rood en blauw — alsof iemand een schilderij op de heuvel heeft geplakt.
+
+Haar vader vangt vis. Haar moeder verkoopt het op de markt. Het leven is simpel, maar <em>arm</em>.
+
+Op de radio in de buurtkroeg hoort iemand over een plan van de regering: <span class="highlight">brandstof maken van suikerriet</span>. "Dat is voor de mensen in het binnenland," zegt papa. "Wij hebben de zee."
+
+Mama zucht. "Wij hebben de zee, maar <span class="fact">geen stroom</span>."`,
+        infoBox: `🌱 WIST JE DAT? In 1975 was Brazilië afhankelijk van dure olie-import. De regering startte een bio-ethanolprogramma: brandstof maken van suikerriet. Veel dorpen hadden nog geen elektriciteit.`,
+        choices: [
+          { text: '▸ Ga met papa mee vissen op zee — het water is Ana\'s thuis!', tag: 'zee' },
+          { text: '▸ Help mama op de markt — Ana is goed met mensen!', tag: 'markt' }
+        ]
+      },
+      {
+        year: '1982',
+        title: 'Licht!',
+        artFunc: drawElectricity,
+        text: `Ana is 7 jaar oud, en vandaag verandert alles.
+
+Er klinkt een <em>klik</em>. En dan... <span class="highlight">LICHT</span>. Echt licht. Uit een peertje aan het plafond.
+
+Eindelijk heeft hun buurt elektriciteit! Het komt van een <span class="fact">waterkrachtcentrale</span> stroomopwaarts. Ana kan nu 's avonds lezen bij de lamp in plaats van bij een kaars die altijd op het verkeerde moment uitgaat.
+
+"Bijna alle stroom in Brazilië komt van <span class="highlight">water</span>," vertelt juf op school. "Van grote dammen in de rivieren."
+
+Ana kijkt naar het peertje alsof het magie is. Want dat is het ook, een beetje.`,
+        infoBox: `⚡ WIST JE DAT? Ongeveer 70% van alle elektriciteit in Brazilië wordt opgewekt door waterkrachtcentrales. Het is de belangrijkste hernieuwbare energiebron van het land!`,
+        choices: [
+          { text: '▸ Ana wil later juf worden — kennis delen is het mooiste dat er is!', tag: 'juf' },
+          { text: '▸ Ana droomt van de grote stad — Rio de Janeiro glittert in de verte!', tag: 'stad' }
+        ]
+      },
+      {
+        year: '1990',
+        title: 'De Stad Lokt',
+        artFunc: drawFlexFuelCar,
+        text: `Ana is 15. Rio de Janeiro is vlakbij en bruist van energie — in alle betekenissen van het woord.
+
+Haar neef Miguel in São Paulo belt enthousiast: "Ana! Ik heb een <span class="highlight">flexfuel-auto</span> gekocht! Je tankt ethanol, <span class="fact">gemaakt van suikerriet</span>, veel goedkoper dan benzine!"
+
+"<span class="fact">80% van de Brazilianen</span> rijdt er al in," voegt hij toe. "Het ruikt een beetje zoet als je tankt. Best lekker eigenlijk."
+
+Ana lacht, maar ze twijfelt. Het vissersdorp is alles wat ze kent. Maar Rio... Rio is een andere wereld.`,
+        infoBox: `🚗 WIST JE DAT? Ruim 80% van alle Brazilianen rijdt in een flexfuel-auto, die op een mix van ethanol (uit suikerriet) en benzine rijdt. Biobrandstof is een van Brazilië's belangrijkste duurzame energiebronnen.`,
+        choices: [
+          { text: '▸ Ana verhuist naar Rio voor een opleiding — tijd voor avontuur!', tag: 'stad', path: 'city' },
+          { text: '▸ Ana blijft en bouwt het familiebedrijf uit — de kust is haar thuis.', tag: 'dorp', path: 'rural' }
+        ]
+      },
+      {
+        year: '1998',
+        title: 'Nieuwe Wegen',
+        artFunc: (ctx, w, h) => drawRestaurantOrSugarRoute(ctx, w, h, false),
+        getText: (state) => {
+          if (state.path === 'city') {
+            return `Ana woont in Rio de Janeiro en studeert hard. De stad is luid, chaotisch en prachtig — net als de zee, maar dan met meer claxons.
+
+Op college leert ze over de <span class="highlight">kerncentrale van Angra dos Reis</span>, vlakbij de kust waar ze opgroeide! "Slechts <span class="fact">3% van alle elektriciteit</span>," zegt de professor, "maar het is stabiel en betrouwbaar."
+
+"En het mooie is," voegt hij toe, "Brazilië heeft <span class="fact">genoeg uranium in eigen bodem</span> om in de eigen behoefte te voorzien."
+
+Ana denkt: van kaarslicht naar kernenergie in één generatie. Niet slecht.`;
+          } else {
+            return `Ana runt inmiddels een klein visrestaurant aan de kust. Toeristen ontdekken het dorpje, en Ana's gegrilde vis is een hit.
+
+Ze koopt een <span class="highlight">koelkast</span> voor het restaurant. En dan een vriezer. En dan merkt ze iets: haar <span class="fact">stroomrekening verdrievoudigt</span>!
+
+"Meer apparaten = meer energieverbruik," legt de elektricien uit. "En jij bent niet de enige. <span class="highlight">Heel Brazilië</span> koopt koelkasten en airco's."
+
+Ze hoort op het nieuws over een <span class="highlight">kerncentrale</span> verderop langs de kust. <span class="fact">3% van de stroom</span>, met <span class="fact">uranium uit eigen bodem</span>. "Nou," denkt Ana, "dat kan ook geen kwaad."`;
+          }
+        },
+        infoBox: `☢️ WIST JE DAT? Ongeveer 3% van de Braziliaanse elektriciteit komt van kernenergie. Brazilië heeft voldoende uranium in eigen bodem. De groeiende energievraag komt door meer apparaten, welvaart en bevolkingsgroei.`,
+        choices: [
+          { text: '▸ Ana richt zich op milieu en duurzaamheid — de zee beschermen!', tag: 'milieu' },
+          { text: '▸ Ana kiest voor de economie — geld verdienen en groeien!', tag: 'economie' }
+        ]
+      },
+      {
+        year: '2003',
+        title: 'Alles Verandert!',
+        artFunc: drawEconomicBoom,
+        text: `De wereld heeft trek in Brazilië. <span class="fact">IJzererts, soja, koffie</span> — alles wordt geëxporteerd. De economie <span class="highlight">BOOOMT</span>.
+
+De regering voert <span class="highlight">anti-armoedebeleid</span>. En het werkt! Families die generaties lang arm waren, kopen opeens hun eerste koelkast. Dan een tv. Dan een airco...
+
+Ana ziet het overal. Haar zus heeft nu drie airco's. DRIE. "Het is warm!" zegt ze verdedigend.
+
+"Maar al die <span class="fact">apparaten vreten energie</span>," denkt Ana. Gelukkig heeft Brazilië waterkracht. Heel veel waterkracht.
+
+Haar beste vriendin Lucia belt: "Ana! Laten we samen een bedrijf starten! De economie groeit, dit is ons moment!"`,
+        infoBox: `📈 WIST JE DAT? Tussen 2000 en 2010 groeide Brazilië's economie razendsnel dankzij export van grondstoffen (ijzererts!). Door anti-armoedebeleid steeg het inkomen van miljoenen mensen. Meer welvaart → meer energievraag!`,
+        choices: [
+          { text: '▸ Samen met Lucia een bedrijf starten — dit is het moment!', tag: 'samen' },
+          { text: '▸ Op eigen pad blijven — Ana kent haar eigen koers het best.', tag: 'solo' }
+        ]
+      },
+      {
+        year: '2007',
+        title: 'Olie Voor de Kust!',
+        artFunc: drawOilDiscovery,
+        text: `Ana kan het niet geloven. Ze staat op het strand en tuurt naar de horizon, waar ze de silhouetten van <span class="highlight">olieplatforms</span> kan zien.
+
+Recht voor de kust van haar geboortestreek is een <span class="fact">ENORM olieveld ontdekt</span>!
+
+Brazilië, het land dat altijd olie moest importeren, wordt opeens <span class="highlight">exporteur</span>. Het dorpje verandert: nieuwe banen, nieuwe mensen, nieuwe geld.
+
+Maar Ana kijkt ook naar de zee. Háár zee. De zee waar papa altijd viste.
+
+"<span class="fact">Aardgas importeren we trouwens nog steeds</span>," zegt een buurman. "Dat gebruiken ze voor stroom."
+
+"Dus we exporteren olie maar importeren gas?" Ana schudt haar hoofd. "Dit land is soms net een telenovela."`,
+        infoBox: `🛢️ WIST JE DAT? In 2007 werd voor de kust van Rio de Janeiro een enorm olieveld ontdekt. Brazilië werd van olie-importeur een exporteur! Aardgas wordt nog steeds geïmporteerd voor stroomopwekking.`,
+        choices: [
+          { text: '▸ "Eindelijk welvaart voor onze regio — dit is onze kans!"', tag: 'optimist', ending: 1 },
+          { text: '▸ "Ik maak me zorgen om de zee en de toekomst..."', tag: 'bezorgd', ending: 3 },
+          { text: '▸ "Het is ingewikkeld. We moeten alles slim combineren."', tag: 'realist', ending: 2 }
+        ]
+      },
+      {
+        year: '2014',
+        title: 'Copa do Mundo! ⚽',
+        artFunc: drawWorldCup2014,
+        text: `GOOOOOOOL! BRASIL!
+
+Ana kijkt met de hele buurt. De buurman heeft zijn tv naar buiten gesleept (die airco kan even uit). Iedereen draagt geel-groen. Iemand huilt. Iemand danst. Dat is dezelfde persoon.
+
+Wat een reis. Van een vissersdorpje zonder stroom tot een land dat het WK organiseert.
+
+Ana's dochter, 8 jaar oud, trekt aan haar mouw: "Mama, waar komt onze stroom eigenlijk vandaan?"
+
+Ana glimlacht. Wat een vraag. <span class="fact">Waterkracht, biobrandstof uit suikerriet, een beetje kernenergie, eigen olie</span>... Brazilië heeft een van de <span class="highlight">meest diverse energiemixen ter wereld</span>. En het begon allemaal omdat ze te arm waren voor olie.`,
+        infoBox: `🌍 SAMENVATTING: Brazilië's energiemix: ~70% waterkracht (hernieuwbaar!), biobrandstoffen uit suikerriet, 3% kernenergie (eigen uranium), eigen olie sinds 2007, geïmporteerd aardgas. De energievraag groeit door welvaart, industrie en bevolkingsgroei — maar het verbruik per persoon is nog 3x lager dan in Nederland.`,
+        choices: [
+          { text: '▸ "Van de rivieren — en van de dromen van je opa en oma!"', tag: 'trots', ending: 1 },
+          { text: '▸ "Van alles een beetje — water, suikerriet, olie, en een kerncentrale."', tag: 'uitleg', ending: 2 },
+          { text: '▸ "Van slimme keuzes die mensen vóór jou al maakten."', tag: 'slim', ending: 3 }
+        ]
+      }
+    ],
+    endings: {
+      1: {
+        title: 'De Trotse Moeder',
+        artType: 1,
+        text: `<strong>2024 — Ana, 49 jaar</strong>
+
+Ana zit op het terras van haar restaurant — dat inmiddels het populairste van de kust is — en kijkt naar de zee. Dezelfde zee als altijd.
+
+Haar dochter vraagt of ze een <em>limonada</em> wil.
+
+Ana denkt terug aan het vissersdorpje. Geen stroom. Geen koelkast. Papa op zee, mama op de markt.
+
+En nu? <span class="highlight">70% waterkracht</span>. <span class="highlight">Biobrandstof in elke tank</span>. Eigen olie voor de kust. Een kerncentrale om de hoek.
+
+"Niet slecht voor een vissersmeisje, toch?" zegt ze tegen niemand in het bijzonder.
+
+De zee antwoordt niet. Maar de koelkast bromt tevreden.`,
+        summary: `Ana werd een succesvolle ondernemer aan de kust. Ze zag haar vissersdorp transformeren door Brazilië's economische groei en unieke energiemix: waterkracht, biobrandstof, eigen olie, en kernenergie.`
+      },
+      2: {
+        title: 'De Bezorgde Wetenschapper',
+        artType: 2,
+        text: `<strong>2024 — Ana, 49 jaar</strong>
+
+Ana staat voor een zaal vol beleidsmakers en toont een grafiek. De lijn gaat omhoog. Steil omhoog.
+
+"Dit is de <span class="highlight">energievraag van Brazilië</span>," zegt ze. "En dit is wat we nu produceren."
+
+De vraag groeit door <span class="highlight">welvaart, industrie en bevolkingsgroei</span>. Iedereen wil een koelkast, een airco, een auto. Terecht!
+
+"Maar ons energieverbruik per persoon is nog <span class="fact">drie keer lager dan in Nederland</span>. Als we ooit op dat niveau komen... hebben we véél meer nodig."
+
+Ze klikt naar de volgende slide. "Waterkracht is fantastisch. Biobrandstof is briljant. Maar het is niet genoeg."
+
+"We moeten slim blijven kiezen. Net zoals we in 1975 al deden toen we suikerriet in een tank stopten."`,
+        summary: `Ana werd milieuwetenschapper en energiebeleid-adviseur. Ze begrijpt Brazilië's kracht (relatief duurzame energiemix) maar ook de uitdaging: groeiende vraag door welvaart en bevolkingsgroei, terwijl het verbruik per persoon nog ver onder westers niveau ligt.`
+      },
+      3: {
+        title: 'De Visionair',
+        artType: 3,
+        text: `<strong>2024 — Ana, 49 jaar</strong>
+
+Ana geeft een lezing op een internationale conferentie. Op het scherm achter haar: een kaart van Brazilië met alle energiebronnen.
+
+"Mijn vader was visser," begint ze. "We hadden geen stroom. Mijn moeder waste kleren in de rivier."
+
+De zaal is stil.
+
+"In 1975 was Brazilië te arm om olie te kopen. Dus maakten ze <span class="highlight">brandstof van suikerriet</span>. Uit pure noodzaak."
+
+Ze wijst naar de kaart. "<span class="highlight">70% waterkracht. Biobrandstof in elke auto. Eigen uranium. Eigen olie.</span>"
+
+"Wij begonnen uit armoede en noodzaak, maar we hebben <em>per ongeluk</em> het energiemodel van de toekomst gebouwd."
+
+Ze kijkt de zaal in. "De vraag is niet óf de wereld dit voorbeeld volgt. De vraag is wanneer."
+
+Haar dochter, achter in de zaal, steekt twee duimen op. Ana knipoogt terug.`,
+        summary: `Ana werd een internationaal spreker over duurzame energie. Ze laat de wereld zien hoe Brazilië uit noodzaak en armoede een van de meest duurzame energiemixen ter wereld opbouwde: waterkracht, biobrandstof, kernenergie, en eigen fossiele reserves als vangnet.`
+      }
+    }
+  }
+};
+
+// ============================================================
+// GAME ENGINE
+// ============================================================
+
+let currentState = {
+  character: null,
+  sceneIndex: 0,
+  choices: [],
+  path: null,
+  ending: null
+};
+
+function startGame(character) {
+  currentState = {
+    character,
+    sceneIndex: 0,
+    choices: [],
+    path: null,
+    ending: null
+  };
+  document.getElementById('title-screen').style.display = 'none';
+  document.getElementById('game-screen').style.display = 'block';
+  renderScene();
+}
+
+function renderScene() {
+  const data = gameData[currentState.character];
+  const scene = data.scenes[currentState.sceneIndex];
+  const container = document.getElementById('scene-container');
+  const totalScenes = data.scenes.length;
+
+  // Update progress bar
+  document.getElementById('progress-bar').style.width = 
+    ((currentState.sceneIndex / totalScenes) * 100) + '%';
+
+  // Get text (might be dynamic)
+  let storyText = scene.getText ? scene.getText(currentState) : scene.text;
+
+  // Build scene HTML
+  let html = `
+    <div class="year-header fade-in">${scene.year}</div>
+    <div class="chapter-title fade-in fade-in-delay-1">${scene.title}</div>
+    <canvas class="scene-art fade-in" id="scene-canvas" width="760" height="300"></canvas>
+    <div class="story-text fade-in fade-in-delay-1">${storyText}</div>
+    <div class="info-box fade-in fade-in-delay-2">
+      <span class="info-icon">ℹ️</span> ${scene.infoBox}
+    </div>
+    <div class="choices-container fade-in fade-in-delay-3">
+      ${scene.choices.map((c, i) => `
+        <button class="choice-btn" onclick="makeChoice(${i})">
+          ${c.text}
+        </button>
+      `).join('')}
+    </div>
+  `;
+
+  container.innerHTML = html;
+
+  // Draw the pixel art
+  setTimeout(() => {
+    const canvas = document.getElementById('scene-canvas');
+    if (canvas && scene.artFunc) {
+      const ctx = canvas.getContext('2d');
+      ctx.imageSmoothingEnabled = false;
+      scene.artFunc(ctx, canvas.width, canvas.height);
+    }
+  }, 50);
+
+  // Scroll to top
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function makeChoice(index) {
+  const data = gameData[currentState.character];
+  const scene = data.scenes[currentState.sceneIndex];
+  const choice = scene.choices[index];
+
+  currentState.choices.push(choice.tag);
+
+  if (choice.path) currentState.path = choice.path;
+  if (choice.ending) currentState.ending = choice.ending;
+
+  currentState.sceneIndex++;
+
+  if (currentState.sceneIndex >= data.scenes.length) {
+    renderEnding();
+  } else {
+    renderScene();
+  }
+}
+
+function renderEnding() {
+  const data = gameData[currentState.character];
+
+  // Determine ending based on last two choices that have ending tags
+  let endingNum = currentState.ending || 1;
+  // Check last two scenes for ending preferences
+  const endingChoices = currentState.choices.slice(-2);
+  const endingScores = {1: 0, 2: 0, 3: 0};
+  
+  // Use the explicit ending if set, otherwise derive from choices
+  if (!currentState.ending) {
+    // Fallback: map tags to endings
+    endingChoices.forEach(tag => {
+      if (['optimist','kansen','trots','auto'].includes(tag)) endingScores[1]++;
+      if (['realist','leren','uitleg','huis'].includes(tag)) endingScores[2]++;
+      if (['duurzaam','slim','bezorgd','milieu'].includes(tag)) endingScores[3]++;
+    });
+    endingNum = Object.entries(endingScores).sort((a,b) => b[1]-a[1])[0][0];
+  }
+
+  const ending = data.endings[endingNum];
+
+  document.getElementById('progress-bar').style.width = '100%';
+
+  const container = document.getElementById('scene-container');
+  const charName = currentState.character === 'carlos' ? 'Carlos' : 'Ana';
+
+  container.innerHTML = `
+    <div class="year-header fade-in">2024</div>
+    <div class="chapter-title fade-in fade-in-delay-1">${ending.title}</div>
+    <canvas class="scene-art fade-in" id="ending-canvas" width="760" height="300"></canvas>
+    <div class="ending-badge fade-in fade-in-delay-1">EINDE — ${ending.title.toUpperCase()}</div>
+    <div class="story-text fade-in fade-in-delay-2">${ending.text}</div>
+    <div class="ending-summary fade-in fade-in-delay-3">
+      <h3>📚 WAT HEB JE GELEERD?</h3>
+      ${ending.summary}
+    </div>
+    <div class="ending-summary fade-in fade-in-delay-3" style="border-color: var(--yellow-br); background: rgba(255,223,0,0.08);">
+      <h3>🇧🇷 BRAZILIË'S ENERGIEMIX</h3>
+      ⚡ ~70% waterkracht (hernieuwbaar, geen CO₂)<br>
+      🌱 Biobrandstoffen uit suikerriet (80% rijdt flexfuel)<br>
+      ☢️ 3% kernenergie (eigen uranium)<br>
+      🛢️ Eigen olie sinds 2007 (exporteur!)<br>
+      🔥 Aardgas (geïmporteerd)<br><br>
+      📈 Energievraag groeit door: welvaart, industrie, bevolkingsgroei<br>
+      🌍 Verbruik per persoon: nog 3x lager dan Nederland
+    </div>
+    <button class="restart-btn" onclick="restart()">🔄 OPNIEUW SPELEN</button>
+  `;
+
+  // Draw ending art
+  setTimeout(() => {
+    const canvas = document.getElementById('ending-canvas');
+    if (canvas) {
+      const ctx = canvas.getContext('2d');
+      ctx.imageSmoothingEnabled = false;
+      drawFutureEnding(ctx, canvas.width, canvas.height, ending.artType);
+    }
+  }, 50);
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function restart() {
+  document.getElementById('game-screen').style.display = 'none';
+  document.getElementById('title-screen').style.display = 'flex';
+  document.getElementById('progress-bar').style.width = '0%';
+  currentState = { character: null, sceneIndex: 0, choices: [], path: null, ending: null };
+}
+
+// ============================================================
+// INIT — Draw portraits on title screen
+// ============================================================
+window.addEventListener('DOMContentLoaded', () => {
+  drawPixelScene('carlos-portrait', drawCarlosPortrait, 96, 96);
+  drawPixelScene('ana-portrait', drawAnaPortrait, 96, 96);
+});
+</script>
+</body>
+</html>
