@@ -24,7 +24,6 @@
   header h1 { font-size: 1.8rem; font-weight: 900; color: #4ade80; letter-spacing: -0.5px; }
   header p { font-size: 0.88rem; opacity: 0.55; margin-top: 4px; }
 
-  /* ── Welcome banner ── */
   .welcome-banner {
     background: linear-gradient(135deg, #132a1e 0%, #0d2b1a 60%, #0d1f17 100%);
     border-bottom: 2px solid #1e4a30;
@@ -32,11 +31,6 @@
     display: flex;
     align-items: flex-end;
     gap: 28px;
-  }
-
-  .welcome-text {
-    flex: 1;
-    padding-bottom: 24px;
   }
 
   .avatar-wrap {
@@ -52,11 +46,7 @@
     to   { transform: scale(1)   translateY(0);    opacity: 1; }
   }
 
-  .avatar-wrap img {
-    width: 100%;
-    height: auto;
-    display: block;
-  }
+  .avatar-wrap img { width: 100%; height: auto; display: block; }
 
   .welcome-text {
     animation: slideIn 0.5s 0.2s ease both;
@@ -69,27 +59,9 @@
     to   { transform: translateX(0);     opacity: 1; }
   }
 
-  .welcome-text .groet {
-    font-size: 1.25rem;
-    font-weight: 900;
-    color: #4ade80;
-    line-height: 1.2;
-  }
-
-  .welcome-text .boodschap {
-    font-size: 0.9rem;
-    color: #a7f3b8;
-    margin-top: 6px;
-    line-height: 1.6;
-    max-width: 580px;
-    opacity: 0.85;
-  }
-
-  .welcome-text .emoji-rij {
-    margin-top: 10px;
-    font-size: 1.3rem;
-    letter-spacing: 4px;
-  }
+  .welcome-text .groet { font-size: 1.25rem; font-weight: 900; color: #4ade80; line-height: 1.2; }
+  .welcome-text .boodschap { font-size: 0.9rem; color: #a7f3b8; margin-top: 6px; line-height: 1.6; max-width: 580px; opacity: 0.85; }
+  .welcome-text .emoji-rij { margin-top: 10px; font-size: 1.3rem; letter-spacing: 4px; }
 
   #klas-tabs {
     display: flex;
@@ -116,11 +88,7 @@
   .klas-tab:hover { border-color: #4ade80; color: #4ade80; }
   .klas-tab.actief { background: #4ade80; border-color: #4ade80; color: #0d1f17; }
 
-  main {
-    max-width: 1000px;
-    margin: 0 auto;
-    padding: 28px 24px;
-  }
+  main { max-width: 1000px; margin: 0 auto; padding: 28px 24px; }
 
   .klas-view { display: none; }
   .klas-view.actief { display: block; }
@@ -129,12 +97,7 @@
   .klas-header h2 { font-size: 1.4rem; font-weight: 900; }
   .klas-header p { font-size: 0.85rem; opacity: 0.55; margin-top: 4px; }
 
-  .hoofdstuk {
-    margin-bottom: 12px;
-    border: 2px solid #132a1e;
-    border-radius: 14px;
-    overflow: hidden;
-  }
+  .hoofdstuk { margin-bottom: 12px; border: 2px solid #132a1e; border-radius: 14px; overflow: hidden; }
 
   .hoofdstuk-header {
     background: #132a1e;
@@ -149,54 +112,21 @@
 
   .hoofdstuk-header:hover { background: #1a3a26; }
 
-  .hoofdstuk-naam {
-    font-weight: 800;
-    font-size: 0.95rem;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
+  .hoofdstuk-naam { font-weight: 800; font-size: 0.95rem; display: flex; align-items: center; gap: 10px; }
 
-  .h-num {
-    background: #0d1f17;
-    border: 1.5px solid #1e4a30;
-    border-radius: 6px;
-    padding: 2px 10px;
-    font-size: 0.8rem;
-    color: #4ade80;
-  }
+  .h-num { background: #0d1f17; border: 1.5px solid #1e4a30; border-radius: 6px; padding: 2px 10px; font-size: 0.8rem; color: #4ade80; }
 
-  .h-badge {
-    font-size: 0.75rem;
-    background: #4ade8022;
-    border: 1.5px solid #4ade80;
-    color: #4ade80;
-    border-radius: 6px;
-    padding: 1px 8px;
-  }
+  .h-badge { font-size: 0.75rem; background: #4ade8022; border: 1.5px solid #4ade80; color: #4ade80; border-radius: 6px; padding: 1px 8px; }
 
-  .h-pijl {
-    font-size: 0.85rem;
-    opacity: 0.4;
-    transition: transform 0.2s;
-  }
+  .h-pijl { font-size: 0.85rem; opacity: 0.4; transition: transform 0.2s; }
 
   .hoofdstuk.open .h-pijl { transform: rotate(90deg); }
 
-  .hoofdstuk-body {
-    display: none;
-    padding: 14px 20px;
-    background: #091510;
-    border-top: 2px solid #132a1e;
-  }
+  .hoofdstuk-body { display: none; padding: 14px 20px; background: #091510; border-top: 2px solid #132a1e; }
 
   .hoofdstuk.open .hoofdstuk-body { display: block; }
 
-  .apps-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-    gap: 10px;
-  }
+  .apps-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px; }
 
   .app-kaart {
     background: #132a1e;
@@ -211,11 +141,7 @@
     gap: 12px;
   }
 
-  .app-kaart:hover {
-    border-color: #4ade80;
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(74,222,128,0.12);
-  }
+  .app-kaart:hover { border-color: #4ade80; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(74,222,128,0.12); }
 
   .app-icon { font-size: 1.6rem; flex-shrink: 0; }
   .app-info { flex: 1; }
@@ -224,20 +150,9 @@
   .app-pijl { font-size: 0.9rem; opacity: 0.35; flex-shrink: 0; }
   .app-kaart:hover .app-pijl { opacity: 1; color: #4ade80; }
 
-  .leeg-melding {
-    color: #1e4a30;
-    font-size: 0.85rem;
-    font-style: italic;
-  }
+  .leeg-melding { color: #1e4a30; font-size: 0.85rem; font-style: italic; }
 
-  footer {
-    text-align: center;
-    padding: 24px;
-    font-size: 0.75rem;
-    opacity: 0.25;
-    border-top: 2px solid #132a1e;
-    margin-top: 8px;
-  }
+  footer { text-align: center; padding: 24px; font-size: 0.75rem; opacity: 0.25; border-top: 2px solid #132a1e; margin-top: 8px; }
 
   @media (max-width: 600px) {
     .welcome-banner { flex-direction: column; align-items: center; text-align: center; padding-bottom: 0; }
@@ -253,7 +168,6 @@
   <p>Aardrijkskunde apps per klas en hoofdstuk</p>
 </header>
 
-<!-- Avatar welkomstbanner -->
 <div class="welcome-banner">
   <div class="welcome-text">
     <div class="groet">👋 Hé, welkom bij AK Apps!</div>
@@ -284,42 +198,27 @@ const KLASSEN = [
   },
   {
     naam: "VWO 2", id: "vwo2", hoofdstukken: [
-      { nr: 1, apps: [] },
-      { nr: 2, apps: [] },
-      { nr: 3, apps: [] },
-      { nr: 4, apps: [] }
+      { nr: 1, apps: [] }, { nr: 2, apps: [] }, { nr: 3, apps: [] }, { nr: 4, apps: [] }
     ]
   },
   {
     naam: "HAVO 1", id: "havo1", hoofdstukken: [
-      { nr: 1, apps: [] },
-      { nr: 2, apps: [] },
-      { nr: 3, apps: [] },
-      { nr: 4, apps: [] }
+      { nr: 1, apps: [] }, { nr: 2, apps: [] }, { nr: 3, apps: [] }, { nr: 4, apps: [] }
     ]
   },
   {
     naam: "HAVO 2", id: "havo2", hoofdstukken: [
-      { nr: 1, apps: [] },
-      { nr: 2, apps: [] },
-      { nr: 3, apps: [] },
-      { nr: 4, apps: [] }
+      { nr: 1, apps: [] }, { nr: 2, apps: [] }, { nr: 3, apps: [] }, { nr: 4, apps: [] }
     ]
   },
   {
     naam: "VMBO 1", id: "vmbo1", hoofdstukken: [
-      { nr: 1, apps: [] },
-      { nr: 2, apps: [] },
-      { nr: 3, apps: [] },
-      { nr: 4, apps: [] }
+      { nr: 1, apps: [] }, { nr: 2, apps: [] }, { nr: 3, apps: [] }, { nr: 4, apps: [] }
     ]
   },
   {
     naam: "VMBO 2", id: "vmbo2", hoofdstukken: [
-      { nr: 1, apps: [] },
-      { nr: 2, apps: [] },
-      { nr: 3, apps: [] },
-      { nr: 4, apps: [] }
+      { nr: 1, apps: [] }, { nr: 2, apps: [] }, { nr: 3, apps: [] }, { nr: 4, apps: [] }
     ]
   },
   {
@@ -327,33 +226,23 @@ const KLASSEN = [
       { nr: 1, apps: [] },
       { nr: 2, apps: [] },
       { nr: 3, apps: [
-        {
-          titel: "Energieminister",
-          beschrijving: "Energiebeleid simulatie",
-          icon: "⚡",
-          pad: "vmbo3/hoofdstuk3/Game-H3-energie_minister.html"}
-       { titel: "Overzicht H3", 
-        beschrijving: "Alle stof op 1 plek, handig voor het leren!", 
-        icon: "⚡", pad: "vmbo3/hoofdstuk3/t3h3overzicht.html" }
+        { titel: "Energieminister", beschrijving: "Energiebeleid simulatie", icon: "⚡", pad: "vmbo3/hoofdstuk3/Game-H3-energie_minister.html" },
+        { titel: "Overzicht H3", beschrijving: "Alle stof op 1 plek!", icon: "⚡", pad: "vmbo3/hoofdstuk3/t3h3overzicht.html" }
       ]},
-      { nr: 4, apps: [{ titel: "4.1 Vida Brasileira", beschrijving: "Beleef de opkomst van Brazilië!", icon: "🌴", pad: "vmbo3/hoofdstuk4/4.1-vida-brasileira-v2.html" }{ titel: "4.1 Vida Brasileira", beschrijving: "Beleef de opkomst van Brazilië!", icon: "🌴", pad: "vmbo3/hoofdstuk4/4.1-vida-brasileira-v2.html" }] },
+      { nr: 4, apps: [
+        { titel: "4.1 Vida Brasileira", beschrijving: "Beleef Brazilië!", icon: "🌴", pad: "vmbo3/hoofdstuk4/4.1-vida-brasileira-v2.html" }
+      ]},
       { nr: 5, apps: [] },
       { nr: 6, apps: [] }
     ]
   },
   {
     naam: "VMBO 4", id: "vmbo4", hoofdstukken: [
-      { nr: 1, apps: [] },
-      { nr: 2, apps: [] },
-      { nr: 3, apps: [] },
-      { nr: 4, apps: [] },
-      { nr: 5, apps: [] },
-      { nr: 6, apps: [] }
+      { nr: 1, apps: [] }, { nr: 2, apps: [] }, { nr: 3, apps: [] }, { nr: 4, apps: [] }, { nr: 5, apps: [] }, { nr: 6, apps: [] }
     ]
   }
 ];
 
-// ─── UI bouwen ───────────────────────────────────────────────────────────────
 const tabsEl = document.getElementById('klas-tabs');
 const inhoudEl = document.getElementById('klas-inhoud');
 
@@ -373,10 +262,7 @@ KLASSEN.forEach((klas, i) => {
 
   const header = document.createElement('div');
   header.className = 'klas-header';
-  header.innerHTML = `
-    <h2>${klas.naam}</h2>
-    <p>${klas.hoofdstukken.length} hoofdstukken · ${totalApps} app${totalApps !== 1 ? 's' : ''} beschikbaar</p>
-  `;
+  header.innerHTML = `<h2>${klas.naam}</h2><p>${klas.hoofdstukken.length} hoofdstukken · ${totalApps} app${totalApps !== 1 ? 's' : ''}</p>`;
   view.appendChild(header);
 
   klas.hoofdstukken.forEach(hst => {
@@ -399,7 +285,7 @@ KLASSEN.forEach((klas, i) => {
     hBody.className = 'hoofdstuk-body';
 
     if (hst.apps.length === 0) {
-      hBody.innerHTML = '<p class="leeg-melding">Nog geen apps beschikbaar voor dit hoofdstuk.</p>';
+      hBody.innerHTML = '<p class="leeg-melding">Nog geen apps beschikbaar.</p>';
     } else {
       const grid = document.createElement('div');
       grid.className = 'apps-grid';
@@ -419,12 +305,10 @@ KLASSEN.forEach((klas, i) => {
       });
       hBody.appendChild(grid);
     }
-
     sectie.appendChild(hHeader);
     sectie.appendChild(hBody);
     view.appendChild(sectie);
   });
-
   inhoudEl.appendChild(view);
 });
 
