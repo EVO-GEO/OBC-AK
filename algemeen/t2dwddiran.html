@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Iran — De Ontdekkingsreiziger | Aardrijkskunde VMBO 2</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --fire1:#c0392b;--fire2:#e74c3c;--fire3:#ff6b35;--fire4:#f39c12;--fire5:#ffd32a;
+    --dark:#1a0a00;--dark2:#2d1200;--dark3:#3d1f0a;
+    --card:#2d1a08;--border:#8b3a1a;--text:#f5e6d3;--muted:#c4956a;
+    --success:#27ae60;--error:#e74c3c;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{font-family:'Nunito',sans-serif;background:var(--dark);color:var(--text);min-height:100vh;
+    background-image:radial-gradient(ellipse at 20% 80%,rgba(192,57,43,.15) 0%,transparent 50%),
+    radial-gradient(ellipse at 80% 20%,rgba(243,156,18,.1) 0%,transparent 50%),
+    repeating-linear-gradient(45deg,transparent,transparent 60px,rgba(255,255,255,.01) 60px,rgba(255,255,255,.01) 61px);}
+  #progress-bar-container{position:sticky;top:0;z-index:1000;background:var(--dark2);border-bottom:2px solid var(--border);padding:10px 20px;display:flex;align-items:center;gap:15px;box-shadow:0 4px 20px rgba(0,0,0,.5);}
+  .logo{font-family:'Bebas Neue',sans-serif;font-size:1.2rem;color:var(--fire3);white-space:nowrap;letter-spacing:2px;}
+  #progress-track{flex:1;height:12px;background:var(--dark3);border-radius:6px;overflow:hidden;border:1px solid var(--border);}
+  #progress-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--fire1),var(--fire3),var(--fire4));border-radius:6px;transition:width .5s ease;box-shadow:0 0 10px rgba(255,107,53,.6);}
+  #progress-text{font-size:.85rem;font-weight:700;color:var(--fire4);white-space:nowrap;min-width:60px;text-align:right;}
+  #reset-btn{font-family:'Nunito',sans-serif;font-size:.7rem;background:transparent;border:1px solid var(--border);color:var(--muted);padding:4px 10px;border-radius:4px;cursor:pointer;white-space:nowrap;transition:all .2s;}
+  #reset-btn:hover{border-color:var(--fire2);color:var(--fire2);}
+  .hero{background:linear-gradient(135deg,var(--dark2) 0%,#4a1a00 50%,var(--dark2) 100%);padding:60px 20px 40px;text-align:center;position:relative;overflow:hidden;border-bottom:3px solid var(--fire1);}
+  .hero::before{content:'';position:absolute;bottom:0;left:0;right:0;height:100px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 100'%3E%3Cpath d='M0,100 L0,60 Q150,20 300,50 Q450,80 600,40 Q750,0 900,30 Q1050,60 1200,20 L1200,100 Z' fill='%231a0a00'/%3E%3C/svg%3E") no-repeat bottom;background-size:cover;}
+  .hero-badge{display:inline-block;background:var(--fire1);color:#fff;font-size:.75rem;font-weight:800;letter-spacing:3px;text-transform:uppercase;padding:5px 16px;border-radius:20px;margin-bottom:20px;}
+  .hero h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(3rem,8vw,6rem);letter-spacing:4px;line-height:1;color:var(--fire3);text-shadow:0 0 40px rgba(255,107,53,.5),4px 4px 0 var(--fire1);margin-bottom:10px;}
+  .hero-sub{font-size:1.1rem;color:var(--muted);margin-bottom:30px;font-weight:600;}
+  .hero-meta{display:flex;justify-content:center;gap:30px;flex-wrap:wrap;}
+  .hero-meta span{display:flex;align-items:center;gap:6px;font-size:.85rem;color:var(--fire4);font-weight:700;}
+  .main-container{max-width:960px;margin:0 auto;padding:20px;}
+  .news-banner{background:linear-gradient(135deg,var(--fire1),#8b0000);border-radius:12px;padding:20px 25px;margin:30px 0;display:flex;align-items:flex-start;gap:15px;border:1px solid var(--fire2);box-shadow:0 4px 20px rgba(192,57,43,.3);}
+  .news-icon{font-size:2rem;}
+  .news-banner h3{font-family:'Bebas Neue',sans-serif;letter-spacing:2px;font-size:1.1rem;color:var(--fire5);margin-bottom:6px;}
+  .news-banner p{font-size:.9rem;line-height:1.6;}
+  .section-header{display:flex;align-items:center;gap:15px;margin:50px 0 25px;padding-bottom:15px;border-bottom:2px solid var(--border);}
+  .section-number{font-family:'Bebas Neue',sans-serif;font-size:3rem;color:var(--fire1);line-height:1;opacity:.7;}
+  .section-title-block h2{font-family:'Bebas Neue',sans-serif;font-size:1.8rem;letter-spacing:3px;color:var(--fire3);}
+  .section-title-block p{font-size:.8rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:1px;}
+  .section-complete-badge{margin-left:auto;background:var(--success);color:#fff;font-size:.75rem;font-weight:800;padding:5px 12px;border-radius:20px;display:none;}
+  .content-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:25px;margin-bottom:20px;position:relative;overflow:hidden;}
+  .content-card::before{content:'';position:absolute;top:0;left:0;width:4px;height:100%;background:linear-gradient(180deg,var(--fire3),var(--fire1));}
+  .content-card h3{font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:2px;color:var(--fire4);margin-bottom:12px;}
+  .content-card p{font-size:.95rem;line-height:1.8;color:var(--text);margin-bottom:10px;}
+  .lesson-image{width:100%;border-radius:8px;margin:15px 0;border:1px solid var(--border);object-fit:cover;height:220px;}
+  .info-box{background:rgba(192,57,43,.15);border:1px solid var(--fire1);border-radius:8px;padding:15px 18px;margin:15px 0;display:flex;gap:12px;align-items:flex-start;}
+  .info-box .icon{font-size:1.5rem;}
+  .info-box-content{flex:1;}
+  .info-box-content strong{display:block;color:var(--fire4);font-size:.85rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;}
+  .info-box-content p{font-size:.9rem;margin:0;}
+  .key-concept{background:rgba(243,156,18,.1);border-left:4px solid var(--fire4);padding:12px 16px;border-radius:0 8px 8px 0;margin:12px 0;font-size:.9rem;line-height:1.7;}
+  #iran-map{width:100%;height:400px;border-radius:10px;border:2px solid var(--border);margin:15px 0;background:var(--dark3);}
+  .map-loading{display:flex;align-items:center;justify-content:center;height:400px;color:var(--muted);font-size:.9rem;font-weight:700;}
+  .quiz-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:25px;margin:20px 0;}
+  .quiz-question{font-size:1rem;font-weight:700;color:var(--fire4);margin-bottom:18px;line-height:1.5;padding-left:10px;border-left:3px solid var(--fire3);}
+  .quiz-options{display:flex;flex-direction:column;gap:10px;}
+  .quiz-option{background:var(--dark3);border:2px solid var(--border);border-radius:8px;padding:12px 16px;cursor:pointer;font-family:'Nunito',sans-serif;font-size:.9rem;color:var(--text);text-align:left;transition:all .2s;display:flex;align-items:center;gap:10px;}
+  .quiz-option:hover:not(:disabled){border-color:var(--fire3);background:rgba(255,107,53,.1);}
+  .quiz-option.correct{border-color:var(--success);background:rgba(39,174,96,.15);color:#7dffaa;}
+  .quiz-option.wrong{border-color:var(--error);background:rgba(231,76,60,.15);color:#ffaaaa;}
+  .quiz-option:disabled{cursor:not-allowed;opacity:.7;}
+  .option-label{width:28px;height:28px;border-radius:50%;background:var(--border);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.85rem;flex-shrink:0;}
+  .quiz-feedback{margin-top:15px;padding:12px 16px;border-radius:8px;font-size:.9rem;line-height:1.6;display:none;}
+  .quiz-feedback.correct-fb{background:rgba(39,174,96,.15);border:1px solid var(--success);color:#7dffaa;display:block;}
+  .quiz-feedback.wrong-fb{background:rgba(231,76,60,.15);border:1px solid var(--error);color:#ffaaaa;display:block;}
+  .quiz-feedback.hint-fb{background:rgba(243,156,18,.1);border:1px solid var(--fire4);color:var(--fire5);display:block;}
+  .quiz-attempts{font-size:.78rem;color:var(--muted);margin-top:8px;font-weight:700;}
+  .quiz-label{font-size:.75rem;font-weight:800;text-transform:uppercase;letter-spacing:2px;color:var(--muted);margin-bottom:8px;}
+  .timeline{position:relative;padding:20px 0;}
+  .timeline::before{content:'';position:absolute;left:28px;top:0;bottom:0;width:3px;background:linear-gradient(180deg,var(--fire1),var(--fire4));}
+  .timeline-item{display:flex;gap:20px;margin-bottom:30px;}
+  .timeline-dot{width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,var(--fire1),var(--fire4));display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:.85rem;letter-spacing:1px;flex-shrink:0;border:3px solid var(--dark);box-shadow:0 0 15px rgba(192,57,43,.4);position:relative;z-index:1;color:#fff;text-align:center;line-height:1.2;cursor:pointer;transition:transform .2s;}
+  .timeline-dot:hover{transform:scale(1.1);}
+  .timeline-content{flex:1;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:18px;cursor:pointer;transition:border-color .2s;}
+  .timeline-content:hover{border-color:var(--fire3);}
+  .timeline-content h4{font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:2px;color:var(--fire3);margin-bottom:8px;}
+  .timeline-content p{font-size:.88rem;line-height:1.7;color:var(--muted);}
+  .timeline-detail{display:none;margin-top:12px;padding:12px;background:rgba(255,107,53,.05);border-radius:6px;border:1px solid var(--border);font-size:.88rem;line-height:1.7;color:var(--text);}
+  .timeline-content.expanded .timeline-detail{display:block;}
+  .timeline-content.expanded{border-color:var(--fire3);}
+  .scenario-box{background:linear-gradient(135deg,#1a0500,var(--dark2));border:2px solid var(--fire1);border-radius:14px;overflow:hidden;margin:20px 0;}
+  .scenario-header{background:linear-gradient(90deg,var(--fire1),var(--fire2));padding:15px 25px;display:flex;align-items:center;gap:12px;}
+  .scenario-header h3{font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:3px;color:#fff;}
+  .scenario-body{padding:25px;}
+  .scenario-step{display:none;}
+  .scenario-step.active{display:block;}
+  .scenario-step h4{font-size:1rem;font-weight:800;color:var(--fire4);margin-bottom:12px;}
+  .scenario-step p{font-size:.92rem;line-height:1.8;margin-bottom:15px;}
+  .scenario-choice{display:flex;flex-direction:column;gap:10px;margin-top:15px;}
+  .scenario-btn{background:var(--dark3);border:2px solid var(--border);border-radius:8px;padding:12px 18px;color:var(--text);font-family:'Nunito',sans-serif;font-size:.88rem;cursor:pointer;text-align:left;transition:all .2s;font-weight:600;}
+  .scenario-btn:hover:not(:disabled){border-color:var(--fire3);background:rgba(255,107,53,.1);}
+  .scenario-btn.chosen{border-color:var(--fire3);color:var(--fire4);}
+  .scenario-result{margin-top:15px;padding:15px;background:rgba(192,57,43,.1);border:1px solid var(--fire1);border-radius:8px;font-size:.9rem;line-height:1.7;display:none;}
+  .scenario-result.show{display:block;}
+  .scenario-nav{display:flex;gap:10px;margin-top:20px;flex-wrap:wrap;}
+  .nav-btn{background:linear-gradient(135deg,var(--fire1),var(--fire2));border:none;color:#fff;padding:10px 22px;border-radius:8px;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:700;font-size:.88rem;transition:opacity .2s;}
+  .nav-btn:hover{opacity:.85;}
+  .nav-btn:disabled{opacity:.3;cursor:not-allowed;}
+  .step-indicator{font-size:.8rem;color:var(--muted);align-self:center;margin-left:auto;font-weight:700;}
+  .reflection-card{background:linear-gradient(135deg,var(--dark2),#1a0a00);border:2px solid var(--fire4);border-radius:14px;padding:30px;margin:20px 0;}
+  .reflection-card h3{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;letter-spacing:3px;color:var(--fire4);margin-bottom:15px;}
+  .learning-goal{display:flex;align-items:flex-start;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);font-size:.88rem;line-height:1.6;}
+  .learning-goal:last-of-type{border-bottom:none;}
+  .goal-check{width:22px;height:22px;border-radius:50%;background:var(--success);display:flex;align-items:center;justify-content:center;font-size:.8rem;flex-shrink:0;margin-top:2px;}
+  .score-display{text-align:center;padding:30px;background:rgba(255,107,53,.05);border-radius:10px;margin:20px 0;border:1px solid var(--border);}
+  .score-number{font-family:'Bebas Neue',sans-serif;font-size:5rem;color:var(--fire3);line-height:1;text-shadow:0 0 30px rgba(255,107,53,.5);}
+  .score-label{font-size:.9rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:2px;}
+  .reflection-q{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:20px;margin:12px 0;}
+  .reflection-q label{display:block;font-weight:700;color:var(--fire4);margin-bottom:10px;font-size:.9rem;}
+  .reflection-q textarea{width:100%;background:var(--dark3);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:'Nunito',sans-serif;font-size:.9rem;padding:10px;resize:vertical;min-height:80px;line-height:1.6;}
+  .reflection-q textarea:focus{outline:none;border-color:var(--fire3);}
+  .chart-container{position:relative;max-width:500px;margin:20px auto;background:var(--dark3);border-radius:10px;padding:20px;border:1px solid var(--border);}
+  .map-task{background:rgba(243,156,18,.08);border:1px solid var(--fire4);border-radius:8px;padding:14px 18px;margin:12px 0;font-size:.88rem;line-height:1.6;}
+  .map-task strong{color:var(--fire4);}
+  .map-checklist{list-style:none;margin-top:10px;display:flex;flex-direction:column;gap:6px;}
+  .map-checklist li{display:flex;align-items:center;gap:10px;font-size:.85rem;cursor:pointer;padding:5px;border-radius:4px;transition:background .2s;}
+  .map-checklist li:hover{background:rgba(255,107,53,.05);}
+  .map-check{width:20px;height:20px;border:2px solid var(--border);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:.7rem;flex-shrink:0;transition:all .2s;}
+  .map-check.done{background:var(--success);border-color:var(--success);color:#fff;}
+  .map-complete-msg{display:none;text-align:center;padding:12px;background:rgba(39,174,96,.15);border:1px solid var(--success);border-radius:8px;color:#7dffaa;font-weight:700;font-size:.9rem;margin-top:10px;}
+  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+  @media(max-width:640px){.two-col{grid-template-columns:1fr;}}
+  .stat-pills{display:flex;flex-wrap:wrap;gap:10px;margin:15px 0;}
+  .stat-pill{background:var(--dark3);border:1px solid var(--border);border-radius:20px;padding:8px 16px;display:flex;flex-direction:column;align-items:center;}
+  .stat-pill .val{font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:var(--fire3);letter-spacing:1px;}
+  .stat-pill .lbl{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;font-weight:700;}
+  .section-divider{height:2px;background:linear-gradient(90deg,transparent,var(--fire1),transparent);margin:40px 0;border:none;}
+  footer{text-align:center;padding:40px 20px;color:var(--muted);font-size:.8rem;border-top:1px solid var(--border);margin-top:60px;}
+</style>
+</head>
+<body>
+
+<div id="progress-bar-container">
+  <span class="logo">🧭 GEO EXPLORER</span>
+  <div id="progress-track"><div id="progress-fill"></div></div>
+  <span id="progress-text">0%</span>
+  <button id="reset-btn" onclick="resetProgress()">↺ Wissen</button>
+</div>
+
+<div class="hero">
+  <span class="hero-badge">🌍 Aardrijkskunde · VMBO 2</span>
+  <h1>IRAN</h1>
+  <p class="hero-sub">Een land vol geschiedenis, spanning en verandering — ontdek het zelf!</p>
+  <div class="hero-meta">
+    <span>⏱️ ±60 minuten</span>
+    <span>📚 5 Secties</span>
+    <span>🏆 11 Quizvragen</span>
+  </div>
+</div>
+
+<div class="main-container">
+
+<div class="news-banner">
+  <span class="news-icon">📰</span>
+  <div>
+    <h3>Actueel nieuws over Iran</h3>
+    <p>Iran is regelmatig in het nieuws. Bekijk voor de les actuele berichten op <strong>nos.nl</strong> of <strong>nu.nl</strong>. Zoek op "Iran" om recente ontwikkelingen te vinden. Houd dit in je hoofd — aan het einde vraag ik je erover!</p>
+  </div>
+</div>
+
+<!-- SECTIE 1 -->
+<div class="section-header">
+  <span class="section-number">01</span>
+  <div class="section-title-block"><h2>IRAN OP DE KAART</h2><p>Ligging · Godsdienst · Taal</p></div>
+  <span class="section-complete-badge" id="badge-1">✓ Voltooid</span>
+</div>
+
+<div class="content-card">
+  <h3>📍 Waar ligt Iran?</h3>
+  <p>Iran is een groot land in het Midden-Oosten. Het ligt op een kruispunt van Europa, Azië en de Arabische wereld. Iran heeft ook een lange kustlijn aan de Perzische Golf — een zee die heel belangrijk is voor olietankers.</p>
+  <img src="https://source.unsplash.com/800x400/?iran,landscape,desert" class="lesson-image" alt="Iran landschap" onerror="this.style.display='none'">
+  <div class="stat-pills">
+    <div class="stat-pill"><span class="val">83 MLN</span><span class="lbl">Inwoners</span></div>
+    <div class="stat-pill"><span class="val">1,6 MLN</span><span class="lbl">km²</span></div>
+    <div class="stat-pill"><span class="val">Teheran</span><span class="lbl">Hoofdstad</span></div>
+    <div class="stat-pill"><span class="val">Farsi</span><span class="lbl">Taal</span></div>
+    <div class="stat-pill"><span class="val">Islam</span><span class="lbl">Godsdienst</span></div>
+  </div>
+  <div class="info-box"><span class="icon">🕌</span><div class="info-box-content"><strong>Godsdienst: Sjiitische Islam</strong><p>De meeste Iraniërs zijn moslim en volgen de sjiitische tak. Religieuze leiders hebben veel macht in de politiek — Iran wordt bestuurd op basis van religieuze wetten.</p></div></div>
+  <div class="info-box"><span class="icon">🗣️</span><div class="info-box-content"><strong>Taal: Farsi (Perzisch)</strong><p>De officiële taal is Farsi, ook wel Perzisch. Dit is een heel oude taal met een eigen schrift. Iraniërs zijn trots op hun Perzische cultuur die meer dan 2500 jaar teruggaat!</p></div></div>
+  <div class="key-concept">💡 <strong>Belangrijk verschil:</strong> Iran is geen Arabisch land! Iraniërs zijn Perzen. Ze spreken Farsi, niet Arabisch. Dit is een veelgemaakte fout!</div>
+</div>
+
+<div class="content-card">
+  <h3>🗺️ Verken de kaart van Iran</h3>
+  <p>Klik op de rode markers op de kaart voor meer informatie over steden, grenzen en de Perzische Golf. Vink daarna de vakjes hieronder af.</p>
+  <div id="iran-map"><div class="map-loading">🗺️ Kaart wordt geladen...</div></div>
+  <div class="map-task">
+    <strong>📋 Kaart-opdracht:</strong> Klik op de markers en lees de popups. Vink af wat je hebt gevonden:
+    <ul class="map-checklist">
+      <li onclick="checkMapItem(0)"><span class="map-check" id="mc0"></span> Ik heb de hoofdstad Teheran gevonden en gelezen</li>
+      <li onclick="checkMapItem(1)"><span class="map-check" id="mc1"></span> Ik heb de Perzische Golf bekeken en gelezen waarom die belangrijk is</li>
+      <li onclick="checkMapItem(2)"><span class="map-check" id="mc2"></span> Ik heb twee buurlanden van Iran bekeken</li>
+      <li onclick="checkMapItem(3)"><span class="map-check" id="mc3"></span> Ik kan Iran aanwijzen op de kaart</li>
+    </ul>
+    <div class="map-complete-msg" id="map-complete-msg">✅ Super! Je hebt de kaart helemaal verkend!</div>
+  </div>
+</div>
+
+<div class="quiz-card"><div class="quiz-label">❓ Quiz — Sectie 1, vraag 1</div>
+<p class="quiz-question">Wat is de hoofdstad van Iran?</p>
+<div class="quiz-options" id="q1-options">
+  <button class="quiz-option" onclick="answerQuiz('q1',0,1)"><span class="option-label">A</span>Bagdad</button>
+  <button class="quiz-option" onclick="answerQuiz('q1',1,1)"><span class="option-label">B</span>Teheran</button>
+  <button class="quiz-option" onclick="answerQuiz('q1',2,1)"><span class="option-label">C</span>Dubai</button>
+  <button class="quiz-option" onclick="answerQuiz('q1',3,1)"><span class="option-label">D</span>Istanbul</button>
+</div><div class="quiz-attempts" id="q1-attempts"></div><div class="quiz-feedback" id="q1-feedback"></div></div>
+
+<div class="quiz-card"><div class="quiz-label">❓ Quiz — Sectie 1, vraag 2</div>
+<p class="quiz-question">Welke taal spreekt men in Iran?</p>
+<div class="quiz-options" id="q2-options">
+  <button class="quiz-option" onclick="answerQuiz('q2',0,1)"><span class="option-label">A</span>Arabisch</button>
+  <button class="quiz-option" onclick="answerQuiz('q2',1,1)"><span class="option-label">B</span>Turks</button>
+  <button class="quiz-option" onclick="answerQuiz('q2',2,1)"><span class="option-label">C</span>Farsi (Perzisch)</button>
+  <button class="quiz-option" onclick="answerQuiz('q2',3,1)"><span class="option-label">D</span>Hindi</button>
+</div><div class="quiz-attempts" id="q2-attempts"></div><div class="quiz-feedback" id="q2-feedback"></div></div>
+
+<div class="quiz-card"><div class="quiz-label">❓ Quiz — Sectie 1, vraag 3</div>
+<p class="quiz-question">Welke godsdienst is het belangrijkst in Iran en heeft veel invloed op de politiek?</p>
+<div class="quiz-options" id="q3-options">
+  <button class="quiz-option" onclick="answerQuiz('q3',0,1)"><span class="option-label">A</span>Christendom</button>
+  <button class="quiz-option" onclick="answerQuiz('q3',1,1)"><span class="option-label">B</span>Jodendom</button>
+  <button class="quiz-option" onclick="answerQuiz('q3',2,1)"><span class="option-label">C</span>Hindoeïsme</button>
+  <button class="quiz-option" onclick="answerQuiz('q3',3,1)"><span class="option-label">D</span>Sjiitische Islam</button>
+</div><div class="quiz-attempts" id="q3-attempts"></div><div class="quiz-feedback" id="q3-feedback"></div></div>
+
+<hr class="section-divider">
+
+<!-- SECTIE 2 -->
+<div class="section-header">
+  <span class="section-number">02</span>
+  <div class="section-title-block"><h2>RUZIE MET AMERIKA</h2><p>Tijdlijn van de spanning</p></div>
+  <span class="section-complete-badge" id="badge-2">✓ Voltooid</span>
+</div>
+
+<div class="content-card">
+  <h3>⚡ Een lange geschiedenis van spanning</h3>
+  <p>Iran en de VS hebben al tientallen jaren ruzie. Er zijn belangrijke momenten die alles veranderden. <strong>Klik op elk onderdeel van de tijdlijn</strong> om meer te lezen!</p>
+  <div class="key-concept">💡 <strong>Onthoud:</strong> De relatie begon ooit met vriendschap. Door een paar grote gebeurtenissen veranderde die in vijandschap.</div>
+  <img src="https://source.unsplash.com/800x400/?tehran,iran,city" class="lesson-image" alt="Teheran" onerror="this.style.display='none'">
+</div>
+
+<div class="timeline">
+  <div class="timeline-item">
+    <div class="timeline-dot" onclick="toggleTimeline(0)">1953</div>
+    <div class="timeline-content" id="tl0" onclick="toggleTimeline(0)">
+      <h4>🕵️ Geheime actie van Amerika — klik voor meer!</h4>
+      <p>De CIA helpt om de democratisch gekozen premier van Iran af te zetten.</p>
+      <div class="timeline-detail">De Iraanse premier Mosaddegh wilde de olie nationaliseren — zodat die van het Iraanse volk zou worden. Amerika en Groot-Brittannië steunden een staatsgreep om hem af te zetten omdat ze belangen hadden bij de Iraanse olie. Veel Iraniërs zijn hier nog steeds boos over — zij zien het als inmenging van buitenaf in hun eigen land.</div>
+    </div>
+  </div>
+  <div class="timeline-item">
+    <div class="timeline-dot" onclick="toggleTimeline(1)">1979</div>
+    <div class="timeline-content" id="tl1" onclick="toggleTimeline(1)">
+      <h4>🌙 De Islamitische Revolutie — klik voor meer!</h4>
+      <p>De sjah (koning) wordt afgezet. Religieuze leiders nemen de macht over.</p>
+      <div class="timeline-detail">In 1979 brak een grote revolutie uit. De bevolking was ontevreden over de sjah die ze te westers vonden. Ayatollah Khomeini nam de macht over. Iran werd een Islamitische Republiek — een staat bestuurd op basis van religieuze wetten. Amerika had de sjah altijd gesteund, wat de relatie direct dramatisch verslechterde.</div>
+    </div>
+  </div>
+  <div class="timeline-item">
+    <div class="timeline-dot" onclick="toggleTimeline(2)">1979-81</div>
+    <div class="timeline-content" id="tl2" onclick="toggleTimeline(2)">
+      <h4>🏛️ Gijzeling ambassade ← HEEL BELANGRIJK!</h4>
+      <p>Iraanse studenten houden 52 Amerikanen 444 dagen gegijzeld.</p>
+      <div class="timeline-detail">Iraanse studenten bezetten de Amerikaanse ambassade in Teheran en hielden 52 Amerikanen 444 dagen gegijzeld. Dit was een enorme crisis. Amerika verbrak daarna alle diplomatieke contacten — er zijn tot op de dag van vandaag geen normale ambassades meer. Dit is een van de grootste redenen waarom de landen zo slecht met elkaar omgaan.</div>
+    </div>
+  </div>
+  <div class="timeline-item">
+    <div class="timeline-dot" onclick="toggleTimeline(3)">2002</div>
+    <div class="timeline-content" id="tl3" onclick="toggleTimeline(3)">
+      <h4>⚛️ Nucleair programma ontdekt — klik voor meer!</h4>
+      <p>De wereld ontdekt dat Iran in het geheim werkt aan kernenergie.</p>
+      <div class="timeline-detail">In 2002 bleek dat Iran een geheim nucleair programma had. Iran zei dat het alleen voor energie was, maar Amerika en Israël geloofden dat Iran een kernbom wilde. Sindsdien zijn er strenge sancties (economische straffen) opgelegd om Iran te dwingen te stoppen.</div>
+    </div>
+  </div>
+  <div class="timeline-item">
+    <div class="timeline-dot" onclick="toggleTimeline(4)">2015</div>
+    <div class="timeline-content" id="tl4" onclick="toggleTimeline(4)">
+      <h4>🤝 Nucleair akkoord gesloten — klik voor meer!</h4>
+      <p>Iran tekent een akkoord: minder nucleaire activiteit, minder sancties.</p>
+      <div class="timeline-detail">In 2015 werd de 'Iran-deal' gesloten. Iran beloofde zijn nucleaire programma te beperken; sancties werden deels opgeheven. Het leek een doorbraak, maar in 2018 stapte president Trump eruit. De situatie verslechterde daarna weer snel.</div>
+    </div>
+  </div>
+  <div class="timeline-item">
+    <div class="timeline-dot" onclick="toggleTimeline(5)">2020-nu</div>
+    <div class="timeline-content" id="tl5" onclick="toggleTimeline(5)">
+      <h4>💥 Escalatie en aanslagen — klik voor meer!</h4>
+      <p>Een Iraanse generaal wordt gedood door Amerika. Spanningen lopen hoog op.</p>
+      <div class="timeline-detail">In januari 2020 doodde Amerika met een drone de invloedrijke Iraanse generaal Qasem Soleimani. Iran vuurde raketten op Amerikaanse bases. Sindsdien zijn er meerdere incidenten geweest waaronder aanvallen op schepen in de Perzische Golf. De situatie blijft tot nu toe gespannen.</div>
+    </div>
+  </div>
+</div>
+
+<div class="quiz-card"><div class="quiz-label">❓ Quiz — Sectie 2, vraag 1</div>
+<p class="quiz-question">Wat gebeurde er in 1979 in Iran?</p>
+<div class="quiz-options" id="q4-options">
+  <button class="quiz-option" onclick="answerQuiz('q4',0,2)"><span class="option-label">A</span>Iran en Amerika sloten vriendschap</button>
+  <button class="quiz-option" onclick="answerQuiz('q4',1,2)"><span class="option-label">B</span>Er was een Islamitische Revolutie en religieuze leiders namen de macht over</button>
+  <button class="quiz-option" onclick="answerQuiz('q4',2,2)"><span class="option-label">C</span>Iran ontdekte voor het eerst olie</button>
+  <button class="quiz-option" onclick="answerQuiz('q4',3,2)"><span class="option-label">D</span>Iran sloot een akkoord over kernenergie</button>
+</div><div class="quiz-attempts" id="q4-attempts"></div><div class="quiz-feedback" id="q4-feedback"></div></div>
+
+<div class="quiz-card"><div class="quiz-label">❓ Quiz — Sectie 2, vraag 2</div>
+<p class="quiz-question">Wat was het gevolg van de ambassade-gijzeling (1979–1981) voor de relatie met Amerika?</p>
+<div class="quiz-options" id="q5-options">
+  <button class="quiz-option" onclick="answerQuiz('q5',0,2)"><span class="option-label">A</span>Het verbeterde de relatie sterk</button>
+  <button class="quiz-option" onclick="answerQuiz('q5',1,2)"><span class="option-label">B</span>Het had geen effect op de relatie</button>
+  <button class="quiz-option" onclick="answerQuiz('q5',2,2)"><span class="option-label">C</span>Het vernietigde de relatie — Amerika verbrak alle diplomatieke contacten</button>
+  <button class="quiz-option" onclick="answerQuiz('q5',3,2)"><span class="option-label">D</span>Het leidde tot een militaire alliantie</button>
+</div><div class="quiz-attempts" id="q5-attempts"></div><div class="quiz-feedback" id="q5-feedback"></div></div>
+
+<hr class="section-divider">
+
+<!-- SECTIE 3 -->
+<div class="section-header">
+  <span class="section-number">03</span>
+  <div class="section-title-block"><h2>BELANGEN VAN AMERIKA</h2><p>Olie · Kernwapens · Invloed</p></div>
+  <span class="section-complete-badge" id="badge-3">✓ Voltooid</span>
+</div>
+
+<div class="content-card">
+  <h3>🛢️ Waarom houdt Amerika Iran in de gaten?</h3>
+  <p>Amerika bemoeit zich met veel landen. Bij Iran zijn er heel specifieke redenen:</p>
+  <div class="two-col">
+    <div class="info-box"><span class="icon">🛢️</span><div class="info-box-content"><strong>Reden 1: Olie en gas</strong><p>Iran heeft enorme hoeveelheden olie en gas. De Perzische Golf is een van de belangrijkste routes voor olietankers ter wereld.</p></div></div>
+    <div class="info-box"><span class="icon">⚛️</span><div class="info-box-content"><strong>Reden 2: Kernwapens</strong><p>Amerika is bang dat Iran een kernbom maakt. Als Iran kernwapens heeft, wordt de regio veel gevaarlijker.</p></div></div>
+    <div class="info-box"><span class="icon">🇮🇱</span><div class="info-box-content"><strong>Reden 3: Bondgenoot Israël</strong><p>Amerika is een grote bondgenoot van Israël. Iran erkent Israël niet als land en heeft gedreigd het te vernietigen.</p></div></div>
+    <div class="info-box"><span class="icon">🌍</span><div class="info-box-content"><strong>Reden 4: Regionale macht</strong><p>Iran steunt gewapende groepen in Libanon, Gaza, Irak en Jemen. Amerika wil niet dat Iran te veel macht krijgt.</p></div></div>
+  </div>
+</div>
+
+<div class="content-card">
+  <h3>📊 Oliereserves in het Midden-Oosten</h3>
+  <p>Kijk hoe groot de oliereserves van Iran zijn vergeleken met andere landen:</p>
+  <div class="chart-container"><canvas id="oilChart"></canvas></div>
+  <p style="font-size:.8rem;color:var(--muted);text-align:center;margin-top:8px;">Reserves in miljarden vaten — Iran staat wereldwijd in de top 4</p>
+</div>
+
+<div class="content-card">
+  <h3>🌐 Niet iedereen is het eens met Amerika</h3>
+  <p>Landen zoals China, Rusland en sommige Europese landen zijn het niet altijd eens met de harde aanpak van Amerika tegenover Iran.</p>
+  <div class="key-concept">🤔 <strong>Waarom zijn landen het oneens?</strong><br><strong>China en Rusland</strong> doen graag zaken met Iran en willen geen sancties die hun handel schaden. <strong>Europese landen</strong> geloven meer in diplomatie. Ze denken dat sancties de gewone bevolking harder treffen dan de regering.</div>
+</div>
+
+<div class="quiz-card"><div class="quiz-label">❓ Quiz — Sectie 3, vraag 1</div>
+<p class="quiz-question">Welke twee redenen zijn CORRECT voor waarom Amerika zich bemoeit met Iran?</p>
+<div class="quiz-options" id="q6-options">
+  <button class="quiz-option" onclick="answerQuiz('q6',0,3)"><span class="option-label">A</span>Omdat Iran arm is en hulp nodig heeft</button>
+  <button class="quiz-option" onclick="answerQuiz('q6',1,3)"><span class="option-label">B</span>Omdat Iran grote oliereserves heeft en mogelijk kernwapens wil maken</button>
+  <button class="quiz-option" onclick="answerQuiz('q6',2,3)"><span class="option-label">C</span>Omdat Iran lid is van de Europese Unie</button>
+  <button class="quiz-option" onclick="answerQuiz('q6',3,3)"><span class="option-label">D</span>Omdat Iran een democratie is die bescherming nodig heeft</button>
+</div><div class="quiz-attempts" id="q6-attempts"></div><div class="quiz-feedback" id="q6-feedback"></div></div>
+
+<div class="quiz-card"><div class="quiz-label">❓ Quiz — Sectie 3, vraag 2</div>
+<p class="quiz-question">Waarom zijn landen zoals China het NIET eens met de harde aanpak van Amerika tegenover Iran?</p>
+<div class="quiz-options" id="q7-options">
+  <button class="quiz-option" onclick="answerQuiz('q7',0,3)"><span class="option-label">A</span>Omdat ze Iran willen helpen een kernbom te maken</button>
+  <button class="quiz-option" onclick="answerQuiz('q7',1,3)"><span class="option-label">B</span>Omdat ze handel drijven met Iran en de sancties hun eigen economie schaden</button>
+  <button class="quiz-option" onclick="answerQuiz('q7',2,3)"><span class="option-label">C</span>Omdat ze Amerika nooit vertrouwen</button>
+  <button class="quiz-option" onclick="answerQuiz('q7',3,3)"><span class="option-label">D</span>Omdat Iran lid is van hun militair bondgenootschap</button>
+</div><div class="quiz-attempts" id="q7-attempts"></div><div class="quiz-feedback" id="q7-feedback"></div></div>
+
+<hr class="section-divider">
+
+<!-- SECTIE 4 -->
+<div class="section-header">
+  <span class="section-number">04</span>
+  <div class="section-title-block"><h2>IRANIËRS IN OPSTAND</h2><p>Protesten · Vrijheid · Vrouwenrechten</p></div>
+  <span class="section-complete-badge" id="badge-4">✓ Voltooid</span>
+</div>
+
+<div class="content-card">
+  <h3>✊ Waarom protesteren Iraniërs?</h3>
+  <p>Niet alleen buitenlandse landen hebben problemen met de Iraanse regering. Ook veel Iraniërs zelf zijn ontevreden — zeker jongeren en vrouwen.</p>
+  <img src="https://source.unsplash.com/800x400/?protest,freedom,crowd" class="lesson-image" alt="Protest" onerror="this.style.display='none'">
+  <div class="info-box"><span class="icon">👩</span><div class="info-box-content"><strong>"Vrouw, Leven, Vrijheid" — 2022</strong><p>In september 2022 stierf Mahsa Amini (22 jaar) nadat ze was opgepakt omdat ze haar hoofddoek niet goed droeg. Dit leidde tot enorme protesten. Het motto: <em>"Zan, Zendegi, Azadi"</em> — Vrouw, Leven, Vrijheid.</p></div></div>
+  <div class="key-concept">📌 <strong>Waarom zijn veel Iraniërs ontevreden?</strong><br>Strenge religieuze wetten die het dagelijks leven bepalen. Weinig vrijheid van meningsuiting. Hoge werkloosheid en armoede door sancties. Corruptie. Het hard neerslaan van protesten.</div>
+</div>
+
+<div class="scenario-box">
+  <div class="scenario-header"><span>🎭</span><h3>SCENARIO: JIJ BENT EEN IRAANSE JONGERE</h3></div>
+  <div class="scenario-body">
+    <div class="scenario-step active" id="step0">
+      <h4>📍 Je situatie — Teheran, Iran</h4>
+      <p>Je bent 18 jaar en woont in Teheran. Je hoort dat er een groot protest is na het overlijden van een jong meisje dat was gearresteerd. Je vrienden willen gaan. Maar meedoen is gevaarlijk — de politie treedt hard op. Wat doe je?</p>
+      <div class="scenario-choice">
+        <button class="scenario-btn" onclick="chooseScenario(0,0)">🚶 Ik ga mee — verandering is nodig</button>
+        <button class="scenario-btn" onclick="chooseScenario(0,1)">🏠 Ik blijf thuis — het is te gevaarlijk</button>
+        <button class="scenario-btn" onclick="chooseScenario(0,2)">📱 Ik deel nieuws op sociale media, maar ga zelf niet</button>
+      </div>
+      <div class="scenario-result" id="result0"></div>
+      <div class="scenario-nav">
+        <button class="nav-btn" id="next0" onclick="nextScenarioStep(1)" style="display:none">Volgende situatie →</button>
+      </div>
+    </div>
+    <div class="scenario-step" id="step1">
+      <h4>📵 Sociale media worden geblokkeerd</h4>
+      <p>De Iraanse overheid blokkeert Instagram en WhatsApp. Veel jongeren gebruiken een VPN om toch toegang te krijgen. Je vrienden vragen of jij dat ook doet.</p>
+      <div class="scenario-choice">
+        <button class="scenario-btn" onclick="chooseScenario(1,0)">💻 Ja, ik gebruik een VPN — informatie moet vrij zijn</button>
+        <button class="scenario-btn" onclick="chooseScenario(1,1)">🚫 Nee, het is officieel verboden en ik wil geen problemen</button>
+      </div>
+      <div class="scenario-result" id="result1"></div>
+      <div class="scenario-nav">
+        <button class="nav-btn" onclick="prevScenarioStep(0)">← Terug</button>
+        <button class="nav-btn" id="next1" onclick="nextScenarioStep(2)" style="display:none">Naar conclusie →</button>
+        <span class="step-indicator">Stap 2 van 3</span>
+      </div>
+    </div>
+    <div class="scenario-step" id="step2">
+      <h4>💡 Wat heb je geleerd uit dit scenario?</h4>
+      <p>Dit scenario laat zien hoe moeilijk het is om in Iran te leven als je het niet eens bent met de regering. Veel Iraniërs verlangen naar meer vrijheid maar riskeren daarvoor hun veiligheid.</p>
+      <div class="info-box" style="margin-top:10px"><span class="icon">🌍</span><div class="info-box-content"><strong>Waarom is dit wereldnieuws?</strong><p>De protesten in Iran laten een grote kloof zien tussen wat de bevolking wil en wat de regering doet. Internationale organisaties als Amnesty International volgen dit nauwlettend.</p></div></div>
+      <div class="scenario-nav">
+        <button class="nav-btn" onclick="prevScenarioStep(1)">← Terug</button>
+        <button class="nav-btn" id="scenario-complete-btn" onclick="completeScenario()">✅ Scenario voltooid!</button>
+        <span class="step-indicator">Stap 3 van 3</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="quiz-card"><div class="quiz-label">❓ Quiz — Sectie 4, vraag 1</div>
+<p class="quiz-question">Waartegen protesteerden veel Iraniërs in 2022?</p>
+<div class="quiz-options" id="q8-options">
+  <button class="quiz-option" onclick="answerQuiz('q8',0,4)"><span class="option-label">A</span>Tegen hoge benzineprijzen</button>
+  <button class="quiz-option" onclick="answerQuiz('q8',1,4)"><span class="option-label">B</span>Tegen de dood van Mahsa Amini en strenge regels over de hoofddoek</button>
+  <button class="quiz-option" onclick="answerQuiz('q8',2,4)"><span class="option-label">C</span>Tegen de bouw van een nieuwe dam</button>
+  <button class="quiz-option" onclick="answerQuiz('q8',3,4)"><span class="option-label">D</span>Tegen samenwerking met China</button>
+</div><div class="quiz-attempts" id="q8-attempts"></div><div class="quiz-feedback" id="q8-feedback"></div></div>
+
+<div class="quiz-card"><div class="quiz-label">❓ Quiz — Sectie 4, vraag 2</div>
+<p class="quiz-question">Wat zijn twee redenen waarom veel Iraniërs ontevreden zijn over hun eigen regering?</p>
+<div class="quiz-options" id="q9-options">
+  <button class="quiz-option" onclick="answerQuiz('q9',0,4)"><span class="option-label">A</span>Te veel democratie en te veel vrijheid</button>
+  <button class="quiz-option" onclick="answerQuiz('q9',1,4)"><span class="option-label">B</span>Strenge religieuze wetten en weinig vrijheid van meningsuiting</button>
+  <button class="quiz-option" onclick="answerQuiz('q9',2,4)"><span class="option-label">C</span>Te weinig religie in de overheid</button>
+  <button class="quiz-option" onclick="answerQuiz('q9',3,4)"><span class="option-label">D</span>Te veel buitenlandse invloeden worden toegelaten</button>
+</div><div class="quiz-attempts" id="q9-attempts"></div><div class="quiz-feedback" id="q9-feedback"></div></div>
+
+<hr class="section-divider">
+
+<!-- SECTIE 5 -->
+<div class="section-header">
+  <span class="section-number">05</span>
+  <div class="section-title-block"><h2>NIEUWS KOPPELEN</h2><p>Actueel · Analyseren · Verbanden leggen</p></div>
+  <span class="section-complete-badge" id="badge-5">✓ Voltooid</span>
+</div>
+
+<div class="content-card">
+  <h3>🔗 Wat je hebt geleerd, terugzien in het nieuws</h3>
+  <p>Je hebt nu veel geleerd over Iran. Nu is het tijd om dat te koppelen aan het nieuws van vandaag. Iran is bijna altijd in het nieuws — over gespannen relaties, interne onrust of het nucleaire programma.</p>
+  <img src="https://source.unsplash.com/800x400/?newspaper,world,global+news" class="lesson-image" alt="Nieuws" onerror="this.style.display='none'">
+  <div class="info-box"><span class="icon">📺</span><div class="info-box-content"><strong>Opdracht: Zoek een nieuwsartikel</strong><p>Ga naar <strong>nos.nl</strong> of <strong>nu.nl</strong> en zoek een recent artikel over Iran. Lees het kort door en beantwoord dan de vragen hieronder.</p></div></div>
+  <div class="key-concept">🧠 <strong>Denk na:</strong> Welk thema uit de les herken je in het nieuws? Nucleair programma, protesten, relatie met Amerika, olie, of iets anders?</div>
+</div>
+
+<div class="quiz-card"><div class="quiz-label">❓ Quiz — Sectie 5, vraag 1</div>
+<p class="quiz-question">Welk onderwerp zou je in een nieuwsartikel over Iran kunnen tegenkomen?</p>
+<div class="quiz-options" id="q10-options">
+  <button class="quiz-option" onclick="answerQuiz('q10',0,5)"><span class="option-label">A</span>De uitslag van de Tour de France</button>
+  <button class="quiz-option" onclick="answerQuiz('q10',1,5)"><span class="option-label">B</span>Onderhandelingen over het nucleaire programma</button>
+  <button class="quiz-option" onclick="answerQuiz('q10',2,5)"><span class="option-label">C</span>Het EK voetbal in Europa</button>
+  <button class="quiz-option" onclick="answerQuiz('q10',3,5)"><span class="option-label">D</span>Een orkaan in de Pacific</button>
+</div><div class="quiz-attempts" id="q10-attempts"></div><div class="quiz-feedback" id="q10-feedback"></div></div>
+
+<div class="quiz-card"><div class="quiz-label">❓ Quiz — Sectie 5, vraag 2</div>
+<p class="quiz-question">Stel je leest dit: "Iran verrijkt uranium tot bijna wapengraad." Wat betekent dit op basis van de les?</p>
+<div class="quiz-options" id="q11-options">
+  <button class="quiz-option" onclick="answerQuiz('q11',0,5)"><span class="option-label">A</span>Iran gaat groene energie opwekken voor zijn bevolking</button>
+  <button class="quiz-option" onclick="answerQuiz('q11',1,5)"><span class="option-label">B</span>Iran exporteert uranium als handelswaar</button>
+  <button class="quiz-option" onclick="answerQuiz('q11',2,5)"><span class="option-label">C</span>Iran werkt mogelijk aan een kernwapen, wat internationale zorgen geeft</button>
+  <button class="quiz-option" onclick="answerQuiz('q11',3,5)"><span class="option-label">D</span>Iran sluit een akkoord met Amerika over kernenergie</button>
+</div><div class="quiz-attempts" id="q11-attempts"></div><div class="quiz-feedback" id="q11-feedback"></div></div>
+
+<hr class="section-divider">
+
+<!-- REFLECTIE -->
+<div class="section-header">
+  <span class="section-number">🏁</span>
+  <div class="section-title-block"><h2>AFSLUITING</h2><p>Reflectie · Score · Leerdoelen</p></div>
+</div>
+
+<div class="reflection-card">
+  <h3>🎯 LEERDOELEN — DIT HEB JE GELEERD</h3>
+  <p style="font-size:.85rem;color:var(--muted);margin-bottom:15px;">Controleer: kun jij dit uitleggen aan iemand anders?</p>
+  <div class="learning-goal"><span class="goal-check">✓</span><span>Ik kan op een kaart aanwijzen waar Iran ligt en vertellen welke godsdienst (sjiitische islam) en taal (Farsi) er belangrijk zijn.</span></div>
+  <div class="learning-goal"><span class="goal-check">✓</span><span>Ik kan uitleggen waarom Iran en de VS al lange tijd ruzie hebben, en één gebeurtenis noemen (bijv. de revolutie van 1979 of de ambassade-gijzeling).</span></div>
+  <div class="learning-goal"><span class="goal-check">✓</span><span>Ik kan twee redenen noemen waarom Amerika zich bemoeit met Iran: de grote oliereserves én de vrees voor kernwapens.</span></div>
+  <div class="learning-goal"><span class="goal-check">✓</span><span>Ik kan uitleggen waarom niet alle landen het eens zijn met Amerika's aanpak: China en Rusland willen handel; Europese landen geloven meer in diplomatie.</span></div>
+  <div class="learning-goal"><span class="goal-check">✓</span><span>Ik kan beschrijven waartegen Iraniërs protesteren (vrijheid, vrouwenrechten, 2022) en waarom velen ontevreden zijn over hun eigen regering.</span></div>
+  <div class="learning-goal"><span class="goal-check">✓</span><span>Ik kan een actueel nieuwsartikel over Iran beschrijven en koppelen aan wat ik in de les heb geleerd.</span></div>
+</div>
+
+<div class="score-display">
+  <div class="score-number" id="final-score">0/11</div>
+  <div class="score-label">Jouw quizscore</div>
+  <div id="score-msg" style="color:var(--muted);font-size:.9rem;margin-top:10px;"></div>
+</div>
+
+<div class="reflection-card">
+  <h3>💭 REFLECTIEVRAGEN</h3>
+  <p style="font-size:.85rem;color:var(--muted);margin-bottom:15px;">Jouw antwoorden worden automatisch opgeslagen.</p>
+  <div class="reflection-q"><label>1. 🤔 Wat vond jij het meest verrassende of interessante feit over Iran?</label><textarea id="reflect1" placeholder="Schrijf hier je antwoord..." oninput="saveReflection()"></textarea></div>
+  <div class="reflection-q"><label>2. 🌍 Stel je bent de minister van Buitenlandse Zaken van Nederland. Hoe zou jij omgaan met Iran — streng of met diplomatie?</label><textarea id="reflect2" placeholder="Schrijf hier je antwoord..." oninput="saveReflection()"></textarea></div>
+  <div class="reflection-q"><label>3. 📰 Welk nieuwsartikel over Iran heb jij gevonden op nos.nl of nu.nl? Beschrijf kort waar het over gaat en leg uit hoe het past bij de les.</label><textarea id="reflect3" placeholder="Beschrijf het artikel en de koppeling met de les..." oninput="saveReflection()"></textarea></div>
+</div>
+
+<div class="news-banner" style="background:linear-gradient(135deg,#0a2800,#1a4a00);border-color:#27ae60;">
+  <span class="news-icon">🏆</span>
+  <div><h3 style="color:#7dffaa">LES VOLTOOID — GOED GEDAAN!</h3>
+  <p>Je hebt alles geleerd over Iran — van de ligging tot de protesten, van de oliebelangen tot de kernwapens. Gebruik deze kennis om het nieuws beter te begrijpen!</p></div>
+</div>
+
+</div>
+<footer>Aardrijkskunde VMBO 2 · Iran Les · Gebruik nos.nl en nu.nl voor actueel nieuws</footer>
+
+<script>
+// ─── CONFIG ──────────────────────────────────────────────────────────────────
+const STORAGE_PREFIX = 'geo_les_iran_';
+
+const quizData = {
+  q1:  {correct:1, correctFb:'✅ Goed! Teheran is de hoofdstad van Iran — een stad met meer dan 9 miljoen inwoners!', wrongFb:'❌ Fout. Bagdad is de hoofdstad van Irak. Dubai ligt in de VAE. Kijk op de kaart!', hint:'💡 Hint: Je hebt deze stad gevonden op de kaart. Hij begint met een "T".'},
+  q2:  {correct:2, correctFb:'✅ Correct! In Iran spreekt men Farsi (Perzisch). Dit is NIET hetzelfde als Arabisch!', wrongFb:'❌ Fout. Arabisch wordt gesproken in Arabische landen. Iran is een Perzisch land!', hint:'💡 Hint: Het staat ook wel bekend als Perzisch. Perzen spraken deze taal al 2500 jaar geleden.'},
+  q3:  {correct:3, correctFb:'✅ Goed! De sjiitische islam is de staatsgodsdienst. Religieuze leiders hebben er ook politieke macht.', wrongFb:'❌ Fout. Iran is een islamitisch land — maar welke tak, soennitisch of sjiitisch?', hint:'💡 Hint: Er zijn twee grote takken van de islam: soennitisch en sjiitisch.'},
+  q4:  {correct:1, correctFb:'✅ Precies! In 1979 was de Islamitische Revolutie. Ayatollah Khomeini nam de macht over.', wrongFb:'❌ Niet correct. 1979 was een dramatisch jaar — bekijk de tijdlijn opnieuw.', hint:'💡 Hint: Religieuze leiders speelden een grote rol. Het was een "Revolutie".'},
+  q5:  {correct:2, correctFb:'✅ Correct! De gijzeling vernietigde de relatie. Amerika verbrak alle diplomatieke contacten.', wrongFb:'❌ Fout. De gijzeling maakte de relatie veel SLECHTER. Lees de tijdlijn nog eens na.', hint:'💡 Hint: 52 mensen werden 444 dagen gegijzeld. Dat maakt landen boos, niet vrienden.'},
+  q6:  {correct:1, correctFb:'✅ Juist! Olie (economisch belang) en kernwapens (veiligheidsdreiging) zijn de twee hoofdredenen.', wrongFb:'❌ Fout. Amerika mengt zich vanwege eigen belangen. Denk aan wat Iran heeft en wat het kan bouwen.', hint:'💡 Hint: Wat zit er in de Iraanse bodem? En wat probeert Iran te bouwen dat gevaarlijk is?'},
+  q7:  {correct:1, correctFb:'✅ Goed! China importeert veel Iraanse olie. Sancties schaden hun eigen handel.', wrongFb:'❌ Fout. China wil Iran niet helpen met een bom, maar wil wel zijn handel beschermen.', hint:'💡 Hint: China importeert veel olie. Sancties betekenen minder handel en minder inkomsten.'},
+  q8:  {correct:1, correctFb:'✅ Correct! Mahsa Amini stierf na arrestatie vanwege haar hoofddoek — dit veroorzaakte massale protesten.', wrongFb:'❌ Fout. De protesten hadden een specifieke aanleiding — een 22-jarige vrouw was betrokken.', hint:'💡 Hint: Een jonge vrouw overleed na arrestatie. Het ging om kledingregels — specifiek een hoofddoek.'},
+  q9:  {correct:1, correctFb:'✅ Helemaal goed! Strenge religieuze wetten en beperkte vrijheid van meningsuiting zijn twee grote klachten.', wrongFb:'❌ Fout. Iraniërs zijn ontevreden over te WEINIG vrijheid, niet te veel.', hint:'💡 Hint: In Iran kun je niet zomaar zeggen wat je wil. Welk antwoord beschrijft dat?'},
+  q10: {correct:1, correctFb:'✅ Goed! Het nucleaire programma is een van de meest besproken onderwerpen in het nieuws over Iran.', wrongFb:'❌ Dat is geen Iraans onderwerp. Welk onderwerp past bij wat je over Iran hebt geleerd?', hint:'💡 Hint: In sectie 3 leerde je over iets gevaarlijks dat Iran probeert te ontwikkelen.'},
+  q11: {correct:2, correctFb:'✅ Uitstekend! "Wapengraad" uranium kan worden gebruikt voor een kernbom — precies waar andere landen bang voor zijn.', wrongFb:'❌ Fout. Het woord "wapen" staat in "wapengraad". Denk aan wat kernwapens zijn.', hint:'💡 Hint: Als iets "wapengraad" is, kan het worden gebruikt voor een wapen.'}
+};
+
+// ─── STATE ───────────────────────────────────────────────────────────────────
+let state = {
+  quizAttempts:{}, quizAnswered:{},
+  mapChecked:[false,false,false,false],
+  scenarioCompleted:false,
+  sectionsComplete:{1:false,2:false,3:false,4:false,5:false},
+  reflections:{r1:'',r2:'',r3:''},
+  lastVisit:null,
+  scenarioChosen:[null,null]
+};
+
+// ─── STORAGE ──────────────────────────────────────────────────────────────────
+function saveState(){
+  state.lastVisit = new Date().toISOString();
+  try { localStorage.setItem(STORAGE_PREFIX+'state', JSON.stringify(state)); } catch(e){}
+}
+function loadState(){
+  try {
+    const s = localStorage.getItem(STORAGE_PREFIX+'state');
+    if(s) state = Object.assign({}, state, JSON.parse(s));
+  } catch(e){}
+}
+function resetProgress(){
+  if(confirm('Weet je zeker dat je je voortgang wilt wissen?')){
+    try{ localStorage.removeItem(STORAGE_PREFIX+'state'); }catch(e){}
+    location.reload();
+  }
+}
+
+// ─── QUIZ ────────────────────────────────────────────────────────────────────
+function answerQuiz(qId, chosen, section){
+  const d = quizData[qId];
+  if(!state.quizAttempts[qId]) state.quizAttempts[qId] = 0;
+  if(state.quizAnswered[qId] === true) return;
+  state.quizAttempts[qId]++;
+  const att = state.quizAttempts[qId];
+  const correct = chosen === d.correct;
+  const opts = document.getElementById(qId+'-options');
+  const fb   = document.getElementById(qId+'-feedback');
+  const at   = document.getElementById(qId+'-attempts');
+  const btns = Array.from(opts.querySelectorAll('button'));
+  btns.forEach(b => b.classList.remove('correct','wrong'));
+  if(correct){
+    state.quizAnswered[qId] = true;
+    btns[chosen].classList.add('correct');
+    btns.forEach(b => b.disabled = true);
+    fb.textContent = d.correctFb;
+    fb.className = 'quiz-feedback correct-fb';
+    at.textContent = att===1 ? '🎯 In één keer goed!' : 'Pogingen gebruikt: '+att;
+    checkSectionComplete(section);
+  } else {
+    btns[chosen].classList.add('wrong');
+    if(att >= 3){
+      btns.forEach(b => b.disabled = true);
+      btns[d.correct].classList.add('correct');
+      fb.textContent = '❌ Het juiste antwoord was optie "'+['A','B','C','D'][d.correct]+'". '+d.correctFb.replace('✅ ','');
+      fb.className = 'quiz-feedback wrong-fb';
+      at.textContent = 'Maximum pogingen (3) bereikt.';
+      state.quizAnswered[qId] = 'shown';
+      checkSectionComplete(section);
+    } else if(att === 2){
+      fb.textContent = d.hint;
+      fb.className = 'quiz-feedback hint-fb';
+      at.textContent = 'Poging '+att+' van 3 — nog één kans!';
+    } else {
+      fb.textContent = d.wrongFb;
+      fb.className = 'quiz-feedback wrong-fb';
+      at.textContent = 'Poging '+att+' van 3';
+    }
+  }
+  saveState(); updateProgress();
+}
+
+const sectionMap = {1:['q1','q2','q3'],2:['q4','q5'],3:['q6','q7'],4:['q8','q9'],5:['q10','q11']};
+function checkSectionComplete(n){
+  if(sectionMap[n].every(q => state.quizAnswered[q])){
+    state.sectionsComplete[n] = true;
+    const b = document.getElementById('badge-'+n);
+    if(b) b.style.display = 'inline-block';
+    saveState();
+  }
+}
+
+// ─── PROGRESS ────────────────────────────────────────────────────────────────
+function updateProgress(){
+  let done = Object.keys(state.quizAnswered).length;
+  state.mapChecked.forEach(v => { if(v) done++; });
+  if(state.scenarioCompleted) done += 3;
+  const pct = Math.round((done/18)*100);
+  document.getElementById('progress-fill').style.width = pct+'%';
+  document.getElementById('progress-text').textContent = pct+'%';
+  const correct = Object.values(state.quizAnswered).filter(v => v===true).length;
+  document.getElementById('final-score').textContent = correct+'/11';
+  const p = Math.round((correct/11)*100);
+  document.getElementById('score-msg').textContent =
+    p===100 ? '🏆 Perfecte score! Je bent een echte Iran-expert!' :
+    p>=80   ? '🎉 Uitstekend! Je weet heel veel over Iran!' :
+    p>=60   ? '👍 Goed gedaan! Lees de uitlegblokken nog eens voor de vragen die je miste.' :
+              '📖 Probeer de uitlegblokken opnieuw te lezen en doe de quiz nog een keer.';
+}
+
+// ─── MAP CHECKLIST ────────────────────────────────────────────────────────────
+function checkMapItem(i){
+  state.mapChecked[i] = !state.mapChecked[i];
+  const el = document.getElementById('mc'+i);
+  el.textContent = state.mapChecked[i] ? '✓' : '';
+  el.classList.toggle('done', state.mapChecked[i]);
+  document.getElementById('map-complete-msg').style.display = state.mapChecked.every(v=>v) ? 'block' : 'none';
+  saveState(); updateProgress();
+}
+
+// ─── TIMELINE ─────────────────────────────────────────────────────────────────
+function toggleTimeline(i){
+  document.getElementById('tl'+i).classList.toggle('expanded');
+}
+
+// ─── SCENARIO ─────────────────────────────────────────────────────────────────
+const scenarioResults = [
+  ['⚠️ Je gaat mee. Moedig, maar gevaarlijk in Iran. Veel demonstranten worden opgepakt. De politie gebruikt waterkanonnen en traangas. Dit laat zien hoe groot het risico is dat Iraniërs nemen voor hun rechten.',
+   '🏠 Je blijft thuis. Begrijpelijk — meedoen aan protesten in Iran kan leiden tot arrestatie of gevangenisstraf. Veel Iraniërs zitten in dit dilemma: ze willen verandering, maar zijn bang voor de gevolgen.',
+   '📱 Slim, maar ook riskant. De Iraanse overheid houdt sociale media in de gaten. Berichten posten kan ook leiden tot arrestatie. Toch is informatie verspreiden belangrijk — zo weet de wereld wat er in Iran gebeurt.'],
+  ['💻 Veel Iraniërs gebruiken een VPN. Het is verboden, maar soms de enige manier om vrije informatie te krijgen. Dit laat zien hoe de overheid informatie probeert te controleren.',
+   '🚫 Begrijpelijk. De risico\'s zijn reëel. Dit toont hoe de overheid zijn macht gebruikt om informatie te controleren — een teken van weinig persvrijheid in Iran.']
+];
+
+function chooseScenario(step, choice){
+  state.scenarioChosen[step] = choice;
+  const btns = Array.from(document.querySelectorAll('#step'+step+' .scenario-btn'));
+  btns.forEach((b,i) => { b.disabled=true; b.classList.toggle('chosen', i===choice); });
+  const r = document.getElementById('result'+step);
+  r.textContent = scenarioResults[step][choice];
+  r.classList.add('show');
+  const nx = document.getElementById('next'+step);
+  if(nx) nx.style.display = 'inline-block';
+  saveState();
+}
+function nextScenarioStep(n){
+  document.getElementById('step'+(n-1)).classList.remove('active');
+  document.getElementById('step'+n).classList.add('active');
+}
+function prevScenarioStep(n){
+  document.getElementById('step'+(n+1)).classList.remove('active');
+  document.getElementById('step'+n).classList.add('active');
+}
+function completeScenario(){
+  state.scenarioCompleted = true;
+  const b = document.getElementById('scenario-complete-btn');
+  b.textContent='✅ Scenario afgerond!'; b.style.background='var(--success)'; b.disabled=true;
+  saveState(); updateProgress();
+}
+
+// ─── REFLECTION ───────────────────────────────────────────────────────────────
+function saveReflection(){
+  state.reflections.r1 = document.getElementById('reflect1').value;
+  state.reflections.r2 = document.getElementById('reflect2').value;
+  state.reflections.r3 = document.getElementById('reflect3').value;
+  saveState();
+}
+
+// ─── RESTORE UI ───────────────────────────────────────────────────────────────
+function restoreUI(){
+  Object.keys(state.quizAnswered).forEach(qId => {
+    const d = quizData[qId];
+    const opts = document.getElementById(qId+'-options'); if(!opts) return;
+    const btns = Array.from(opts.querySelectorAll('button'));
+    const fb = document.getElementById(qId+'-feedback');
+    const at = document.getElementById(qId+'-attempts');
+    const att = state.quizAttempts[qId]||0;
+    if(state.quizAnswered[qId]===true){
+      btns[d.correct].classList.add('correct'); btns.forEach(b=>b.disabled=true);
+      fb.textContent=d.correctFb; fb.className='quiz-feedback correct-fb';
+      at.textContent = att===1?'🎯 In één keer goed!':'Pogingen gebruikt: '+att;
+    } else if(state.quizAnswered[qId]==='shown'){
+      btns[d.correct].classList.add('correct'); btns.forEach(b=>b.disabled=true);
+      fb.textContent='Het juiste antwoord was optie "'+['A','B','C','D'][d.correct]+'".';
+      fb.className='quiz-feedback wrong-fb';
+      at.textContent='Maximum pogingen bereikt.';
+    }
+  });
+  state.mapChecked.forEach((v,i)=>{
+    if(v){ const el=document.getElementById('mc'+i); if(el){el.textContent='✓';el.classList.add('done');} }
+  });
+  if(state.mapChecked.every(v=>v)){
+    const m=document.getElementById('map-complete-msg'); if(m) m.style.display='block';
+  }
+  Object.keys(state.sectionsComplete).forEach(n=>{
+    if(state.sectionsComplete[n]){ const b=document.getElementById('badge-'+n); if(b) b.style.display='inline-block'; }
+  });
+  if(state.scenarioCompleted){
+    const b=document.getElementById('scenario-complete-btn');
+    if(b){b.textContent='✅ Scenario afgerond!';b.style.background='var(--success)';b.disabled=true;}
+  }
+  if(Array.isArray(state.scenarioChosen)){
+    state.scenarioChosen.forEach((choice,step)=>{
+      if(choice===null) return;
+      const btns=Array.from(document.querySelectorAll('#step'+step+' .scenario-btn'));
+      btns.forEach((b,i)=>{ b.disabled=true; b.classList.toggle('chosen',i===choice); });
+      const r=document.getElementById('result'+step);
+      if(r){ r.textContent=scenarioResults[step][choice]; r.classList.add('show'); }
+      const nx=document.getElementById('next'+step); if(nx) nx.style.display='inline-block';
+    });
+  }
+  if(state.reflections){
+    const ids=['reflect1','reflect2','reflect3'], keys=['r1','r2','r3'];
+    ids.forEach((id,i)=>{ const el=document.getElementById(id); if(el) el.value=state.reflections[keys[i]]||''; });
+  }
+}
+
+// ─── MAP ──────────────────────────────────────────────────────────────────────
+// Loaded dynamically: initMap() is only called from the script's onload callback,
+// guaranteeing that L is defined before we use it.
+function initMap(){
+  const map = L.map('iran-map').setView([32.4, 53.7], 4);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+    attribution:'© OpenStreetMap contributors', maxZoom:10
+  }).addTo(map);
+
+  const fi = L.divIcon({
+    html:'<div style="background:#c0392b;width:18px;height:18px;border-radius:50%;border:3px solid #ff6b35;box-shadow:0 0 10px rgba(192,57,43,.9)"></div>',
+    iconSize:[18,18], iconAnchor:[9,9], popupAnchor:[0,-12]
+  });
+
+  [
+    [35.7,51.4,'<b>🏙️ Teheran — Hoofdstad</b><br>~9 miljoen inwoners<br>Politiek en economisch centrum<br>Hier vonden de grote protesten van 2022 plaats'],
+    [29.6,52.5,'<b>🌹 Shiraz</b><br>Culturele stad, bekend om poëzie en tuinen<br>Dichtbij Persepolis — ruïnes van het oude Perzische Rijk'],
+    [32.6,51.7,'<b>🕌 Isfahan</b><br>Historische stad met prachtige blauwe moskeeën<br>Vroeger hoofdstad van het Perzische Rijk'],
+    [26.5,54.0,'<b>⛽ Perzische Golf</b><br><strong>STRATEGISCH HEEL BELANGRIJK!</strong><br>Olietankers uit Iran, Saoedi-Arabië en Irak varen hier<br>Dit is waarom Amerika de regio in de gaten houdt'],
+    [37.5,45.0,'<b>🇹🇷 Buurland: Turkije</b><br>Iran grenst aan Turkije in het noordwesten<br>Beide islamitisch, maar heel verschillend bestuur'],
+    [33.5,44.5,'<b>🇮🇶 Buurland: Irak</b><br>Iran en Irak voerden een oorlog (1980-1988)<br>Nu een complexe relatie — Iran heeft veel invloed in Irak'],
+    [35.3,59.5,'<b>🇦🇫 Buurland: Afghanistan</b><br>Veel Afghaanse vluchtelingen wonen in Iran'],
+    [36.9,54.5,'<b>🌊 Kaspische Zee (noord)</b><br>De grootste binnenzee ter wereld<br>Iran grenst hieraan in het noorden']
+  ].forEach(([lat,lng,desc]) => {
+    L.marker([lat,lng],{icon:fi})
+      .bindPopup('<div style="font-family:Nunito,sans-serif;font-size:13px;min-width:170px;line-height:1.6">'+desc+'</div>')
+      .addTo(map);
+  });
+
+  L.circle([32.4,53.7],{
+    radius:850000, color:'#c0392b', fillColor:'#c0392b',
+    fillOpacity:0.06, weight:2, dashArray:'8,8'
+  }).addTo(map);
+}
+
+// ─── CHART ────────────────────────────────────────────────────────────────────
+function initChart(){
+  const ctx = document.getElementById('oilChart').getContext('2d');
+  new Chart(ctx,{
+    type:'bar',
+    data:{
+      labels:['Venezuela','Saoedi-Arabië','Iran','Irak','Koeweit','VAE'],
+      datasets:[{
+        label:'Oliereserves (mrd vaten)',
+        data:[303,297,209,145,102,98],
+        backgroundColor:['rgba(192,57,43,.4)','rgba(192,57,43,.6)','rgba(255,107,53,.95)','rgba(192,57,43,.5)','rgba(192,57,43,.4)','rgba(192,57,43,.35)'],
+        borderColor:['#c0392b','#e74c3c','#ff6b35','#c0392b','#c0392b','#c0392b'],
+        borderWidth:2
+      }]
+    },
+    options:{
+      responsive:true,
+      plugins:{
+        legend:{labels:{color:'#f5e6d3',font:{family:'Nunito',size:12}}},
+        tooltip:{callbacks:{label:c=>c.parsed.y+' miljard vaten'}}
+      },
+      scales:{
+        y:{ticks:{color:'#c4956a'},grid:{color:'rgba(139,58,26,.3)'},title:{display:true,text:'Miljard vaten',color:'#c4956a'}},
+        x:{ticks:{color:'#c4956a',font:{size:11}},grid:{color:'rgba(139,58,26,.2)'}}
+      }
+    }
+  });
+}
+
+// ─── LOAD LEAFLET DYNAMICALLY ────────────────────────────────────────────────
+// The <link> for leaflet.css is already in <head>.
+// We inject the JS tag here and call initMap() only inside onload — this
+// guarantees `L` exists before any Leaflet code runs.
+function loadLeaflet(){
+  const s = document.createElement('script');
+  s.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+  s.onload  = initMap;
+  s.onerror = function(){
+    document.getElementById('iran-map').innerHTML =
+      '<div class="map-loading">⚠️ Kaart kon niet worden geladen. Controleer je internetverbinding.</div>';
+  };
+  document.head.appendChild(s);
+}
+
+// ─── BOOT ─────────────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', function(){
+  loadState();
+  restoreUI();
+  updateProgress();
+  initChart();
+  loadLeaflet();   // Leaflet JS injected here; initMap fires in its onload
+});
+</script>
+</body>
+</html>
