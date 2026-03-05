@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aardrijkskunde — Temperatuur &amp; Klimaat</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+--ice:rgb(210,240,245);--ice2:#e8f6f8;--cyan:#4fc3c9;--cyan-d:#2a8f94;--dark:#1b3a4b;--mid:#3a6073;
+--snow:#f4fafb;--white:#ffffff;--accent:#ff7e5f;--ok:#27ae60;--err:#e74c3c;--warn:#f39c12;
+--r:10px;--r2:14px;--s:16px;--s2:24px;--font:'Nunito',sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font);background:linear-gradient(170deg,var(--ice) 0%,var(--snow) 40%,var(--white) 100%);color:var(--dark);line-height:1.7;min-height:100vh}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+
+/* PROGRESS BAR */
+#progressWrap{position:sticky;top:0;z-index:1000;background:rgba(255,255,255,.92);backdrop-filter:blur(8px);border-bottom:1px solid rgba(79,195,201,.2);padding:10px var(--s2)}
+#progressInner{display:flex;align-items:center;max-width:960px;margin:0 auto;gap:12px}
+#progressBar{flex:1;height:10px;background:var(--ice);border-radius:20px;overflow:hidden}
+#progressFill{height:100%;width:0%;background:linear-gradient(90deg,var(--cyan),var(--cyan-d));border-radius:20px;transition:width .5s}
+#progressTxt{font-weight:700;color:var(--cyan-d);min-width:44px;text-align:right;font-size:14px}
+.hdr{text-align:center;padding:28px var(--s2) 8px}
+.hdr h1{font-size:clamp(22px,4vw,32px);font-weight:800;color:var(--dark);letter-spacing:-.5px}
+.hdr p{color:var(--mid);font-size:15px;margin-top:4px}
+
+/* TABS */
+#tabBar{display:flex;gap:6px;overflow-x:auto;padding:6px var(--s2) 10px;max-width:1020px;margin:0 auto;scrollbar-width:thin}
+#tabBar::-webkit-scrollbar{height:4px}
+#tabBar::-webkit-scrollbar-thumb{background:var(--cyan);border-radius:4px}
+.tab-btn{flex-shrink:0;padding:8px 16px;border:2px solid var(--ice);background:var(--white);border-radius:var(--r);font-family:var(--font);font-size:13px;font-weight:700;color:var(--mid);cursor:pointer;transition:.2s;white-space:nowrap;position:relative}
+.tab-btn:hover{border-color:var(--cyan);color:var(--cyan-d)}
+.tab-btn.active{background:var(--cyan);color:#fff;border-color:var(--cyan)}
+.tab-btn.done::after{content:'✓';position:absolute;top:-6px;right:-6px;background:var(--ok);color:#fff;width:18px;height:18px;border-radius:50%;font-size:11px;display:flex;align-items:center;justify-content:center}
+
+/* MAIN */
+#main{max-width:960px;margin:0 auto;padding:0 var(--s2) 40px}
+.section{display:none;animation:fadeIn .35s}
+.section.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* CONTENT BLOCKS */
+.info-box{background:var(--white);border:1px solid rgba(79,195,201,.18);border-radius:var(--r2);padding:var(--s2);margin:18px 0;box-shadow:0 2px 12px rgba(27,58,75,.05)}
+.info-box h2{font-size:20px;font-weight:800;color:var(--dark);margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.info-box h3{font-size:16px;font-weight:700;color:var(--cyan-d);margin:14px 0 6px}
+.info-box p,.info-box li{font-size:15px;margin-bottom:8px}
+.emoji-flow{display:flex;flex-wrap:wrap;align-items:center;gap:6px;font-size:18px;padding:14px;background:linear-gradient(135deg,var(--ice),var(--ice2));border-radius:var(--r);margin:12px 0;font-weight:600}
+.emoji-flow .arrow{color:var(--cyan-d);font-weight:800}
+.compare-table{width:100%;border-collapse:collapse;margin:12px 0;font-size:14px}
+.compare-table th{background:var(--cyan);color:#fff;padding:8px 12px;text-align:left;font-weight:700}
+.compare-table td{padding:8px 12px;border-bottom:1px solid var(--ice)}
+.compare-table tr:nth-child(even) td{background:var(--ice2)}
+.highlight-box{border-left:4px solid var(--cyan);background:var(--ice2);padding:14px 18px;border-radius:0 var(--r) var(--r) 0;margin:14px 0;font-size:14px}
+.highlight-box strong{color:var(--cyan-d)}
+
+/* MAP */
+.map-wrap{height:380px;border-radius:var(--r);overflow:hidden;margin:14px 0;border:2px solid var(--ice)}
+
+/* QUESTIONS */
+.q-block{background:var(--white);border:1px solid rgba(79,195,201,.15);border-radius:var(--r2);padding:20px;margin:16px 0;box-shadow:0 1px 8px rgba(27,58,75,.04)}
+.q-block h4{font-size:15px;font-weight:700;color:var(--dark);margin-bottom:10px}
+.q-block .q-label{font-size:13px;color:var(--mid);font-weight:600;margin-bottom:6px;display:block}
+.mc-opts label{display:block;padding:10px 14px;margin:5px 0;border:2px solid var(--ice);border-radius:var(--r);cursor:pointer;font-size:14px;transition:.2s}
+.mc-opts label:hover{border-color:var(--cyan);background:var(--ice2)}
+.mc-opts label.selected{border-color:var(--cyan);background:rgba(79,195,201,.1)}
+.mc-opts label.correct{border-color:var(--ok);background:rgba(39,174,96,.1)}
+.mc-opts label.wrong{border-color:var(--err);background:rgba(231,76,60,.1)}
+.mc-opts input[type=radio]{display:none}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 20px;border:none;border-radius:var(--r);font-family:var(--font);font-size:14px;font-weight:700;cursor:pointer;transition:.2s}
+.btn-primary{background:var(--cyan);color:#fff}.btn-primary:hover{background:var(--cyan-d)}
+.btn-ok{background:var(--ok);color:#fff}.btn-err{background:var(--err);color:#fff}
+.btn-sm{padding:6px 14px;font-size:12px}
+.btn-outline{background:transparent;border:2px solid var(--cyan);color:var(--cyan-d)}.btn-outline:hover{background:var(--ice2)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.feedback{margin-top:10px;padding:10px 14px;border-radius:var(--r);font-size:14px;font-weight:600;display:none}
+.feedback.ok{display:block;background:rgba(39,174,96,.1);color:var(--ok);border:1px solid rgba(39,174,96,.2)}
+.feedback.nok{display:block;background:rgba(231,76,60,.1);color:var(--err);border:1px solid rgba(231,76,60,.2)}
+.feedback.info{display:block;background:var(--ice2);color:var(--mid);border:1px solid rgba(79,195,201,.2)}
+
+/* OPEN Q */
+textarea.open-q{width:100%;min-height:80px;border:2px solid var(--ice);border-radius:var(--r);padding:10px;font-family:var(--font);font-size:14px;resize:vertical;transition:.2s}
+textarea.open-q:focus{outline:none;border-color:var(--cyan)}
+.wc{font-size:12px;color:var(--mid);text-align:right;margin-top:4px}
+
+/* SORT / MATCH */
+.sort-list{list-style:none;display:flex;flex-direction:column;gap:6px}
+.sort-item{display:flex;align-items:center;gap:8px;padding:10px 14px;background:var(--ice2);border:2px solid transparent;border-radius:var(--r);font-size:14px;font-weight:600;transition:.2s}
+.sort-item .arrows{display:flex;gap:2px}
+.sort-item .arrows button{background:var(--white);border:1px solid var(--ice);border-radius:4px;width:26px;height:26px;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center}
+.sort-item .arrows button:hover{background:var(--cyan);color:#fff;border-color:var(--cyan)}
+.match-wrap{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.match-item{padding:10px 14px;border:2px solid var(--ice);border-radius:var(--r);cursor:pointer;font-size:14px;text-align:center;font-weight:600;transition:.2s;user-select:none}
+.match-item:hover{border-color:var(--cyan)}
+.match-item.sel{border-color:var(--cyan);background:rgba(79,195,201,.15)}
+.match-item.paired{opacity:.7;border-style:dashed}
+.match-pairs{margin:10px 0;display:flex;flex-direction:column;gap:4px}
+.match-pair{display:flex;align-items:center;gap:6px;padding:6px 10px;background:var(--ice2);border-radius:var(--r);font-size:13px;font-weight:600}
+.match-pair .arr{color:var(--cyan-d)}
+
+/* NAV */
+.nav-row{display:flex;justify-content:space-between;align-items:center;margin-top:24px;padding-top:16px;border-top:1px solid var(--ice)}
+.reset-link{font-size:12px;color:var(--mid);cursor:pointer;text-decoration:underline;margin-top:10px;display:inline-block}
+.reset-link:hover{color:var(--err)}
+
+/* SCORE */
+.score-card{text-align:center;padding:30px;background:linear-gradient(135deg,var(--cyan),var(--cyan-d));color:#fff;border-radius:var(--r2);margin:20px 0}
+.score-card .big{font-size:48px;font-weight:800}
+.score-card p{font-size:16px;opacity:.9;margin-top:4px}
+.ld-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin:16px 0}
+.ld-card{background:var(--white);border:2px solid var(--ice);border-radius:var(--r2);padding:18px;text-align:center}
+.ld-card .emoji{font-size:28px;margin-bottom:6px}
+.ld-card p{font-size:14px;color:var(--mid)}
+.ld-card.achieved{border-color:var(--ok);background:rgba(39,174,96,.06)}
+
+.clear-btn{position:fixed;bottom:16px;right:16px;z-index:999;background:var(--white);border:2px solid var(--ice);border-radius:var(--r);padding:6px 12px;font-family:var(--font);font-size:11px;color:var(--mid);cursor:pointer}
+.clear-btn:hover{border-color:var(--err);color:var(--err)}
+
+@media(max-width:800px){
+.match-wrap{grid-template-columns:1fr}
+.hdr h1{font-size:22px}
+.map-wrap{height:280px}
+}
+</style>
+</head>
+<body>
+
+<div id="progressWrap"><div id="progressInner"><div id="progressBar"><div id="progressFill"></div></div><span id="progressTxt">0%</span></div></div>
+
+<div class="hdr"><h1>🌍 Temperatuur &amp; Klimaat op Aarde</h1><p>VWO 1 — Aardrijkskunde · ✈️ Ontdek het klimaat als een wereldreiziger</p></div>
+
+<div id="tabBar"></div>
+<div id="main"></div>
+
+<button class="clear-btn" onclick="clearProgress()">🗑️ Voortgang wissen</button>
+
+<script>
+// ============ DATA ============
+const SEC = [
+// 0
+{id:'atmo',title:'De Atmosfeer',icon:'🌐',content:`
+<div class="info-box">
+<h2>🛡️ De atmosfeer: een beschermende deken</h2>
+<p>Stel je voor: je stapt uit het vliegtuig op een verre bestemming. Je voelt de warmte (of kou) meteen — dat is de atmosfeer die je omringt. De atmosfeer is de luchtlaag rondom de aarde, ook wel de <strong>dampkring</strong> genoemd. Zonder deze laag zou het leven op aarde onmogelijk zijn.</p>
+<p>De atmosfeer werkt als een deken. Overdag laat ze zonnestralen door naar het aardoppervlak. 's Nachts houdt ze een deel van de warmte vast, zodat het niet extreem koud wordt. Op de maan, waar geen atmosfeer is, kan de temperatuur overdag oplopen tot +127 °C en 's nachts dalen tot −173 °C. Op aarde blijft het gemiddeld rond de <strong>15 °C</strong> — precies goed voor leven.</p>
+<h3>🔬 Hoe werkt de opwarming?</h3>
+<div class="emoji-flow">☀️ Zon <span class="arrow">→</span> 〰️ Kortgolvige straling <span class="arrow">→</span> 🌍 Aardoppervlak warmt op <span class="arrow">→</span> 🔥 Langgolvige straling omhoog <span class="arrow">→</span> 🛡️ Atmosfeer houdt warmte vast</div>
+<p>Zonnestralen zijn <strong>kortgolvige straling</strong>. Deze gaat grotendeels door de atmosfeer heen en verwarmt het aardoppervlak. De warme grond straalt vervolgens <strong>langgolvige straling</strong> uit. De atmosfeer (met name broeikasgassen zoals CO₂ en waterdamp) vangt een deel van deze langgolvige straling op. Zo wordt de lucht <em>indirect</em> — van onderaf — verwarmd.</p>
+<div class="highlight-box">✈️ <strong>Reistip:</strong> Als je vliegt op 10 km hoogte is het buiten het vliegtuig zo'n −55 °C, terwijl het op de grond 25 °C kan zijn. Dat bewijst: de lucht wordt van onderaf verwarmd!</div>
+</div>`,
+questions:[
+{type:'mc',q:'Hoe wordt de atmosfeer voornamelijk verwarmd?',opts:['Direct door zonnestralen','Indirect, van onderaf door het aardoppervlak','Door de maan','Door wind uit de ruimte'],ans:1,explain:'De zon verwarmt eerst het aardoppervlak met kortgolvige straling. Het aardoppervlak straalt dan langgolvige straling uit die de lucht van onderaf verwarmt.'},
+{type:'open',q:'Leg in je eigen woorden uit waarom de temperatuurverschillen op de maan veel groter zijn dan op aarde. Gebruik de begrippen "atmosfeer" en "langgolvige straling" in je antwoord.',model:'De maan heeft geen atmosfeer. Daardoor kan langgolvige straling die het oppervlak uitstraalt direct het heelal in ontsnappen. Er is geen "deken" die warmte vasthoudt. Op aarde vangt de atmosfeer een deel van de langgolvige straling op, waardoor het \'s nachts niet extreem koud wordt en overdag niet extreem heet. Zonder atmosfeer zouden de temperatuurverschillen op aarde net zo extreem zijn als op de maan.'},
+{type:'mc',q:'Welk type straling gaat vanuit de zon door de atmosfeer heen?',opts:['Langgolvige straling','Kortgolvige straling','Infrarood straling van de maan','Radiostraling'],ans:1,explain:'Kortgolvige straling van de zon gaat grotendeels door de atmosfeer heen en bereikt het aardoppervlak.'}
+]},
+// 1
+{id:'zon',title:'Stand van de Zon',icon:'☀️',content:`
+<div class="info-box">
+<h2>☀️ De stand van de zon en temperatuur</h2>
+<p>Als je op vakantie bent in Spanje, merk je dat de zon rond het middaguur recht boven je lijkt te staan — het is dan ook het heetst. Maar waarom is de ochtendzon zoveel minder krachtig? Dat heeft alles te maken met de <strong>hoek</strong> waaronder de zonnestralen het aardoppervlak raken.</p>
+<h3>🔄 Hoek van inval</h3>
+<p>Wanneer de zon hoog aan de hemel staat (rond 12:00), vallen de stralen <strong>recht</strong> op een klein oppervlak. Alle energie wordt geconcentreerd. 's Ochtends en 's avonds staat de zon laag; de stralen vallen <strong>schuin</strong> in en verspreiden zich over een veel groter oppervlak. Dezelfde hoeveelheid energie wordt verdeeld over meer vierkante meters — dus minder opwarming per m².</p>
+<div class="emoji-flow">🌅 Ochtend: schuine stralen <span class="arrow">→</span> groot oppervlak <span class="arrow">→</span> minder warm &nbsp;|&nbsp; ☀️ Middag: steile stralen <span class="arrow">→</span> klein oppervlak <span class="arrow">→</span> meer warm</div>
+<h3>🌆 Rode luchten</h3>
+<p>Bij zonsopkomst en zonsondergang kleurt de lucht soms prachtig rood of oranje. Dit komt doordat het zonlicht bij een lage stand een <strong>langere weg</strong> door de atmosfeer aflegt. De meeste kleuren (blauw, groen) worden dan verstrooid, maar rood licht heeft een langere golflengte en komt wél door. Ideaal voor vakantiekiekjes! ✈️</p>
+<div class="highlight-box">💡 <strong>Denk na:</strong> 's Nachts ontvangt een deel van de aarde geen zonnestralen. De aarde straalt dan warmte uit naar het heelal en koelt af. Bewolking kan deze afkoeling remmen — wolken werken als een extra deken.</div>
+</div>`,
+questions:[
+{type:'sort',q:'Zet de momenten in volgorde van LAAGSTE naar HOOGSTE zonnestand:',items:['Zonsopkomst (06:00)','Ochtend (09:00)','Middag (12:00)','Namiddag (15:00)','Zonsondergang (21:00)'],correct:[0,1,3,4,2],display:['Zonsopkomst (06:00)','Ochtend (09:00)','Middag (12:00)','Namiddag (15:00)','Zonsondergang (21:00)'],correctOrder:['Zonsopkomst (06:00)','Zonsondergang (21:00)','Ochtend (09:00)','Namiddag (15:00)','Middag (12:00)']},
+{type:'open',q:'Je reist van Amsterdam naar Spanje. Leg uit waarom het in Spanje warmer is dan in Nederland, met het begrip "invalshoek van de zon". Betrek ook het begrip "oppervlak" in je uitleg.',model:'Spanje ligt dichter bij de evenaar dan Nederland. Daardoor is de invalshoek van de zon in Spanje steiler — de zonnestralen raken het aardoppervlak onder een grotere hoek. Hierdoor wordt de energie over een kleiner oppervlak verdeeld, waardoor elk vierkante meter meer warmte ontvangt. In Nederland vallen de stralen schuiner in en verspreiden ze zich over een groter oppervlak, wat minder opwarming per m² oplevert.'},
+{type:'mc',q:'Waarom kleurt de lucht rood bij zonsondergang?',opts:['De zon wordt kouder','Het zonlicht legt een langere weg door de atmosfeer af, waardoor alleen rood licht overblijft','Er zijn meer wolken','De aarde reflecteert rood licht'],ans:1,explain:'Bij een lage zonnestand legt het licht een langere weg door de atmosfeer af. Blauw en groen licht worden verstrooid, maar rood licht (langere golflengte) komt nog door.'}
+]},
+// 2
+{id:'breedte',title:'Breedteligging',icon:'🌐',content:`
+<div class="info-box">
+<h2>🌐 Breedteligging en temperatuur</h2>
+<p>De aarde is een bol. Dat eenvoudige feit heeft enorme gevolgen voor het klimaat. Op de <strong>evenaar</strong> (0° breedte) staan de zonnestralen het meest recht. Hoe verder je naar het noorden of zuiden reist, hoe <strong>schuiner</strong> de stralen invallen.</p>
+<h3>📐 Invalshoek per breedtegraad</h3>
+<p>Op de evenaar raken zonnestralen het oppervlak bijna loodrecht (90°). Op 52° noorderbreedte (Nederland) is de maximale zonshoogte in de zomer slechts ~61°, en in de winter slechts ~14°. Op de poolcirkel (66,5°) is er in de winter zelfs een periode zonder zon — de <strong>poolnacht</strong>.</p>
+<table class="compare-table">
+<tr><th>Breedtegraad</th><th>Gemiddelde jaartemp.</th><th>Voorbeeld</th></tr>
+<tr><td>0° (Evenaar)</td><td>~26 °C</td><td>🇪🇨 Quito, Ecuador</td></tr>
+<tr><td>30° N</td><td>~20 °C</td><td>🇪🇬 Caïro, Egypte</td></tr>
+<tr><td>52° N</td><td>~10 °C</td><td>🇳🇱 Amsterdam</td></tr>
+<tr><td>66° N</td><td>~0 °C</td><td>🇮🇸 Reykjavik</td></tr>
+<tr><td>90° N (Noordpool)</td><td>~−18 °C</td><td>🧊 Noordpool</td></tr>
+</table>
+<div class="emoji-flow">🌍 Evenaar = ☀️ steile stralen = 🔥 warm &nbsp;&nbsp;→&nbsp;&nbsp; 🧊 Pool = 🌅 schuine stralen = ❄️ koud</div>
+<div class="highlight-box">✈️ <strong>Reisvoorbeeld:</strong> Vlieg je van Amsterdam naar Kenia, dan reis je van 52°N naar de evenaar. Je merkt het temperatuurverschil direct bij aankomst!</div>
+</div>`,
+questions:[
+{type:'mc',q:'Op welke breedtegraad staan de zonnestralen het meest recht op het aardoppervlak?',opts:['52° N','90° N','0° (Evenaar)','30° Z'],ans:2,explain:'Op de evenaar (0°) staan de zonnestralen het meest recht, waardoor het er het warmst is.'},
+{type:'open',q:'Een reiziger vliegt van de Noordpool naar de evenaar. Beschrijf wat er met de gemiddelde temperatuur gebeurt tijdens deze reis. Gebruik de begrippen "breedteligging", "invalshoek" en "oppervlak" in je antwoord (minimaal 3 zinnen).',model:'Tijdens de reis van de Noordpool naar de evenaar neemt de gemiddelde temperatuur geleidelijk toe. Dit komt doordat de breedteligging afneemt: op lagere breedtegraden is de invalshoek van de zonnestralen steiler. Hierdoor vallen de stralen op een kleiner oppervlak en wordt de energie geconcentreerd. Op de Noordpool (90°N) vallen de stralen extreem schuin in en moeten ze ook een langere weg door de atmosfeer afleggen, wat extra energie kost.'},
+{type:'match',q:'Koppel elke breedteligging aan het juiste klimaatkenmerk:',left:['0° Evenaar','52° N','66° N Poolcirkel','90° N Pool'],right:['Poolnacht in winter','Gematigd, 4 seizoenen','Altijd koud, ijs','Tropisch warm'],correct:[3,1,0,2]}
+]},
+// 3
+{id:'kaart',title:'Klimaatzones (Kaart)',icon:'🗺️',content:`
+<div class="info-box">
+<h2>🗺️ Klimaatzones op de wereldkaart</h2>
+<p>De wereld is verdeeld in klimaatzones die samenhangen met de breedteligging. Als je reist van de evenaar naar de pool, passeer je achtereenvolgens: de <strong>tropische zone</strong>, de <strong>subtropische zone</strong>, de <strong>gematigde zone</strong> en de <strong>polaire zone</strong>.</p>
+<h3>🌡️ Zonering</h3>
+<p>Elke zone heeft unieke kenmerken qua temperatuur, neerslag en vegetatie. De tropische zone (0°–23,5°) is het hele jaar warm met veel regen. De gematigde zone (40°–60°) kent duidelijke seizoenen. De polaire zone (>66,5°) is extreem koud met lange winters.</p>
+<div class="highlight-box">✈️ <strong>Opdracht:</strong> Bekijk de kaart hieronder. De markers tonen steden in verschillende klimaatzones. Klik op een marker om meer te leren!</div>
+</div>
+<div class="map-wrap" id="map1"></div>`,
+questions:[
+{type:'mc',q:'Welke klimaatzone ligt tussen 0° en 23,5° breedte?',opts:['Gematigde zone','Polaire zone','Tropische zone','Subtropische zone'],ans:2,explain:'De tropische zone ligt tussen de keerkringen, van 0° tot 23,5° breedte, en is het hele jaar warm.'},
+{type:'open',q:'Je plant een wereldreis langs drie klimaatzones. Kies drie steden uit verschillende zones en beschrijf per stad welk klimaat je verwacht en waarom. Gebruik de kaart als hulp.',model:'Voorbeeld: 1) Singapore (1°N, tropische zone) — het hele jaar warm (~28°C) en vochtig, want de zon staat bijna recht boven je. 2) Barcelona (41°N, subtropisch/gematigd) — warme zomers en milde winters, duidelijke seizoenen door wisselende zonshoogte. 3) Tromsø (69°N, polaire zone) — koude, lange winters met poolnacht; korte zomers met middernachtzon. De breedteligging bepaalt de invalshoek van de zon en daarmee het klimaat.'},
+{type:'mc',q:'In de gematigde zone (zoals Nederland) geldt:',opts:['Het is altijd warm','Er zijn 4 seizoenen met temperatuurverschillen','Het regent nooit','De zon staat altijd recht boven je'],ans:1,explain:'De gematigde zone kent 4 seizoenen met duidelijke temperatuurverschillen door de wisselende zonshoogte gedurende het jaar.'}
+]},
+// 4
+{id:'zeeland',title:'Invloed van Zee & Land',icon:'🌊',content:`
+<div class="info-box">
+<h2>🌊 De invloed van zee en land op temperatuur</h2>
+<p>Heb je weleens gemerkt dat het aan de kust in de zomer koeler is dan in het binnenland, maar in de winter juist zachter? Dit verschijnsel heet het <strong>verschil tussen zeeklimaat en landklimaat</strong>.</p>
+<h3>💧 Water warmt langzaam op en koelt langzaam af</h3>
+<p>Water heeft een veel hogere <strong>warmtecapaciteit</strong> dan land. Dit betekent dat water meer energie nodig heeft om op te warmen, maar ook langer warmte vasthoudt. Denk aan een stranddag ✈️: het zand brandt onder je voeten (snel opgewarmd), maar de zee is nog fris (langzaam opgewarmd).</p>
+<div class="emoji-flow">☀️ Zomer: 🏖️ land = snel heet &nbsp;|&nbsp; 🌊 zee = nog koel &nbsp;&nbsp;⟺&nbsp;&nbsp; ❄️ Winter: 🏔️ land = snel koud &nbsp;|&nbsp; 🌊 zee = nog warm</div>
+<h3>🌬️ Zeeklimaat vs. landklimaat</h3>
+<table class="compare-table">
+<tr><th>Kenmerk</th><th>🌊 Zeeklimaat</th><th>🏔️ Landklimaat</th></tr>
+<tr><td>Zomertemperatuur</td><td>Gematigd warm</td><td>Heet</td></tr>
+<tr><td>Wintertemperatuur</td><td>Mild</td><td>Koud</td></tr>
+<tr><td>Verschil zomer–winter</td><td>Klein</td><td>Groot</td></tr>
+<tr><td>Voorbeeld</td><td>Den Haag 🇳🇱</td><td>Moskou 🇷🇺</td></tr>
+</table>
+<p>Lucht wordt <strong>van onderaf</strong> verwarmd. Boven zee is de lucht in de zomer koeler (koel water) en in de winter warmer (warm water). Boven land zijn de extremen groter.</p>
+<div class="highlight-box">✈️ <strong>Reisvoorbeeld:</strong> London (zeeklimaat) heeft in januari gemiddeld 5 °C. Moskou (landklimaat) op dezelfde breedtegraad heeft −10 °C! Houd daar rekening mee bij het inpakken van je koffer.</div>
+</div>`,
+questions:[
+{type:'match',q:'Koppel elk kenmerk aan het juiste klimaattype:',left:['Koele zomers','Strenge winters','Klein temperatuurverschil','Groot temperatuurverschil'],right:['Zeeklimaat','Landklimaat','Zeeklimaat','Landklimaat'],correct:[0,1,0,1],leftLabel:'Kenmerk',rightLabel:'Type',opts:['Zeeklimaat','Landklimaat']},
+{type:'open',q:'Je vriendin gaat in januari op vakantie en twijfelt tussen London en Moskou. Beide liggen op ongeveer dezelfde breedtegraad. Leg uit waarom de temperatuur toch sterk verschilt. Gebruik "warmtecapaciteit", "zeeklimaat" en "landklimaat" in je antwoord.',model:'London ligt aan zee en heeft een zeeklimaat. Water heeft een hoge warmtecapaciteit: het koelt langzaam af in de winter en houdt warmte lang vast. Daardoor is de lucht boven de zee (en aan de kust) in de winter relatief mild. Moskou ligt ver van de zee en heeft een landklimaat. Land koelt snel af in de winter, waardoor de lucht erboven ook snel koud wordt. Hoewel beide steden op ongeveer dezelfde breedtegraad liggen, zorgt het verschil in warmtecapaciteit voor een temperatuurverschil van wel 15 °C in januari.'},
+{type:'mc',q:'Waarom is het zand op het strand in de middag veel warmer dan het zeewater?',opts:['Het zand ligt dichter bij de zon','Zand warmt sneller op dan water','Water reflecteert alle zonnestralen','Het strand is altijd droog'],ans:1,explain:'Zand (land) heeft een lagere warmtecapaciteit dan water en warmt daardoor veel sneller op door de zon.'}
+]},
+// 5
+{id:'hoogte',title:'Hoogteligging',icon:'🏔️',content:`
+<div class="info-box">
+<h2>🏔️ Hoogteligging en temperatuur</h2>
+<p>Stel je voor: je reist naar Oost-Afrika ✈️ om de Kilimanjaro te beklimmen. Aan de voet staat je in tropische warmte (~30 °C), maar op de top (5.895 m) is het onder nul en ligt er sneeuw — midden op de evenaar!</p>
+<h3>📉 De temperatuurdaling met hoogte</h3>
+<p>De temperatuur daalt gemiddeld <strong>6 °C per 1.000 meter</strong> hoogte. Dit heet het <strong>temperatuurgradiënt</strong>. Bij droge lucht kan de daling zelfs <strong>10 °C per km</strong> zijn. De reden: de atmosfeer wordt van onderaf verwarmd. Hoe verder je van het aardoppervlak, hoe minder warmte er is.</p>
+<div class="emoji-flow">🏖️ Zeeniveau 30 °C <span class="arrow">→</span> ⛰️ 1000m: 24 °C <span class="arrow">→</span> 🏔️ 3000m: 12 °C <span class="arrow">→</span> 🧊 5000m: 0 °C <span class="arrow">→</span> ❄️ 6000m: −6 °C</div>
+<h3>🌿 Vegetatiezones op een berg</h3>
+<p>Door de temperatuurdaling verandert ook de begroeiing. Aan de voet vind je tropisch regenwoud, daarboven savanne, vervolgens naaldbos, alpenweides en uiteindelijk sneeuw en ijs. Dit verschijnsel heet <strong>hoogtezonering</strong>.</p>
+<div class="highlight-box">💡 <strong>Feit:</strong> Quito (Ecuador) ligt op de evenaar op 2.850 m hoogte. Ondanks de tropische breedteligging is de gemiddelde temperatuur slechts ~14 °C. Hoogte overheerst hier de breedteligging!</div>
+</div>`,
+questions:[
+{type:'mc',q:'Hoeveel daalt de temperatuur gemiddeld per 1.000 meter hoogte?',opts:['2 °C','6 °C','12 °C','20 °C'],ans:1,explain:'Gemiddeld daalt de temperatuur 6 °C per 1.000 meter hoogte. Bij droge lucht kan dit oplopen tot 10 °C per km.'},
+{type:'sort',q:'Zet de vegetatiezones in volgorde van LAAG (zeeniveau) naar HOOG:',items:['Tropisch regenwoud','Savanne/landbouw','Naaldbos','Alpenweide','Sneeuw en ijs'],correct:[0,1,2,3,4],correctOrder:['Tropisch regenwoud','Savanne/landbouw','Naaldbos','Alpenweide','Sneeuw en ijs']},
+{type:'open',q:'De Kilimanjaro (5.895 m) staat op de evenaar waar het aan de voet ~30 °C is. Bereken de verwachte temperatuur op de top (gebruik 6 °C/km). Leg uit waarom er sneeuw kan liggen op de evenaar.',model:'De Kilimanjaro is 5.895 m ≈ 5,9 km hoog. Temperatuurdaling: 5,9 × 6 = 35,4 °C. Temperatuur op de top: 30 − 35,4 = −5,4 °C. Omdat de temperatuur onder 0 °C uitkomt, kan er sneeuw en ijs voorkomen op de top. Dit bewijst dat hoogteligging de invloed van breedteligging kan overstijgen: ondanks dat de Kilimanjaro op de evenaar staat (waar het normaal tropisch warm is), zorgt de extreme hoogte voor een ijzig klimaat op de top.'}
+]},
+// 6
+{id:'grafiek',title:'Data & Grafieken',icon:'📊',content:`
+<div class="info-box">
+<h2>📊 Temperatuurdata analyseren</h2>
+<p>Als aardrijkskundige leer je om data te lezen en te interpreteren. Hieronder zie je een <strong>klimaatgrafiek</strong> die de gemiddelde maandtemperatuur toont van drie steden op verschillende breedtegraden. Analyseer de patronen!</p>
+<div class="highlight-box">✈️ <strong>Scenario:</strong> Je werkt bij een reisbureau en moet klanten adviseren wanneer de beste reistijd is voor drie bestemmingen: Singapore, Barcelona en Reykjavik.</div>
+</div>
+<canvas id="chart1" style="max-height:340px;margin:14px 0"></canvas>`,
+questions:[
+{type:'mc',q:'Welke stad heeft het kleinste temperatuurverschil tussen zomer en winter?',opts:['Barcelona','Reykjavik','Singapore'],ans:2,explain:'Singapore ligt vlak bij de evenaar en heeft het hele jaar ongeveer dezelfde temperatuur (~27-28 °C). Het verschil tussen warmste en koudste maand is slechts ~1-2 °C.'},
+{type:'open',q:'Bekijk de grafiek. Welke stad zou jij aanraden voor een wintervakantie (december-februari) en waarom? Gebruik minimaal twee gegevens uit de grafiek in je antwoord.',model:'Voor een wintervakantie raad ik Singapore aan. In december-februari is het daar gemiddeld ~27 °C, terwijl Barcelona rond de 9-10 °C zit en Reykjavik zelfs rond 0 °C. Singapore heeft nauwelijks seizoensvariatie door de ligging op de evenaar, dus je bent vrijwel gegarandeerd van warm weer. Barcelona is als alternatief mild maar niet echt warm in de winter.'},
+{type:'mc',q:'Waarom is de temperatuurlijn van Singapore bijna vlak?',opts:['Singapore heeft altijd bewolkt weer','Singapore ligt op de evenaar, waar de invalshoek van de zon het hele jaar bijna gelijk is','Singapore ligt op grote hoogte','Singapore heeft een landklimaat'],ans:1,explain:'Singapore ligt op 1°N, vlak bij de evenaar. De invalshoek van de zon verandert nauwelijks gedurende het jaar, waardoor de temperatuur vrijwel constant blijft.'}
+]},
+// 7
+{id:'case',title:'Reisverhaal',icon:'✈️',content:`
+<div class="info-box">
+<h2>✈️ Case: De grote klimaatreis van Yara</h2>
+<p>Yara (14 jaar) maakt een wereldreis met haar ouders. Ze schrijft een reisdagboek. Lees de fragmenten en beantwoord de vragen.</p>
+<h3>📖 Fragment 1 — Singapore (1° N, zeeniveau)</h3>
+<p><em>"Het is januari en het is hier 28 °C. Elke dag is bijna hetzelfde: warm en vochtig. De zon staat hoog aan de hemel. Ik zweet constant!"</em></p>
+<h3>📖 Fragment 2 — Innsbruck, Oostenrijk (47° N, 574 m)</h3>
+<p><em>"We zijn nu in de Alpen. Het is januari en het vriest! −3 °C vanochtend. Er ligt dikke sneeuw in de bergen. Vanuit het dal zie ik hoe de bossen veranderen naarmate je hoger komt: eerst loofbos, dan naaldbos, dan kale rotsen."</em></p>
+<h3>📖 Fragment 3 — Quito, Ecuador (0°, 2.850 m)</h3>
+<p><em>"Gek genoeg is het op de evenaar helemaal niet zo warm als ik verwachtte. Het is hier maar 14 °C! Mijn vader zegt dat het door de hoogte komt. We zitten op bijna 3 kilometer boven zeeniveau."</em></p>
+<div class="highlight-box">💡 <strong>Let op:</strong> De vragen hieronder vereisen dat je ALLE factoren combineert die je tot nu toe hebt geleerd: breedteligging, hoogteligging, zee/land-invloed en de atmosfeer.</div>
+</div>`,
+questions:[
+{type:'open',q:'Vergelijk Singapore en Quito. Beide liggen op (of dichtbij) de evenaar, maar de temperatuur verschilt sterk. Leg uit waarom, met gebruik van minimaal twee geografische begrippen.',model:'Singapore ligt op zeeniveau op 1°N. Quito ligt op 0° maar op 2.850 m hoogte. Het temperatuurverschil wordt verklaard door het temperatuurgradiënt: de temperatuur daalt ~6 °C per 1.000 m. Voor Quito: 2,85 × 6 = 17,1 °C lager. Als het op zeeniveau op de evenaar ~28 °C is, kom je uit op ~11-14 °C. Daarnaast speelt mee dat de atmosfeer van onderaf wordt verwarmd — op grotere hoogte is er simpelweg minder warme lucht. De breedteligging is gelijk, maar de hoogteligging maakt het verschil.'},
+{type:'match',q:'Koppel elk reisdagboek-fragment aan de belangrijkste verklarende factor:',left:['Singapore: altijd 28 °C','Innsbruck: −3 °C in jan.','Quito: 14 °C op de evenaar'],right:['Hoogteligging','Breedteligging (ver van evenaar) + seizoen','Breedteligging (op evenaar) + constante zonshoogte'],correct:[2,1,0]},
+{type:'mc',q:'In welk fragment is het verschil tussen zee- en landklimaat het meest relevant?',opts:['Fragment 1 — Singapore','Fragment 2 — Innsbruck','Fragment 3 — Quito','In geen van de fragmenten'],ans:1,explain:'Innsbruck ligt midden in Europa, ver van de oceaan. Het landklimaat zorgt voor koude winters met strenge vorst. Singapore en Quito worden meer beïnvloed door respectievelijk de equatoriale ligging en hoogte.'}
+]},
+// 8
+{id:'tijdlijn',title:'Dagverloop',icon:'🕐',content:`
+<div class="info-box">
+<h2>🕐 Temperatuurverloop op een dag</h2>
+<p>De temperatuur op een dag volgt een vast patroon dat samenhangt met de stand van de zon en de eigenschappen van de atmosfeer. Laten we een zomerse dag in Nederland (✈️ ideaal voor een fietstocht!) stap voor stap doorlopen.</p>
+<h3>⏰ Stappenplan: temperatuurverloop</h3>
+<table class="compare-table">
+<tr><th>Tijd</th><th>Wat gebeurt er?</th><th>Temperatuur</th></tr>
+<tr><td>06:00 🌅</td><td>Zon komt op. Aardoppervlak begint op te warmen.</td><td>Koelste punt (~14 °C)</td></tr>
+<tr><td>09:00 ☀️</td><td>Zon stijgt, stralen worden steiler. Land warmt op.</td><td>Stijgend (~18 °C)</td></tr>
+<tr><td>12:00 ☀️</td><td>Zon op hoogste punt. Meeste instraling.</td><td>Warm (~22 °C)</td></tr>
+<tr><td>15:00 🌤️</td><td>Zon daalt, maar aarde heeft warmte opgeslagen. Warmst!</td><td>Piek (~25 °C)</td></tr>
+<tr><td>18:00 🌅</td><td>Zon laag, uitstraling > instraling. Langzame afkoeling.</td><td>Dalend (~22 °C)</td></tr>
+<tr><td>21:00 🌙</td><td>Zon onder. Aarde straalt warmte uit.</td><td>Koel (~18 °C)</td></tr>
+<tr><td>03:00 🌑</td><td>Nacht. Continue uitstraling, geen instraling.</td><td>Koelst (~14 °C)</td></tr>
+</table>
+<div class="highlight-box">💡 <strong>Belangrijk:</strong> De hoogste temperatuur is NIET om 12:00 (wanneer de zon het hoogst staat) maar rond 15:00. De aarde heeft tijd nodig om op te warmen — dit heet <strong>na-ijling</strong>.</div>
+</div>`,
+questions:[
+{type:'mc',q:'Wanneer is de temperatuur op een zomerse dag in Nederland het hoogst?',opts:['Om 12:00 (hoogste zonnestand)','Om 06:00 (zonsopkomst)','Om 15:00 (na-ijling)','Om 21:00 (zonsondergang)'],ans:2,explain:'Door na-ijling bereikt de temperatuur haar piekpunt pas rond 15:00, enkele uren na de hoogste zonnestand. Het aardoppervlak heeft tijd nodig om de warmte op te slaan en weer uit te stralen.'},
+{type:'open',q:'Leg uit waarom het koelste moment van de dag niet om middernacht is, maar vlak voor zonsopkomst (rond 05:00-06:00). Gebruik het begrip "uitstraling" in je antwoord.',model:'Na zonsondergang straalt de aarde continu warmte (langgolvige straling) uit naar het heelal, zonder dat er nieuwe zonnestraling binnenkomt. Deze uitstraling gaat de hele nacht door. Hoe langer de nacht duurt, hoe meer warmte er is uitgestraald. Vlak voor zonsopkomst heeft de aarde het langst uitgestraald zonder compensatie — daarom is dat het koelste moment. Zodra de zon opkomt, begint de instraling weer en stijgt de temperatuur.'},
+{type:'sort',q:'Zet de stappen in de juiste volgorde van het dagelijkse temperatuurverloop:',items:['Zon komt op, oppervlak begint op te warmen','Zon op hoogste punt, maximale instraling','Temperatuur bereikt piek (na-ijling)','Zon onder, continue uitstraling','Koelste punt vlak voor zonsopkomst'],correct:[0,1,2,3,4],correctOrder:['Zon komt op, oppervlak begint op te warmen','Zon op hoogste punt, maximale instraling','Temperatuur bereikt piek (na-ijling)','Zon onder, continue uitstraling','Koelste punt vlak voor zonsopkomst']}
+]},
+// 9
+{id:'reflectie',title:'Afsluiting',icon:'🎓',content:`
+<div class="info-box">
+<h2>🎓 Reflectie & Afsluiting</h2>
+<p>Gefeliciteerd! Je hebt alle onderdelen doorgewerkt. Laten we terugkijken op wat je hebt geleerd.</p>
+<h3>📋 Leerdoelen</h3>
+<div class="ld-grid" id="ldGrid">
+<div class="ld-card" data-ld="0"><div class="emoji">🛡️</div><strong>Leerdoel 1</strong><p>Je weet hoe de atmosfeer de temperatuur op aarde beïnvloedt.</p></div>
+<div class="ld-card" data-ld="1"><div class="emoji">🌊</div><strong>Leerdoel 2</strong><p>Je kunt de invloed van land, zee en hoogteligging op het klimaat uitleggen.</p></div>
+<div class="ld-card" data-ld="2"><div class="emoji">☀️</div><strong>Leerdoel 3</strong><p>Je begrijpt welke invloed de stand van de zon en de breedteligging heeft op de temperatuur.</p></div>
+</div>
+</div>
+<div class="score-card" id="scoreCard"><div class="big" id="scoreBig">0%</div><p id="scoreSub">Bereken je score door alle opdrachten te maken</p></div>`
+}
+];
+
+// MAP DATA
+const MAP_MARKERS=[
+{lat:1.35,lng:103.8,title:'Singapore',desc:'1°N — Tropisch: ~27 °C het hele jaar, op zeeniveau.'},
+{lat:41.39,lng:2.17,title:'Barcelona',desc:'41°N — Subtropisch/gematigd: warme zomers, milde winters.'},
+{lat:64.13,lng:-21.9,title:'Reykjavik',desc:'64°N — Subarctisch: koele zomers, koude winters.'},
+{lat:-1.29,lng:36.82,title:'Nairobi',desc:'1°Z, 1.795 m — Tropisch hoogland: gematigd door hoogte (~18 °C).'},
+{lat:-0.18,lng:-78.47,title:'Quito',desc:'0°, 2.850 m — Op de evenaar maar slechts ~14 °C door hoogte!'},
+{lat:55.75,lng:37.62,title:'Moskou',desc:'56°N — Landklimaat: hete zomers, ijskoude winters (−10 °C jan).'},
+{lat:51.5,lng:-0.13,title:'Londen',desc:'51°N — Zeeklimaat: milde winters (~5 °C jan), koele zomers.'},
+{lat:-3.07,lng:37.35,title:'Kilimanjaro',desc:'3°Z, 5.895 m — Sneeuw op de evenaar door extreme hoogte!'}
+];
+
+// CHART DATA
+const CHART_DATA={
+labels:['Jan','Feb','Mrt','Apr','Mei','Jun','Jul','Aug','Sep','Okt','Nov','Dec'],
+datasets:[
+{label:'Singapore (1°N)',data:[27,27,28,28,28,28,28,28,27,27,27,27],borderColor:'#e74c3c',backgroundColor:'rgba(231,76,60,.1)',tension:.3,fill:true},
+{label:'Barcelona (41°N)',data:[9,10,12,14,17,21,24,24,22,17,13,10],borderColor:'#f39c12',backgroundColor:'rgba(243,156,18,.1)',tension:.3,fill:true},
+{label:'Reykjavik (64°N)',data:[0,1,1,3,7,10,12,11,8,4,1,0],borderColor:'#4fc3c9',backgroundColor:'rgba(79,195,201,.1)',tension:.3,fill:true}
+]};
+
+// ============ STATE ============
+let state={answers:{},attempts:{},completed:{},openSelf:{}};
+let maps=[];
+let charts=[];
+
+function LS(k,v){try{if(v===undefined)return JSON.parse(localStorage.getItem('geo_les_'+k));localStorage.setItem('geo_les_'+k,JSON.stringify(v))}catch(e){return null}}
+function loadState(){const s=LS('state');if(s){state=s}}
+function saveState(){LS('state',state);LS('time',Date.now())}
+
+function clearProgress(){if(confirm('Weet je zeker dat je alle voortgang wilt wissen?')){state={answers:{},attempts:{},completed:{},openSelf:{}};saveState();location.reload()}}
+
+// ============ RENDER ============
+let activeTab=0;
+
+function qKey(si,qi){return si+'_'+qi}
+
+function renderTabs(){
+const bar=document.getElementById('tabBar');
+bar.innerHTML='';
+SEC.forEach((s,i)=>{
+const b=document.createElement('button');
+b.className='tab-btn'+(i===activeTab?' active':'')+(state.completed[i]?' done':'');
+b.textContent=s.icon+' '+s.title;
+b.onclick=()=>switchTab(i);
+bar.appendChild(b);
+});
+}
+
+function switchTab(i){
+activeTab=i;
+renderTabs();
+renderSection(i);
+setTimeout(()=>{maps.forEach(m=>{try{m.invalidateSize()}catch(e){}})},150);
+}
+
+function renderSection(si){
+const sec=SEC[si];
+const main=document.getElementById('main');
+let h=`<div class="section active">${sec.content||''}`;
+
+// Questions
+if(sec.questions){
+sec.questions.forEach((q,qi)=>{
+const k=qKey(si,qi);
+h+=renderQuestion(q,si,qi,k);
+});
+}
+
+// Reflection special
+if(si===SEC.length-1){
+h+=renderReflection();
+}
+
+// Nav
+h+=`<div class="nav-row">`;
+if(si>0)h+=`<button class="btn btn-outline" onclick="switchTab(${si-1})">← Vorige</button>`;else h+=`<span></span>`;
+if(si<SEC.length-1)h+=`<button class="btn btn-primary" onclick="switchTab(${si+1})">Volgende →</button>`;else h+=`<span></span>`;
+h+=`</div>`;
+if(sec.questions&&sec.questions.length)h+=`<span class="reset-link" onclick="resetTab(${si})">🔄 Reset dit onderdeel</span>`;
+h+=`</div>`;
+
+main.innerHTML=h;
+
+// Post-render
+if(si===3)initMap();
+if(si===6)initChart();
+restoreAnswers(si);
+updateProgress();
+setTimeout(()=>{maps.forEach(m=>{try{m.invalidateSize()}catch(e){}})},200);
+}
+
+function renderQuestion(q,si,qi,k){
+const done=state.answers[k]!==undefined;
+let h=`<div class="q-block" id="qb_${k}">`;
+h+=`<span class="q-label">Vraag ${qi+1}</span>`;
+h+=`<h4>${q.q}</h4>`;
+
+if(q.type==='mc'){
+h+=`<div class="mc-opts" id="opts_${k}">`;
+q.opts.forEach((o,oi)=>{
+h+=`<label id="lbl_${k}_${oi}" onclick="selectMC('${k}',${oi})"><input type="radio" name="${k}" value="${oi}">${o}</label>`;
+});
+h+=`</div>`;
+h+=`<button class="btn btn-primary" style="margin-top:10px" id="sub_${k}" onclick="checkMC(${si},${qi})">Controleer</button>`;
+h+=`<div class="feedback" id="fb_${k}"></div>`;
+}
+else if(q.type==='open'){
+h+=`<textarea class="open-q" id="ta_${k}" oninput="wcUpdate('${k}')" placeholder="Schrijf je antwoord hier..."></textarea>`;
+h+=`<div class="wc" id="wc_${k}">0 woorden</div>`;
+h+=`<button class="btn btn-primary" style="margin-top:8px" id="sub_${k}" onclick="submitOpen(${si},${qi})">Klaar — toon voorbeeldantwoord</button>`;
+h+=`<div class="feedback" id="fb_${k}"></div>`;
+h+=`<div id="self_${k}" style="display:none;margin-top:10px">`;
+h+=`<p style="font-size:13px;color:var(--mid);margin-bottom:6px">Hoe beoordeel je je eigen antwoord?</p>`;
+h+=`<button class="btn btn-ok btn-sm" onclick="selfRate('${k}',1)">Goed ✓</button> `;
+h+=`<button class="btn btn-err btn-sm" onclick="selfRate('${k}',0)">Fout ✗</button>`;
+h+=`</div>`;
+}
+else if(q.type==='sort'){
+h+=`<ul class="sort-list" id="sort_${k}">`;
+const order=state.answers[k]?state.answers[k]:q.items.map((_,i)=>i);
+order.forEach((idx,pos)=>{
+h+=`<li class="sort-item" data-idx="${idx}"><span class="arrows"><button onclick="sortMove('${k}',${pos},-1)">▲</button><button onclick="sortMove('${k}',${pos},1)">▼</button></span><span>${q.items[idx]}</span></li>`;
+});
+h+=`</ul>`;
+h+=`<button class="btn btn-primary" style="margin-top:10px" id="sub_${k}" onclick="checkSort(${si},${qi})">Controleer</button>`;
+h+=`<div class="feedback" id="fb_${k}"></div>`;
+}
+else if(q.type==='match'){
+h+=renderMatch(q,si,qi,k);
+}
+
+return h+`</div>`;
+}
+
+function renderMatch(q,si,qi,k){
+let h=`<div id="match_${k}">`;
+h+=`<div class="match-pairs" id="pairs_${k}"></div>`;
+h+=`<div class="match-wrap">`;
+h+=`<div>`;
+q.left.forEach((l,i)=>{h+=`<div class="match-item" id="ml_${k}_${i}" onclick="matchSel('${k}','l',${i})">${l}</div>`;});
+h+=`</div><div>`;
+if(q.opts){
+q.opts.forEach((r,i)=>{h+=`<div class="match-item" id="mr_${k}_${i}" onclick="matchSel('${k}','r',${i})">${r}</div>`;});
+}else{
+q.right.forEach((r,i)=>{h+=`<div class="match-item" id="mr_${k}_${i}" onclick="matchSel('${k}','r',${i})">${r}</div>`;});
+}
+h+=`</div></div>`;
+h+=`<button class="btn btn-primary" style="margin-top:10px" id="sub_${k}" onclick="checkMatch(${si},${qi})">Controleer</button>`;
+h+=`<div class="feedback" id="fb_${k}"></div>`;
+h+=`</div>`;
+return h;
+}
+
+// ============ MC ============
+let mcSelected={};
+function selectMC(k,oi){
+if(state.answers[k]!==undefined)return;
+mcSelected[k]=oi;
+document.querySelectorAll(`#opts_${k} label`).forEach((l,i)=>{l.className=i===oi?'selected':''});
+}
+function checkMC(si,qi){
+const k=qKey(si,qi);
+const q=SEC[si].questions[qi];
+const sel=mcSelected[k];
+if(sel===undefined)return;
+const att=(state.attempts[k]||0)+1;
+state.attempts[k]=att;
+const fb=document.getElementById('fb_'+k);
+if(sel===q.ans){
+state.answers[k]='correct';
+document.getElementById('lbl_'+k+'_'+sel).className='correct';
+fb.className='feedback ok';fb.textContent='✓ Goed! '+q.explain;
+document.getElementById('sub_'+k).disabled=true;
+}else{
+document.getElementById('lbl_'+k+'_'+sel).className='wrong';
+if(att>=3){
+state.answers[k]='wrong_shown';
+fb.className='feedback nok';fb.textContent='✗ Het juiste antwoord is: '+q.opts[q.ans]+'. '+q.explain;
+document.getElementById('lbl_'+k+'_'+q.ans).className='correct';
+document.getElementById('sub_'+k).disabled=true;
+}else{
+fb.className='feedback nok';fb.textContent=`✗ Niet juist. ${q.explain?'Tip: '+q.explain.split('.')[0]+'.':''} Nog ${3-att} poging(en).`;
+}
+}
+saveState();updateProgress();
+}
+
+// ============ OPEN ============
+function wcUpdate(k){
+const ta=document.getElementById('ta_'+k);
+const wc=ta.value.trim().split(/\s+/).filter(w=>w).length;
+document.getElementById('wc_'+k).textContent=wc+' woorden';
+const btn=document.getElementById('sub_'+k);
+if(btn)btn.disabled=wc<20;
+}
+function submitOpen(si,qi){
+const k=qKey(si,qi);
+const q=SEC[si].questions[qi];
+const ta=document.getElementById('ta_'+k);
+const wc=ta.value.trim().split(/\s+/).filter(w=>w).length;
+if(wc<20){alert('Schrijf minimaal 20 woorden.');return}
+state.answers[k]=ta.value;
+const fb=document.getElementById('fb_'+k);
+fb.className='feedback info';
+fb.innerHTML='<strong>📝 Voorbeeldantwoord:</strong><br>'+q.model+'<br><br><em>Vergelijk je eigen antwoord met het voorbeeld. Dit is een mogelijk antwoord — jouw formulering mag anders zijn.</em>';
+document.getElementById('self_'+k).style.display='block';
+document.getElementById('sub_'+k).disabled=true;
+saveState();updateProgress();
+}
+function selfRate(k,v){
+state.openSelf[k]=v;
+document.getElementById('self_'+k).innerHTML=v?'<span style="color:var(--ok);font-weight:700">✓ Goed beoordeeld</span>':'<span style="color:var(--err);font-weight:700">✗ Als fout beoordeeld</span>';
+saveState();updateProgress();
+}
+
+// ============ SORT ============
+function getSortOrder(k){
+const ul=document.getElementById('sort_'+k);
+if(!ul)return[];
+return Array.from(ul.children).map(li=>parseInt(li.dataset.idx));
+}
+function sortMove(k,pos,dir){
+if(state.answers[k]!==undefined)return;
+const ul=document.getElementById('sort_'+k);
+const items=Array.from(ul.children);
+const np=pos+dir;
+if(np<0||np>=items.length)return;
+if(dir===-1)ul.insertBefore(items[pos],items[np]);
+else ul.insertBefore(items[np],items[pos]);
+}
+function checkSort(si,qi){
+const k=qKey(si,qi);
+const q=SEC[si].questions[qi];
+const order=getSortOrder(k);
+const att=(state.attempts[k]||0)+1;
+state.attempts[k]=att;
+const fb=document.getElementById('fb_'+k);
+const isCorrect=q.correctOrder?order.every((idx,i)=>q.items[idx]===q.correctOrder[i]):JSON.stringify(order)===JSON.stringify(q.correct);
+if(isCorrect){
+state.answers[k]=order;
+fb.className='feedback ok';fb.textContent='✓ Correct! Goed gesorteerd.';
+document.getElementById('sub_'+k).disabled=true;
+}else if(att>=3){
+state.answers[k]='wrong_shown';
+fb.className='feedback nok';fb.textContent='✗ De juiste volgorde is: '+q.correctOrder.join(' → ');
+document.getElementById('sub_'+k).disabled=true;
+}else{
+fb.className='feedback nok';fb.textContent=`✗ Niet helemaal juist. Nog ${3-att} poging(en).`;
+}
+saveState();updateProgress();
+}
+
+// ============ MATCH ============
+let matchState={};
+function matchSel(k,side,i){
+if(state.answers[k]!==undefined)return;
+if(!matchState[k])matchState[k]={sel:null,pairs:[]};
+const ms=matchState[k];
+const el=document.getElementById(`m${side}_${k}_${i}`);
+// Check if already paired
+if(el.classList.contains('paired'))return;
+if(ms.sel&&ms.sel.side===side){
+document.getElementById(`m${ms.sel.side}_${k}_${ms.sel.i}`).classList.remove('sel');
+}
+if(ms.sel&&ms.sel.side!==side){
+// Make pair
+const other=ms.sel;
+ms.pairs.push(side==='l'?{l:i,r:other.i}:{l:other.i,r:i});
+document.getElementById(`m${other.side}_${k}_${other.i}`).classList.remove('sel');
+document.getElementById(`m${other.side}_${k}_${other.i}`).classList.add('paired');
+el.classList.add('paired');
+ms.sel=null;
+renderPairs(k);
+}else{
+if(ms.sel)document.getElementById(`m${ms.sel.side}_${k}_${ms.sel.i}`).classList.remove('sel');
+ms.sel={side,i};
+el.classList.add('sel');
+}
+}
+function renderPairs(k){
+const ms=matchState[k];
+const pd=document.getElementById('pairs_'+k);
+if(!pd||!ms)return;
+// Find question
+let q=null;
+for(let si=0;si<SEC.length;si++){if(!SEC[si].questions)continue;for(let qi=0;qi<SEC[si].questions.length;qi++){if(qKey(si,qi)===k){q=SEC[si].questions[qi];break}}if(q)break}
+if(!q)return;
+const rLabels=q.opts||q.right;
+pd.innerHTML=ms.pairs.map(p=>`<div class="match-pair">${q.left[p.l]} <span class="arr">↔</span> ${rLabels[p.r]}</div>`).join('');
+}
+function checkMatch(si,qi){
+const k=qKey(si,qi);
+const q=SEC[si].questions[qi];
+const ms=matchState[k];
+if(!ms||ms.pairs.length!==q.left.length){alert('Koppel eerst alle items.');return}
+const att=(state.attempts[k]||0)+1;
+state.attempts[k]=att;
+const fb=document.getElementById('fb_'+k);
+const isCorrect=ms.pairs.every(p=>p.r===q.correct[p.l]);
+if(isCorrect){
+state.answers[k]='correct';
+fb.className='feedback ok';fb.textContent='✓ Alle koppelingen zijn juist!';
+document.getElementById('sub_'+k).disabled=true;
+}else if(att>=3){
+state.answers[k]='wrong_shown';
+const rLabels=q.opts||q.right;
+const correct=q.left.map((l,i)=>l+' ↔ '+rLabels[q.correct[i]]).join(', ');
+fb.className='feedback nok';fb.textContent='✗ De juiste koppelingen: '+correct;
+document.getElementById('sub_'+k).disabled=true;
+}else{
+matchState[k]={sel:null,pairs:[]};
+// Reset visual
+q.left.forEach((_,i)=>{const e=document.getElementById('ml_'+k+'_'+i);if(e){e.classList.remove('paired','sel')}});
+(q.opts||q.right).forEach((_,i)=>{const e=document.getElementById('mr_'+k+'_'+i);if(e){e.classList.remove('paired','sel')}});
+renderPairs(k);
+fb.className='feedback nok';fb.textContent=`✗ Niet helemaal juist. Probeer opnieuw. Nog ${3-att} poging(en).`;
+}
+saveState();updateProgress();
+}
+
+// ============ MAP ============
+function initMap(){
+const el=document.getElementById('map1');
+if(!el)return;
+try{
+const m=L.map(el).setView([20,20],2);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap',maxZoom:12}).addTo(m);
+MAP_MARKERS.forEach(mk=>{
+L.marker([mk.lat,mk.lng]).addTo(m).bindPopup(`<strong>${mk.title}</strong><br>${mk.desc}`);
+});
+maps.push(m);
+setTimeout(()=>m.invalidateSize(),300);
+}catch(e){console.error(e)}
+}
+
+// ============ CHART ============
+function initChart(){
+const el=document.getElementById('chart1');
+if(!el)return;
+try{
+const ctx=el.getContext('2d');
+const c=new Chart(ctx,{type:'line',data:CHART_DATA,options:{responsive:true,plugins:{title:{display:true,text:'Gemiddelde maandtemperatuur (°C)',font:{family:'Nunito',size:16,weight:'bold'}},legend:{labels:{font:{family:'Nunito'}}}},scales:{y:{title:{display:true,text:'Temperatuur (°C)',font:{family:'Nunito'}},min:-5,max:35},x:{title:{display:true,text:'Maand',font:{family:'Nunito'}}}}}});
+charts.push(c);
+}catch(e){console.error(e)}
+}
+
+// ============ RESTORE ============
+function restoreAnswers(si){
+const sec=SEC[si];
+if(!sec.questions)return;
+sec.questions.forEach((q,qi)=>{
+const k=qKey(si,qi);
+const ans=state.answers[k];
+if(ans===undefined){
+if(q.type==='open'){
+const btn=document.getElementById('sub_'+k);
+if(btn)btn.disabled=true;
+}
+return;
+}
+if(q.type==='mc'){
+if(ans==='correct'){
+document.getElementById('lbl_'+k+'_'+q.ans).className='correct';
+const fb=document.getElementById('fb_'+k);
+fb.className='feedback ok';fb.textContent='✓ Goed! '+q.explain;
+document.getElementById('sub_'+k).disabled=true;
+}else if(ans==='wrong_shown'){
+document.getElementById('lbl_'+k+'_'+q.ans).className='correct';
+const fb=document.getElementById('fb_'+k);
+fb.className='feedback nok';fb.textContent='✗ Het juiste antwoord is: '+q.opts[q.ans]+'. '+q.explain;
+document.getElementById('sub_'+k).disabled=true;
+}
+}else if(q.type==='open'){
+const ta=document.getElementById('ta_'+k);
+if(ta&&typeof ans==='string'){ta.value=ans;wcUpdate(k)}
+const fb=document.getElementById('fb_'+k);
+fb.className='feedback info';
+fb.innerHTML='<strong>📝 Voorbeeldantwoord:</strong><br>'+q.model;
+document.getElementById('sub_'+k).disabled=true;
+if(state.openSelf[k]!==undefined){
+const sd=document.getElementById('self_'+k);
+if(sd)sd.innerHTML=state.openSelf[k]?'<span style="color:var(--ok);font-weight:700">✓ Goed beoordeeld</span>':'<span style="color:var(--err);font-weight:700">✗ Als fout beoordeeld</span>';
+}else{
+document.getElementById('self_'+k).style.display='block';
+}
+}else if(q.type==='sort'){
+document.getElementById('sub_'+k).disabled=true;
+const fb=document.getElementById('fb_'+k);
+if(ans==='wrong_shown'){fb.className='feedback nok';fb.textContent='✗ De juiste volgorde is: '+q.correctOrder.join(' → ');}
+else{fb.className='feedback ok';fb.textContent='✓ Correct!';}
+}else if(q.type==='match'){
+document.getElementById('sub_'+k).disabled=true;
+const fb=document.getElementById('fb_'+k);
+if(ans==='correct'){fb.className='feedback ok';fb.textContent='✓ Alle koppelingen zijn juist!';}
+else{
+const rLabels=q.opts||q.right;
+fb.className='feedback nok';fb.textContent='✗ De juiste koppelingen zijn getoond.';
+}
+}
+});
+}
+
+// ============ PROGRESS ============
+function countQuestions(){
+let total=0,done=0;
+SEC.forEach((s,si)=>{
+if(!s.questions)return;
+s.questions.forEach((q,qi)=>{
+total++;
+const k=qKey(si,qi);
+if(state.answers[k]!==undefined){
+if(q.type==='open'){
+if(state.openSelf[k]!==undefined)done++;
+}else done++;
+}
+});
+});
+return{total,done};
+}
+function updateProgress(){
+const{total,done}=countQuestions();
+const pct=total?Math.round(done/total*100):0;
+document.getElementById('progressFill').style.width=pct+'%';
+document.getElementById('progressTxt').textContent=pct+'%';
+// Tab completion
+SEC.forEach((s,si)=>{
+if(!s.questions||!s.questions.length){return}
+let allDone=true;
+s.questions.forEach((q,qi)=>{
+const k=qKey(si,qi);
+if(state.answers[k]===undefined)allDone=false;
+else if(q.type==='open'&&state.openSelf[k]===undefined)allDone=false;
+});
+state.completed[si]=allDone;
+});
+renderTabs();
+saveState();
+// Score card
+const sc=document.getElementById('scoreBig');
+if(sc){
+sc.textContent=pct+'%';
+const sub=document.getElementById('scoreSub');
+if(pct===100)sub.textContent='🎉 Fantastisch! Alle opdrachten voltooid!';
+else if(pct>=70)sub.textContent='Goed bezig! Maak de rest ook af.';
+else sub.textContent='Werk alle opdrachten af om je score te zien.';
+// Leerdoelen
+const cards=document.querySelectorAll('.ld-card');
+const ldMap=[[0],[1,2],[3,4,5,6]]; // which sections map to which LD
+ldMap.forEach((secs,li)=>{
+const achieved=secs.every(si=>state.completed[si]);
+const c=document.querySelector(`.ld-card[data-ld="${li}"]`);
+if(c)c.classList.toggle('achieved',achieved);
+});
+}
+}
+
+// ============ REFLECTION ============
+function renderReflection(){
+let h=`<div class="q-block"><span class="q-label">Reflectie</span>`;
+h+=`<h4>Beantwoord deze reflectievragen:</h4>`;
+const rqs=[
+'Welk onderdeel vond je het moeilijkst? Waarom?',
+'Noem één ding dat je hebt geleerd dat je kunt gebruiken als je op reis gaat.',
+'Als je iemand in één minuut moet uitleggen waarom het op bergen koud is, wat zou je dan zeggen?'
+];
+rqs.forEach((rq,i)=>{
+const k='refl_'+i;
+h+=`<p style="font-weight:600;margin:12px 0 4px">${i+1}. ${rq}</p>`;
+h+=`<textarea class="open-q" id="ta_${k}" oninput="wcRefl('${k}')" placeholder="Schrijf hier..."></textarea>`;
+h+=`<div class="wc" id="wc_${k}">0 woorden</div>`;
+});
+h+=`</div>`;
+return h;
+}
+
+function wcRefl(k){
+const ta=document.getElementById('ta_'+k);
+if(!ta)return;
+const wc=ta.value.trim().split(/\s+/).filter(w=>w).length;
+document.getElementById('wc_'+k).textContent=wc+' woorden';
+}
+
+// ============ RESET TAB ============
+function resetTab(si){
+if(!confirm('Weet je zeker dat je dit onderdeel wilt resetten?'))return;
+const sec=SEC[si];
+if(!sec.questions)return;
+sec.questions.forEach((q,qi)=>{
+const k=qKey(si,qi);
+delete state.answers[k];
+delete state.attempts[k];
+delete state.openSelf[k];
+delete mcSelected[k];
+delete matchState[k];
+});
+delete state.completed[si];
+saveState();
+renderSection(si);
+}
+
+// ============ INIT ============
+window.addEventListener('DOMContentLoaded',function(){
+loadState();
+renderTabs();
+renderSection(0);
+});
+</script>
+</body>
+</html>
