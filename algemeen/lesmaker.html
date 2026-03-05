@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GEO Leeromgeving Generator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f5f7f4;
+  --surface: #ffffff;
+  --surface2: #f0f4ee;
+  --border: #d4e4ce;
+  --border2: #b8d4ae;
+  --accent: #1e8c3a;
+  --accent-h: #166e2d;
+  --accent-light: #e6f4eb;
+  --accent-mid: #3cb85a;
+  --teal: #0d7a5f;
+  --orange: #d97706;
+  --text: #151e12;
+  --text2: #2e4428;
+  --muted: #5a7250;
+  --muted2: #7a9270;
+  --danger: #c0392b;
+  --danger-bg: #fef2f2;
+  --r: 12px;
+  --r-sm: 8px;
+  --shadow: 0 1px 3px rgba(0,0,0,.06), 0 2px 8px rgba(30,140,58,.05);
+  --shadow-h: 0 4px 16px rgba(30,140,58,.14);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 15px; min-height: 100vh; }
+
+/* ── TABS ── */
+.tab-bar {
+  display: flex; background: var(--surface); border-bottom: 2px solid var(--border);
+  position: sticky; top: 0; z-index: 100; padding: 0 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,.06);
+}
+.tab-bar-logo {
+  font-family: 'Syne', sans-serif; font-weight: 800; font-size: 15px;
+  color: var(--accent); display: flex; align-items: center; gap: 6px;
+  padding-right: 20px; border-right: 1px solid var(--border); margin-right: 4px;
+  white-space: nowrap;
+}
+.tab-btn {
+  background: none; border: none; color: var(--muted2);
+  font-family: 'Syne', sans-serif; font-size: 11px; font-weight: 700;
+  letter-spacing: .08em; text-transform: uppercase;
+  padding: 13px 18px; cursor: pointer;
+  border-bottom: 2px solid transparent; margin-bottom: -2px;
+  transition: all .2s;
+}
+.tab-btn:hover { color: var(--text); }
+.tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* ── LAYOUT ── */
+.main-wrap { max-width: 720px; margin: 0 auto; padding: 32px 20px 100px; }
+.page-header { margin-bottom: 28px; }
+.page-header h1 {
+  font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800;
+  letter-spacing: -.02em; line-height: 1.2; color: var(--text);
+}
+.page-header h1 em { color: var(--accent); font-style: normal; }
+.page-header p { color: var(--muted); margin-top: 7px; font-size: 14px; }
+
+/* ── PROGRESS ── */
+.progress-wrap { margin-bottom: 26px; }
+.progress-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.progress-label { font-size: 12px; color: var(--muted); font-weight: 600; }
+.progress-pct { font-family: 'Syne', sans-serif; font-size: 12px; font-weight: 700; color: var(--accent); }
+.progress-bar { height: 5px; background: var(--border); border-radius: 3px; overflow: hidden; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--teal)); border-radius: 3px; transition: width .4s ease; width: 0%; }
+
+/* ── SECTION ── */
+.section {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r); padding: 20px 22px; margin-bottom: 12px;
+  box-shadow: var(--shadow);
+}
+.section-header { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+.section-num {
+  width: 24px; height: 24px; background: var(--accent); color: #fff;
+  font-family: 'Syne', sans-serif; font-weight: 800; font-size: 11px;
+  border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.section-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 14px; color: var(--text2); }
+.section-opt {
+  font-size: 10px; color: var(--muted2); background: var(--surface2);
+  border: 1px solid var(--border); border-radius: 20px; padding: 2px 9px; margin-left: auto;
+}
+
+/* ── FIELD ── */
+.field-label { display: block; font-size: 11px; color: var(--muted); margin-bottom: 6px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; }
+input[type="text"], textarea {
+  width: 100%; background: var(--surface2); border: 1.5px solid var(--border);
+  border-radius: var(--r-sm); color: var(--text); font-family: 'DM Sans', sans-serif;
+  font-size: 14px; padding: 9px 12px; outline: none; transition: border-color .2s, box-shadow .2s;
+}
+input[type="text"]:focus, textarea:focus {
+  border-color: var(--accent); box-shadow: 0 0 0 3px rgba(30,140,58,.1);
+}
+textarea { resize: vertical; min-height: 85px; }
+
+/* ── TOGGLE GROUP (replaces checkboxes) ── */
+.toggle-group { display: flex; flex-direction: column; gap: 7px; }
+.toggle-row {
+  display: flex; align-items: center; justify-content: space-between;
+  background: var(--surface2); border: 1.5px solid var(--border);
+  border-radius: var(--r-sm); padding: 10px 14px; cursor: pointer;
+  transition: all .18s; user-select: none;
+}
+.toggle-row:hover { border-color: var(--border2); background: #eef7eb; }
+.toggle-row.on { border-color: var(--accent); background: var(--accent-light); }
+.toggle-label { font-size: 13px; font-weight: 500; color: var(--text); }
+.toggle-switch {
+  width: 36px; height: 20px; background: var(--border2);
+  border-radius: 10px; position: relative; flex-shrink: 0;
+  transition: background .2s;
+}
+.toggle-switch::after {
+  content: ''; position: absolute; top: 3px; left: 3px;
+  width: 14px; height: 14px; background: #fff; border-radius: 50%;
+  transition: transform .2s; box-shadow: 0 1px 3px rgba(0,0,0,.2);
+}
+.toggle-row.on .toggle-switch { background: var(--accent); }
+.toggle-row.on .toggle-switch::after { transform: translateX(16px); }
+
+/* ── RADIO PILL ROW ── */
+.pill-group { display: flex; gap: 7px; flex-wrap: wrap; }
+.pill {
+  background: var(--surface2); border: 1.5px solid var(--border);
+  border-radius: 30px; padding: 7px 16px; cursor: pointer;
+  font-size: 13px; font-weight: 600; color: var(--text2);
+  transition: all .17s; user-select: none; white-space: nowrap;
+}
+.pill:hover { border-color: var(--accent-mid); background: #eef7eb; }
+.pill.selected { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+/* ── RADIO CARD (with icon, for niveau/stijl) ── */
+.card-group { display: flex; gap: 8px; flex-wrap: wrap; }
+.radio-card {
+  flex: 1; min-width: 140px; background: var(--surface2); border: 1.5px solid var(--border);
+  border-radius: var(--r-sm); padding: 12px 14px; cursor: pointer;
+  transition: all .18s; display: flex; align-items: flex-start; gap: 10px; user-select: none;
+}
+.radio-card:hover { border-color: var(--accent-mid); background: #eef7eb; box-shadow: var(--shadow-h); }
+.radio-card.selected { border-color: var(--accent); background: var(--accent-light); box-shadow: 0 0 0 3px rgba(30,140,58,.1); }
+.rc-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+.rc-label { font-size: 13px; font-weight: 700; line-height: 1.3; color: var(--text); }
+.rc-sub { font-size: 11px; color: var(--muted); margin-top: 3px; }
+
+/* ── JAAR PILLS (dynamic, auto-width) ── */
+.jaar-pills { display: flex; gap: 6px; flex-wrap: wrap; }
+.jaar-pill {
+  background: var(--surface2); border: 1.5px solid var(--border);
+  border-radius: 8px; padding: 6px 14px; cursor: pointer;
+  font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700; color: var(--text2);
+  transition: all .17s; user-select: none;
+}
+.jaar-pill:hover { border-color: var(--accent-mid); background: #eef7eb; }
+.jaar-pill.selected { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+/* ── COLOR SWATCHES ── */
+.color-grid { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.color-swatch {
+  width: 34px; height: 34px; border-radius: 50%; cursor: pointer;
+  border: 3px solid transparent; transition: transform .15s, border-color .15s, box-shadow .15s;
+  flex-shrink: 0;
+}
+.color-swatch:hover { transform: scale(1.12); }
+.color-swatch.selected {
+  border-color: var(--accent); transform: scale(1.18);
+  box-shadow: 0 0 0 3px rgba(30,140,58,.2);
+}
+
+/* ── HOBBY CHIPS ── */
+.hobby-row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+.hobby-chip {
+  background: var(--surface2); border: 1.5px solid var(--border);
+  border-radius: 20px; padding: 4px 12px; cursor: pointer;
+  font-size: 12px; font-weight: 500; color: var(--muted);
+  transition: all .15s; user-select: none;
+}
+.hobby-chip:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-light); }
+.hobby-chip.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+/* ── GENERATE BUTTON ── */
+.gen-btn {
+  width: 100%; background: var(--accent); color: #fff;
+  font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 800;
+  letter-spacing: .04em; border: none; border-radius: var(--r);
+  padding: 16px; cursor: pointer; transition: background .2s, transform .1s, box-shadow .2s;
+  margin-top: 8px; box-shadow: 0 4px 16px rgba(30,140,58,.25);
+}
+.gen-btn:hover { background: var(--accent-h); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(30,140,58,.35); }
+.gen-btn:active { transform: translateY(0); }
+
+/* ── OUTPUT ── */
+.output-box { display: none; margin-top: 18px; background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--r); overflow: hidden; box-shadow: var(--shadow); }
+.output-box.visible { display: block; }
+.output-header { display: flex; align-items: center; justify-content: space-between; padding: 12px 18px; border-bottom: 1px solid var(--border); background: var(--accent-light); }
+.output-header span { font-family: 'Syne', sans-serif; font-size: 11px; font-weight: 800; color: var(--accent); letter-spacing: .07em; text-transform: uppercase; }
+.copy-btn {
+  background: #fff; color: var(--accent); border: 2px solid var(--accent); border-radius: 6px;
+  font-family: 'Syne', sans-serif; font-size: 12px; font-weight: 800;
+  padding: 7px 16px; cursor: pointer; display: flex; align-items: center;
+  gap: 6px; transition: background .2s, color .2s;
+}
+.copy-btn:hover { background: var(--accent); color: #fff; }
+.copy-btn.copied { background: var(--orange); color: #fff; border-color: var(--orange); }
+.output-text {
+  padding: 18px; font-family: 'Courier New', monospace; font-size: 11.5px;
+  line-height: 1.75; color: var(--text2); white-space: pre-wrap;
+  word-break: break-word; max-height: 360px; overflow-y: auto;
+  background: #fafcfa;
+}
+
+/* ── VALIDATION ── */
+.val-msg { font-size: 12px; color: var(--danger); background: var(--danger-bg); border-radius: 6px; padding: 5px 10px; margin-top: 7px; display: none; }
+.val-msg.show { display: block; }
+
+/* ── DIVIDER ── */
+.gap { margin-top: 12px; }
+.gap-sm { margin-top: 8px; }
+.divider { border: none; border-top: 1px solid var(--border); margin: 10px 0 14px; }
+
+/* ── INFO TAB ── */
+.info-wrap { max-width: 680px; margin: 0 auto; padding: 36px 20px 80px; }
+.info-wrap h2 { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 800; color: var(--text); margin-bottom: 6px; }
+.info-wrap h3 { font-family: 'Syne', sans-serif; font-size: 12px; font-weight: 800; margin: 24px 0 7px; color: var(--accent); text-transform: uppercase; letter-spacing: .07em; }
+.info-wrap p { color: var(--muted); line-height: 1.78; font-size: 14px; margin-bottom: 9px; }
+.info-wrap ul { color: var(--muted); font-size: 14px; line-height: 1.9; padding-left: 20px; margin-bottom: 9px; }
+.info-wrap code { background: var(--surface2); border: 1px solid var(--border); border-radius: 4px; padding: 1px 6px; font-size: 12px; color: var(--accent); }
+.tip-box { background: var(--accent-light); border: 1.5px solid var(--border2); border-radius: 8px; padding: 13px 15px; margin: 14px 0; font-size: 13px; color: var(--text2); line-height: 1.65; }
+.tip-box strong { color: var(--accent-h); }
+.info-divider { border: none; border-top: 1px solid var(--border); margin: 24px 0; }
+</style>
+</head>
+<body>
+
+<div class="tab-bar">
+  <div class="tab-bar-logo">🌍 GEO</div>
+  <button class="tab-btn active" onclick="switchTab('builder',this)">Generator</button>
+  <button class="tab-btn" onclick="switchTab('info',this)">Uitleg & Tips</button>
+</div>
+
+<!-- ═══════════════ BUILDER ═══════════════ -->
+<div id="tab-builder" class="tab-panel active">
+<div class="main-wrap">
+
+  <div class="page-header">
+    <h1>Maak jouw<br><em>GEO Leeromgeving</em></h1>
+    <p>Vul het formulier in → kopieer de prompt → plak in Claude of ChatGPT</p>
+  </div>
+
+  <div class="progress-wrap">
+    <div class="progress-row">
+      <span class="progress-label">Voortgang</span>
+      <span class="progress-pct" id="progressPct">0%</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+  </div>
+
+  <!-- ─── 1. NIVEAU ─── -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">1</div>
+      <div class="section-title">Niveau</div>
+    </div>
+    <div class="card-group" id="niveauGroup">
+      <label class="radio-card" onclick="pickNiveau('VMBO',this)">
+        <div class="rc-icon">📝</div>
+        <div><div class="rc-label">VMBO</div><div class="rc-sub">4 leerjaren</div></div>
+      </label>
+      <label class="radio-card" onclick="pickNiveau('HAVO',this)">
+        <div class="rc-icon">📖</div>
+        <div><div class="rc-label">HAVO</div><div class="rc-sub">5 leerjaren</div></div>
+      </label>
+      <label class="radio-card" onclick="pickNiveau('VWO',this)">
+        <div class="rc-icon">🎓</div>
+        <div><div class="rc-label">VWO</div><div class="rc-sub">6 leerjaren</div></div>
+      </label>
+    </div>
+    <div class="val-msg" id="val-niveau">⚠ Kies je schoolniveau.</div>
+
+    <div id="jaarWrap" style="display:none;">
+      <div class="divider"></div>
+      <label class="field-label">Leerjaar</label>
+      <div class="jaar-pills" id="jaarPills"></div>
+      <div class="val-msg" id="val-jaar">⚠ Kies je leerjaar.</div>
+    </div>
+  </div>
+
+  <!-- ─── 2. LEERDOELEN ─── -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">2</div>
+      <div class="section-title">Leerdoelen</div>
+    </div>
+    <label class="field-label">Wat moet je na deze les kunnen of weten?</label>
+    <textarea id="leerdoelen" placeholder="- Ik kan uitleggen hoe aardbevingen ontstaan&#10;- Ik ken het verschil tussen focus en epicentrum&#10;- Ik kan risicogebieden aanwijzen op een kaart" oninput="updateProgress()"></textarea>
+    <div class="val-msg" id="val-leerdoelen">⚠ Vul minimaal één leerdoel in.</div>
+  </div>
+
+  <!-- ─── 3. LESSTOF ─── -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">3</div>
+      <div class="section-title">Lesstof uit je boek</div>
+      <div class="section-opt">optioneel</div>
+    </div>
+    <label class="field-label">Plak hier tekst uit je methode (of laat leeg)</label>
+    <textarea id="lesstof" style="min-height:68px;" placeholder="Tekst uit je aardrijkskundeboek..."></textarea>
+  </div>
+
+  <!-- ─── 4. MOEILIJKHEIDSGRAAD ─── -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">4</div>
+      <div class="section-title">Moeilijkheidsgraad</div>
+    </div>
+    <div class="card-group" id="moeilijkheidGroup">
+      <label class="radio-card" onclick="pickRadio('moeilijkheid','ondersteunend — meer uitleg, kleinere stappen, eenvoudige taal',this,'moeilijkheidGroup')">
+        <div class="rc-icon">🤝</div>
+        <div><div class="rc-label">Ondersteunend</div><div class="rc-sub">Meer uitleg, kleinere stappen</div></div>
+      </label>
+      <label class="radio-card" onclick="pickRadio('moeilijkheid','standaard',this,'moeilijkheidGroup')">
+        <div class="rc-icon">📚</div>
+        <div><div class="rc-label">Standaard</div><div class="rc-sub">Normaal niveau</div></div>
+      </label>
+      <label class="radio-card" onclick="pickRadio('moeilijkheid','uitdagend — meer diepgang, hogere denkvaardigheden, complexere vragen',this,'moeilijkheidGroup')">
+        <div class="rc-icon">🚀</div>
+        <div><div class="rc-label">Uitdagend</div><div class="rc-sub">Meer diepgang en analyse</div></div>
+      </label>
+    </div>
+    <div class="val-msg" id="val-moeilijkheid">⚠ Kies een moeilijkheidsgraad.</div>
+  </div>
+
+  <!-- ─── 5. INTERESSE ─── -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">5</div>
+      <div class="section-title">Koppel aan een interesse</div>
+      <div class="section-opt">optioneel</div>
+    </div>
+    <label class="field-label">Hobby of interesse voor de voorbeelden</label>
+    <input type="text" id="interesse" placeholder="Typ zelf of klik een suggestie hieronder..." oninput="updateProgress()">
+    <div class="hobby-row" id="hobbyChips">
+      <span class="hobby-chip" onclick="setHobby(this,'⚽ voetbal')">⚽ Voetbal</span>
+      <span class="hobby-chip" onclick="setHobby(this,'🎮 gaming')">🎮 Gaming</span>
+      <span class="hobby-chip" onclick="setHobby(this,'🎵 muziek')">🎵 Muziek</span>
+      <span class="hobby-chip" onclick="setHobby(this,'🐴 paarden')">🐴 Paarden</span>
+      <span class="hobby-chip" onclick="setHobby(this,'🏊 zwemmen')">🏊 Zwemmen</span>
+      <span class="hobby-chip" onclick="setHobby(this,'🍕 koken')">🍕 Koken</span>
+      <span class="hobby-chip" onclick="setHobby(this,'✈️ reizen')">✈️ Reizen</span>
+      <span class="hobby-chip" onclick="setHobby(this,'🎨 tekenen')">🎨 Tekenen</span>
+      <span class="hobby-chip" onclick="setHobby(this,'📱 social media')">📱 Social media</span>
+      <span class="hobby-chip" onclick="setHobby(this,'🚴 fietsen')">🚴 Fietsen</span>
+    </div>
+  </div>
+
+  <!-- ─── 6. NIEUWS ─── -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">6</div>
+      <div class="section-title">Nieuwsitem</div>
+      <div class="section-opt">optioneel</div>
+    </div>
+    <label class="field-label">Iets uit het nieuws over dit onderwerp?</label>
+    <input type="text" id="nieuws" placeholder="bijv. aardbeving in Turkije, overstromingen Limburg...">
+  </div>
+
+  <!-- ─── 7. OPDRACHTEN (toggles) ─── -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">7</div>
+      <div class="section-title">Type opdrachten</div>
+    </div>
+    <div class="toggle-group">
+      <div class="toggle-row" onclick="toggleOpdracht(this,'quiz en multiple choice vragen')">
+        <span class="toggle-label">🧠 Quiz / multiple choice</span>
+        <div class="toggle-switch"></div>
+      </div>
+      <div class="toggle-row" onclick="toggleOpdracht(this,'interactieve kaart — locaties aanwijzen en verkennen')">
+        <span class="toggle-label">🗺 Interactieve kaart</span>
+        <div class="toggle-switch"></div>
+      </div>
+      <div class="toggle-row" onclick="toggleOpdracht(this,'grafieken en data analyseren')">
+        <span class="toggle-label">📊 Grafieken en data analyseren</span>
+        <div class="toggle-switch"></div>
+      </div>
+      <div class="toggle-row" onclick="toggleOpdracht(this,'verhalende case of scenario volgen')">
+        <span class="toggle-label">📖 Verhaal / case (verhalende stijl)</span>
+        <div class="toggle-switch"></div>
+      </div>
+      <div class="toggle-row" onclick="toggleOpdracht(this,'open opdrachten waarbij leerlingen zelf schrijven en redeneren')">
+        <span class="toggle-label">✏️ Open opdrachten — eigen antwoorden</span>
+        <div class="toggle-switch"></div>
+      </div>
+      <div class="toggle-row" onclick="toggleOpdracht(this,'tijdlijn of stappenplan doorlopen')">
+        <span class="toggle-label">🕐 Tijdlijn / stappenplan</span>
+        <div class="toggle-switch"></div>
+      </div>
+    </div>
+    <div class="val-msg" id="val-opdracht">⚠ Zet minimaal één type opdracht aan.</div>
+  </div>
+
+  <!-- ─── 8. LESDUUR ─── -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">8</div>
+      <div class="section-title">Lesduur</div>
+    </div>
+    <div class="pill-group" id="lesduurGroup">
+      <span class="pill" onclick="pickPill('lesduur','40 minuten',this,'lesduurGroup')">⏱ 40 min</span>
+      <span class="pill selected" onclick="pickPill('lesduur','60 minuten',this,'lesduurGroup')">⏱ 60 min</span>
+      <span class="pill" onclick="pickPill('lesduur','80 minuten',this,'lesduurGroup')">⏱ 80 min</span>
+    </div>
+  </div>
+
+  <!-- ─── 9. DESIGN ─── -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">9</div>
+      <div class="section-title">Uitstraling</div>
+    </div>
+
+    <label class="field-label">Kleurthema</label>
+    <div class="color-grid" id="colorGroup">
+      <div class="color-swatch selected" style="background:#1565C0;" data-label="Diepblauw (oceaan)" title="Diepblauw" onclick="pickColor(this)"></div>
+      <div class="color-swatch" style="background:#00897B;" data-label="Smaragdgroen (tropisch)" title="Smaragdgroen" onclick="pickColor(this)"></div>
+      <div class="color-swatch" style="background:#E53935;" data-label="Vuurrood (vulkaan)" title="Vuurrood" onclick="pickColor(this)"></div>
+      <div class="color-swatch" style="background:#F57F17;" data-label="Zonnegeel (savanne)" title="Zonnegeel" onclick="pickColor(this)"></div>
+      <div class="color-swatch" style="background:#6A1B9A;" data-label="Kosmisch paars" title="Paars" onclick="pickColor(this)"></div>
+      <div class="color-swatch" style="background:#558B2F;" data-label="Bosgroen (jungle)" title="Bosgroen" onclick="pickColor(this)"></div>
+      <div class="color-swatch" style="background:#4E342E;" data-label="Aardbruin (woestijn)" title="Aardbruin" onclick="pickColor(this)"></div>
+      <div class="color-swatch" style="background:#00ACC1;" data-label="Ijs-cyaan (poolgebied)" title="Cyaan" onclick="pickColor(this)"></div>
+      <div class="color-swatch" style="background:#37474F;" data-label="Leisteen grijs (strak)" title="Leisteengrijs" onclick="pickColor(this)"></div>
+    </div>
+
+    <div class="gap"></div>
+    <label class="field-label">Sfeer</label>
+    <div class="pill-group" id="stijlGroup">
+      <span class="pill" onclick="pickPill('stijl','verras me — maak iets moois en gedurfd',this,'stijlGroup')">🎲 Verras me</span>
+      <span class="pill" onclick="pickPill('stijl','avontuurlijk en stoer, als een ontdekkingsreiziger',this,'stijlGroup')">🗺️ Avontuurlijk</span>
+      <span class="pill" onclick="pickPill('stijl','strak en modern, dashboard-stijl',this,'stijlGroup')">📊 Strak/modern</span>
+      <span class="pill" onclick="pickPill('stijl','speels en kleurrijk, vriendelijk voor jongeren',this,'stijlGroup')">🎨 Speels</span>
+      <span class="pill" onclick="pickPill('stijl','rustig en zen, aardse tinten, veel witruimte, kalme uitstraling',this,'stijlGroup')">🌿 Rustig/zen</span>
+      <span class="pill" onclick="pickPill('stijl','retro game-stijl, pixelachtig, arcade-sfeer, speelse animaties',this,'stijlGroup')">🕹️ Retro/game</span>
+    </div>
+
+    <div class="gap"></div>
+    <label class="field-label">Extra wensen (optioneel)</label>
+    <input type="text" id="designwens" placeholder="bijv. grote tekst, veel foto's, donkere achtergrond...">
+  </div>
+
+  <button class="gen-btn" onclick="generatePrompt()">✨ Genereer mijn prompt</button>
+
+  <div style="margin-top:10px; padding:10px 14px; background:var(--surface2); border:1.5px solid var(--border); border-radius:var(--r-sm); font-size:12px; color:var(--muted); line-height:1.6;">
+    💡 <strong style="color:var(--text2);">Foutmelding over opslaan?</strong> Wanneer je de gegenereerde leeromgeving bekijkt in Claude of ChatGPT, kan er een melding verschijnen over "localStorage". Dit is normaal — de voorbeeldweergave van de AI kan geen voortgang opslaan. Download het HTML-bestand en open het in je browser (Chrome, Edge, Safari), dan werkt alles probleemloos, inclusief het opslaan van voortgang.
+  </div>
+
+  <div style="margin-top:8px; padding:10px 14px; background:var(--accent-light); border:1.5px solid var(--border2); border-radius:var(--r-sm); font-size:12px; color:var(--text2); line-height:1.6;">
+    🤖 <strong style="color:var(--accent-h);">Welk AI-model gebruiken?</strong> Deze prompt is complex en werkt het best met krachtige modellen. Aanbevolen: <strong>Claude Opus</strong> of <strong>GPT-4o</strong>. Kleinere modellen (zoals Claude Sonnet of GPT-4o mini) kunnen fouten in de code produceren.
+  </div>
+
+  <div class="output-box" id="outputBox">
+    <div class="output-header">
+      <span>📋 Jouw gepersonaliseerde prompt</span>
+      <button class="copy-btn" id="copyBtn" onclick="copyPrompt()">
+        <span id="copyIcon">📄</span><span id="copyText">Kopieer</span>
+      </button>
+    </div>
+    <div class="output-text" id="outputText"></div>
+  </div>
+
+</div>
+</div>
+
+<!-- ═══════════════ INFO ═══════════════ -->
+<div id="tab-info" class="tab-panel">
+<div class="info-wrap">
+  <h2>📖 Uitleg & Tips</h2>
+  <p>Hier vind je meer informatie over hoe de generator werkt, wat je met de gegenereerde prompt doet en hoe je het resultaat kunt verbeteren.</p>
+
+  <hr class="info-divider">
+
+  <h3>Hoe werkt het?</h3>
+  <p>Je vult het formulier in en de generator maakt automatisch een gedetailleerde instructie — een <em>prompt</em> — voor een AI zoals Claude of ChatGPT. Die AI bouwt op basis van die instructie een complete, interactieve webpagina speciaal voor jouw les en jouw niveau. De gegenereerde pagina open je gewoon in je browser, zonder installatie.</p>
+
+  <h3>Welke AI gebruik ik?</h3>
+  <ul>
+    <li><strong>Claude (claude.ai)</strong> — aanbevolen: goed in code en lange output</li>
+    <li><strong>ChatGPT (chatgpt.com)</strong> — gebruik GPT-4o of hoger</li>
+  </ul>
+  <p>Maak een nieuw gesprek aan in de AI, plak de prompt en wacht even — de output is groot.</p>
+
+  <h3>Wat doe ik met de HTML-code?</h3>
+  <ul>
+    <li>Kopieer alle code die de AI teruggeeft</li>
+    <li>Open Kladblok (Windows) of TextEdit (Mac)</li>
+    <li>Plak de code erin en sla op als <code>mijnles.html</code></li>
+    <li>Kies bij bestandstype: "Alle bestanden" (niet .txt)</li>
+    <li>Dubbelklik op het bestand → browser opent de leeromgeving</li>
+  </ul>
+
+  <div class="tip-box">
+    💡 Controleer of de code begint met <code>&lt;!DOCTYPE html&gt;</code> — zo weet je dat je de volledige code hebt gekopieerd.
+  </div>
+
+  <h3>Wat zit er in de gegenereerde leeromgeving?</h3>
+  <ul>
+    <li>Uitlegblokken met tekst en visuele elementen (instelbare lestijd: 40, 60 of 80 minuten)</li>
+    <li>Interactieve kaart via <code>Leaflet.js</code> (bij geografische onderwerpen)</li>
+    <li>Grafieken en data via <code>Chart.js</code></li>
+    <li>Interactieve opdrachten: quiz, open vragen, case, tijdlijn</li>
+    <li>Opnieuw-probeer functie bij foute antwoorden</li>
+    <li>Voortgang wordt opgeslagen — je kunt de les later hervatten</li>
+    <li>Voortgangsbalk en reflectie-afsluiting</li>
+  </ul>
+
+  <hr class="info-divider">
+
+  <h3>Resultaat niet goed genoeg?</h3>
+  <p>Vraag de AI na (in hetzelfde gesprek):</p>
+  <ul>
+    <li><em>"Maak de kaart groter en voeg meer locaties toe"</em></li>
+    <li><em>"Voeg meer visuele elementen toe bij de uitlegblokken"</em></li>
+    <li><em>"Herschrijf de quizvragen op een lager niveau"</em></li>
+    <li><em>"Voeg een extra tijdlijn toe over dit onderwerp"</em></li>
+  </ul>
+
+  <h3>Tips voor docenten</h3>
+  <div class="tip-box">
+    🏫 <strong>Differentiatie:</strong> Laat leerlingen "ondersteunend" of "uitdagend" kiezen. Zo maak je automatisch verschillende niveauvarianten van hetzelfde lesmateriaal.
+  </div>
+  <div class="tip-box">
+    📋 <strong>Inleveren:</strong> Laat leerlingen de HTML-pagina inleveren via de ELO. Je beoordeelt de kwaliteit van de leerdoelen én de leeromgeving zelf.
+  </div>
+  <div class="tip-box">
+    🔍 <strong>Kritisch kijken:</strong> AI kan inhoudelijke fouten maken. Laat leerlingen controleren of de geografische informatie klopt — dat is zelf een waardevolle denkoefening.
+  </div>
+
+  <h3>Toelichting per veld</h3>
+  <ul>
+    <li><strong>Lesstof (stap 3):</strong> Hoe meer tekst, hoe beter de aansluiting op jouw methode.</li>
+    <li><strong>Interesse (stap 5):</strong> Wordt gebruikt voor voorbeelden en contextvragen — de aardrijkskundestof blijft het uitgangspunt.</li>
+    <li><strong>Nieuws (stap 6):</strong> Geeft actualiteitswaarde. Handig bij klimaat, migratie, economie of rampen.</li>
+    <li><strong>Opslaan van voortgang:</strong> De gegenereerde leeromgeving gebruikt localStorage om antwoorden op te slaan. Leerlingen kunnen de pagina sluiten en later verdergaan.</li>
+  </ul>
+</div>
+</div>
+
+<script>
+// ── STATE ──
+const state = {
+  niveau: null, jaar: null, moeilijkheid: null, stijl: null,
+  kleur: 'Diepblauw (oceaan)', opdrachten: [], lesduur: '60 minuten'
+};
+
+// ── TABS ──
+function switchTab(id, btn) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  btn.classList.add('active');
+}
+
+// ── NIVEAU + dynamische jaarkeuze ──
+const jaarOpties = { VMBO: 4, HAVO: 5, VWO: 6 };
+
+function pickNiveau(niv, el) {
+  document.querySelectorAll('#niveauGroup .radio-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  state.niveau = niv;
+  state.jaar = null;
+  document.getElementById('val-niveau').classList.remove('show');
+
+  const wrap = document.getElementById('jaarWrap');
+  const container = document.getElementById('jaarPills');
+  container.innerHTML = '';
+  const count = jaarOpties[niv];
+  for (let i = 1; i <= count; i++) {
+    const pill = document.createElement('div');
+    pill.className = 'jaar-pill';
+    pill.textContent = i;
+    pill.onclick = function() {
+      document.querySelectorAll('.jaar-pill').forEach(p => p.classList.remove('selected'));
+      this.classList.add('selected');
+      state.jaar = i;
+      document.getElementById('val-jaar').classList.remove('show');
+      updateProgress();
+    };
+    container.appendChild(pill);
+  }
+  wrap.style.display = 'block';
+  updateProgress();
+}
+
+// ── GENERIC RADIO CARD ──
+function pickRadio(key, val, el, groupId) {
+  document.querySelectorAll('#' + groupId + ' .radio-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  state[key] = val;
+  const vm = document.getElementById('val-' + key);
+  if (vm) vm.classList.remove('show');
+  updateProgress();
+}
+
+// ── PILL (stijl) ──
+function pickPill(key, val, el, groupId) {
+  document.querySelectorAll('#' + groupId + ' .pill').forEach(p => p.classList.remove('selected'));
+  el.classList.add('selected');
+  state[key] = val;
+}
+
+// ── TOGGLES ──
+function toggleOpdracht(el, label) {
+  el.classList.toggle('on');
+  if (el.classList.contains('on')) { state.opdrachten.push(label); }
+  else { state.opdrachten = state.opdrachten.filter(o => o !== label); }
+  document.getElementById('val-opdracht').classList.remove('show');
+  updateProgress();
+}
+
+// ── COLOR ──
+function pickColor(el) {
+  document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('selected'));
+  el.classList.add('selected');
+  state.kleur = el.dataset.label;
+}
+
+// ── HOBBY CHIPS ──
+function setHobby(el, val) {
+  document.querySelectorAll('.hobby-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('interesse').value = val;
+  updateProgress();
+}
+
+// ── PROGRESS ──
+function updateProgress() {
+  let s = 0;
+  if (state.niveau && state.jaar) s++;
+  if (document.getElementById('leerdoelen').value.trim()) s++;
+  if (state.moeilijkheid) s++;
+  if (state.opdrachten.length > 0) s++;
+  const pct = Math.round((s / 4) * 100);
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressPct').textContent = pct + '%';
+}
+
+// ── GENERATE ──
+function generatePrompt() {
+  let valid = true;
+  if (!state.niveau) { document.getElementById('val-niveau').classList.add('show'); valid = false; }
+  if (state.niveau && !state.jaar) { document.getElementById('val-jaar').classList.add('show'); valid = false; }
+  const leerdoelen = document.getElementById('leerdoelen').value.trim();
+  if (!leerdoelen) { document.getElementById('val-leerdoelen').classList.add('show'); valid = false; }
+  if (!state.moeilijkheid) { document.getElementById('val-moeilijkheid').classList.add('show'); valid = false; }
+  if (state.opdrachten.length === 0) { document.getElementById('val-opdracht').classList.add('show'); valid = false; }
+  if (!valid) {
+    document.querySelector('.val-msg.show')?.scrollIntoView({ behavior:'smooth', block:'center' });
+    return;
+  }
+
+  const lesstof = document.getElementById('lesstof').value.trim();
+  const interesse = document.getElementById('interesse').value.trim();
+  const nieuws = document.getElementById('nieuws').value.trim();
+  const designwens = document.getElementById('designwens').value.trim();
+  const stijl = state.stijl || 'verras me — maak iets moois en gedurfd';
+  const opdrachtenTekst = state.opdrachten.map((o,i) => `  ${i+1}. ${o}`).join('\n');
+  const lesduur = state.lesduur;
+  const lesduurMin = parseInt(lesduur);
+  const aantalSecties = lesduurMin <= 40 ? 5 : (lesduurMin <= 60 ? 7 : 9);
+
+  let p = `Maak een complete, interactieve leeromgeving voor aardrijkskunde als één single-file HTML-pagina. Volg alle specificaties nauwkeurig op.
+
+══════════════════════════════════
+LEERLINGPROFIEL
+══════════════════════════════════
+Schoolniveau: ${state.niveau}
+Leerjaar: ${state.jaar}
+Moeilijkheidsgraad: ${state.moeilijkheid}
+
+══════════════════════════════════
+LEERDOELEN
+══════════════════════════════════
+${leerdoelen}
+`;
+
+  if (lesstof) p += `
+══════════════════════════════════
+LESSTOF UIT DE METHODE
+══════════════════════════════════
+Verwerk de onderstaande lesstof als inhoudelijke basis. Voeg eigen kennis toe om alle leerdoelen volledig te dekken.
+
+${lesstof}
+`;
+
+  if (interesse) p += `
+══════════════════════════════════
+PERSOONLIJKE INTERESSE
+══════════════════════════════════
+Gebruik '${interesse}' als context voor voorbeelden en scenario's waar dat natuurlijk past. De aardrijkskundestof blijft het uitgangspunt.
+`;
+
+  if (nieuws) p += `
+══════════════════════════════════
+ACTUEEL NIEUWSITEM
+══════════════════════════════════
+Verwerk dit als ophangpunt of introductie: "${nieuws}"
+`;
+
+  p += `
+══════════════════════════════════
+TYPE OPDRACHTEN
+══════════════════════════════════
+${opdrachtenTekst}
+
+══════════════════════════════════
+DESIGN & UITSTRALING
+══════════════════════════════════
+Kleurthema: ${state.kleur}
+Sfeer: ${stijl}${designwens ? '\nExtra wensen: ' + designwens : ''}
+
+══════════════════════════════════
+TECHNISCHE EISEN
+══════════════════════════════════
+1. Eén single-file HTML — alle CSS en JS inline. Geen externe bestanden.
+
+2. LEAFLET.JS — VERPLICHTE OPZET (als het onderwerp geografische locaties of regio's betreft):
+   Voeg EERST de CSS toe in de <head>:
+   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+   Voeg DAN het script toe VOOR je eigen <script>:
+   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"><\/script>
+   Initialiseer kaarten pas NA window load:
+   window.addEventListener('DOMContentLoaded', function() { /* kaart-code hier */ });
+   Geef elk kaart-div een expliciete hoogte via CSS (bijv. height: 400px).
+   KAARTDATA — BELANGRIJK:
+   Gebruik ALLEEN markers met popups voor locaties. Markers op steden, vulkanen, rivieren etc. zijn betrouwbaar.
+   Teken GEEN polygonen, gebiedsoverlays of grenzen — de coördinaten hiervoor zijn te complex om correct te genereren en leiden tot feitelijk onjuiste kaarten.
+   KAART-RENDERING — CRUCIAAL:
+   Kaarten kunnen grijs worden na DOM-wijzigingen. Roep daarom map.invalidateSize() aan:
+   - Bij elke tabwisseling (nadat het nieuwe tabblad zichtbaar is)
+   - Na elke opdracht-interactie (antwoord submitten, feedback tonen)
+   Sla alle kaart-instanties op in een array en loop hierover bij elke relevante event.
+
+3. CHART.JS: Gebruik Chart.js (CDN: https://cdn.jsdelivr.net/npm/chart.js) voor grafieken bij relevante statistieken of data. Laad het script in <head> of vóór je eigen code.
+
+4. VISUELE ELEMENTEN — GEEN EXTERNE AFBEELDINGEN:
+   Gebruik GEEN externe afbeeldingen (geen Unsplash, Wikimedia, of andere image-URLs). Deze breken te vaak.
+   Maak uitlegblokken visueel rijk met elementen die WEL betrouwbaar werken:
+   - Creatieve emoji-gebaseerde uitlegstructuren die processen en kringlopen visueel maken, bijv.:
+     🌊 Verdamping → ☁️ Wolken → 🌧️ Regen → 🌳 Groei
+   - Visuele vergelijkingstabellen met kleur en iconen
+   - Stijlvolle informatieblokken met kleurverloop, grote emoji-headers en duidelijke typografie
+   - Leaflet-kaarten en Chart.js-grafieken waar inhoudelijk relevant
+   Elke sectie krijgt een inhoudelijk uitlegblok met voldoende tekst en duidelijke koppen. Leerlingen mogen geen extern boek nodig hebben.
+
+5. LESDUUR: De pagina moet volledig zijn voor ~${lesduurMin} minuten. Minimaal ${aantalSecties} inhoudelijke secties met uitleg én opdrachten.
+   Elke sectie moet substantieel zijn: minimaal 2 alinea's uitleg én minimaal 2 opdrachten per sectie. Zorg dat een leerling echt de tijd nodig heeft om alles door te werken — maak het niet mogelijk om in de helft van de tijd klaar te zijn.
+
+6. OPDRACHTEN MET DIEPGANG — CRUCIAAL:
+   Niet alleen multiple choice en klik-en-klaar opdrachten. Elke sectie moet minstens één opdracht bevatten die DENKTIJD vereist. Gebruik hiervoor:
+   a) Open vragen met een textarea (minimaal 2-3 zinnen). Toon een woordenteller, geef pas een vinkje bij ≥20 woorden.
+   b) Sorteer- of rangschikopdrachten met drag-and-drop (HTML5 Drag and Drop API). Gebruik GEEN pijltjesknoppen — die werken niet intuïtief. Implementeer draggable items die de leerling kan oppakken en op een andere positie kan loslaten, waarna de lijst zich visueel herschikt. Voeg een touch-fallback toe (touchstart/touchmove/touchend) zodat het ook op tablet werkt.
+   c) Vergelijkingsopdrachten: tabel invullen of begrippen koppelen aan beschrijvingen.
+      Bij koppelopdrachten: toon na elke koppeling direct visueel dat items gekoppeld zijn (bijv. zet gekoppelde items naast elkaar, gebruik dezelfde achtergrondkleur, of toon een verbindingslijn). De leerling moet duidelijk zien welke koppelingen al gemaakt zijn voordat ze op "Controleer" klikken.
+   d) Analyseopdrachten bij grafieken/kaarten: data aflezen EN interpreteren.
+   Verhouding: maximaal 40% multiple choice, minimaal 60% eigen denk- of schrijfwerk.
+
+   ALLE VRAGEN MOETEN CONTROLEERBAAR ZIJN:
+   - Gesloten vragen: automatische controle met directe feedback.
+   - Open/meningvragen: een "Toon voorbeeldantwoord"-knop die pas na het invullen verschijnt. Toon 1-2 referentieantwoorden ter vergelijking (maak duidelijk dat het voorbeelden zijn).
+   - Na het voorbeeldantwoord verschijnen "Goed ✓" en "Fout ✗" knoppen voor zelfbeoordeling. Telt mee in voortgangsbalk en eindscore.
+
+7. NAVIGATIE MET TABBLADEN:
+   Verdeel alle secties over tabbladen (NIET één lange scrollpagina).
+   Tabbladbalk (horizontaal, scrollbaar) direct onder de voortgangsbalk. Vinkje bij voltooide tabs.
+   "Vorige" / "Volgende" knoppen onderaan elk tabblad.
+   Voeg onderaan elk tabblad een kleine "Reset dit onderdeel" knop toe waarmee de leerling alleen de opdrachten van dat tabblad opnieuw kan maken (antwoorden wissen, pogingen resetten). De voortgangsbalk wordt bijgewerkt na een reset.
+
+8. VOORTGANGSBALK: Sticky bovenaan (altijd zichtbaar, ook bij tabwisseling). Toont percentage voltooide opdrachten over alle tabbladen.
+
+9. OPNIEUW PROBEREN: Bij fout antwoord op gesloten vragen: feedback (waarom fout), opnieuw proberen, na max. 3 pogingen het juiste antwoord tonen.
+
+10. LOCALSTORAGE:
+    Wrap ALLE localStorage-aanroepen in try-catch (voor omgevingen waar het niet beschikbaar is).
+    Sleutelprefix 'geo_les_'. Sla op: antwoorden, pogingen, voltooide secties, tijdstip.
+    Herlaad voortgang automatisch bij openen. Knop "Voortgang wissen" toevoegen.
+
+11. AFSLUITING: Reflectiesectie met leerdoelenoverzicht, score en 2-3 reflectievragen.
+
+12. RESPONSIVE: Laptop én tablet (min. 768px breed).
+
+13. COMPACTE CODE — BELANGRIJK:
+    - Eén Google Font (bijv. Inter of Nunito), variatie via weight/size/kleur.
+    - CSS custom properties voor kleuren, spacing, border-radius. Herbruikbare utility-classes.
+    - DATA-DRIVEN: alle secties, vragen en antwoorden als JSON-array. Eén generieke render-functie bouwt de pagina op.
+    - ÉÉN QUIZ-ENGINE: handelt alle vraagtypes af (MC, sorteer, open, koppel, analyse). Generiek qua code, maar visueel uniek per vraagtype.
+    - Houd de totale code zo kort mogelijk zonder kwaliteit op te offeren.
+
+14. GEEN PLACEHOLDER-CODE: Alles volledig werkend. Geen TODO's, geen lege functies, geen placeholder-tekst.
+
+Geef ALLEEN de HTML-code terug, zonder uitleg ervoor of erna. Begin direct met <!DOCTYPE html>.`;
+
+  document.getElementById('outputText').textContent = p;
+  const box = document.getElementById('outputBox');
+  box.classList.add('visible');
+  setTimeout(() => box.scrollIntoView({ behavior:'smooth', block:'start' }), 120);
+}
+
+// ── COPY ──
+function copyPrompt() {
+  const text = document.getElementById('outputText').textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.getElementById('copyBtn');
+    btn.classList.add('copied');
+    document.getElementById('copyIcon').textContent = '✓';
+    document.getElementById('copyText').textContent = 'Gekopieerd!';
+    setTimeout(() => {
+      btn.classList.remove('copied');
+      document.getElementById('copyIcon').textContent = '📄';
+      document.getElementById('copyText').textContent = 'Kopieer';
+    }, 2500);
+  });
+}
+</script>
+</body>
+</html>
