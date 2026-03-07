@@ -3,373 +3,293 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🌴 Brazilië Energie Simulator 2030 🇧🇷</title>
+    <title>Brazilië 2030: Masterclass Energiebeleid</title>
     <style>
         :root {
-            --palm-green: #1a531a;
-            --ocean-blue: #0077be;
-            --sun-yellow: #fbc02d;
-            --beach-sand: #fdf5e6;
-            --jungle-leaf: #2ecc71;
-            --danger-coral: #e74c3c;
-            --brazil-blue: #012169;
-            --font-main: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            --jungle: #1b5e20;
+            --sun: #fbc02d;
+            --water: #0288d1;
+            --soil: #795548;
+            --bg: #f0f4f0;
+            --card: #ffffff;
+            --eco: #fb8c00;
+            --nat: #4caf50;
+            --soc: #03a9f4;
+            --pol: #9c27b0;
         }
 
         body {
-            font-family: var(--font-main);
-            /* Tropische achtergrond: Verloop van turquoise naar zandgeel */
-            background: linear-gradient(135deg, #00c9ff 0%, #92fe9d 50%, #ffe082 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #a8e0ff 0%, #f0f4f0 100%);
+            margin: 0;
             display: flex;
             justify-content: center;
-            align-items: center;
             min-height: 100vh;
-            margin: 0;
             padding: 20px;
+            color: #333;
         }
 
-        .game-card {
-            background: rgba(255, 255, 255, 0.9);
-            max-width: 650px;
+        .app {
+            background: var(--card);
+            max-width: 900px;
             width: 100%;
-            padding: 30px;
-            border-radius: 25px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
-            backdrop-filter: blur(5px);
-            border: 5px solid var(--sun-yellow);
-            position: relative;
-            overflow: hidden;
-        }
-
-        /* Visuele tropical touches */
-        .game-card::before {
-            content: '🌴';
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            font-size: 2em;
-            opacity: 0.3;
-        }
-        .game-card::after {
-            content: '🦜';
-            position: absolute;
-            bottom: 10px;
-            right: 10px;
-            font-size: 2em;
-            opacity: 0.3;
-        }
-
-        h1 { color: var(--brazil-blue); text-align: center; margin-top: 0; font-size: 2em; }
-        .subtitle { text-align: center; color: var(--palm-green); font-weight: bold; margin-bottom: 25px; }
-
-        /* Dashboard Styles */
-        .dashboard {
-            background: rgba(255, 255, 255, 0.7);
-            padding: 20px;
-            border-radius: 15px;
-            margin-bottom: 25px;
-            border: 2px solid var(--jungle-leaf);
+            border-radius: 30px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.15);
             display: flex;
             flex-direction: column;
-            align-items: center;
-        }
-
-        .total-box {
-            text-align: center;
-            font-size: 1.3em;
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
-
-        #total-percentage {
-            font-size: 3em;
-            color: var(--palm-green);
-            display: block;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
-        }
-
-        #grade-box {
-            font-size: 1.1em;
-            font-weight: bold;
-            color: #333;
-            background: var(--beach-sand);
-            padding: 8px 20px;
-            border-radius: 20px;
-            border: 1px solid #ddd;
-        }
-
-        /* Meters Grid */
-        .dimension-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-bottom: 30px;
-        }
-
-        .dimension-card {
-            padding: 12px;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
-            transition: transform 0.2s;
-        }
-        .dimension-card:hover { transform: scale(1.03); }
-
-        .label-text { font-size: 0.9em; font-weight: bold; color: #444; display: flex; align-items: center; gap: 5px; margin-bottom: 8px; }
-
-        .meter-bg {
-            height: 15px;
-            background: #eee;
-            border-radius: 10px;
             overflow: hidden;
-            border: 1px solid #ccc;
+            border: 4px solid var(--jungle);
         }
 
-        .meter-fill {
+        header {
+            background: var(--jungle);
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            padding: 20px;
+            background: #f9f9f9;
+            border-bottom: 2px solid #ddd;
+        }
+
+        .stat {
+            background: white;
+            padding: 12px;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            border-left: 5px solid #ccc;
+        }
+
+        .stat.eco { border-left-color: var(--eco); }
+        .stat.nat { border-left-color: var(--nat); }
+        .stat.soc { border-left-color: var(--soc); }
+        .stat.pol { border-left-color: var(--pol); }
+
+        .progress-bg {
+            height: 10px;
+            background: #eee;
+            border-radius: 5px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
             height: 100%;
             width: 50%;
-            transition: width 0.5s ease, background-color 0.5s ease;
-            background: linear-gradient(90deg, #e74c3c, #f1c40f, #2ecc71);
-            background-size: 200% 100%;
-            background-position: 100% 0;
+            transition: 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
-        /* Controls / Sliders */
-        .sliders-container {
-            margin-top: 25px;
-            background: var(--beach-sand);
-            padding: 20px;
-            border-radius: 15px;
+        .main-content {
+            padding: 30px;
+            flex-grow: 1;
+            position: relative;
         }
 
-        .slider-group {
-            margin-bottom: 18px;
-        }
-
-        .slider-header {
-            display: flex;
-            justify-content: space-between;
-            font-weight: bold;
-            margin-bottom: 5px;
-            color: var(--palm-green);
-        }
-
-        input[type=range] {
-            width: 100%;
-            cursor: pointer;
-            height: 10px;
-            accent-color: var(--ocean-blue);
-        }
-
-        /* Feedback and Win */
-        .feedback-box {
-            min-height: 70px;
-            padding: 18px;
-            background: #fffbe6;
-            border-left: 5px solid var(--sun-yellow);
-            font-size: 0.95em;
-            color: #555;
-            margin-top: 25px;
-            border-radius: 8px;
-            line-height: 1.5;
-        }
-
-        .win-overlay {
+        .dossier-card {
             display: none;
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(26, 83, 26, 0.9);
-            color: white;
-            flex-direction: column;
-            justify-content: center;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        .dossier-card.active { display: block; }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(30px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .target-box {
+            text-align: center;
+            padding: 15px;
+            background: #fff9c4;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            font-weight: bold;
+            font-size: 1.2em;
+            border: 2px dashed var(--sun);
+        }
+
+        .choice-btn {
+            width: 100%;
+            padding: 20px;
+            margin: 10px 0;
+            border: 2px solid #eee;
+            border-radius: 15px;
+            background: white;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.2s;
+            display: flex;
             align-items: center;
-            border-radius: 20px;
-            z-index: 10;
+            gap: 15px;
+        }
+
+        .choice-btn:hover {
+            border-color: var(--jungle);
+            background: #f1f8e9;
+            transform: translateY(-2px);
+        }
+
+        .feedback {
+            display: none;
+            padding: 20px;
+            background: #e3f2fd;
+            border-radius: 15px;
+            margin-top: 20px;
+            border-left: 5px solid var(--water);
+            line-height: 1.6;
+        }
+
+        .result-screen {
+            display: none;
+            padding: 40px;
             text-align: center;
         }
-        .win-overlay h2 { font-size: 3em; margin: 0; color: var(--sun-yellow); }
-        .win-overlay p { font-size: 1.2em; max-width: 80%; }
-        .reset-btn {
-            background: var(--sun-yellow);
-            color: var(--brazil-blue);
-            border: none;
-            padding: 10px 25px;
-            border-radius: 20px;
-            font-weight: bold;
-            cursor: pointer;
-            font-size: 1em;
-            margin-top: 20px;
+
+        .badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.8em;
+            color: white;
+            margin-bottom: 10px;
         }
     </style>
 </head>
 <body>
 
-<div class="game-card">
-    <div id="win-screen" class="win-overlay">
-        <h2>🎉 GEWONNEN! 🎉</h2>
-        <p>Gefeliciteerd, Amazone-Beschermer! Je hebt in 2030 de 45% gehaald met een stabiel en eerlijk beleid. Brazilië is koploper in groene energie!</p>
-        <button class="reset-btn" onclick="resetGame()">Speel Opnieuw 🔄</button>
-    </div>
+<div class="app">
+    <header>
+        <h1>🇧🇷 Dossier: De Braziliaanse Balans</h1>
+        <p>National Energy Council - Strategische Planning 2030</p>
+    </header>
 
-    <h1>Brazilië Energie Simulator</h1>
-    <p class="subtitle">🌴 Beheer de Toekomst: Doel = 45% Hernieuwbaar</p>
-
-    <div class="dashboard">
-        <div class="total-box">
-            Totaal Hernieuwbaar:
-            <span id="total-percentage">35%</span>
+    <div class="stats-grid">
+        <div class="stat eco">
+            <strong>💰 Economisch</strong>
+            <div class="progress-bg"><div id="b-eco" class="progress-fill" style="background: var(--eco); width: 50%;"></div></div>
         </div>
-        <div id="grade-box">Status: <span id="rank-display">Beginner</span></div>
-    </div>
-
-    <div class="dimension-grid">
-        <div class="dimension-card">
-            <span class="label-text">💰 Economisch</span>
-            <div class="meter-bg"><div id="m-eco" class="meter-fill"></div></div>
+        <div class="stat nat">
+            <strong>🌿 Natuurlijk</strong>
+            <div class="progress-bg"><div id="b-nat" class="progress-fill" style="background: var(--nat); width: 50%;"></div></div>
         </div>
-        <div class="dimension-card">
-            <span class="label-text">🌿 Natuurlijk</span>
-            <div class="meter-bg"><div id="m-nat" class="meter-fill"></div></div>
+        <div class="stat soc">
+            <strong>👥 Sociaal-Cultureel</strong>
+            <div class="progress-bg"><div id="b-soc" class="progress-fill" style="background: var(--soc); width: 50%;"></div></div>
         </div>
-        <div class="dimension-card">
-            <span class="label-text">👥 Sociaal-Cultureel</span>
-            <div class="meter-bg"><div id="m-soc" class="meter-fill"></div></div>
-        </div>
-        <div class="dimension-card">
-            <span class="label-text">⚖️ Politiek</span>
-            <div class="meter-bg"><div id="m-pol" class="meter-fill"></div></div>
+        <div class="stat pol">
+            <strong>⚖️ Politiek</strong>
+            <div class="progress-bg"><div id="b-pol" class="progress-fill" style="background: var(--pol); width: 30%;"></div></div>
         </div>
     </div>
 
-    <div class="sliders-container">
-        <div class="slider-group">
-            <div class="slider-header"><span>🌊 Waterkracht</span><span id="v-hydro">30%</span></div>
-            <input type="range" id="s-hydro" min="20" max="55" value="30">
+    <div class="main-content">
+        <div class="target-box">
+            Doelstelling 2030: 45% Hernieuwbaar | Status: <span id="current-pct">35</span>%
         </div>
-        <div class="slider-group">
-            <div class="slider-header"><span>☀️ Zon & 💨 Wind</span><span id="v-sunwind">2%</span></div>
-            <input type="range" id="s-sunwind" min="2" max="40" value="2">
+
+        <div id="d1" class="dossier-card active">
+            <span class="badge" style="background: var(--water)">WATERKRACHT</span>
+            <h2>1. De Belo Monte Uitbreiding</h2>
+            <p>Er is een kans om de energieproductie in het Amazonegebied direct met 10% te verhogen door een nieuwe damwand te plaatsen. De kosten zijn laag.</p>
+            <button class="choice-btn" onclick="handleChoice(1, 'A')"><span>🟢</span><div><strong>Maximale Expansie:</strong> "We hebben deze stroom nodig voor onze industrie en groei."</div></button>
+            <button class="choice-btn" onclick="handleChoice(1, 'B')"><span>🟡</span><div><strong>Beperkte Bouw:</strong> "We beschermen de natuurlijke loop van de rivier en de vissen."</div></button>
         </div>
-        <div class="slider-group">
-            <div class="slider-header"><span>🌱 Biobrandstof</span><span id="v-bio">3%</span></div>
-            <input type="range" id="s-bio" min="3" max="25" value="3">
+
+        <div id="d2" class="dossier-card">
+            <span class="badge" style="background: var(--nat)">BIOBRANDSTOF</span>
+            <h2>2. Suikerriet-monocultuur</h2>
+            <p>Grote landbouwbedrijven willen duizenden hectares bos omzetten naar suikerriet voor bio-ethanol. Ze beloven veel banen.</p>
+            <button class="choice-btn" onclick="handleChoice(2, 'A')"><span>🟢</span><div><strong>Economische Prioriteit:</strong> "Biobrandstof is onze grootste troef op de wereldmarkt."</div></button>
+            <button class="choice-btn" onclick="handleChoice(2, 'B')"><span>🟡</span><div><strong>Grondrechten & Milieu:</strong> "Geen kap van oerbos en minder kunstmest/gifgebruik."</div></button>
         </div>
+
+        <div id="d3" class="dossier-card">
+            <span class="badge" style="background: var(--pol)">ZON & WIND</span>
+            <h2>3. De Toppers van de Toekomst</h2>
+            <p>Zon- en windenergie groeien het snelst, maar de infrastructuur is duur. Wie betaalt de aanleg?</p>
+            <button class="choice-btn" onclick="handleChoice(3, 'A')"><span>🟢</span><div><strong>Staatssubsidie:</strong> "De overheid betaalt de aanleg om 2030 te halen."</div></button>
+            <button class="choice-btn" onclick="handleChoice(3, 'B')"><span>🟡</span><div><strong>Marktwerking:</strong> "Laat bedrijven het zelf uitzoeken, we geven geen belastinggeld uit."</div></button>
+        </div>
+
+        <div id="d4" class="dossier-card">
+            <span class="badge" style="background: var(--soc)">SOCIAAL-CULTUREEL</span>
+            <h2>4. Inheemse Gebieden</h2>
+            <p>Inheemse stammen protesteren tegen stroomkabels over hun land. Ze willen een vetorecht op grote energieprojecten.</p>
+            <button class="choice-btn" onclick="handleChoice(4, 'A')"><span>🟢</span><div><strong>Landrechten Respecteren:</strong> "Mensen en hun gebruiken gaan voor energie-winst."</div></button>
+            <button class="choice-btn" onclick="handleChoice(4, 'B')"><span>🟡</span><div><strong>Nationaal Belang:</strong> "Energie voor de steden is belangrijker dan lokale gebruiken."</div></button>
+        </div>
+
+        <div id="d5" class="dossier-card">
+            <span class="badge" style="background: #333">POLITIEK</span>
+            <h2>5. Het Klimaatakkoord van Parijs</h2>
+            <p>De internationale gemeenschap eist dat Brazilië stopt met het gebruik van giftige kunstmest in de landbouw.</p>
+            <button class="choice-btn" onclick="handleChoice(5, 'A')"><span>🟢</span><div><strong>Internationale Samenwerking:</strong> "We verbieden schadelijke kunstmest en gif direct."</div></button>
+            <button class="choice-btn" onclick="handleChoice(5, 'B')"><span>🟡</span><div><strong>Eigen Koers:</strong> "Onze boeren hebben dit nodig voor een succesvolle oogst."</div></button>
+        </div>
+
+        <div id="feedback" class="feedback"></div>
     </div>
 
-    <div id="feedback" class="feedback-box">
-        Schuif aan de knoppen om je tropische energieplan voor 2030 te maken. Let op: elk besluit heeft gevolgen!
+    <div id="results" class="result-screen">
+        <h2 id="res-title">Eindrapportage</h2>
+        <p id="res-desc"></p>
+        <button class="choice-btn" style="justify-content: center;" onclick="location.reload()">Start Nieuwe Termijn 🔄</button>
     </div>
 </div>
 
 <script>
-    const sliders = {
-        h: document.getElementById('s-hydro'),
-        s: document.getElementById('s-sunwind'),
-        b: document.getElementById('s-bio')
+    let state = { eco: 50, nat: 50, soc: 50, pol: 30, pct: 35, step: 1 };
+    const impacts = {
+        1: { A: { pct: 7, eco: 20, nat: -30, soc: -25, text: "Gevolg: Economisch succes! Maar de natuurlijke dimensie lijdt zwaar door de dam. Inheemse bewoners zijn hun land kwijt." }, B: { pct: 2, eco: 5, nat: 10, soc: 10, text: "Gevolg: Natuur en mens zijn veilig. Maar economisch gaan we te traag om de 45% te halen." } },
+        2: { A: { pct: 5, eco: 15, nat: -25, soc: -20, text: "Gevolg: Biobrandstof export stijgt! Maar de natuurlijke dimensie verslechtert door gifgebruik. Kleine boeren verliezen hun land." }, B: { pct: 1, eco: -10, nat: 20, soc: 20, text: "Gevolg: Natuur en kleine boeren zijn beschermd. Geen gif tast de bodem aan. De economie groeit minder hard." } },
+        3: { A: { pct: 6, eco: -20, nat: 15, pol: 30, text: "Gevolg: Zon en wind groeien hard! Politiek sta je sterk en er is geen CO2-uitstoot (natuurlijk)." }, B: { pct: 1, eco: 10, pol: -10, text: "Gevolg: Je bespaart geld, maar Brazilië mist de aansluiting bij moderne technieken." } },
+        4: { A: { pct: -2, soc: 30, pol: 10, nat: 5, text: "Gevolg: Sociaal-culturele overwinning. Mensenrechten worden gerespecteerd, maar de energie-uitbreiding vertraagt." }, B: { pct: 3, soc: -30, pol: 15, eco: 10, text: "Gevolg: Je drukt het door. Politiek effectief, maar de sociale onrust is enorm." } },
+        5: { A: { pct: -1, nat: 25, pol: 25, eco: -15, text: "Gevolg: Internationale lof! De natuur herstelt door het verbod op gif. De landbouwbedrijven klagen over winstdaling." }, B: { pct: 2, nat: -20, pol: -20, eco: 15, text: "Gevolg: Economisch stabiel, maar de natuurlijke dimensie krijgt een klap. Politiek raakt Brazilië geïsoleerd." } }
     };
 
-    const ui = {
-        total: document.getElementById('total-percentage'),
-        feedback: document.getElementById('feedback'),
-        vH: document.getElementById('v-hydro'),
-        vS: document.getElementById('v-sunwind'),
-        vB: document.getElementById('v-bio'),
-        rank: document.getElementById('rank-display'),
-        win: document.getElementById('win-screen')
-    };
-
-    const meters = {
-        eco: document.getElementById('m-eco'),
-        nat: document.getElementById('m-nat'),
-        soc: document.getElementById('m-soc'),
-        pol: document.getElementById('m-pol')
-    };
-
-    function update() {
-        const h = parseInt(sliders.h.value);
-        const s = parseInt(sliders.s.value);
-        const b = parseInt(sliders.b.value);
-        const total = h + s + b;
-
-        // UI Updates
-        ui.vH.innerText = h + "%";
-        ui.vS.innerText = s + "%";
-        ui.vB.innerText = b + "%";
-        ui.total.innerText = total + "%";
-
-        // Logica berekeningen (uitgebreid en gebalanceerd)
-        // Waterkracht: +Eco, ---Nat, ---Soc, +Pol (maar ++Pol als doel gehaald)
-        // Zon/Wind: +Eco, +++Nat, +Soc, +++Pol
-        // Biofuel: +Eco, ---Nat (gif), ---Soc (boeren)
-
-        let scoreEco = 40 + (h * 0.7) + (s * 0.4) + (b * 0.6);
-        let scoreNat = 120 - (h * 1.8) + (s * 1.2) - (b * 1.5);
-        let scoreSoc = 100 - (h * 1.5) + (s * 0.3) - (b * 2.0);
-        let scorePol = 10 + (total * 1.0) + (s * 0.5);
-
-        // Pas politieke score aan als doel niet gehaald is
-        if (total < 45) scorePol -= 20;
-
-        // Update visuele meters
-        setMeter(meters.eco, scoreEco);
-        setMeter(meters.nat, scoreNat);
-        setMeter(meters.soc, scoreSoc);
-        setMeter(meters.pol, scorePol);
-
-        // Feedback systeem
-        let text = "";
-        let rank = "Beginner";
-        let minScore = Math.min(scoreEco, scoreNat, scoreSoc, scorePol);
-
-        if (total < 45) {
-            text = "Je hebt nog niet genoeg hernieuwbare bronnen. Brazilië streeft naar 45% in 2030.";
-            rank = "Houtskool-beheerder 🪵";
-        } else {
-            text = "Doel van 45% bereikt! ";
-            rank = "Ongebalanceerde-Groeier 📈";
-
-            if (minScore < 30) {
-                text += "Maar je beleid veroorzaakt een crisis in de rode dimensies!";
-                rank = "Chaotisch-Minister ⚠️";
-            } else if (minScore < 50) {
-                text += "Er zijn nog aanzienlijke nadelen in de gele dimensies.";
-                rank = "Schipperende-Politicus ⚖️";
-            } else {
-                text = "Uitstekend! Een stabiel, duurzaam en eerlijk plan voor Brazilië.";
-                rank = "Amazone-Beschermer 🦜🌲";
-                ui.win.style.display = "flex"; // Win scherm tonen
+    function handleChoice(dossier, choice) {
+        let f = document.getElementById('feedback');
+        f.style.display = "block";
+        let res = impacts[dossier][choice];
+        state.pct += (res.pct || 0);
+        state.eco += (res.eco || 0);
+        state.nat += (res.nat || 0);
+        state.soc += (res.soc || 0);
+        state.pol += (res.pol || 0);
+        f.innerHTML = `<strong>Resultaat:</strong> ${res.text}`;
+        updateUI();
+        setTimeout(() => {
+            f.style.display = "none";
+            state.step++;
+            if(state.step > 5) showFinal();
+            else {
+                document.querySelectorAll('.dossier-card').forEach(c => c.classList.remove('active'));
+                document.getElementById('d' + state.step).classList.add('active');
             }
-        }
-
-        // Specifieke waarschuwingen uit lesstof
-        if (h > 45) text = "Pas op: De bouw van enorme stuwdammen in het Amazonegebied verjaagt de oorspronkelijke bewoners en vernietigt natuur.";
-        if (b > 18) text = "Let op: Grootschalige suikerrietteelt gebruikt veel gif en kunstmest. Kleine boeren verliezen hun land.";
-
-        ui.feedback.innerText = text;
-        ui.rank.innerText = rank;
+        }, 4000);
     }
 
-    function setMeter(el, val) {
-        val = Math.max(5, Math.min(100, val));
-        el.style.width = val + "%";
-        
-        // Verander kleur op basis van percentage (Tropisch palet)
-        if (val < 40) el.style.backgroundColor = "var(--danger-coral)";
-        else if (val < 65) el.style.backgroundColor = "var(--sun-yellow)";
-        else el.style.backgroundColor = "var(--jungle-leaf)";
+    function updateUI() {
+        document.getElementById('b-eco').style.width = Math.min(100, Math.max(5, state.eco)) + "%";
+        document.getElementById('b-nat').style.width = Math.min(100, Math.max(5, state.nat)) + "%";
+        document.getElementById('b-soc').style.width = Math.min(100, Math.max(5, state.soc)) + "%";
+        document.getElementById('b-pol').style.width = Math.min(100, Math.max(5, state.pol)) + "%";
+        document.getElementById('current-pct').innerText = state.pct;
     }
 
-    function resetGame() {
-        sliders.h.value = 30;
-        sliders.s.value = 2;
-        sliders.b.value = 3;
-        ui.win.style.display = "none";
-        update();
+    function showFinal() {
+        document.querySelector('.main-content').style.display = "none";
+        document.getElementById('results').style.display = "block";
+        let title = state.pct >= 45 && state.nat > 40 && state.soc > 40 ? "🌟 De Visionair van 2030" : (state.pct >= 45 ? "🏭 De Harde Groeier" : "🐢 De Voorzichtige Bewaarder");
+        let desc = state.pct >= 45 && state.nat > 40 && state.soc > 40 ? "Gefeliciteerd! Je hebt het 45% doel gehaald met oog voor natuur, mens en economie." : (state.pct >= 45 ? "Je haalt de 45%, maar de natuur en mens hebben een hoge prijs betaald." : "Brazilië mist de 45% doelstelling. Politiek en economisch staat het land stil.");
+        document.getElementById('res-title').innerText = title;
+        document.getElementById('res-desc').innerText = desc;
     }
-
-    Object.values(sliders).forEach(s => s.addEventListener('input', update));
-    update(); // Start initiële berekening
 </script>
-
 </body>
 </html>
