@@ -1,0 +1,2235 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Water op Aarde — Ontdekkingsreis</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --deep-ocean: #0a1628;
+  --ocean-mid: #0f2847;
+  --ocean-light: #1a3a5c;
+  --surface-blue: #2563eb;
+  --wave-cyan: #06b6d4;
+  --foam-white: #e0f2fe;
+  --sand: #fbbf24;
+  --coral: #f97316;
+  --reef-green: #10b981;
+  --danger-red: #ef4444;
+  --text-light: #f0f9ff;
+  --text-dim: #94a3b8;
+  --glass: rgba(15, 40, 71, 0.85);
+  --glass-light: rgba(37, 99, 235, 0.12);
+  --radius: 14px;
+  --radius-sm: 8px;
+  --shadow: 0 8px 32px rgba(0,0,0,0.3);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Nunito', sans-serif;
+  background: var(--deep-ocean);
+  color: var(--text-light);
+  min-height: 100vh;
+  overflow-x: hidden;
+  line-height: 1.7;
+}
+body::before {
+  content: '';
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background:
+    radial-gradient(ellipse at 20% 50%, rgba(6,182,212,0.08) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 20%, rgba(37,99,235,0.1) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 90%, rgba(16,185,129,0.06) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+}
+/* Animated water bubbles */
+.bubble {
+  position: fixed;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, rgba(6,182,212,0.15), rgba(37,99,235,0.05));
+  pointer-events: none;
+  z-index: 0;
+  animation: float-up linear infinite;
+}
+@keyframes float-up {
+  0% { transform: translateY(100vh) scale(0.5); opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 0.6; }
+  100% { transform: translateY(-10vh) scale(1.2); opacity: 0; }
+}
+/* Header */
+.site-header {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  padding: 40px 20px 20px;
+  background: linear-gradient(180deg, rgba(10,22,40,0.95) 0%, transparent 100%);
+}
+.site-header h1 {
+  font-size: clamp(1.8rem, 5vw, 3rem);
+  font-weight: 900;
+  background: linear-gradient(135deg, var(--wave-cyan), var(--surface-blue), var(--foam-white));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: -1px;
+}
+.site-header .subtitle {
+  color: var(--text-dim);
+  font-size: 1rem;
+  margin-top: 4px;
+  font-weight: 600;
+}
+.explorer-badge {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 6px 18px;
+  border-radius: 30px;
+  background: var(--glass-light);
+  border: 1px solid rgba(6,182,212,0.3);
+  color: var(--wave-cyan);
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+/* Progress bar */
+.progress-container {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(10,22,40,0.97);
+  backdrop-filter: blur(12px);
+  padding: 10px 20px;
+  border-bottom: 1px solid rgba(6,182,212,0.15);
+}
+.progress-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 900px;
+  margin: 0 auto 6px;
+  font-size: 0.8rem;
+  color: var(--text-dim);
+}
+.progress-info .section-counter {
+  color: var(--wave-cyan);
+  font-weight: 700;
+}
+.progress-track {
+  max-width: 900px;
+  margin: 0 auto;
+  height: 8px;
+  background: var(--ocean-mid);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--surface-blue), var(--wave-cyan), var(--reef-green));
+  border-radius: 10px;
+  width: 0%;
+  transition: width 0.6s ease;
+}
+/* Tab navigation */
+.tab-nav-wrapper {
+  position: sticky;
+  top: 48px;
+  z-index: 99;
+  background: rgba(10,22,40,0.95);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(6,182,212,0.1);
+}
+.tab-nav {
+  display: flex;
+  overflow-x: auto;
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 8px 12px;
+  gap: 6px;
+  scrollbar-width: none;
+}
+.tab-nav::-webkit-scrollbar { display: none; }
+.tab-btn {
+  flex-shrink: 0;
+  padding: 8px 16px;
+  border: 1px solid rgba(37,99,235,0.2);
+  border-radius: 30px;
+  background: transparent;
+  color: var(--text-dim);
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s;
+  white-space: nowrap;
+  position: relative;
+}
+.tab-btn:hover { border-color: var(--wave-cyan); color: var(--wave-cyan); }
+.tab-btn.active {
+  background: linear-gradient(135deg, var(--surface-blue), var(--wave-cyan));
+  border-color: transparent;
+  color: #fff;
+  box-shadow: 0 4px 16px rgba(6,182,212,0.3);
+}
+.tab-btn .check { margin-left: 4px; }
+/* Main content */
+.main-content {
+  position: relative;
+  z-index: 2;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 20px 16px 60px;
+}
+.section { display: none; }
+.section.active { display: block; animation: fadeIn 0.4s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+/* Content cards */
+.card {
+  background: var(--glass);
+  border: 1px solid rgba(37,99,235,0.15);
+  border-radius: var(--radius);
+  padding: 28px;
+  margin-bottom: 24px;
+  box-shadow: var(--shadow);
+  position: relative;
+  overflow: hidden;
+}
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--surface-blue), var(--wave-cyan));
+}
+.card h2 {
+  font-size: 1.5rem;
+  font-weight: 800;
+  margin-bottom: 16px;
+  color: var(--foam-white);
+}
+.card h3 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin: 18px 0 10px;
+  color: var(--wave-cyan);
+}
+.card p { margin-bottom: 12px; color: var(--text-light); font-size: 0.95rem; }
+/* Emoji process flows */
+.process-flow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: linear-gradient(135deg, rgba(6,182,212,0.08), rgba(37,99,235,0.08));
+  border-radius: var(--radius-sm);
+  margin: 16px 0;
+  font-size: 1.1rem;
+}
+.process-flow .step {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  background: rgba(15,40,71,0.7);
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+.process-flow .arrow { font-size: 1.2rem; color: var(--wave-cyan); }
+/* Info boxes */
+.info-box {
+  background: linear-gradient(135deg, rgba(37,99,235,0.12), rgba(6,182,212,0.08));
+  border-left: 4px solid var(--wave-cyan);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  padding: 16px 20px;
+  margin: 16px 0;
+  font-size: 0.92rem;
+}
+.info-box.warning {
+  background: linear-gradient(135deg, rgba(249,115,22,0.12), rgba(239,68,68,0.08));
+  border-left-color: var(--coral);
+}
+.info-box.green {
+  background: linear-gradient(135deg, rgba(16,185,129,0.12), rgba(6,182,212,0.08));
+  border-left-color: var(--reef-green);
+}
+/* Comparison table */
+.comparison-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  margin: 16px 0;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+.comparison-table th {
+  background: var(--ocean-mid);
+  padding: 12px 14px;
+  text-align: left;
+  font-weight: 700;
+  font-size: 0.88rem;
+  color: var(--wave-cyan);
+  border-bottom: 2px solid rgba(6,182,212,0.2);
+}
+.comparison-table td {
+  padding: 10px 14px;
+  font-size: 0.88rem;
+  border-bottom: 1px solid rgba(37,99,235,0.1);
+  background: rgba(15,40,71,0.4);
+}
+.comparison-table tr:hover td { background: rgba(37,99,235,0.1); }
+/* Opdracht styling */
+.opdracht {
+  background: linear-gradient(135deg, rgba(37,99,235,0.08), rgba(6,182,212,0.05));
+  border: 1px solid rgba(37,99,235,0.2);
+  border-radius: var(--radius);
+  padding: 24px;
+  margin: 20px 0;
+}
+.opdracht-label {
+  display: inline-block;
+  background: linear-gradient(135deg, var(--surface-blue), var(--wave-cyan));
+  color: #fff;
+  padding: 3px 14px;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 800;
+  margin-bottom: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.opdracht p.question {
+  font-weight: 700;
+  font-size: 1rem;
+  margin-bottom: 14px;
+  color: var(--foam-white);
+}
+/* MC options */
+.mc-options { display: flex; flex-direction: column; gap: 8px; }
+.mc-option {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 12px 18px;
+  border: 2px solid rgba(37,99,235,0.2);
+  border-radius: var(--radius-sm);
+  background: rgba(15,40,71,0.5);
+  color: var(--text-light);
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.92rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.mc-option:hover { border-color: var(--wave-cyan); background: rgba(6,182,212,0.1); }
+.mc-option.correct { border-color: var(--reef-green); background: rgba(16,185,129,0.15); color: #6ee7b7; }
+.mc-option.incorrect { border-color: var(--danger-red); background: rgba(239,68,68,0.1); color: #fca5a5; }
+.mc-option.disabled { pointer-events: none; opacity: 0.7; }
+/* Feedback */
+.feedback {
+  margin-top: 12px;
+  padding: 14px 18px;
+  border-radius: var(--radius-sm);
+  font-size: 0.9rem;
+  font-weight: 600;
+  display: none;
+}
+.feedback.show { display: block; animation: fadeIn 0.3s; }
+.feedback.success { background: rgba(16,185,129,0.12); border: 1px solid rgba(16,185,129,0.3); color: #6ee7b7; }
+.feedback.hint { background: rgba(251,191,36,0.1); border: 1px solid rgba(251,191,36,0.3); color: #fde68a; }
+.feedback.answer { background: rgba(37,99,235,0.1); border: 1px solid rgba(37,99,235,0.3); color: var(--foam-white); }
+/* Open questions */
+.open-textarea {
+  width: 100%;
+  min-height: 100px;
+  padding: 14px;
+  background: rgba(15,40,71,0.6);
+  border: 2px solid rgba(37,99,235,0.2);
+  border-radius: var(--radius-sm);
+  color: var(--text-light);
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.92rem;
+  resize: vertical;
+  transition: border-color 0.3s;
+  line-height: 1.6;
+}
+.open-textarea:focus { outline: none; border-color: var(--wave-cyan); }
+.word-counter {
+  text-align: right;
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  margin-top: 4px;
+}
+.word-counter.sufficient { color: var(--reef-green); }
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 22px;
+  border: none;
+  border-radius: 30px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.25s;
+}
+.btn-primary {
+  background: linear-gradient(135deg, var(--surface-blue), var(--wave-cyan));
+  color: #fff;
+  box-shadow: 0 4px 16px rgba(6,182,212,0.25);
+}
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(6,182,212,0.35); }
+.btn-secondary {
+  background: rgba(37,99,235,0.15);
+  color: var(--wave-cyan);
+  border: 1px solid rgba(6,182,212,0.25);
+}
+.btn-secondary:hover { background: rgba(37,99,235,0.25); }
+.btn-success { background: var(--reef-green); color: #fff; }
+.btn-danger { background: var(--danger-red); color: #fff; }
+.btn-small { padding: 6px 14px; font-size: 0.8rem; }
+.self-assess { display: none; gap: 8px; margin-top: 10px; }
+.self-assess.show { display: flex; }
+/* Nav buttons */
+.nav-buttons {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(37,99,235,0.15);
+}
+.reset-section-btn {
+  background: none;
+  border: 1px solid rgba(239,68,68,0.3);
+  color: #fca5a5;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.reset-section-btn:hover { background: rgba(239,68,68,0.1); }
+/* Drag and drop */
+.drag-container { margin: 12px 0; }
+.drag-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.drag-item {
+  padding: 12px 18px;
+  background: rgba(15,40,71,0.7);
+  border: 2px solid rgba(37,99,235,0.2);
+  border-radius: var(--radius-sm);
+  cursor: grab;
+  font-weight: 600;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  user-select: none;
+  touch-action: none;
+  transition: all 0.2s;
+}
+.drag-item:active { cursor: grabbing; }
+.drag-item .drag-handle {
+  color: var(--text-dim);
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+.drag-item.dragging {
+  opacity: 0.5;
+  border-color: var(--wave-cyan);
+  background: rgba(6,182,212,0.1);
+}
+.drag-item.drag-over {
+  border-color: var(--wave-cyan);
+  transform: translateY(2px);
+}
+.drag-item.correct-pos { border-color: var(--reef-green); background: rgba(16,185,129,0.1); }
+.drag-item.incorrect-pos { border-color: var(--danger-red); background: rgba(239,68,68,0.08); }
+/* Match/koppel opdracht */
+.match-container { display: flex; flex-direction: column; gap: 10px; }
+.match-sources, .match-targets { display: flex; flex-wrap: wrap; gap: 8px; }
+.match-item {
+  padding: 10px 16px;
+  border: 2px solid rgba(37,99,235,0.2);
+  border-radius: var(--radius-sm);
+  background: rgba(15,40,71,0.6);
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.match-item:hover { border-color: var(--wave-cyan); }
+.match-item.selected { border-color: var(--sand); background: rgba(251,191,36,0.1); color: var(--sand); }
+.match-item.matched { border-color: var(--reef-green); background: rgba(16,185,129,0.1); }
+.match-target { min-width: 120px; text-align: center; }
+.match-pairs { margin-top: 10px; }
+.match-pair {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  background: rgba(16,185,129,0.1);
+  border: 1px solid rgba(16,185,129,0.3);
+  border-radius: 20px;
+  font-size: 0.8rem;
+  margin: 3px;
+  color: #6ee7b7;
+}
+.match-pair .remove-pair {
+  cursor: pointer;
+  color: #fca5a5;
+  font-weight: 800;
+  margin-left: 4px;
+}
+/* Map */
+.map-container {
+  height: 400px;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  border: 2px solid rgba(37,99,235,0.2);
+  margin: 16px 0;
+}
+/* Chart */
+.chart-container {
+  background: rgba(15,40,71,0.5);
+  border-radius: var(--radius-sm);
+  padding: 16px;
+  margin: 16px 0;
+}
+/* Footer */
+.site-footer {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  padding: 30px 20px;
+  color: var(--text-dim);
+  font-size: 0.8rem;
+  border-top: 1px solid rgba(37,99,235,0.1);
+}
+.clear-progress-btn {
+  background: none;
+  border: 1px solid rgba(239,68,68,0.3);
+  color: #fca5a5;
+  padding: 8px 20px;
+  border-radius: 20px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 10px;
+}
+/* Score display */
+.score-display {
+  text-align: center;
+  padding: 30px;
+  background: linear-gradient(135deg, rgba(6,182,212,0.1), rgba(37,99,235,0.1));
+  border-radius: var(--radius);
+  margin: 20px 0;
+}
+.score-big {
+  font-size: 3rem;
+  font-weight: 900;
+  background: linear-gradient(135deg, var(--wave-cyan), var(--reef-green));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+/* Leerdoel checklist */
+.leerdoel-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(37,99,235,0.1);
+  font-size: 0.9rem;
+}
+.leerdoel-check {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2px solid var(--surface-blue);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  margin-top: 2px;
+}
+.leerdoel-check.done { background: var(--reef-green); border-color: var(--reef-green); }
+/* Responsive */
+@media (max-width: 768px) {
+  .card { padding: 20px; }
+  .opdracht { padding: 18px; }
+  .map-container { height: 300px; }
+  .process-flow { font-size: 0.95rem; }
+  .nav-buttons { flex-wrap: wrap; gap: 10px; }
+}
+</style>
+</head>
+<body>
+
+<!-- Decorative bubbles -->
+<div class="bubble" style="width:20px;height:20px;left:10%;animation-duration:12s;animation-delay:0s;"></div>
+<div class="bubble" style="width:14px;height:14px;left:30%;animation-duration:15s;animation-delay:2s;"></div>
+<div class="bubble" style="width:24px;height:24px;left:55%;animation-duration:18s;animation-delay:4s;"></div>
+<div class="bubble" style="width:10px;height:10px;left:75%;animation-duration:10s;animation-delay:1s;"></div>
+<div class="bubble" style="width:18px;height:18px;left:90%;animation-duration:14s;animation-delay:3s;"></div>
+
+<!-- Header -->
+<header class="site-header">
+  <h1>🌊 Water op Aarde</h1>
+  <p class="subtitle">HAVO 2 — Aardrijkskunde</p>
+  <span class="explorer-badge">✈️ Ontdekkingsreiziger-modus</span>
+</header>
+
+<!-- Progress bar -->
+<div class="progress-container">
+  <div class="progress-info">
+    <span>Voortgang: <strong id="progressPercent">0%</strong></span>
+    <span class="section-counter" id="sectionCounter">Onderdeel 1 van 10</span>
+  </div>
+  <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+</div>
+
+<!-- Tab navigation -->
+<div class="tab-nav-wrapper">
+  <div class="tab-nav" id="tabNav"></div>
+</div>
+
+<!-- Main content -->
+<div class="main-content">
+
+<!-- ═══ SECTIE 1: De Blauwe Planeet ═══ -->
+<div class="section" id="section-0">
+<div class="card">
+  <h2>🌍 De Blauwe Planeet</h2>
+  <p>Stel je voor: je zit in een vliegtuig op weg naar je droombestemming. Je kijkt uit het raampje en ziet oceanen, rivieren en wolken — water overal. Vanuit de ruimte ziet de aarde er zelfs helemaal blauw uit! Maar liefst 71% van het aardoppervlak is bedekt met water.</p>
+  <p>Toch is maar een heel klein deel daarvan bruikbaar als drinkwater. Ongeveer 97,5% van al het water op aarde is <strong>zout zeewater</strong>. Van de resterende 2,5% zoet water zit het meeste vast in gletsjers en ijskappen. Slechts 0,3% van al het water is direct beschikbaar als drinkwater in meren, rivieren en grondwater.</p>
+
+  <div class="process-flow">
+    <span class="step">🌊 97,5% Zout water</span>
+    <span class="arrow">→</span>
+    <span class="step">🧊 1,7% IJs &amp; gletsjers</span>
+    <span class="arrow">→</span>
+    <span class="step">💧 0,8% Grondwater</span>
+    <span class="arrow">→</span>
+    <span class="step">🚰 0,01% Drinkbaar oppervlaktewater</span>
+  </div>
+
+  <div class="info-box">
+    <strong>🤔 Herken je dit?</strong> Als je vanochtend je tanden poetste, gebruikte je schoon drinkwater. Dat water heeft misschien wel duizenden jaren geleden als sneeuw op een berg gelegen. Elke druppel uit je kraan heeft een lange reis achter de rug!
+  </div>
+
+  <h3>Water in verschillende vormen</h3>
+  <p>Water komt op aarde in drie toestanden voor: <strong>vast</strong> (ijs en sneeuw), <strong>vloeibaar</strong> (rivieren, meren, oceanen) en <strong>gasvormig</strong> (waterdamp in de lucht). Deze drie vormen wisselen voortdurend af. Als het warm is, verdampt water. Als waterdamp afkoelt, condenseert het tot druppels. Bij temperaturen onder nul bevriest water tot ijs.</p>
+
+  <table class="comparison-table">
+    <tr><th>Vorm</th><th>Voorbeeld</th><th>Waar?</th></tr>
+    <tr><td>🧊 Vast</td><td>IJskappen, gletsjers, sneeuw</td><td>Poolgebieden, hoge bergen</td></tr>
+    <tr><td>💧 Vloeibaar</td><td>Oceanen, rivieren, meren, regen</td><td>Overal op aarde</td></tr>
+    <tr><td>♨️ Gasvormig</td><td>Waterdamp, wolken (deeltjes)</td><td>Atmosfeer</td></tr>
+  </table>
+</div>
+
+<!-- Opdracht 1.1: MC -->
+<div class="opdracht" id="q-1-1">
+  <span class="opdracht-label">Opdracht 1</span>
+  <p class="question">Hoeveel procent van het water op aarde is zoet water?</p>
+  <div class="mc-options">
+    <button class="mc-option" onclick="checkMC(this, false, 'q-1-1')">A) 71%</button>
+    <button class="mc-option" onclick="checkMC(this, false, 'q-1-1')">B) 50%</button>
+    <button class="mc-option" onclick="checkMC(this, true, 'q-1-1')">C) 2,5%</button>
+    <button class="mc-option" onclick="checkMC(this, false, 'q-1-1')">D) 10%</button>
+  </div>
+  <div class="feedback" id="feedback-q-1-1"></div>
+</div>
+
+<!-- Opdracht 1.2: Open -->
+<div class="opdracht" id="q-1-2">
+  <span class="opdracht-label">Opdracht 2 — Open vraag</span>
+  <p class="question">✈️ Stel je voor: je reist naar IJsland en ziet enorme gletsjers. Leg uit in welke vormen water hier voorkomt en waarom het bijzonder is dat deze gletsjers smelten. Noem minstens twee gevolgen.</p>
+  <textarea class="open-textarea" id="text-q-1-2" oninput="countWords('q-1-2')" placeholder="Schrijf hier je antwoord (minimaal 20 woorden)..."></textarea>
+  <div class="word-counter" id="wc-q-1-2">0 woorden</div>
+  <button class="btn btn-primary" id="show-example-q-1-2" onclick="showExample('q-1-2')" style="margin-top:10px;display:none;">Toon voorbeeldantwoord</button>
+  <div class="feedback" id="feedback-q-1-2"></div>
+  <div class="self-assess" id="self-q-1-2">
+    <button class="btn btn-success btn-small" onclick="selfAssess('q-1-2', true)">Goed ✓</button>
+    <button class="btn btn-danger btn-small" onclick="selfAssess('q-1-2', false)">Fout ✗</button>
+  </div>
+</div>
+
+<!-- Opdracht 1.3: MC -->
+<div class="opdracht" id="q-1-3">
+  <span class="opdracht-label">Opdracht 3</span>
+  <p class="question">Waarom is het duur om van zeewater drinkwater te maken?</p>
+  <div class="mc-options">
+    <button class="mc-option" onclick="checkMC(this, false, 'q-1-3')">A) Omdat zeewater giftig is</button>
+    <button class="mc-option" onclick="checkMC(this, true, 'q-1-3')">B) Omdat het ontzilten veel energie kost</button>
+    <button class="mc-option" onclick="checkMC(this, false, 'q-1-3')">C) Omdat er te weinig zeewater is</button>
+    <button class="mc-option" onclick="checkMC(this, false, 'q-1-3')">D) Omdat het zout niet verwijderd kan worden</button>
+  </div>
+  <div class="feedback" id="feedback-q-1-3"></div>
+</div>
+
+<div class="nav-buttons">
+  <button class="reset-section-btn" onclick="resetSection(0)">🔄 Reset dit onderdeel</button>
+  <div></div>
+  <button class="btn btn-primary" onclick="goToSection(1)">Volgende →</button>
+</div>
+</div>
+
+<!-- ═══ SECTIE 2: De Waterkringloop ═══ -->
+<div class="section" id="section-1">
+<div class="card">
+  <h2>🔄 De Waterkringloop</h2>
+  <p>Al het water op aarde is voortdurend in beweging. Dit noemen we de <strong>waterkringloop</strong>. De zon verwarmt het wateroppervlak, waardoor water verdampt. De waterdamp stijgt op, koelt af in de atmosfeer en condenseert tot kleine druppeltjes: wolken. Als de druppels groot genoeg worden, vallen ze als neerslag naar beneden — regen, sneeuw of hagel.</p>
+  <p>Het belangrijke is: bij verdamping blijft het zout achter. Zo maakt de waterkringloop van zout zeewater zoet water!</p>
+
+  <div class="process-flow">
+    <span class="step">🌊 Zee</span>
+    <span class="arrow">→</span>
+    <span class="step">☀️ Verdamping</span>
+    <span class="arrow">→</span>
+    <span class="step">☁️ Wolken</span>
+    <span class="arrow">→</span>
+    <span class="step">🌧️ Neerslag</span>
+    <span class="arrow">→</span>
+    <span class="step">🏔️ Land/Zee</span>
+  </div>
+
+  <h3>Korte en lange waterkringloop</h3>
+  <p>We onderscheiden twee varianten. Bij de <strong>korte waterkringloop</strong> verdampt water uit de zee, vormt wolken en regent direct weer terug in de oceaan. Het water maakt dus een korte reis.</p>
+  <p>Bij de <strong>lange waterkringloop</strong> valt de neerslag boven land. Het water stroomt via rivieren, beekjes of ondergronds als grondwater uiteindelijk terug naar zee. Dit kan dagen, maanden of zelfs duizenden jaren duren — denk aan sneeuw die op Antarctica valt en pas na eeuwen als smeltwater terugkomt in de oceaan.</p>
+
+  <div class="info-box">
+    <strong>✈️ Reizigersfeit:</strong> Als je op vakantie gaat naar de Alpen en je ziet de bergbeekjes stromen, dan kijk je naar de lange waterkringloop in actie. Het smeltwater van de gletsjers daar voedt rivieren als de Rijn, die uiteindelijk bij ons in Nederland in zee uitmondt!
+  </div>
+
+  <div class="info-box green">
+    <strong>🌱 In jouw omgeving:</strong> Na een regenbui in jouw straat — waar gaat dat water heen? Een deel zakt in de grond (grondwater), een deel stroomt via het riool naar de rivier, en een deel wordt opgenomen door bomen en planten. Kijk er maar eens op: je ziet de waterkringloop overal.
+  </div>
+</div>
+
+<!-- Opdracht 2.1: Drag & drop sorteer -->
+<div class="opdracht" id="q-2-1">
+  <span class="opdracht-label">Opdracht 4 — Sorteer</span>
+  <p class="question">Zet de stappen van de lange waterkringloop in de juiste volgorde. Sleep de stappen naar de goede plek.</p>
+  <div class="drag-container">
+    <div class="drag-list" id="drag-list-2-1"></div>
+  </div>
+  <button class="btn btn-primary" onclick="checkDragOrder('q-2-1')" style="margin-top:10px;">Controleer volgorde</button>
+  <div class="feedback" id="feedback-q-2-1"></div>
+</div>
+
+<!-- Opdracht 2.2: Open -->
+<div class="opdracht" id="q-2-2">
+  <span class="opdracht-label">Opdracht 5 — Open vraag</span>
+  <p class="question">Leg het verschil uit tussen de korte en de lange waterkringloop. Geef bij elke variant een voorbeeld.</p>
+  <textarea class="open-textarea" id="text-q-2-2" oninput="countWords('q-2-2')" placeholder="Schrijf hier je antwoord (minimaal 20 woorden)..."></textarea>
+  <div class="word-counter" id="wc-q-2-2">0 woorden</div>
+  <button class="btn btn-primary" id="show-example-q-2-2" onclick="showExample('q-2-2')" style="margin-top:10px;display:none;">Toon voorbeeldantwoord</button>
+  <div class="feedback" id="feedback-q-2-2"></div>
+  <div class="self-assess" id="self-q-2-2">
+    <button class="btn btn-success btn-small" onclick="selfAssess('q-2-2', true)">Goed ✓</button>
+    <button class="btn btn-danger btn-small" onclick="selfAssess('q-2-2', false)">Fout ✗</button>
+  </div>
+</div>
+
+<!-- Opdracht 2.3: MC -->
+<div class="opdracht" id="q-2-3">
+  <span class="opdracht-label">Opdracht 6</span>
+  <p class="question">Waarom is de neerslag die op land valt zoet water?</p>
+  <div class="mc-options">
+    <button class="mc-option" onclick="checkMC(this, false, 'q-2-3')">A) Omdat rivieren het zout filteren</button>
+    <button class="mc-option" onclick="checkMC(this, true, 'q-2-3')">B) Omdat bij verdamping het zout achterblijft in zee</button>
+    <button class="mc-option" onclick="checkMC(this, false, 'q-2-3')">C) Omdat wolken een chemisch proces uitvoeren</button>
+    <button class="mc-option" onclick="checkMC(this, false, 'q-2-3')">D) Omdat de wind het zout eruit blaast</button>
+  </div>
+  <div class="feedback" id="feedback-q-2-3"></div>
+</div>
+
+<div class="nav-buttons">
+  <button class="reset-section-btn" onclick="resetSection(1)">🔄 Reset dit onderdeel</button>
+  <button class="btn btn-secondary" onclick="goToSection(0)">← Vorige</button>
+  <button class="btn btn-primary" onclick="goToSection(2)">Volgende →</button>
+</div>
+</div>
+
+<!-- ═══ SECTIE 3: Soorten Rivieren ═══ -->
+<div class="section" id="section-2">
+<div class="card">
+  <h2>🏞️ Soorten Rivieren</h2>
+  <p>Rivieren zijn de slagaders van de aarde — ze vervoeren water van het land naar de zee. Maar niet elke rivier is hetzelfde. De manier waarop een rivier ontstaat bepaalt wat voor type rivier het is.</p>
+
+  <h3>Regenrivier</h3>
+  <p>Een <strong>regenrivier</strong> wordt gevoed door neerslag. Als het regent, stroomt het water van heuvels en bergen naar beneden, vormt beekjes die samenkomen tot een grotere rivier. In West-Europa hebben regenrivieren meestal het meeste water in <strong>herfst en winter</strong>: het regent dan vaker en er verdampt minder water door de lagere temperatuur.</p>
+
+  <h3>Gletsjerrivier</h3>
+  <p>Hoog in de bergen, waar het zo koud is dat sneeuw niet smelt, hoopt sneeuw zich op en wordt samengeperst tot ijs: een <strong>gletsjer</strong>. Een gletsjer is als een langzame, bevroren rivier. Als het ijs lager komt en gaat smelten, ontstaat er een gletsjerrivier. Deze rivieren hebben het meeste water in het <strong>voorjaar en de zomer</strong>, wanneer de temperatuur stijgt en het ijs smelt.</p>
+
+  <h3>Gemengde rivier</h3>
+  <p>Veel grote rivieren, zoals de <strong>Rijn</strong>, zijn gemengde rivieren. Ze beginnen als gletsjerrivier hoog in de Alpen, maar worden onderweg aangevuld met regenwater uit zijrivieren. Zo krijgen ze water uit twee bronnen.</p>
+
+  <table class="comparison-table">
+    <tr><th>Type</th><th>Bron</th><th>Meeste water</th><th>Voorbeeld</th></tr>
+    <tr><td>🌧️ Regenrivier</td><td>Neerslag</td><td>Herfst/winter</td><td>Thames (Londen)</td></tr>
+    <tr><td>🧊 Gletsjerrivier</td><td>Smeltwater</td><td>Voorjaar/zomer</td><td>Rhône (Zwitserland)</td></tr>
+    <tr><td>🔀 Gemengde rivier</td><td>Beide</td><td>Wisselend</td><td>Rijn</td></tr>
+  </table>
+
+  <div class="info-box">
+    <strong>✈️ Reizigersfeit:</strong> Als je door Zwitserland reist, kun je het verschil zien! Gletsjerrivieren hebben vaak een melkachtig-blauwe kleur door het fijngemalen steenpoeder dat de gletsjer meevoert. Regenrivieren zijn meestal helderder.
+  </div>
+
+  <div class="info-box warning">
+    <strong>⚠️ Klimaatverandering:</strong> Door de opwarming van de aarde smelten gletsjers steeds sneller. Dat geeft nu meer smeltwater, maar als de gletsjers straks grotendeels verdwenen zijn, kan er juist een tekort aan water ontstaan in gebieden die afhankelijk zijn van smeltwater.
+  </div>
+</div>
+
+<!-- Opdracht 3.1: Koppelen -->
+<div class="opdracht" id="q-3-1">
+  <span class="opdracht-label">Opdracht 7 — Koppelen</span>
+  <p class="question">Koppel elk kenmerk aan het juiste type rivier. Klik eerst op een kenmerk, dan op het type rivier. Eén type rivier kan meerdere kenmerken hebben!</p>
+  <div class="match-container" id="match-3-1">
+    <p style="font-size:0.85rem;color:var(--text-dim);margin-bottom:6px;"><strong>Kenmerken:</strong></p>
+    <div class="match-sources" id="sources-3-1"></div>
+    <p style="font-size:0.85rem;color:var(--text-dim);margin:10px 0 6px;"><strong>Type rivieren:</strong></p>
+    <div class="match-targets" id="targets-3-1"></div>
+    <div class="match-pairs" id="pairs-3-1"></div>
+  </div>
+  <button class="btn btn-primary" onclick="checkMatch('q-3-1')" style="margin-top:10px;">Controleer koppelingen</button>
+  <div class="feedback" id="feedback-q-3-1"></div>
+</div>
+
+<!-- Opdracht 3.2: Open -->
+<div class="opdracht" id="q-3-2">
+  <span class="opdracht-label">Opdracht 8 — Open vraag</span>
+  <p class="question">De Rijn is een gemengde rivier die door Nederland stroomt. Leg uit waarom de Rijn zowel in de winter als in de zomer water heeft, terwijl een pure gletsjerrivier in de winter weinig water voert.</p>
+  <textarea class="open-textarea" id="text-q-3-2" oninput="countWords('q-3-2')" placeholder="Schrijf hier je antwoord (minimaal 20 woorden)..."></textarea>
+  <div class="word-counter" id="wc-q-3-2">0 woorden</div>
+  <button class="btn btn-primary" id="show-example-q-3-2" onclick="showExample('q-3-2')" style="margin-top:10px;display:none;">Toon voorbeeldantwoord</button>
+  <div class="feedback" id="feedback-q-3-2"></div>
+  <div class="self-assess" id="self-q-3-2">
+    <button class="btn btn-success btn-small" onclick="selfAssess('q-3-2', true)">Goed ✓</button>
+    <button class="btn btn-danger btn-small" onclick="selfAssess('q-3-2', false)">Fout ✗</button>
+  </div>
+</div>
+
+<div class="nav-buttons">
+  <button class="reset-section-btn" onclick="resetSection(2)">🔄 Reset dit onderdeel</button>
+  <button class="btn btn-secondary" onclick="goToSection(1)">← Vorige</button>
+  <button class="btn btn-primary" onclick="goToSection(3)">Volgende →</button>
+</div>
+</div>
+
+<!-- ═══ SECTIE 4: De Waterbalans ═══ -->
+<div class="section" id="section-3">
+<div class="card">
+  <h2>⚖️ De Waterbalans</h2>
+  <p>Hoe komt een gebied aan water — en waar gaat het heen? Om dat in kaart te brengen, gebruiken we de <strong>waterbalans</strong>. Dit is een soort boekhouding van water: hoeveel water komt er binnen (neerslag, rivierwater) en hoeveel gaat er weer weg (verdamping, afvoer naar zee).</p>
+  <p>Als er meer water binnenkomt dan er weggaat, is de waterbalans <strong>positief</strong> — er is voldoende water, soms zelfs een overschot. Is het andersom, dan is de waterbalans <strong>negatief</strong> en ontstaat een watertekort.</p>
+
+  <div class="process-flow">
+    <span class="step">🌧️ Neerslag +</span>
+    <span class="step">🏞️ Rivierwater +</span>
+    <span class="arrow">⚖️</span>
+    <span class="step">☀️ Verdamping −</span>
+    <span class="step">🌊 Afvoer naar zee −</span>
+  </div>
+
+  <h3>Oppervlaktewater en grondwater</h3>
+  <p><strong>Oppervlaktewater</strong> is al het water dat je kunt zien: rivieren, meren, kanalen. Na een regenbui verdwijnt ook veel water in de bodem en wordt <strong>grondwater</strong>. In Nederland wordt een groot deel van het drinkwater gewonnen uit grondwater. Bomen en planten nemen grondwater op via hun wortels.</p>
+
+  <div class="info-box">
+    <strong>🤔 In jouw omgeving:</strong> In het voorjaar en de zomer groeien gewassen op de akkers. Dat is precies de periode waarin de meeste verdamping plaatsvindt. De waterbalans kan dan dus negatief worden, zelfs in Nederland! Heb je weleens een sproeiverbod meegemaakt in de zomer?
+  </div>
+</div>
+
+<!-- Opdracht 4.1: Chart analyse -->
+<div class="opdracht" id="q-4-1">
+  <span class="opdracht-label">Opdracht 9 — Grafiek analyseren</span>
+  <p class="question">Bekijk de grafiek van de waterbalans van Nederland per maand. Beantwoord de vragen eronder.</p>
+  <div class="chart-container">
+    <canvas id="chart-waterbalans" height="250"></canvas>
+  </div>
+  <p class="question" style="margin-top:14px;">In welke maand is de verdamping het grootst?</p>
+  <div class="mc-options">
+    <button class="mc-option" onclick="checkMC(this, false, 'q-4-1')">A) Januari</button>
+    <button class="mc-option" onclick="checkMC(this, false, 'q-4-1')">B) Maart</button>
+    <button class="mc-option" onclick="checkMC(this, true, 'q-4-1')">C) Juli</button>
+    <button class="mc-option" onclick="checkMC(this, false, 'q-4-1')">D) Oktober</button>
+  </div>
+  <div class="feedback" id="feedback-q-4-1"></div>
+</div>
+
+<!-- Opdracht 4.2: Open -->
+<div class="opdracht" id="q-4-2">
+  <span class="opdracht-label">Opdracht 10 — Open vraag</span>
+  <p class="question">Bekijk de grafiek nog eens. In welke maanden is de waterbalans van Nederland negatief (verdamping groter dan neerslag)? Leg uit waarom dit problemen kan geven voor boeren.</p>
+  <textarea class="open-textarea" id="text-q-4-2" oninput="countWords('q-4-2')" placeholder="Schrijf hier je antwoord (minimaal 20 woorden)..."></textarea>
+  <div class="word-counter" id="wc-q-4-2">0 woorden</div>
+  <button class="btn btn-primary" id="show-example-q-4-2" onclick="showExample('q-4-2')" style="margin-top:10px;display:none;">Toon voorbeeldantwoord</button>
+  <div class="feedback" id="feedback-q-4-2"></div>
+  <div class="self-assess" id="self-q-4-2">
+    <button class="btn btn-success btn-small" onclick="selfAssess('q-4-2', true)">Goed ✓</button>
+    <button class="btn btn-danger btn-small" onclick="selfAssess('q-4-2', false)">Fout ✗</button>
+  </div>
+</div>
+
+<div class="nav-buttons">
+  <button class="reset-section-btn" onclick="resetSection(3)">🔄 Reset dit onderdeel</button>
+  <button class="btn btn-secondary" onclick="goToSection(2)">← Vorige</button>
+  <button class="btn btn-primary" onclick="goToSection(4)">Volgende →</button>
+</div>
+</div>
+
+<!-- ═══ SECTIE 5: Overstromingen ═══ -->
+<div class="section" id="section-4">
+<div class="card">
+  <h2>🌊 Overstromingen en Wateroverlast</h2>
+  <p>Water is levensnoodzakelijk, maar kan ook enorm gevaarlijk zijn. Als het water je huis binnenstroomt, spreken we van <strong>wateroverlast</strong>. In sommige tropische landen is dit elk jaar een probleem. De <strong>moesson</strong>, een seizoenswind die vochtige lucht vanaf de oceaan het land in blaast, zorgt voor weken van extreme regenval.</p>
+
+  <h3>Gevolgen van overstromingen</h3>
+  <p>De gevolgen van een overstroming gaan veel verder dan natte voeten. Het is een kettingreactie van problemen:</p>
+
+  <div class="process-flow">
+    <span class="step">🌊 Overstroming</span>
+    <span class="arrow">→</span>
+    <span class="step">🏠 Huizen beschadigd</span>
+    <span class="arrow">→</span>
+    <span class="step">🦠 Ziektes</span>
+    <span class="arrow">→</span>
+    <span class="step">🌾 Oogsten mislukt</span>
+    <span class="arrow">→</span>
+    <span class="step">🚗 Vervoer stil</span>
+  </div>
+
+  <p>Drinkwater raakt vervuild als rioolwater zich mengt met het overstroomde water. Giftige dieren zoals slangen worden huizen ingespoeld. Wegen worden onbegaanbaar, waardoor hulpdiensten moeilijk bij slachtoffers komen. Ziektes als cholera en malaria breken sneller uit door stilstaand water.</p>
+
+  <div class="info-box warning">
+    <strong>✈️ Reisadvies:</strong> Als je naar Zuidoost-Azië reist, check altijd het moessonseizoen! In landen als Bangladesh, India en Thailand zijn overstromingen tijdens de moesson eerder regel dan uitzondering. Het moessonseizoen loopt daar grofweg van juni tot september.
+  </div>
+
+  <div class="info-box">
+    <strong>🤔 Herken je dit?</strong> In de zomer van 2021 werden delen van Limburg zwaar getroffen door overstromingen. Het water van de Maas en de Geul steeg enorm. Heb jij daar iets van meegekregen?
+  </div>
+</div>
+
+<!-- Opdracht 5.1: Kaart -->
+<div class="opdracht" id="q-5-1">
+  <span class="opdracht-label">Opdracht 11 — Interactieve kaart</span>
+  <p class="question">Bekijk de kaart met gebieden die kwetsbaar zijn voor overstromingen. Klik op de markers voor meer informatie. Beantwoord daarna de vraag.</p>
+  <div class="map-container" id="map-overstromingen"></div>
+  <p class="question" style="margin-top:14px;">Welk land uit de kaart wordt jaarlijks door de moesson getroffen?</p>
+  <div class="mc-options">
+    <button class="mc-option" onclick="checkMC(this, false, 'q-5-1')">A) Nederland</button>
+    <button class="mc-option" onclick="checkMC(this, true, 'q-5-1')">B) Bangladesh</button>
+    <button class="mc-option" onclick="checkMC(this, false, 'q-5-1')">C) Egypte</button>
+    <button class="mc-option" onclick="checkMC(this, false, 'q-5-1')">D) Australië</button>
+  </div>
+  <div class="feedback" id="feedback-q-5-1"></div>
+</div>
+
+<!-- Opdracht 5.2: Open -->
+<div class="opdracht" id="q-5-2">
+  <span class="opdracht-label">Opdracht 12 — Open vraag</span>
+  <p class="question">Noem minstens drie gevolgen van een overstroming en leg bij elk gevolg kort uit waarom dit een probleem is voor de bevolking.</p>
+  <textarea class="open-textarea" id="text-q-5-2" oninput="countWords('q-5-2')" placeholder="Schrijf hier je antwoord (minimaal 20 woorden)..."></textarea>
+  <div class="word-counter" id="wc-q-5-2">0 woorden</div>
+  <button class="btn btn-primary" id="show-example-q-5-2" onclick="showExample('q-5-2')" style="margin-top:10px;display:none;">Toon voorbeeldantwoord</button>
+  <div class="feedback" id="feedback-q-5-2"></div>
+  <div class="self-assess" id="self-q-5-2">
+    <button class="btn btn-success btn-small" onclick="selfAssess('q-5-2', true)">Goed ✓</button>
+    <button class="btn btn-danger btn-small" onclick="selfAssess('q-5-2', false)">Fout ✗</button>
+  </div>
+</div>
+
+<div class="nav-buttons">
+  <button class="reset-section-btn" onclick="resetSection(4)">🔄 Reset dit onderdeel</button>
+  <button class="btn btn-secondary" onclick="goToSection(3)">← Vorige</button>
+  <button class="btn btn-primary" onclick="goToSection(5)">Volgende →</button>
+</div>
+</div>
+
+<!-- ═══ SECTIE 6: Piekafvoer ═══ -->
+<div class="section" id="section-5">
+<div class="card">
+  <h2>📈 Piekafvoer en Dijken</h2>
+  <p>Als het dagenlang stortregent, kan een rivier het water niet snel genoeg afvoeren naar zee. Het waterpeil stijgt tot een extreem hoog niveau. Dit noemen we een <strong>piekafvoer</strong>: het moment dat de rivier een maximale hoeveelheid water moet verwerken.</p>
+
+  <h3>Wat gebeurt er bij een piekafvoer?</h3>
+  <p>Als er <strong>geen dijken</strong> langs de rivier liggen, treedt de rivier buiten zijn oevers en wordt breder. Het water verspreidt zich over het omringende land. Hierbij worden kleine kleideeltjes afgezet als <strong>slib</strong>, wat het land juist vruchtbaar maakt. Zo was het vroeger langs de Nijl in Egypte: na de jaarlijkse overstroming was het land perfect voor landbouw.</p>
+  <p>Als er <strong>wél dijken</strong> langs de rivier liggen, wordt het water steeds hoger opgesloten. Het slib zinkt dan naar de rivierbodem in plaats van op het land. De rivier wordt daardoor ondieper, waardoor het water nóg hoger stijgt. Daarom moeten dijken steeds verhoogd worden — een eindeloze strijd.</p>
+
+  <table class="comparison-table">
+    <tr><th></th><th>Zonder dijken</th><th>Met dijken</th></tr>
+    <tr><td>Water</td><td>Verspreidt zich breed</td><td>Stijgt hoog in de bedding</td></tr>
+    <tr><td>Slib</td><td>Maakt land vruchtbaar</td><td>Maakt rivier ondieper</td></tr>
+    <tr><td>Gevaar</td><td>Breed maar ondiep</td><td>Risico op dijkdoorbraak</td></tr>
+  </table>
+
+  <div class="info-box">
+    <strong>🤔 In jouw omgeving:</strong> Nederland ligt grotendeels onder zeeniveau. Onze dijken, duinen en stormvloedkeringen (zoals de Deltawerken) beschermen ons tegen het water. Maar bij hevige regenval kan zelfs in Nederland een piekafvoer voorkomen, zoals bij de Maas en de Rijn.
+  </div>
+</div>
+
+<!-- Opdracht 6.1: Grafiek piekafvoer -->
+<div class="opdracht" id="q-6-1">
+  <span class="opdracht-label">Opdracht 13 — Grafiek analyseren</span>
+  <p class="question">Bekijk de grafiek van het waterpeil van de Rijn bij Lobith gedurende een jaar. Beantwoord de vraag.</p>
+  <div class="chart-container">
+    <canvas id="chart-piekafvoer" height="250"></canvas>
+  </div>
+  <p class="question" style="margin-top:14px;">In welke maand is er sprake van een piekafvoer?</p>
+  <div class="mc-options">
+    <button class="mc-option" onclick="checkMC(this, false, 'q-6-1')">A) Maart</button>
+    <button class="mc-option" onclick="checkMC(this, true, 'q-6-1')">B) Januari</button>
+    <button class="mc-option" onclick="checkMC(this, false, 'q-6-1')">C) Augustus</button>
+    <button class="mc-option" onclick="checkMC(this, false, 'q-6-1')">D) Mei</button>
+  </div>
+  <div class="feedback" id="feedback-q-6-1"></div>
+</div>
+
+<!-- Opdracht 6.2: Open -->
+<div class="opdracht" id="q-6-2">
+  <span class="opdracht-label">Opdracht 14 — Open vraag</span>
+  <p class="question">Leg uit wat het verschil is tussen een overstroming bij een rivier mét dijken en een rivier zonder dijken. Wat zijn de voor- en nadelen van dijken?</p>
+  <textarea class="open-textarea" id="text-q-6-2" oninput="countWords('q-6-2')" placeholder="Schrijf hier je antwoord (minimaal 20 woorden)..."></textarea>
+  <div class="word-counter" id="wc-q-6-2">0 woorden</div>
+  <button class="btn btn-primary" id="show-example-q-6-2" onclick="showExample('q-6-2')" style="margin-top:10px;display:none;">Toon voorbeeldantwoord</button>
+  <div class="feedback" id="feedback-q-6-2"></div>
+  <div class="self-assess" id="self-q-6-2">
+    <button class="btn btn-success btn-small" onclick="selfAssess('q-6-2', true)">Goed ✓</button>
+    <button class="btn btn-danger btn-small" onclick="selfAssess('q-6-2', false)">Fout ✗</button>
+  </div>
+</div>
+
+<!-- Opdracht 6.3: MC -->
+<div class="opdracht" id="q-6-3">
+  <span class="opdracht-label">Opdracht 15</span>
+  <p class="question">Waarom moeten dijken langs rivieren steeds verhoogd worden?</p>
+  <div class="mc-options">
+    <button class="mc-option" onclick="checkMC(this, false, 'q-6-3')">A) Omdat het water steeds zouter wordt</button>
+    <button class="mc-option" onclick="checkMC(this, true, 'q-6-3')">B) Omdat slib op de bodem de rivier ondieper maakt</button>
+    <button class="mc-option" onclick="checkMC(this, false, 'q-6-3')">C) Omdat dijken elk jaar inkrimpen</button>
+    <button class="mc-option" onclick="checkMC(this, false, 'q-6-3')">D) Omdat er steeds meer boten varen</button>
+  </div>
+  <div class="feedback" id="feedback-q-6-3"></div>
+</div>
+
+<div class="nav-buttons">
+  <button class="reset-section-btn" onclick="resetSection(5)">🔄 Reset dit onderdeel</button>
+  <button class="btn btn-secondary" onclick="goToSection(4)">← Vorige</button>
+  <button class="btn btn-primary" onclick="goToSection(6)">Volgende →</button>
+</div>
+</div>
+
+<!-- ═══ SECTIE 7: Oorzaken overstromingen ═══ -->
+<div class="section" id="section-6">
+<div class="card">
+  <h2>🌲 Waarom meer overstromingen?</h2>
+  <p>Wereldwijd neemt het aantal overstromingen toe. Dat komt niet door één oorzaak, maar door een combinatie van factoren die elkaar versterken.</p>
+
+  <h3>1. Ontbossing 🪓</h3>
+  <p>Bossen werken als een enorme spons: bomen nemen water op via hun wortels en houden de grond vast. Als bossen gekapt worden voor landbouwgrond, kan regenwater veel sneller afstromen naar rivieren. Bovendien houdt de grond zonder wortels niet meer vast, waardoor modderstromen kunnen ontstaan. Herbebossing helpt, maar het duurt jaren voordat jonge bomen genoeg water kunnen opnemen.</p>
+
+  <h3>2. Verstedelijking 🏙️</h3>
+  <p>Steeds meer mensen verhuizen naar steden (<strong>urbanisatie</strong>). Straten, gebouwen en parkeerplaatsen zijn van steen of asfalt — regenwater kan niet in de grond zakken. Het stroomt direct via het riool naar de rivier, die daardoor veel sneller volloopt.</p>
+
+  <h3>3. Klimaatverandering 🌡️</h3>
+  <p>Door opwarming van de aarde wordt het zeewater warmer. Warmer water leidt tot meer verdamping, meer neerslag en heftigere stormen. Bovendien smelten gletsjers sneller, wat méér smeltwater oplevert. In de toekomst, als gletsjers grotendeels gesmolten zijn, kan het juist tot droogte leiden.</p>
+
+  <h3>4. Overstromingen in kustgebieden 🏖️</h3>
+  <p>Veel steden liggen aan de kust — handig voor handel, maar kwetsbaar voor de zee. Door <strong>zeespiegelstijging</strong> komen kustgebieden steeds vaker onder water. Waar een rivier uitmondt in zee kan een <strong>delta</strong> ontstaan, een laaggelegen gebied dat extra kwetsbaar is. Daar komt nog bij: boven warm zeewater (warmer dan 27°C) kunnen <strong>orkanen</strong> ontstaan, met verwoestende wind en regen.</p>
+
+  <div class="info-box">
+    <strong>✈️ Reizigersfeit:</strong> De Maldiven, een populaire vakantiebestemming, liggen gemiddeld slechts 1,5 meter boven zeeniveau. Als de zeespiegel blijft stijgen, kunnen deze eilanden onbewoonbaar worden. Veel inwoners maken zich grote zorgen.
+  </div>
+</div>
+
+<!-- Opdracht 7.1: Sorteer -->
+<div class="opdracht" id="q-7-1">
+  <span class="opdracht-label">Opdracht 16 — Sorteer op impact</span>
+  <p class="question">Zet de oorzaken van overstromingen in de volgorde van meeste naar minste impact op de hoeveelheid water in rivieren. Er is geen absoluut goed antwoord — denk goed na!</p>
+  <div class="drag-container">
+    <div class="drag-list" id="drag-list-7-1"></div>
+  </div>
+  <button class="btn btn-primary" onclick="showExample('q-7-1-drag')" style="margin-top:10px;">Toon voorbeeldantwoord</button>
+  <div class="feedback" id="feedback-q-7-1-drag"></div>
+  <div class="self-assess" id="self-q-7-1-drag">
+    <button class="btn btn-success btn-small" onclick="selfAssess('q-7-1-drag', true)">Goed ✓</button>
+    <button class="btn btn-danger btn-small" onclick="selfAssess('q-7-1-drag', false)">Fout ✗</button>
+  </div>
+</div>
+
+<!-- Opdracht 7.2: Open -->
+<div class="opdracht" id="q-7-2">
+  <span class="opdracht-label">Opdracht 17 — Open vraag</span>
+  <p class="question">✈️ Je reist naar de Filipijnen en hoort dat er een orkaan aankomt. Leg uit hoe een orkaan ontstaat en waarom klimaatverandering ervoor zorgt dat orkanen sterker worden.</p>
+  <textarea class="open-textarea" id="text-q-7-2" oninput="countWords('q-7-2')" placeholder="Schrijf hier je antwoord (minimaal 20 woorden)..."></textarea>
+  <div class="word-counter" id="wc-q-7-2">0 woorden</div>
+  <button class="btn btn-primary" id="show-example-q-7-2" onclick="showExample('q-7-2')" style="margin-top:10px;display:none;">Toon voorbeeldantwoord</button>
+  <div class="feedback" id="feedback-q-7-2"></div>
+  <div class="self-assess" id="self-q-7-2">
+    <button class="btn btn-success btn-small" onclick="selfAssess('q-7-2', true)">Goed ✓</button>
+    <button class="btn btn-danger btn-small" onclick="selfAssess('q-7-2', false)">Fout ✗</button>
+  </div>
+</div>
+
+<!-- Opdracht 7.3: MC -->
+<div class="opdracht" id="q-7-3">
+  <span class="opdracht-label">Opdracht 18</span>
+  <p class="question">Waarom loopt een rivier bij verstedelijking sneller vol na een regenbui?</p>
+  <div class="mc-options">
+    <button class="mc-option" onclick="checkMC(this, false, 'q-7-3')">A) Omdat er meer bomen zijn in de stad</button>
+    <button class="mc-option" onclick="checkMC(this, false, 'q-7-3')">B) Omdat het in de stad meer regent</button>
+    <button class="mc-option" onclick="checkMC(this, true, 'q-7-3')">C) Omdat steen en asfalt geen water opnemen, waardoor het sneller afstroomt</button>
+    <button class="mc-option" onclick="checkMC(this, false, 'q-7-3')">D) Omdat steden altijd lager liggen dan het platteland</button>
+  </div>
+  <div class="feedback" id="feedback-q-7-3"></div>
+</div>
+
+<div class="nav-buttons">
+  <button class="reset-section-btn" onclick="resetSection(6)">🔄 Reset dit onderdeel</button>
+  <button class="btn btn-secondary" onclick="goToSection(5)">← Vorige</button>
+  <button class="btn btn-primary" onclick="goToSection(7)">Volgende →</button>
+</div>
+</div>
+
+<!-- ═══ SECTIE 8: Waterschaarste ═══ -->
+<div class="section" id="section-7">
+<div class="card">
+  <h2>🏜️ Waterschaarste</h2>
+  <p>Terwijl sommige gebieden kampen met te veel water, hebben andere juist veel te weinig. Als de vraag naar water groter is dan het aanbod, spreken we van <strong>waterschaarste</strong>. De problemen die hieruit voortkomen noemen we <strong>waterstress</strong>.</p>
+
+  <h3>Hoe komen droge gebieden aan water?</h3>
+  <p>In een droog land als Egypte wonen bijna alle inwoners langs de <strong>Nijl</strong> — hun enige grote waterbron. Andere opties in droge gebieden zijn:</p>
+
+  <table class="comparison-table">
+    <tr><th>Methode</th><th>Hoe werkt het?</th><th>Nadeel</th></tr>
+    <tr><td>💧 Putten / grondwater</td><td>Water oppompen uit diepe lagen</td><td>Grondwater raakt op</td></tr>
+    <tr><td>🧂 Ontzilting</td><td>Zout uit zeewater halen</td><td>Kost veel energie en geld</td></tr>
+    <tr><td>🚿 Irrigatie</td><td>Kunstmatig water naar gewassen leiden</td><td>Kan bodem uitdrogen</td></tr>
+    <tr><td>🏗️ Stuwdam</td><td>Water opslaan achter een dam</td><td>Landen stroomafwaarts krijgen minder water</td></tr>
+  </table>
+
+  <h3>Gevolgen van waterschaarste</h3>
+  <p>Als er simpelweg te weinig water is, vindt <strong>verdroging</strong> plaats. Gewassen verdorren, oogsten mislukken, en boeren verliezen hun inkomen. In het ergste geval kan dit leiden tot <strong>hongersnood</strong>. Mensen worden soms gedwongen om vervuild water te gebruiken, wat ziektes veroorzaakt. De natuur lijdt ook: rivieren droogt op, dieren sterven, en ecosystemen storten in.</p>
+
+  <div class="info-box warning">
+    <strong>⚠️ Waterconflicten:</strong> Rivieren trekken zich niets aan van landsgrenzen. Het <strong>stroomgebied</strong> van een rivier kan door meerdere landen lopen. Als Turkije water vasthoudt van de Eufraat en Tigris, krijgen Syrië en Irak minder water. Dit kan leiden tot ernstige spanningen tussen landen.
+  </div>
+
+  <div class="info-box">
+    <strong>🤔 Denk eens na:</strong> In Nederland trekken we de wc door met schoon drinkwater. In sommige landen moeten mensen kilometers lopen voor een emmer water. Hoe zou jij zuiniger met water kunnen omgaan?
+  </div>
+</div>
+
+<!-- Opdracht 8.1: Kaart -->
+<div class="opdracht" id="q-8-1">
+  <span class="opdracht-label">Opdracht 19 — Interactieve kaart</span>
+  <p class="question">Bekijk de kaart met gebieden die te maken hebben met waterschaarste. Klik op de markers.</p>
+  <div class="map-container" id="map-waterschaarste"></div>
+</div>
+
+<!-- Opdracht 8.2: Koppelen -->
+<div class="opdracht" id="q-8-2">
+  <span class="opdracht-label">Opdracht 20 — Koppelen</span>
+  <p class="question">Koppel elke oplossing aan het juiste probleem. Klik eerst op de oplossing, dan op het probleem.</p>
+  <div class="match-container" id="match-8-2">
+    <p style="font-size:0.85rem;color:var(--text-dim);margin-bottom:6px;"><strong>Oplossingen:</strong></p>
+    <div class="match-sources" id="sources-8-2"></div>
+    <p style="font-size:0.85rem;color:var(--text-dim);margin:10px 0 6px;"><strong>Problemen:</strong></p>
+    <div class="match-targets" id="targets-8-2"></div>
+    <div class="match-pairs" id="pairs-8-2"></div>
+  </div>
+  <button class="btn btn-primary" onclick="checkMatch('q-8-2')" style="margin-top:10px;">Controleer koppelingen</button>
+  <div class="feedback" id="feedback-q-8-2"></div>
+</div>
+
+<!-- Opdracht 8.3: Open -->
+<div class="opdracht" id="q-8-3">
+  <span class="opdracht-label">Opdracht 21 — Open vraag</span>
+  <p class="question">✈️ Je reist door het Midden-Oosten en bezoekt een ontziltingsinstallatie in Dubai. Leg uit waarom landen als de Verenigde Arabische Emiraten afhankelijk zijn van ontzilting en noem twee nadelen van deze techniek.</p>
+  <textarea class="open-textarea" id="text-q-8-3" oninput="countWords('q-8-3')" placeholder="Schrijf hier je antwoord (minimaal 20 woorden)..."></textarea>
+  <div class="word-counter" id="wc-q-8-3">0 woorden</div>
+  <button class="btn btn-primary" id="show-example-q-8-3" onclick="showExample('q-8-3')" style="margin-top:10px;display:none;">Toon voorbeeldantwoord</button>
+  <div class="feedback" id="feedback-q-8-3"></div>
+  <div class="self-assess" id="self-q-8-3">
+    <button class="btn btn-success btn-small" onclick="selfAssess('q-8-3', true)">Goed ✓</button>
+    <button class="btn btn-danger btn-small" onclick="selfAssess('q-8-3', false)">Fout ✗</button>
+  </div>
+</div>
+
+<div class="nav-buttons">
+  <button class="reset-section-btn" onclick="resetSection(7)">🔄 Reset dit onderdeel</button>
+  <button class="btn btn-secondary" onclick="goToSection(6)">← Vorige</button>
+  <button class="btn btn-primary" onclick="goToSection(8)">Volgende →</button>
+</div>
+</div>
+
+<!-- ═══ SECTIE 9: Waterconflicten & Waterverbruik ═══ -->
+<div class="section" id="section-8">
+<div class="card">
+  <h2>⚔️ Waterconflicten en Waterverbruik</h2>
+  <p>Water is niet alleen een natuurverschijnsel — het is ook een politiek en economisch machtsmiddel. Als een rivier door meerdere landen stroomt, moet het water eerlijk verdeeld worden. Maar wat is eerlijk?</p>
+
+  <h3>Stroomgebieden en conflicten</h3>
+  <p>Een <strong>stroomgebied</strong> is het hele gebied waarbinnen al het water naar dezelfde hoofdrivier stroomt. De Eufraat en Tigris ontspringen in Turkije, maar stromen ook door Syrië en Irak. Als Turkije een <strong>stuwdam</strong> bouwt, kan het water vasthouden voor eigen gebruik en energie. Maar de landen stroomafwaarts krijgen dan minder water. Zonder goede afspraken kan dit leiden tot een <strong>waterconflict</strong>.</p>
+
+  <h3>Stuwdammen: voor- en nadelen</h3>
+  <p>Een stuwdam heeft duidelijke voordelen: wateropslag voor droge periodes, energieopwekking (waterkracht), en bescherming tegen overstromingen. Maar de nadelen zijn ook groot: verplaatsing van bewoners, minder water voor landen verderop, en schade aan ecosystemen doordat vissen niet meer stroomopwaarts kunnen zwemmen.</p>
+
+  <h3>Waterverbruik per dag</h3>
+  <p>Op veel plekken in de wereld betalen mensen weinig voor water, waardoor ze niet opletten hoeveel ze gebruiken. Een gemiddelde Nederlander gebruikt ongeveer <strong>130 liter water per dag</strong> — voor douchen, wc, koken, wassen, en de tuin. In droge landen als Ethiopië gebruiken mensen soms minder dan 20 liter per dag.</p>
+
+  <div class="info-box green">
+    <strong>💡 Wist je dat?</strong> Om 1 kilo biefstuk te produceren, is maar liefst 15.000 liter water nodig! Dit noem je de <em>watervoetafdruk</em>. Zelfs een simpel T-shirt kost al 2.700 liter water om te maken.
+  </div>
+</div>
+
+<!-- Opdracht 9.1: Grafiek waterverbruik -->
+<div class="opdracht" id="q-9-1">
+  <span class="opdracht-label">Opdracht 22 — Grafiek analyseren</span>
+  <p class="question">Bekijk de grafiek van dagelijks waterverbruik per persoon in verschillende landen.</p>
+  <div class="chart-container">
+    <canvas id="chart-waterverbruik" height="280"></canvas>
+  </div>
+  <p class="question" style="margin-top:14px;">Hoeveel keer meer water gebruikt een Amerikaan per dag vergeleken met iemand uit Ethiopië?</p>
+  <div class="mc-options">
+    <button class="mc-option" onclick="checkMC(this, false, 'q-9-1')">A) 3 keer zoveel</button>
+    <button class="mc-option" onclick="checkMC(this, false, 'q-9-1')">B) 5 keer zoveel</button>
+    <button class="mc-option" onclick="checkMC(this, false, 'q-9-1')">C) 10 keer zoveel</button>
+    <button class="mc-option" onclick="checkMC(this, true, 'q-9-1')">D) Meer dan 15 keer zoveel</button>
+  </div>
+  <div class="feedback" id="feedback-q-9-1"></div>
+</div>
+
+<!-- Opdracht 9.2: Open -->
+<div class="opdracht" id="q-9-2">
+  <span class="opdracht-label">Opdracht 23 — Open vraag</span>
+  <p class="question">Leg uit hoe een stuwdam in het ene land kan leiden tot een waterconflict met een ander land. Gebruik het voorbeeld van Turkije, Syrië en Irak.</p>
+  <textarea class="open-textarea" id="text-q-9-2" oninput="countWords('q-9-2')" placeholder="Schrijf hier je antwoord (minimaal 20 woorden)..."></textarea>
+  <div class="word-counter" id="wc-q-9-2">0 woorden</div>
+  <button class="btn btn-primary" id="show-example-q-9-2" onclick="showExample('q-9-2')" style="margin-top:10px;display:none;">Toon voorbeeldantwoord</button>
+  <div class="feedback" id="feedback-q-9-2"></div>
+  <div class="self-assess" id="self-q-9-2">
+    <button class="btn btn-success btn-small" onclick="selfAssess('q-9-2', true)">Goed ✓</button>
+    <button class="btn btn-danger btn-small" onclick="selfAssess('q-9-2', false)">Fout ✗</button>
+  </div>
+</div>
+
+<!-- Opdracht 9.3: MC -->
+<div class="opdracht" id="q-9-3">
+  <span class="opdracht-label">Opdracht 24</span>
+  <p class="question">Wat is een 'watervoetafdruk'?</p>
+  <div class="mc-options">
+    <button class="mc-option" onclick="checkMC(this, false, 'q-9-3')">A) De afdruk die water maakt in de grond</button>
+    <button class="mc-option" onclick="checkMC(this, true, 'q-9-3')">B) De totale hoeveelheid water die nodig is om een product te maken</button>
+    <button class="mc-option" onclick="checkMC(this, false, 'q-9-3')">C) De grootte van een rivier</button>
+    <button class="mc-option" onclick="checkMC(this, false, 'q-9-3')">D) De hoeveelheid regen per jaar</button>
+  </div>
+  <div class="feedback" id="feedback-q-9-3"></div>
+</div>
+
+<div class="nav-buttons">
+  <button class="reset-section-btn" onclick="resetSection(8)">🔄 Reset dit onderdeel</button>
+  <button class="btn btn-secondary" onclick="goToSection(7)">← Vorige</button>
+  <button class="btn btn-primary" onclick="goToSection(9)">Volgende →</button>
+</div>
+</div>
+
+<!-- ═══ SECTIE 10: Afsluiting & Reflectie ═══ -->
+<div class="section" id="section-9">
+<div class="card">
+  <h2>🏁 Afsluiting — Jouw Score &amp; Reflectie</h2>
+  <div class="score-display">
+    <p style="margin-bottom:6px;color:var(--text-dim);">Jouw totaalscore</p>
+    <div class="score-big" id="finalScore">0%</div>
+    <p style="margin-top:6px;font-size:0.88rem;" id="scoreDetail">0 van 0 opdrachten goed</p>
+  </div>
+
+  <h3>📋 Leerdoelen — Heb je ze gehaald?</h3>
+  <div id="leerdoelenList">
+    <div class="leerdoel-item"><div class="leerdoel-check" id="ld-1">?</div><div>Je weet waar water in verschillende vormen op aarde voorkomt.</div></div>
+    <div class="leerdoel-item"><div class="leerdoel-check" id="ld-2">?</div><div>Je kunt verschillende soorten rivieren herkennen en verklaren hoe ze zijn ontstaan.</div></div>
+    <div class="leerdoel-item"><div class="leerdoel-check" id="ld-3">?</div><div>Je begrijpt hoe een gebied aan water komt en waarom er soms te weinig of te veel is.</div></div>
+    <div class="leerdoel-item"><div class="leerdoel-check" id="ld-4">?</div><div>Je weet wat de gevolgen van een overstroming kunnen zijn.</div></div>
+    <div class="leerdoel-item"><div class="leerdoel-check" id="ld-5">?</div><div>Je kunt uitleggen wat een piekafvoer is en hoe deze ontstaat.</div></div>
+    <div class="leerdoel-item"><div class="leerdoel-check" id="ld-6">?</div><div>Je begrijpt waarom overstromingen in kustgebieden vaker voorkomen.</div></div>
+    <div class="leerdoel-item"><div class="leerdoel-check" id="ld-7">?</div><div>Je weet hoe mensen in droge gebieden aan zoet water komen.</div></div>
+    <div class="leerdoel-item"><div class="leerdoel-check" id="ld-8">?</div><div>Je kunt uitleggen waarom er te weinig water is in sommige gebieden.</div></div>
+    <div class="leerdoel-item"><div class="leerdoel-check" id="ld-9">?</div><div>Je begrijpt welke problemen waterschaarste met zich meebrengt.</div></div>
+  </div>
+</div>
+
+<!-- Reflectie vragen -->
+<div class="opdracht" id="q-10-1">
+  <span class="opdracht-label">Reflectie 1</span>
+  <p class="question">Wat vond je het lastigste onderwerp van deze les en waarom?</p>
+  <textarea class="open-textarea" id="text-q-10-1" oninput="countWords('q-10-1')" placeholder="Schrijf hier je antwoord (minimaal 20 woorden)..."></textarea>
+  <div class="word-counter" id="wc-q-10-1">0 woorden</div>
+  <button class="btn btn-primary" id="show-example-q-10-1" onclick="showExample('q-10-1')" style="margin-top:10px;display:none;">Toon voorbeeldantwoord</button>
+  <div class="feedback" id="feedback-q-10-1"></div>
+  <div class="self-assess" id="self-q-10-1">
+    <button class="btn btn-success btn-small" onclick="selfAssess('q-10-1', true)">Goed ✓</button>
+    <button class="btn btn-danger btn-small" onclick="selfAssess('q-10-1', false)">Fout ✗</button>
+  </div>
+</div>
+
+<div class="opdracht" id="q-10-2">
+  <span class="opdracht-label">Reflectie 2</span>
+  <p class="question">Stel, een klasgenoot heeft deze les gemist. Vat in je eigen woorden samen wat je geleerd hebt over water op aarde. Wat zijn de drie belangrijkste dingen?</p>
+  <textarea class="open-textarea" id="text-q-10-2" oninput="countWords('q-10-2')" placeholder="Schrijf hier je antwoord (minimaal 20 woorden)..."></textarea>
+  <div class="word-counter" id="wc-q-10-2">0 woorden</div>
+  <button class="btn btn-primary" id="show-example-q-10-2" onclick="showExample('q-10-2')" style="margin-top:10px;display:none;">Toon voorbeeldantwoord</button>
+  <div class="feedback" id="feedback-q-10-2"></div>
+  <div class="self-assess" id="self-q-10-2">
+    <button class="btn btn-success btn-small" onclick="selfAssess('q-10-2', true)">Goed ✓</button>
+    <button class="btn btn-danger btn-small" onclick="selfAssess('q-10-2', false)">Fout ✗</button>
+  </div>
+</div>
+
+<div class="opdracht" id="q-10-3">
+  <span class="opdracht-label">Reflectie 3</span>
+  <p class="question">✈️ Hoe zou je de kennis die je in deze les hebt opgedaan herkennen als je op reis gaat? Geef een concreet voorbeeld van een bestemming en wat je er zou opmerken over water.</p>
+  <textarea class="open-textarea" id="text-q-10-3" oninput="countWords('q-10-3')" placeholder="Schrijf hier je antwoord (minimaal 20 woorden)..."></textarea>
+  <div class="word-counter" id="wc-q-10-3">0 woorden</div>
+  <button class="btn btn-primary" id="show-example-q-10-3" onclick="showExample('q-10-3')" style="margin-top:10px;display:none;">Toon voorbeeldantwoord</button>
+  <div class="feedback" id="feedback-q-10-3"></div>
+  <div class="self-assess" id="self-q-10-3">
+    <button class="btn btn-success btn-small" onclick="selfAssess('q-10-3', true)">Goed ✓</button>
+    <button class="btn btn-danger btn-small" onclick="selfAssess('q-10-3', false)">Fout ✗</button>
+  </div>
+</div>
+
+<div class="nav-buttons">
+  <button class="reset-section-btn" onclick="resetSection(9)">🔄 Reset dit onderdeel</button>
+  <button class="btn btn-secondary" onclick="goToSection(8)">← Vorige</button>
+  <div></div>
+</div>
+</div>
+
+</div><!-- end main-content -->
+
+<footer class="site-footer">
+  <p>🌊 Water op Aarde — Aardrijkskunde HAVO 2</p>
+  <button class="clear-progress-btn" onclick="clearAllProgress()">🗑️ Voortgang wissen</button>
+</footer>
+
+<script>
+// =============================================
+// CONFIGURATION
+// =============================================
+const SECTIONS = [
+  { id: 0, title: '🌍 Blauwe Planeet', questions: ['q-1-1','q-1-2','q-1-3'] },
+  { id: 1, title: '🔄 Waterkringloop', questions: ['q-2-1','q-2-2','q-2-3'] },
+  { id: 2, title: '🏞️ Rivieren', questions: ['q-3-1','q-3-2'] },
+  { id: 3, title: '⚖️ Waterbalans', questions: ['q-4-1','q-4-2'] },
+  { id: 4, title: '🌊 Overstromingen', questions: ['q-5-1','q-5-2'] },
+  { id: 5, title: '📈 Piekafvoer', questions: ['q-6-1','q-6-2','q-6-3'] },
+  { id: 6, title: '🌲 Meer Overstromingen', questions: ['q-7-1-drag','q-7-2','q-7-3'] },
+  { id: 7, title: '🏜️ Waterschaarste', questions: ['q-8-2','q-8-3'] },
+  { id: 8, title: '⚔️ Conflicten', questions: ['q-9-1','q-9-2','q-9-3'] },
+  { id: 9, title: '🏁 Reflectie', questions: ['q-10-1','q-10-2','q-10-3'] },
+];
+
+const TOTAL_SECTIONS = SECTIONS.length;
+let currentSection = 0;
+let questionState = {}; // { qId: { completed: bool, correct: bool, attempts: 0 } }
+let allMaps = [];
+
+// Hints for MC questions
+const MC_HINTS = {
+  'q-1-1': ['Denk aan het verschil tussen zout en zoet water. 71% is het totale wateroppervlak...', 'Het grootste deel van het water op aarde is zout. Hoeveel blijft er dan over als zoet water?'],
+  'q-1-3': ['Is zeewater echt giftig? Of gaat het om een technisch proces?', 'Om zout uit water te halen heb je speciale installaties nodig. Wat kost dat?'],
+  'q-2-3': ['Denk aan wat er gebeurt als water verdampt. Kan zout mee verdampen?', 'Verdamping is een fysisch proces. Het zout is zwaarder dan waterdamp...'],
+  'q-4-1': ['In welke maand schijnt de zon het meest in Nederland?', 'Verdamping heeft te maken met warmte. Wanneer is het het warmst?'],
+  'q-5-1': ['De moesson is een seizoenswind. In welk klimaatgebied komt deze voor?', 'Denk aan landen in Azië die elk jaar extreme regenval hebben...'],
+  'q-6-1': ['Kijk goed naar de grafiek. In welke maand is de piek het hoogst?', 'In de winter regent het veel in West-Europa en smelt er sneeuw...'],
+  'q-6-3': ['Denk aan wat er gebeurt met de modder en kleideeltjes in het water.', 'Als slib op de bodem van de rivier terecht komt, wat gebeurt er dan met de diepte?'],
+  'q-7-3': ['In een stad is veel bebouwd. Kan water daar goed in de grond zakken?', 'Vergelijk een bos (veel grond) met een stad (veel steen). Waar zakt water beter weg?'],
+  'q-9-1': ['Kijk goed naar de getallen in de grafiek. Hoeveel gebruikt een Amerikaan, en hoeveel iemand uit Ethiopië?', 'Deel het verbruik van de VS door dat van Ethiopië...'],
+  'q-9-3': ['Het woord "voetafdruk" wordt vaker gebruikt bij milieu. Denk aan CO2-voetafdruk...', 'Het gaat om de totale hoeveelheid water die ergens voor nodig is.'],
+};
+
+// Example answers for open questions
+const EXAMPLE_ANSWERS = {
+  'q-1-2': 'In IJsland komt water voor als ijs (gletsjers), vloeibaar water (smeltrivieren en geisers) en waterdamp (stoom uit warmwaterbronnen). Het smelten van gletsjers is bijzonder omdat het twee gevolgen heeft: ten eerste stijgt de zeespiegel doordat er meer water in de oceaan komt, en ten tweede verliezen rivieren die afhankelijk zijn van smeltwater op termijn hun bron.',
+  'q-2-2': 'Bij de korte waterkringloop verdampt water uit de zee, vormt wolken, en regent direct terug in de oceaan — een korte cyclus. Bijvoorbeeld: boven de Atlantische Oceaan verdampt water en regent op dezelfde oceaan. Bij de lange waterkringloop valt neerslag op land en stroomt via rivieren of grondwater terug naar zee. Voorbeeld: sneeuw op de Alpen smelt, voedt de Rijn, en stroomt via Nederland de Noordzee in.',
+  'q-3-2': 'De Rijn is een gemengde rivier. In de zomer krijgt hij smeltwater van gletsjers in de Alpen, omdat het dan warm genoeg is om ijs te laten smelten. In de winter krijgt hij regenwater, want dan regent het meer in West-Europa. Een pure gletsjerrivier heeft in de winter weinig water omdat het dan te koud is om te smelten — het water zit opgesloten als ijs.',
+  'q-4-2': 'In de maanden mei tot en met augustus is de waterbalans van Nederland negatief, omdat de verdamping dan groter is dan de neerslag. Dit is lastig voor boeren omdat precies in die maanden gewassen water nodig hebben om te groeien. De planten staan op het veld, maar er is een tekort aan water. Boeren moeten dan irrigeren of hopen op regen.',
+  'q-5-2': 'Drie gevolgen van een overstroming zijn: 1) Drinkwatervervuiling — rioolwater mengt zich met het overstromingswater, waardoor mensen ziek kunnen worden van cholera. 2) Mislukte oogsten — akkerland staat onder water, gewassen gaan dood, en boeren verliezen hun inkomen. Dit kan leiden tot voedseltekorten. 3) Vervoersproblemen — wegen staan blank, waardoor hulpdiensten, ambulances en voedseltransporten niet bij mensen kunnen komen.',
+  'q-6-2': 'Zonder dijken verspreidt het water zich breed over het land bij hoge waterstand. Het slib dat daarbij achterblijft maakt het land vruchtbaar — goed voor landbouw. Nadeel: gebouwen en dorpen in het overstromingsgebied lopen schade op. Met dijken wordt het water hoog opgesloten in de rivier. Voordeel: het omringende land blijft droog. Nadeel: het slib zakt op de rivierbodem, waardoor de rivier ondieper wordt en dijken steeds verhoogd moeten worden. Bij een doorbraak is de schade extra groot.',
+  'q-7-2': 'Een orkaan ontstaat boven warm zeewater van minimaal 27°C. Het warme water laat veel vochtige lucht opstijgen, die condenseert tot een enorme wolkenmassa. Door de draaiing van de aarde gaat dit systeem draaien rond een "oog". Klimaatverandering zorgt ervoor dat het zeewater warmer wordt, waardoor er meer energie beschikbaar is voor orkanen. Daardoor worden orkanen sterker en komen ze vaker voor.',
+  'q-8-3': 'De VAE liggen in een woestijnklimaat met nauwelijks neerslag en geen grote rivieren. De bevolking groeit snel en het waterverbruik is hoog. Ontzilting is daarom noodzakelijk om aan de watervraag te voldoen. Twee nadelen zijn: ten eerste kost het enorm veel energie (vaak fossiele brandstoffen), wat bijdraagt aan CO2-uitstoot. Ten tweede blijft er een zoute restmassa over die terug in zee wordt geloosd, wat schadelijk is voor het zeeleven.',
+  'q-9-2': 'Turkije bouwt stuwdammen in de Eufraat en Tigris om water op te slaan en energie op te wekken. Doordat het water wordt vastgehouden, stroomt er minder water naar Syrië en Irak, die stroomafwaarts liggen. Boeren in Irak hebben daardoor minder water voor hun gewassen, en steden hebben minder drinkwater. Dit kan leiden tot spanningen en zelfs een waterconflict, omdat er geen eerlijke afspraken zijn over de verdeling.',
+  'q-7-1-drag': 'Een mogelijke volgorde is: 1) Klimaatverandering (wereldwijd effect op neerslag en smeltwater), 2) Ontbossing (minder wateropname, snellere afvoer), 3) Verstedelijking (verharde oppervlakken), 4) Zeespiegelstijging (vooral kustgebieden). Dit is een mening-vraag — het gaat erom dat je kunt beredeneren waarom je deze volgorde kiest.',
+  'q-10-1': 'Dit is een persoonlijke reflectievraag. Een voorbeeld: "Ik vond waterschaarste het lastigst, omdat ik me niet goed kon voorstellen hoe het is om te weinig water te hebben. In Nederland is water altijd beschikbaar."',
+  'q-10-2': 'Voorbeeld: "Ik heb geleerd dat slechts 2,5% van het water op aarde zoet is. De waterkringloop zorgt ervoor dat zeewater zoet wordt door verdamping. Overstromingen en waterschaarste nemen toe door klimaatverandering."',
+  'q-10-3': 'Voorbeeld: "Als ik naar Egypte reis, zou ik opmerken dat bijna alle steden langs de Nijl liggen. De Nijl is de enige grote waterbron in een woestijngebied. Ik zou kijken naar irrigatiekanalen en me afvragen of er waterschaarste is."',
+};
+
+// Drag and drop data
+const DRAG_DATA = {
+  'q-2-1': {
+    correctOrder: [
+      'Zeewater verdampt door de zon',
+      'Waterdamp stijgt op en koelt af',
+      'Wolken vormen zich (condensatie)',
+      'Neerslag valt op het land',
+      'Water stroomt via rivieren en grondwater',
+      'Water komt terug in de zee'
+    ]
+  },
+  'q-7-1': {
+    items: [
+      'Klimaatverandering',
+      'Ontbossing',
+      'Verstedelijking',
+      'Zeespiegelstijging'
+    ]
+  }
+};
+
+// Match data
+const MATCH_DATA = {
+  'q-3-1': {
+    sources: ['Gevoed door neerslag', 'Smeltwater van ijs', 'Meeste water in winter', 'Meeste water in zomer', 'Melkachtig-blauwe kleur', 'Twee waterbronnen'],
+    targets: ['Regenrivier', 'Gletsjerrivier', 'Gemengde rivier'],
+    correct: {
+      'Gevoed door neerslag': 'Regenrivier',
+      'Smeltwater van ijs': 'Gletsjerrivier',
+      'Meeste water in winter': 'Regenrivier',
+      'Meeste water in zomer': 'Gletsjerrivier',
+      'Melkachtig-blauwe kleur': 'Gletsjerrivier',
+      'Twee waterbronnen': 'Gemengde rivier'
+    }
+  },
+  'q-8-2': {
+    sources: ['Stuwdam bouwen', 'Ontzilting', 'Irrigatie', 'Putten boren'],
+    targets: ['Waterbuffer voor droge periodes', 'Zoet water uit zeewater', 'Gewassen water geven', 'Grondwater gebruiken'],
+    correct: {
+      'Stuwdam bouwen': 'Waterbuffer voor droge periodes',
+      'Ontzilting': 'Zoet water uit zeewater',
+      'Irrigatie': 'Gewassen water geven',
+      'Putten boren': 'Grondwater gebruiken'
+    }
+  }
+};
+
+// =============================================
+// LOCALSTORAGE HELPERS
+// =============================================
+function lsGet(key) {
+  try { return JSON.parse(localStorage.getItem('geo_les_' + key)); } catch(e) { return null; }
+}
+function lsSet(key, val) {
+  try { localStorage.setItem('geo_les_' + key, JSON.stringify(val)); } catch(e) {}
+}
+function lsRemove(key) {
+  try { localStorage.removeItem('geo_les_' + key); } catch(e) {}
+}
+
+// =============================================
+// INITIALIZATION
+// =============================================
+window.addEventListener('DOMContentLoaded', function() {
+  buildTabNav();
+  loadProgress();
+  goToSection(currentSection);
+  initDragAndDrop();
+  initMatchExercises();
+  initCharts();
+  initMaps();
+  updateProgress();
+  updateFinalScore();
+});
+
+function buildTabNav() {
+  const nav = document.getElementById('tabNav');
+  SECTIONS.forEach((s, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'tab-btn' + (i === 0 ? ' active' : '');
+    btn.id = 'tab-btn-' + i;
+    btn.innerHTML = s.title + '<span class="check" id="tab-check-' + i + '"></span>';
+    btn.onclick = function() { goToSection(i); };
+    nav.appendChild(btn);
+  });
+}
+
+function goToSection(idx) {
+  currentSection = idx;
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById('section-' + idx).classList.add('active');
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-btn-' + idx).classList.add('active');
+  document.getElementById('sectionCounter').textContent = 'Onderdeel ' + (idx+1) + ' van ' + TOTAL_SECTIONS;
+
+  // Scroll tab into view
+  const btn = document.getElementById('tab-btn-' + idx);
+  btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+
+  // Scroll to top
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  // Invalidate maps
+  setTimeout(function() {
+    allMaps.forEach(function(m) { m.invalidateSize(); });
+  }, 300);
+
+  lsSet('currentSection', idx);
+  updateFinalScore();
+}
+
+// =============================================
+// MULTIPLE CHOICE
+// =============================================
+function checkMC(btn, isCorrect, qId) {
+  if (!questionState[qId]) questionState[qId] = { completed: false, correct: false, attempts: 0 };
+  if (questionState[qId].completed) return;
+
+  const state = questionState[qId];
+  state.attempts++;
+  const feedbackEl = document.getElementById('feedback-' + qId);
+  const hints = MC_HINTS[qId] || ['Denk nog eens goed na...', 'Lees de tekst nog een keer door.'];
+
+  if (isCorrect) {
+    btn.classList.add('correct');
+    feedbackEl.className = 'feedback show success';
+    feedbackEl.innerHTML = '✅ Goed zo! Dat klopt helemaal!';
+    state.completed = true;
+    state.correct = true;
+    disableMCOptions(qId);
+  } else {
+    btn.classList.add('incorrect');
+    if (state.attempts >= 3) {
+      // Show correct answer
+      feedbackEl.className = 'feedback show answer';
+      const correctBtn = btn.parentElement.querySelector('.mc-option:not(.incorrect)') || findCorrectMC(btn.parentElement);
+      if (correctBtn) correctBtn.classList.add('correct');
+      feedbackEl.innerHTML = '💡 Het juiste antwoord is hierboven groen gemarkeerd.';
+      state.completed = true;
+      state.correct = false;
+      disableMCOptions(qId);
+    } else {
+      const hintIdx = Math.min(state.attempts - 1, hints.length - 1);
+      feedbackEl.className = 'feedback show hint';
+      feedbackEl.innerHTML = '🤔 ' + hints[hintIdx] + ' (poging ' + state.attempts + '/3)';
+    }
+  }
+  saveProgress();
+  updateProgress();
+}
+
+function findCorrectMC(container) {
+  // Find the button that is correct by checking onclick
+  const btns = container.querySelectorAll('.mc-option:not(.incorrect)');
+  return btns.length > 0 ? btns[0] : null;
+}
+
+function disableMCOptions(qId) {
+  const container = document.getElementById(qId);
+  container.querySelectorAll('.mc-option').forEach(b => b.classList.add('disabled'));
+}
+
+// =============================================
+// OPEN QUESTIONS
+// =============================================
+function countWords(qId) {
+  const textarea = document.getElementById('text-' + qId);
+  const text = textarea.value.trim();
+  const words = text ? text.split(/\s+/).length : 0;
+  const counter = document.getElementById('wc-' + qId);
+  counter.textContent = words + ' woorden';
+  counter.className = 'word-counter' + (words >= 20 ? ' sufficient' : '');
+
+  const showBtn = document.getElementById('show-example-' + qId);
+  if (showBtn) {
+    showBtn.style.display = words >= 20 ? 'inline-flex' : 'none';
+  }
+
+  // Save text
+  if (!questionState[qId]) questionState[qId] = { completed: false, correct: false, attempts: 0 };
+  questionState[qId].text = text;
+  saveProgress();
+}
+
+function showExample(qId) {
+  const feedbackEl = document.getElementById('feedback-' + qId);
+  const example = EXAMPLE_ANSWERS[qId] || 'Voorbeeldantwoord niet beschikbaar.';
+  feedbackEl.className = 'feedback show answer';
+  feedbackEl.innerHTML = '<strong>📝 Voorbeeldantwoord:</strong><br>' + example + '<br><br><em>Vergelijk jouw antwoord met dit voorbeeld. Beoordeel jezelf:</em>';
+  document.getElementById('self-' + qId).classList.add('show');
+}
+
+function selfAssess(qId, isGood) {
+  if (!questionState[qId]) questionState[qId] = { completed: false, correct: false, attempts: 0 };
+  questionState[qId].completed = true;
+  questionState[qId].correct = isGood;
+  document.getElementById('self-' + qId).innerHTML = isGood ?
+    '<span style="color:#6ee7b7;font-weight:700;">✅ Goed beoordeeld!</span>' :
+    '<span style="color:#fca5a5;font-weight:700;">❌ Gebruik het voorbeeldantwoord om te leren.</span>';
+  saveProgress();
+  updateProgress();
+}
+
+// =============================================
+// DRAG AND DROP
+// =============================================
+function initDragAndDrop() {
+  // Section 2 - waterkringloop order
+  const list21 = document.getElementById('drag-list-2-1');
+  if (list21) {
+    const items = shuffleArray([...DRAG_DATA['q-2-1'].correctOrder]);
+    items.forEach((text, i) => {
+      const el = createDragItem(text, i, 'drag-list-2-1');
+      list21.appendChild(el);
+    });
+    makeDragSortable(list21);
+  }
+
+  // Section 7 - impact order (opinion based)
+  const list71 = document.getElementById('drag-list-7-1');
+  if (list71) {
+    const items = shuffleArray([...DRAG_DATA['q-7-1'].items]);
+    items.forEach((text, i) => {
+      const el = createDragItem(text, i, 'drag-list-7-1');
+      list71.appendChild(el);
+    });
+    makeDragSortable(list71);
+  }
+}
+
+function createDragItem(text, index, listId) {
+  const div = document.createElement('div');
+  div.className = 'drag-item';
+  div.draggable = true;
+  div.dataset.text = text;
+  div.innerHTML = '<span class="drag-handle">☰</span> ' + text;
+  return div;
+}
+
+function makeDragSortable(list) {
+  let draggedEl = null;
+  let touchStartY = 0;
+  let touchClone = null;
+
+  list.addEventListener('dragstart', function(e) {
+    draggedEl = e.target.closest('.drag-item');
+    if (draggedEl) {
+      draggedEl.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+    }
+  });
+
+  list.addEventListener('dragend', function(e) {
+    if (draggedEl) draggedEl.classList.remove('dragging');
+    list.querySelectorAll('.drag-item').forEach(el => el.classList.remove('drag-over'));
+    draggedEl = null;
+  });
+
+  list.addEventListener('dragover', function(e) {
+    e.preventDefault();
+    const target = e.target.closest('.drag-item');
+    if (target && target !== draggedEl) {
+      list.querySelectorAll('.drag-item').forEach(el => el.classList.remove('drag-over'));
+      target.classList.add('drag-over');
+    }
+  });
+
+  list.addEventListener('drop', function(e) {
+    e.preventDefault();
+    const target = e.target.closest('.drag-item');
+    if (target && draggedEl && target !== draggedEl) {
+      const items = [...list.children];
+      const dragIdx = items.indexOf(draggedEl);
+      const dropIdx = items.indexOf(target);
+      if (dragIdx < dropIdx) {
+        target.after(draggedEl);
+      } else {
+        target.before(draggedEl);
+      }
+    }
+    list.querySelectorAll('.drag-item').forEach(el => el.classList.remove('drag-over'));
+  });
+
+  // Touch support
+  list.addEventListener('touchstart', function(e) {
+    const item = e.target.closest('.drag-item');
+    if (!item) return;
+    draggedEl = item;
+    touchStartY = e.touches[0].clientY;
+    draggedEl.classList.add('dragging');
+  }, { passive: true });
+
+  list.addEventListener('touchmove', function(e) {
+    if (!draggedEl) return;
+    e.preventDefault();
+    const touchY = e.touches[0].clientY;
+    const items = [...list.children];
+    for (const item of items) {
+      if (item === draggedEl) continue;
+      const rect = item.getBoundingClientRect();
+      if (touchY > rect.top && touchY < rect.bottom) {
+        const dragIdx = items.indexOf(draggedEl);
+        const dropIdx = items.indexOf(item);
+        if (dragIdx < dropIdx) {
+          item.after(draggedEl);
+        } else {
+          item.before(draggedEl);
+        }
+        break;
+      }
+    }
+  }, { passive: false });
+
+  list.addEventListener('touchend', function(e) {
+    if (draggedEl) draggedEl.classList.remove('dragging');
+    draggedEl = null;
+  });
+}
+
+function checkDragOrder(qId) {
+  const listId = 'drag-list-' + qId.split('-').slice(1).join('-');
+  const list = document.getElementById(listId);
+  const items = [...list.children];
+  const currentOrder = items.map(el => el.dataset.text);
+  const correctOrder = DRAG_DATA[qId.split('-').slice(1).join('-')].correctOrder;
+
+  if (!questionState[qId]) questionState[qId] = { completed: false, correct: false, attempts: 0 };
+  const state = questionState[qId];
+  state.attempts++;
+
+  let allCorrect = true;
+  items.forEach((el, i) => {
+    if (el.dataset.text === correctOrder[i]) {
+      el.classList.add('correct-pos');
+      el.classList.remove('incorrect-pos');
+    } else {
+      el.classList.add('incorrect-pos');
+      el.classList.remove('correct-pos');
+      allCorrect = false;
+    }
+  });
+
+  const feedbackEl = document.getElementById('feedback-' + qId);
+  if (allCorrect) {
+    feedbackEl.className = 'feedback show success';
+    feedbackEl.innerHTML = '✅ Perfect! De volgorde klopt helemaal!';
+    state.completed = true;
+    state.correct = true;
+  } else if (state.attempts >= 3) {
+    feedbackEl.className = 'feedback show answer';
+    feedbackEl.innerHTML = '💡 De juiste volgorde is: ' + correctOrder.map((s, i) => (i+1) + '. ' + s).join(' → ');
+    state.completed = true;
+    state.correct = false;
+  } else {
+    feedbackEl.className = 'feedback show hint';
+    feedbackEl.innerHTML = '🤔 Bijna! Kijk naar de stappen die rood gemarkeerd zijn. Denk na over de volgorde van het waterproces. (poging ' + state.attempts + '/3)';
+  }
+  saveProgress();
+  updateProgress();
+}
+
+// =============================================
+// MATCH EXERCISES
+// =============================================
+let matchState = {};
+
+function initMatchExercises() {
+  Object.keys(MATCH_DATA).forEach(function(qId) {
+    const data = MATCH_DATA[qId];
+    matchState[qId] = { selected: null, pairs: {} };
+
+    const sourcesEl = document.getElementById('sources-' + qId.split('-').slice(1).join('-'));
+    const targetsEl = document.getElementById('targets-' + qId.split('-').slice(1).join('-'));
+
+    data.sources.forEach(function(src) {
+      const btn = document.createElement('button');
+      btn.className = 'match-item';
+      btn.textContent = src;
+      btn.dataset.value = src;
+      btn.dataset.qid = qId;
+      btn.onclick = function() { selectMatchSource(qId, src, btn); };
+      sourcesEl.appendChild(btn);
+    });
+
+    data.targets.forEach(function(tgt) {
+      const btn = document.createElement('button');
+      btn.className = 'match-item match-target';
+      btn.textContent = tgt;
+      btn.dataset.value = tgt;
+      btn.dataset.qid = qId;
+      btn.onclick = function() { selectMatchTarget(qId, tgt); };
+      targetsEl.appendChild(btn);
+    });
+  });
+}
+
+function selectMatchSource(qId, src, btn) {
+  const mId = qId.split('-').slice(1).join('-');
+  const container = document.getElementById('sources-' + mId);
+  container.querySelectorAll('.match-item').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  matchState[qId].selected = src;
+}
+
+function selectMatchTarget(qId, tgt) {
+  const ms = matchState[qId];
+  if (!ms.selected) return;
+
+  const src = ms.selected;
+  ms.pairs[src] = tgt;
+  ms.selected = null;
+
+  // Update visual
+  const mId = qId.split('-').slice(1).join('-');
+  document.getElementById('sources-' + mId).querySelectorAll('.match-item').forEach(b => b.classList.remove('selected'));
+
+  // Mark source as matched
+  document.getElementById('sources-' + mId).querySelectorAll('.match-item').forEach(b => {
+    if (ms.pairs[b.dataset.value]) b.classList.add('matched');
+    else b.classList.remove('matched');
+  });
+
+  // Show pairs
+  const pairsEl = document.getElementById('pairs-' + mId);
+  pairsEl.innerHTML = '';
+  Object.entries(ms.pairs).forEach(function([s, t]) {
+    const span = document.createElement('span');
+    span.className = 'match-pair';
+    span.innerHTML = s + ' → ' + t + ' <span class="remove-pair" onclick="removeMatchPair(\'' + qId + '\',\'' + s.replace(/'/g, "\\'") + '\')">&times;</span>';
+    pairsEl.appendChild(span);
+  });
+}
+
+function removeMatchPair(qId, src) {
+  delete matchState[qId].pairs[src];
+  const mId = qId.split('-').slice(1).join('-');
+  // Refresh visual
+  document.getElementById('sources-' + mId).querySelectorAll('.match-item').forEach(b => {
+    if (!matchState[qId].pairs[b.dataset.value]) b.classList.remove('matched');
+  });
+  // Refresh pairs display
+  const pairsEl = document.getElementById('pairs-' + mId);
+  pairsEl.innerHTML = '';
+  Object.entries(matchState[qId].pairs).forEach(function([s, t]) {
+    const span = document.createElement('span');
+    span.className = 'match-pair';
+    span.innerHTML = s + ' → ' + t + ' <span class="remove-pair" onclick="removeMatchPair(\'' + qId + '\',\'' + s.replace(/'/g, "\\'") + '\')">&times;</span>';
+    pairsEl.appendChild(span);
+  });
+}
+
+function checkMatch(qId) {
+  const data = MATCH_DATA[qId];
+  const pairs = matchState[qId].pairs;
+  const realQId = qId;
+
+  if (!questionState[realQId]) questionState[realQId] = { completed: false, correct: false, attempts: 0 };
+  const state = questionState[realQId];
+  state.attempts++;
+
+  let correct = 0;
+  let total = Object.keys(data.correct).length;
+
+  Object.keys(data.correct).forEach(function(src) {
+    if (pairs[src] === data.correct[src]) correct++;
+  });
+
+  const feedbackEl = document.getElementById('feedback-' + realQId);
+  if (correct === total && Object.keys(pairs).length === total) {
+    feedbackEl.className = 'feedback show success';
+    feedbackEl.innerHTML = '✅ Alle koppelingen zijn juist! Goed gedaan!';
+    state.completed = true;
+    state.correct = true;
+  } else if (state.attempts >= 3) {
+    feedbackEl.className = 'feedback show answer';
+    let ans = Object.entries(data.correct).map(([s,t]) => s + ' → ' + t).join('<br>');
+    feedbackEl.innerHTML = '💡 De juiste koppelingen zijn:<br>' + ans;
+    state.completed = true;
+    state.correct = false;
+  } else {
+    feedbackEl.className = 'feedback show hint';
+    feedbackEl.innerHTML = '🤔 Je hebt ' + correct + ' van de ' + total + ' goed. Lees de uitleg nog eens en probeer opnieuw! (poging ' + state.attempts + '/3)';
+  }
+  saveProgress();
+  updateProgress();
+}
+
+// =============================================
+// CHARTS
+// =============================================
+function initCharts() {
+  // Waterbalans chart
+  const ctx1 = document.getElementById('chart-waterbalans');
+  if (ctx1) {
+    new Chart(ctx1, {
+      type: 'bar',
+      data: {
+        labels: ['Jan','Feb','Mrt','Apr','Mei','Jun','Jul','Aug','Sep','Okt','Nov','Dec'],
+        datasets: [
+          {
+            label: 'Neerslag (mm)',
+            data: [70, 55, 65, 45, 55, 65, 70, 75, 70, 75, 80, 75],
+            backgroundColor: 'rgba(6,182,212,0.6)',
+            borderColor: 'rgba(6,182,212,1)',
+            borderWidth: 1
+          },
+          {
+            label: 'Verdamping (mm)',
+            data: [10, 15, 30, 50, 75, 85, 90, 80, 55, 30, 15, 10],
+            backgroundColor: 'rgba(249,115,22,0.6)',
+            borderColor: 'rgba(249,115,22,1)',
+            borderWidth: 1
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { labels: { color: '#94a3b8', font: { family: 'Nunito' } } },
+          title: { display: true, text: 'Waterbalans Nederland (gemiddeld)', color: '#e0f2fe', font: { family: 'Nunito', size: 14 } }
+        },
+        scales: {
+          x: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(37,99,235,0.1)' } },
+          y: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(37,99,235,0.1)' }, title: { display: true, text: 'mm', color: '#94a3b8' } }
+        }
+      }
+    });
+  }
+
+  // Piekafvoer chart
+  const ctx2 = document.getElementById('chart-piekafvoer');
+  if (ctx2) {
+    new Chart(ctx2, {
+      type: 'line',
+      data: {
+        labels: ['Jan','Feb','Mrt','Apr','Mei','Jun','Jul','Aug','Sep','Okt','Nov','Dec'],
+        datasets: [{
+          label: 'Waterpeil Rijn bij Lobith (m)',
+          data: [14.2, 12.5, 11.8, 10.5, 9.8, 10.2, 9.5, 8.8, 8.5, 9.2, 10.5, 12.8],
+          borderColor: 'rgba(6,182,212,1)',
+          backgroundColor: 'rgba(6,182,212,0.15)',
+          fill: true,
+          tension: 0.3,
+          pointRadius: 5,
+          pointBackgroundColor: function(context) {
+            return context.dataIndex === 0 ? '#ef4444' : 'rgba(6,182,212,1)';
+          },
+          pointBorderColor: function(context) {
+            return context.dataIndex === 0 ? '#ef4444' : 'rgba(6,182,212,1)';
+          }
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { labels: { color: '#94a3b8', font: { family: 'Nunito' } } },
+          title: { display: true, text: 'Waterpeil Rijn bij Lobith (fictief jaarverloop)', color: '#e0f2fe', font: { family: 'Nunito', size: 14 } },
+          annotation: {}
+        },
+        scales: {
+          x: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(37,99,235,0.1)' } },
+          y: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(37,99,235,0.1)' }, title: { display: true, text: 'meter', color: '#94a3b8' } }
+        }
+      }
+    });
+  }
+
+  // Waterverbruik chart
+  const ctx3 = document.getElementById('chart-waterverbruik');
+  if (ctx3) {
+    new Chart(ctx3, {
+      type: 'bar',
+      data: {
+        labels: ['VS', 'Australië', 'Japan', 'Nederland', 'India', 'Kenia', 'Ethiopië'],
+        datasets: [{
+          label: 'Liter per persoon per dag',
+          data: [300, 230, 190, 130, 90, 45, 18],
+          backgroundColor: [
+            'rgba(239,68,68,0.7)',
+            'rgba(249,115,22,0.7)',
+            'rgba(251,191,36,0.7)',
+            'rgba(6,182,212,0.7)',
+            'rgba(37,99,235,0.7)',
+            'rgba(16,185,129,0.7)',
+            'rgba(139,92,246,0.7)'
+          ],
+          borderWidth: 0,
+          borderRadius: 6
+        }]
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true,
+        plugins: {
+          legend: { display: false },
+          title: { display: true, text: 'Dagelijks waterverbruik per persoon', color: '#e0f2fe', font: { family: 'Nunito', size: 14 } }
+        },
+        scales: {
+          x: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(37,99,235,0.1)' }, title: { display: true, text: 'liter/dag', color: '#94a3b8' } },
+          y: { ticks: { color: '#e0f2fe', font: { weight: '600' } }, grid: { display: false } }
+        }
+      }
+    });
+  }
+}
+
+// =============================================
+// MAPS
+// =============================================
+function initMaps() {
+  // Map 1: Overstromingsgebieden
+  const mapEl1 = document.getElementById('map-overstromingen');
+  if (mapEl1) {
+    const map1 = L.map('map-overstromingen').setView([20, 60], 2);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap'
+    }).addTo(map1);
+
+    const markers1 = [
+      { lat: 23.8, lng: 90.4, title: 'Bangladesh', desc: 'Elk jaar getroffen door moessonoverstromingen. Ligging in de delta van de Ganges en Brahmaputra maakt het extra kwetsbaar.' },
+      { lat: 51.5, lng: 5.8, title: 'Limburg, Nederland', desc: 'In 2021 zwaar getroffen door overstromingen van de Maas en Geul.' },
+      { lat: 25.0, lng: -80.0, title: 'Florida, VS', desc: 'Regelmatig getroffen door orkanen vanuit de warme Golf van Mexico.' },
+      { lat: 14.5, lng: 121.0, title: 'Filipijnen', desc: 'Jaarlijks getroffen door tyfonen (orkanen). Kustgebieden en delta\'s zijn extra kwetsbaar.' },
+      { lat: 4.2, lng: 73.5, title: 'Maldiven', desc: 'Gemiddeld 1,5m boven zeeniveau. Wordt bedreigd door zeespiegelstijging.' },
+    ];
+
+    markers1.forEach(function(m) {
+      L.marker([m.lat, m.lng]).addTo(map1).bindPopup('<strong>' + m.title + '</strong><br>' + m.desc);
+    });
+    allMaps.push(map1);
+  }
+
+  // Map 2: Waterschaarste
+  const mapEl2 = document.getElementById('map-waterschaarste');
+  if (mapEl2) {
+    const map2 = L.map('map-waterschaarste').setView([25, 45], 2);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap'
+    }).addTo(map2);
+
+    const markers2 = [
+      { lat: 26.8, lng: 30.8, title: 'Egypte', desc: 'Woestijnland dat vrijwel volledig afhankelijk is van de Nijl. Bijna alle inwoners wonen in de smalle strook langs de rivier.' },
+      { lat: 25.3, lng: 55.3, title: 'Dubai, VAE', desc: 'Woestijnklimaat. Gebruikt ontzilting van zeewater als belangrijkste bron van drinkwater.' },
+      { lat: 39.0, lng: 35.0, title: 'Turkije', desc: 'Bronland van de Eufraat en Tigris. Bouwt stuwdammen die waterconflicten veroorzaken met Syrië en Irak.' },
+      { lat: 33.2, lng: 44.4, title: 'Irak', desc: 'Afhankelijk van water uit Turkije via Eufraat en Tigris. Kampt met toenemende waterschaarste.' },
+      { lat: -25.3, lng: 134.0, title: 'Australië', desc: 'Grote delen zijn woestijn. Gebruikt grondwater en ontzilting. Heeft regelmatig te maken met droogte.' },
+      { lat: 9.0, lng: 38.7, title: 'Ethiopië', desc: 'Veel inwoners hebben geen toegang tot schoon drinkwater. Klimaatverandering verergert de droogte.' },
+    ];
+
+    markers2.forEach(function(m) {
+      L.marker([m.lat, m.lng]).addTo(map2).bindPopup('<strong>' + m.title + '</strong><br>' + m.desc);
+    });
+    allMaps.push(map2);
+  }
+}
+
+// =============================================
+// PROGRESS TRACKING
+// =============================================
+function updateProgress() {
+  let total = 0;
+  let completed = 0;
+  SECTIONS.forEach(function(s, i) {
+    let sectionComplete = true;
+    s.questions.forEach(function(qId) {
+      total++;
+      if (questionState[qId] && questionState[qId].completed) {
+        completed++;
+      } else {
+        sectionComplete = false;
+      }
+    });
+    const checkEl = document.getElementById('tab-check-' + i);
+    if (checkEl) checkEl.textContent = sectionComplete ? ' ✓' : '';
+  });
+
+  const pct = total > 0 ? Math.round((completed / total) * 100) : 0;
+  document.getElementById('progressPercent').textContent = pct + '%';
+  document.getElementById('progressFill').style.width = pct + '%';
+}
+
+function updateFinalScore() {
+  let total = 0;
+  let correct = 0;
+  SECTIONS.forEach(function(s) {
+    s.questions.forEach(function(qId) {
+      total++;
+      if (questionState[qId] && questionState[qId].completed && questionState[qId].correct) {
+        correct++;
+      }
+    });
+  });
+
+  const scoreEl = document.getElementById('finalScore');
+  const detailEl = document.getElementById('scoreDetail');
+  if (scoreEl) {
+    const pct = total > 0 ? Math.round((correct / total) * 100) : 0;
+    scoreEl.textContent = pct + '%';
+    detailEl.textContent = correct + ' van ' + total + ' opdrachten goed';
+  }
+
+  // Update leerdoelen
+  const leerdoelMap = {
+    'ld-1': [0], // section 0
+    'ld-2': [2], // section 2
+    'ld-3': [3], // section 3
+    'ld-4': [4], // section 4
+    'ld-5': [5], // section 5
+    'ld-6': [6], // section 6
+    'ld-7': [7], // section 7
+    'ld-8': [7, 8], // section 7 & 8
+    'ld-9': [7, 8], // section 7 & 8
+  };
+
+  Object.keys(leerdoelMap).forEach(function(ldId) {
+    const sectionIds = leerdoelMap[ldId];
+    let allDone = true;
+    sectionIds.forEach(function(sId) {
+      SECTIONS[sId].questions.forEach(function(qId) {
+        if (!questionState[qId] || !questionState[qId].completed) allDone = false;
+      });
+    });
+    const el = document.getElementById(ldId);
+    if (el) {
+      el.textContent = allDone ? '✓' : '?';
+      el.className = 'leerdoel-check' + (allDone ? ' done' : '');
+    }
+  });
+}
+
+function saveProgress() {
+  lsSet('questionState', questionState);
+  lsSet('timestamp', new Date().toISOString());
+}
+
+function loadProgress() {
+  const saved = lsGet('questionState');
+  if (saved) questionState = saved;
+  const savedSection = lsGet('currentSection');
+  if (savedSection !== null) currentSection = savedSection;
+
+  // Restore open question texts
+  Object.keys(questionState).forEach(function(qId) {
+    if (questionState[qId].text) {
+      const ta = document.getElementById('text-' + qId);
+      if (ta) {
+        ta.value = questionState[qId].text;
+        countWords(qId);
+      }
+    }
+  });
+}
+
+function resetSection(sectionIdx) {
+  if (!confirm('Weet je zeker dat je dit onderdeel wil resetten?')) return;
+  const section = SECTIONS[sectionIdx];
+  section.questions.forEach(function(qId) {
+    delete questionState[qId];
+    // Reset UI
+    const container = document.getElementById(qId);
+    if (container) {
+      container.querySelectorAll('.mc-option').forEach(b => {
+        b.classList.remove('correct','incorrect','disabled');
+      });
+      const fb = document.getElementById('feedback-' + qId);
+      if (fb) { fb.className = 'feedback'; fb.innerHTML = ''; }
+      const selfEl = document.getElementById('self-' + qId);
+      if (selfEl) { selfEl.className = 'self-assess'; selfEl.innerHTML = '<button class="btn btn-success btn-small" onclick="selfAssess(\'' + qId + '\', true)">Goed ✓</button><button class="btn btn-danger btn-small" onclick="selfAssess(\'' + qId + '\', false)">Fout ✗</button>'; }
+    }
+    // Reset textarea
+    const ta = document.getElementById('text-' + qId);
+    if (ta) { ta.value = ''; countWords(qId); }
+    // Reset show-example button
+    const showBtn = document.getElementById('show-example-' + qId);
+    if (showBtn) showBtn.style.display = 'none';
+  });
+
+  // Also handle match states
+  Object.keys(MATCH_DATA).forEach(function(mQId) {
+    const mId = mQId.split('-').slice(1).join('-');
+    const sectionQuestions = section.questions;
+    if (sectionQuestions.includes(mQId)) {
+      matchState[mQId] = { selected: null, pairs: {} };
+      const sourcesEl = document.getElementById('sources-' + mId);
+      if (sourcesEl) sourcesEl.querySelectorAll('.match-item').forEach(b => b.classList.remove('matched','selected'));
+      const pairsEl = document.getElementById('pairs-' + mId);
+      if (pairsEl) pairsEl.innerHTML = '';
+    }
+  });
+
+  // Reset drag items
+  if (sectionIdx === 1) {
+    const list = document.getElementById('drag-list-2-1');
+    if (list) {
+      list.innerHTML = '';
+      const items = shuffleArray([...DRAG_DATA['q-2-1'].correctOrder]);
+      items.forEach((text, i) => {
+        const el = createDragItem(text, i, 'drag-list-2-1');
+        list.appendChild(el);
+      });
+      makeDragSortable(list);
+    }
+  }
+  if (sectionIdx === 6) {
+    const list = document.getElementById('drag-list-7-1');
+    if (list) {
+      list.innerHTML = '';
+      const items = shuffleArray([...DRAG_DATA['q-7-1'].items]);
+      items.forEach((text, i) => {
+        const el = createDragItem(text, i, 'drag-list-7-1');
+        list.appendChild(el);
+      });
+      makeDragSortable(list);
+    }
+  }
+
+  saveProgress();
+  updateProgress();
+  updateFinalScore();
+}
+
+function clearAllProgress() {
+  if (!confirm('Weet je zeker dat je ALLE voortgang wilt wissen? Dit kan niet ongedaan worden gemaakt.')) return;
+  questionState = {};
+  matchState = {};
+  try {
+    Object.keys(localStorage).forEach(function(key) {
+      if (key.startsWith('geo_les_')) localStorage.removeItem(key);
+    });
+  } catch(e) {}
+  location.reload();
+}
+
+// =============================================
+// UTILITIES
+// =============================================
+function shuffleArray(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+</script>
+</body>
+</html>
