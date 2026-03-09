@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Energie in Brazilië – Hoofdstuk 4 | Toets Voorbereiding</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d1117; --surface: #161b22; --surface2: #1f2937; --border: #30363d;
+    --accent: #22c55e; --accent2: #f59e0b; --accent3: #3b82f6; --accent4: #e05c5c;
+    --text: #e6edf3; --text-muted: #8b949e; --radius: 12px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 15px; line-height: 1.6; min-height: 100vh; }
+  header { background: linear-gradient(135deg, #0f2218 0%, #0d1117 100%); border-bottom: 1px solid var(--border); padding: 20px 24px 0; position: sticky; top: 0; z-index: 100; }
+  .header-top { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; }
+  .logo { width: 40px; height: 40px; background: var(--accent); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+  h1 { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 800; }
+  h1 span { color: var(--accent); }
+  .subtitle { font-size: 12px; color: var(--text-muted); }
+  .progress-label { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-muted); margin-bottom: 5px; }
+  .progress-bar { height: 3px; background: var(--border); border-radius: 2px; overflow: hidden; margin-bottom: 10px; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2)); transition: width 0.4s ease; }
+  nav { display: flex; gap: 2px; overflow-x: auto; scrollbar-width: none; }
+  nav::-webkit-scrollbar { display: none; }
+  .tab-btn { background: none; border: none; color: var(--text-muted); font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; padding: 10px 13px; cursor: pointer; border-bottom: 2px solid transparent; white-space: nowrap; transition: all 0.2s; }
+  .tab-btn:hover { color: var(--text); }
+  .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+  main { max-width: 900px; margin: 0 auto; padding: 28px 20px 60px; }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; animation: fadeIn 0.3s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+  .section-title { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 700; margin-bottom: 6px; }
+  .section-desc { color: var(--text-muted); font-size: 13px; margin-bottom: 24px; }
+  .group-label { font-family: 'Syne', sans-serif; font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); margin-bottom: 12px; margin-top: 8px; display: flex; align-items: center; gap: 8px; }
+  .group-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+  .checklist-group { margin-bottom: 24px; }
+  .check-item { display: flex; align-items: flex-start; gap: 12px; padding: 12px 14px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 8px; cursor: pointer; transition: all 0.2s; user-select: none; }
+  .check-item:hover { border-color: var(--accent); }
+  .check-item.checked { background: rgba(34,197,94,0.08); border-color: rgba(34,197,94,0.3); }
+  .check-item.checked .check-text { color: var(--text-muted); text-decoration: line-through; }
+  .check-box { width: 20px; height: 20px; border: 2px solid var(--border); border-radius: 5px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; margin-top: 1px; transition: all 0.2s; }
+  .check-item.checked .check-box { background: var(--accent); border-color: var(--accent); }
+  .check-box::after { content: ''; display: none; width: 5px; height: 9px; border: 2px solid white; border-top: none; border-left: none; transform: rotate(45deg) translateY(-1px); }
+  .check-item.checked .check-box::after { display: block; }
+  .check-text { font-size: 14px; line-height: 1.5; }
+  .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px; margin-bottom: 20px; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; position: relative; overflow: hidden; }
+  .card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+  .card.green::before { background: var(--accent); }
+  .card.orange::before { background: var(--accent2); }
+  .card.blue::before { background: var(--accent3); }
+  .card.red::before { background: var(--accent4); }
+  .card-icon { font-size: 26px; margin-bottom: 10px; }
+  .card-title { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; margin-bottom: 8px; }
+  .card-body { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
+  .card-body strong { color: var(--text); font-weight: 500; }
+  .compare-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+  .compare-table th { background: var(--surface2); font-family: 'Syne', sans-serif; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; padding: 12px 14px; text-align: left; border-bottom: 1px solid var(--border); }
+  .compare-table td { padding: 11px 14px; font-size: 13px; border-bottom: 1px solid rgba(48,54,61,0.6); vertical-align: top; }
+  .compare-table tr:last-child td { border-bottom: none; }
+  .compare-table tr:hover td { background: rgba(255,255,255,0.02); }
+  .begrip-list { display: flex; flex-direction: column; gap: 6px; }
+  .begrip-section-header { font-family: 'Syne', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent3); padding: 14px 0 4px; display: flex; align-items: center; gap: 8px; }
+  .begrip-section-header::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+  .begrip-item { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+  .begrip-trigger { width: 100%; background: none; border: none; color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500; padding: 13px 16px; text-align: left; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+  .begrip-trigger:hover { background: rgba(255,255,255,0.03); }
+  .begrip-arrow { font-size: 12px; color: var(--text-muted); transition: transform 0.2s; }
+  .begrip-item.open .begrip-arrow { transform: rotate(180deg); color: var(--accent); }
+  .begrip-item.open .begrip-trigger { color: var(--accent); }
+  .begrip-def { display: none; padding: 10px 16px 14px; font-size: 13px; color: var(--text-muted); border-top: 1px solid var(--border); line-height: 1.6; }
+  .begrip-item.open .begrip-def { display: block; }
+  .flashcard-wrap { perspective: 1000px; margin-bottom: 16px; }
+  .flashcard { width: 100%; min-height: 220px; position: relative; transform-style: preserve-3d; transition: transform 0.5s ease; cursor: pointer; }
+  .flashcard.flipped { transform: rotateY(180deg); }
+  .fc-front, .fc-back { position: absolute; top: 0; left: 0; right: 0; min-height: 220px; backface-visibility: hidden; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 32px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+  .fc-back { transform: rotateY(180deg); background: var(--surface2); }
+  .fc-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 14px; }
+  .fc-term { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 700; line-height: 1.3; }
+  .fc-def { font-size: 14px; line-height: 1.6; color: var(--text); }
+  .fc-hint { font-size: 12px; color: var(--text-muted); margin-top: 14px; }
+  .fc-self-check { display: flex; gap: 10px; justify-content: center; margin-top: 12px; }
+  .flashcard-nav { display: flex; align-items: center; justify-content: center; gap: 16px; margin-top: 12px; }
+  .fc-counter { font-family: 'Syne', sans-serif; font-size: 14px; color: var(--text-muted); min-width: 70px; text-align: center; }
+  .fc-progress-text { font-size: 13px; color: var(--text-muted); margin-bottom: 10px; }
+  .quiz-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 28px; }
+  .quiz-progress-text { font-size: 12px; color: var(--text-muted); margin-bottom: 14px; }
+  .quiz-question { font-family: 'Syne', sans-serif; font-size: 17px; font-weight: 600; line-height: 1.4; margin-bottom: 20px; }
+  .quiz-options { display: flex; flex-direction: column; gap: 10px; }
+  .quiz-option { background: var(--surface2); border: 2px solid var(--border); border-radius: 10px; padding: 12px 16px; cursor: pointer; font-size: 14px; transition: all 0.2s; text-align: left; color: var(--text); font-family: 'DM Sans', sans-serif; }
+  .quiz-option:hover:not(:disabled) { border-color: var(--accent3); background: rgba(59,130,246,0.08); }
+  .quiz-option.correct { border-color: var(--accent) !important; background: rgba(34,197,94,0.12) !important; color: var(--accent); }
+  .quiz-option.wrong { border-color: var(--accent4) !important; background: rgba(224,92,92,0.12) !important; color: var(--accent4); }
+  .quiz-option:disabled { cursor: default; }
+  .quiz-feedback { margin-top: 14px; padding: 12px 16px; border-radius: 10px; font-size: 13px; line-height: 1.6; display: none; }
+  .quiz-feedback.show { display: block; }
+  .quiz-feedback.correct-fb { background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.2); color: var(--accent); }
+  .quiz-feedback.wrong-fb { background: rgba(224,92,92,0.1); border: 1px solid rgba(224,92,92,0.2); color: #f99; }
+  .quiz-nav { display: flex; align-items: center; justify-content: space-between; margin-top: 18px; flex-wrap: wrap; gap: 10px; }
+  .score-display { font-family: 'Syne', sans-serif; font-size: 13px; color: var(--text-muted); }
+  .score-display span { color: var(--accent); font-weight: 700; }
+  .quiz-result { text-align: center; padding: 40px 20px; }
+  .result-score { font-family: 'Syne', sans-serif; font-size: 64px; font-weight: 800; background: linear-gradient(135deg, var(--accent), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; line-height: 1; margin-bottom: 12px; }
+  .result-msg { color: var(--text-muted); margin-bottom: 24px; font-size: 15px; }
+  .btn { background: var(--accent); color: #0d1117; border: none; border-radius: 8px; padding: 10px 20px; font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+  .btn:hover { filter: brightness(1.1); transform: translateY(-1px); }
+  .btn:disabled { opacity: 0.4; cursor: default; transform: none; filter: none; }
+  .btn.secondary { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+  .btn.secondary:hover { border-color: var(--accent); color: var(--accent); }
+  .btn.green { background: var(--accent); }
+  .btn.red { background: transparent; color: var(--accent4); border: 1px solid var(--accent4); }
+  .btn.red:hover { background: rgba(224,92,92,0.1); }
+  .streak-badge { display: inline-flex; align-items: center; gap: 6px; background: rgba(34,197,94,0.12); border: 1px solid rgba(34,197,94,0.3); border-radius: 20px; padding: 3px 10px; font-size: 12px; color: var(--accent); font-weight: 600; margin-left: 10px; vertical-align: middle; }
+  .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 28px; }
+  .stat-box { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; text-align: center; }
+  .stat-num { font-family: 'Syne', sans-serif; font-size: 36px; font-weight: 800; color: var(--accent); }
+  .stat-label { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+  .tips-list { list-style: none; }
+  .tips-list li { padding: 13px 16px 13px 44px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 8px; font-size: 14px; position: relative; }
+  .tips-list li::before { content: attr(data-icon); position: absolute; left: 14px; }
+  #confetti-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9999; display: none; }
+  .dim-block { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin-bottom: 16px; }
+  .dim-block h3 { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; margin-bottom: 10px; }
+  .dim-block p { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
+  .dim-block strong { color: var(--text); font-weight: 500; }
+  @media (max-width: 600px) { .stats-grid { grid-template-columns: 1fr 1fr; } .card-grid { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<canvas id="confetti-canvas"></canvas>
+<header>
+  <div class="header-top">
+    <div class="logo">&#127463;&#127479;</div>
+    <div>
+      <h1>Energie in Brazilië – <span>H4</span></h1>
+      <div class="subtitle">Aardrijkskunde &middot; 3e klas &middot; Toets voorbereiding</div>
+    </div>
+  </div>
+  <div class="progress-label"><span>Leerdoelen beheersing</span><span id="progress-text">0 / 15 &#10003;</span></div>
+  <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+  <nav>
+    <button class="tab-btn active" onclick="showTab('checklist',this)">&#9745; Checklist</button>
+    <button class="tab-btn" onclick="showTab('samenvatting',this)">&#128203; Samenvatting</button>
+    <button class="tab-btn" onclick="showTab('dimensies',this)">&#128269; 4 Dimensies</button>
+    <button class="tab-btn" onclick="showTab('begrippen',this)">&#128214; Begrippen</button>
+    <button class="tab-btn" onclick="showTab('flashcards',this)">&#127183; Flashcards</button>
+    <button class="tab-btn" onclick="showTab('quiz',this)">&#127919; Quiz</button>
+    <button class="tab-btn" onclick="showTab('overzicht',this)">&#128202; Overzicht</button>
+  </nav>
+</header>
+<main>
+
+<!-- CHECKLIST -->
+<div class="tab-panel active" id="tab-checklist">
+  <div class="section-title">Leerdoelen checklist</div>
+  <div class="section-desc">Vink af wat je al beheerst. Je voortgang wordt automatisch opgeslagen.</div>
+  <div class="checklist-group">
+    <div class="group-label">Energiebronnen &amp; vraag</div>
+    <div class="check-item" onclick="toggleCheck(this)" data-id="0"><div class="check-box"></div><div class="check-text">Je weet welke energiebronnen in Brazilië gebruikt worden.</div></div>
+    <div class="check-item" onclick="toggleCheck(this)" data-id="1"><div class="check-box"></div><div class="check-text">Je begrijpt waarom de vraag naar energie in Brazilië toeneemt.</div></div>
+    <div class="check-item" onclick="toggleCheck(this)" data-id="2"><div class="check-box"></div><div class="check-text">Je kunt uitleggen waarom de Braziliaanse energievoorziening relatief duurzaam is.</div></div>
+    <div class="check-item" onclick="toggleCheck(this)" data-id="3"><div class="check-box"></div><div class="check-text">Je kunt uitleggen wat de voor- en nadelen van de duurzame energiebronnen zijn.</div></div>
+  </div>
+  <div class="checklist-group">
+    <div class="group-label">Energie in het landschap</div>
+    <div class="check-item" onclick="toggleCheck(this)" data-id="4"><div class="check-box"></div><div class="check-text">Je kunt uitleggen wat de effecten van de suikerrietteelt op het landschap zijn.</div></div>
+    <div class="check-item" onclick="toggleCheck(this)" data-id="5"><div class="check-box"></div><div class="check-text">Je kunt uitleggen welke infrastructuur er nodig is voor de energiebronnen waterkracht en aardolie.</div></div>
+    <div class="check-item" onclick="toggleCheck(this)" data-id="6"><div class="check-box"></div><div class="check-text">Je begrijpt waarom in het zuidoosten van Brazilië relatief veel energie gebruikt wordt.</div></div>
+    <div class="check-item" onclick="toggleCheck(this)" data-id="7"><div class="check-box"></div><div class="check-text">Je weet hoe Brazilië de energievoorziening verder wil verduurzamen.</div></div>
+  </div>
+  <div class="checklist-group">
+    <div class="group-label">Het Amazonegebied</div>
+    <div class="check-item" onclick="toggleCheck(this)" data-id="8"><div class="check-box"></div><div class="check-text">Je begrijpt dat er in het Amazonegebied verschillende bevolkingsgroepen zijn met elk verschillende belangen.</div></div>
+    <div class="check-item" onclick="toggleCheck(this)" data-id="9"><div class="check-box"></div><div class="check-text">Je kunt uitleggen wat de gevolgen zijn van de groeiende landbouw en veeteelt voor het Amazonegebied.</div></div>
+    <div class="check-item" onclick="toggleCheck(this)" data-id="10"><div class="check-box"></div><div class="check-text">Je begrijpt welke voor- en nadelen er zitten aan de waterkrachtcentrales in het Amazonegebied.</div></div>
+    <div class="check-item" onclick="toggleCheck(this)" data-id="11"><div class="check-box"></div><div class="check-text">Je begrijpt waarom het regenwoud in het Amazonegebied zo belangrijk is.</div></div>
+  </div>
+  <div class="checklist-group">
+    <div class="group-label">Duurzaamheid &amp; verantwoordelijkheid</div>
+    <div class="check-item" onclick="toggleCheck(this)" data-id="12"><div class="check-box"></div><div class="check-text">Je begrijpt dat je maatregelen en gebeurtenissen vanuit verschillende dimensies kunt bekijken en beoordelen.</div></div>
+    <div class="check-item" onclick="toggleCheck(this)" data-id="13"><div class="check-box"></div><div class="check-text">Je weet wat men hoopt te bereiken met het Earth Charter.</div></div>
+    <div class="check-item" onclick="toggleCheck(this)" data-id="14"><div class="check-box"></div><div class="check-text">Je kunt beargumenteren wie er verantwoordelijk zijn voor de aantasting en het behoud van het Amazonegebied.</div></div>
+  </div>
+</div>
+
+<!-- SAMENVATTING -->
+<div class="tab-panel" id="tab-samenvatting">
+  <div class="section-title">Samenvatting</div>
+  <div class="section-desc">Kernpunten per onderwerp – ideaal om snel door te nemen.</div>
+
+  <div class="group-label">Economische groei &amp; energievraag</div>
+  <div class="card-grid">
+    <div class="card orange"><div class="card-icon">&#128200;</div><div class="card-title">Opkomende economie</div><div class="card-body">Brazilië groeide hard tussen <strong>2000–2010</strong> door export van ijzererts. Miljoenen mensen kregen meer koopkracht → meer auto's, koelkasten, airco → <strong>explosie in energievraag</strong>.</div></div>
+    <div class="card orange"><div class="card-icon">&#128101;</div><div class="card-title">200+ miljoen inwoners</div><div class="card-body">Ondanks snelle groei verbruikt een Braziliaan gemiddeld <strong>3× minder</strong> energie dan een Nederlander. De vraag stijgt echter snel.</div></div>
+  </div>
+
+  <div class="group-label">Energiemix van Brazilië</div>
+  <div class="card-grid">
+    <div class="card green"><div class="card-icon">&#128167;</div><div class="card-title">Waterkracht (~70%)</div><div class="card-body">Ruggengraat van de stroomvoorziening. <strong>Geen CO₂-uitstoot</strong>, maar bouw van dammen is omstreden: gebieden worden onder water gezet (inundatie).</div></div>
+    <div class="card green"><div class="card-icon">&#127807;</div><div class="card-title">Bio-ethanol</div><div class="card-body">Gemaakt uit suikerriet. <strong>&gt;80% van het wagenpark</strong> rijdt op biobrandstoffen dankzij flexfuel-auto's. Brazilië is wereldpionier.</div></div>
+    <div class="card blue"><div class="card-icon">&#128738;</div><div class="card-title">Aardolie</div><div class="card-body">Sinds 2007 groot olieveld ontdekt voor de kust van Rio de Janeiro. Brazilië <strong>exporteert</strong> nu olie. Aardgas wordt nog geïmporteerd.</div></div>
+    <div class="card blue"><div class="card-icon">&#9762;</div><div class="card-title">Kernenergie (~3%)</div><div class="card-body">Klein aandeel. Brazilië heeft <strong>eigen uranium</strong> in de bodem voor toekomstige centrales.</div></div>
+    <div class="card green"><div class="card-icon">&#9728;&#127788;</div><div class="card-title">Doel 2030</div><div class="card-body"><strong>45% hernieuwbare energie</strong>. Vooral zon en wind moeten groeien om in 2030 een derde van de stroom te leveren.</div></div>
+  </div>
+
+  <div class="group-label">Zuidoost-Brazilië</div>
+  <div class="card-grid">
+    <div class="card orange"><div class="card-icon">&#127961;</div><div class="card-title">Economisch hart</div><div class="card-body">São Paulo &amp; Rio de Janeiro: <strong>⅓ van de bevolking, ½ van de industrie</strong>. Inkomens zijn 2–3× hoger dan elders → <strong>regionale ongelijkheid</strong>.</div></div>
+    <div class="card orange"><div class="card-icon">&#127806;</div><div class="card-title">Suikerriet &amp; verdringing</div><div class="card-body">Eindeloze suikerrietvelden verdringen natuur en kleine boeren. Veel <strong>pesticiden en kunstmest</strong> nodig.</div></div>
+    <div class="card orange"><div class="card-icon">&#9889;</div><div class="card-title">Infrastructuur</div><div class="card-body"><strong>&gt;100.000 km</strong> aan hoogspanningskabels om energie van verre centrales naar steden te brengen.</div></div>
+  </div>
+
+  <div class="group-label">Het Amazonegebied</div>
+  <div class="card-grid">
+    <div class="card red"><div class="card-icon">&#127795;</div><div class="card-title">Strijd om de ruimte</div><div class="card-body"><strong>Concurrentie om de ruimte</strong>: mijnbouw, houtkap, stuwdammen, veeteelt en sojateelt. In Mato Grosso is al <strong>80% van de natuur</strong> verdwenen.</div></div>
+    <div class="card red"><div class="card-icon">&#128004;</div><div class="card-title">Kolonisatie &amp; ontbossing</div><div class="card-body">Boeren trekken vanuit het zuiden het woud in. Grootschalige landbouw (soja voor veevoer, cosmetica, brandstof) neemt enorm veel ruimte in.</div></div>
+    <div class="card green"><div class="card-icon">&#127757;</div><div class="card-title">Belang regenwoud</div><div class="card-body">Enorme <strong>biodiversiteit</strong> (soms 200 boomsoorten/km²). Werkt als <strong>"wolkenmachine"</strong> en slaat koolstof op. De Amazone verliest elke 15 seconden een voetbalveld aan bos.</div></div>
+  </div>
+
+  <div class="group-label">Verantwoordelijkheid</div>
+  <div class="card-grid">
+    <div class="card blue"><div class="card-icon">&#127758;</div><div class="card-title">Internationale handel</div><div class="card-body">Nederland en andere landen kopen soja, bio-ethanol en hardhout. <strong>Wij dragen dus medeverantwoordelijkheid</strong> voor wat er in de Amazone gebeurt.</div></div>
+    <div class="card blue"><div class="card-icon">&#128220;</div><div class="card-title">Earth Charter</div><div class="card-body">Het Handvest van de Aarde roept op tot <strong>respect voor de aarde en mensenrechten</strong>. Handleiding voor een duurzamere wereld.</div></div>
+  </div>
+</div>
+
+<!-- 4 DIMENSIES -->
+<div class="tab-panel" id="tab-dimensies">
+  <div class="section-title">De vier dimensies</div>
+  <div class="section-desc">Energieprojecten bekijk je vanuit vier perspectieven. Hieronder per dimensie de kernpunten.</div>
+  <div class="dim-block"><h3>&#127793; 1. Natuurlijke dimensie</h3><p>Waterkracht stoot geen CO₂ uit, maar dammen zetten <strong>enorme stukken bos onder water</strong> en veranderen rivieren. Biobrandstoffen vereisen veel <strong>pesticiden en kunstmest</strong>, wat de bodem en het water vervuilt.</p></div>
+  <div class="dim-block"><h3>&#128176; 2. Economische dimensie</h3><p>Energieprojecten zorgen voor <strong>banen en economische groei</strong>. Maar kleine boeren raken vaak hun land en inkomen kwijt aan <strong>grote bedrijven</strong> (verdringing).</p></div>
+  <div class="dim-block"><h3>&#128106; 3. Sociaal-culturele dimensie</h3><p>Stuwdammen en centrales worden vaak gebouwd in het <strong>leefgebied van inheemse bevolking</strong>, die gedwongen moet verhuizen. Hun cultuur en levenswijze staan onder druk.</p></div>
+  <div class="dim-block"><h3>&#127963; 4. Politieke dimensie</h3><p>Wie beslist er over het land? Vaak winnen <strong>grote internationale bedrijven</strong> het van de lokale bevolking. De overheid maakt keuzes die niet altijd in het belang zijn van alle groepen.</p></div>
+
+  <div class="group-label">Overzicht: waterkracht in de Amazone</div>
+  <table class="compare-table">
+    <thead><tr><th>Dimensie</th><th>Voordeel</th><th>Nadeel</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Natuurlijk</strong></td><td>Geen CO₂-uitstoot</td><td>Inundatie van bos, verandering van rivieren</td></tr>
+      <tr><td><strong>Economisch</strong></td><td>Banen, goedkope stroom, groei</td><td>Kleine boeren verliezen land</td></tr>
+      <tr><td><strong>Sociaal-cultureel</strong></td><td>Stroom voor ontwikkeling regio</td><td>Inheemse bevolking moet verhuizen</td></tr>
+      <tr><td><strong>Politiek</strong></td><td>Onafhankelijkheid van fossiel</td><td>Grote bedrijven krijgen voorrang</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- BEGRIPPEN -->
+<div class="tab-panel" id="tab-begrippen">
+  <div class="section-title">Begrippen &amp; definities</div>
+  <div class="section-desc">Gebaseerd op de officiële begrippenlijst. Klik om de definitie te zien.</div>
+  <div class="begrip-list" id="begrip-list"></div>
+</div>
+
+<!-- FLASHCARDS -->
+<div class="tab-panel" id="tab-flashcards">
+  <div class="section-title">Flashcards <span class="streak-badge" id="fc-badge" style="display:none">&#128293; Beste: <span id="fc-best">0</span></span></div>
+  <div class="section-desc">Zeg de definitie hardop, flip dan de kaart. Alle kaarten in één ronde goed → confetti! &#127881;</div>
+  <div class="fc-progress-text" id="fc-progress-text"></div>
+  <div class="flashcard-wrap">
+    <div class="flashcard" id="flashcard" onclick="flipCard()">
+      <div class="fc-front">
+        <div class="fc-label">Begrip</div>
+        <div class="fc-term" id="fc-term">...</div>
+        <div class="fc-hint">Klik om de definitie te zien</div>
+      </div>
+      <div class="fc-back">
+        <div class="fc-label">Definitie</div>
+        <div class="fc-def" id="fc-def"></div>
+      </div>
+    </div>
+  </div>
+  <div class="fc-self-check" id="fc-self-check" style="display:none">
+    <button class="btn red" onclick="fcAnswer(false)">&#10007; Wist ik niet</button>
+    <button class="btn green" onclick="fcAnswer(true)">&#10003; Wist ik het</button>
+  </div>
+  <div class="flashcard-nav">
+    <button class="btn secondary" onclick="fcRestart()">&#8635; Opnieuw</button>
+    <div class="fc-counter" id="fc-counter">1 / 11</div>
+  </div>
+</div>
+
+<!-- QUIZ -->
+<div class="tab-panel" id="tab-quiz">
+  <div class="section-title">Kennisquiz <span class="streak-badge" id="quiz-badge" style="display:none">&#127942; Beste: <span id="quiz-best-disp">0</span>/10</span></div>
+  <div class="section-desc">10 willekeurige vragen. Alle 10 goed → confetti! &#127881;</div>
+  <div class="quiz-card" id="quiz-card">
+    <div class="quiz-progress-text" id="quiz-progress">Vraag 1 van 10</div>
+    <div class="quiz-question" id="quiz-question"></div>
+    <div class="quiz-options" id="quiz-options"></div>
+    <div class="quiz-feedback" id="quiz-feedback"></div>
+    <div class="quiz-nav">
+      <div class="score-display">Score: <span id="quiz-score">0</span> / 10</div>
+      <button class="btn" id="quiz-next-btn" onclick="nextQuestion()" disabled>Volgende vraag &#8594;</button>
+    </div>
+  </div>
+  <div id="quiz-result" style="display:none">
+    <div class="quiz-result">
+      <div class="result-score" id="result-score">0/10</div>
+      <div class="result-msg" id="result-msg"></div>
+      <button class="btn" onclick="restartQuiz()">Opnieuw proberen &#8635;</button>
+    </div>
+  </div>
+</div>
+
+<!-- OVERZICHT -->
+<div class="tab-panel" id="tab-overzicht">
+  <div class="section-title">Jouw voortgang</div>
+  <div class="section-desc">Alles wordt lokaal opgeslagen in je browser.</div>
+  <div class="stats-grid">
+    <div class="stat-box"><div class="stat-num" id="stat-checked">0</div><div class="stat-label">Leerdoelen afgevinkt</div></div>
+    <div class="stat-box"><div class="stat-num">15</div><div class="stat-label">Totaal leerdoelen</div></div>
+    <div class="stat-box"><div class="stat-num" id="stat-quiz-best">&#8211;</div><div class="stat-label">Beste quizscore</div></div>
+    <div class="stat-box"><div class="stat-num" id="stat-fc-best">&#8211;</div><div class="stat-label">Flashcard beste ronde</div></div>
+    <div class="stat-box"><div class="stat-num">11</div><div class="stat-label">Totaal flashcards</div></div>
+  </div>
+  <div class="group-label">Studietips</div>
+  <ul class="tips-list">
+    <li data-icon="&#127919;">Gebruik de <strong>checklist</strong> elke keer als je een onderwerp afhebt.</li>
+    <li data-icon="&#127183;">Oefen de <strong>flashcards</strong> tot je ze allemaal in één ronde goed hebt – dan krijg je confetti!</li>
+    <li data-icon="&#128290;">Let op de <strong>getallen</strong>: 70% waterkracht, 80% biobrandstof, 45% doel 2030, 100.000 km kabels, 80% natuur weg in Mato Grosso.</li>
+    <li data-icon="&#128269;">Ken de <strong>vier dimensies</strong> en kun je ze toepassen op waterkracht en suikerriet.</li>
+    <li data-icon="&#127795;">Begrijp waarom het <strong>Amazonegebied</strong> zo belangrijk is (biodiversiteit, koolstofopslag, wolkenmachine).</li>
+    <li data-icon="&#127758;">Weet wie er <strong>verantwoordelijk</strong> zijn: Brazilië zelf, maar ook landen die soja en hardhout kopen.</li>
+    <li data-icon="&#128214;">Ken alle begrippen uit de <strong>begrippenlijst</strong> – die komen op de toets!</li>
+  </ul>
+</div>
+
+</main>
+<script>
+// CONFETTI
+function launchConfetti() {
+  var canvas = document.getElementById('confetti-canvas');
+  canvas.style.display = 'block';
+  var ctx = canvas.getContext('2d');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  var pieces = [];
+  var colors = ['#22c55e','#f59e0b','#3b82f6','#e05c5c','#ffffff','#a78bfa'];
+  for (var i = 0; i < 200; i++) {
+    pieces.push({ x: Math.random()*canvas.width, y: Math.random()*-canvas.height, w: 8+Math.random()*8, h: 5+Math.random()*6, color: colors[Math.floor(Math.random()*colors.length)], rot: Math.random()*360, speed: 2+Math.random()*4, drift: (Math.random()-0.5)*2, spin: (Math.random()-0.5)*5 });
+  }
+  var frame = 0;
+  function draw() {
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    pieces.forEach(function(p) { ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.rot*Math.PI/180); ctx.fillStyle=p.color; ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h); ctx.restore(); p.y+=p.speed; p.x+=p.drift; p.rot+=p.spin; });
+    frame++;
+    if (frame<240) requestAnimationFrame(draw);
+    else { ctx.clearRect(0,0,canvas.width,canvas.height); canvas.style.display='none'; }
+  }
+  draw();
+}
+
+// CHECKLIST
+var TOTAL = 15;
+var checked = new Array(TOTAL).fill(false);
+function saveChecked() { localStorage.setItem('brazilie_h4_checked', JSON.stringify(checked)); }
+function loadChecked() {
+  var saved = localStorage.getItem('brazilie_h4_checked');
+  if (!saved) return;
+  JSON.parse(saved).forEach(function(val, i) {
+    if (val && i < TOTAL) { checked[i]=true; var el=document.querySelector('.check-item[data-id="'+i+'"]'); if(el) el.classList.add('checked'); }
+  });
+}
+function updateProgress() {
+  var n = checked.filter(Boolean).length;
+  document.getElementById('progress-text').textContent = n+' / '+TOTAL+' \u2713';
+  document.getElementById('progress-fill').style.width = (n/TOTAL*100)+'%';
+  document.getElementById('stat-checked').textContent = n;
+}
+function toggleCheck(el) {
+  var id = parseInt(el.dataset.id);
+  checked[id] = !checked[id];
+  el.classList.toggle('checked', checked[id]);
+  updateProgress(); saveChecked();
+}
+
+// TABS
+function showTab(name, btn) {
+  document.querySelectorAll('.tab-panel').forEach(function(p){p.classList.remove('active');});
+  document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active');});
+  document.getElementById('tab-'+name).classList.add('active');
+  if(btn) btn.classList.add('active');
+}
+
+// BEGRIPPEN
+var begrippenData = [
+  {section:'4.1 – Bronnen van energie in Brazilië'},
+  ['Bio-ethanol','Een brandstof gewonnen uit suikers die in planten zitten, in Brazilië met name uit suikerriet.'],
+  ['Opkomende economie','Een land waar de productie en de welvaart snel groeien.'],
+  {section:'4.2 – Energie in Zuidoost-Brazilië'},
+  ['Regionale ongelijkheid','Verschillen in welvaart tussen gebieden.'],
+  ['Verdringing','Het verschijnsel dat de ene activiteit de andere uit een gebied wegduwt.'],
+  {section:'4.4 – Casus: Amazonegebied onder druk'},
+  ['Concurrentie om de ruimte','Dit ontstaat wanneer meerdere partijen van hetzelfde stuk grond gebruik willen maken.'],
+  ['Grootschalige landbouw','Landbouw waarbij grote hoeveelheden geproduceerd worden met behulp van machines.'],
+  ['Inundatie','Het onder water zetten van een gebied. Dit gebeurt bijvoorbeeld na aanleg van een stuwdam.'],
+  ['Kolonisatie','Het in bezit nemen van een gebied.'],
+  {section:'4.5 – Casus: Belang van het Amazonegebied'},
+  ['Biodiversiteit','De verscheidenheid aan dieren en planten.'],
+  ['Earth Charter / Handvest van de Aarde','Afspraken over hoe we met de aarde moeten omgaan.'],
+  ['Mensenrechten','Rechten die ieder mens in principe heeft, zoals het recht op vrijheid, welvaart en een goede leefomgeving.']
+];
+var begripsTerms = begrippenData.filter(function(b){return Array.isArray(b);});
+var blist = document.getElementById('begrip-list');
+begrippenData.forEach(function(item) {
+  if (!Array.isArray(item)) {
+    var hdr = document.createElement('div'); hdr.className='begrip-section-header'; hdr.textContent=item.section; blist.appendChild(hdr);
+  } else {
+    var div = document.createElement('div'); div.className='begrip-item';
+    div.innerHTML='<button class="begrip-trigger" onclick="toggleBegrip(this)"><span>'+item[0]+'</span><span class="begrip-arrow">\u25bc</span></button><div class="begrip-def">'+item[1]+'</div>';
+    blist.appendChild(div);
+  }
+});
+function toggleBegrip(btn){btn.closest('.begrip-item').classList.toggle('open');}
+
+// FLASHCARDS
+var fcCards = begripsTerms.map(function(b){return {q:b[0],a:b[1]};});
+var fcOrder=[], fcCurrent=0, fcCorrect=0, fcFlipped=false;
+var fcBest = parseInt(localStorage.getItem('brazilie_fc_best')||'0');
+function shuffle(arr){var a=arr.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}return a;}
+function fcRestart(){
+  fcOrder=shuffle(Array.from({length:fcCards.length},function(_,i){return i;}));
+  fcCurrent=0;fcCorrect=0;fcFlipped=false;
+  document.getElementById('flashcard').classList.remove('flipped');
+  document.getElementById('fc-self-check').style.display='none';
+  renderFc();
+}
+function renderFc(){
+  var card=fcCards[fcOrder[fcCurrent]];
+  document.getElementById('fc-term').textContent=card.q;
+  document.getElementById('fc-def').textContent=card.a;
+  document.getElementById('fc-counter').textContent=(fcCurrent+1)+' / '+fcCards.length;
+  document.getElementById('fc-progress-text').textContent='\u2713 '+fcCorrect+' goed   |   Nog '+(fcCards.length-fcCurrent)+' kaarten';
+  document.getElementById('flashcard').classList.remove('flipped');
+  document.getElementById('fc-self-check').style.display='none';
+  fcFlipped=false;
+}
+function flipCard(){
+  if(fcFlipped) return; fcFlipped=true;
+  document.getElementById('flashcard').classList.add('flipped');
+  setTimeout(function(){document.getElementById('fc-self-check').style.display='flex';},320);
+}
+function fcAnswer(correct){
+  if(correct) fcCorrect++;
+  fcCurrent++;
+  if(fcCurrent>=fcCards.length){
+    if(fcCorrect>fcBest){fcBest=fcCorrect;localStorage.setItem('brazilie_fc_best',fcBest);updateFcBadge();}
+    if(fcCorrect===fcCards.length){launchConfetti();setTimeout(function(){alert('Geweldig! Alle '+fcCards.length+' begrippen goed! \ud83c\udf89');fcRestart();},400);}
+    else{alert('Ronde klaar! '+fcCorrect+' van de '+fcCards.length+' goed. Probeer opnieuw!');fcRestart();}
+    return;
+  }
+  renderFc();
+}
+function updateFcBadge(){
+  if(fcBest>0){document.getElementById('fc-best').textContent=fcBest+'/'+fcCards.length;document.getElementById('fc-badge').style.display='inline-flex';document.getElementById('stat-fc-best').textContent=fcBest+'/'+fcCards.length;}
+}
+
+// QUIZ
+var allQ = [
+  {q:'Hoeveel procent van de Braziliaanse elektriciteit komt uit waterkracht?',opts:['30%','50%','70%','90%'],c:2,e:'Ongeveer 70% van de Braziliaanse elektriciteit wordt opgewekt door waterkracht.'},
+  {q:'Wat is bio-ethanol?',opts:['Een fossiele brandstof uit aardolie','Een brandstof gewonnen uit suikers in planten, in Brazilië uit suikerriet','Een soort kernbrandstof','Een gas dat uit de bodem komt'],c:1,e:'Bio-ethanol is een brandstof gewonnen uit suikers die in planten zitten, in Brazilië vooral uit suikerriet.'},
+  {q:'Waarom steeg de energievraag in Brazilië zo snel tussen 2000 en 2010?',opts:['Door klimaatverandering','Door de export van ijzererts en stijgende welvaart','Door het sluiten van kerncentrales','Door bevolkingsdaling'],c:1,e:'De export van ijzererts zorgde voor economische groei. Miljoenen mensen kregen meer koopkracht en kochten energieverbruikende producten.'},
+  {q:'Wat is een opkomende economie?',opts:['Een land dat arm blijft','Een land waar de productie en welvaart snel groeien','Een land dat alleen grondstoffen exporteert','Een land zonder industrie'],c:1,e:'Een opkomende economie is een land waar de productie en de welvaart snel groeien, zoals Brazilië.'},
+  {q:'Wat is regionale ongelijkheid?',opts:['Gelijke welvaart in alle regio\'s','Verschillen in welvaart tussen gebieden','Verschil tussen stad en platteland in Europa','Verschil in temperatuur tussen regio\'s'],c:1,e:'Regionale ongelijkheid zijn de verschillen in welvaart tussen gebieden. In Brazilië is het zuidoosten veel rijker dan het noorden.'},
+  {q:'Wat is verdringing?',opts:['Het verplaatsen van rivieren','Het verschijnsel dat de ene activiteit de andere uit een gebied wegduwt','Het bouwen van stuwdammen','Het verdwijnen van diersoorten'],c:1,e:'Verdringing is het verschijnsel dat de ene activiteit (bijv. suikerrietteelt) de andere (bijv. kleine boeren) uit een gebied wegduwt.'},
+  {q:'Waarom wordt er in het zuidoosten van Brazilië relatief veel energie gebruikt?',opts:['Daar is het klimaat het koudst','Daar woont ⅓ van de bevolking en vindt ½ van de industrie plaats','Daar staan alle kerncentrales','Daar ligt het Amazonegebied'],c:1,e:'Het zuidoosten is het economische hart van Brazilië met ⅓ van de bevolking en de helft van de industriële productie.'},
+  {q:'Wat is inundatie?',opts:['Het kappen van regenwoud','Het onder water zetten van een gebied, bijv. na aanleg van een stuwdam','Het aanplanten van suikerriet','Het bouwen van steden'],c:1,e:'Inundatie is het onder water zetten van een gebied, wat bijvoorbeeld gebeurt bij de aanleg van een stuwdam.'},
+  {q:'Wat is concurrentie om de ruimte?',opts:['Wanneer landen om grondgebied vechten','Wanneer meerdere partijen van hetzelfde stuk grond gebruik willen maken','Wanneer steden te snel groeien','Wanneer er te weinig woningen zijn'],c:1,e:'Concurrentie om de ruimte ontstaat wanneer meerdere partijen (boeren, mijnbouw, natuur) hetzelfde stuk grond willen gebruiken.'},
+  {q:'Wat is grootschalige landbouw?',opts:['Landbouw met alleen handwerk','Landbouw waarbij kleine percelen worden bewerkt','Landbouw waarbij grote hoeveelheden geproduceerd worden met machines','Landbouw in steden'],c:2,e:'Grootschalige landbouw is landbouw waarbij grote hoeveelheden geproduceerd worden met behulp van machines.'},
+  {q:'Wat is kolonisatie in de context van het Amazonegebied?',opts:['Het stichten van steden','Het in bezit nemen van een gebied','Het beschermen van natuur','Het aanleggen van wegen'],c:1,e:'Kolonisatie is het in bezit nemen van een gebied. Boeren trekken vanuit het zuiden het Amazonegebied in om landbouwgrond te maken.'},
+  {q:'Wat is biodiversiteit?',opts:['De hoeveelheid CO₂ in een gebied','De verscheidenheid aan dieren en planten','Het aantal bomen per hectare','De hoeveelheid regen per jaar'],c:1,e:'Biodiversiteit is de verscheidenheid aan dieren en planten in een gebied.'},
+  {q:'Wat is het Earth Charter?',opts:['Een handelsovereenkomst','Een wet van de Braziliaanse overheid','Afspraken over hoe we met de aarde moeten omgaan','Een klimaatmodel'],c:2,e:'Het Earth Charter (Handvest van de Aarde) bevat afspraken over hoe we met de aarde moeten omgaan: respect voor natuur en mensenrechten.'},
+  {q:'Waarom is het Amazoneregenwoud zo belangrijk voor het klimaat?',opts:['Het produceert alle zuurstof op aarde','Het slaat koolstof op en werkt als wolkenmachine','Het koelt de oceanen','Het voorkomt aardbevingen'],c:1,e:'Het Amazoneregenwoud slaat enorm veel koolstof op en werkt als "wolkenmachine" die waterdamp produceert.'},
+  {q:'Welk percentage van het Braziliaanse wagenpark rijdt op biobrandstoffen?',opts:['30%','50%','Meer dan 80%','100%'],c:2,e:'Meer dan 80% van het Braziliaanse wagenpark rijdt op biobrandstoffen dankzij flexfuel-auto\'s.'},
+  {q:'Wat is het energiedoel van Brazilië voor 2030?',opts:['100% kernenergie','45% hernieuwbare energie','Stoppen met waterkracht','Alle olie exporteren'],c:1,e:'Het doel van Brazilië voor 2030 is 45% hernieuwbare energie, met name door groei van zonne- en windenergie.'},
+  {q:'Hoeveel kilometer aan hoogspanningskabels heeft Brazilië?',opts:['10.000 km','50.000 km','Meer dan 100.000 km','500.000 km'],c:2,e:'Er ligt meer dan 100.000 km aan hoogspanningskabels om energie van verre centrales naar de steden te transporteren.'},
+  {q:'Wat zijn mensenrechten?',opts:['Rechten die alleen voor Brazilianen gelden','Rechten die ieder mens heeft, zoals recht op vrijheid en welvaart','Wetten over milieubeleid','Regels voor internationale handel'],c:1,e:'Mensenrechten zijn rechten die ieder mens in principe heeft, zoals het recht op vrijheid, welvaart en een goede leefomgeving.'},
+  {q:'Welke vier dimensies gebruik je om energieprojecten te beoordelen?',opts:['Natuurlijk, economisch, sociaal-cultureel, politiek','Noord, zuid, oost, west','Lokaal, regionaal, nationaal, internationaal','Fossiel, duurzaam, kern, bio'],c:0,e:'De vier dimensies zijn: natuurlijk, economisch, sociaal-cultureel en politiek. Hiermee bekijk je de effecten van projecten vanuit verschillende hoeken.'},
+  {q:'Wat is een nadeel van waterkracht vanuit de sociaal-culturele dimensie?',opts:['Het kost veel geld','Inheemse bevolking moet gedwongen verhuizen','Er komt CO₂ vrij','Het water raakt op'],c:1,e:'Vanuit de sociaal-culturele dimensie is een nadeel dat de bouw van stuwdammen vaak in het leefgebied van inheemse bevolking plaatsvindt, die gedwongen moet verhuizen.'},
+  {q:'Hoeveel procent van de natuur is verdwenen in de Braziliaanse staat Mato Grosso?',opts:['20%','50%','80%','95%'],c:2,e:'In de staat Mato Grosso is al 80% van de natuur verdwenen, vooral door veeteelt en sojateelt.'},
+  {q:'Waarom draagt Nederland medeverantwoordelijkheid voor ontbossing in de Amazone?',opts:['Nederland stuurt arbeiders naar Brazilië','Nederland koopt op grote schaal Braziliaanse soja, bio-ethanol en hardhout','Nederland bouwt stuwdammen in Brazilië','Nederland levert kernbrandstof aan Brazilië'],c:1,e:'Nederland en andere landen kopen op grote schaal Braziliaanse soja, bio-ethanol en hardhout. Daardoor dragen zij medeverantwoordelijkheid voor wat er in de Amazone gebeurt.'},
+  {q:'Wat is een flexfuel-auto?',opts:['Een auto die op waterstof rijdt','Een auto die kan kiezen tussen een mix van ethanol en benzine','Een elektrische auto','Een auto met zonnepanelen'],c:1,e:'Een flexfuel-auto kan rijden op verschillende verhoudingen van ethanol en benzine, waardoor Brazilianen kunnen kiezen.'},
+  {q:'Waar werd in 2007 een groot olieveld ontdekt in Brazilië?',opts:['In het Amazonegebied','In São Paulo','Voor de kust van Rio de Janeiro','In het zuiden van het land'],c:2,e:'In 2007 werd een gigantisch olieveld ontdekt voor de kust van Rio de Janeiro, waardoor Brazilië olie kon gaan exporteren.'},
+  {q:'Wat is een nadeel van bio-ethanol voor het milieu?',opts:['Het kost te veel water','Suikerrietteelt vereist veel pesticiden en kunstmest','Het stoot meer CO₂ uit dan benzine','Het kan niet in auto\'s worden gebruikt'],c:1,e:'De teelt van suikerriet voor bio-ethanol vereist veel pesticiden en kunstmest, wat de bodem en het water kan vervuilen.'},
+  {q:'Hoeveel procent van de Braziliaanse stroom komt uit kernenergie?',opts:['Ongeveer 3%','Ongeveer 15%','Ongeveer 30%','Ongeveer 50%'],c:0,e:'Ongeveer 3% van de Braziliaanse elektriciteit komt uit een kerncentrale.'},
+  {q:'Welke energiebronnen moeten vooral groeien richting 2030?',opts:['Olie en gas','Kernenergie','Zonne- en windenergie','Waterkracht'],c:2,e:'Vooral zonne- en windenergie moeten hard groeien om in 2030 een derde van de stroom te leveren.'},
+  {q:'Hoeveel keer minder energie verbruikt een gemiddelde Braziliaan vergeleken met een Nederlander?',opts:['2 keer','3 keer','5 keer','10 keer'],c:1,e:'De gemiddelde Braziliaan verbruikt nog steeds drie keer minder energie dan een Nederlander.'}
+];
+
+var currentQ=[], qIdx=0, qScore=0, qAnswered=false;
+var quizBest = parseInt(localStorage.getItem('brazilie_quiz_best')||'-1');
+function startNewQuiz(){
+  currentQ=shuffle(allQ).slice(0,10); qIdx=0; qScore=0; qAnswered=false;
+  document.getElementById('quiz-card').style.display='block';
+  document.getElementById('quiz-result').style.display='none';
+  renderQ(); updateQuizBadge();
+}
+function renderQ(){
+  var q=currentQ[qIdx];
+  document.getElementById('quiz-progress').textContent='Vraag '+(qIdx+1)+' van 10';
+  document.getElementById('quiz-question').textContent=q.q;
+  document.getElementById('quiz-score').textContent=qScore;
+  document.getElementById('quiz-next-btn').disabled=true;
+  document.getElementById('quiz-feedback').className='quiz-feedback';
+  document.getElementById('quiz-feedback').textContent='';
+  qAnswered=false;
+  var opts=document.getElementById('quiz-options'); opts.innerHTML='';
+  q.opts.forEach(function(opt,i){
+    var btn=document.createElement('button'); btn.className='quiz-option'; btn.textContent=opt;
+    btn.onclick=function(){selectA(i);}; opts.appendChild(btn);
+  });
+}
+function selectA(i){
+  if(qAnswered) return; qAnswered=true;
+  var q=currentQ[qIdx];
+  var opts=document.querySelectorAll('.quiz-option');
+  opts.forEach(function(b){b.disabled=true;}); opts[q.c].classList.add('correct');
+  var fb=document.getElementById('quiz-feedback');
+  if(i===q.c){qScore++;document.getElementById('quiz-score').textContent=qScore;fb.className='quiz-feedback correct-fb show';fb.textContent='\u2713 Goed! '+q.e;}
+  else{opts[i].classList.add('wrong');fb.className='quiz-feedback wrong-fb show';fb.textContent='\u2717 Helaas. '+q.e;}
+  document.getElementById('quiz-next-btn').disabled=false;
+}
+function nextQuestion(){qIdx++;if(qIdx>=10)showResult();else renderQ();}
+function showResult(){
+  document.getElementById('quiz-card').style.display='none';
+  document.getElementById('quiz-result').style.display='block';
+  document.getElementById('result-score').textContent=qScore+'/10';
+  var msg='';
+  if(qScore===10){msg='\ud83c\udfc6 Perfect! Alle 10 goed!';launchConfetti();}
+  else if(qScore>=8) msg='\ud83d\udc4d Goed bezig! Nog even oefenen.';
+  else if(qScore>=6) msg='\ud83d\udcda Aardig op weg – bestudeer de samenvatting.';
+  else msg='\ud83d\udca1 Herhaal de stof en probeer opnieuw!';
+  document.getElementById('result-msg').textContent=msg;
+  if(qScore>quizBest){quizBest=qScore;localStorage.setItem('brazilie_quiz_best',quizBest);updateQuizBadge();}
+}
+function restartQuiz(){startNewQuiz();}
+function updateQuizBadge(){
+  if(quizBest>=0){document.getElementById('quiz-best-disp').textContent=quizBest;document.getElementById('quiz-badge').style.display='inline-flex';document.getElementById('stat-quiz-best').textContent=quizBest+'/10';}
+}
+
+// INIT
+loadChecked(); updateProgress(); fcRestart(); updateFcBadge(); startNewQuiz();
+</script>
+</body>
+</html>
