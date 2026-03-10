@@ -169,8 +169,16 @@
         }
 
         .pillar-item.open { border-color: var(--ocean); }
-        .pillar-item.open .pillar-content { max-height: 1000px; padding: 20px; border-top: 1px solid #e0f2f3; }
+        .pillar-item.open .pillar-content { max-height: 2000px; padding: 20px; border-top: 1px solid #e0f2f3; }
         .pillar-item.open .pillar-header { background: var(--ocean); color: white; }
+
+        .deliverable-box {
+            background: #fff;
+            border: 2px dashed var(--ocean);
+            padding: 15px;
+            border-radius: 15px;
+            margin: 15px 0;
+        }
 
         .hint-box {
             background: var(--bubble);
@@ -229,8 +237,7 @@
     <section id="intro" class="tab-content active">
         <div class="card">
             <h2>Welkom aan boord! 🚢</h2>
-            <p>Schoon water is schaarser dan je denkt. Hoewel onze planeet er van een afstandje blauw uitziet, is slechts een piepklein deel van al dat water geschikt om te drinken of te gebruiken voor landbouw.</p>
-            <p>Jullie gaan in een <strong>drietal</strong> op onderzoek uit naar een specifieke watercrisis. Geen saai verslag, maar een krachtige presentatie van <strong>8 tot 10 minuten</strong>. Gebruik data, kaarten en jullie eigen stem om de klas te overtuigen van een circulaire oplossing.</p>
+            <p>Schoon water is schaarser dan je denkt. In dit project duiken jullie met z'n drieën in een watercrisis. Geen saai verslag, maar een krachtige presentatie van <strong>8 tot 10 minuten</strong> waarin jullie de klas overtuigen van een oplossing.</p>
             <div class="hint-box">
                 <strong>Zoek-Hacker Tip:</strong> Gebruik synoniemen! Zoek je op 'rivier'? Zoek dan ook eens op 'stroomgebied', 'delta' of 'waterweg'. Zo vind je veel meer!
             </div>
@@ -240,7 +247,7 @@
     <section id="cases" class="tab-content">
         <div class="card">
             <h2>Kies je missie 🧭</h2>
-            <p>Klik op een casus hieronder voor uitgebreide achtergrondinformatie. Welk probleem willen jullie oplossen?</p>
+            <p>Klik op een casus voor meer info. Welk probleem gaan jullie tot op de bodem uitzoeken?</p>
             <div class="case-pills">
                 <button class="pill" onclick="showCase('citarum')">Citarum (Mode)</button>
                 <button class="pill" onclick="showCase('aralmeer')">Aralmeer (Katoen)</button>
@@ -261,8 +268,8 @@
 
     <section id="plan" class="tab-content">
         <div class="card">
-            <h2>Hulp bij je onderzoek 🏗️</h2>
-            <p>Hoe pak je dit aan? Klik op de pijlers voor slimme zoekstrategieën. Combineer de termen altijd met de naam van je casus/gebied.</p>
+            <h2>Onderzoeks-Handvatten 🏗️</h2>
+            <p>Verdeel de rollen! Klik op de pijlers om precies te zien wat er van je verwacht wordt en hoe je dit slim aanpakt.</p>
             
             <div class="pillar-accordion">
                 <div class="pillar-item" id="p1">
@@ -271,17 +278,22 @@
                         <span>▼</span>
                     </div>
                     <div class="pillar-content">
-                        <p><strong>De Uitdaging:</strong> Hoe breng je het gebied in kaart en vind je betrouwbare cijfers over watergebruik?</p>
-                        <p><strong>Zoekstrategie (Nederlands):</strong></p>
+                        <p><strong>De Focus:</strong> Waar praten we precies over? Je maakt het probleem visueel en meetbaar.</p>
+                        
+                        <div class="deliverable-box">
+                            <strong>Wat staat er straks op je slide?</strong>
+                            <ul>
+                                <li>Een duidelijke overzichtskaart (zoom in van wereld naar lokaal).</li>
+                                <li>Een eigen gemaakte grafiek of cirkeldiagram die het waterverbruik of de tekorten in cijfers laat zien.</li>
+                            </ul>
+                        </div>
+
+                        <p><strong>Zoekstrategie:</strong></p>
                         <ul>
-                            <li>Zoek op combinaties zoals: <em>'[Gebied] kaart waterhuishouding'</em>, <em>'waterverbruik per sector [land]'</em> of <em>'neerslagcijfers [gebied]'</em>.</li>
-                            <li>Kijk bij afbeeldingen specifiek naar kaarten met een legenda: zoek op <em>'hoogtekaart'</em> of <em>'landgebruik kaart'</em>.</li>
+                            <li><strong>Nederlands:</strong> <em>'[Gebied] kaart waterhuishouding'</em>, <em>'neerslagcijfers [land]'</em> of <em>'landgebruik kaart [gebied]'</em>.</li>
+                            <li><strong>Engels:</strong> <em>'satellite view [area]'</em>, <em>'annual water extraction data'</em> of <em>'hydrological map [name]'</em>.</li>
                         </ul>
-                        <p><strong>Zoekstrategie (Engels):</strong></p>
-                        <ul>
-                            <li><em>'satellite view [area]'</em>, <em>'annual water extraction data'</em> of <em>'hydrological map'</em>.</li>
-                        </ul>
-                        <div class="hint-box"><strong>Slimme bron:</strong> Gebruik <em>Google Earth</em> om 'tijdreizen' te doen: hoe zag het gebied er 20 jaar geleden uit?</div>
+                        <div class="hint-box"><strong>Gouden tip:</strong> Gebruik <em>Google Earth</em> om 'tijdreizen' te doen: hoe zag het gebied er 20 jaar geleden uit? Maak screenshots van 'toen' en 'nu'.</div>
                     </div>
                 </div>
 
@@ -291,17 +303,22 @@
                         <span>▼</span>
                     </div>
                     <div class="pillar-content">
-                        <p><strong>De Uitdaging:</strong> Hoe leg je uit dat dit probleem ook met ons in Nederland te maken heeft?</p>
-                        <p><strong>Zoekstrategie (Nederlands):</strong></p>
+                        <p><strong>De Focus:</strong> Waarom heeft dit probleem met ons in Nederland te maken? Je volgt de route van het product.</p>
+                        
+                        <div class="deliverable-box">
+                            <strong>Wat staat er straks op je slide?</strong>
+                            <ul>
+                                <li>Een infographic of stroomschema van de handelsroute: van de bron in jouw gebied naar de winkel in Nederland.</li>
+                                <li>Logo's van bedrijven of producten die wij kennen en die een rol spelen in dit gebied.</li>
+                            </ul>
+                        </div>
+
+                        <p><strong>Zoekstrategie:</strong></p>
                         <ul>
-                            <li>Gebruik termen als: <em>'handelsrelatie Nederland [land]'</em>, <em>'importproducten uit [gebied]'</em> of <em>'verborgen watergebruik kleding'</em>.</li>
-                            <li>Zoek naar <em>'duurzaamheid in de keten'</em> of <em>'productieomstandigheden [productnaam]'</em>.</li>
+                            <li><strong>Nederlands:</strong> <em>'handelsrelatie Nederland [land]'</em>, <em>'waar komt ons [product] vandaan?'</em> of <em>'verborgen watergebruik'</em>.</li>
+                            <li><strong>Engels:</strong> <em>'major export partners [land]'</em>, <em>'global supply chain impact water'</em> of <em>'virtual water footprint [product]'</em>.</li>
                         </ul>
-                        <p><strong>Zoekstrategie (Engels):</strong></p>
-                        <ul>
-                            <li><em>'major export commodities [land]'</em>, <em>'global supply chain impact water'</em> of <em>'virtual water footprint [product]'</em>.</li>
-                        </ul>
-                        <div class="hint-box"><strong>Slimme bron:</strong> Zoek op de sites van <em>Milieu Centraal</em> of <em>Schone Kleren Campagne</em> voor info over handelsketens.</div>
+                        <div class="hint-box"><strong>Gouden tip:</strong> Zoek op de sites van organisaties die handelsketens controleren (zoals <em>Schone Kleren Campagne</em>). Welk labeltje in je kleding komt uit dit gebied?</div>
                     </div>
                 </div>
 
@@ -311,17 +328,24 @@
                         <span>▼</span>
                     </div>
                     <div class="pillar-content">
-                        <p><strong>De Uitdaging:</strong> Hoe vind je de impact op mens en natuur zonder in clichés te vallen?</p>
-                        <p><strong>Zoekstrategie (Nederlands):</strong></p>
+                        <p><strong>De Focus:</strong> Wat is de echte prijs van dit probleem? Je kijkt naar de impact op mens en natuur.</p>
+                        
+                        <div class="deliverable-box">
+                            <strong>Wat staat er straks op je slide?</strong>
+                            <ul>
+                                <li>Foto's of korte clips die de impact laten zien (vervuilde natuur, zieke dieren of mensen).</li>
+                                <li>Een 'Gevolgen-web': verbind ecologische gevolgen (natuur) met sociale gevolgen (mensen).</li>
+                            </ul>
+                        </div>
+
+                        
+
+                        <p><strong>Zoekstrategie:</strong></p>
                         <ul>
-                            <li>Zoek op: <em>'milieuramp [gebied] gevolgen'</em>, <em>'drinkwaterproblematiek lokale bevolking'</em> of <em>'verlies aan biodiversiteit [rivier]'</em>.</li>
-                            <li>Kijk naar de menselijke kant: <em>'gezondheidsrisico's vervuild water'</em> of <em>'visserij problemen [gebied]'</em>.</li>
+                            <li><strong>Nederlands:</strong> <em>'milieuramp [gebied] gevolgen'</em>, <em>'drinkwaterproblematiek bewoners'</em> of <em>'biodiversiteit verlies [rivier]'</em>.</li>
+                            <li><strong>Engels:</strong> <em>'ecosystem services collapse'</em>, <em>'waterborne diseases statistics [area]'</em> of <em>'social impact water scarcity'</em>.</li>
                         </ul>
-                        <p><strong>Zoekstrategie (Engels):</strong></p>
-                        <ul>
-                            <li><em>'ecosystem services collapse'</em>, <em>'waterborne diseases statistics [area]'</em> of <em>'toxic levels in river [name]'</em>.</li>
-                        </ul>
-                        <div class="hint-box"><strong>Slimme bron:</strong> Zoek op YouTube naar documentaires of reportages van <em>VPRO Tegenlicht</em> of de <em>NOS</em> over jouw casus.</div>
+                        <div class="hint-box"><strong>Gouden tip:</strong> Gebruik Google Translate om lokale kranten uit dat gebied te lezen. Wat zeggen de mensen die er zelf wonen?</div>
                     </div>
                 </div>
 
@@ -331,17 +355,24 @@
                         <span>▼</span>
                     </div>
                     <div class="pillar-content">
-                        <p><strong>De Uitdaging:</strong> Hoe bedenk je een circulaire oplossing die het systeem echt verandert?</p>
-                        <p><strong>Zoekstrategie (Nederlands):</strong></p>
+                        <p><strong>De Focus:</strong> Hoe lossen we dit op? Je presenteert een plan dat het hele systeem verandert.</p>
+                        
+                        <div class="deliverable-box">
+                            <strong>Wat staat er straks op je slide?</strong>
+                            <ul>
+                                <li>Een visuele weergave van je 'Circulaire Oplossing' (bijv. een voor/na scenario).</li>
+                                <li>Drie concrete actiepunten: wat moet de overheid doen, wat de industrie en wat wij als consument?</li>
+                            </ul>
+                        </div>
+
+                        
+
+                        <p><strong>Zoekstrategie:</strong></p>
                         <ul>
-                            <li>Zoek op: <em>'circulaire waterzuivering techniek'</em>, <em>'duurzaam waterbeheer voorbeelden'</em> of <em>'afvalwater hergebruiken in industrie'</em>.</li>
-                            <li>Kijk ook naar wetgeving: <em>'milieuregels [land]'</em> of <em>'internationale waterverdragen'</em>.</li>
+                            <li><strong>Nederlands:</strong> <em>'circulaire waterzuivering techniek'</em>, <em>'duurzaam waterbeheer voorbeelden'</em> of <em>'afvalwater hergebruiken'</em>.</li>
+                            <li><strong>Engels:</strong> <em>'circular water economy solutions'</em>, <em>'innovative irrigation'</em> of <em>'restoring river basins'</em>.</li>
                         </ul>
-                        <p><strong>Zoekstrategie (Engels):</strong></p>
-                        <ul>
-                            <li><em>'circular water economy solutions'</em>, <em>'innovative irrigation techniques'</em> of <em>'restoring polluted river basins'</em>.</li>
-                        </ul>
-                        <div class="hint-box"><strong>Slimme bron:</strong> Kijk op de sites van technische universiteiten (zoals <em>TU Delft</em> of <em>Wageningen University</em>) voor de nieuwste uitvindingen op watergebied.</div>
+                        <div class="hint-box"><strong>Gouden tip:</strong> Zoek naar TED-talks of innovaties van technische universiteiten (zoals TU Delft of Wageningen). Hoe kunnen we de cirkel sluiten zodat afval niet meer bestaat?</div>
                     </div>
                 </div>
             </div>
