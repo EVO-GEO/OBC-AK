@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Docenten Dashboard | Project Blauw Goud</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&family=Nunito:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --deep-sea: #005f73;
+            --ocean: #0a9396;
+            --wave: #94d2bd;
+            --algae: #006d77;
+            --coral: #ee9b00;
+            --foam: #f8fdfe;
+            --danger: #d62828;
+            --success: #2a9d8f;
+        }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: #f0f4f5;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 3px solid var(--wave);
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            font-family: 'Fredoka', sans-serif;
+            color: var(--deep-sea);
+            margin: 0;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            font-family: 'Fredoka', sans-serif;
+            transition: 0.3s;
+        }
+
+        .btn-add { background: var(--ocean); color: white; }
+        .btn-add:hover { background: var(--algae); }
+        .btn-print { background: var(--deep-sea); color: white; margin-left: 10px; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        th {
+            background: var(--deep-sea);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-size: 0.9rem;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+        }
+
+        input[type="text"], input[type="number"] {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-family: inherit;
+        }
+
+        input[type="number"] {
+            width: 60px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .final-grade {
+            font-weight: 800;
+            font-size: 1.2rem;
+            color: var(--deep-sea);
+            text-align: center;
+        }
+
+        .fail { color: var(--danger); }
+        .pass { color: var(--success); }
+
+        .delete-row {
+            color: var(--danger);
+            cursor: pointer;
+            font-weight: bold;
+            border: none;
+            background: none;
+        }
+
+        .summary-box {
+            background: var(--foam);
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            border-left: 5px solid var(--coral);
+            margin-top: 20px;
+        }
+
+        @media print {
+            .btn, .delete-row, .summary-box { display: none; }
+            body { background: white; padding: 0; }
+            .container { box-shadow: none; border: none; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <div>
+            <h1>📊 Scorebord: Project Blauw Goud</h1>
+            <p>Beoordelingsformulier voor 2-TH</p>
+        </div>
+        <div>
+            <button class="btn btn-add" onclick="addRow()">+ Groep Toevoegen</button>
+            <button class="btn btn-print" onclick="window.print()">🖨️ Printen</button>
+        </div>
+    </header>
+
+    <table id="gradingTable">
+        <thead>
+            <tr>
+                <th>Groep / Namen</th>
+                <th>Inhoud (25%)</th>
+                <th>Data/Kaarten (25%)</th>
+                <th>Presentatie (25%)</th>
+                <th>Expert-check (25%)</th>
+                <th>Eindcijfer</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><input type="text" placeholder="Namen leerlingen..."></td>
+                <td><input type="number" step="0.1" min="1" max="10" value="1.0" oninput="calculate(this)"></td>
+                <td><input type="number" step="0.1" min="1" max="10" value="1.0" oninput="calculate(this)"></td>
+                <td><input type="number" step="0.1" min="1" max="10" value="1.0" oninput="calculate(this)"></td>
+                <td><input type="number" step="0.1" min="1" max="10" value="1.0" oninput="calculate(this)"></td>
+                <td class="final-grade fail">1.0</td>
+                <td><button class="delete-row" onclick="deleteRow(this)">✖</button></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="summary-box">
+        <strong>Hoe het werkt:</strong> Vul per onderdeel een cijfer tussen de 1 en 10 in. Het systeem berekent automatisch het gemiddelde (elk onderdeel telt voor 25% mee). <br>
+        <span style="color:var(--success)">●</span> Groen = Voldoende (5.5 of hoger) | <span style="color:var(--danger)">●</span> Rood = Onvoldoende
+    </div>
+</div>
+
+<script>
+    function calculate(input) {
+        const row = input.closest('tr');
+        const inputs = row.querySelectorAll('input[type="number"]');
+        let total = 0;
+        
+        inputs.forEach(i => {
+            let val = parseFloat(i.value) || 0;
+            if (val > 10) i.value = 10;
+            total += parseFloat(i.value);
+        });
+
+        const average = (total / 4).toFixed(1);
+        const gradeCell = row.querySelector('.final-grade');
+        
+        gradeCell.innerText = average;
+
+        if (average >= 5.5) {
+            gradeCell.classList.remove('fail');
+            gradeCell.classList.add('pass');
+        } else {
+            gradeCell.classList.remove('pass');
+            gradeCell.classList.add('fail');
+        }
+    }
+
+    function addRow() {
+        const table = document.getElementById('gradingTable').getElementsByTagName('tbody')[0];
+        const newRow = table.insertRow();
+        newRow.innerHTML = `
+            <td><input type="text" placeholder="Namen leerlingen..."></td>
+            <td><input type="number" step="0.1" min="1" max="10" value="1.0" oninput="calculate(this)"></td>
+            <td><input type="number" step="0.1" min="1" max="10" value="1.0" oninput="calculate(this)"></td>
+            <td><input type="number" step="0.1" min="1" max="10" value="1.0" oninput="calculate(this)"></td>
+            <td><input type="number" step="0.1" min="1" max="10" value="1.0" oninput="calculate(this)"></td>
+            <td class="final-grade fail">1.0</td>
+            <td><button class="delete-row" onclick="deleteRow(this)">✖</button></td>
+        `;
+    }
+
+    function deleteRow(btn) {
+        const row = btn.closest('tr');
+        if (confirm('Weet je zeker dat je dit groepje wilt verwijderen?')) {
+            row.remove();
+        }
+    }
+</script>
+
+</body>
+</html>
