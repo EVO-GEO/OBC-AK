@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Project Blauw Goud 🌊 | Interactieve Leeromgeving</title>
+    <title>Project Blauw Goud 🌊 | De Ultieme Onderzoekstool</title>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&family=Nunito:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -27,7 +27,7 @@
             overflow-x: hidden;
         }
 
-        /* Fun Header with Wave */
+        /* Fun Header */
         header {
             background: linear-gradient(180deg, var(--deep-sea) 0%, var(--algae) 100%);
             color: white;
@@ -39,9 +39,9 @@
 
         header h1 {
             font-family: 'Fredoka', sans-serif;
-            font-size: 3rem;
+            font-size: 3.5rem;
             margin: 0;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.3);
         }
 
         .wave-decoration {
@@ -57,12 +57,12 @@
         /* Navigation Tabs */
         .nav-container {
             max-width: 1000px;
-            margin: -30px auto 2rem;
+            margin: -35px auto 2rem;
             display: flex;
             background: white;
             border-radius: 50px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-            padding: 5px;
+            padding: 6px;
             position: relative;
             z-index: 10;
         }
@@ -77,182 +77,251 @@
             cursor: pointer;
             color: var(--deep-sea);
             border-radius: 40px;
+            font-size: 1rem;
         }
 
         .tab-btn.active {
             background: var(--ocean);
             color: white;
-            box-shadow: 0 4px 15px rgba(10, 147, 150, 0.3);
+            box-shadow: 0 4px 15px rgba(10, 147, 150, 0.4);
         }
 
-        /* Content Areas */
-        main { max-width: 1000px; margin: 0 auto; padding: 0 20px 50px; }
-        .tab-content { display: none; animation: swimIn 0.5s ease-out; }
+        /* Content Sections */
+        main { max-width: 1000px; margin: 0 auto; padding: 0 20px 80px; }
+        .tab-content { display: none; animation: swimUp 0.6s ease-out; }
         .tab-content.active { display: block; }
 
-        @keyframes swimIn {
-            from { opacity: 0; transform: translateX(-20px) rotate(-1deg); }
-            to { opacity: 1; transform: translateX(0) rotate(0); }
+        @keyframes swimUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .card {
             background: white;
-            padding: 2rem;
-            border-radius: 25px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            padding: 2.5rem;
+            border-radius: 30px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.05);
             margin-bottom: 2rem;
-            border-bottom: 5px solid var(--wave);
+            border-bottom: 8px solid var(--wave);
         }
 
-        /* Interactive Case Pills */
-        .case-pills {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin: 20px 0;
-        }
-
+        /* Interactive Pills */
+        .case-pills { display: flex; flex-wrap: wrap; gap: 12px; margin: 20px 0; }
         .pill {
-            padding: 10px 20px;
-            background: var(--foam);
+            padding: 12px 24px;
+            background: white;
             border: 2px solid var(--ocean);
             border-radius: 30px;
             cursor: pointer;
             font-weight: bold;
             color: var(--deep-sea);
+            font-family: 'Fredoka', sans-serif;
         }
-
-        .pill:hover, .pill.selected {
-            background: var(--ocean);
-            color: white;
-            transform: translateY(-3px);
-        }
+        .pill:hover, .pill.selected { background: var(--ocean); color: white; transform: scale(1.05); }
 
         #case-info-box {
-            background: #f0f9fa;
+            background: #eef9fa;
             border-radius: 20px;
-            padding: 20px;
+            padding: 25px;
             margin-top: 15px;
-            border-left: 8px solid var(--coral);
+            border-left: 10px solid var(--coral);
             display: none;
+            animation: fadeIn 0.4s;
         }
 
-        /* Fun Checklist */
-        .checklist-container { display: flex; flex-direction: column; gap: 10px; }
-        .check-item {
+        /* Expandable Research Pillars */
+        .pillar-accordion {
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .pillar-item {
+            background: #f0f9fa;
+            border-radius: 20px;
+            overflow: hidden;
+            border: 2px solid transparent;
+        }
+
+        .pillar-header {
+            padding: 20px;
+            background: var(--white);
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'Fredoka', sans-serif;
+            font-size: 1.2rem;
+            color: var(--deep-sea);
+        }
+
+        .pillar-header:hover { background: #e0f2f3; }
+
+        .pillar-content {
+            padding: 0 20px;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease-out, padding 0.4s;
             background: white;
+            font-size: 0.95rem;
+        }
+
+        .pillar-item.open { border-color: var(--ocean); }
+        .pillar-item.open .pillar-content { max-height: 1000px; padding: 20px; border-top: 1px solid #e0f2f3; }
+        .pillar-item.open .pillar-header { background: var(--ocean); color: white; }
+
+        .hint-box {
+            background: var(--bubble);
             padding: 15px;
             border-radius: 15px;
+            margin-top: 10px;
+            font-size: 0.9rem;
+            color: var(--text);
+            border-left: 5px solid var(--coral);
+        }
+
+        /* Checklist */
+        .check-item {
+            background: white;
+            padding: 18px;
+            border-radius: 20px;
             display: flex;
             align-items: center;
             cursor: pointer;
-            border: 2px solid transparent;
+            margin-bottom: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.02);
         }
-        .check-item:hover { border-color: var(--wave); }
-        .check-item input { margin-right: 15px; width: 20px; height: 20px; accent-color: var(--ocean); }
-        .check-item.done { background: #f0fff4; opacity: 0.8; }
+        .check-item input { margin-right: 15px; width: 22px; height: 22px; accent-color: var(--ocean); }
+        .check-item.done { background: #e6fffa; opacity: 0.7; }
         .check-item.done span { text-decoration: line-through; }
 
-        /* Professional Rubric with "Onvoldoende" */
-        .table-wrapper { overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; background: white; border-radius: 15px; overflow: hidden; }
-        th, td { padding: 15px; text-align: left; border-bottom: 1px solid #eee; }
-        th { background: var(--deep-sea); color: white; }
-        .score-red { color: #d62828; font-weight: bold; background: #fff5f5; }
-        .score-orange { color: #f77f00; font-weight: bold; background: #fffaf0; }
-        .score-green { color: #2a9d8f; font-weight: bold; background: #f0faf9; }
+        /* Rubric Table */
+        .table-wrapper { overflow-x: auto; border-radius: 20px; box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
+        table { width: 100%; border-collapse: collapse; background: white; }
+        th, td { padding: 18px; text-align: left; border-bottom: 1px solid #f0f0f0; }
+        th { background: var(--deep-sea); color: white; font-family: 'Fredoka', sans-serif; }
+        .score-red { background: #fff5f5; color: #c53030; font-weight: bold; }
+        .score-orange { background: #fffaf0; color: #c05621; font-weight: bold; }
+        .score-green { background: #f0fff4; color: #2f855a; font-weight: bold; }
 
-        /* Floating Bubbles Decoration */
-        .bubble-decor {
-            position: fixed;
-            background: rgba(148, 210, 189, 0.3);
-            border-radius: 50%;
-            z-index: -1;
-            animation: float 10s infinite ease-in-out;
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0) translateX(0); }
-            50% { transform: translateY(-100px) translateX(20px); }
-        }
+        footer { text-align: center; padding: 3rem; color: var(--algae); font-size: 0.9rem; font-weight: bold; }
     </style>
 </head>
 <body>
 
-<div class="bubble-decor" style="width: 80px; height: 80px; top: 20%; left: 5%;"></div>
-<div class="bubble-decor" style="width: 40px; height: 40px; top: 60%; left: 90%;"></div>
-<div class="bubble-decor" style="width: 60px; height: 60px; top: 80%; left: 15%;"></div>
-
 <header>
     <h1>Project Blauw Goud 🌊</h1>
-    <p>Word de expert van de oceaan en red onze bronnen!</p>
+    <p>Ontdek de geheimen van het water en word een duurzame expert!</p>
     <div class="wave-decoration"></div>
 </header>
 
 <nav class="nav-container">
-    <button class="tab-btn active" onclick="showTab('intro')">Start</button>
-    <button class="tab-btn" onclick="showTab('cases')">Cases</button>
-    <button class="tab-btn" onclick="showTab('opdracht')">Het Plan</button>
-    <button class="tab-btn" onclick="showTab('checklist')">Checklist</button>
-    <button class="tab-btn" onclick="showTab('rubric')">Cijfer</button>
+    <button class="tab-btn active" onclick="showTab('intro')">🏠 Start</button>
+    <button class="tab-btn" onclick="showTab('cases')">📍 De Cases</button>
+    <button class="tab-btn" onclick="showTab('plan')">🛠️ Het Plan</button>
+    <button class="tab-btn" onclick="showTab('checklist')">✅ Checklist</button>
+    <button class="tab-btn" onclick="showTab('rubric')">📊 Cijfer</button>
 </nav>
 
 <main>
     <section id="intro" class="tab-content active">
         <div class="card">
-            <h2>Hoi Onderzoeker! 🚀</h2>
-            <p>Schoon water is schaarser dan je denkt. In dit project duiken jullie met z'n drieën in een wereldwijd probleem. Geen saaie verslagen, maar een <strong>vlammende presentatie van 8-10 minuten</strong> waarin jullie de klas overtuigen van een oplossing.</p>
-            <p><strong>De spelregels:</strong></p>
-            <ul>
-                <li>Werk in een <strong>drietal</strong>.</li>
-                <li>Gebruik minimaal <strong>1 kaart</strong> en <strong>1 grafiek</strong>.</li>
-                <li>Geen tekst voorlezen! We willen zien dat jij de <strong>expert</strong> bent.</li>
-            </ul>
+            <h2>Welkom aan boord! 🚢</h2>
+            <p>Wist je dat 97% van al het water op aarde zout is? Van die overige 3% is het meeste bevroren. We moeten het dus doen met een piepklein beetje 'Blauw Goud'.</p>
+            <p>Jullie gaan in een <strong>drietal</strong> op onderzoek uit. Geen saai verslag, maar een krachtige presentatie van <strong>8 tot 10 minuten</strong>. Wees creatief, gebruik data en overtuig de klas!</p>
+            <div class="hint-box">
+                <strong>Gouden Tip:</strong> De docent let extra goed op of je de stof écht begrijpt. Wees voorbereid op kritische vragen na je presentatie!
+            </div>
         </div>
     </section>
 
     <section id="cases" class="tab-content">
         <div class="card">
-            <h2>Kies je missie 📍</h2>
-            <p>Klik op een casus om te ontdekken welk waterprobleem er speelt.</p>
-            <div class="case-pills" id="pill-container">
-                <button class="pill" onclick="showCase('citarum')">Citarum Rivier</button>
-                <button class="pill" onclick="showCase('aralmeer')">Het Aralmeer</button>
-                <button class="pill" onclick="showCase('plastic')">Plastic Soep</button>
-                <button class="pill" onclick="showCase('niger')">Nigerdelta</button>
-                <button class="pill" onclick="showCase('ganges')">De Ganges</button>
-                <button class="pill" onclick="showCase('amazone')">De Amazone</button>
-                <button class="pill" onclick="showCase('dodezee')">De Dode Zee</button>
-                <button class="pill" onclick="showCase('nl')">Nederlandse Delta</button>
+            <h2>Kies je missie 🧭</h2>
+            <p>Klik op een casus om de achtergrondinformatie te lezen. Welk probleem spreekt jullie het meeste aan?</p>
+            <div class="case-pills">
+                <button class="pill" onclick="showCase('citarum')">Citarum (Kleding)</button>
+                <button class="pill" onclick="showCase('aralmeer')">Aralmeer (Landbouw)</button>
+                <button class="pill" onclick="showCase('plastic')">Plastic Soep (Oceaan)</button>
+                <button class="pill" onclick="showCase('niger')">Nigerdelta (Olie)</button>
+                <button class="pill" onclick="showCase('ganges')">Ganges (Religie/Industrie)</button>
+                <button class="pill" onclick="showCase('amazone')">Amazone (Goudwinning)</button>
+                <button class="pill" onclick="showCase('dodezee')">Dode Zee (Opdroging)</button>
+                <button class="pill" onclick="showCase('nl')">Nederland (Meststof)</button>
             </div>
 
             <div id="case-info-box">
-                <h3 id="case-title">Casus Titel</h3>
-                <p id="case-description">Beschrijving komt hier...</p>
+                <h3 id="case-title">Casus Naam</h3>
+                <p id="case-description">Klik op een knop hierboven...</p>
             </div>
         </div>
     </section>
 
-    <section id="opdracht" class="tab-content">
+    <section id="plan" class="tab-content">
         <div class="card">
-            <h2>De 4 Pijlers van je Onderzoek 🏗️</h2>
-            <p>Verdeel de rollen! Elk groepslid is verantwoordelijk voor zijn eigen stukje, maar jullie presentatie is één geheel.</p>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                <div style="background: #f8fdfe; padding: 15px; border-radius: 15px;">
-                    <h4>🌍 A. Geografie</h4>
-                    <p>Waar is het? Gebruik kaarten en zoek cijfers over wie al dat water verbruikt.</p>
+            <h2>Onderzoeks-Handvatten 🏗️</h2>
+            <p>Klik op de onderstaande pijlers om precies te zien wat je moet doen en waar je informatie kunt vinden.</p>
+            
+            <div class="pillar-accordion">
+                <div class="pillar-item" id="p1">
+                    <div class="pillar-header" onclick="togglePillar('p1')">
+                        <span>🌍 Pijler A: Geografie & Data</span>
+                        <span>▼</span>
+                    </div>
+                    <div class="pillar-content">
+                        <p><strong>Wat moet je doen?</strong> Breng het gebied in kaart. Waar ligt het precies? En wie verbruikt daar al het water?</p>
+                        <ul>
+                            <li><strong>De Kaart:</strong> Gebruik Google Earth of de (Grote) Bosatlas. Zoom in op je gebied, maar laat ook de omgeving zien.</li>
+                            <li><strong>De Grafiek:</strong> Zoek op termen als <em>'water withdrawal by sector [jouw gebied]'</em>. Maak een grafiek van het verbruik (Landbouw vs. Industrie vs. Burgers).</li>
+                        </ul>
+                        <div class="hint-box"><strong>Zoektip:</strong> Kijk op <em>Our World in Data</em> voor betrouwbare cijfers over watergebruik!</div>
+                    </div>
                 </div>
-                <div style="background: #f8fdfe; padding: 15px; border-radius: 15px;">
-                    <h4>⛓️ B. De Keten</h4>
-                    <p>Waarom is het vervuild? Heeft het te maken met onze kleding of ons eten?</p>
+
+                <div class="pillar-item" id="p2">
+                    <div class="pillar-header" onclick="togglePillar('p2')">
+                        <span>⛓️ Pijler B: De Mondiale Keten</span>
+                        <span>▼</span>
+                    </div>
+                    <div class="pillar-content">
+                        <p><strong>Wat moet je doen?</strong> Ontdek de link met Nederland. Waarom wordt dit water vervuild of opgebruikt? Is het voor onze spullen?</p>
+                        <ul>
+                            <li><strong>Productie:</strong> Wordt er katoen, olie of goud gewonnen voor de wereldmarkt?</li>
+                            <li><strong>Watervoetafdruk:</strong> Hoeveel 'verborgen water' zit er in het product uit jouw casus?</li>
+                        </ul>
+                        <div class="hint-box"><strong>Zoektip:</strong> Gebruik de website van het <em>Water Footprint Network</em> om te zien hoeveel water een product kost.</div>
+                    </div>
                 </div>
-                <div style="background: #f8fdfe; padding: 15px; border-radius: 15px;">
-                    <h4>🐟 C. De Impact</h4>
-                    <p>Wat merken de vissen en de mensen daar ervan? Is er sprake van ziektes of honger?</p>
+
+                <div class="pillar-item" id="p3">
+                    <div class="pillar-header" onclick="togglePillar('p3')">
+                        <span>🐟 Pijler C: Impact op Mens & Natuur</span>
+                        <span>▼</span>
+                    </div>
+                    <div class="pillar-content">
+                        <p><strong>Wat moet je doen?</strong> Beschrijf de ellende, maar wees specifiek. Wat gebeurt er met het ecosysteem en de lokale bevolking?</p>
+                        <ul>
+                            <li><strong>Biodiversiteit:</strong> Welke vissen of planten gaan dood? Zoek naar 'Ecosystem collapse'.</li>
+                            <li><strong>Gezondheid:</strong> Worden mensen ziek? Kunnen ze nog wel geld verdienen?</li>
+                        </ul>
+                        <div class="hint-box"><strong>Zoektip:</strong> Zoek op YouTube naar documentaires over jouw casus om echte verhalen van mensen te horen.</div>
+                    </div>
                 </div>
-                <div style="background: #f8fdfe; padding: 15px; border-radius: 15px;">
-                    <h4>♻️ D. De Oplossing</h4>
-                    <p>Hoe maken we dit 'circulair'? Bedenk een plan waar geen afval meer bestaat.</p>
+
+                <div class="pillar-item" id="p4">
+                    <div class="pillar-header" onclick="togglePillar('p4')">
+                        <span>♻️ Pijler D: Circulaire Oplossing</span>
+                        <span>▼</span>
+                    </div>
+                    <div class="pillar-content">
+                        <p><strong>Wat moet je doen?</strong> Hoe lossen we dit op? Denk niet in 'minder vervuilen', maar in 'geen afval meer maken'.</p>
+                        <ul>
+                            <li><strong>Het Plan:</strong> Bedenk hoe we grondstoffen kunnen hergebruiken. Bijvoorbeeld: water zuiveren en weer terug in de fabriek gebruiken.</li>
+                            <li><strong>Eigen Rol:</strong> Wat kunnen wij in de Nederlandse winkels doen om te helpen?</li>
+                        </ul>
+                        <div class="hint-box"><strong>Zoektip:</strong> Zoek naar de 'R-ladder' van de circulaire economie (Refuse, Reduce, Recycle) voor inspiratie!</div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -260,23 +329,22 @@
 
     <section id="checklist" class="tab-content">
         <div class="card">
-            <h2>Jouw Voortgang ✅</h2>
-            <p>Vink je stappen af. We slaan het automatisch voor je op!</p>
-            <div class="checklist-container" id="checklist-items">
-                <label class="check-item"><input type="checkbox" id="c1"> <span>Groep gevormd en casus gekozen</span></label>
-                <label class="check-item"><input type="checkbox" id="c2"> <span>Rollen A t/m D verdeeld</span></label>
-                <label class="check-item"><input type="checkbox" id="c3"> <span>Kaart en grafiek gevonden</span></label>
-                <label class="check-item"><input type="checkbox" id="c4"> <span>Link met wereldhandel uitgezocht</span></label>
-                <label class="check-item"><input type="checkbox" id="c5"> <span>Circulaire oplossing uitgewerkt</span></label>
-                <label class="check-item"><input type="checkbox" id="c6"> <span>Slides ontworpen (weinig tekst!)</span></label>
-                <label class="check-item"><input type="checkbox" id="c7"> <span>Presentatie geoefend met timer</span></label>
+            <h2>Checklist voor je Groepje ✅</h2>
+            <div id="checklist-items">
+                <label class="check-item"><input type="checkbox" id="step1"> <span>Drietallen gevormd & casus gekozen</span></label>
+                <label class="check-item"><input type="checkbox" id="step2"> <span>Taken A t/m D verdeeld onder elkaar</span></label>
+                <label class="check-item"><input type="checkbox" id="step3"> <span>Relevante kaart en grafiek gevonden</span></label>
+                <label class="check-item"><input type="checkbox" id="step4"> <span>Link tussen casus en wereldmarkt gevonden</span></label>
+                <label class="check-item"><input type="checkbox" id="step5"> <span>Circulaire oplossing uitgewerkt</span></label>
+                <label class="check-item"><input type="checkbox" id="step6"> <span>Slides gemaakt (met foto's, zonder lappen tekst)</span></label>
+                <label class="check-item"><input type="checkbox" id="step7"> <span>Presentatie geoefend (tussen de 8 en 10 min)</span></label>
             </div>
         </div>
     </section>
 
     <section id="rubric" class="tab-content">
         <div class="card">
-            <h2>Het Beoordelingsmodel 📊</h2>
+            <h2>Beoordelingsmodel 📊</h2>
             <div class="table-wrapper">
                 <table>
                     <thead>
@@ -289,28 +357,28 @@
                     </thead>
                     <tbody>
                         <tr>
-                            <td><strong>Inhoud & Diepgang (25%)</strong></td>
-                            <td>Antwoorden zijn erg kort of missen de kern. Geen link met wereldmarkt.</td>
-                            <td>Alle pijlers zijn behandeld met kloppende feiten.</td>
-                            <td>Zeer grondige analyse. Sterke verbanden tussen handel en milieu.</td>
+                            <td><strong>Onderzoek & Inhoud (25%)</strong></td>
+                            <td>Mist pijlers of diepgang. Geen link met wereldhandel.</td>
+                            <td>Alle pijlers beantwoord met kloppende feiten.</td>
+                            <td>Diepgaande analyse en sterke verbanden.</td>
                         </tr>
                         <tr>
-                            <td><strong>Data & Kaarten (25%)</strong></td>
-                            <td>Geen grafiek of kaart aanwezig, of ze zijn onduidelijk.</td>
-                            <td>Minstens 1 kaart en 1 grafiek die goed worden uitgelegd.</td>
-                            <td>Prachtige visuals die het verhaal écht ondersteunen en bewijzen.</td>
+                            <td><strong>Visuele Data (25%)</strong></td>
+                            <td>Geen kaart of grafiek, of ze passen niet bij het verhaal.</td>
+                            <td>Bevat minimaal 1 relevante kaart en 1 grafiek.</td>
+                            <td>Uitstekend gebruik van data om het punt te bewijzen.</td>
                         </tr>
                         <tr>
-                            <td><strong>Presentatie (25%)</strong></td>
-                            <td>Leest voor van blaadje. Te kort/lang. Rommelig verhaal.</td>
-                            <td>Spreekt grotendeels uit het hoofd. Binnen de tijd (8-10 min).</td>
-                            <td>Overtuigend, professioneel en boeiend voor de hele klas.</td>
+                            <td><strong>Presenteren (25%)</strong></td>
+                            <td>Leest voor, te kort/lang, geen structuur.</td>
+                            <td>Spreekt uit het hoofd, goede tijdsplanning.</td>
+                            <td>Professioneel, boeiend en overtuigend.</td>
                         </tr>
                         <tr>
                             <td><strong>Expert-check (25%)</strong></td>
-                            <td>Kan vragen niet beantwoorden. Veel copy-paste werk merkbaar.</td>
-                            <td>Begrijpt eigen deel en kan de meeste vragen beantwoorden.</td>
-                            <td>Toont diep begrip. Kan moeiteloos verbanden leggen met andere thema's.</td>
+                            <td>Kan vragen niet beantwoorden. Geen eigen begrip.</td>
+                            <td>Beantwoordt vragen over eigen deel goed.</td>
+                            <td>Toont totale beheersing van de hele casus.</td>
                         </tr>
                     </tbody>
                 </table>
@@ -319,77 +387,55 @@
     </section>
 </main>
 
+<footer>
+    Project Blauw Goud 🌊 - 2024 Onderwijsomgeving
+</footer>
+
 <script>
-    // Tab switching
-    function showTab(tabId) {
-        document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    // Tab Switching
+    function showTab(id) {
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        document.getElementById(tabId).classList.add('active');
+        document.getElementById(id).classList.add('active');
         event.currentTarget.classList.add('active');
     }
 
-    // Case Information Data
-    const caseData = {
-        citarum: {
-            title: "Citarum Rivier: De Mode-moordenaar",
-            text: "De Citarum in Indonesië wordt vaak de vieste rivier ter wereld genoemd. Meer dan 2000 fabrieken dumpen hier hun afvalwater, waarvan een groot deel textielfabrieken zijn die kleding maken voor bekende westerse merken. <br><br>De rivier zit vol met lood, kwik en arsenicum. Voor de lokale bevolking is het een ramp: ze gebruiken het water voor wassen en landbouw, maar worden er doodziek van. Jullie onderzoeken hoe onze honger naar 'fast fashion' deze rivier kapotmaakt."
-        },
-        aralmeer: {
-            title: "Het Aralmeer: De Verdwijnende Zee",
-            text: "Ooit was het Aralmeer in Centraal-Azië een van de grootste meren ter wereld. Nu is het bijna helemaal verdwenen. De reden? De Sovjet-Unie besloot in de jaren '60 om de rivieren die het meer voedden om te leiden naar enorme katoenplantages in de woestijn. <br><br>Wat overblijft is een zoutvlakte met giftig stof. Vissersdorpen liggen nu honderden kilometers van de kust. Dit is het ultieme voorbeeld van hoe intensieve landbouw een heel ecosysteem kan vernietigen."
-        },
-        plastic: {
-            title: "Plastic Soep: De Drijvende Vuilnisbelt",
-            text: "Onze oceanen bevatten enorme gebieden waar plastic zich ophoopt door zeestromingen. De 'Great Pacific Garbage Patch' is de bekendste. Het probleem is niet alleen het grote plastic dat we zien, maar vooral de 'microplastics' die in de voedselketen terechtkomen. <br><br>Zeeschildpadden, vogels en vissen eten het plastic en gaan dood, of wij eten de vissen en krijgen de plastics zelf binnen. Hoe krijgen we dit plastic uit de oceaan en hoe voorkomen we dat het erin komt?"
-        },
-        niger: {
-            title: "Nigerdelta: Olie versus Water",
-            text: "In Nigeria ligt een van de grootste rivierdelta's ter wereld. Het is ook de plek waar al decennia lang olie wordt gewonnen door bedrijven als Shell. Duizenden olielekkages hebben het grondwater en de rivieren zwart gekleurd. <br><br>De vissers kunnen niet meer vissen en de boeren kunnen niet meer boeren. Het water is ondrinkbaar geworden. In deze casus kijken jullie naar de strijd tussen de enorme winsten van olie en het recht op schoon drinkwater."
-        },
-        ganges: {
-            title: "De Ganges: Heilig maar Vergiftigd",
-            text: "Voor hindoes is de Ganges de heiligste rivier op aarde. Miljoenen mensen baden erin om hun zonden af te wassen. Tegelijkertijd stromen er dagelijks miljarden liters ongezuiverd rioolwater en industrieel gif in de rivier. <br><br>Kadavers, plastic en chemisch afval drijven langs mensen die het water drinken. Hoe bescherm je een rivier die spiritueel zo belangrijk is, terwijl de industrie eromheen alleen maar aan geld denkt?"
-        },
-        amazone: {
-            title: "De Amazone: De Kwik-vloek",
-            text: "In het diepe regenwoud van Brazilië en Suriname wordt illegaal gezocht naar goud. Om het goud te scheiden van het zand gebruiken goudzoekers kwik. Dit kwik komt rechtstreeks in de zijrivieren van de Amazone terecht. <br><br>Kwik breekt nooit af en hoopt zich op in vissen. De inheemse stammen die van deze vissen leven, kampen nu met zware hersenbeschadigingen en misvormingen. Hoe stopt dit illegale proces in een gebied dat zo groot en onherbergzaam is?"
-        },
-        dodezee: {
-            title: "De Dode Zee: Een Zinkend Wonder",
-            text: "De Dode Zee is uniek omdat het zo zout is, maar het waterniveau daalt met meer dan een meter per jaar. Dit komt omdat er bijna geen water meer uit de Jordaan-rivier bijkomt (dat wordt gebruikt voor landbouw) en omdat bedrijven mineralen uit het water halen voor cosmetica en kunstmest. <br><br>Het gevolg? Enorme zinkgaten die wegen en gebouwen opslokken. De toeristische sector gaat kapot en het landschap verandert in een gatenkaas. Hoe behoud je dit wereldwonder?"
-        },
-        nl: {
-            title: "Nederlandse Delta: De Mest-crisis",
-            text: "In Nederland lijkt het water schoon, maar schijn bedriegt. Door onze enorme hoeveelheid vee (koeien en varkens) komt er te veel mest op het land. De stikstof en fosfaten uit die mest spoelen bij regen uit naar onze sloten en meren. <br><br>Hierdoor groeien algen zo hard dat ze al het zuurstof uit het water halen, waardoor vissen sterven. Ook ons drinkwater maken is hierdoor steeds duurder. Hoe kunnen we onze landbouw veranderen zodat we weer gezond water in onze eigen achtertuin hebben?"
-        }
+    // Accordion Logic
+    function togglePillar(id) {
+        const item = document.getElementById(id);
+        const isOpen = item.classList.contains('open');
+        document.querySelectorAll('.pillar-item').forEach(p => p.classList.remove('open'));
+        if (!isOpen) item.classList.add('open');
+    }
+
+    // Case Info Data
+    const cases = {
+        citarum: { title: "Citarum: De Giftige Prijs van Mode", desc: "In deze Indonesische rivier dumpen 2000 fabrieken hun afvalwater voor onze kleding. De rivier zit vol met lood en kwik." },
+        aralmeer: { title: "Aralmeer: De Katoen-Woestijn", desc: "Een complete zee die verdween omdat water werd omgelegd naar katoenplantages. Wat overblijft is een giftige zoutvlakte." },
+        plastic: { title: "Plastic Soep: Onze Mondiale Erfenis", desc: "Hoe microplastics via de oceaan in onze eigen voedselketen terechtkomen. Hoe krijgen we het eruit?" },
+        niger: { title: "Nigerdelta: Zwarte Rivieren", desc: "Duizenden olielekkages vernietigen de visstand en het drinkwater van de lokale bevolking. Geld vs. Milieu." },
+        ganges: { title: "Ganges: Heiligdom onder Druk", desc: "Een spirituele rivier die vecht tegen rioolwater en industrieel gif. Hoe red je een symbool?" },
+        amazone: { title: "Amazone: De Kwik-vloek", desc: "Illegale goudzoekers gebruiken kwik dat in het water belandt. Inheemse stammen worden langzaam vergiftigd." },
+        dodezee: { title: "Dode Zee: Het Zinkende Wonder", desc: "Het zoutste meer ter wereld droogt op door industrie en landbouw. Enorme zinkgaten verslinden de kust." },
+        nl: { title: "Nederland: De Onzichtbare Meststof", desc: "Onze eigen slootjes lijken schoon, maar zitten vol meststoffen die vissen doden en drinkwater duur maken." }
     };
 
-    function showCase(key) {
-        const box = document.getElementById('case-info-box');
-        const data = caseData[key];
-        document.getElementById('case-title').innerText = data.title;
-        document.getElementById('case-description').innerHTML = data.text;
-        box.style.display = 'block';
-        
+    function showCase(id) {
+        document.getElementById('case-info-box').style.display = 'block';
+        document.getElementById('case-title').innerText = cases[id].title;
+        document.getElementById('case-description').innerText = cases[id].desc;
         document.querySelectorAll('.pill').forEach(p => p.classList.remove('selected'));
         event.currentTarget.classList.add('selected');
     }
 
-    // Checklist LocalStorage Logic
-    const checkboxes = document.querySelectorAll('.check-item input');
-    
-    function updateCheckUI(cb) {
-        if(cb.checked) cb.parentElement.classList.add('done');
-        else cb.parentElement.classList.remove('done');
-    }
-
-    checkboxes.forEach(cb => {
-        cb.checked = localStorage.getItem(cb.id) === 'true';
-        updateCheckUI(cb);
-        
-        cb.addEventListener('change', () => {
-            localStorage.setItem(cb.id, cb.checked);
-            updateCheckUI(cb);
+    // LocalStorage for Checklist
+    const checks = document.querySelectorAll('.check-item input');
+    checks.forEach(c => {
+        c.checked = localStorage.getItem(c.id) === 'true';
+        if(c.checked) c.parentElement.classList.add('done');
+        c.addEventListener('change', () => {
+            localStorage.setItem(c.id, c.checked);
+            c.checked ? c.parentElement.classList.add('done') : c.parentElement.classList.remove('done');
         });
     });
 </script>
