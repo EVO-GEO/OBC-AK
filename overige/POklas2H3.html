@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Blauw Goud | Interactieve Leeromgeving</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-blue: #005f73;
+            --secondary-blue: #0a9396;
+            --primary-green: #94d2bd;
+            --accent-green: #006d77;
+            --light-bg: #f8fdfe;
+            --white: #ffffff;
+            --text-dark: #1b4332;
+            --gray: #e9ecef;
+        }
+
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Open Sans', sans-serif;
+            background-color: var(--light-bg);
+            color: var(--text-dark);
+            margin: 0;
+            line-height: 1.6;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary-blue), var(--accent-green));
+            color: var(--white);
+            padding: 2rem 1rem;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        header h1 {
+            font-family: 'Montserrat', sans-serif;
+            margin: 0;
+            font-size: 2.5rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        header p { font-weight: 300; opacity: 0.9; }
+
+        /* Tabs Navigation */
+        .tabs-container {
+            max-width: 1000px;
+            margin: -25px auto 2rem;
+            background: var(--white);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+            display: flex;
+            justify-content: space-around;
+        }
+
+        .tab-btn {
+            padding: 1rem;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            color: var(--primary-blue);
+            flex: 1;
+            transition: all 0.3s;
+            border-bottom: 4px solid transparent;
+        }
+
+        .tab-btn:hover { background: var(--light-bg); }
+        .tab-btn.active {
+            color: var(--accent-green);
+            border-bottom: 4px solid var(--accent-green);
+            background: var(--light-bg);
+        }
+
+        /* Content Sections */
+        .content-section {
+            display: none;
+            max-width: 1000px;
+            margin: 0 auto 4rem;
+            padding: 2rem;
+            background: var(--white);
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+
+        .content-section.active { display: block; animation: fadeIn 0.5s; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        h2 { color: var(--primary-blue); border-left: 5px solid var(--primary-green); padding-left: 15px; }
+
+        /* Grid for Cases */
+        .case-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 1rem;
+        }
+
+        .case-card {
+            background: var(--gray);
+            padding: 1rem;
+            border-radius: 10px;
+            text-align: center;
+            transition: transform 0.3s;
+            border: 1px solid #ddd;
+        }
+
+        .case-card:hover { transform: scale(1.05); background: var(--primary-green); color: var(--primary-blue); }
+
+        /* Checklist Styles */
+        .checklist-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            background: var(--light-bg);
+            margin-bottom: 8px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .checklist-item input { margin-right: 15px; transform: scale(1.3); }
+        .checklist-item.checked { text-decoration: line-through; opacity: 0.6; }
+
+        /* Table Styles */
+        table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+        th, td { padding: 12px; border: 1px solid #ddd; text-align: left; font-size: 0.9rem; }
+        th { background: var(--secondary-blue); color: var(--white); }
+
+        /* Tips Box */
+        .tips-box {
+            background: #e7f5f6;
+            border-left: 5px solid var(--secondary-blue);
+            padding: 1rem;
+            margin-top: 1rem;
+            border-radius: 0 10px 10px 0;
+        }
+
+        footer { text-align: center; padding: 2rem; color: var(--primary-blue); font-size: 0.8rem; }
+
+        @media (max-width: 600px) {
+            .tabs-container { flex-direction: column; margin-top: 1rem; }
+            .tab-btn { border-bottom: none; border-left: 4px solid transparent; }
+            .tab-btn.active { border-left: 4px solid var(--accent-green); border-bottom: none; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Project Blauw Goud</h1>
+    <p>Onderzoek naar water, wereldhandel en duurzaamheid</p>
+</header>
+
+<nav class="tabs-container">
+    <button class="tab-btn active" onclick="openTab(event, 'info')">Intro</button>
+    <button class="tab-btn" onclick="openTab(event, 'cases')">De Cases</button>
+    <button class="tab-btn" onclick="openTab(event, 'onderzoek')">Het Onderzoek</button>
+    <button class="tab-btn" onclick="openTab(event, 'checklist')">Checklist</button>
+    <button class="tab-btn" onclick="openTab(event, 'rubric')">Beoordeling</button>
+</nav>
+
+<section id="info" class="content-section active">
+    <h2>Welkom, Onderzoekers!</h2>
+    <p>Water is kostbaar. In dit project gaan jullie als geografen een wereldwijd waterprobleem analyseren. Jullie werken in een <strong>drietal</strong> en het doel is om een expert te worden in jullie gekozen gebied.</p>
+    <div class="tips-box">
+        <strong>De Uitdaging:</strong> Geen saai verslag, maar een spetterende presentatie van 8-10 minuten. Wees creatief met data en kaarten!
+    </div>
+    <h3>Belangrijkste regels:</h3>
+    <ul>
+        <li>8 tot 10 minuten presenteren (niet langer, niet korter).</li>
+        <li>Minimaal 1 grafiek en 1 kaart in de presentatie.</li>
+        <li>Geen PowerPoint inleveren: we beoordelen de <em>live</em> presentatie en jullie kennis.</li>
+    </ul>
+</section>
+
+<section id="cases" class="content-section">
+    <h2>Kies je Casus</h2>
+    <p>Klik op een gebied waar je nieuwsgierig naar bent en overleg met je groepje.</p>
+    <div class="case-grid">
+        <div class="case-card"><strong>Citarum Rivier</strong><br><small>Mode & Gif</small></div>
+        <div class="case-card"><strong>Aralmeer</strong><br><small>Verdwijnende Zee</small></div>
+        <div class="case-card"><strong>Plastic Soep</strong><br><small>Oceaan-afval</small></div>
+        <div class="case-card"><strong>Nigerdelta</strong><br><small>Olie vs. Water</small></div>
+        <div class="case-card"><strong>De Ganges</strong><br><small>Heilig & Vervuild</small></div>
+        <div class="case-card"><strong>De Amazone</strong><br><small>Goud & Kwik</small></div>
+        <div class="case-card"><strong>Dode Zee</strong><br><small>Opdroging</small></div>
+        <div class="case-card"><strong>Nederlandse Delta</strong><br><small>Mest & Landbouw</small></div>
+    </div>
+</section>
+
+<section id="onderzoek" class="content-section">
+    <h2>De 4 Pijlers van je Onderzoek</h2>
+    <p>Verdeel deze taken in je groepje van drie:</p>
+    
+    <h3>A. De Geografische Situatie</h3>
+    <p>Waar ligt het precies? Gebruik kaarten op verschillende schalen. Toon met een grafiek aan wie de grootste watergebruikers zijn.</p>
+    
+    <h3>B. Oorzaak & Mondiale Keten</h3>
+    <p>Wat is de bron van de vervuiling? Leg de link met de producten die wij in Nederland kopen (bijv. kleding of voedsel).</p>
+    
+    <h3>C. Impact op Mens & Natuur</h3>
+    <p>Wat gebeurt er met de vissen, planten en de gezondheid van de mensen die daar wonen?</p>
+    
+    <h3>D. De Circulaire Oplossing</h3>
+    <p>Hoe kunnen we dit stoppen? Pitch een oplossing waarbij afval weer een grondstof wordt. Wat kunnen wij zelf doen?</p>
+</section>
+
+<section id="checklist" class="content-section">
+    <h2>Voortgang & Checklist</h2>
+    <p>Vink af wat je al hebt gedaan. Je voortgang wordt automatisch opgeslagen!</p>
+    <div id="checklist-container">
+        <label class="checklist-item"><input type="checkbox" id="step1"> Groep gevormd en casus gekozen</label>
+        <label class="checklist-item"><input type="checkbox" id="step2"> Pijlers A t/m D verdeeld onder de 3 leden</label>
+        <label class="checklist-item"><input type="checkbox" id="step3"> Kaartmateriaal gevonden (lokaal/mondiaal)</label>
+        <label class="checklist-item"><input type="checkbox" id="step4"> Grafiek gevonden of gemaakt met cijfers</label>
+        <label class="checklist-item"><input type="checkbox" id="step5"> Mondiale link uitgezocht (verborgen watergebruik)</label>
+        <label class="checklist-item"><input type="checkbox" id="step6"> Circulaire oplossing uitgewerkt</label>
+        <label class="checklist-item"><input type="checkbox" id="step7"> Slides gemaakt (met weinig tekst!)</label>
+        <label class="checklist-item"><input type="checkbox" id="step8"> Hardop geoefend met timer (8-10 min)</label>
+    </div>
+    <div class="tips-box">
+        <strong>Tip:</strong> Zorg dat de overgangen tussen de sprekers soepel verlopen!
+    </div>
+</section>
+
+<section id="rubric" class="content-section">
+    <h2>Hoe word je beoordeeld?</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Criterium</th>
+                <th>Voldoende (5-7)</th>
+                <th>Goed (8-10)</th>
+                <th>Weging</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>Inhoud & Diepgang</strong></td>
+                <td>Pijlers beantwoord met feiten.</td>
+                <td>Sterke analyse van mondiale ketens.</td>
+                <td>25%</td>
+            </tr>
+            <tr>
+                <td><strong>Vormgeving & Data</strong></td>
+                <td>Bevat 1 kaart en 1 grafiek.</td>
+                <td>Prachtige visuals en data-uitleg.</td>
+                <td>25%</td>
+            </tr>
+            <tr>
+                <td><strong>Presentatie</strong></td>
+                <td>Binnen tijd, uit het hoofd.</td>
+                <td>Boeiend en professioneel.</td>
+                <td>25%</td>
+            </tr>
+            <tr>
+                <td><strong>Expert-check</strong></td>
+                <td>Beantwoordt vragen over eigen deel.</td>
+                <td>Kent de hele casus en legt verbanden.</td>
+                <td>25%</td>
+            </tr>
+        </tbody>
+    </table>
+</section>
+
+<footer>
+    &copy; 2024 Project Blauw Goud - Onderwijsomgeving Duurzaamheid
+</footer>
+
+<script>
+    // Tabbed Navigation Logic
+    function openTab(evt, tabName) {
+        var i, content, tablinks;
+        content = document.getElementsByClassName("content-section");
+        for (i = 0; i < content.length; i++) {
+            content[i].classList.remove("active");
+        }
+        tablinks = document.getElementsByClassName("tab-btn");
+        for (i = 0; i < tablinks.length; i++) {
+            tablinks[i].classList.remove("active");
+        }
+        document.getElementById(tabName).classList.add("active");
+        evt.currentTarget.classList.add("active");
+    }
+
+    // LocalStorage Checklist Logic
+    const checkboxes = document.querySelectorAll('#checklist-container input[type="checkbox"]');
+    
+    function saveStatus() {
+        checkboxes.forEach(cb => {
+            localStorage.setItem(cb.id, cb.checked);
+            if(cb.checked) {
+                cb.parentElement.classList.add('checked');
+            } else {
+                cb.parentElement.classList.remove('checked');
+            }
+        });
+    }
+
+    function loadStatus() {
+        checkboxes.forEach(cb => {
+            const checked = localStorage.getItem(cb.id) === 'true';
+            cb.checked = checked;
+            if(checked) {
+                cb.parentElement.classList.add('checked');
+            }
+        });
+    }
+
+    checkboxes.forEach(cb => {
+        cb.addEventListener('change', saveStatus);
+    });
+
+    window.onload = loadStatus;
+</script>
+
+</body>
+</html>
