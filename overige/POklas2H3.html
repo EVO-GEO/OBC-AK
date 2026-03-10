@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Project Blauw Goud 🌊 | De Ultieme Onderzoekstool</title>
+    <title>Project Blauw Goud 🌊 | Interactieve Leeromgeving</title>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&family=Nunito:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -105,7 +105,7 @@
             border-bottom: 8px solid var(--wave);
         }
 
-        /* Interactive Pills */
+        /* Interactive Case Pills */
         .case-pills { display: flex; flex-wrap: wrap; gap: 12px; margin: 20px 0; }
         .pill {
             padding: 12px 24px;
@@ -165,6 +165,7 @@
             transition: max-height 0.4s ease-out, padding 0.4s;
             background: white;
             font-size: 0.95rem;
+            line-height: 1.6;
         }
 
         .pillar-item.open { border-color: var(--ocean); }
@@ -212,7 +213,7 @@
 
 <header>
     <h1>Project Blauw Goud 🌊</h1>
-    <p>Ontdek de geheimen van het water en word een duurzame expert!</p>
+    <p>Word de expert van het water en red onze kostbare bronnen!</p>
     <div class="wave-decoration"></div>
 </header>
 
@@ -228,10 +229,10 @@
     <section id="intro" class="tab-content active">
         <div class="card">
             <h2>Welkom aan boord! 🚢</h2>
-            <p>Wist je dat 97% van al het water op aarde zout is? Van die overige 3% is het meeste bevroren. We moeten het dus doen met een piepklein beetje 'Blauw Goud'.</p>
-            <p>Jullie gaan in een <strong>drietal</strong> op onderzoek uit. Geen saai verslag, maar een krachtige presentatie van <strong>8 tot 10 minuten</strong>. Wees creatief, gebruik data en overtuig de klas!</p>
+            <p>Schoon water is schaarser dan je denkt. Hoewel onze planeet er van een afstandje blauw uitziet, is slechts een piepklein deel van al dat water geschikt om te drinken of te gebruiken voor landbouw.</p>
+            <p>Jullie gaan in een <strong>drietal</strong> op onderzoek uit naar een specifieke watercrisis. Geen saai verslag, maar een krachtige presentatie van <strong>8 tot 10 minuten</strong>. Gebruik data, kaarten en jullie eigen stem om de klas te overtuigen van een circulaire oplossing.</p>
             <div class="hint-box">
-                <strong>Gouden Tip:</strong> De docent let extra goed op of je de stof écht begrijpt. Wees voorbereid op kritische vragen na je presentatie!
+                <strong>Let op:</strong> De docent stelt na afloop vragen om te checken of je een échte expert bent. Geen "copy-paste" dus, maar echt begrijpen wat je vertelt!
             </div>
         </div>
     </section>
@@ -239,21 +240,21 @@
     <section id="cases" class="tab-content">
         <div class="card">
             <h2>Kies je missie 🧭</h2>
-            <p>Klik op een casus om de achtergrondinformatie te lezen. Welk probleem spreekt jullie het meeste aan?</p>
+            <p>Klik op een casus hieronder voor uitgebreide achtergrondinformatie. Welk probleem willen jullie oplossen?</p>
             <div class="case-pills">
-                <button class="pill" onclick="showCase('citarum')">Citarum (Kleding)</button>
-                <button class="pill" onclick="showCase('aralmeer')">Aralmeer (Landbouw)</button>
-                <button class="pill" onclick="showCase('plastic')">Plastic Soep (Oceaan)</button>
+                <button class="pill" onclick="showCase('citarum')">Citarum (Mode)</button>
+                <button class="pill" onclick="showCase('aralmeer')">Aralmeer (Katoen)</button>
+                <button class="pill" onclick="showCase('plastic')">Plastic Soep (Afval)</button>
                 <button class="pill" onclick="showCase('niger')">Nigerdelta (Olie)</button>
-                <button class="pill" onclick="showCase('ganges')">Ganges (Religie/Industrie)</button>
-                <button class="pill" onclick="showCase('amazone')">Amazone (Goudwinning)</button>
-                <button class="pill" onclick="showCase('dodezee')">Dode Zee (Opdroging)</button>
-                <button class="pill" onclick="showCase('nl')">Nederland (Meststof)</button>
+                <button class="pill" onclick="showCase('ganges')">Ganges (Industrie)</button>
+                <button class="pill" onclick="showCase('amazone')">Amazone (Goud)</button>
+                <button class="pill" onclick="showCase('dodezee')">Dode Zee (Mineralen)</button>
+                <button class="pill" onclick="showCase('nl')">Nederland (Mest)</button>
             </div>
 
             <div id="case-info-box">
                 <h3 id="case-title">Casus Naam</h3>
-                <p id="case-description">Klik op een knop hierboven...</p>
+                <div id="case-description" style="line-height: 1.6;">Klik op een knop hierboven...</div>
             </div>
         </div>
     </section>
@@ -261,7 +262,7 @@
     <section id="plan" class="tab-content">
         <div class="card">
             <h2>Onderzoeks-Handvatten 🏗️</h2>
-            <p>Klik op de onderstaande pijlers om precies te zien wat je moet doen en waar je informatie kunt vinden.</p>
+            <p>Klik op de pijlers om te zien welke vragen je moet beantwoorden en waar je hulp kunt vinden.</p>
             
             <div class="pillar-accordion">
                 <div class="pillar-item" id="p1">
@@ -270,12 +271,12 @@
                         <span>▼</span>
                     </div>
                     <div class="pillar-content">
-                        <p><strong>Wat moet je doen?</strong> Breng het gebied in kaart. Waar ligt het precies? En wie verbruikt daar al het water?</p>
+                        <p><strong>De Vragen:</strong> Waar ligt het gebied? Wie zijn de grootste waterverbruikers (landbouw, industrie of bewoners)?</p>
                         <ul>
-                            <li><strong>De Kaart:</strong> Gebruik Google Earth of de (Grote) Bosatlas. Zoom in op je gebied, maar laat ook de omgeving zien.</li>
-                            <li><strong>De Grafiek:</strong> Zoek op termen als <em>'water withdrawal by sector [jouw gebied]'</em>. Maak een grafiek van het verbruik (Landbouw vs. Industrie vs. Burgers).</li>
+                            <li><strong>Kaarten:</strong> Gebruik Google Earth. Laat een kaart zien op wereldschaal én een detailkaart van de vervuilde plek.</li>
+                            <li><strong>Grafieken:</strong> Zoek cijfers over watergebruik in dit land. Maak zelf een staaf- of cirkeldiagram.</li>
                         </ul>
-                        <div class="hint-box"><strong>Zoektip:</strong> Kijk op <em>Our World in Data</em> voor betrouwbare cijfers over watergebruik!</div>
+                        <div class="hint-box"><strong>Zoektip:</strong> Kijk op <em>Our World in Data</em> voor betrouwbare statistieken.</div>
                     </div>
                 </div>
 
@@ -285,12 +286,12 @@
                         <span>▼</span>
                     </div>
                     <div class="pillar-content">
-                        <p><strong>Wat moet je doen?</strong> Ontdek de link met Nederland. Waarom wordt dit water vervuild of opgebruikt? Is het voor onze spullen?</p>
+                        <p><strong>De Vragen:</strong> Welke producten uit dit gebied liggen bij ons in de winkel? Hoeveel water kost het om die te maken?</p>
                         <ul>
-                            <li><strong>Productie:</strong> Wordt er katoen, olie of goud gewonnen voor de wereldmarkt?</li>
-                            <li><strong>Watervoetafdruk:</strong> Hoeveel 'verborgen water' zit er in het product uit jouw casus?</li>
+                            <li><strong>Productie:</strong> Wordt hier katoen voor onze shirts of olie voor onze auto's gewonnen?</li>
+                            <li><strong>Verband:</strong> Waarom vervuilen ze daar het water voor spullen die wij hier goedkoop willen kopen?</li>
                         </ul>
-                        <div class="hint-box"><strong>Zoektip:</strong> Gebruik de website van het <em>Water Footprint Network</em> om te zien hoeveel water een product kost.</div>
+                        <div class="hint-box"><strong>Zoektip:</strong> Gebruik de term <em>'virtueel water'</em> of <em>'watervoetafdruk'</em> van producten.</div>
                     </div>
                 </div>
 
@@ -300,12 +301,12 @@
                         <span>▼</span>
                     </div>
                     <div class="pillar-content">
-                        <p><strong>Wat moet je doen?</strong> Beschrijf de ellende, maar wees specifiek. Wat gebeurt er met het ecosysteem en de lokale bevolking?</p>
+                        <p><strong>De Vragen:</strong> Wat zijn de gevolgen voor dieren en planten? Welke ziektes krijgen mensen door het water?</p>
                         <ul>
-                            <li><strong>Biodiversiteit:</strong> Welke vissen of planten gaan dood? Zoek naar 'Ecosystem collapse'.</li>
-                            <li><strong>Gezondheid:</strong> Worden mensen ziek? Kunnen ze nog wel geld verdienen?</li>
+                            <li><strong>Ecosystemen:</strong> Sterven er vissen? Verandert een bos in een woestijn?</li>
+                            <li><strong>Sociaal:</strong> Kunnen kinderen nog naar school of moeten ze de hele dag schoon water zoeken?</li>
                         </ul>
-                        <div class="hint-box"><strong>Zoektip:</strong> Zoek op YouTube naar documentaires over jouw casus om echte verhalen van mensen te horen.</div>
+                        <div class="hint-box"><strong>Zoektip:</strong> Zoek op YouTube naar korte reportages van bijvoorbeeld <em>NOS op 3</em> of <em>National Geographic</em>.</div>
                     </div>
                 </div>
 
@@ -315,12 +316,12 @@
                         <span>▼</span>
                     </div>
                     <div class="pillar-content">
-                        <p><strong>Wat moet je doen?</strong> Hoe lossen we dit op? Denk niet in 'minder vervuilen', maar in 'geen afval meer maken'.</p>
+                        <p><strong>De Vragen:</strong> Hoe stoppen we de vervuiling? Hoe maken we van afvalwater weer een grondstof?</p>
                         <ul>
-                            <li><strong>Het Plan:</strong> Bedenk hoe we grondstoffen kunnen hergebruiken. Bijvoorbeeld: water zuiveren en weer terug in de fabriek gebruiken.</li>
-                            <li><strong>Eigen Rol:</strong> Wat kunnen wij in de Nederlandse winkels doen om te helpen?</li>
+                            <li><strong>Plan:</strong> Ontwerp een systeem waarbij fabrieken hun eigen water zuiveren en hergebruiken.</li>
+                            <li><strong>Actie:</strong> Wat moet er veranderen aan ons eigen koopgedrag?</li>
                         </ul>
-                        <div class="hint-box"><strong>Zoektip:</strong> Zoek naar de 'R-ladder' van de circulaire economie (Refuse, Reduce, Recycle) voor inspiratie!</div>
+                        <div class="hint-box"><strong>Zoektip:</strong> Zoek op <em>'Circular Economy Water'</em> voor slimme technologische voorbeelden.</div>
                     </div>
                 </div>
             </div>
@@ -329,22 +330,21 @@
 
     <section id="checklist" class="tab-content">
         <div class="card">
-            <h2>Checklist voor je Groepje ✅</h2>
+            <h2>Jullie Voortgang ✅</h2>
             <div id="checklist-items">
-                <label class="check-item"><input type="checkbox" id="step1"> <span>Drietallen gevormd & casus gekozen</span></label>
-                <label class="check-item"><input type="checkbox" id="step2"> <span>Taken A t/m D verdeeld onder elkaar</span></label>
-                <label class="check-item"><input type="checkbox" id="step3"> <span>Relevante kaart en grafiek gevonden</span></label>
-                <label class="check-item"><input type="checkbox" id="step4"> <span>Link tussen casus en wereldmarkt gevonden</span></label>
-                <label class="check-item"><input type="checkbox" id="step5"> <span>Circulaire oplossing uitgewerkt</span></label>
-                <label class="check-item"><input type="checkbox" id="step6"> <span>Slides gemaakt (met foto's, zonder lappen tekst)</span></label>
-                <label class="check-item"><input type="checkbox" id="step7"> <span>Presentatie geoefend (tussen de 8 en 10 min)</span></label>
+                <label class="check-item"><input type="checkbox" id="step1"> <span>Drietal gevormd en onderwerp gekozen</span></label>
+                <label class="check-item"><input type="checkbox" id="step2"> <span>Taken A t/m D verdeeld (wie doet wat?)</span></label>
+                <label class="check-item"><input type="checkbox" id="step3"> <span>Minstens één goede kaart en grafiek gevonden</span></label>
+                <label class="check-item"><input type="checkbox" id="step4"> <span>De link met de Nederlandse winkels uitgezocht</span></label>
+                <label class="check-item"><input type="checkbox" id="step5"> <span>Een circulaire oplossing bedacht</span></label>
+                <label class="check-item"><input type="checkbox" id="step6"> <span>Presentatie geoefend (tussen de 8 en 10 min)</span></label>
             </div>
         </div>
     </section>
 
     <section id="rubric" class="tab-content">
         <div class="card">
-            <h2>Beoordelingsmodel 📊</h2>
+            <h2>Hoe word je beoordeeld? 📊</h2>
             <div class="table-wrapper">
                 <table>
                     <thead>
@@ -357,28 +357,28 @@
                     </thead>
                     <tbody>
                         <tr>
-                            <td><strong>Onderzoek & Inhoud (25%)</strong></td>
-                            <td>Mist pijlers of diepgang. Geen link met wereldhandel.</td>
-                            <td>Alle pijlers beantwoord met kloppende feiten.</td>
-                            <td>Diepgaande analyse en sterke verbanden.</td>
+                            <td><strong>Onderzoek (25%)</strong></td>
+                            <td>Te weinig info, geen link met wereldhandel.</td>
+                            <td>Alle pijlers beantwoord met feiten.</td>
+                            <td>Diepe analyse en sterke verbanden.</td>
                         </tr>
                         <tr>
-                            <td><strong>Visuele Data (25%)</strong></td>
-                            <td>Geen kaart of grafiek, of ze passen niet bij het verhaal.</td>
-                            <td>Bevat minimaal 1 relevante kaart en 1 grafiek.</td>
-                            <td>Uitstekend gebruik van data om het punt te bewijzen.</td>
+                            <td><strong>Visuals (25%)</strong></td>
+                            <td>Geen kaart of grafiek aanwezig.</td>
+                            <td>Duidelijke kaart en grafiek uitgelegd.</td>
+                            <td>Prachtige data die het punt bewijst.</td>
                         </tr>
                         <tr>
                             <td><strong>Presenteren (25%)</strong></td>
-                            <td>Leest voor, te kort/lang, geen structuur.</td>
-                            <td>Spreekt uit het hoofd, goede tijdsplanning.</td>
-                            <td>Professioneel, boeiend en overtuigend.</td>
+                            <td>Leest voor, rommelig, te kort/lang.</td>
+                            <td>Spreekt uit het hoofd, goede tijd.</td>
+                            <td>Overtuigend en professioneel.</td>
                         </tr>
                         <tr>
                             <td><strong>Expert-check (25%)</strong></td>
-                            <td>Kan vragen niet beantwoorden. Geen eigen begrip.</td>
-                            <td>Beantwoordt vragen over eigen deel goed.</td>
-                            <td>Toont totale beheersing van de hele casus.</td>
+                            <td>Kan geen vragen beantwoorden.</td>
+                            <td>Beantwoordt vragen over eigen deel.</td>
+                            <td>Toont totale beheersing van de casus.</td>
                         </tr>
                     </tbody>
                 </table>
@@ -392,7 +392,6 @@
 </footer>
 
 <script>
-    // Tab Switching
     function showTab(id) {
         document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -400,7 +399,6 @@
         event.currentTarget.classList.add('active');
     }
 
-    // Accordion Logic
     function togglePillar(id) {
         const item = document.getElementById(id);
         const isOpen = item.classList.contains('open');
@@ -408,27 +406,49 @@
         if (!isOpen) item.classList.add('open');
     }
 
-    // Case Info Data
     const cases = {
-        citarum: { title: "Citarum: De Giftige Prijs van Mode", desc: "In deze Indonesische rivier dumpen 2000 fabrieken hun afvalwater voor onze kleding. De rivier zit vol met lood en kwik." },
-        aralmeer: { title: "Aralmeer: De Katoen-Woestijn", desc: "Een complete zee die verdween omdat water werd omgelegd naar katoenplantages. Wat overblijft is een giftige zoutvlakte." },
-        plastic: { title: "Plastic Soep: Onze Mondiale Erfenis", desc: "Hoe microplastics via de oceaan in onze eigen voedselketen terechtkomen. Hoe krijgen we het eruit?" },
-        niger: { title: "Nigerdelta: Zwarte Rivieren", desc: "Duizenden olielekkages vernietigen de visstand en het drinkwater van de lokale bevolking. Geld vs. Milieu." },
-        ganges: { title: "Ganges: Heiligdom onder Druk", desc: "Een spirituele rivier die vecht tegen rioolwater en industrieel gif. Hoe red je een symbool?" },
-        amazone: { title: "Amazone: De Kwik-vloek", desc: "Illegale goudzoekers gebruiken kwik dat in het water belandt. Inheemse stammen worden langzaam vergiftigd." },
-        dodezee: { title: "Dode Zee: Het Zinkende Wonder", desc: "Het zoutste meer ter wereld droogt op door industrie en landbouw. Enorme zinkgaten verslinden de kust." },
-        nl: { title: "Nederland: De Onzichtbare Meststof", desc: "Onze eigen slootjes lijken schoon, maar zitten vol meststoffen die vissen doden en drinkwater duur maken." }
+        citarum: { 
+            title: "Citarum: De Giftige Prijs van Mode 👕", 
+            desc: "De Citarum in Indonesië is officieel een van de vieste rivieren ter wereld. Waarom? Omdat er meer dan 2000 fabrieken langs de oever staan die hun giftige afvalwater rechtstreeks lozen. Veel van deze fabrieken maken stoffen voor de 'fast fashion' industrie in het Westen. <br><br><strong>De impact:</strong> Het water zit vol lood, kwik en arsenicum. De lokale bevolking krijgt huidziektes en kan geen gezonde vis meer vangen. <br><strong>Jullie missie:</strong> Ontdek welke merken hier produceren en hoe we de textielketen circulair kunnen maken." 
+        },
+        aralmeer: { 
+            title: "Het Aralmeer: De Verdwijnende Zee 🏜️", 
+            desc: "In de jaren '60 was dit het vierde grootste meer ter wereld. Nu is het bijna een woestijn. De oorzaak: de rivieren die het meer vulden, werden omgelegd om katoenplantages in de woestijn van water te voorzien. <br><br><strong>De impact:</strong> Wat overblijft is een zoute stofbak. Giftige stofstormen maken mensen in de wijde omtrek ziek. Schepen liggen te roesten in het zand waar vroeger water was. <br><strong>Jullie missie:</strong> Hoe heeft onze honger naar goedkoop katoen dit meer vermoord? Kan dit ecosysteem nog gered worden?" 
+        },
+        plastic: { 
+            title: "Plastic Soep: De Drijvende Vuilnisbelt 🧴", 
+            desc: "In onze oceanen drijven enorme 'patches' vol plastic. Dit komt niet alleen door mensen die hun afval op het strand laten liggen, maar door een lineair systeem waarin we plastic maken en weggooien zonder na te denken. <br><br><strong>De impact:</strong> Plastic breekt niet af, het wordt 'microplastic'. Vissen eten het, en via de vissen komt het op ons eigen bord terecht. <br><strong>Jullie missie:</strong> Breng de route van plastic in kaart. Hoe maken we de verpakkingsindustrie circulair zodat er geen korrel plastic meer in zee belandt?" 
+        },
+        niger: { 
+            title: "Nigerdelta: Olie in het Drinkwater 🛢️", 
+            desc: "In Nigeria wordt al decennia olie gewonnen voor de wereldmarkt. Oude pijpleidingen lekken voortdurend, waardoor de Nigerdelta bedekt is met een zwarte laag olie. Bedrijven en de overheid wijzen naar elkaar, maar niemand ruimt het op. <br><br><strong>De impact:</strong> Drinkwaterbronnen zijn vergiftigd. Vissers kunnen niet meer werken omdat de mangroven (kraamkamers voor vissen) doodgaan. <br><strong>Jullie missie:</strong> Wie is verantwoordelijk voor deze ramp? Hoe kan de olie-industrie gedwongen worden tot een duurzame transformatie?" 
+        },
+        ganges: { 
+            title: "De Ganges: Heilig maar Vergiftigd 🕉️", 
+            desc: "Voor miljoenen hindoes is de Ganges een godin. Ze baden erin om hun zonden af te wassen. Tegelijkertijd lozen leerlooierijen (die leer maken voor onze schoenen) en steden dagelijks miljarden liters ongezuiverd gif en rioolwater in de rivier. <br><br><strong>De impact:</strong> De rivier is zo vervuild dat ze een gevaar is voor de volksgezondheid, terwijl ze spiritueel onmisbaar is. <br><strong>Jullie missie:</strong> Hoe combineer je religieuze traditie met moderne industrie? Zoek naar het 'Clean Ganga' project." 
+        },
+        amazone: { 
+            title: "De Amazone: De Kwik-vloek van Goud 🏆", 
+            desc: "Diep in het regenwoud wordt illegaal gezocht naar goud. Goudzoekers gebruiken kwik om kleine deeltjes goud uit de modder te halen. Dat kwik stroomt rechtstreeks de Amazone-rivieren in. <br><br><strong>De impact:</strong> Kwik hoopt zich op in vissen. Inheemse stammen die van deze vis leven, worden zwaar vergiftigd, met hersenschade tot gevolg. <br><strong>Jullie missie:</strong> Waar gaat dit goud naartoe? Hoe kunnen we zorgen dat de goudketen geen spoor van vergif achterlaat?" 
+        },
+        dodezee: { 
+            title: "De Dode Zee: Een Zinkend Wonder 🧂", 
+            desc: "De Dode Zee is het laagste punt op aarde en extreem zout. Maar het waterpeil daalt met een meter per jaar! Dit komt door grootschalige landbouw in de omgeving en bedrijven die mineralen (voor cosmetica en mest) uit het water halen. <br><br><strong>De impact:</strong> Er ontstaan duizenden 'zinkgaten' langs de kust die wegen en gebouwen opslokken. <br><strong>Jullie missie:</strong> Wie verdient er geld aan de mineralen van de Dode Zee? Hoe kunnen we dit unieke landschap behouden voor de toekomst?" 
+        },
+        nl: { 
+            title: "Nederland: De Mest-crisis in onze Sloten 🐄", 
+            desc: "In Nederland lijkt ons water schoon, maar schijn bedriegt. Door onze enorme veestapel komt er veel te veel mest (stikstof en fosfaat) in de bodem en het water terecht. Onze sloten 'stikken' letterlijk door algenbloei. <br><br><strong>De impact:</strong> Biodiversiteit verdwijnt: planten en vissen gaan dood. Ook het maken van drinkwater uit dit vervuilde water wordt steeds duurder. <br><strong>Jullie missie:</strong> Analyseer de impact van onze intensieve landbouw. Hoe ziet een circulaire boerderij eruit die het water wél schoon houdt?" 
+        }
     };
 
     function showCase(id) {
         document.getElementById('case-info-box').style.display = 'block';
         document.getElementById('case-title').innerText = cases[id].title;
-        document.getElementById('case-description').innerText = cases[id].desc;
+        document.getElementById('case-description').innerHTML = cases[id].desc;
         document.querySelectorAll('.pill').forEach(p => p.classList.remove('selected'));
         event.currentTarget.classList.add('selected');
     }
 
-    // LocalStorage for Checklist
     const checks = document.querySelectorAll('.check-item input');
     checks.forEach(c => {
         c.checked = localStorage.getItem(c.id) === 'true';
