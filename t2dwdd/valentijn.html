@@ -1,1 +1,1728 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🌍 Expeditie Oekraïne — Ontdekkingsreis door het conflict</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+:root {
+  --jungle-900: #0b3d1e;
+  --jungle-800: #145a2e;
+  --jungle-700: #1a7a3e;
+  --jungle-600: #22964c;
+  --jungle-500: #2db55e;
+  --jungle-400: #4fcf7a;
+  --jungle-300: #7de09e;
+  --jungle-200: #b5eec9;
+  --jungle-100: #e0f7e9;
+  --jungle-50: #f0fbf4;
+  --gold: #d4a017;
+  --gold-light: #f5e6a3;
+  --bark: #3e2c1c;
+  --bark-light: #6b4c33;
+  --earth: #5c4a3a;
+  --danger: #c0392b;
+  --danger-light: #f9e0dd;
+  --info: #2471a3;
+  --info-light: #d6eaf8;
+  --bg: #f4f1eb;
+  --card-bg: #ffffff;
+  --text: #2c2416;
+  --text-muted: #6b6050;
+  --radius: 12px;
+  --radius-sm: 8px;
+  --shadow: 0 4px 16px rgba(11,61,30,0.10);
+  --shadow-lg: 0 8px 32px rgba(11,61,30,0.15);
+  --transition: 0.3s ease;
+}
 
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Nunito', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.7;
+  min-height: 100vh;
+}
+
+/* ===== HEADER ===== */
+.expedition-header {
+  background: linear-gradient(135deg, var(--jungle-900) 0%, var(--jungle-700) 50%, var(--jungle-600) 100%);
+  color: #fff;
+  padding: 20px 24px 14px;
+  position: relative;
+  overflow: hidden;
+}
+.expedition-header::before {
+  content: '🌿🗺️🧭';
+  position: absolute;
+  right: 20px;
+  top: 10px;
+  font-size: 2.2rem;
+  opacity: 0.25;
+}
+.expedition-header h1 {
+  font-size: 1.6rem;
+  font-weight: 900;
+  letter-spacing: -0.5px;
+}
+.expedition-header .subtitle {
+  font-size: 0.9rem;
+  opacity: 0.85;
+  margin-top: 2px;
+  font-weight: 600;
+}
+
+/* ===== PROGRESS BAR ===== */
+.progress-container {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: var(--jungle-900);
+  padding: 8px 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+}
+.progress-bar-track {
+  flex: 1;
+  height: 14px;
+  background: rgba(255,255,255,0.15);
+  border-radius: 7px;
+  overflow: hidden;
+}
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--jungle-400), var(--gold));
+  border-radius: 7px;
+  transition: width 0.5s ease;
+  width: 0%;
+}
+.progress-label {
+  color: #fff;
+  font-size: 0.82rem;
+  font-weight: 700;
+  min-width: 44px;
+  text-align: right;
+}
+.section-counter {
+  color: var(--jungle-200);
+  font-size: 0.78rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* ===== TABS ===== */
+.tab-bar {
+  display: flex;
+  overflow-x: auto;
+  background: var(--jungle-800);
+  padding: 0 16px;
+  gap: 2px;
+  scrollbar-width: none;
+}
+.tab-bar::-webkit-scrollbar { display: none; }
+.tab-btn {
+  flex-shrink: 0;
+  padding: 10px 18px;
+  background: transparent;
+  border: none;
+  color: var(--jungle-200);
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  transition: var(--transition);
+  white-space: nowrap;
+  position: relative;
+}
+.tab-btn:hover { color: #fff; background: rgba(255,255,255,0.06); }
+.tab-btn.active {
+  color: #fff;
+  border-bottom-color: var(--gold);
+  background: rgba(255,255,255,0.08);
+}
+.tab-btn .tab-check {
+  color: var(--jungle-400);
+  margin-left: 4px;
+}
+
+/* ===== MAIN CONTENT ===== */
+.tab-content { display: none; padding: 20px; max-width: 860px; margin: 0 auto; }
+.tab-content.active { display: block; animation: fadeIn 0.35s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ===== CARDS ===== */
+.info-card {
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  padding: 24px;
+  margin-bottom: 20px;
+  box-shadow: var(--shadow);
+  border-left: 5px solid var(--jungle-600);
+}
+.info-card.gold { border-left-color: var(--gold); }
+.info-card.danger { border-left-color: var(--danger); }
+.info-card.info { border-left-color: var(--info); }
+.info-card h2 {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: var(--jungle-800);
+  margin-bottom: 10px;
+}
+.info-card h3 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--jungle-700);
+  margin: 14px 0 6px;
+}
+.info-card p { margin-bottom: 10px; font-size: 0.95rem; }
+
+.emoji-flow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  background: var(--jungle-50);
+  padding: 14px 18px;
+  border-radius: var(--radius-sm);
+  margin: 12px 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+.emoji-flow .arrow { color: var(--jungle-600); font-weight: 900; }
+
+.comparison-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  margin: 12px 0;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+.comparison-table th {
+  background: var(--jungle-700);
+  color: #fff;
+  padding: 10px 14px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-align: left;
+}
+.comparison-table td {
+  padding: 10px 14px;
+  font-size: 0.88rem;
+  border-bottom: 1px solid var(--jungle-100);
+}
+.comparison-table tr:nth-child(even) td { background: var(--jungle-50); }
+
+.world-link {
+  background: linear-gradient(135deg, var(--gold-light), #fff8e1);
+  border-radius: var(--radius-sm);
+  padding: 14px 18px;
+  margin: 14px 0;
+  border-left: 4px solid var(--gold);
+  font-size: 0.92rem;
+}
+.world-link strong { color: var(--bark); }
+
+/* ===== QUESTION BLOCKS ===== */
+.question-block {
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 18px;
+  box-shadow: var(--shadow);
+  border: 2px solid var(--jungle-100);
+}
+.question-block.completed { border-color: var(--jungle-400); }
+.question-block .q-label {
+  display: inline-block;
+  background: var(--jungle-700);
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 3px 10px;
+  border-radius: 20px;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.question-block .q-label.open-label { background: var(--info); }
+.question-block .q-label.drag-label { background: var(--bark-light); }
+.question-block .q-label.match-label { background: var(--gold); color: var(--bark); }
+.question-block .q-text {
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin-bottom: 12px;
+  color: var(--text);
+}
+
+/* MC options */
+.mc-options { display: flex; flex-direction: column; gap: 8px; }
+.mc-opt {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 12px 16px;
+  border: 2px solid var(--jungle-200);
+  border-radius: var(--radius-sm);
+  background: #fff;
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+}
+.mc-opt:hover { border-color: var(--jungle-500); background: var(--jungle-50); }
+.mc-opt.selected { border-color: var(--jungle-600); background: var(--jungle-100); }
+.mc-opt.correct { border-color: var(--jungle-500); background: #d4edda; }
+.mc-opt.wrong { border-color: var(--danger); background: var(--danger-light); }
+.mc-opt:disabled { cursor: default; opacity: 0.85; }
+
+/* Feedback */
+.feedback {
+  margin-top: 10px;
+  padding: 12px 16px;
+  border-radius: var(--radius-sm);
+  font-size: 0.88rem;
+  font-weight: 600;
+  display: none;
+}
+.feedback.show { display: block; animation: fadeIn 0.3s ease; }
+.feedback.hint { background: #fff8e1; border-left: 4px solid var(--gold); color: var(--bark); }
+.feedback.success { background: #d4edda; border-left: 4px solid var(--jungle-500); color: var(--jungle-900); }
+.feedback.reveal { background: var(--info-light); border-left: 4px solid var(--info); color: #1a4a6e; }
+
+/* Open questions */
+.open-textarea {
+  width: 100%;
+  min-height: 90px;
+  padding: 12px;
+  border: 2px solid var(--jungle-200);
+  border-radius: var(--radius-sm);
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.9rem;
+  resize: vertical;
+  transition: var(--transition);
+}
+.open-textarea:focus { outline: none; border-color: var(--jungle-500); }
+.word-counter { font-size: 0.78rem; color: var(--text-muted); margin-top: 4px; }
+.word-counter.enough { color: var(--jungle-600); font-weight: 700; }
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: var(--transition);
+}
+.btn-primary { background: var(--jungle-600); color: #fff; }
+.btn-primary:hover { background: var(--jungle-700); }
+.btn-secondary { background: var(--jungle-100); color: var(--jungle-800); }
+.btn-secondary:hover { background: var(--jungle-200); }
+.btn-gold { background: var(--gold); color: #fff; }
+.btn-gold:hover { background: #b8860b; }
+.btn-sm { padding: 6px 14px; font-size: 0.8rem; }
+.btn-success { background: var(--jungle-500); color: #fff; }
+.btn-danger { background: var(--danger); color: #fff; }
+.btn-danger:hover { background: #a93226; }
+
+.self-assess { display: none; gap: 8px; margin-top: 8px; }
+.self-assess.show { display: flex; }
+
+/* Drag and drop */
+.drag-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 10px 0;
+}
+.drag-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  background: #fff;
+  border: 2px solid var(--jungle-200);
+  border-radius: var(--radius-sm);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: grab;
+  user-select: none;
+  transition: background 0.2s, border-color 0.2s, transform 0.15s;
+  touch-action: none;
+}
+.drag-item:active { cursor: grabbing; }
+.drag-item.dragging {
+  opacity: 0.5;
+  border-color: var(--jungle-500);
+  background: var(--jungle-50);
+}
+.drag-item .grip { color: var(--text-muted); font-size: 1.1rem; }
+.drag-item.correct-pos { border-color: var(--jungle-500); background: #d4edda; }
+.drag-item.wrong-pos { border-color: var(--danger); background: var(--danger-light); }
+
+/* Match / koppel */
+.match-container { display: flex; flex-direction: column; gap: 10px; margin: 10px 0; }
+.match-sources, .match-targets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.match-item {
+  padding: 8px 14px;
+  border: 2px solid var(--jungle-200);
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+  background: #fff;
+}
+.match-item:hover { border-color: var(--jungle-500); }
+.match-item.source-selected { border-color: var(--gold); background: var(--gold-light); }
+.match-item.matched {
+  border-color: var(--jungle-500);
+  background: var(--jungle-100);
+  cursor: default;
+}
+.match-target {
+  padding: 10px 14px;
+  border: 2px dashed var(--jungle-300);
+  border-radius: var(--radius-sm);
+  min-height: 44px;
+  background: var(--jungle-50);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+}
+.match-target:hover { border-color: var(--jungle-600); }
+.match-target.has-match { border-style: solid; border-color: var(--jungle-500); }
+.match-pairs-display {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 6px;
+}
+.match-pair-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.82rem;
+  padding: 4px 10px;
+  background: var(--jungle-50);
+  border-radius: 6px;
+}
+.match-pair-row .pair-arrow { color: var(--jungle-600); font-weight: 900; }
+
+/* Map */
+.map-container { height: 400px; border-radius: var(--radius-sm); overflow: hidden; margin: 12px 0; border: 2px solid var(--jungle-200); }
+
+/* Chart */
+.chart-container { position: relative; max-height: 340px; margin: 14px 0; }
+
+/* Navigation */
+.nav-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 2px solid var(--jungle-100);
+}
+.reset-section-btn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.78rem;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 4px 8px;
+}
+.reset-section-btn:hover { color: var(--danger); }
+
+/* Reflection */
+.score-display {
+  text-align: center;
+  padding: 24px;
+  background: linear-gradient(135deg, var(--jungle-700), var(--jungle-900));
+  color: #fff;
+  border-radius: var(--radius);
+  margin-bottom: 20px;
+}
+.score-display .big-score {
+  font-size: 3rem;
+  font-weight: 900;
+}
+
+.clear-btn-container { text-align: center; margin-top: 20px; }
+
+@media (max-width: 860px) {
+  .tab-content { padding: 14px; }
+  .info-card { padding: 18px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ===== HEADER ===== -->
+<div class="expedition-header">
+  <h1>🧭 Expeditie Oekraïne</h1>
+  <div class="subtitle">Een ontdekkingsreis door het conflict tussen Rusland en Oekraïne</div>
+</div>
+
+<!-- ===== PROGRESS ===== -->
+<div class="progress-container">
+  <div class="progress-bar-track"><div class="progress-bar-fill" id="progressFill"></div></div>
+  <span class="progress-label" id="progressLabel">0%</span>
+  <span class="section-counter" id="sectionCounter">Onderdeel 1 van 6</span>
+</div>
+
+<!-- ===== TABS ===== -->
+<div class="tab-bar" id="tabBar"></div>
+
+<!-- ══════════════════════════════════════════════ -->
+<!-- SECTIE 1: DE KAART — WAAR LIGT HET? -->
+<!-- ══════════════════════════════════════════════ -->
+<div class="tab-content" id="tab-0">
+  <div class="info-card">
+    <h2>🗺️ Waar liggen Rusland en Oekraïne?</h2>
+    <p>Voordat we het conflict kunnen begrijpen, moeten we eerst weten <strong>waar</strong> alles zich afspeelt. Stel je voor: je bent een ontdekkingsreiziger en je opent de kaart voor het eerst. Wat zie je?</p>
+    <p>Oekraïne is een groot land in <strong>Oost-Europa</strong> — het is zelfs het grootste land dat helemaal in Europa ligt! Rusland is het grootste land ter wereld en ligt ten oosten en noorden van Oekraïne. Oekraïne deelt een lange grens met Rusland van meer dan 2.000 kilometer.</p>
+    <h3>⚽ Voetbalverbinding</h3>
+    <p>In 2012 was Oekraïne samen met Polen gastland van het EK voetbal. Wedstrijden werden gespeeld in steden als Kyiv, Donetsk en Charkiv. Sommige van deze steden zijn nu getroffen door de oorlog. Het stadion in Donetsk, de <em>Donbas Arena</em>, is beschadigd en wordt niet meer gebruikt.</p>
+    <div class="emoji-flow">
+      <span>🇳🇱 Nederland</span>
+      <span class="arrow">→</span>
+      <span>🇵🇱 Polen</span>
+      <span class="arrow">→</span>
+      <span>🇺🇦 Oekraïne</span>
+      <span class="arrow">→</span>
+      <span>🇷🇺 Rusland</span>
+    </div>
+    <p>Als je van Nederland naar het oosten reist, kom je eerst door Duitsland en Polen, en dan bereik je Oekraïne. Daarachter ligt Rusland. Het is alsof je op een voetbalveld van de ene helft naar de andere loopt — maar dan duizenden kilometers lang.</p>
+    <div class="world-link">
+      <strong>🌍 Herkenning in jouw wereld:</strong> Oekraïne ligt op ongeveer 2.500 km van Nederland. Dat is vergelijkbaar met 25x de afstand Amsterdam–Maastricht. Ken jij iemand die uit Oekraïne komt? Misschien zitten er kinderen uit Oekraïne bij jou op school.
+    </div>
+  </div>
+
+  <div class="info-card">
+    <h2>🗺️ Interactieve kaart</h2>
+    <p>Bekijk de kaart hieronder. Je ziet de belangrijkste steden en gebieden die een rol spelen in het conflict. Klik op de markers voor meer informatie.</p>
+    <div id="map1" class="map-container"></div>
+  </div>
+
+  <!-- Opdracht 1.1: MC -->
+  <div class="question-block" data-section="0" data-qid="q1_1">
+    <span class="q-label">Meerkeuzevraag</span>
+    <div class="q-text">Welk land is het grootste land dat volledig in Europa ligt?</div>
+    <div class="mc-options">
+      <button class="mc-opt" data-answer="a" onclick="checkMC(this,'b','q1_1')">A. Rusland</button>
+      <button class="mc-opt" data-answer="b" onclick="checkMC(this,'b','q1_1')">B. Oekraïne</button>
+      <button class="mc-opt" data-answer="c" onclick="checkMC(this,'b','q1_1')">C. Frankrijk</button>
+      <button class="mc-opt" data-answer="d" onclick="checkMC(this,'b','q1_1')">D. Duitsland</button>
+    </div>
+    <div class="feedback" id="fb_q1_1"></div>
+  </div>
+
+  <!-- Opdracht 1.2: MC kaart -->
+  <div class="question-block" data-section="0" data-qid="q1_2">
+    <span class="q-label">Meerkeuzevraag</span>
+    <div class="q-text">Bekijk de kaart. In welk deel van Oekraïne liggen Donetsk en Loehansk (de Donbas-regio)?</div>
+    <div class="mc-options">
+      <button class="mc-opt" data-answer="a" onclick="checkMC(this,'b','q1_2')">A. In het westen, bij de grens met Polen</button>
+      <button class="mc-opt" data-answer="b" onclick="checkMC(this,'b','q1_2')">B. In het oosten, bij de grens met Rusland</button>
+      <button class="mc-opt" data-answer="c" onclick="checkMC(this,'b','q1_2')">C. In het zuiden, aan de Zwarte Zee</button>
+      <button class="mc-opt" data-answer="d" onclick="checkMC(this,'b','q1_2')">D. In het noorden, bij de grens met Belarus</button>
+    </div>
+    <div class="feedback" id="fb_q1_2"></div>
+  </div>
+
+  <!-- Opdracht 1.3: Open -->
+  <div class="question-block" data-section="0" data-qid="q1_3">
+    <span class="q-label open-label">Open vraag — Schrijf zelf</span>
+    <div class="q-text">Stel je voor dat jij een voetballer bent die in 2012 bij het EK in Donetsk speelde. Nu is het 2024 en het stadion is beschadigd door de oorlog. Beschrijf in je eigen woorden hoe jij je zou voelen en wat dit zegt over de gevolgen van oorlog voor gewone mensen. (Minimaal 20 woorden)</div>
+    <textarea class="open-textarea" id="ta_q1_3" oninput="countWords(this,'wc_q1_3','btn_q1_3')"></textarea>
+    <div class="word-counter" id="wc_q1_3">0 woorden</div>
+    <button class="btn btn-gold btn-sm" id="btn_q1_3" style="margin-top:8px;display:none;" onclick="showExampleAnswer('ex_q1_3','sa_q1_3','q1_3')">Toon voorbeeldantwoord</button>
+    <div class="feedback" id="ex_q1_3" style="display:none;">
+      <strong>Voorbeeldantwoord 1:</strong> "Ik zou heel verdrietig zijn. Het stadion waar ik mooie herinneringen heb gemaakt, is nu verwoest. Dit laat zien dat oorlog niet alleen over soldaten gaat, maar ook het dagelijks leven van gewone mensen kapotmaakt — hun sport, hun herinneringen, hun stad."<br><br>
+      <strong>Voorbeeldantwoord 2:</strong> "Het voelt oneerlijk dat een plek waar mensen samen plezier hadden nu een plek van vernietiging is. Oorlog raakt alles: scholen, stadions, huizen. Het toont hoe kwetsbaar onze samenleving is."<br>
+      <em style="color:var(--text-muted);font-size:0.82rem;">Dit zijn voorbeelden — jouw antwoord mag anders zijn!</em>
+    </div>
+    <div class="self-assess" id="sa_q1_3">
+      <button class="btn btn-success btn-sm" onclick="selfAssess('q1_3',true)">Goed ✓</button>
+      <button class="btn btn-danger btn-sm" onclick="selfAssess('q1_3',false)">Fout ✗</button>
+    </div>
+  </div>
+
+  <div class="nav-bottom">
+    <div></div>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <button class="btn btn-primary" onclick="goTab(1)">Volgende →</button>
+    </div>
+  </div>
+  <div style="text-align:center;margin-top:8px;">
+    <button class="reset-section-btn" onclick="resetSection(0)">🔄 Reset dit onderdeel</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════ -->
+<!-- SECTIE 2: WELK TYPE OORLOG? -->
+<!-- ══════════════════════════════════════════════ -->
+<div class="tab-content" id="tab-1">
+  <div class="info-card">
+    <h2>⚔️ Welk type oorlog wordt er gevoerd?</h2>
+    <p>Niet elke oorlog is hetzelfde. Er zijn verschillende soorten oorlogsvoering, en in Oekraïne zie je er meerdere tegelijk. Laten we de belangrijkste types bekijken.</p>
+
+    <h3>1. Conventionele oorlog 🪖</h3>
+    <p>Dit is de "klassieke" oorlog: legers met tanks, vliegtuigen en soldaten die tegen elkaar vechten. Rusland viel Oekraïne binnen met een groot leger. Er worden loopgraven gegraven, steden belegerd en gebieden veroverd. Dit lijkt op wat je misschien kent uit geschiedenisles over de Eerste Wereldoorlog.</p>
+
+    <h3>2. Informatieoorlog 📱</h3>
+    <p>Een groot deel van deze oorlog wordt online gevoerd. Beide kanten gebruiken sociale media, nieuwszenders en propaganda om hun verhaal te vertellen. Rusland probeert de wereld ervan te overtuigen dat het "goed recht" heeft. Oekraïne deelt beelden van verwoeste steden om steun te krijgen. <strong>Wie het beste verhaal vertelt, wint sympathie — en daarmee hulp.</strong></p>
+
+    <h3>3. Hybride oorlog 🌐</h3>
+    <p>Dit is een mix van militaire actie, cyberaanvallen, economische druk en desinformatie. Rusland hackt Oekraïense computersystemen, verstoort de energievoorziening en verspreidt nepnieuws. Het is oorlog op vele fronten tegelijk.</p>
+
+    <h3>4. Economische oorlog 💶</h3>
+    <p>Westerse landen (waaronder Nederland) hebben <strong>sancties</strong> opgelegd aan Rusland. Dat betekent: handelsverboden, bevroren bankrekeningen, en bedrijven die stoppen met werken in Rusland. Het doel is om Rusland financieel te raken zodat het moeilijker wordt om de oorlog voort te zetten.</p>
+
+    <div class="emoji-flow">
+      <span>🪖 Conventioneel</span>
+      <span>+</span>
+      <span>📱 Informatie</span>
+      <span>+</span>
+      <span>💻 Cyber</span>
+      <span>+</span>
+      <span>💶 Economisch</span>
+      <span>=</span>
+      <span>🌐 <strong>Hybride oorlog</strong></span>
+    </div>
+
+    <div class="world-link">
+      <strong>⚽ Voetbalvergelijking:</strong> Stel je voor dat je een voetbalwedstrijd speelt, maar de tegenstander speelt niet alleen op het veld. Ze hacken ook je communicatiesysteem zodat de trainer geen instructies kan geven, ze verspreiden nepnieuws dat jouw team doping gebruikt, en ze kopen alle sponsors om zodat jouw club geen geld meer heeft. Dát is hybride oorlog.
+    </div>
+
+    <div class="world-link">
+      <strong>🌍 Herkenning in jouw wereld:</strong> De informatieoorlog merk jij ook. Op TikTok en Instagram zie je video's van het conflict — maar hoe weet je of het echt is? Heb jij weleens een bericht gezien waarvan je twijfelde of het waar was?
+    </div>
+  </div>
+
+  <!-- Opdracht 2.1: Koppelen -->
+  <div class="question-block" data-section="1" data-qid="q2_1">
+    <span class="q-label match-label">Koppelopdracht</span>
+    <div class="q-text">Koppel elk voorbeeld aan het juiste type oorlogsvoering. Klik eerst op een voorbeeld (links), dan op het type oorlog (rechts). Eén type oorlog kan meerdere voorbeelden krijgen!</div>
+    <div id="match_q2_1"></div>
+    <button class="btn btn-primary btn-sm" style="margin-top:10px;" onclick="checkMatch('q2_1')">Controleer</button>
+    <div class="feedback" id="fb_q2_1"></div>
+  </div>
+
+  <!-- Opdracht 2.2: Open -->
+  <div class="question-block" data-section="1" data-qid="q2_2">
+    <span class="q-label open-label">Open vraag — Schrijf zelf</span>
+    <div class="q-text">Leg in je eigen woorden uit waarom de oorlog in Oekraïne een "hybride oorlog" wordt genoemd. Noem minstens twee verschillende types oorlogsvoering die tegelijk plaatsvinden. (Minimaal 20 woorden)</div>
+    <textarea class="open-textarea" id="ta_q2_2" oninput="countWords(this,'wc_q2_2','btn_q2_2')"></textarea>
+    <div class="word-counter" id="wc_q2_2">0 woorden</div>
+    <button class="btn btn-gold btn-sm" id="btn_q2_2" style="margin-top:8px;display:none;" onclick="showExampleAnswer('ex_q2_2','sa_q2_2','q2_2')">Toon voorbeeldantwoord</button>
+    <div class="feedback" id="ex_q2_2" style="display:none;">
+      <strong>Voorbeeldantwoord:</strong> "De oorlog in Oekraïne is een hybride oorlog omdat er niet alleen gevochten wordt met tanks en soldaten (conventioneel), maar Rusland ook cyberaanvallen uitvoert op Oekraïense systemen, nepnieuws verspreidt om de publieke opinie te beïnvloeden, en westerse sancties de Russische economie proberen te verzwakken. Het is oorlog op meerdere fronten tegelijk."<br>
+      <em style="color:var(--text-muted);font-size:0.82rem;">Dit is een voorbeeld — jouw antwoord mag anders zijn!</em>
+    </div>
+    <div class="self-assess" id="sa_q2_2">
+      <button class="btn btn-success btn-sm" onclick="selfAssess('q2_2',true)">Goed ✓</button>
+      <button class="btn btn-danger btn-sm" onclick="selfAssess('q2_2',false)">Fout ✗</button>
+    </div>
+  </div>
+
+  <!-- Opdracht 2.3: MC -->
+  <div class="question-block" data-section="1" data-qid="q2_3">
+    <span class="q-label">Meerkeuzevraag</span>
+    <div class="q-text">Wat is het doel van economische sancties tegen Rusland?</div>
+    <div class="mc-options">
+      <button class="mc-opt" data-answer="a" onclick="checkMC(this,'c','q2_3')">A. Het Russische volk straffen</button>
+      <button class="mc-opt" data-answer="b" onclick="checkMC(this,'c','q2_3')">B. Rusland dwingen om lid te worden van de EU</button>
+      <button class="mc-opt" data-answer="c" onclick="checkMC(this,'c','q2_3')">C. Rusland financieel raken zodat oorlog voeren moeilijker wordt</button>
+      <button class="mc-opt" data-answer="d" onclick="checkMC(this,'c','q2_3')">D. Alle handel met Rusland voor altijd stoppen</button>
+    </div>
+    <div class="feedback" id="fb_q2_3"></div>
+  </div>
+
+  <div class="nav-bottom">
+    <button class="btn btn-secondary" onclick="goTab(0)">← Vorige</button>
+    <button class="btn btn-primary" onclick="goTab(2)">Volgende →</button>
+  </div>
+  <div style="text-align:center;margin-top:8px;">
+    <button class="reset-section-btn" onclick="resetSection(1)">🔄 Reset dit onderdeel</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════ -->
+<!-- SECTIE 3: DE POSITIE VAN NEDERLAND -->
+<!-- ══════════════════════════════════════════════ -->
+<div class="tab-content" id="tab-2">
+  <div class="info-card">
+    <h2>🇳🇱 Wat doet Nederland in dit conflict?</h2>
+    <p>Nederland is geen buurland van Oekraïne, maar speelt toch een belangrijke rol. Hoe kan dat? Nederland is lid van de <strong>NAVO</strong> (een militair bondgenootschap) en de <strong>Europese Unie</strong>. Dat betekent dat Nederland samenwerkt met andere landen om te reageren op het conflict.</p>
+
+    <h3>Wat doet Nederland concreet?</h3>
+    <p><strong>Wapenleveranties:</strong> Nederland stuurt militaire hulp naar Oekraïne, zoals pantservoertuigen, munitie en luchtafweersystemen. In 2023 besloot Nederland ook om F-16 gevechtsvliegtuigen te leveren — een grote stap.</p>
+    <p><strong>Opvang vluchtelingen:</strong> Tienduizenden Oekraïners zijn naar Nederland gevlucht. Zij worden opgevangen in gemeentes door het hele land. Misschien ken je zelf wel iemand uit Oekraïne.</p>
+    <p><strong>Sancties:</strong> Als EU-lid heeft Nederland meegestemd voor strenge sancties tegen Rusland. Nederlandse bedrijven mogen niet meer handelen met veel Russische bedrijven.</p>
+    <p><strong>MH17:</strong> Er is een bijzondere reden waarom dit conflict voor Nederland extra gevoelig ligt. In 2014 werd vlucht MH17 neergeschoten boven Oost-Oekraïne. Hierbij kwamen 298 mensen om, waarvan 196 Nederlanders. Het vliegtuig werd geraakt door een Russische BUK-raket. Dit drama maakte het conflict persoonlijk voor veel Nederlanders.</p>
+
+    <div class="emoji-flow">
+      <span>🇳🇱 Nederland</span>
+      <span class="arrow">→</span>
+      <span>🪖 Wapens</span>
+      <span class="arrow">→</span>
+      <span>🇺🇦 Oekraïne</span>
+    </div>
+    <div class="emoji-flow">
+      <span>🇺🇦 Vluchtelingen</span>
+      <span class="arrow">→</span>
+      <span>🏠 Opvang in NL</span>
+    </div>
+    <div class="emoji-flow">
+      <span>🇪🇺 EU + 🇳🇱</span>
+      <span class="arrow">→</span>
+      <span>🚫 Sancties</span>
+      <span class="arrow">→</span>
+      <span>🇷🇺 Rusland</span>
+    </div>
+
+    <div class="world-link">
+      <strong>⚽ Voetbalverbinding:</strong> Het Oekraïense voetbalteam Shakhtar Donetsk moest door de oorlog verhuizen en speelt nu in andere steden. Stel je voor dat Ajax plotseling niet meer in Amsterdam mag spelen. Zo voelt dat voor die club en hun fans.
+    </div>
+    <div class="world-link">
+      <strong>🌍 Herkenning in jouw wereld:</strong> Misschien zitten er Oekraïense leerlingen bij jou op school. Of je hebt op het nieuws gezien dat er in jouw gemeente opvang is voor vluchtelingen. Het conflict raakt ook jouw buurt — zelfs als het ver weg lijkt.
+    </div>
+  </div>
+
+  <div class="info-card info">
+    <h2>📊 Hoeveel hulp geeft Nederland?</h2>
+    <p>Hieronder zie je een grafiek met de militaire steun die verschillende Europese landen aan Oekraïne geven. Bekijk de grafiek goed voordat je de vragen beantwoordt.</p>
+    <div class="chart-container"><canvas id="chart1"></canvas></div>
+    <p style="font-size:0.8rem;color:var(--text-muted);">Bron: Kiel Institute Ukraine Support Tracker (gegevens tot begin 2024, bedragen bij benadering in miljarden euro's)</p>
+  </div>
+
+  <!-- Opdracht 3.1: Data-analyse MC -->
+  <div class="question-block" data-section="2" data-qid="q3_1">
+    <span class="q-label">Data-analyse</span>
+    <div class="q-text">Bekijk de grafiek. Welk Europees land geeft de meeste militaire steun aan Oekraïne?</div>
+    <div class="mc-options">
+      <button class="mc-opt" data-answer="a" onclick="checkMC(this,'a','q3_1')">A. Duitsland</button>
+      <button class="mc-opt" data-answer="b" onclick="checkMC(this,'a','q3_1')">B. Nederland</button>
+      <button class="mc-opt" data-answer="c" onclick="checkMC(this,'a','q3_1')">C. Frankrijk</button>
+      <button class="mc-opt" data-answer="d" onclick="checkMC(this,'a','q3_1')">D. Polen</button>
+    </div>
+    <div class="feedback" id="fb_q3_1"></div>
+  </div>
+
+  <!-- Opdracht 3.2: Open data-analyse -->
+  <div class="question-block" data-section="2" data-qid="q3_2">
+    <span class="q-label open-label">Open vraag — Analyseren</span>
+    <div class="q-text">Bekijk de grafiek nog eens goed. Nederland geeft flink wat steun, maar minder dan Duitsland. Waarom zou een kleiner land als Nederland toch zoveel doen? Noem minstens twee redenen. (Minimaal 20 woorden)</div>
+    <textarea class="open-textarea" id="ta_q3_2" oninput="countWords(this,'wc_q3_2','btn_q3_2')"></textarea>
+    <div class="word-counter" id="wc_q3_2">0 woorden</div>
+    <button class="btn btn-gold btn-sm" id="btn_q3_2" style="margin-top:8px;display:none;" onclick="showExampleAnswer('ex_q3_2','sa_q3_2','q3_2')">Toon voorbeeldantwoord</button>
+    <div class="feedback" id="ex_q3_2" style="display:none;">
+      <strong>Voorbeeldantwoord:</strong> "Nederland doet veel omdat het zich verbonden voelt met Oekraïne, mede door de MH17-ramp waarbij 196 Nederlanders omkwamen. Daarnaast is Nederland een trouw NAVO-lid en vindt het belangrijk om internationale afspraken over grenzen en soevereiniteit te verdedigen. Als klein land weet Nederland dat het zelf ook afhankelijk is van die afspraken."<br>
+      <em style="color:var(--text-muted);font-size:0.82rem;">Dit is een voorbeeld — jouw antwoord mag anders zijn!</em>
+    </div>
+    <div class="self-assess" id="sa_q3_2">
+      <button class="btn btn-success btn-sm" onclick="selfAssess('q3_2',true)">Goed ✓</button>
+      <button class="btn btn-danger btn-sm" onclick="selfAssess('q3_2',false)">Fout ✗</button>
+    </div>
+  </div>
+
+  <!-- Opdracht 3.3: MC -->
+  <div class="question-block" data-section="2" data-qid="q3_3">
+    <span class="q-label">Meerkeuzevraag</span>
+    <div class="q-text">Waarom ligt het Oekraïne-conflict extra gevoelig voor Nederlanders?</div>
+    <div class="mc-options">
+      <button class="mc-opt" data-answer="a" onclick="checkMC(this,'b','q3_3')">A. Nederland was ooit onderdeel van Rusland</button>
+      <button class="mc-opt" data-answer="b" onclick="checkMC(this,'b','q3_3')">B. Vlucht MH17 werd in 2014 neergeschoten, met 196 Nederlandse slachtoffers</button>
+      <button class="mc-opt" data-answer="c" onclick="checkMC(this,'b','q3_3')">C. Nederland en Oekraïne delen een grens</button>
+      <button class="mc-opt" data-answer="d" onclick="checkMC(this,'b','q3_3')">D. Russische troepen hebben Nederland aangevallen</button>
+    </div>
+    <div class="feedback" id="fb_q3_3"></div>
+  </div>
+
+  <div class="nav-bottom">
+    <button class="btn btn-secondary" onclick="goTab(1)">← Vorige</button>
+    <button class="btn btn-primary" onclick="goTab(3)">Volgende →</button>
+  </div>
+  <div style="text-align:center;margin-top:8px;">
+    <button class="reset-section-btn" onclick="resetSection(2)">🔄 Reset dit onderdeel</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════ -->
+<!-- SECTIE 4: TIJDLIJN VAN HET CONFLICT -->
+<!-- ══════════════════════════════════════════════ -->
+<div class="tab-content" id="tab-3">
+  <div class="info-card gold">
+    <h2>📅 Tijdlijn: Hoe is het conflict ontstaan?</h2>
+    <p>Het conflict tussen Rusland en Oekraïne begon niet in 2022. De spanningen gaan jaren terug. Laten we de belangrijkste gebeurtenissen op een rij zetten.</p>
+
+    <p><strong>1991 — Oekraïne wordt onafhankelijk:</strong> Na het uiteenvallen van de Sovjet-Unie wordt Oekraïne een zelfstandig land. Rusland accepteert dit, maar ziet Oekraïne nog steeds als onderdeel van de "Russische invloedssfeer".</p>
+
+    <p><strong>2004 — Oranje Revolutie:</strong> Oekraïners protesteren tegen verkiezingsfraude en kiezen een president die dichter bij Europa wil staan. Rusland is hier niet blij mee.</p>
+
+    <p><strong>2014 — Euromaidan & annexatie van de Krim:</strong> Grote protesten in Kyiv als de pro-Russische president samenwerking met de EU afwijst. De president vlucht. Rusland reageert door de Krim te bezetten en in te lijven. In Oost-Oekraïne breken gevechten uit met pro-Russische rebellen. Vlucht MH17 wordt neergeschoten.</p>
+
+    <p><strong>2022 — Russische invasie:</strong> Op 24 februari valt Rusland Oekraïne binnen met een groot leger. De wereld reageert met sancties en wapenleveranties aan Oekraïne. Het wordt het grootste gewapende conflict in Europa sinds de Tweede Wereldoorlog.</p>
+
+    <p><strong>2023-2024 — Stellingenoorlog:</strong> De frontlijn beweegt nauwelijks. Het wordt een uitputtingsoorlog met enorme verliezen aan beide kanten. Miljoenen Oekraïners zijn gevlucht.</p>
+
+    <div class="world-link">
+      <strong>⚽ Voetbalverbinding:</strong> In het voetbal bouw je een team over jaren op. Eén slechte transfer kan alles verpesten. Zo werkt het ook met landen: beslissingen van decennia geleden bepalen nog steeds de situatie van vandaag. De keuze van Oekraïne om richting Europa te kijken, zette een keten van gebeurtenissen in gang.
+    </div>
+    <div class="world-link">
+      <strong>🌍 Herkenning in jouw wereld:</strong> Vraag thuis eens aan je ouders of zij het neerhalen van MH17 in 2014 nog herinneren. Voor veel Nederlanders was dat een moment dat ze nooit vergeten. Jij was toen misschien 2 of 3 jaar oud.
+    </div>
+  </div>
+
+  <!-- Opdracht 4.1: Sorteren / drag-and-drop -->
+  <div class="question-block" data-section="3" data-qid="q4_1">
+    <span class="q-label drag-label">Sorteeropdracht — Sleep in de juiste volgorde</span>
+    <div class="q-text">Zet de gebeurtenissen in de juiste chronologische volgorde (van oud naar nieuw). Sleep de items naar de juiste positie.</div>
+    <div class="drag-list" id="drag_q4_1"></div>
+    <button class="btn btn-primary btn-sm" style="margin-top:10px;" onclick="checkDragOrder('q4_1')">Controleer volgorde</button>
+    <div class="feedback" id="fb_q4_1"></div>
+  </div>
+
+  <!-- Opdracht 4.2: Open -->
+  <div class="question-block" data-section="3" data-qid="q4_2">
+    <span class="q-label open-label">Open vraag — Schrijf zelf</span>
+    <div class="q-text">Waarom denk jij dat Rusland het niet accepteert dat Oekraïne dichter bij Europa en de NAVO wil komen? Probeer het vanuit het Russische perspectief te bekijken, ook al ben je het er misschien niet mee eens. (Minimaal 20 woorden)</div>
+    <textarea class="open-textarea" id="ta_q4_2" oninput="countWords(this,'wc_q4_2','btn_q4_2')"></textarea>
+    <div class="word-counter" id="wc_q4_2">0 woorden</div>
+    <button class="btn btn-gold btn-sm" id="btn_q4_2" style="margin-top:8px;display:none;" onclick="showExampleAnswer('ex_q4_2','sa_q4_2','q4_2')">Toon voorbeeldantwoord</button>
+    <div class="feedback" id="ex_q4_2" style="display:none;">
+      <strong>Voorbeeldantwoord:</strong> "Rusland ziet Oekraïne als een bufferzone tussen zichzelf en de NAVO. Als Oekraïne lid wordt van de NAVO, staan er NAVO-troepen en wapens direct aan de Russische grens. Rusland voelt zich dan bedreigd. Daarnaast vindt de Russische president Poetin dat Oekraïne cultureel en historisch bij Rusland hoort."<br>
+      <em style="color:var(--text-muted);font-size:0.82rem;">Dit is een voorbeeld — jouw antwoord mag anders zijn. Er is niet één goed antwoord!</em>
+    </div>
+    <div class="self-assess" id="sa_q4_2">
+      <button class="btn btn-success btn-sm" onclick="selfAssess('q4_2',true)">Goed ✓</button>
+      <button class="btn btn-danger btn-sm" onclick="selfAssess('q4_2',false)">Fout ✗</button>
+    </div>
+  </div>
+
+  <!-- Opdracht 4.3: MC -->
+  <div class="question-block" data-section="3" data-qid="q4_3">
+    <span class="q-label">Meerkeuzevraag</span>
+    <div class="q-text">Wat gebeurde er in 2014 op de Krim?</div>
+    <div class="mc-options">
+      <button class="mc-opt" data-answer="a" onclick="checkMC(this,'b','q4_3')">A. Er brak een burgeroorlog uit</button>
+      <button class="mc-opt" data-answer="b" onclick="checkMC(this,'b','q4_3')">B. Rusland bezette en annexeerde het schiereiland</button>
+      <button class="mc-opt" data-answer="c" onclick="checkMC(this,'b','q4_3')">C. Oekraïne gaf de Krim vrijwillig aan Rusland</button>
+      <button class="mc-opt" data-answer="d" onclick="checkMC(this,'b','q4_3')">D. De NAVO veroverde het gebied</button>
+    </div>
+    <div class="feedback" id="fb_q4_3"></div>
+  </div>
+
+  <div class="nav-bottom">
+    <button class="btn btn-secondary" onclick="goTab(2)">← Vorige</button>
+    <button class="btn btn-primary" onclick="goTab(4)">Volgende →</button>
+  </div>
+  <div style="text-align:center;margin-top:8px;">
+    <button class="reset-section-btn" onclick="resetSection(3)">🔄 Reset dit onderdeel</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════ -->
+<!-- SECTIE 5: DE TOEKOMST -->
+<!-- ══════════════════════════════════════════════ -->
+<div class="tab-content" id="tab-4">
+  <div class="info-card danger">
+    <h2>🔮 Hoe ziet de toekomst eruit?</h2>
+    <p>Niemand weet precies hoe het conflict zal eindigen. Maar er zijn verschillende <strong>scenario's</strong> (mogelijke toekomsten) die experts bespreken. Als ontdekkingsreiziger verkennen we deze mogelijkheden.</p>
+
+    <h3>Scenario A: Langdurige oorlog ⏳</h3>
+    <p>De oorlog gaat door zonder dat één kant wint. De frontlijn beweegt nauwelijks. Beide landen raken uitgeput. Miljoenen mensen blijven op de vlucht. De economie van zowel Rusland als Oekraïne lijdt enorm.</p>
+
+    <h3>Scenario B: Vredesonderhandelingen 🕊️</h3>
+    <p>Rusland en Oekraïne gaan aan tafel zitten en sluiten een deal. Maar wat voor deal? Moet Oekraïne gebieden afstaan? Of trekt Rusland zich terug? Dit is heel ingewikkeld omdat beide kanten iets anders willen.</p>
+
+    <h3>Scenario C: Bevroren conflict ❄️</h3>
+    <p>Het vechten stopt grotendeels, maar er komt geen officieel vredesakkoord. De situatie "bevriest", zoals eerder is gebeurd in landen als Korea en Georgië. Rusland houdt de bezette gebieden, Oekraïne accepteert dit niet, maar het geweld neemt af.</p>
+
+    <h3>Scenario D: Escalatie ⚠️</h3>
+    <p>Het conflict breidt zich uit. Andere landen raken direct betrokken. Dit is het scenario waar iedereen bang voor is, omdat het kan leiden tot een groter Europees of zelfs wereldwijd conflict.</p>
+
+    <table class="comparison-table">
+      <tr><th>Scenario</th><th>Kans op vrede</th><th>Risico</th></tr>
+      <tr><td>⏳ Langdurige oorlog</td><td>Laag</td><td>Veel slachtoffers, vluchtelingen</td></tr>
+      <tr><td>🕊️ Vredesonderhandelingen</td><td>Gemiddeld</td><td>Oneerlijke deal, weer oorlog later</td></tr>
+      <tr><td>❄️ Bevroren conflict</td><td>Tijdelijk</td><td>Conflict kan weer oplaaien</td></tr>
+      <tr><td>⚠️ Escalatie</td><td>Zeer laag</td><td>Groter conflict, meer landen betrokken</td></tr>
+    </table>
+
+    <div class="world-link">
+      <strong>⚽ Voetbalvergelijking:</strong> Stel je voor dat er een competitie is waarin twee teams al maanden gelijkspelen. Scenario A: ze blijven eindeloos spelen. Scenario B: ze komen een eindstand overeen. Scenario C: de wedstrijd wordt stilgelegd maar nooit officieel beëindigd. Scenario D: de fans bestormen het veld en het loopt helemaal uit de hand.
+    </div>
+    <div class="world-link">
+      <strong>🌍 Herkenning in jouw wereld:</strong> De toekomst van dit conflict raakt ook jou. Als de oorlog doorgaat, blijft de energieprijs hoog en komen er meer vluchtelingen naar Nederland. Wat merk jij thuis van hogere prijzen in de supermarkt? De prijs van brood, olie en energie is gestegen — mede door dit conflict.
+    </div>
+  </div>
+
+  <!-- Opdracht 5.1: Scenario-analyse -->
+  <div class="question-block" data-section="4" data-qid="q5_1">
+    <span class="q-label">Meerkeuzevraag</span>
+    <div class="q-text">Bij welk scenario stopt het geweld, maar is er geen officieel vredesakkoord?</div>
+    <div class="mc-options">
+      <button class="mc-opt" data-answer="a" onclick="checkMC(this,'c','q5_1')">A. Langdurige oorlog</button>
+      <button class="mc-opt" data-answer="b" onclick="checkMC(this,'c','q5_1')">B. Vredesonderhandelingen</button>
+      <button class="mc-opt" data-answer="c" onclick="checkMC(this,'c','q5_1')">C. Bevroren conflict</button>
+      <button class="mc-opt" data-answer="d" onclick="checkMC(this,'c','q5_1')">D. Escalatie</button>
+    </div>
+    <div class="feedback" id="fb_q5_1"></div>
+  </div>
+
+  <!-- Opdracht 5.2: Open scenario -->
+  <div class="question-block" data-section="4" data-qid="q5_2">
+    <span class="q-label open-label">Open vraag — Redeneer zelf</span>
+    <div class="q-text">Welk scenario vind jij het meest waarschijnlijk en waarom? Denk na over wat je hebt geleerd over de belangen van Rusland, Oekraïne en het Westen. Er is geen fout antwoord, maar je moet je keuze goed onderbouwen. (Minimaal 25 woorden)</div>
+    <textarea class="open-textarea" id="ta_q5_2" oninput="countWords(this,'wc_q5_2','btn_q5_2',25)"></textarea>
+    <div class="word-counter" id="wc_q5_2">0 woorden</div>
+    <button class="btn btn-gold btn-sm" id="btn_q5_2" style="margin-top:8px;display:none;" onclick="showExampleAnswer('ex_q5_2','sa_q5_2','q5_2')">Toon voorbeeldantwoord</button>
+    <div class="feedback" id="ex_q5_2" style="display:none;">
+      <strong>Voorbeeldantwoord:</strong> "Ik denk dat een bevroren conflict het meest waarschijnlijk is. Rusland wil de veroverde gebieden niet opgeven, maar heeft ook niet genoeg kracht om heel Oekraïne te veroveren. Oekraïne wil geen gebieden afstaan, maar kan Rusland ook niet volledig verslaan. Daarom zal het vechten misschien langzaam afnemen zonder dat er echte vrede komt — net als in Korea, waar de oorlog technisch nog steeds niet voorbij is."<br>
+      <em style="color:var(--text-muted);font-size:0.82rem;">Dit is een voorbeeld — elk goed onderbouwd antwoord is prima!</em>
+    </div>
+    <div class="self-assess" id="sa_q5_2">
+      <button class="btn btn-success btn-sm" onclick="selfAssess('q5_2',true)">Goed ✓</button>
+      <button class="btn btn-danger btn-sm" onclick="selfAssess('q5_2',false)">Fout ✗</button>
+    </div>
+  </div>
+
+  <!-- Opdracht 5.3: Gevolgen grafiek -->
+  <div class="info-card info">
+    <h2>📊 Vluchtelingen uit Oekraïne</h2>
+    <p>Bekijk de grafiek hieronder die laat zien hoeveel Oekraïners naar verschillende Europese landen zijn gevlucht.</p>
+    <div class="chart-container"><canvas id="chart2"></canvas></div>
+    <p style="font-size:0.8rem;color:var(--text-muted);">Bron: UNHCR, bij benadering (stand begin 2024)</p>
+  </div>
+
+  <div class="question-block" data-section="4" data-qid="q5_3">
+    <span class="q-label">Data-analyse</span>
+    <div class="q-text">Bekijk de grafiek. Naar welk land zijn de meeste Oekraïense vluchtelingen gevlucht?</div>
+    <div class="mc-options">
+      <button class="mc-opt" data-answer="a" onclick="checkMC(this,'b','q5_3')">A. Duitsland</button>
+      <button class="mc-opt" data-answer="b" onclick="checkMC(this,'b','q5_3')">B. Polen</button>
+      <button class="mc-opt" data-answer="c" onclick="checkMC(this,'b','q5_3')">C. Nederland</button>
+      <button class="mc-opt" data-answer="d" onclick="checkMC(this,'b','q5_3')">D. Tsjechië</button>
+    </div>
+    <div class="feedback" id="fb_q5_3"></div>
+  </div>
+
+  <div class="nav-bottom">
+    <button class="btn btn-secondary" onclick="goTab(3)">← Vorige</button>
+    <button class="btn btn-primary" onclick="goTab(5)">Volgende →</button>
+  </div>
+  <div style="text-align:center;margin-top:8px;">
+    <button class="reset-section-btn" onclick="resetSection(4)">🔄 Reset dit onderdeel</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════ -->
+<!-- SECTIE 6: REFLECTIE & AFSLUITING -->
+<!-- ══════════════════════════════════════════════ -->
+<div class="tab-content" id="tab-5">
+  <div class="score-display" id="scoreDisplay">
+    <div style="font-size:1rem;margin-bottom:4px;">🧭 Jouw expeditie-score</div>
+    <div class="big-score" id="finalScore">0%</div>
+    <div style="font-size:0.9rem;opacity:0.85;" id="scoreDetail">0 van 0 opdrachten goed</div>
+  </div>
+
+  <div class="info-card gold">
+    <h2>🎯 Leerdoelen — Heb je ze gehaald?</h2>
+    <p>Bekijk de drie leerdoelen en beoordeel eerlijk of je ze hebt bereikt.</p>
+
+    <div style="margin:12px 0;padding:12px 16px;background:var(--jungle-50);border-radius:var(--radius-sm);">
+      <strong>1.</strong> Ik snap beter hoe de toekomst in Rusland en Oekraïne eruit ziet<br>
+      <strong>2.</strong> Ik begrijp beter wat de positie van Nederland is in dit conflict<br>
+      <strong>3.</strong> Ik snap beter welk type oorlog gevoerd wordt in Oekraïne
+    </div>
+  </div>
+
+  <!-- Reflectie open vragen -->
+  <div class="question-block" data-section="5" data-qid="q6_1">
+    <span class="q-label open-label">Reflectievraag</span>
+    <div class="q-text">Wat vond je het lastigst van deze les en waarom? (Minimaal 20 woorden)</div>
+    <textarea class="open-textarea" id="ta_q6_1" oninput="countWords(this,'wc_q6_1','btn_q6_1')"></textarea>
+    <div class="word-counter" id="wc_q6_1">0 woorden</div>
+    <button class="btn btn-gold btn-sm" id="btn_q6_1" style="margin-top:8px;display:none;" onclick="showExampleAnswer('ex_q6_1','sa_q6_1','q6_1')">Toon voorbeeldantwoord</button>
+    <div class="feedback" id="ex_q6_1" style="display:none;">
+      <strong>Voorbeeld:</strong> "Ik vond het lastig om het Russische perspectief te begrijpen, omdat ik het niet eens ben met wat Rusland doet. Maar het is belangrijk om te snappen waarom iemand iets doet, ook als je het er niet mee eens bent."<br>
+      <em style="color:var(--text-muted);font-size:0.82rem;">Er is geen fout antwoord bij reflectie!</em>
+    </div>
+    <div class="self-assess" id="sa_q6_1">
+      <button class="btn btn-success btn-sm" onclick="selfAssess('q6_1',true)">Goed ✓</button>
+      <button class="btn btn-danger btn-sm" onclick="selfAssess('q6_1',false)">Fout ✗</button>
+    </div>
+  </div>
+
+  <div class="question-block" data-section="5" data-qid="q6_2">
+    <span class="q-label open-label">Reflectievraag</span>
+    <div class="q-text">Stel, een klasgenoot heeft deze les gemist. Leg in je eigen woorden uit wat de drie belangrijkste dingen zijn die je hebt geleerd. (Minimaal 25 woorden)</div>
+    <textarea class="open-textarea" id="ta_q6_2" oninput="countWords(this,'wc_q6_2','btn_q6_2',25)"></textarea>
+    <div class="word-counter" id="wc_q6_2">0 woorden</div>
+    <button class="btn btn-gold btn-sm" id="btn_q6_2" style="margin-top:8px;display:none;" onclick="showExampleAnswer('ex_q6_2','sa_q6_2','q6_2')">Toon voorbeeldantwoord</button>
+    <div class="feedback" id="ex_q6_2" style="display:none;">
+      <strong>Voorbeeld:</strong> "Ik heb geleerd dat de oorlog in Oekraïne een hybride oorlog is — het gaat niet alleen om tanks, maar ook om informatie, cyber en geld. Nederland speelt een grote rol door wapens te leveren en vluchtelingen op te vangen, en de MH17-ramp maakt het persoonlijk. De toekomst is onzeker: er zijn meerdere scenario's mogelijk, van bevroren conflict tot echte vrede."
+    </div>
+    <div class="self-assess" id="sa_q6_2">
+      <button class="btn btn-success btn-sm" onclick="selfAssess('q6_2',true)">Goed ✓</button>
+      <button class="btn btn-danger btn-sm" onclick="selfAssess('q6_2',false)">Fout ✗</button>
+    </div>
+  </div>
+
+  <div class="question-block" data-section="5" data-qid="q6_3">
+    <span class="q-label open-label">Reflectievraag</span>
+    <div class="q-text">Hoe zou je dit onderwerp herkennen in je eigen omgeving? Denk aan je school, je buurt, het nieuws, of de supermarkt. (Minimaal 20 woorden)</div>
+    <textarea class="open-textarea" id="ta_q6_3" oninput="countWords(this,'wc_q6_3','btn_q6_3')"></textarea>
+    <div class="word-counter" id="wc_q6_3">0 woorden</div>
+    <button class="btn btn-gold btn-sm" id="btn_q6_3" style="margin-top:8px;display:none;" onclick="showExampleAnswer('ex_q6_3','sa_q6_3','q6_3')">Toon voorbeeldantwoord</button>
+    <div class="feedback" id="ex_q6_3" style="display:none;">
+      <strong>Voorbeeld:</strong> "Ik herken het conflict doordat er Oekraïense leerlingen op mijn school zitten. Ook merk ik het aan de hogere prijzen in de supermarkt — energie en voedsel zijn duurder geworden. Op het nieuws en social media zie ik regelmatig berichten over de oorlog."
+    </div>
+    <div class="self-assess" id="sa_q6_3">
+      <button class="btn btn-success btn-sm" onclick="selfAssess('q6_3',true)">Goed ✓</button>
+      <button class="btn btn-danger btn-sm" onclick="selfAssess('q6_3',false)">Fout ✗</button>
+    </div>
+  </div>
+
+  <div class="nav-bottom">
+    <button class="btn btn-secondary" onclick="goTab(4)">← Vorige</button>
+    <div></div>
+  </div>
+  <div class="clear-btn-container">
+    <button class="btn btn-danger btn-sm" onclick="clearAllProgress()">🗑️ Voortgang wissen</button>
+  </div>
+  <div style="text-align:center;margin-top:8px;">
+    <button class="reset-section-btn" onclick="resetSection(5)">🔄 Reset dit onderdeel</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════ -->
+<!-- JAVASCRIPT -->
+<!-- ══════════════════════════════════════════════ -->
+<script>
+// ===== GLOBALS =====
+var TABS = [
+  {name: '🗺️ De Kaart', id: 0},
+  {name: '⚔️ Type Oorlog', id: 1},
+  {name: '🇳🇱 Nederland', id: 2},
+  {name: '📅 Tijdlijn', id: 3},
+  {name: '🔮 Toekomst', id: 4},
+  {name: '🎯 Reflectie', id: 5}
+];
+var currentTab = 0;
+var maps = [];
+var charts = [];
+
+// Question state: { answered: bool, correct: bool|null, attempts: int }
+var questions = {};
+var ALL_Q = [
+  'q1_1','q1_2','q1_3',
+  'q2_1','q2_2','q2_3',
+  'q3_1','q3_2','q3_3',
+  'q4_1','q4_2','q4_3',
+  'q5_1','q5_2','q5_3',
+  'q6_1','q6_2','q6_3'
+];
+ALL_Q.forEach(function(q){ questions[q] = {answered:false, correct:null, attempts:0}; });
+
+// Hints per MC question
+var HINTS = {
+  q1_1: [
+    'Denk goed na: Rusland ligt deels in Azië. Welk land ligt helemaal in Europa?',
+    'Frankrijk en Duitsland zijn groot, maar niet het grootst. Welk land is nog groter en ligt helemaal in Europa?'
+  ],
+  q1_2: [
+    'De Donbas-regio grenst aan een ander land. Welk land?',
+    'Kijk op de kaart: waar liggen de markers voor Donetsk en Loehansk ten opzichte van de Russische grens?'
+  ],
+  q2_3: [
+    'Sancties gaan over geld en handel. Wat wil je bereiken door iemands portemonnee te raken?',
+    'Het doel is niet om gewone mensen te straffen, maar om het moeilijker te maken om iets specifieks te doen...'
+  ],
+  q3_1: [
+    'Kijk goed naar de hoogte van de staven in de grafiek. Welke is de hoogste?',
+    'De langste staaf geeft het meeste geld aan.'
+  ],
+  q3_3: [
+    'Er is een vliegtuigramp die veel Nederlanders heeft geraakt. Herinner je je welke?',
+    'In 2014 gebeurde er iets boven Oost-Oekraïne met een passagiersvliegtuig...'
+  ],
+  q4_3: [
+    'Het schiereiland werd door een ander land overgenomen. Door welk land?',
+    'Annexeren betekent dat een land een gebied van een ander land "inpikt". Wie deed dat?'
+  ],
+  q5_1: [
+    'Bevroren = het geweld stopt maar er is geen officieel akkoord. Welk woord past?',
+    'Denk aan een ijsblokje: alles staat stil maar het is niet opgelost.'
+  ],
+  q5_3: [
+    'Polen is het buurland van Oekraïne. Wat betekent dat voor het aantal vluchtelingen?',
+    'Het dichtstbijzijnde veilige land ontvangt meestal de meeste vluchtelingen.'
+  ]
+};
+
+// ===== LOCALSTORAGE HELPERS =====
+function lsGet(key) {
+  try { var v = localStorage.getItem('geo_les_' + key); return v ? JSON.parse(v) : null; } catch(e) { return null; }
+}
+function lsSet(key, val) {
+  try { localStorage.setItem('geo_les_' + key, JSON.stringify(val)); } catch(e) {}
+}
+function lsRemove(key) {
+  try { localStorage.removeItem('geo_les_' + key); } catch(e) {}
+}
+
+// ===== INIT TABS =====
+function initTabs() {
+  var bar = document.getElementById('tabBar');
+  bar.innerHTML = '';
+  TABS.forEach(function(t, i) {
+    var btn = document.createElement('button');
+    btn.className = 'tab-btn' + (i === currentTab ? ' active' : '');
+    btn.id = 'tabBtn' + i;
+    var check = questions['q' + (i+1) + '_1'] && isSectionComplete(i) ? ' <span class="tab-check">✓</span>' : '';
+    btn.innerHTML = t.name + check;
+    btn.onclick = function(){ goTab(i); };
+    bar.appendChild(btn);
+  });
+}
+
+function goTab(idx) {
+  currentTab = idx;
+  TABS.forEach(function(t, i) {
+    var content = document.getElementById('tab-' + i);
+    var btn = document.getElementById('tabBtn' + i);
+    if (i === idx) {
+      content.classList.add('active');
+      btn.classList.add('active');
+    } else {
+      content.classList.remove('active');
+      btn.classList.remove('active');
+    }
+  });
+  document.getElementById('sectionCounter').textContent = 'Onderdeel ' + (idx+1) + ' van ' + TABS.length;
+  // Scroll to top
+  window.scrollTo({top: 0, behavior: 'smooth'});
+  // Update tab checks
+  updateTabChecks();
+  // Invalidate maps
+  setTimeout(function(){ maps.forEach(function(m){ m.invalidateSize(); }); }, 200);
+  // Update final score on reflection tab
+  if (idx === 5) updateFinalScore();
+}
+
+function updateTabChecks() {
+  TABS.forEach(function(t, i) {
+    var btn = document.getElementById('tabBtn' + i);
+    var name = t.name;
+    if (isSectionComplete(i)) name += ' <span class="tab-check">✓</span>';
+    btn.innerHTML = name;
+  });
+}
+
+function isSectionComplete(secIdx) {
+  var secQs = ALL_Q.filter(function(q) {
+    var block = document.querySelector('[data-qid="'+q+'"]');
+    return block && parseInt(block.dataset.section) === secIdx;
+  });
+  return secQs.length > 0 && secQs.every(function(q){ return questions[q].answered; });
+}
+
+// ===== PROGRESS =====
+function updateProgress() {
+  var total = ALL_Q.length;
+  var done = ALL_Q.filter(function(q){ return questions[q].answered; }).length;
+  var pct = Math.round(done / total * 100);
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressLabel').textContent = pct + '%';
+  updateTabChecks();
+  lsSet('questions', questions);
+  lsSet('timestamp', new Date().toISOString());
+}
+
+// ===== MC CHECK =====
+function checkMC(btn, correctAnswer, qid) {
+  var q = questions[qid];
+  if (q.answered) return;
+  var block = btn.closest('.question-block');
+  var allBtns = block.querySelectorAll('.mc-opt');
+  var fb = document.getElementById('fb_' + qid);
+  var chosen = btn.dataset.answer;
+  q.attempts++;
+
+  if (chosen === correctAnswer) {
+    q.answered = true;
+    q.correct = true;
+    allBtns.forEach(function(b){ b.disabled = true; if(b.dataset.answer===correctAnswer) b.classList.add('correct'); });
+    block.classList.add('completed');
+    fb.className = 'feedback success show';
+    fb.textContent = '🎉 Goed gedaan! Dat klopt helemaal.';
+    updateProgress();
+  } else {
+    btn.classList.add('wrong');
+    setTimeout(function(){ btn.classList.remove('wrong'); }, 1200);
+    var hints = HINTS[qid] || ['Probeer nog eens! Lees de uitleg hierboven nog een keer.', 'Bijna! Denk nog even goed na...'];
+    if (q.attempts >= 3) {
+      q.answered = true;
+      q.correct = false;
+      allBtns.forEach(function(b){
+        b.disabled = true;
+        if(b.dataset.answer===correctAnswer) b.classList.add('correct');
+      });
+      block.classList.add('completed');
+      fb.className = 'feedback reveal show';
+      var letterMap = {a:'A',b:'B',c:'C',d:'D'};
+      fb.innerHTML = 'Het juiste antwoord is <strong>' + letterMap[correctAnswer] + '</strong>. ' + (allBtns[['a','b','c','d'].indexOf(correctAnswer)] ? allBtns[['a','b','c','d'].indexOf(correctAnswer)].textContent.substring(3) : '') + '. Lees de uitleg hierboven nog eens terug!';
+      updateProgress();
+    } else {
+      var hint = hints[Math.min(q.attempts-1, hints.length-1)];
+      fb.className = 'feedback hint show';
+      fb.textContent = '💡 ' + hint + ' (Poging ' + q.attempts + '/3)';
+    }
+  }
+}
+
+// ===== OPEN QUESTIONS =====
+function countWords(textarea, wcId, btnId, minWords) {
+  minWords = minWords || 20;
+  var words = textarea.value.trim().split(/\s+/).filter(function(w){return w.length>0;}).length;
+  var wc = document.getElementById(wcId);
+  wc.textContent = words + ' woorden';
+  if (words >= minWords) {
+    wc.classList.add('enough');
+    document.getElementById(btnId).style.display = 'inline-flex';
+  } else {
+    wc.classList.remove('enough');
+    document.getElementById(btnId).style.display = 'none';
+  }
+}
+
+function showExampleAnswer(exId, saId, qid) {
+  document.getElementById(exId).style.display = 'block';
+  document.getElementById(exId).classList.add('feedback','reveal','show');
+  document.getElementById(saId).classList.add('show');
+}
+
+function selfAssess(qid, correct) {
+  var q = questions[qid];
+  q.answered = true;
+  q.correct = correct;
+  var block = document.querySelector('[data-qid="'+qid+'"]');
+  block.classList.add('completed');
+  var sa = document.getElementById('sa_' + qid);
+  sa.innerHTML = correct ? '<span style="color:var(--jungle-600);font-weight:700;">✓ Goed beoordeeld!</span>' : '<span style="color:var(--danger);font-weight:700;">✗ Genoteerd — kijk het voorbeeldantwoord nog eens na.</span>';
+  updateProgress();
+}
+
+// ===== MATCH / KOPPEL =====
+var matchData = {
+  q2_1: {
+    sources: [
+      {id:'s1', text:'🪖 Tanks en soldaten aan het front', target:'t1'},
+      {id:'s2', text:'📱 Nepnieuws op social media', target:'t2'},
+      {id:'s3', text:'💻 Hacken van energiecentrales', target:'t3'},
+      {id:'s4', text:'🚫 Handelsverboden tegen Rusland', target:'t4'},
+      {id:'s5', text:'🎥 Propaganda-video\'s op TV', target:'t2'},
+      {id:'s6', text:'🏦 Bankrekeningen bevriezen', target:'t4'}
+    ],
+    targets: [
+      {id:'t1', text:'Conventionele oorlog'},
+      {id:'t2', text:'Informatieoorlog'},
+      {id:'t3', text:'Cyberoorlog'},
+      {id:'t4', text:'Economische oorlog'}
+    ]
+  }
+};
+var matchState = {};
+
+function initMatch(qid) {
+  var data = matchData[qid];
+  matchState[qid] = { pairs: [], selectedSource: null };
+  var container = document.getElementById('match_' + qid);
+  container.innerHTML = '';
+
+  // Shuffle sources
+  var shuffled = data.sources.slice().sort(function(){ return Math.random()-0.5; });
+
+  var srcDiv = document.createElement('div');
+  srcDiv.className = 'match-sources';
+  srcDiv.style.marginBottom = '12px';
+  shuffled.forEach(function(s) {
+    var el = document.createElement('div');
+    el.className = 'match-item';
+    el.dataset.sid = s.id;
+    el.textContent = s.text;
+    el.onclick = function(){ selectMatchSource(qid, s.id, el); };
+    srcDiv.appendChild(el);
+  });
+
+  var targetLabel = document.createElement('div');
+  targetLabel.innerHTML = '<strong style="font-size:0.85rem;color:var(--text-muted);">Klik hieronder om te koppelen:</strong>';
+  targetLabel.style.margin = '8px 0 4px';
+
+  var tgtDiv = document.createElement('div');
+  tgtDiv.className = 'match-sources';
+  data.targets.forEach(function(t) {
+    var el = document.createElement('div');
+    el.className = 'match-target';
+    el.dataset.tid = t.id;
+    el.textContent = t.text;
+    el.onclick = function(){ selectMatchTarget(qid, t.id); };
+    tgtDiv.appendChild(el);
+  });
+
+  var pairsDiv = document.createElement('div');
+  pairsDiv.className = 'match-pairs-display';
+  pairsDiv.id = 'pairs_' + qid;
+
+  container.appendChild(srcDiv);
+  container.appendChild(targetLabel);
+  container.appendChild(tgtDiv);
+  container.appendChild(pairsDiv);
+}
+
+function selectMatchSource(qid, sid, el) {
+  if (questions[qid].answered) return;
+  // Check if already matched
+  var already = matchState[qid].pairs.find(function(p){ return p.source === sid; });
+  if (already) return;
+  // Deselect previous
+  var cont = document.getElementById('match_' + qid);
+  cont.querySelectorAll('.match-item.source-selected').forEach(function(e){ e.classList.remove('source-selected'); });
+  el.classList.add('source-selected');
+  matchState[qid].selectedSource = sid;
+}
+
+function selectMatchTarget(qid, tid) {
+  if (questions[qid].answered) return;
+  var state = matchState[qid];
+  if (!state.selectedSource) return;
+
+  state.pairs.push({ source: state.selectedSource, target: tid });
+
+  // Visual update
+  var cont = document.getElementById('match_' + qid);
+  var srcEl = cont.querySelector('[data-sid="'+state.selectedSource+'"]');
+  srcEl.classList.remove('source-selected');
+  srcEl.classList.add('matched');
+
+  state.selectedSource = null;
+  renderMatchPairs(qid);
+}
+
+function renderMatchPairs(qid) {
+  var data = matchData[qid];
+  var state = matchState[qid];
+  var pDiv = document.getElementById('pairs_' + qid);
+  pDiv.innerHTML = '';
+  state.pairs.forEach(function(p, idx) {
+    var src = data.sources.find(function(s){ return s.id === p.source; });
+    var tgt = data.targets.find(function(t){ return t.id === p.target; });
+    var row = document.createElement('div');
+    row.className = 'match-pair-row';
+    row.innerHTML = src.text + ' <span class="pair-arrow">→</span> ' + tgt.text +
+      ' <button style="margin-left:auto;background:none;border:none;cursor:pointer;color:var(--danger);font-weight:700;" onclick="removeMatchPair(\''+qid+'\','+idx+')">✕</button>';
+    pDiv.appendChild(row);
+  });
+}
+
+function removeMatchPair(qid, idx) {
+  if (questions[qid].answered) return;
+  var state = matchState[qid];
+  var removed = state.pairs.splice(idx, 1)[0];
+  // Un-match source
+  var cont = document.getElementById('match_' + qid);
+  var srcEl = cont.querySelector('[data-sid="'+removed.source+'"]');
+  if (srcEl) srcEl.classList.remove('matched');
+  renderMatchPairs(qid);
+}
+
+function checkMatch(qid) {
+  var q = questions[qid];
+  if (q.answered) return;
+  var data = matchData[qid];
+  var state = matchState[qid];
+  var fb = document.getElementById('fb_' + qid);
+
+  if (state.pairs.length < data.sources.length) {
+    fb.className = 'feedback hint show';
+    fb.textContent = '💡 Je hebt nog niet alle items gekoppeld! Koppel eerst alle voorbeelden.';
+    return;
+  }
+
+  var correctCount = 0;
+  state.pairs.forEach(function(p) {
+    var src = data.sources.find(function(s){ return s.id === p.source; });
+    if (src && src.target === p.target) correctCount++;
+  });
+
+  q.attempts++;
+  if (correctCount === data.sources.length) {
+    q.answered = true;
+    q.correct = true;
+    fb.className = 'feedback success show';
+    fb.textContent = '🎉 Alles correct gekoppeld! Geweldig!';
+    document.querySelector('[data-qid="'+qid+'"]').classList.add('completed');
+    updateProgress();
+  } else if (q.attempts >= 3) {
+    q.answered = true;
+    q.correct = false;
+    fb.className = 'feedback reveal show';
+    var ans = data.sources.map(function(s){
+      var t = data.targets.find(function(x){return x.id===s.target;});
+      return s.text + ' → ' + t.text;
+    }).join('<br>');
+    fb.innerHTML = 'De juiste koppelingen zijn:<br>' + ans;
+    document.querySelector('[data-qid="'+qid+'"]').classList.add('completed');
+    updateProgress();
+  } else {
+    fb.className = 'feedback hint show';
+    fb.textContent = '💡 ' + correctCount + ' van ' + data.sources.length + ' correct. Probeer nog eens! (Poging ' + q.attempts + '/3)';
+  }
+}
+
+// ===== DRAG AND DROP =====
+var dragData = {
+  q4_1: {
+    correct: ['ev1','ev2','ev3','ev4','ev5'],
+    items: [
+      {id:'ev1', text:'1991 — Oekraïne wordt onafhankelijk'},
+      {id:'ev2', text:'2004 — Oranje Revolutie'},
+      {id:'ev3', text:'2014 — Annexatie Krim & MH17'},
+      {id:'ev4', text:'2022 — Russische invasie'},
+      {id:'ev5', text:'2023-2024 — Stellingenoorlog'}
+    ]
+  }
+};
+
+function initDrag(qid) {
+  var data = dragData[qid];
+  var list = document.getElementById('drag_' + qid);
+  list.innerHTML = '';
+  // Shuffle
+  var shuffled = data.items.slice().sort(function(){ return Math.random()-0.5; });
+  shuffled.forEach(function(item) {
+    var el = document.createElement('div');
+    el.className = 'drag-item';
+    el.draggable = true;
+    el.dataset.did = item.id;
+    el.innerHTML = '<span class="grip">☰</span> ' + item.text;
+    list.appendChild(el);
+  });
+  setupDragListeners(qid);
+}
+
+function setupDragListeners(qid) {
+  var list = document.getElementById('drag_' + qid);
+  var dragSrcEl = null;
+
+  list.addEventListener('dragstart', function(e) {
+    dragSrcEl = e.target.closest('.drag-item');
+    if (!dragSrcEl) return;
+    dragSrcEl.classList.add('dragging');
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', '');
+  });
+
+  list.addEventListener('dragover', function(e) {
+    e.preventDefault();
+    var target = e.target.closest('.drag-item');
+    if (!target || target === dragSrcEl) return;
+    var rect = target.getBoundingClientRect();
+    var midY = rect.top + rect.height / 2;
+    if (e.clientY < midY) {
+      list.insertBefore(dragSrcEl, target);
+    } else {
+      list.insertBefore(dragSrcEl, target.nextSibling);
+    }
+  });
+
+  list.addEventListener('dragend', function(e) {
+    if (dragSrcEl) dragSrcEl.classList.remove('dragging');
+    dragSrcEl = null;
+  });
+
+  // Touch support
+  var touchSrcEl = null;
+  var touchClone = null;
+  var touchStartY = 0;
+
+  list.addEventListener('touchstart', function(e) {
+    var item = e.target.closest('.drag-item');
+    if (!item) return;
+    touchSrcEl = item;
+    touchStartY = e.touches[0].clientY;
+    item.classList.add('dragging');
+  }, {passive: true});
+
+  list.addEventListener('touchmove', function(e) {
+    if (!touchSrcEl) return;
+    e.preventDefault();
+    var touch = e.touches[0];
+    var items = Array.from(list.querySelectorAll('.drag-item'));
+    for (var i = 0; i < items.length; i++) {
+      if (items[i] === touchSrcEl) continue;
+      var rect = items[i].getBoundingClientRect();
+      var midY = rect.top + rect.height / 2;
+      if (touch.clientY < midY) {
+        list.insertBefore(touchSrcEl, items[i]);
+        break;
+      } else if (i === items.length -1 || (i < items.length -1 && touch.clientY > midY)) {
+        if (i === items.length -1) list.appendChild(touchSrcEl);
+      }
+    }
+  }, {passive: false});
+
+  list.addEventListener('touchend', function(e) {
+    if (touchSrcEl) touchSrcEl.classList.remove('dragging');
+    touchSrcEl = null;
+  });
+}
+
+function checkDragOrder(qid) {
+  var q = questions[qid];
+  if (q.answered) return;
+  var data = dragData[qid];
+  var list = document.getElementById('drag_' + qid);
+  var items = Array.from(list.querySelectorAll('.drag-item'));
+  var currentOrder = items.map(function(el){ return el.dataset.did; });
+  var fb = document.getElementById('fb_' + qid);
+  q.attempts++;
+
+  var allCorrect = true;
+  items.forEach(function(el, i) {
+    if (el.dataset.did === data.correct[i]) {
+      el.classList.add('correct-pos');
+      el.classList.remove('wrong-pos');
+    } else {
+      el.classList.remove('correct-pos');
+      el.classList.add('wrong-pos');
+      allCorrect = false;
+    }
+  });
+
+  if (allCorrect) {
+    q.answered = true;
+    q.correct = true;
+    fb.className = 'feedback success show';
+    fb.textContent = '🎉 Perfect! De volgorde klopt helemaal.';
+    document.querySelector('[data-qid="'+qid+'"]').classList.add('completed');
+    updateProgress();
+  } else if (q.attempts >= 3) {
+    q.answered = true;
+    q.correct = false;
+    // Show correct order
+    list.innerHTML = '';
+    data.correct.forEach(function(cid) {
+      var item = data.items.find(function(x){ return x.id === cid; });
+      var el = document.createElement('div');
+      el.className = 'drag-item correct-pos';
+      el.innerHTML = '<span class="grip">☰</span> ' + item.text;
+      list.appendChild(el);
+    });
+    fb.className = 'feedback reveal show';
+    fb.textContent = 'Hier is de juiste volgorde. Lees de tijdlijn hierboven nog eens terug!';
+    document.querySelector('[data-qid="'+qid+'"]').classList.add('completed');
+    updateProgress();
+  } else {
+    fb.className = 'feedback hint show';
+    fb.textContent = '💡 Nog niet helemaal goed. Groene items staan op de juiste plek, rode niet. Probeer opnieuw! (Poging ' + q.attempts + '/3)';
+  }
+}
+
+// ===== RESET SECTION =====
+function resetSection(secIdx) {
+  var secQs = ALL_Q.filter(function(q) {
+    var block = document.querySelector('[data-qid="'+q+'"]');
+    return block && parseInt(block.dataset.section) === secIdx;
+  });
+  secQs.forEach(function(qid) {
+    questions[qid] = {answered:false, correct:null, attempts:0};
+    var block = document.querySelector('[data-qid="'+qid+'"]');
+    block.classList.remove('completed');
+    // Reset MC
+    block.querySelectorAll('.mc-opt').forEach(function(b){
+      b.disabled = false;
+      b.classList.remove('correct','wrong','selected');
+    });
+    // Reset feedback
+    var fb = document.getElementById('fb_' + qid);
+    if (fb) { fb.className = 'feedback'; fb.textContent = ''; }
+    // Reset open
+    var ta = document.getElementById('ta_' + qid);
+    if (ta) ta.value = '';
+    var wc = document.getElementById('wc_' + qid);
+    if (wc) { wc.textContent = '0 woorden'; wc.classList.remove('enough'); }
+    var btnShow = document.getElementById('btn_' + qid);
+    if (btnShow) btnShow.style.display = 'none';
+    var ex = document.getElementById('ex_' + qid);
+    if (ex) { ex.style.display = 'none'; }
+    var sa = document.getElementById('sa_' + qid);
+    if (sa) { sa.classList.remove('show'); sa.innerHTML = '<button class="btn btn-success btn-sm" onclick="selfAssess(\''+qid+'\',true)">Goed ✓</button><button class="btn btn-danger btn-sm" onclick="selfAssess(\''+qid+'\',false)">Fout ✗</button>'; }
+  });
+  // Re-init special elements
+  if (secIdx === 1) initMatch('q2_1');
+  if (secIdx === 3) initDrag('q4_1');
+  updateProgress();
+}
+
+function clearAllProgress() {
+  if (!confirm('Weet je zeker dat je alle voortgang wilt wissen? Dit kan niet ongedaan worden gemaakt.')) return;
+  ALL_Q.forEach(function(q){ questions[q] = {answered:false, correct:null, attempts:0}; });
+  try {
+    var keys = Object.keys(localStorage).filter(function(k){ return k.startsWith('geo_les_'); });
+    keys.forEach(function(k){ localStorage.removeItem(k); });
+  } catch(e){}
+  location.reload();
+}
+
+function updateFinalScore() {
+  var total = ALL_Q.length;
+  var correct = ALL_Q.filter(function(q){ return questions[q].correct === true; }).length;
+  var answered = ALL_Q.filter(function(q){ return questions[q].answered; }).length;
+  var pct = total > 0 ? Math.round(correct / total * 100) : 0;
+  document.getElementById('finalScore').textContent = pct + '%';
+  document.getElementById('scoreDetail').textContent = correct + ' van ' + total + ' opdrachten goed (' + answered + ' beantwoord)';
+}
+
+// ===== LOAD SAVED STATE =====
+function loadState() {
+  var saved = lsGet('questions');
+  if (saved) {
+    ALL_Q.forEach(function(q) {
+      if (saved[q]) questions[q] = saved[q];
+    });
+  }
+}
+
+// ===== INIT =====
+window.addEventListener('DOMContentLoaded', function() {
+  loadState();
+  initTabs();
+  goTab(0);
+  updateProgress();
+
+  // ===== MAP 1 =====
+  var map1 = L.map('map1').setView([49.5, 35], 5);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap'
+  }).addTo(map1);
+  maps.push(map1);
+
+  var markers = [
+    {lat:50.4501, lng:30.5234, title:'Kyiv', desc:'Hoofdstad van Oekraïne. Hier vonden de Euromaidan-protesten plaats in 2013-2014.'},
+    {lat:48.0159, lng:37.8029, title:'Donetsk', desc:'Stad in Oost-Oekraïne (Donbas). Hier is al sinds 2014 strijd. De Donbas Arena (voetbalstadion) is beschadigd.'},
+    {lat:48.5734, lng:39.3078, title:'Loehansk', desc:'Hoofdstad van de regio Loehansk, onderdeel van de Donbas. Sinds 2014 in handen van pro-Russische rebellen.'},
+    {lat:44.9572, lng:34.1108, title:'Simferopol (Krim)', desc:'Hoofdstad van de Krim. In 2014 geannexeerd door Rusland.'},
+    {lat:55.7558, lng:37.6173, title:'Moskou', desc:'Hoofdstad van Rusland. Hier worden de beslissingen genomen over de oorlog.'},
+    {lat:49.9935, lng:36.2304, title:'Charkiv', desc:'Tweede stad van Oekraïne. Dicht bij de Russische grens, zwaar getroffen door beschietingen.'},
+    {lat:46.4825, lng:30.7233, title:'Odesa', desc:'Belangrijke havenstad aan de Zwarte Zee. Cruciaal voor de export van graan.'},
+    {lat:52.3676, lng:4.9041, title:'Amsterdam', desc:'Ter vergelijking: Amsterdam ligt op ~2.500 km van Kyiv.'}
+  ];
+
+  markers.forEach(function(m) {
+    L.marker([m.lat, m.lng]).addTo(map1).bindPopup('<strong>' + m.title + '</strong><br>' + m.desc);
+  });
+
+  // ===== CHART 1: Military support =====
+  var ctx1 = document.getElementById('chart1').getContext('2d');
+  charts.push(new Chart(ctx1, {
+    type: 'bar',
+    data: {
+      labels: ['Duitsland','VK','Nederland','Polen','Frankrijk','Denemarken','Noorwegen'],
+      datasets: [{
+        label: 'Militaire steun (miljarden €)',
+        data: [17.1, 12.0, 4.4, 4.3, 3.8, 3.6, 2.5],
+        backgroundColor: [
+          'rgba(26,122,62,0.8)',
+          'rgba(26,122,62,0.65)',
+          'rgba(212,160,23,0.85)',
+          'rgba(26,122,62,0.5)',
+          'rgba(26,122,62,0.4)',
+          'rgba(26,122,62,0.3)',
+          'rgba(26,122,62,0.25)'
+        ],
+        borderRadius: 6
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: false },
+        title: { display: true, text: 'Militaire steun aan Oekraïne (Europese landen)', font: {family:'Nunito',size:14,weight:'bold'} }
+      },
+      scales: {
+        y: { beginAtZero: true, title: { display: true, text: 'Miljarden €' } }
+      }
+    }
+  }));
+
+  // ===== CHART 2: Refugees =====
+  var ctx2 = document.getElementById('chart2');
+  if (ctx2) {
+    charts.push(new Chart(ctx2.getContext('2d'), {
+      type: 'bar',
+      data: {
+        labels: ['Polen','Duitsland','Tsjechië','Italië','Spanje','VK','Nederland','Frankrijk'],
+        datasets: [{
+          label: 'Oekraïense vluchtelingen (x1000)',
+          data: [960, 1130, 380, 170, 190, 250, 110, 70],
+          backgroundColor: 'rgba(36,113,163,0.7)',
+          borderRadius: 6
+        }]
+      },
+      options: {
+        responsive: true,
+        indexAxis: 'y',
+        plugins: {
+          legend: { display: false },
+          title: { display: true, text: 'Oekraïense vluchtelingen per land (x1000)', font: {family:'Nunito',size:14,weight:'bold'} }
+        },
+        scales: {
+          x: { beginAtZero: true, title: { display: true, text: 'Aantal (x1000)' } }
+        }
+      }
+    }));
+  }
+
+  // Init special components
+  initMatch('q2_1');
+  initDrag('q4_1');
+
+  // Restore completed visual states
+  ALL_Q.forEach(function(qid) {
+    if (questions[qid].answered) {
+      var block = document.querySelector('[data-qid="'+qid+'"]');
+      if (block) block.classList.add('completed');
+    }
+  });
+  updateProgress();
+});
+</script>
+</body>
+</html>
