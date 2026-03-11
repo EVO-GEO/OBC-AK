@@ -1,1 +1,1594 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>✈️ Aardrijkskunde — Vluchten in oorlogstijd</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+:root {
+  --red-900: #7f1d1d;
+  --red-800: #991b1b;
+  --red-700: #b91c1c;
+  --red-600: #dc2626;
+  --red-500: #ef4444;
+  --red-400: #f87171;
+  --red-300: #fca5a5;
+  --red-200: #fecaca;
+  --red-100: #fee2e2;
+  --red-50: #fef2f2;
+  --orange-500: #f97316;
+  --orange-400: #fb923c;
+  --yellow-400: #facc15;
+  --yellow-300: #fde047;
+  --gray-900: #1a1a2e;
+  --gray-800: #2d2d44;
+  --gray-700: #3d3d5c;
+  --gray-100: #f3f4f6;
+  --white: #ffffff;
+  --font: 'Nunito', sans-serif;
+  --radius: 16px;
+  --radius-sm: 10px;
+  --shadow: 0 4px 24px rgba(127,29,29,0.13);
+  --shadow-lg: 0 8px 40px rgba(127,29,29,0.18);
+  --transition: 0.3s cubic-bezier(.4,0,.2,1);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: var(--font);
+  background: linear-gradient(145deg, var(--gray-900) 0%, #1a0a0a 50%, var(--gray-900) 100%);
+  color: var(--gray-100);
+  min-height: 100vh;
+  line-height: 1.7;
+}
+/* PROGRESS BAR */
+.progress-wrapper {
+  position: sticky; top: 0; z-index: 1000;
+  background: var(--gray-900);
+  border-bottom: 2px solid var(--red-800);
+  padding: 10px 20px;
+  display: flex; align-items: center; gap: 14px;
+}
+.progress-label {
+  font-weight: 800; font-size: 0.85rem; color: var(--red-400);
+  white-space: nowrap;
+}
+.progress-bar-bg {
+  flex: 1; height: 14px;
+  background: var(--gray-800);
+  border-radius: 99px; overflow: hidden;
+}
+.progress-bar-fill {
+  height: 100%; width: 0%;
+  background: linear-gradient(90deg, var(--red-600), var(--orange-500), var(--yellow-400));
+  border-radius: 99px;
+  transition: width 0.6s ease;
+}
+.progress-pct {
+  font-weight: 800; font-size: 0.85rem; color: var(--yellow-300);
+  min-width: 42px; text-align: right;
+}
+/* HEADER */
+.les-header {
+  text-align: center;
+  padding: 36px 20px 18px;
+  background: linear-gradient(180deg, rgba(185,28,28,0.25) 0%, transparent 100%);
+}
+.les-header h1 {
+  font-size: clamp(1.6rem, 4vw, 2.4rem);
+  font-weight: 900;
+  background: linear-gradient(90deg, var(--red-400), var(--orange-400), var(--yellow-300));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.les-header .subtitle {
+  font-size: 1rem; color: var(--red-300); margin-top: 4px; font-weight: 600;
+}
+.les-header .news-badge {
+  display: inline-block; margin-top: 12px;
+  background: var(--red-800); color: var(--red-100);
+  padding: 6px 18px; border-radius: 99px;
+  font-size: 0.8rem; font-weight: 700;
+}
+/* TAB NAV */
+.tab-nav-wrapper {
+  position: sticky; top: 48px; z-index: 999;
+  background: var(--gray-900);
+  border-bottom: 2px solid var(--red-900);
+  padding: 0 12px;
+}
+.tab-counter {
+  text-align: center; font-size: 0.78rem; color: var(--red-400);
+  padding: 6px 0 2px; font-weight: 700;
+}
+.tab-nav {
+  display: flex; gap: 6px;
+  overflow-x: auto; padding: 6px 0 10px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--red-700) transparent;
+}
+.tab-btn {
+  flex-shrink: 0;
+  background: var(--gray-800);
+  color: var(--red-300);
+  border: 2px solid transparent;
+  padding: 8px 18px;
+  border-radius: var(--radius-sm);
+  font-family: var(--font);
+  font-weight: 700; font-size: 0.82rem;
+  cursor: pointer;
+  transition: var(--transition);
+  display: flex; align-items: center; gap: 6px;
+}
+.tab-btn:hover { background: var(--red-900); }
+.tab-btn.active {
+  background: var(--red-700);
+  color: var(--white);
+  border-color: var(--red-400);
+  box-shadow: 0 0 16px rgba(239,68,68,0.3);
+}
+.tab-btn .check { display: none; }
+.tab-btn.completed .check { display: inline; }
+/* MAIN CONTENT */
+.content-area {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 24px 16px 60px;
+}
+.section { display: none; }
+.section.active { display: block; animation: fadeIn 0.35s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+/* CARDS */
+.card {
+  background: linear-gradient(135deg, var(--gray-800), var(--gray-900));
+  border: 1px solid rgba(239,68,68,0.15);
+  border-radius: var(--radius);
+  padding: 28px;
+  margin-bottom: 22px;
+  box-shadow: var(--shadow);
+}
+.card h2 {
+  font-size: 1.35rem; font-weight: 900;
+  color: var(--red-400);
+  margin-bottom: 12px;
+}
+.card h3 {
+  font-size: 1.08rem; font-weight: 800;
+  color: var(--orange-400);
+  margin: 18px 0 8px;
+}
+.card p { margin-bottom: 10px; color: var(--gray-100); }
+/* INFO BLOCKS */
+.info-block {
+  background: linear-gradient(135deg, rgba(185,28,28,0.15), rgba(249,115,22,0.08));
+  border-left: 4px solid var(--red-500);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  padding: 18px 20px;
+  margin: 14px 0;
+}
+.emoji-flow {
+  font-size: 1.5rem;
+  text-align: center;
+  padding: 14px;
+  background: rgba(0,0,0,0.25);
+  border-radius: var(--radius-sm);
+  margin: 12px 0;
+  letter-spacing: 2px;
+}
+/* COMPARISON TABLE */
+.compare-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  margin: 14px 0;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+.compare-table th {
+  background: var(--red-800);
+  color: var(--white);
+  padding: 10px 14px;
+  font-weight: 800;
+  font-size: 0.88rem;
+  text-align: left;
+}
+.compare-table td {
+  padding: 10px 14px;
+  border-bottom: 1px solid rgba(239,68,68,0.12);
+  font-size: 0.9rem;
+}
+.compare-table tr:nth-child(even) td { background: rgba(185,28,28,0.06); }
+/* QUIZ ELEMENTS */
+.quiz-block {
+  background: rgba(0,0,0,0.3);
+  border: 1px solid rgba(239,68,68,0.2);
+  border-radius: var(--radius);
+  padding: 22px;
+  margin: 18px 0;
+}
+.quiz-block .q-label {
+  font-weight: 800; color: var(--yellow-300);
+  font-size: 0.82rem;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.quiz-block .q-text {
+  font-size: 1.02rem; font-weight: 700;
+  margin-bottom: 14px; color: var(--white);
+}
+.mc-option {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: var(--gray-800);
+  color: var(--gray-100);
+  border: 2px solid rgba(239,68,68,0.15);
+  border-radius: var(--radius-sm);
+  padding: 12px 16px;
+  margin-bottom: 8px;
+  font-family: var(--font);
+  font-size: 0.92rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+}
+.mc-option:hover { border-color: var(--red-500); background: rgba(185,28,28,0.15); }
+.mc-option.selected { border-color: var(--red-400); background: rgba(185,28,28,0.2); }
+.mc-option.correct { border-color: #22c55e; background: rgba(34,197,94,0.15); color: #86efac; }
+.mc-option.wrong { border-color: var(--red-500); background: rgba(239,68,68,0.15); opacity: 0.7; }
+.mc-option:disabled { cursor: default; }
+.feedback-box {
+  margin-top: 10px;
+  padding: 12px 16px;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  font-size: 0.9rem;
+  display: none;
+}
+.feedback-box.show { display: block; animation: fadeIn 0.3s ease; }
+.feedback-box.hint {
+  background: rgba(250,204,21,0.12);
+  border-left: 4px solid var(--yellow-400);
+  color: var(--yellow-300);
+}
+.feedback-box.success {
+  background: rgba(34,197,94,0.12);
+  border-left: 4px solid #22c55e;
+  color: #86efac;
+}
+.feedback-box.answer {
+  background: rgba(59,130,246,0.12);
+  border-left: 4px solid #3b82f6;
+  color: #93c5fd;
+}
+/* TEXTAREA */
+.open-textarea {
+  width: 100%;
+  min-height: 100px;
+  background: var(--gray-800);
+  color: var(--gray-100);
+  border: 2px solid rgba(239,68,68,0.2);
+  border-radius: var(--radius-sm);
+  padding: 14px;
+  font-family: var(--font);
+  font-size: 0.95rem;
+  resize: vertical;
+  transition: var(--transition);
+}
+.open-textarea:focus { outline: none; border-color: var(--red-500); }
+.word-counter {
+  text-align: right;
+  font-size: 0.78rem;
+  color: var(--red-400);
+  margin-top: 4px;
+  font-weight: 600;
+}
+.word-counter.enough { color: #22c55e; }
+/* BUTTONS */
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: linear-gradient(135deg, var(--red-700), var(--red-600));
+  color: var(--white);
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 10px 22px;
+  font-family: var(--font);
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: var(--transition);
+  margin-top: 8px;
+}
+.btn:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(239,68,68,0.3); }
+.btn:disabled { opacity: 0.5; cursor: default; transform: none; box-shadow: none; }
+.btn-sm {
+  padding: 7px 14px; font-size: 0.8rem;
+}
+.btn-green { background: linear-gradient(135deg, #15803d, #22c55e); }
+.btn-gray { background: var(--gray-700); }
+.btn-outline {
+  background: transparent;
+  border: 2px solid var(--red-700);
+  color: var(--red-400);
+}
+.self-assess { display: none; gap: 8px; margin-top: 8px; }
+.self-assess.show { display: flex; }
+/* NAV BUTTONS */
+.nav-btns {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-top: 28px; padding-top: 18px;
+  border-top: 1px solid rgba(239,68,68,0.15);
+}
+.reset-section-btn {
+  background: none; border: none;
+  color: var(--red-400); font-family: var(--font);
+  font-size: 0.78rem; cursor: pointer;
+  text-decoration: underline;
+  opacity: 0.7;
+}
+.reset-section-btn:hover { opacity: 1; }
+/* MAP */
+.map-container {
+  height: 400px;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  margin: 14px 0;
+  border: 2px solid rgba(239,68,68,0.2);
+}
+/* CHART */
+.chart-container {
+  background: rgba(0,0,0,0.2);
+  border-radius: var(--radius-sm);
+  padding: 16px;
+  margin: 14px 0;
+}
+.chart-container canvas { max-height: 320px; }
+/* DRAG AND DROP */
+.drag-list {
+  list-style: none;
+  margin: 12px 0;
+}
+.drag-item {
+  background: var(--gray-800);
+  border: 2px solid rgba(239,68,68,0.2);
+  border-radius: var(--radius-sm);
+  padding: 12px 16px;
+  margin-bottom: 6px;
+  font-weight: 600;
+  cursor: grab;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  user-select: none;
+  touch-action: none;
+}
+.drag-item:active { cursor: grabbing; }
+.drag-item .handle {
+  color: var(--red-400);
+  font-size: 1.1rem;
+}
+.drag-item.dragging {
+  opacity: 0.5;
+  border-color: var(--red-500);
+}
+.drag-item.drag-over {
+  border-color: var(--yellow-400);
+  background: rgba(250,204,21,0.08);
+}
+.drag-item.correct-pos { border-color: #22c55e; background: rgba(34,197,94,0.08); }
+.drag-item.wrong-pos { border-color: var(--red-500); background: rgba(239,68,68,0.08); }
+/* MATCHING */
+.match-container { display: flex; gap: 16px; flex-wrap: wrap; margin: 12px 0; }
+.match-col { flex: 1; min-width: 220px; }
+.match-col h4 { font-size: 0.85rem; color: var(--red-400); margin-bottom: 8px; font-weight: 800; text-transform: uppercase; }
+.match-item {
+  background: var(--gray-800);
+  border: 2px solid rgba(239,68,68,0.2);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  margin-bottom: 6px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+}
+.match-item:hover { border-color: var(--red-400); }
+.match-item.selected-match { border-color: var(--yellow-400); background: rgba(250,204,21,0.1); box-shadow: 0 0 10px rgba(250,204,21,0.15); }
+.match-item.matched { border-color: #22c55e; background: rgba(34,197,94,0.08); }
+.match-pair-label {
+  font-size: 0.72rem;
+  color: #86efac;
+  font-weight: 700;
+  margin-top: 2px;
+}
+/* SCORE SECTION */
+.score-card {
+  background: linear-gradient(135deg, var(--red-800), var(--red-900));
+  border-radius: var(--radius);
+  padding: 30px;
+  text-align: center;
+  margin: 20px 0;
+}
+.score-big {
+  font-size: 3rem; font-weight: 900;
+  background: linear-gradient(90deg, var(--yellow-300), var(--orange-400));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+/* MISC */
+.clear-btn-wrap { text-align: center; padding: 20px; }
+@media (max-width: 768px) {
+  .content-area { padding: 16px 10px 40px; }
+  .card { padding: 18px; }
+  .map-container { height: 300px; }
+  .match-container { flex-direction: column; }
+}
+</style>
+</head>
+<body>
 
+<!-- PROGRESS BAR -->
+<div class="progress-wrapper">
+  <span class="progress-label">📊 Voortgang</span>
+  <div class="progress-bar-bg"><div class="progress-bar-fill" id="progressFill"></div></div>
+  <span class="progress-pct" id="progressPct">0%</span>
+</div>
+
+<!-- HEADER -->
+<div class="les-header">
+  <h1>✈️ Vluchten geannuleerd — wat nu?</h1>
+  <div class="subtitle">Aardrijkskunde · VMBO 2 · ~40 minuten</div>
+  <div class="news-badge">📰 Naar aanleiding van: KLM annuleert vluchten naar Dubai (maart 2026)</div>
+</div>
+
+<!-- TAB NAV -->
+<div class="tab-nav-wrapper">
+  <div class="tab-counter" id="tabCounter">Onderdeel 1 van 6</div>
+  <div class="tab-nav" id="tabNav">
+    <button class="tab-btn active" data-tab="0"><span class="check">✅</span> 1. Wat is er aan de hand?</button>
+    <button class="tab-btn" data-tab="1"><span class="check">✅</span> 2. De kaart</button>
+    <button class="tab-btn" data-tab="2"><span class="check">✅</span> 3. Waarom geen vluchten?</button>
+    <button class="tab-btn" data-tab="3"><span class="check">✅</span> 4. Gevolgen</button>
+    <button class="tab-btn" data-tab="4"><span class="check">✅</span> 5. Weer vliegen</button>
+    <button class="tab-btn" data-tab="5"><span class="check">✅</span> 6. Afsluiting</button>
+  </div>
+</div>
+
+<!-- CONTENT -->
+<div class="content-area">
+
+<!-- ===================== SECTIE 0 ===================== -->
+<div class="section active" id="section-0">
+  <div class="card">
+    <h2>✈️ Vluchten geannuleerd — wat is er aan de hand?</h2>
+    <p>Stel je voor: je hebt een vakantie geboekt naar Dubai. Je koffers staan klaar, je boarding pass is gedownload, en dan krijg je een bericht van KLM: <strong>"Uw vlucht is geannuleerd."</strong> Dat is precies wat duizenden reizigers in maart 2026 overkwam.</p>
+    <p>KLM heeft tot en met 28 maart 2026 alle vluchten naar Dubai geannuleerd. De reden? Er is oorlog in het Midden-Oosten. Iran is in conflict met Israël en de Verenigde Staten. Drones zijn neergekomen bij de luchthaven van Dubai, en de Straat van Hormuz — een belangrijke zeevaartroute — is geblokkeerd door mijnen.</p>
+
+    <div class="info-block">
+      <strong>🔑 Kernbegrip: luchtruim</strong><br>
+      Het luchtruim is het stuk lucht boven een land of zee. Elk land bepaalt zelf wie er doorheen mag vliegen. Als er oorlog is, kan een land het luchtruim sluiten. Vliegtuigen mogen er dan niet meer doorheen — te gevaarlijk vanwege raketten, drones of luchtverdediging.
+    </div>
+
+    <div class="emoji-flow">
+      ⚔️ Oorlog → 🚫 Luchtruim dicht → ✈️ Vluchten geannuleerd → 😟 Reizigers gestrand
+    </div>
+
+    <p>Misschien denk je: "Kan dat vliegtuig niet gewoon een andere route nemen?" Soms wel, maar als een heel groot gebied onveilig is — zoals nu het Midden-Oosten — dan zijn omvliegen soms te duur, te ver, of ook niet veilig. Luchtvaartmaatschappijen kiezen dan voor annuleren.</p>
+
+    <h3>🌍 Link met jouw wereld</h3>
+    <p>Als jij naar school fietst en er is een weg afgezet vanwege een ongeluk, dan fiets je om. Maar wat als alle wegen rondom je school zijn afgezet? Dan kom je gewoon niet op school. Zo werkt het ook met vliegtuigen en luchtruim: als te veel routes geblokkeerd zijn, stopt het verkeer.</p>
+  </div>
+
+  <!-- OPDRACHT: MC -->
+  <div class="quiz-block" data-qid="q0a">
+    <div class="q-label">Opdracht 1 — Meerkeuzevraag</div>
+    <div class="q-text">Waarom heeft KLM de vluchten naar Dubai geannuleerd in maart 2026?</div>
+    <button class="mc-option" data-answer="a" onclick="checkMC(this, 'q0a', 'c')">a) Er was een technisch probleem met de vliegtuigen</button>
+    <button class="mc-option" data-answer="b" onclick="checkMC(this, 'q0a', 'c')">b) Er waren te weinig passagiers</button>
+    <button class="mc-option" data-answer="c" onclick="checkMC(this, 'q0a', 'c')">c) Het luchtruim is onveilig door oorlog in het Midden-Oosten</button>
+    <button class="mc-option" data-answer="d" onclick="checkMC(this, 'q0a', 'c')">d) De luchthaven van Dubai was gesloten vanwege onderhoud</button>
+    <div class="feedback-box" id="fb-q0a"></div>
+  </div>
+
+  <!-- OPDRACHT: Open vraag -->
+  <div class="quiz-block" data-qid="q0b">
+    <div class="q-label">Opdracht 2 — Open vraag (schrijf minimaal 20 woorden)</div>
+    <div class="q-text">Vergelijk de situatie van geannuleerde vluchten met een situatie uit je eigen leven. Wanneer kon jij ergens niet naartoe door iets waar je geen invloed op had? Leg uit wat de overeenkomst is.</div>
+    <textarea class="open-textarea" id="ta-q0b" oninput="countWords('q0b')"></textarea>
+    <div class="word-counter" id="wc-q0b">0 woorden</div>
+    <button class="btn" id="submit-q0b" onclick="submitOpen('q0b')" disabled>Klaar</button>
+    <button class="btn btn-gray btn-sm" id="example-q0b" style="display:none" onclick="showExample('q0b')">Toon voorbeeldantwoord</button>
+    <div class="feedback-box" id="fb-q0b"></div>
+    <div class="self-assess" id="sa-q0b">
+      <button class="btn btn-green btn-sm" onclick="selfAssess('q0b', true)">Goed ✓</button>
+      <button class="btn btn-sm" onclick="selfAssess('q0b', false)">Fout ✗</button>
+    </div>
+  </div>
+
+  <div class="nav-btns">
+    <button class="reset-section-btn" onclick="resetSection(0)">🔄 Reset dit onderdeel</button>
+    <div></div>
+    <button class="btn" onclick="goTab(1)">Volgende →</button>
+  </div>
+</div>
+
+<!-- ===================== SECTIE 1 ===================== -->
+<div class="section" id="section-1">
+  <div class="card">
+    <h2>🗺️ De kaart — Waar speelt dit zich af?</h2>
+    <p>Om goed te begrijpen waarom vluchten worden geannuleerd, moet je weten <strong>waar</strong> het conflict zich afspeelt. De oorlog raakt een groot deel van het Midden-Oosten: Iran, Israël, Libanon, en de Golfstaten (zoals de Verenigde Arabische Emiraten, waar Dubai in ligt). Dit zijn gebieden waar normaal gesproken miljoenen toeristen en zakenmensen naartoe vliegen.</p>
+    <p>Een cruciaal punt op de kaart is de <strong>Straat van Hormuz</strong> — een smalle zeestraat tussen Iran en Oman. Hier vaart normaal een vijfde van alle olie ter wereld doorheen. Iran heeft hier mijnen gelegd om de scheepvaart te blokkeren, wat ook effect heeft op het luchtruim erboven.</p>
+
+    <div class="info-block">
+      <strong>🔑 Kernbegrip: strategische ligging</strong><br>
+      Sommige plekken op aarde zijn extra belangrijk vanwege hun ligging. De Straat van Hormuz is zo'n plek: het is de enige doorgang van de Perzische Golf naar de open oceaan. Wie deze zeestraat controleert, heeft macht over de oliehandel van de hele wereld. Dat maakt het een doelwit in oorlogstijd.
+    </div>
+
+    <div class="emoji-flow">
+      🛢️ Olie Perzische Golf → 🚢 Straat van Hormuz → 🌍 Wereldmarkt<br>
+      💣 Mijnen → 🚫 Scheepvaart gestopt → 📈 Olieprijzen omhoog
+    </div>
+
+    <h3>🌍 Verken de kaart</h3>
+    <p>Klik op de markers om meer te leren over elke locatie. Let op hoe dicht de conflictgebieden bij populaire vliegroutes liggen.</p>
+  </div>
+
+  <div class="map-container" id="map1"></div>
+
+  <!-- OPDRACHT: Kaartvraag MC -->
+  <div class="quiz-block" data-qid="q1a">
+    <div class="q-label">Opdracht 3 — Kaartvraag</div>
+    <div class="q-text">Bekijk de kaart. De Straat van Hormuz ligt tussen twee landen. Welke?</div>
+    <button class="mc-option" data-answer="a" onclick="checkMC(this, 'q1a', 'b')">a) Irak en Saudi-Arabië</button>
+    <button class="mc-option" data-answer="b" onclick="checkMC(this, 'q1a', 'b')">b) Iran en Oman</button>
+    <button class="mc-option" data-answer="c" onclick="checkMC(this, 'q1a', 'b')">c) Egypte en Jordanië</button>
+    <button class="mc-option" data-answer="d" onclick="checkMC(this, 'q1a', 'b')">d) Turkije en Syrië</button>
+    <div class="feedback-box" id="fb-q1a"></div>
+  </div>
+
+  <!-- OPDRACHT: Open kaartvraag -->
+  <div class="quiz-block" data-qid="q1b">
+    <div class="q-label">Opdracht 4 — Open kaartopdracht (minimaal 20 woorden)</div>
+    <div class="q-text">Bekijk de kaart en de vliegroute Amsterdam → Dubai. Leg uit waarom het moeilijk is om "gewoon om te vliegen" als het luchtruim boven Iran en Irak dicht is. Gebruik de kaart als bewijs.</div>
+    <textarea class="open-textarea" id="ta-q1b" oninput="countWords('q1b')"></textarea>
+    <div class="word-counter" id="wc-q1b">0 woorden</div>
+    <button class="btn" id="submit-q1b" onclick="submitOpen('q1b')" disabled>Klaar</button>
+    <button class="btn btn-gray btn-sm" id="example-q1b" style="display:none" onclick="showExample('q1b')">Toon voorbeeldantwoord</button>
+    <div class="feedback-box" id="fb-q1b"></div>
+    <div class="self-assess" id="sa-q1b">
+      <button class="btn btn-green btn-sm" onclick="selfAssess('q1b', true)">Goed ✓</button>
+      <button class="btn btn-sm" onclick="selfAssess('q1b', false)">Fout ✗</button>
+    </div>
+  </div>
+
+  <div class="nav-btns">
+    <button class="reset-section-btn" onclick="resetSection(1)">🔄 Reset dit onderdeel</button>
+    <button class="btn btn-outline" onclick="goTab(0)">← Vorige</button>
+    <button class="btn" onclick="goTab(2)">Volgende →</button>
+  </div>
+</div>
+
+<!-- ===================== SECTIE 2 ===================== -->
+<div class="section" id="section-2">
+  <div class="card">
+    <h2>🚫 Waarom worden vluchten geannuleerd tijdens oorlog?</h2>
+    <p>Er zijn meerdere redenen waarom luchtvaartmaatschappijen besluiten om niet meer te vliegen naar een conflictgebied. Het is niet één simpele reden — het is een combinatie van factoren die samen het vliegen onmogelijk of te risicovol maken.</p>
+
+    <table class="compare-table">
+      <tr><th>⚠️ Risicofactor</th><th>Uitleg</th></tr>
+      <tr><td>🚀 Raketten & drones</td><td>Vliegtuigen kunnen geraakt worden door luchtverdedigingssystemen of drones. In 2014 werd vlucht MH17 boven Oekraïne neergehaald — sindsdien zijn airlines extra voorzichtig.</td></tr>
+      <tr><td>📡 Gesloten luchtruim</td><td>Landen sluiten hun luchtruim zodat militaire vliegtuigen vrij kunnen opereren. Burgerluchtvaart mag dan niet meer door.</td></tr>
+      <tr><td>🏗️ Schade aan luchthavens</td><td>Luchthavens kunnen beschadigd raken door aanvallen. Bij Dubai landden drones nabij het vliegveld.</td></tr>
+      <tr><td>🛡️ Verzekering</td><td>Verzekeringsmaatschappijen weigeren vliegtuigen te verzekeren als het risico te hoog is. Zonder verzekering mag je niet vliegen.</td></tr>
+      <tr><td>👨‍✈️ Personeel</td><td>Piloten en cabinepersoneel mogen weigeren naar gevaarlijke gebieden te vliegen. Hun veiligheid telt ook.</td></tr>
+    </table>
+
+    <div class="info-block">
+      <strong>🔑 Kernbegrip: risicomanagement</strong><br>
+      Luchtvaartmaatschappijen maken voortdurend een afweging: is het veilig genoeg om te vliegen? Ze bekijken daarbij informatie van overheden, militaire inlichtingen, verzekeraars en internationale luchtvaartorganisaties. Als het risico te hoog is, annuleren ze — ook als dat veel geld kost. Veiligheid gaat altijd voor.
+    </div>
+
+    <h3>🌍 Herkenbaar?</h3>
+    <p>Denk eens aan een schoolreisje dat niet door kon gaan vanwege slecht weer of een andere reden. De school maakt ook zo'n risicoafweging: is het veilig genoeg? Zo werkt het bij airlines ook, maar dan op wereldschaal.</p>
+  </div>
+
+  <!-- OPDRACHT: Rangschikopdracht (drag & drop) -->
+  <div class="quiz-block" data-qid="q2a">
+    <div class="q-label">Opdracht 5 — Rangschikopdracht (sleep in de juiste volgorde)</div>
+    <div class="q-text">Zet deze stappen in de juiste volgorde: van het begin van een conflict tot het annuleren van vluchten.</div>
+    <ul class="drag-list" id="dragList-q2a">
+      <li class="drag-item" draggable="true" data-correct="1"><span class="handle">☰</span> Oorlog breekt uit tussen twee landen</li>
+      <li class="drag-item" draggable="true" data-correct="4"><span class="handle">☰</span> KLM annuleert vluchten naar Dubai</li>
+      <li class="drag-item" draggable="true" data-correct="2"><span class="handle">☰</span> Luchtruim wordt gesloten door de overheid</li>
+      <li class="drag-item" draggable="true" data-correct="3"><span class="handle">☰</span> Verzekeraars weigeren vliegtuigen te dekken</li>
+    </ul>
+    <button class="btn" onclick="checkDragOrder('q2a')">Controleer volgorde</button>
+    <div class="feedback-box" id="fb-q2a"></div>
+  </div>
+
+  <!-- OPDRACHT: Open analysevraag -->
+  <div class="quiz-block" data-qid="q2b">
+    <div class="q-label">Opdracht 6 — Denkvraag (minimaal 20 woorden)</div>
+    <div class="q-text">In de tabel staan vijf risicofactoren. Welke vind jij het zwaarste argument om vluchten te annuleren? Leg uit waarom, en geef een ander voorbeeld uit het dagelijks leven waar hetzelfde argument geldt.</div>
+    <textarea class="open-textarea" id="ta-q2b" oninput="countWords('q2b')"></textarea>
+    <div class="word-counter" id="wc-q2b">0 woorden</div>
+    <button class="btn" id="submit-q2b" onclick="submitOpen('q2b')" disabled>Klaar</button>
+    <button class="btn btn-gray btn-sm" id="example-q2b" style="display:none" onclick="showExample('q2b')">Toon voorbeeldantwoord</button>
+    <div class="feedback-box" id="fb-q2b"></div>
+    <div class="self-assess" id="sa-q2b">
+      <button class="btn btn-green btn-sm" onclick="selfAssess('q2b', true)">Goed ✓</button>
+      <button class="btn btn-sm" onclick="selfAssess('q2b', false)">Fout ✗</button>
+    </div>
+  </div>
+
+  <!-- OPDRACHT: MC -->
+  <div class="quiz-block" data-qid="q2c">
+    <div class="q-label">Opdracht 7 — Meerkeuzevraag</div>
+    <div class="q-text">Wat gebeurde er in 2014 met vlucht MH17 boven Oekraïne?</div>
+    <button class="mc-option" data-answer="a" onclick="checkMC(this, 'q2c', 'c')">a) Het vliegtuig moest een noodlanding maken</button>
+    <button class="mc-option" data-answer="b" onclick="checkMC(this, 'q2c', 'c')">b) Het vliegtuig werd omgeleid naar een ander land</button>
+    <button class="mc-option" data-answer="c" onclick="checkMC(this, 'q2c', 'c')">c) Het vliegtuig werd neergehaald door een raket</button>
+    <button class="mc-option" data-answer="d" onclick="checkMC(this, 'q2c', 'c')">d) Het vliegtuig raakte in zware turbulentie</button>
+    <div class="feedback-box" id="fb-q2c"></div>
+  </div>
+
+  <div class="nav-btns">
+    <button class="reset-section-btn" onclick="resetSection(2)">🔄 Reset dit onderdeel</button>
+    <button class="btn btn-outline" onclick="goTab(1)">← Vorige</button>
+    <button class="btn" onclick="goTab(3)">Volgende →</button>
+  </div>
+</div>
+
+<!-- ===================== SECTIE 3 ===================== -->
+<div class="section" id="section-3">
+  <div class="card">
+    <h2>📉 Gevolgen van langdurig geannuleerde vluchten</h2>
+    <p>Wanneer vluchten voor langere tijd worden geannuleerd, raakt dat niet alleen reizigers. De gevolgen zijn veel breder dan je misschien denkt — ze raken de economie, het dagelijks leven van mensen, en zelfs de hulpverlening.</p>
+
+    <h3>💰 Economische gevolgen</h3>
+    <p>Dubai is een stad die draait op toerisme en handel. Miljoenen toeristen per jaar bezoeken de stad, en de luchthaven is de drukste ter wereld voor internationaal verkeer. Als vluchten wegvallen, vallen ook de inkomsten weg: hotels raken leeg, winkels verliezen klanten, en bedrijven kunnen geen werknemers of goederen meer aanvoeren.</p>
+
+    <h3>🛢️ Energieprijzen</h3>
+    <p>De Straat van Hormuz is geblokkeerd door mijnen. Normaal varen hier dagelijks zo'n 140 tankers doorheen met olie en gas. Nu bijna geen enkele. Daardoor schieten de olieprijzen wereldwijd omhoog. Duitsland heeft zelfs nationale oliereserves moeten vrijgeven om de brandstofprijzen te drukken.</p>
+
+    <div class="emoji-flow">
+      💣 Mijnen in Straat van Hormuz → 🚢❌ Tankers stoppen → 🛢️📈 Olieprijzen stijgen → ⛽💸 Jij betaalt meer aan de pomp
+    </div>
+
+    <h3>👥 Menselijke gevolgen</h3>
+    <p>Duizenden reizigers zitten vast. Zakenmensen missen vergaderingen, families worden gescheiden, studenten kunnen niet terug naar hun studie. En voor mensen in het conflictgebied zelf is het nog erger: zij kunnen niet weg, zelfs niet als ze willen vluchten.</p>
+
+    <h3>📦 Handel en logistiek</h3>
+    <p>Niet alleen passagiers, maar ook vracht wordt vervoerd per vliegtuig. Medicijnen, voedsel, post, computeronderdelen — alles vertraagt. Dit raakt toeleveringsketens over de hele wereld.</p>
+
+    <div class="info-block">
+      <strong>🔑 Kernbegrip: globalisering & kwetsbaarheid</strong><br>
+      Onze wereld is sterk verbonden door luchtvaart, scheepvaart en internet. Dat noemen we globalisering. Het voordeel is dat we overal kunnen komen en alles kunnen kopen. Het nadeel? Als één schakel uitvalt (zoals de Straat van Hormuz), merkt de hele wereld dat.
+    </div>
+
+    <h3>🌍 Jouw leven</h3>
+    <p>Denk eens na: als de benzineprijs omhoog gaat, wordt ook het buskaartje duurder. Als vliegtuigen niet vliegen, komt je bestelling van AliExpress of Amazon misschien later. Globalisering betekent dat een oorlog aan de andere kant van de wereld effect heeft op jouw portemonnee.</p>
+  </div>
+
+  <!-- CHART: Olieprijzen -->
+  <div class="card">
+    <h3>📊 Grafiek: Olieprijs per vat (in USD) — Fictieve data</h3>
+    <p>Bekijk hoe de olieprijs zich ontwikkelt naarmate het conflict escaleert.</p>
+    <div class="chart-container">
+      <canvas id="oilChart"></canvas>
+    </div>
+  </div>
+
+  <!-- OPDRACHT: Grafiekanalyse -->
+  <div class="quiz-block" data-qid="q3a">
+    <div class="q-label">Opdracht 8 — Grafiekanalyse</div>
+    <div class="q-text">Bekijk de grafiek. In welke week steeg de olieprijs het sterkst?</div>
+    <button class="mc-option" data-answer="a" onclick="checkMC(this, 'q3a', 'c')">a) Week 1 (begin februari)</button>
+    <button class="mc-option" data-answer="b" onclick="checkMC(this, 'q3a', 'c')">b) Week 3 (midden februari)</button>
+    <button class="mc-option" data-answer="c" onclick="checkMC(this, 'q3a', 'c')">c) Week 5 (begin maart — escalatie conflict)</button>
+    <button class="mc-option" data-answer="d" onclick="checkMC(this, 'q3a', 'c')">d) Week 7 (eind maart)</button>
+    <div class="feedback-box" id="fb-q3a"></div>
+  </div>
+
+  <!-- OPDRACHT: Koppelopdracht -->
+  <div class="quiz-block" data-qid="q3b">
+    <div class="q-label">Opdracht 9 — Koppelopdracht</div>
+    <div class="q-text">Koppel elk gevolg aan de juiste categorie. Klik eerst op een gevolg (links), dan op een categorie (rechts). Eén categorie kan meerdere gevolgen krijgen.</div>
+    <div class="match-container" id="match-q3b">
+      <div class="match-col">
+        <h4>Gevolgen</h4>
+        <div class="match-item source-item" data-pair="econ" onclick="matchSelect(this, 'q3b', 'source')">Hotels in Dubai raken leeg</div>
+        <div class="match-item source-item" data-pair="mens" onclick="matchSelect(this, 'q3b', 'source')">Families worden gescheiden</div>
+        <div class="match-item source-item" data-pair="econ" onclick="matchSelect(this, 'q3b', 'source')">Olieprijzen stijgen wereldwijd</div>
+        <div class="match-item source-item" data-pair="handel" onclick="matchSelect(this, 'q3b', 'source')">Medicijnen komen later aan</div>
+        <div class="match-item source-item" data-pair="mens" onclick="matchSelect(this, 'q3b', 'source')">Reizigers zitten vast op luchthaven</div>
+        <div class="match-item source-item" data-pair="handel" onclick="matchSelect(this, 'q3b', 'source')">Pakketjes komen later aan</div>
+      </div>
+      <div class="match-col">
+        <h4>Categorieën</h4>
+        <div class="match-item target-item" data-cat="econ" onclick="matchSelect(this, 'q3b', 'target')">💰 Economisch</div>
+        <div class="match-item target-item" data-cat="mens" onclick="matchSelect(this, 'q3b', 'target')">👥 Menselijk</div>
+        <div class="match-item target-item" data-cat="handel" onclick="matchSelect(this, 'q3b', 'target')">📦 Handel & logistiek</div>
+      </div>
+    </div>
+    <button class="btn" onclick="checkMatch('q3b')">Controleer koppelingen</button>
+    <button class="btn btn-gray btn-sm" onclick="resetMatch('q3b')">Reset koppelingen</button>
+    <div class="feedback-box" id="fb-q3b"></div>
+  </div>
+
+  <!-- OPDRACHT: Open schrijfopdracht -->
+  <div class="quiz-block" data-qid="q3c">
+    <div class="q-label">Opdracht 10 — Denkvraag (minimaal 25 woorden)</div>
+    <div class="q-text">Een vriend zegt: "Die oorlog in het Midden-Oosten heeft toch niks met ons te maken?" Schrijf een beargumenteerd antwoord waarin je uitlegt waarom dat niet klopt. Gebruik minstens twee voorbeelden.</div>
+    <textarea class="open-textarea" id="ta-q3c" oninput="countWords('q3c', 25)"></textarea>
+    <div class="word-counter" id="wc-q3c">0 woorden</div>
+    <button class="btn" id="submit-q3c" onclick="submitOpen('q3c')" disabled>Klaar</button>
+    <button class="btn btn-gray btn-sm" id="example-q3c" style="display:none" onclick="showExample('q3c')">Toon voorbeeldantwoord</button>
+    <div class="feedback-box" id="fb-q3c"></div>
+    <div class="self-assess" id="sa-q3c">
+      <button class="btn btn-green btn-sm" onclick="selfAssess('q3c', true)">Goed ✓</button>
+      <button class="btn btn-sm" onclick="selfAssess('q3c', false)">Fout ✗</button>
+    </div>
+  </div>
+
+  <div class="nav-btns">
+    <button class="reset-section-btn" onclick="resetSection(3)">🔄 Reset dit onderdeel</button>
+    <button class="btn btn-outline" onclick="goTab(2)">← Vorige</button>
+    <button class="btn" onclick="goTab(4)">Volgende →</button>
+  </div>
+</div>
+
+<!-- ===================== SECTIE 4 ===================== -->
+<div class="section" id="section-4">
+  <div class="card">
+    <h2>🔧 Wat moet er gebeuren om weer te vliegen?</h2>
+    <p>Na een conflict zijn vluchten niet zomaar de volgende dag weer mogelijk. Er moet heel veel geregeld worden voordat het eerste vliegtuig weer veilig kan opstijgen. Dit proces kan weken, maanden of zelfs jaren duren.</p>
+
+    <h3>1️⃣ Staakt-het-vuren of einde conflict</h3>
+    <p>De eerste voorwaarde is dat het geweld stopt, of in ieder geval sterk afneemt. Zolang er raketten of drones door de lucht vliegen, kan er niet gevlogen worden. Een staakt-het-vuren is een afspraak tussen de partijen om (tijdelijk) te stoppen met vechten.</p>
+
+    <h3>2️⃣ Heropening luchtruim</h3>
+    <p>Landen moeten officieel hun luchtruim weer openstellen. Dat gaat via de nationale luchtvaartautoriteiten, die samenwerken met de internationale organisatie ICAO. Het luchtruim wordt stap voor stap geopend — eerst bepaalde routes en hoogtes, dan meer.</p>
+
+    <h3>3️⃣ Veiligheidscheck luchthavens</h3>
+    <p>Luchthavens die beschadigd zijn moeten gerepareerd worden: landingsbanen, radarsystemen, de verkeerstoren. Bij Dubai kwamen drones neer nabij het vliegveld — er moet gecontroleerd worden of er geen onontplofte munitie op het terrein ligt.</p>
+
+    <h3>4️⃣ Verzekeringen hervatten</h3>
+    <p>Verzekeringsmaatschappijen moeten opnieuw akkoord gaan met het dekken van vliegtuigen voor deze routes. Dat gebeurt pas als zij het risico acceptabel vinden.</p>
+
+    <h3>5️⃣ Mijnenruimen (zee)</h3>
+    <p>Voor de scheepvaart: de mijnen in de Straat van Hormuz moeten geruimd worden. Dit is gevaarlijk, specialistisch werk dat weken kan duren. Pas als de zeestraat veilig is, normaliseert ook het luchtruim erboven.</p>
+
+    <div class="emoji-flow">
+      🕊️ Staakt-het-vuren → 📡 Luchtruim open → 🏗️ Luchthaven gerepareerd → 🛡️ Verzekering OK → ✈️ Eerste vlucht!
+    </div>
+
+    <div class="info-block">
+      <strong>🔑 Kernbegrip: infrastructuur</strong><br>
+      Infrastructuur zijn alle voorzieningen die een samenleving nodig heeft om te functioneren: wegen, bruggen, luchthavens, havens, elektriciteitsnetwerken, internet. In oorlog wordt infrastructuur vaak als eerste aangevallen, omdat het een land lam kan leggen. Het herstellen kost enorm veel tijd en geld.
+    </div>
+
+    <h3>🌍 In jouw omgeving</h3>
+    <p>Als er bij jou in de straat het water of internet uitvalt, merk je meteen hoe afhankelijk je bent van infrastructuur. Nu schaal dat op naar een heel land waar luchthavens, wegen en havens beschadigd zijn. Alles moet opnieuw opgebouwd.</p>
+  </div>
+
+  <!-- OPDRACHT: Drag & Drop volgorde -->
+  <div class="quiz-block" data-qid="q4a">
+    <div class="q-label">Opdracht 11 — Rangschikopdracht (sleep in de juiste volgorde)</div>
+    <div class="q-text">Zet de stappen in de juiste volgorde: van oorlog naar de eerste vlucht.</div>
+    <ul class="drag-list" id="dragList-q4a">
+      <li class="drag-item" draggable="true" data-correct="3"><span class="handle">☰</span> Luchthaven repareren en controleren</li>
+      <li class="drag-item" draggable="true" data-correct="5"><span class="handle">☰</span> Eerste commerciële vlucht vertrekt</li>
+      <li class="drag-item" draggable="true" data-correct="1"><span class="handle">☰</span> Staakt-het-vuren afgesproken</li>
+      <li class="drag-item" draggable="true" data-correct="4"><span class="handle">☰</span> Verzekeringsmaatschappijen geven goedkeuring</li>
+      <li class="drag-item" draggable="true" data-correct="2"><span class="handle">☰</span> Luchtruim wordt officieel heropend</li>
+    </ul>
+    <button class="btn" onclick="checkDragOrder('q4a')">Controleer volgorde</button>
+    <div class="feedback-box" id="fb-q4a"></div>
+  </div>
+
+  <!-- OPDRACHT: MC -->
+  <div class="quiz-block" data-qid="q4b">
+    <div class="q-label">Opdracht 12 — Meerkeuzevraag</div>
+    <div class="q-text">Waarom is het ruimen van mijnen in de Straat van Hormuz ook belangrijk voor de luchtvaart?</div>
+    <button class="mc-option" data-answer="a" onclick="checkMC(this, 'q4b', 'b')">a) Vliegtuigen kunnen op mijnen in het water landen</button>
+    <button class="mc-option" data-answer="b" onclick="checkMC(this, 'q4b', 'b')">b) Het luchtruim boven de zeestraat blijft gesloten zolang er mijnen liggen</button>
+    <button class="mc-option" data-answer="c" onclick="checkMC(this, 'q4b', 'b')">c) De passagiers zijn bang voor mijnen</button>
+    <button class="mc-option" data-answer="d" onclick="checkMC(this, 'q4b', 'b')">d) Mijnen verstoren het GPS-signaal van vliegtuigen</button>
+    <div class="feedback-box" id="fb-q4b"></div>
+  </div>
+
+  <!-- OPDRACHT: Open scenariovraag -->
+  <div class="quiz-block" data-qid="q4c">
+    <div class="q-label">Opdracht 13 — Scenario-opdracht (minimaal 25 woorden)</div>
+    <div class="q-text">Stel: het is juni 2026 en het conflict is voorbij. Jij werkt bij KLM en moet een plan maken om vluchten naar Dubai weer op te starten. Welke drie dingen controleer je eerst, en waarom? Schrijf je antwoord als een kort plan.</div>
+    <textarea class="open-textarea" id="ta-q4c" oninput="countWords('q4c', 25)"></textarea>
+    <div class="word-counter" id="wc-q4c">0 woorden</div>
+    <button class="btn" id="submit-q4c" onclick="submitOpen('q4c')" disabled>Klaar</button>
+    <button class="btn btn-gray btn-sm" id="example-q4c" style="display:none" onclick="showExample('q4c')">Toon voorbeeldantwoord</button>
+    <div class="feedback-box" id="fb-q4c"></div>
+    <div class="self-assess" id="sa-q4c">
+      <button class="btn btn-green btn-sm" onclick="selfAssess('q4c', true)">Goed ✓</button>
+      <button class="btn btn-sm" onclick="selfAssess('q4c', false)">Fout ✗</button>
+    </div>
+  </div>
+
+  <div class="nav-btns">
+    <button class="reset-section-btn" onclick="resetSection(4)">🔄 Reset dit onderdeel</button>
+    <button class="btn btn-outline" onclick="goTab(3)">← Vorige</button>
+    <button class="btn" onclick="goTab(5)">Volgende →</button>
+  </div>
+</div>
+
+<!-- ===================== SECTIE 5: AFSLUITING ===================== -->
+<div class="section" id="section-5">
+  <div class="card">
+    <h2>🏁 Afsluiting — Wat heb je geleerd?</h2>
+    <p>Je hebt deze les gewerkt aan drie leerdoelen. Laten we kijken hoe goed je ze beheerst.</p>
+
+    <div class="info-block">
+      <strong>📋 Leerdoel 1:</strong> Ik begrijp waarom vluchten worden gecanceld tijdens een oorlog.<br>
+      <strong>📋 Leerdoel 2:</strong> Ik begrijp wat er voor nodig is om alles weer te laten vliegen.<br>
+      <strong>📋 Leerdoel 3:</strong> Ik kan uitleggen wat de problemen zijn als vluchten voor lange tijd worden gecanceld.
+    </div>
+  </div>
+
+  <!-- SCORE -->
+  <div class="score-card">
+    <div>Je score</div>
+    <div class="score-big" id="finalScore">0 / 0</div>
+    <p style="margin-top:8px;opacity:0.8;font-size:0.9rem;">goed beantwoord van totaal</p>
+  </div>
+
+  <!-- REFLECTIE -->
+  <div class="quiz-block" data-qid="q5a">
+    <div class="q-label">Reflectie 1 (minimaal 20 woorden)</div>
+    <div class="q-text">Wat vond je het lastigst aan deze les en waarom?</div>
+    <textarea class="open-textarea" id="ta-q5a" oninput="countWords('q5a')"></textarea>
+    <div class="word-counter" id="wc-q5a">0 woorden</div>
+    <button class="btn" id="submit-q5a" onclick="submitOpen('q5a')" disabled>Klaar</button>
+    <button class="btn btn-gray btn-sm" id="example-q5a" style="display:none" onclick="showExample('q5a')">Toon voorbeeldantwoord</button>
+    <div class="feedback-box" id="fb-q5a"></div>
+    <div class="self-assess" id="sa-q5a">
+      <button class="btn btn-green btn-sm" onclick="selfAssess('q5a', true)">Goed ✓</button>
+      <button class="btn btn-sm" onclick="selfAssess('q5a', false)">Fout ✗</button>
+    </div>
+  </div>
+
+  <div class="quiz-block" data-qid="q5b">
+    <div class="q-label">Reflectie 2 (minimaal 20 woorden)</div>
+    <div class="q-text">Hoe zou je dit onderwerp uitleggen aan een klasgenoot die ziek was? Schrijf een korte samenvatting in je eigen woorden.</div>
+    <textarea class="open-textarea" id="ta-q5b" oninput="countWords('q5b')"></textarea>
+    <div class="word-counter" id="wc-q5b">0 woorden</div>
+    <button class="btn" id="submit-q5b" onclick="submitOpen('q5b')" disabled>Klaar</button>
+    <button class="btn btn-gray btn-sm" id="example-q5b" style="display:none" onclick="showExample('q5b')">Toon voorbeeldantwoord</button>
+    <div class="feedback-box" id="fb-q5b"></div>
+    <div class="self-assess" id="sa-q5b">
+      <button class="btn btn-green btn-sm" onclick="selfAssess('q5b', true)">Goed ✓</button>
+      <button class="btn btn-sm" onclick="selfAssess('q5b', false)">Fout ✗</button>
+    </div>
+  </div>
+
+  <div class="quiz-block" data-qid="q5c">
+    <div class="q-label">Reflectie 3 (minimaal 20 woorden)</div>
+    <div class="q-text">Hoe zou je dit onderwerp herkennen in je eigen omgeving? Denk aan prijzen in de winkel, het nieuws, of gesprekken thuis.</div>
+    <textarea class="open-textarea" id="ta-q5c" oninput="countWords('q5c')"></textarea>
+    <div class="word-counter" id="wc-q5c">0 woorden</div>
+    <button class="btn" id="submit-q5c" onclick="submitOpen('q5c')" disabled>Klaar</button>
+    <button class="btn btn-gray btn-sm" id="example-q5c" style="display:none" onclick="showExample('q5c')">Toon voorbeeldantwoord</button>
+    <div class="feedback-box" id="fb-q5c"></div>
+    <div class="self-assess" id="sa-q5c">
+      <button class="btn btn-green btn-sm" onclick="selfAssess('q5c', true)">Goed ✓</button>
+      <button class="btn btn-sm" onclick="selfAssess('q5c', false)">Fout ✗</button>
+    </div>
+  </div>
+
+  <div class="nav-btns">
+    <button class="reset-section-btn" onclick="resetSection(5)">🔄 Reset dit onderdeel</button>
+    <button class="btn btn-outline" onclick="goTab(4)">← Vorige</button>
+    <div></div>
+  </div>
+
+  <div class="clear-btn-wrap">
+    <button class="btn btn-outline" onclick="clearAllProgress()">🗑️ Voortgang wissen</button>
+  </div>
+</div>
+
+</div><!-- /content-area -->
+
+<script>
+// ============================================================
+// STATE
+// ============================================================
+var totalQuestions = 16; // q0a,q0b, q1a,q1b, q2a,q2b,q2c, q3a,q3b,q3c, q4a,q4b,q4c, q5a,q5b,q5c
+var allQids = ['q0a','q0b','q1a','q1b','q2a','q2b','q2c','q3a','q3b','q3c','q4a','q4b','q4c','q5a','q5b','q5c'];
+var sectionQids = [
+  ['q0a','q0b'],
+  ['q1a','q1b'],
+  ['q2a','q2b','q2c'],
+  ['q3a','q3b','q3c'],
+  ['q4a','q4b','q4c'],
+  ['q5a','q5b','q5c']
+];
+var state = {
+  answers: {},   // qid -> { done: bool, correct: bool|null, attempts: int, text: string }
+  currentTab: 0
+};
+var maps = [];
+var PREFIX = 'geo_les_';
+
+// ============================================================
+// LOCALSTORAGE
+// ============================================================
+function saveState() {
+  try { localStorage.setItem(PREFIX + 'state', JSON.stringify(state)); } catch(e) {}
+}
+function loadState() {
+  try {
+    var s = localStorage.getItem(PREFIX + 'state');
+    if (s) { state = JSON.parse(s); }
+  } catch(e) {}
+}
+function clearAllProgress() {
+  if (!confirm('Weet je zeker dat je alle voortgang wilt wissen?')) return;
+  state = { answers: {}, currentTab: 0 };
+  try { localStorage.removeItem(PREFIX + 'state'); } catch(e) {}
+  location.reload();
+}
+
+// ============================================================
+// EXAMPLE ANSWERS
+// ============================================================
+var exampleAnswers = {
+  q0b: "Vorig jaar kon ik niet naar de verjaardag van mijn oma omdat er een grote storm was en alle treinen uitvielen. Net als bij de vluchten naar Dubai had ik er zelf geen invloed op — het was een externe factor (weer/oorlog) die het vervoer stillegde. In beide gevallen kun je niks anders doen dan wachten.",
+  q1b: "Als het luchtruim boven Iran en Irak dicht is, moet een vliegtuig van Amsterdam naar Dubai een enorme omweg maken — bijvoorbeeld helemaal via het zuiden over Afrika of via het noorden over Centraal-Azië. Op de kaart zie je dat Iran en Irak precies tussen Europa en de Golfstaten liggen. Zo'n omweg kost veel meer brandstof en tijd, waardoor het te duur wordt om te vliegen.",
+  q2b: "Ik vind de verzekering het zwaarste argument, want zonder verzekering mag een vliegtuig helemaal niet opstijgen — het is wettelijk verboden. Het maakt dan niet uit of de piloot wil vliegen of het luchtruim open is. Net als een auto die niet de weg op mag zonder APK, mag een vliegtuig niet vliegen zonder verzekering.",
+  q3c: "Dat klopt niet, want door de oorlog stijgen de olieprijzen overal, ook bij ons. Je merkt het aan de benzineprijs als je ouders tanken. Ook als je iets bestelt bij een webshop kan het langer duren, omdat vliegtuigen niet alle routes kunnen vliegen. Daarnaast zijn er Nederlandse reizigers die vastzitten. Globalisering zorgt ervoor dat een conflict ver weg toch ons dagelijks leven beïnvloedt.",
+  q4c: "Mijn plan: Stap 1 — Ik controleer of het luchtruim boven Iran, Irak en de Golf officieel is heropend door ICAO, want zonder open luchtruim is er geen route. Stap 2 — Ik laat de luchthaven van Dubai inspecteren op schade en onontplofte munitie, want de veiligheid van passagiers gaat voor. Stap 3 — Ik regel nieuwe verzekeringsdekking, want zonder goedkeuring van de verzekeraar mogen onze vliegtuigen niet vertrekken.",
+  q5a: "Dit is een persoonlijke reflectie. Een mogelijk antwoord: 'Ik vond het lastig om de koppelopdracht te maken, omdat ik moest nadenken over welke categorie het beste paste. Sommige gevolgen leken op meerdere categorieën te passen.'",
+  q5b: "Door oorlog in het Midden-Oosten worden vluchten naar Dubai geannuleerd. Dat komt door gevaar in het luchtruim, mijnen in de Straat van Hormuz, en omdat verzekeraars het risico te groot vinden. De gevolgen zijn breed: hogere olieprijzen, gestrande reizigers, en vertraging in de wereldhandel. Om weer te vliegen moeten er eerst staakt-het-vuren, het luchtruim open, luchthavens gerepareerd en verzekeringen geregeld zijn.",
+  q5c: "Dit is een persoonlijke reflectie. Een mogelijk antwoord: 'Thuis hoorde ik mijn ouders praten over duurdere benzine. Op het nieuws zag ik beelden van gestrande reizigers op Schiphol. In de supermarkt zijn sommige producten duurder geworden door de hogere transportkosten.'"
+};
+
+// ============================================================
+// HINTS
+// ============================================================
+var hints = {
+  q0a: [
+    "Denk eens na: was het een probleem met het vliegtuig zelf, of met de wereld eromheen?",
+    "Lees de tekst nog eens: wat wordt er gezegd over het luchtruim?",
+  ],
+  q1a: [
+    "Kijk nog eens goed op de kaart. Zoom in op de Straat van Hormuz — welke twee landen liggen aan weerszijden?",
+    "Het ligt in de Perzische Golf, tussen een groot land in het noorden en een kleiner land in het zuiden.",
+  ],
+  q2c: [
+    "Het gaat over iets heel ernstigs. Het vliegtuig is niet veilig geland.",
+    "Denk na: welke van deze opties zou ervoor gezorgd hebben dat airlines sindsdien extra voorzichtig zijn?",
+  ],
+  q3a: [
+    "Kijk goed naar de grafiek: welke stijging is het steilst?",
+    "Het conflict escaleerde begin maart — kijk wat er toen met de prijs gebeurde.",
+  ],
+  q4b: [
+    "Denk na: waarom zou het luchtruim boven een gebied met mijnen gesloten blijven?",
+    "Als er gevechten zijn rondom het mijnenruimen, kan dat ook het luchtruim raken.",
+  ]
+};
+
+// ============================================================
+// TABS
+// ============================================================
+function goTab(n) {
+  state.currentTab = n;
+  document.querySelectorAll('.section').forEach(function(s, i) {
+    s.classList.toggle('active', i === n);
+  });
+  document.querySelectorAll('.tab-btn').forEach(function(b, i) {
+    b.classList.toggle('active', i === n);
+  });
+  document.getElementById('tabCounter').textContent = 'Onderdeel ' + (n+1) + ' van 6';
+  // scroll tab into view
+  document.querySelectorAll('.tab-btn')[n].scrollIntoView({ behavior:'smooth', inline:'center', block:'nearest' });
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  // invalidate maps
+  setTimeout(function() {
+    maps.forEach(function(m) { m.invalidateSize(); });
+  }, 350);
+  saveState();
+}
+
+// ============================================================
+// PROGRESS
+// ============================================================
+function updateProgress() {
+  var done = 0;
+  allQids.forEach(function(qid) {
+    if (state.answers[qid] && state.answers[qid].done) done++;
+  });
+  var pct = Math.round((done / totalQuestions) * 100);
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressPct').textContent = pct + '%';
+
+  // tab completion
+  sectionQids.forEach(function(qids, idx) {
+    var allDone = qids.every(function(q) { return state.answers[q] && state.answers[q].done; });
+    document.querySelectorAll('.tab-btn')[idx].classList.toggle('completed', allDone);
+  });
+
+  // final score
+  var correct = 0;
+  var total = 0;
+  allQids.forEach(function(qid) {
+    if (state.answers[qid] && state.answers[qid].done) {
+      total++;
+      if (state.answers[qid].correct) correct++;
+    }
+  });
+  document.getElementById('finalScore').textContent = correct + ' / ' + total;
+  saveState();
+}
+
+// ============================================================
+// MC QUESTIONS
+// ============================================================
+function getAttempts(qid) {
+  if (!state.answers[qid]) state.answers[qid] = { done: false, correct: null, attempts: 0, text: '' };
+  return state.answers[qid].attempts;
+}
+
+function checkMC(btn, qid, correctAnswer) {
+  if (state.answers[qid] && state.answers[qid].done) return;
+  if (!state.answers[qid]) state.answers[qid] = { done: false, correct: null, attempts: 0, text: '' };
+
+  var chosen = btn.getAttribute('data-answer');
+  state.answers[qid].attempts++;
+  var fb = document.getElementById('fb-' + qid);
+
+  if (chosen === correctAnswer) {
+    btn.classList.add('correct');
+    state.answers[qid].done = true;
+    state.answers[qid].correct = true;
+    fb.className = 'feedback-box show success';
+    fb.textContent = '🎉 Goed zo! Dat klopt helemaal!';
+    disableMC(qid);
+  } else {
+    btn.classList.add('wrong');
+    btn.disabled = true;
+    var att = state.answers[qid].attempts;
+    var hintList = hints[qid] || [];
+
+    if (att >= 3) {
+      state.answers[qid].done = true;
+      state.answers[qid].correct = false;
+      fb.className = 'feedback-box show answer';
+      // find correct text
+      var correctBtn = btn.closest('.quiz-block').querySelector('[data-answer="'+correctAnswer+'"]');
+      correctBtn.classList.add('correct');
+      fb.textContent = '💡 Het juiste antwoord is: ' + correctBtn.textContent.substring(3);
+      disableMC(qid);
+    } else if (hintList[att - 1]) {
+      fb.className = 'feedback-box show hint';
+      fb.textContent = '🤔 ' + hintList[att - 1];
+    } else {
+      fb.className = 'feedback-box show hint';
+      fb.textContent = '🤔 Niet helemaal. Probeer het nog eens! Je hebt nog ' + (3 - att) + ' poging(en).';
+    }
+  }
+  updateProgress();
+}
+
+function disableMC(qid) {
+  var block = document.querySelector('[data-qid="'+qid+'"]');
+  block.querySelectorAll('.mc-option').forEach(function(b) { b.disabled = true; });
+}
+
+// ============================================================
+// OPEN QUESTIONS
+// ============================================================
+function countWords(qid, min) {
+  min = min || 20;
+  var ta = document.getElementById('ta-' + qid);
+  var wc = document.getElementById('wc-' + qid);
+  var words = ta.value.trim().split(/\s+/).filter(function(w){return w.length > 0;}).length;
+  wc.textContent = words + ' woorden';
+  wc.classList.toggle('enough', words >= min);
+  document.getElementById('submit-' + qid).disabled = words < min;
+}
+
+function submitOpen(qid) {
+  if (state.answers[qid] && state.answers[qid].done) return;
+  if (!state.answers[qid]) state.answers[qid] = { done: false, correct: null, attempts: 0, text: '' };
+  var ta = document.getElementById('ta-' + qid);
+  state.answers[qid].text = ta.value;
+  state.answers[qid].attempts = 1;
+  ta.disabled = true;
+  document.getElementById('submit-' + qid).disabled = true;
+  document.getElementById('example-' + qid).style.display = 'inline-flex';
+  saveState();
+}
+
+function showExample(qid) {
+  var fb = document.getElementById('fb-' + qid);
+  fb.className = 'feedback-box show answer';
+  fb.innerHTML = '<strong>📝 Voorbeeldantwoord:</strong><br>' + (exampleAnswers[qid] || 'Geen voorbeeld beschikbaar.') + '<br><br><em>Dit is een voorbeeld — jouw antwoord mag anders zijn. Beoordeel zelf of je de kern goed had:</em>';
+  document.getElementById('sa-' + qid).classList.add('show');
+  document.getElementById('example-' + qid).style.display = 'none';
+}
+
+function selfAssess(qid, isCorrect) {
+  if (!state.answers[qid]) state.answers[qid] = { done: false, correct: null, attempts: 0, text: '' };
+  state.answers[qid].done = true;
+  state.answers[qid].correct = isCorrect;
+  document.getElementById('sa-' + qid).classList.remove('show');
+  var fb = document.getElementById('fb-' + qid);
+  if (isCorrect) {
+    fb.className = 'feedback-box show success';
+    fb.textContent = '✅ Goed gedaan! Je hebt dit als goed beoordeeld.';
+  } else {
+    fb.className = 'feedback-box show hint';
+    fb.textContent = '📖 Geen probleem! Lees het voorbeeldantwoord nog eens goed door en probeer de redenering te begrijpen.';
+  }
+  updateProgress();
+}
+
+// ============================================================
+// DRAG AND DROP
+// ============================================================
+function initDragDrop() {
+  document.querySelectorAll('.drag-list').forEach(function(list) {
+    var items = list.querySelectorAll('.drag-item');
+    var draggedItem = null;
+
+    items.forEach(function(item) {
+      // Desktop
+      item.addEventListener('dragstart', function(e) {
+        draggedItem = this;
+        this.classList.add('dragging');
+        e.dataTransfer.effectAllowed = 'move';
+      });
+      item.addEventListener('dragend', function() {
+        this.classList.remove('dragging');
+        list.querySelectorAll('.drag-item').forEach(function(i) { i.classList.remove('drag-over'); });
+        draggedItem = null;
+      });
+      item.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        if (this !== draggedItem) this.classList.add('drag-over');
+      });
+      item.addEventListener('dragleave', function() {
+        this.classList.remove('drag-over');
+      });
+      item.addEventListener('drop', function(e) {
+        e.preventDefault();
+        this.classList.remove('drag-over');
+        if (draggedItem && draggedItem !== this) {
+          var allItems = Array.from(list.children);
+          var dragIdx = allItems.indexOf(draggedItem);
+          var dropIdx = allItems.indexOf(this);
+          if (dragIdx < dropIdx) {
+            list.insertBefore(draggedItem, this.nextSibling);
+          } else {
+            list.insertBefore(draggedItem, this);
+          }
+        }
+      });
+
+      // Touch
+      var touchStartY = 0;
+      var touchClone = null;
+      item.addEventListener('touchstart', function(e) {
+        draggedItem = this;
+        touchStartY = e.touches[0].clientY;
+        this.classList.add('dragging');
+      }, { passive: true });
+      item.addEventListener('touchmove', function(e) {
+        e.preventDefault();
+        var touch = e.touches[0];
+        var target = document.elementFromPoint(touch.clientX, touch.clientY);
+        list.querySelectorAll('.drag-item').forEach(function(i) { i.classList.remove('drag-over'); });
+        if (target && target.classList && target.classList.contains('drag-item') && target !== draggedItem) {
+          target.classList.add('drag-over');
+        }
+      }, { passive: false });
+      item.addEventListener('touchend', function(e) {
+        this.classList.remove('dragging');
+        var touch = e.changedTouches[0];
+        var target = document.elementFromPoint(touch.clientX, touch.clientY);
+        list.querySelectorAll('.drag-item').forEach(function(i) { i.classList.remove('drag-over'); });
+        if (target && target.classList && target.classList.contains('drag-item') && target !== draggedItem) {
+          var allItems = Array.from(list.children);
+          var dragIdx = allItems.indexOf(draggedItem);
+          var dropIdx = allItems.indexOf(target);
+          if (dragIdx < dropIdx) {
+            list.insertBefore(draggedItem, target.nextSibling);
+          } else {
+            list.insertBefore(draggedItem, target);
+          }
+        }
+        draggedItem = null;
+      });
+    });
+  });
+}
+
+function checkDragOrder(qid) {
+  if (state.answers[qid] && state.answers[qid].done) return;
+  if (!state.answers[qid]) state.answers[qid] = { done: false, correct: null, attempts: 0, text: '' };
+  state.answers[qid].attempts++;
+
+  var list = document.getElementById('dragList-' + qid);
+  var items = list.querySelectorAll('.drag-item');
+  var allCorrect = true;
+  items.forEach(function(item, idx) {
+    var correctPos = parseInt(item.getAttribute('data-correct'));
+    if (correctPos === idx + 1) {
+      item.classList.add('correct-pos');
+      item.classList.remove('wrong-pos');
+    } else {
+      item.classList.add('wrong-pos');
+      item.classList.remove('correct-pos');
+      allCorrect = false;
+    }
+  });
+
+  var fb = document.getElementById('fb-' + qid);
+  if (allCorrect) {
+    state.answers[qid].done = true;
+    state.answers[qid].correct = true;
+    fb.className = 'feedback-box show success';
+    fb.textContent = '🎉 Perfect! De volgorde klopt helemaal!';
+    items.forEach(function(i) { i.setAttribute('draggable','false'); i.style.cursor='default'; });
+  } else if (state.answers[qid].attempts >= 3) {
+    state.answers[qid].done = true;
+    state.answers[qid].correct = false;
+    // Show correct order
+    var sorted = Array.from(items).sort(function(a,b) {
+      return parseInt(a.getAttribute('data-correct')) - parseInt(b.getAttribute('data-correct'));
+    });
+    sorted.forEach(function(item) { list.appendChild(item); });
+    items = list.querySelectorAll('.drag-item');
+    items.forEach(function(item) {
+      item.classList.remove('wrong-pos');
+      item.classList.add('correct-pos');
+      item.setAttribute('draggable','false');
+      item.style.cursor='default';
+    });
+    fb.className = 'feedback-box show answer';
+    fb.textContent = '💡 Dit is de juiste volgorde. Bestudeer de stappen goed!';
+  } else {
+    fb.className = 'feedback-box show hint';
+    fb.textContent = '🤔 Nog niet helemaal goed. De groene items staan op de juiste plek, de rode niet. Probeer het nog eens! (poging ' + state.answers[qid].attempts + '/3)';
+    setTimeout(function() {
+      items.forEach(function(i) { i.classList.remove('correct-pos','wrong-pos'); });
+    }, 2500);
+  }
+  updateProgress();
+}
+
+// ============================================================
+// MATCHING
+// ============================================================
+var matchState = {};
+
+function matchSelect(el, qid, type) {
+  if (state.answers[qid] && state.answers[qid].done) return;
+  if (!matchState[qid]) matchState[qid] = { source: null, pairs: [] };
+
+  var container = document.getElementById('match-' + qid);
+
+  if (type === 'source') {
+    // deselect previous source
+    container.querySelectorAll('.source-item').forEach(function(s) { s.classList.remove('selected-match'); });
+    if (el.classList.contains('matched')) return; // already matched
+    matchState[qid].source = el;
+    el.classList.add('selected-match');
+  } else if (type === 'target') {
+    if (!matchState[qid].source) return; // no source selected
+    var src = matchState[qid].source;
+    // make the pair
+    matchState[qid].pairs.push({
+      source: src,
+      target: el,
+      srcPair: src.getAttribute('data-pair'),
+      tgtCat: el.getAttribute('data-cat')
+    });
+    src.classList.remove('selected-match');
+    src.classList.add('matched');
+    // show label on source
+    var label = document.createElement('div');
+    label.className = 'match-pair-label';
+    label.textContent = '→ ' + el.textContent;
+    src.appendChild(label);
+    // color code to match target
+    var colors = { econ: 'rgba(250,204,21,0.12)', mens: 'rgba(59,130,246,0.12)', handel: 'rgba(249,115,22,0.12)' };
+    src.style.background = colors[el.getAttribute('data-cat')] || '';
+    matchState[qid].source = null;
+  }
+}
+
+function resetMatch(qid) {
+  if (state.answers[qid] && state.answers[qid].done) return;
+  matchState[qid] = { source: null, pairs: [] };
+  var container = document.getElementById('match-' + qid);
+  container.querySelectorAll('.source-item').forEach(function(s) {
+    s.classList.remove('matched','selected-match');
+    s.style.background = '';
+    var lbl = s.querySelector('.match-pair-label');
+    if (lbl) lbl.remove();
+  });
+  var fb = document.getElementById('fb-' + qid);
+  fb.className = 'feedback-box';
+}
+
+function checkMatch(qid) {
+  if (state.answers[qid] && state.answers[qid].done) return;
+  if (!state.answers[qid]) state.answers[qid] = { done: false, correct: null, attempts: 0, text: '' };
+  if (!matchState[qid] || matchState[qid].pairs.length === 0) return;
+
+  state.answers[qid].attempts++;
+  var pairs = matchState[qid].pairs;
+  var container = document.getElementById('match-' + qid);
+  var sources = container.querySelectorAll('.source-item');
+  var allMatched = Array.from(sources).every(function(s) { return s.classList.contains('matched'); });
+
+  if (!allMatched) {
+    var fb = document.getElementById('fb-' + qid);
+    fb.className = 'feedback-box show hint';
+    fb.textContent = '⚠️ Je hebt nog niet alle gevolgen gekoppeld. Klik op een gevolg en dan op een categorie.';
+    return;
+  }
+
+  var correct = 0;
+  pairs.forEach(function(p) {
+    if (p.srcPair === p.tgtCat) correct++;
+  });
+
+  var fb = document.getElementById('fb-' + qid);
+  if (correct === pairs.length) {
+    state.answers[qid].done = true;
+    state.answers[qid].correct = true;
+    fb.className = 'feedback-box show success';
+    fb.textContent = '🎉 Alle koppelingen zijn goed!';
+  } else if (state.answers[qid].attempts >= 3) {
+    state.answers[qid].done = true;
+    state.answers[qid].correct = false;
+    fb.className = 'feedback-box show answer';
+    fb.textContent = '💡 ' + correct + ' van ' + pairs.length + ' goed. De juiste koppelingen: Hotels → Economisch, Families → Menselijk, Olieprijzen → Economisch, Medicijnen → Handel, Reizigers → Menselijk, Pakketjes → Handel.';
+  } else {
+    fb.className = 'feedback-box show hint';
+    fb.textContent = '🤔 ' + correct + ' van ' + pairs.length + ' goed. Denk na: heeft een gevolg te maken met geld, met mensen, of met spullen vervoeren? (poging ' + state.answers[qid].attempts + '/3)';
+    // reset for retry
+    setTimeout(function() { resetMatch(qid); }, 2500);
+  }
+  updateProgress();
+}
+
+// ============================================================
+// RESET SECTION
+// ============================================================
+function resetSection(secIdx) {
+  if (!confirm('Weet je zeker dat je dit onderdeel wilt resetten?')) return;
+  sectionQids[secIdx].forEach(function(qid) {
+    delete state.answers[qid];
+    // reset MC
+    var block = document.querySelector('[data-qid="'+qid+'"]');
+    if (!block) return;
+    block.querySelectorAll('.mc-option').forEach(function(b) {
+      b.disabled = false;
+      b.classList.remove('correct','wrong','selected');
+    });
+    // reset textarea
+    var ta = document.getElementById('ta-' + qid);
+    if (ta) { ta.value = ''; ta.disabled = false; }
+    var wc = document.getElementById('wc-' + qid);
+    if (wc) { wc.textContent = '0 woorden'; wc.classList.remove('enough'); }
+    var sub = document.getElementById('submit-' + qid);
+    if (sub) sub.disabled = true;
+    var ex = document.getElementById('example-' + qid);
+    if (ex) ex.style.display = 'none';
+    var sa = document.getElementById('sa-' + qid);
+    if (sa) sa.classList.remove('show');
+    // reset feedback
+    var fb = document.getElementById('fb-' + qid);
+    if (fb) { fb.className = 'feedback-box'; fb.textContent = ''; }
+    // reset drag
+    var dl = document.getElementById('dragList-' + qid);
+    if (dl) {
+      dl.querySelectorAll('.drag-item').forEach(function(i) {
+        i.classList.remove('correct-pos','wrong-pos');
+        i.setAttribute('draggable','true');
+        i.style.cursor = 'grab';
+      });
+    }
+    // reset match
+    if (matchState[qid]) {
+      resetMatch(qid);
+    }
+  });
+  updateProgress();
+  saveState();
+}
+
+// ============================================================
+// MAP
+// ============================================================
+function initMap() {
+  var mapEl = document.getElementById('map1');
+  if (!mapEl) return;
+  var map = L.map('map1').setView([28, 52], 4);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap'
+  }).addTo(map);
+
+  var locations = [
+    { lat: 52.3676, lng: 4.9041, title: '🇳🇱 Amsterdam (Schiphol)', desc: 'Vertrekpunt van KLM-vluchten. Van hier vlogen dagelijks vliegtuigen naar Dubai.' },
+    { lat: 25.2532, lng: 55.3657, title: '🇦🇪 Dubai', desc: 'Drukste internationale luchthaven ter wereld. Drones kwamen neer nabij het vliegveld.' },
+    { lat: 26.5, lng: 56.5, title: '⚓ Straat van Hormuz', desc: 'Smalle zeestraat tussen Iran en Oman. Iran heeft hier mijnen gelegd. 20% van alle olie ter wereld vaart hier normaal doorheen.' },
+    { lat: 35.6892, lng: 51.389, title: '🇮🇷 Teheran (Iran)', desc: 'Hoofdstad van Iran. Iran is in oorlog met Israël en de VS.' },
+    { lat: 31.7683, lng: 35.2137, title: '🇮🇱 Jeruzalem (Israël)', desc: 'Israël voert luchtaanvallen uit op Iran en Libanon.' },
+    { lat: 33.8938, lng: 35.5018, title: '🇱🇧 Beiroet (Libanon)', desc: 'Wordt aangevallen door Israël. Flatgebouwen zijn getroffen.' },
+    { lat: 29.3759, lng: 47.9774, title: '🇰🇼 Koeweit', desc: 'Hier klonk ook luchtalarm door Iraanse raket- en droneaanvallen.' },
+    { lat: 24.7136, lng: 46.6753, title: '🇸🇦 Riyad (Saudi-Arabië)', desc: 'Saudi-Arabië werd ook geraakt door Iraanse aanvallen.' }
+  ];
+
+  var redIcon = L.icon({
+    iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+    shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+    iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34]
+  });
+
+  locations.forEach(function(loc) {
+    L.marker([loc.lat, loc.lng], { icon: redIcon })
+      .addTo(map)
+      .bindPopup('<strong>' + loc.title + '</strong><br>' + loc.desc);
+  });
+
+  // Draw flight route line (Amsterdam to Dubai) as dashed
+  var flightRoute = L.polyline(
+    [[52.37, 4.90], [45, 25], [35, 40], [28, 50], [25.25, 55.37]],
+    { color: '#ef4444', weight: 2, dashArray: '8,8', opacity: 0.6 }
+  ).addTo(map);
+  flightRoute.bindPopup('✈️ Vliegroute Amsterdam → Dubai (normaal)');
+
+  maps.push(map);
+}
+
+// ============================================================
+// CHART
+// ============================================================
+function initChart() {
+  var ctx = document.getElementById('oilChart');
+  if (!ctx) return;
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: ['1 feb', '8 feb', '15 feb', '22 feb', '1 mrt', '8 mrt', '15 mrt', '22 mrt'],
+      datasets: [{
+        label: 'Olieprijs (USD per vat)',
+        data: [78, 82, 85, 91, 112, 134, 141, 138],
+        borderColor: '#ef4444',
+        backgroundColor: 'rgba(239,68,68,0.15)',
+        fill: true,
+        tension: 0.3,
+        pointRadius: 6,
+        pointBackgroundColor: '#ef4444',
+        pointBorderColor: '#fff',
+        pointBorderWidth: 2
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { labels: { color: '#fca5a5', font: { family: 'Nunito', weight: 'bold' } } },
+        tooltip: { backgroundColor: '#1a1a2e', titleColor: '#fca5a5', bodyColor: '#f3f4f6' }
+      },
+      scales: {
+        x: {
+          ticks: { color: '#fca5a5', font: { family: 'Nunito' } },
+          grid: { color: 'rgba(239,68,68,0.1)' }
+        },
+        y: {
+          ticks: { color: '#fca5a5', font: { family: 'Nunito' }, callback: function(v) { return '$' + v; } },
+          grid: { color: 'rgba(239,68,68,0.1)' },
+          beginAtZero: false,
+          min: 60,
+          max: 160
+        }
+      }
+    }
+  });
+}
+
+// ============================================================
+// RESTORE STATE
+// ============================================================
+function restoreUI() {
+  allQids.forEach(function(qid) {
+    var a = state.answers[qid];
+    if (!a) return;
+    if (!a.done) return;
+
+    var block = document.querySelector('[data-qid="'+qid+'"]');
+    if (!block) return;
+
+    // MC
+    if (block.querySelector('.mc-option')) {
+      disableMC(qid);
+      var fb = document.getElementById('fb-' + qid);
+      if (a.correct) {
+        fb.className = 'feedback-box show success';
+        fb.textContent = '🎉 Goed zo! Dat klopt helemaal!';
+      } else {
+        fb.className = 'feedback-box show answer';
+        fb.textContent = '💡 Je hebt dit onderdeel al afgerond.';
+      }
+    }
+
+    // Open
+    var ta = document.getElementById('ta-' + qid);
+    if (ta && a.text) {
+      ta.value = a.text;
+      ta.disabled = true;
+      var sub = document.getElementById('submit-' + qid);
+      if (sub) sub.disabled = true;
+      var fb = document.getElementById('fb-' + qid);
+      if (a.correct !== null) {
+        if (a.correct) {
+          fb.className = 'feedback-box show success';
+          fb.textContent = '✅ Je hebt dit als goed beoordeeld.';
+        } else {
+          fb.className = 'feedback-box show hint';
+          fb.textContent = '📖 Je hebt dit onderdeel bekeken.';
+        }
+      } else {
+        var ex = document.getElementById('example-' + qid);
+        if (ex) ex.style.display = 'inline-flex';
+      }
+    }
+
+    // Drag
+    var dl = document.getElementById('dragList-' + qid);
+    if (dl && a.done) {
+      dl.querySelectorAll('.drag-item').forEach(function(i) {
+        i.setAttribute('draggable','false');
+        i.style.cursor = 'default';
+      });
+      var fb = document.getElementById('fb-' + qid);
+      fb.className = a.correct ? 'feedback-box show success' : 'feedback-box show answer';
+      fb.textContent = a.correct ? '🎉 Perfect!' : '💡 Afgerond.';
+    }
+  });
+
+  goTab(state.currentTab || 0);
+  updateProgress();
+}
+
+// ============================================================
+// INIT
+// ============================================================
+window.addEventListener('DOMContentLoaded', function() {
+  loadState();
+  initMap();
+  initChart();
+  initDragDrop();
+
+  // Tab click handlers
+  document.querySelectorAll('.tab-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      goTab(parseInt(this.getAttribute('data-tab')));
+    });
+  });
+
+  restoreUI();
+});
+</script>
+</body>
+</html>
