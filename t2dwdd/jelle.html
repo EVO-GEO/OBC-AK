@@ -1,1 +1,1831 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>⚽ Voetbal, Politiek &amp; de Wereldkaart — Aardrijkskunde Les</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ice-50: #f0fdff;
+  --ice-100: #ccfbf9;
+  --ice-200: #9ef5f0;
+  --ice-300: #5eeae0;
+  --ice-400: #2cd4cc;
+  --ice-500: #14b8b0;
+  --ice-600: #0d9490;
+  --ice-700: #0f7575;
+  --ice-800: #115c5e;
+  --ice-900: #134c4e;
+  --ice-950: #042f32;
+  --frost: #e0f7fa;
+  --aurora: #00e5cc;
+  --aurora-dark: #00b39e;
+  --deep: #0a2e3f;
+  --deep-mid: #0f3d52;
+  --slate: #1e3a4c;
+  --snow: #f8fdff;
+  --warn: #ff6b6b;
+  --success: #2ecc71;
+  --gold: #f1c40f;
+  --radius: 12px;
+  --radius-sm: 8px;
+  --shadow: 0 4px 20px rgba(10, 46, 63, 0.12);
+  --shadow-lg: 0 8px 40px rgba(10, 46, 63, 0.18);
+}
 
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Nunito', sans-serif;
+  background: linear-gradient(135deg, var(--deep) 0%, var(--deep-mid) 40%, var(--slate) 100%);
+  color: var(--snow);
+  min-height: 100vh;
+  line-height: 1.65;
+}
+
+/* PROGRESS BAR */
+.progress-container {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: rgba(10, 46, 63, 0.95);
+  backdrop-filter: blur(12px);
+  padding: 10px 20px;
+  border-bottom: 1px solid rgba(0, 229, 204, 0.15);
+}
+.progress-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+.progress-title {
+  font-weight: 800;
+  font-size: 0.95rem;
+  color: var(--aurora);
+  letter-spacing: 0.5px;
+}
+.progress-pct {
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--ice-300);
+}
+.progress-bar-outer {
+  max-width: 1100px;
+  margin: 6px auto 0;
+  height: 8px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.progress-bar-inner {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--aurora), var(--ice-400));
+  border-radius: 10px;
+  transition: width 0.5s ease;
+}
+
+/* TABS */
+.tab-container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+.tab-bar-wrapper {
+  position: sticky;
+  top: 52px;
+  z-index: 999;
+  background: rgba(10, 46, 63, 0.92);
+  backdrop-filter: blur(10px);
+  padding: 8px 0;
+}
+.tab-counter {
+  text-align: center;
+  font-size: 0.82rem;
+  color: var(--ice-400);
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+.tab-bar {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding: 0 20px 4px;
+  max-width: 1100px;
+  margin: 0 auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--ice-600) transparent;
+}
+.tab-bar::-webkit-scrollbar { height: 4px; }
+.tab-bar::-webkit-scrollbar-thumb { background: var(--ice-600); border-radius: 4px; }
+.tab-btn {
+  flex-shrink: 0;
+  padding: 8px 18px;
+  border: 1.5px solid rgba(0, 229, 204, 0.2);
+  background: rgba(255,255,255,0.04);
+  color: var(--ice-300);
+  border-radius: 30px;
+  cursor: pointer;
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 700;
+  transition: all 0.25s;
+  white-space: nowrap;
+}
+.tab-btn:hover { background: rgba(0, 229, 204, 0.1); border-color: var(--aurora); }
+.tab-btn.active {
+  background: linear-gradient(135deg, var(--aurora), var(--ice-500));
+  color: var(--deep);
+  border-color: transparent;
+}
+.tab-btn.completed::after {
+  content: ' ✓';
+  color: var(--success);
+}
+.tab-btn.active.completed::after { color: var(--deep); }
+
+/* CONTENT */
+.tab-content { display: none; padding: 24px 0 40px; }
+.tab-content.active { display: block; }
+.section-wrap {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* CARDS */
+.card {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(0, 229, 204, 0.1);
+  border-radius: var(--radius);
+  padding: 28px;
+  margin-bottom: 24px;
+  backdrop-filter: blur(4px);
+}
+.card-highlight {
+  background: linear-gradient(135deg, rgba(0,229,204,0.08), rgba(14,184,176,0.04));
+  border-color: rgba(0, 229, 204, 0.25);
+}
+.card h2 {
+  font-size: 1.5rem;
+  font-weight: 900;
+  color: var(--aurora);
+  margin-bottom: 12px;
+}
+.card h3 {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--ice-300);
+  margin-bottom: 10px;
+}
+.card p {
+  margin-bottom: 12px;
+  color: var(--ice-100);
+  font-size: 0.95rem;
+}
+
+/* INFO BLOCKS */
+.info-block {
+  background: linear-gradient(135deg, rgba(0,229,204,0.12), rgba(0,229,204,0.03));
+  border-left: 4px solid var(--aurora);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  padding: 18px 20px;
+  margin: 16px 0;
+}
+.info-block .emoji-header {
+  font-size: 1.3rem;
+  margin-bottom: 6px;
+}
+
+/* EMOJI FLOW */
+.emoji-flow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  font-size: 1.1rem;
+  margin: 14px 0;
+  padding: 14px;
+  background: rgba(0,0,0,0.15);
+  border-radius: var(--radius-sm);
+}
+.emoji-flow .arrow { color: var(--aurora); font-weight: 800; }
+
+/* COMPARISON TABLE */
+.compare-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 16px 0;
+  font-size: 0.9rem;
+}
+.compare-table th {
+  background: rgba(0, 229, 204, 0.15);
+  color: var(--aurora);
+  padding: 10px 14px;
+  text-align: left;
+  font-weight: 800;
+  border-bottom: 2px solid var(--aurora);
+}
+.compare-table td {
+  padding: 10px 14px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  color: var(--ice-100);
+}
+.compare-table tr:hover td { background: rgba(0,229,204,0.04); }
+
+/* QUIZ STYLES */
+.quiz-block {
+  background: rgba(255,255,255,0.03);
+  border: 1.5px solid rgba(0,229,204,0.15);
+  border-radius: var(--radius);
+  padding: 22px;
+  margin: 20px 0;
+}
+.quiz-block .quiz-label {
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--ice-500);
+  margin-bottom: 10px;
+}
+.quiz-block .quiz-question {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--snow);
+  margin-bottom: 14px;
+}
+.quiz-options { display: flex; flex-direction: column; gap: 8px; }
+.quiz-opt {
+  padding: 12px 16px;
+  border: 1.5px solid rgba(0,229,204,0.15);
+  border-radius: var(--radius-sm);
+  background: rgba(255,255,255,0.03);
+  cursor: pointer;
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.95rem;
+  color: var(--ice-100);
+  transition: all 0.2s;
+  text-align: left;
+  width: 100%;
+}
+.quiz-opt:hover { background: rgba(0,229,204,0.08); border-color: var(--aurora); }
+.quiz-opt.selected { background: rgba(0,229,204,0.15); border-color: var(--aurora); color: var(--snow); }
+.quiz-opt.correct { background: rgba(46,204,113,0.2); border-color: var(--success); color: #fff; }
+.quiz-opt.wrong { background: rgba(255,107,107,0.2); border-color: var(--warn); color: #fff; }
+.quiz-opt:disabled { cursor: default; opacity: 0.85; }
+
+.feedback-box {
+  margin-top: 12px;
+  padding: 14px 16px;
+  border-radius: var(--radius-sm);
+  font-size: 0.92rem;
+  font-weight: 600;
+  display: none;
+}
+.feedback-box.hint {
+  background: rgba(241,196,15,0.1);
+  border: 1px solid rgba(241,196,15,0.3);
+  color: var(--gold);
+}
+.feedback-box.correct-fb {
+  background: rgba(46,204,113,0.1);
+  border: 1px solid rgba(46,204,113,0.3);
+  color: var(--success);
+}
+.feedback-box.show { display: block; }
+
+/* BUTTONS */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 22px;
+  border: none;
+  border-radius: 30px;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.25s;
+}
+.btn-primary {
+  background: linear-gradient(135deg, var(--aurora), var(--ice-500));
+  color: var(--deep);
+}
+.btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 15px rgba(0,229,204,0.3); }
+.btn-secondary {
+  background: rgba(255,255,255,0.08);
+  color: var(--ice-300);
+  border: 1px solid rgba(0,229,204,0.2);
+}
+.btn-secondary:hover { background: rgba(0,229,204,0.1); }
+.btn-sm { padding: 6px 14px; font-size: 0.8rem; }
+.btn-success { background: var(--success); color: #fff; }
+.btn-danger { background: var(--warn); color: #fff; }
+
+/* TEXTAREA */
+.open-answer {
+  width: 100%;
+  min-height: 100px;
+  padding: 14px;
+  border: 1.5px solid rgba(0,229,204,0.2);
+  border-radius: var(--radius-sm);
+  background: rgba(0,0,0,0.2);
+  color: var(--snow);
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.95rem;
+  resize: vertical;
+  line-height: 1.6;
+}
+.open-answer:focus { outline: none; border-color: var(--aurora); }
+.word-counter {
+  font-size: 0.8rem;
+  color: var(--ice-500);
+  margin-top: 4px;
+  font-weight: 600;
+}
+.word-counter.enough { color: var(--success); }
+
+.example-answer {
+  margin-top: 12px;
+  padding: 16px;
+  background: rgba(46,204,113,0.08);
+  border: 1px solid rgba(46,204,113,0.2);
+  border-radius: var(--radius-sm);
+  display: none;
+}
+.example-answer.show { display: block; }
+.example-answer h4 { color: var(--success); font-weight: 800; margin-bottom: 8px; font-size: 0.9rem; }
+.example-answer p { color: var(--ice-100); font-size: 0.9rem; }
+
+.self-assess {
+  display: none;
+  gap: 8px;
+  margin-top: 10px;
+}
+.self-assess.show { display: flex; }
+
+/* DRAG AND DROP */
+.drag-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 12px 0;
+}
+.drag-item {
+  padding: 12px 16px;
+  background: rgba(255,255,255,0.06);
+  border: 1.5px solid rgba(0,229,204,0.15);
+  border-radius: var(--radius-sm);
+  cursor: grab;
+  font-weight: 600;
+  color: var(--ice-100);
+  user-select: none;
+  touch-action: none;
+  transition: all 0.15s;
+  position: relative;
+}
+.drag-item:active { cursor: grabbing; }
+.drag-item.dragging {
+  opacity: 0.5;
+  background: rgba(0,229,204,0.15);
+}
+.drag-item .drag-handle {
+  color: var(--ice-500);
+  margin-right: 8px;
+}
+.drag-item.correct-pos { border-color: var(--success); background: rgba(46,204,113,0.1); }
+.drag-item.wrong-pos { border-color: var(--warn); background: rgba(255,107,107,0.1); }
+
+/* MATCH EXERCISE */
+.match-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin: 14px 0;
+}
+.match-col h4 {
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: var(--ice-400);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+}
+.match-item {
+  padding: 10px 14px;
+  border: 1.5px solid rgba(0,229,204,0.15);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--ice-100);
+  background: rgba(255,255,255,0.03);
+  transition: all 0.2s;
+  margin-bottom: 6px;
+}
+.match-item:hover { border-color: var(--aurora); background: rgba(0,229,204,0.08); }
+.match-item.selected-match { border-color: var(--aurora); background: rgba(0,229,204,0.15); color: var(--snow); }
+.match-item.matched {
+  border-color: var(--success);
+  background: rgba(46,204,113,0.1);
+}
+.match-pairs {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.match-pair-display {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: rgba(46,204,113,0.08);
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  color: var(--ice-200);
+}
+.match-pair-display .pair-arrow { color: var(--aurora); font-weight: 800; }
+
+/* MAP */
+.map-wrapper {
+  border-radius: var(--radius);
+  overflow: hidden;
+  border: 2px solid rgba(0,229,204,0.2);
+  margin: 16px 0;
+}
+.map-div { height: 400px; width: 100%; }
+
+/* CHART */
+.chart-wrapper {
+  background: rgba(0,0,0,0.15);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin: 16px 0;
+}
+
+/* NAV BUTTONS */
+.nav-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 32px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(0,229,204,0.1);
+}
+
+/* RESET BUTTON */
+.reset-section-btn {
+  display: block;
+  margin: 16px auto 0;
+  padding: 6px 16px;
+  background: transparent;
+  border: 1px solid rgba(255,107,107,0.3);
+  color: rgba(255,107,107,0.7);
+  border-radius: 20px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.reset-section-btn:hover { background: rgba(255,107,107,0.1); border-color: var(--warn); color: var(--warn); }
+
+/* SCORE */
+.final-score-box {
+  text-align: center;
+  padding: 30px;
+  background: linear-gradient(135deg, rgba(0,229,204,0.15), rgba(0,229,204,0.03));
+  border: 2px solid var(--aurora);
+  border-radius: var(--radius);
+  margin: 20px 0;
+}
+.final-score-box .score-number {
+  font-size: 3rem;
+  font-weight: 900;
+  color: var(--aurora);
+}
+.final-score-box .score-label {
+  font-size: 1rem;
+  color: var(--ice-300);
+  font-weight: 600;
+}
+
+/* CLEAR DATA */
+.clear-data-btn {
+  position: fixed;
+  bottom: 16px;
+  right: 16px;
+  z-index: 1001;
+  padding: 8px 16px;
+  background: rgba(10,46,63,0.9);
+  border: 1px solid rgba(255,107,107,0.3);
+  color: rgba(255,107,107,0.7);
+  border-radius: 20px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+}
+.clear-data-btn:hover { background: rgba(255,107,107,0.15); border-color: var(--warn); color: var(--warn); }
+
+@media (max-width: 768px) {
+  .card { padding: 18px; }
+  .match-container { grid-template-columns: 1fr; }
+  .map-div { height: 300px; }
+  .tab-btn { padding: 6px 12px; font-size: 0.8rem; }
+  .card h2 { font-size: 1.25rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- PROGRESS -->
+<div class="progress-container">
+  <div class="progress-top">
+    <span class="progress-title">⚽ Voetbal, Politiek &amp; de Wereldkaart</span>
+    <span class="progress-pct" id="progressPct">0% voltooid</span>
+  </div>
+  <div class="progress-bar-outer">
+    <div class="progress-bar-inner" id="progressBar"></div>
+  </div>
+</div>
+
+<!-- TAB BAR -->
+<div class="tab-bar-wrapper">
+  <div class="tab-counter" id="tabCounter">Onderdeel 1 van 6</div>
+  <div class="tab-bar" id="tabBar">
+    <button class="tab-btn active" data-tab="0">1. De Wereld in Kaart</button>
+    <button class="tab-btn" data-tab="1">2. FIFA: Wie Beslist?</button>
+    <button class="tab-btn" data-tab="2">3. Rusland Uitgesloten</button>
+    <button class="tab-btn" data-tab="3">4. Iran &amp; het WK 2026</button>
+    <button class="tab-btn" data-tab="4">5. Data &amp; Analyse</button>
+    <button class="tab-btn" data-tab="5">6. Reflectie</button>
+  </div>
+</div>
+
+<!-- =============================== -->
+<!-- TAB 0: DE WERELD IN KAART       -->
+<!-- =============================== -->
+<div class="tab-content active" id="tab0">
+<div class="section-wrap">
+
+  <div class="card card-highlight">
+    <h2>🌍 De Wereld in Kaart: Voetbal zonder Grenzen?</h2>
+    <p>Stel je voor: je zit op de bank en kijkt naar het WK voetbal. Je ziet vlaggen uit de hele wereld, je hoort volksliederen en je ziet spelers uit landen waar je misschien nog nooit van gehoord hebt. Maar heb je je ooit afgevraagd: <strong>mogen eigenlijk álle landen meedoen?</strong> En wie bepaalt dat?</p>
+    <p>In deze les gaan we ontdekken hoe aardrijkskunde, politiek en sport met elkaar verbonden zijn. Je leert over landen als Iran en Rusland, over de macht van FIFA, en waarom de wereld soms niet zo eerlijk is als een voetbalveld.</p>
+    <div class="info-block">
+      <div class="emoji-header">📌 Leerdoelen van deze les</div>
+      <p>Na deze les kun je uitleggen: waarom er twijfels zijn over Iran bij het WK 2026, wie bepaalt welke landen meedoen aan een toernooi, en waarom sommige landen zoals Rusland worden uitgesloten.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>🗺️ Waar ligt het allemaal? — De Interactieve Kaart</h3>
+    <p>Hieronder zie je een kaart van de wereld. We hebben de belangrijkste landen en steden gemarkeerd die in deze les terugkomen. Klik op een marker om meer te leren over die plek. Let goed op: je hebt deze informatie later nodig bij de opdrachten!</p>
+    <p>Denk er eens over na: als jij naar school fietst, hoeveel kilometer is dat? Nu kijk je naar landen die duizenden kilometers van elkaar liggen, maar tóch met elkaar verbonden zijn door voetbal. Dat is het mooie én ingewikkelde aan onze wereld.</p>
+    <div class="map-wrapper">
+      <div class="map-div" id="map1"></div>
+    </div>
+  </div>
+
+  <!-- QUIZ: Multiple choice -->
+  <div class="card">
+    <div class="quiz-block" id="q0_1">
+      <div class="quiz-label">Opdracht 1 — Kaartvraag</div>
+      <div class="quiz-question">Bekijk de kaart hierboven. In welk werelddeel ligt Iran?</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" onclick="checkMC('q0_1', this, false)">Afrika</button>
+        <button class="quiz-opt" onclick="checkMC('q0_1', this, true)">Azië</button>
+        <button class="quiz-opt" onclick="checkMC('q0_1', this, false)">Europa</button>
+        <button class="quiz-opt" onclick="checkMC('q0_1', this, false)">Zuid-Amerika</button>
+      </div>
+      <div class="feedback-box" id="q0_1_fb"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="quiz-block" id="q0_2">
+      <div class="quiz-label">Opdracht 2 — Kaartvraag</div>
+      <div class="quiz-question">Het WK 2026 wordt gehouden in drie landen tegelijk. Welk van deze drie landen grenst NIET aan de oceaan aan de westkant van Amerika?</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" onclick="checkMC('q0_2', this, false)">Canada</button>
+        <button class="quiz-opt" onclick="checkMC('q0_2', this, false)">Mexico</button>
+        <button class="quiz-opt" onclick="checkMC('q0_2', this, false)">Verenigde Staten</button>
+        <button class="quiz-opt" onclick="checkMC('q0_2', this, true)">Geen van deze — ze grenzen alle drie aan de Stille Oceaan</button>
+      </div>
+      <div class="feedback-box" id="q0_2_fb"></div>
+    </div>
+  </div>
+
+  <!-- OPEN VRAAG -->
+  <div class="card">
+    <div class="quiz-block" id="q0_3">
+      <div class="quiz-label">Opdracht 3 — Open vraag ✍️</div>
+      <div class="quiz-question">Bekijk de kaart. Iran ligt in het Midden-Oosten, en het WK wordt gespeeld in Noord-Amerika. Beschrijf in je eigen woorden: welke problemen kun je bedenken als een land in oorlog is met een gastland van het WK? Denk aan afstand, reizen en veiligheid.</div>
+      <textarea class="open-answer" id="q0_3_text" placeholder="Schrijf hier je antwoord (minimaal 20 woorden)..." oninput="countWords('q0_3')"></textarea>
+      <div class="word-counter" id="q0_3_wc">0 woorden</div>
+      <button class="btn btn-primary btn-sm" id="q0_3_submit" onclick="submitOpen('q0_3')" style="margin-top:8px; display:none;">Klaar — toon voorbeeldantwoord</button>
+      <div class="example-answer" id="q0_3_ex">
+        <h4>📝 Voorbeeldantwoord (ter vergelijking)</h4>
+        <p>Als een land in oorlog is met een gastland, dan zijn er veel problemen. Spelers en fans kunnen misschien geen visum krijgen om het land in te komen. De veiligheid van het team kan niet gegarandeerd worden. Het is ook moeilijk om te trainen en voor te bereiden als er thuis bommen vallen. Bovendien is de afstand tussen Iran en de VS enorm, waardoor reizen extra moeilijk is in oorlogstijd.</p>
+        <div class="self-assess" id="q0_3_assess">
+          <span style="font-size:0.85rem;color:var(--ice-300);font-weight:600;">Hoe beoordeel je je eigen antwoord?</span>
+          <button class="btn btn-sm btn-success" onclick="selfAssess('q0_3', true)">Goed ✓</button>
+          <button class="btn btn-sm btn-danger" onclick="selfAssess('q0_3', false)">Fout ✗</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="nav-bottom">
+    <div></div>
+    <button class="btn btn-primary" onclick="goTab(1)">Volgende →</button>
+  </div>
+  <button class="reset-section-btn" onclick="resetSection(0)">🔄 Reset dit onderdeel</button>
+</div>
+</div>
+
+<!-- =============================== -->
+<!-- TAB 1: FIFA — WIE BESLIST?      -->
+<!-- =============================== -->
+<div class="tab-content" id="tab1">
+<div class="section-wrap">
+
+  <div class="card card-highlight">
+    <h2>🏛️ FIFA: Wie Beslist Wie Mag Meedoen?</h2>
+    <p>Als je op school een toernooi organiseert, dan maakt de gymleraar de regels. Bij het WK voetbal is dat <strong>FIFA</strong> — de Fédération Internationale de Football Association. FIFA is de wereldwijde voetbalbond en bepaalt de regels voor het internationale voetbal.</p>
+    <p>FIFA is opgericht in 1904 en heeft nu <strong>211 leden</strong> — dat zijn meer landen dan bij de Verenigde Naties (193 leden)! Elk lid heeft een eigen voetbalbond, zoals de KNVB in Nederland. Die bonden zijn weer georganiseerd in zes grote confederaties, elk voor een ander deel van de wereld.</p>
+  </div>
+
+  <div class="card">
+    <h3>🌐 De Zes Confederaties van FIFA</h3>
+    <p>Net als dat de wereld is verdeeld in werelddelen, is het voetbal verdeeld in zes zones. Elke zone heeft een eigen voetbalorganisatie die toernooien organiseert en bepaalt hoeveel WK-plekken hun regio krijgt.</p>
+    <div class="emoji-flow">
+      <span>🇪🇺 UEFA (Europa)</span>
+      <span class="arrow">•</span>
+      <span>🌍 CAF (Afrika)</span>
+      <span class="arrow">•</span>
+      <span>🌏 AFC (Azië)</span>
+      <span class="arrow">•</span>
+      <span>🌎 CONCACAF (Noord/Midden-Amerika)</span>
+      <span class="arrow">•</span>
+      <span>🌎 CONMEBOL (Zuid-Amerika)</span>
+      <span class="arrow">•</span>
+      <span>🏝️ OFC (Oceanië)</span>
+    </div>
+    <p>Iran valt onder de <strong>AFC</strong> (Aziatische Voetbalconfederatie) — dezelfde confederatie als Japan, Australië en Saudi-Arabië. Rusland valt onder <strong>UEFA</strong> (Europa), net als Nederland.</p>
+    <div class="info-block">
+      <div class="emoji-header">🤔 Herken je dit?</div>
+      <p>Als je Eredivisie kijkt, dan speelt jouw favoriete club ook onder de KNVB, die onder UEFA valt. Als jouw club de Champions League wint, is dat een UEFA-toernooi. Alles hangt met alles samen!</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>⚖️ Hoe Werkt de Macht bij FIFA?</h3>
+    <p>FIFA kan landen <strong>schorsen</strong> of <strong>uitsluiten</strong> van toernooien. Dit kan om verschillende redenen gebeuren:</p>
+    <table class="compare-table">
+      <tr><th>Reden</th><th>Voorbeeld</th><th>Gevolg</th></tr>
+      <tr><td>Oorlog of invasie</td><td>Rusland (2022)</td><td>Uitsluiting van WK en EK</td></tr>
+      <tr><td>Apartheid / discriminatie</td><td>Zuid-Afrika (1961–1992)</td><td>Jarenlange schorsing</td></tr>
+      <tr><td>Overheidsbemoeienis</td><td>Kenia, Zimbabwe (2022)</td><td>Tijdelijke schorsing</td></tr>
+      <tr><td>Geopolitiek conflict</td><td>Iran (2026, onzeker)</td><td>Mogelijke terugtrekking</td></tr>
+    </table>
+    <p>Dus: FIFA is niet alleen een sportorganisatie. Ze maakt ook politieke beslissingen. Sommige mensen vinden dat goed ("sport en oorlog gaan niet samen"), anderen vinden het oneerlijk ("de spelers kunnen er niets aan doen").</p>
+  </div>
+
+  <!-- KOPPEL-OPDRACHT -->
+  <div class="card">
+    <div class="quiz-block" id="q1_1">
+      <div class="quiz-label">Opdracht 4 — Koppelopdracht 🔗</div>
+      <div class="quiz-question">Koppel elke organisatie aan de juiste beschrijving. Klik eerst links, dan rechts. Je kunt meerdere items aan dezelfde beschrijving koppelen.</div>
+      <div class="match-container" id="match1">
+        <div class="match-col">
+          <h4>Organisatie</h4>
+          <div class="match-item match-source" data-match="fifa" onclick="selectMatchSource(this,'match1')">FIFA</div>
+          <div class="match-item match-source" data-match="uefa" onclick="selectMatchSource(this,'match1')">UEFA</div>
+          <div class="match-item match-source" data-match="knvb" onclick="selectMatchSource(this,'match1')">KNVB</div>
+          <div class="match-item match-source" data-match="afc" onclick="selectMatchSource(this,'match1')">AFC</div>
+        </div>
+        <div class="match-col">
+          <h4>Beschrijving</h4>
+          <div class="match-item match-target" data-match="fifa" onclick="selectMatchTarget(this,'match1')">Wereldwijde voetbalbond, organiseert het WK</div>
+          <div class="match-item match-target" data-match="uefa" onclick="selectMatchTarget(this,'match1')">Europese voetbalbond, organiseert Champions League</div>
+          <div class="match-item match-target" data-match="knvb" onclick="selectMatchTarget(this,'match1')">Nederlandse voetbalbond</div>
+          <div class="match-item match-target" data-match="afc" onclick="selectMatchTarget(this,'match1')">Aziatische voetbalbond, waar Iran lid van is</div>
+        </div>
+      </div>
+      <div class="match-pairs" id="match1_pairs"></div>
+      <button class="btn btn-primary btn-sm" onclick="checkMatch('match1', 'q1_1')" style="margin-top:10px;">Controleer koppelingen</button>
+      <div class="feedback-box" id="q1_1_fb"></div>
+    </div>
+  </div>
+
+  <!-- MC -->
+  <div class="card">
+    <div class="quiz-block" id="q1_2">
+      <div class="quiz-label">Opdracht 5 — Meerkeuze</div>
+      <div class="quiz-question">Hoeveel leden heeft FIFA? (Meer dan de Verenigde Naties!)</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" onclick="checkMC('q1_2', this, false)">150</button>
+        <button class="quiz-opt" onclick="checkMC('q1_2', this, false)">193</button>
+        <button class="quiz-opt" onclick="checkMC('q1_2', this, true)">211</button>
+        <button class="quiz-opt" onclick="checkMC('q1_2', this, false)">256</button>
+      </div>
+      <div class="feedback-box" id="q1_2_fb"></div>
+    </div>
+  </div>
+
+  <!-- OPEN -->
+  <div class="card">
+    <div class="quiz-block" id="q1_3">
+      <div class="quiz-label">Opdracht 6 — Open vraag ✍️</div>
+      <div class="quiz-question">Stel: een land wordt door FIFA uitgesloten van het WK, maar de voetballers van dat land hebben niets verkeerd gedaan. Vind jij dat eerlijk? Leg uit waarom wel of niet. Gebruik minstens één voorbeeld uit de tekst.</div>
+      <textarea class="open-answer" id="q1_3_text" placeholder="Schrijf hier je mening (minimaal 20 woorden)..." oninput="countWords('q1_3')"></textarea>
+      <div class="word-counter" id="q1_3_wc">0 woorden</div>
+      <button class="btn btn-primary btn-sm" id="q1_3_submit" onclick="submitOpen('q1_3')" style="margin-top:8px; display:none;">Klaar — toon voorbeeldantwoord</button>
+      <div class="example-answer" id="q1_3_ex">
+        <h4>📝 Voorbeeldantwoorden (ter vergelijking)</h4>
+        <p><strong>Voorbeeld 1:</strong> Ik vind het niet helemaal eerlijk, want de voetballers zelf zijn geen soldaten. Ze hebben niet besloten om oorlog te voeren, net als bij Rusland. Maar ik snap ook dat FIFA een signaal wil afgeven dat oorlog niet oké is.</p>
+        <p><strong>Voorbeeld 2:</strong> Ik vind het wél eerlijk, want een nationaal team vertegenwoordigt een land. Als dat land iets heel ergs doet, zoals een ander land binnenvallen (Rusland in Oekraïne), dan moet de hele wereld laten zien dat dat niet mag.</p>
+        <div class="self-assess" id="q1_3_assess">
+          <span style="font-size:0.85rem;color:var(--ice-300);font-weight:600;">Hoe beoordeel je je eigen antwoord?</span>
+          <button class="btn btn-sm btn-success" onclick="selfAssess('q1_3', true)">Goed ✓</button>
+          <button class="btn btn-sm btn-danger" onclick="selfAssess('q1_3', false)">Fout ✗</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="nav-bottom">
+    <button class="btn btn-secondary" onclick="goTab(0)">← Vorige</button>
+    <button class="btn btn-primary" onclick="goTab(2)">Volgende →</button>
+  </div>
+  <button class="reset-section-btn" onclick="resetSection(1)">🔄 Reset dit onderdeel</button>
+</div>
+</div>
+
+<!-- =============================== -->
+<!-- TAB 2: RUSLAND UITGESLOTEN      -->
+<!-- =============================== -->
+<div class="tab-content" id="tab2">
+<div class="section-wrap">
+
+  <div class="card card-highlight">
+    <h2>🚫 Rusland: Waarom Uitgesloten van het WK?</h2>
+    <p>In 2018 was Rusland het gastland van het WK. Het hele toernooi werd daar gespeeld — van Moskou tot Sint-Petersburg. Miljoenen fans reisden naar Rusland en het was een groot feest. Maar slechts vier jaar later, in 2022, was alles anders.</p>
+    <p>Op 24 februari 2022 viel Rusland zijn buurland <strong>Oekraïne</strong> binnen met een groot leger. Steden werden gebombardeerd, miljoenen mensen moesten vluchten. De hele wereld was geschokt. Binnen een paar dagen besloten FIFA en UEFA samen: <strong>Rusland mag niet meer meedoen aan internationale voetbalwedstrijden</strong>, "tot nader order".</p>
+  </div>
+
+  <div class="card">
+    <h3>📖 Hoe ging het precies?</h3>
+    <p>De uitsluiting van Rusland ging eigenlijk heel snel — en dat is juist bijzonder. Normaal gesproken is FIFA heel voorzichtig met politieke beslissingen. Maar dit keer ging het zo:</p>
+    <div class="emoji-flow">
+      <span>💥 24 feb 2022: Rusland valt Oekraïne binnen</span>
+      <span class="arrow">→</span>
+      <span>🇵🇱 Polen weigert tegen Rusland te spelen</span>
+      <span class="arrow">→</span>
+      <span>🇸🇪🇨🇿 Zweden en Tsjechië volgen</span>
+      <span class="arrow">→</span>
+      <span>⚽ 28 feb 2022: FIFA schort Rusland</span>
+    </div>
+    <p>Eerst probeerde FIFA nog een tussenoplossing: Rusland mocht spelen onder een neutrale naam ("Russische Voetbalunie"), zonder vlag en volkslied, op neutraal terrein. Maar landen als Polen, Zweden en Tsjechië weigerden dit — zij zouden sowieso niet tegen Rusland spelen. Uiteindelijk besloot FIFA om Rusland helemaal uit te sluiten.</p>
+    <div class="info-block">
+      <div class="emoji-header">🔍 Vergelijk het met je eigen leven</div>
+      <p>Stel je voor dat iemand op school een ander leerling slaat. De conrector kan zeggen: "Je mag nog wel in de klas, maar je zit apart." Maar als het heel erg is, wordt die leerling geschorst. Dat is vergelijkbaar met wat FIFA deed met Rusland.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>📜 Historische Voorbeelden</h3>
+    <p>Rusland is niet het eerste land dat om politieke redenen is uitgesloten. Hier zijn drie belangrijke voorbeelden:</p>
+    <table class="compare-table">
+      <tr><th>Land</th><th>Periode</th><th>Reden</th></tr>
+      <tr><td>🇿🇦 Zuid-Afrika</td><td>1961 — 1992</td><td>Apartheid: wettelijke rassenscheiding</td></tr>
+      <tr><td>🇷🇸 Joegoslavië</td><td>1992 — 1994</td><td>VN-sancties tijdens Balkanoorlog</td></tr>
+      <tr><td>🇷🇺 Rusland</td><td>2022 — heden</td><td>Invasie van Oekraïne</td></tr>
+    </table>
+    <p>In al deze gevallen was de reden hetzelfde: een land deed iets dat de internationale gemeenschap onacceptabel vond. Bij Zuid-Afrika was het discriminatie op basis van huidskleur (apartheid). Bij Joegoslavië en Rusland was het een oorlog.</p>
+  </div>
+
+  <!-- DRAG AND DROP: Sorteer de gebeurtenissen -->
+  <div class="card">
+    <div class="quiz-block" id="q2_1">
+      <div class="quiz-label">Opdracht 7 — Sorteeropgave 🔄</div>
+      <div class="quiz-question">Sleep de gebeurtenissen in de juiste volgorde (van eerst naar laatst). Pak een item vast en sleep het naar de juiste positie.</div>
+      <div class="drag-list" id="dragList1">
+        <div class="drag-item" draggable="true" data-correct="2"><span class="drag-handle">☰</span> Polen weigert tegen Rusland te spelen</div>
+        <div class="drag-item" draggable="true" data-correct="3"><span class="drag-handle">☰</span> FIFA sluit Rusland uit (28 feb 2022)</div>
+        <div class="drag-item" draggable="true" data-correct="0"><span class="drag-handle">☰</span> Rusland is gastland van het WK 2018</div>
+        <div class="drag-item" draggable="true" data-correct="1"><span class="drag-handle">☰</span> Rusland valt Oekraïne binnen (24 feb 2022)</div>
+      </div>
+      <button class="btn btn-primary btn-sm" onclick="checkDragOrder('dragList1','q2_1')" style="margin-top:8px;">Controleer volgorde</button>
+      <div class="feedback-box" id="q2_1_fb"></div>
+    </div>
+  </div>
+
+  <!-- MC -->
+  <div class="card">
+    <div class="quiz-block" id="q2_2">
+      <div class="quiz-label">Opdracht 8 — Meerkeuze</div>
+      <div class="quiz-question">Welk land werd ruim 30 jaar geschorst door FIFA vanwege apartheid?</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" onclick="checkMC('q2_2', this, false)">Rusland</button>
+        <button class="quiz-opt" onclick="checkMC('q2_2', this, true)">Zuid-Afrika</button>
+        <button class="quiz-opt" onclick="checkMC('q2_2', this, false)">Joegoslavië</button>
+        <button class="quiz-opt" onclick="checkMC('q2_2', this, false)">Iran</button>
+      </div>
+      <div class="feedback-box" id="q2_2_fb"></div>
+    </div>
+  </div>
+
+  <!-- OPEN -->
+  <div class="card">
+    <div class="quiz-block" id="q2_3">
+      <div class="quiz-label">Opdracht 9 — Open vraag ✍️</div>
+      <div class="quiz-question">Rusland was in 2018 het gastland van het WK en in 2022 werden ze uitgesloten. Hoe kan het dat de situatie van een land zo snel verandert? Beschrijf in je eigen woorden waarom landen die eerst welkom zijn, later niet meer mee mogen doen.</div>
+      <textarea class="open-answer" id="q2_3_text" placeholder="Schrijf hier je antwoord (minimaal 20 woorden)..." oninput="countWords('q2_3')"></textarea>
+      <div class="word-counter" id="q2_3_wc">0 woorden</div>
+      <button class="btn btn-primary btn-sm" id="q2_3_submit" onclick="submitOpen('q2_3')" style="margin-top:8px; display:none;">Klaar — toon voorbeeldantwoord</button>
+      <div class="example-answer" id="q2_3_ex">
+        <h4>📝 Voorbeeldantwoord (ter vergelijking)</h4>
+        <p>In 2018 was Rusland nog een normaal land dat meedeed aan de internationale gemeenschap. Maar toen ze in 2022 Oekraïne binnenvielen, veranderde alles. De wereld vond dit zo erg dat ze Rusland wilden straffen. FIFA deed mee met die straf door Rusland uit te sluiten. Het laat zien dat je als land je plek in de wereld kunt verliezen als je oorlog voert tegen een ander land.</p>
+        <div class="self-assess" id="q2_3_assess">
+          <span style="font-size:0.85rem;color:var(--ice-300);font-weight:600;">Hoe beoordeel je je eigen antwoord?</span>
+          <button class="btn btn-sm btn-success" onclick="selfAssess('q2_3', true)">Goed ✓</button>
+          <button class="btn btn-sm btn-danger" onclick="selfAssess('q2_3', false)">Fout ✗</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="nav-bottom">
+    <button class="btn btn-secondary" onclick="goTab(1)">← Vorige</button>
+    <button class="btn btn-primary" onclick="goTab(3)">Volgende →</button>
+  </div>
+  <button class="reset-section-btn" onclick="resetSection(2)">🔄 Reset dit onderdeel</button>
+</div>
+</div>
+
+<!-- =============================== -->
+<!-- TAB 3: IRAN & HET WK 2026      -->
+<!-- =============================== -->
+<div class="tab-content" id="tab3">
+<div class="section-wrap">
+
+  <div class="card card-highlight">
+    <h2>🇮🇷 Iran en het WK 2026: Meedoen of Niet?</h2>
+    <p>Iran is een land in het Midden-Oosten met meer dan 85 miljoen inwoners. Het Iraanse voetbalteam is één van de sterkste in Azië en heeft zich al zes keer gekwalificeerd voor het WK. In maart 2025 waren ze zelfs het eerste Aziatische land dat zich kwalificeerde voor het WK 2026!</p>
+    <p>Maar begin maart 2026 — minder dan 100 dagen voor de start van het WK — veranderde alles. De Verenigde Staten en Israël lanceerden aanvallen op Iran. Het conflict escaleerde snel en verspreidde zich door de regio. Nu is de grote vraag: <strong>kan en wil Iran nog meedoen aan het WK dat mede in de VS wordt gespeeld?</strong></p>
+  </div>
+
+  <div class="card">
+    <h3>⚡ Wat is er precies aan de hand?</h3>
+    <p>Het WK 2026 wordt georganiseerd door drie landen samen: de <strong>Verenigde Staten</strong>, <strong>Canada</strong> en <strong>Mexico</strong>. Iran zou al zijn drie groepswedstrijden in de VS spelen — twee in Los Angeles en één in Seattle.</p>
+    <p>Maar dan komt het probleem: de VS en Iran zijn in een gewapend conflict terechtgekomen. De leider van Iran, Ayatollah Ali Khamenei, is gedood bij een luchtaanval. Iran heeft teruggeslagen met raketten op Amerikaanse bases en bondgenoten in de regio. De Iraanse voetbalbond-voorzitter Mehdi Taj zei op televisie: het is onmogelijk om met hoop naar het WK te kijken na deze aanvallen.</p>
+    <div class="info-block">
+      <div class="emoji-header">🧩 Waarom is dit zo ingewikkeld?</div>
+      <p>Er zijn meerdere problemen tegelijk: Iraanse fans krijgen geen visum voor de VS (reisverbod). Het team moet spelen in het land dat hun land aanvalt. Er is geen garantie voor de veiligheid. En als Iran zich terugtrekt, verliezen ze minstens 10,5 miljoen dollar aan WK-geld, plus mogelijke schorsing voor het WK 2030.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>🆚 Verschil met Rusland</h3>
+    <p>Het geval van Iran is anders dan dat van Rusland. Bij Rusland besloot FIFA om het land uit te sluiten, als straf. Bij Iran is de situatie ingewikkelder:</p>
+    <table class="compare-table">
+      <tr><th></th><th>🇷🇺 Rusland (2022)</th><th>🇮🇷 Iran (2026)</th></tr>
+      <tr><td><strong>Besluit door</strong></td><td>FIFA sluit Rusland uit</td><td>Iran overweegt zelf terug te trekken</td></tr>
+      <tr><td><strong>Reden</strong></td><td>Rusland viel Oekraïne binnen</td><td>VS (gastland) viel Iran aan</td></tr>
+      <tr><td><strong>Rol FIFA</strong></td><td>Actief: FIFA nam het besluit</td><td>Afwachtend: FIFA "monitort de situatie"</td></tr>
+      <tr><td><strong>Druk van</strong></td><td>Andere landen weigerden te spelen</td><td>Iran zelf twijfelt of het veilig is</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>🗺️ Kaart: De Conflictzones</h3>
+    <p>Bekijk op de kaart hoe ver Iran ligt van de wedstrijdlocaties, en welke landen betrokken zijn bij het conflict.</p>
+    <div class="map-wrapper">
+      <div class="map-div" id="map2"></div>
+    </div>
+  </div>
+
+  <!-- MC -->
+  <div class="card">
+    <div class="quiz-block" id="q3_1">
+      <div class="quiz-label">Opdracht 10 — Meerkeuze</div>
+      <div class="quiz-question">Waarom twijfelt Iran over deelname aan het WK 2026?</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" onclick="checkMC('q3_1', this, false)">Iran heeft zich niet gekwalificeerd</button>
+        <button class="quiz-opt" onclick="checkMC('q3_1', this, false)">Het Iraanse team is niet goed genoeg</button>
+        <button class="quiz-opt" onclick="checkMC('q3_1', this, true)">Er is een gewapend conflict met de VS, het gastland</button>
+        <button class="quiz-opt" onclick="checkMC('q3_1', this, false)">FIFA heeft Iran verboden om mee te doen</button>
+      </div>
+      <div class="feedback-box" id="q3_1_fb"></div>
+    </div>
+  </div>
+
+  <!-- MC -->
+  <div class="card">
+    <div class="quiz-block" id="q3_2">
+      <div class="quiz-label">Opdracht 11 — Meerkeuze</div>
+      <div class="quiz-question">Wat is een belangrijk verschil tussen de situatie van Rusland en die van Iran?</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" onclick="checkMC('q3_2', this, true)">Rusland werd door FIFA uitgesloten; Iran overweegt zelf terug te trekken</button>
+        <button class="quiz-opt" onclick="checkMC('q3_2', this, false)">Rusland had zichzelf teruggetrokken; Iran werd uitgesloten</button>
+        <button class="quiz-opt" onclick="checkMC('q3_2', this, false)">Er is geen verschil, beide werden door FIFA uitgesloten</button>
+        <button class="quiz-opt" onclick="checkMC('q3_2', this, false)">Iran werd al in 2022 uitgesloten, net als Rusland</button>
+      </div>
+      <div class="feedback-box" id="q3_2_fb"></div>
+    </div>
+  </div>
+
+  <!-- OPEN: Scenario -->
+  <div class="card">
+    <div class="quiz-block" id="q3_3">
+      <div class="quiz-label">Opdracht 12 — Scenario-opdracht ✍️</div>
+      <div class="quiz-question">Stel: jij bent de baas van FIFA. Iran heeft zich gekwalificeerd voor het WK, maar het conflict met de VS maakt het heel moeilijk. Wat zou jij doen? Beschrijf je plan en leg uit waarom je die keuze maakt. Denk aan de veiligheid, eerlijkheid en de regels.</div>
+      <textarea class="open-answer" id="q3_3_text" placeholder="Schrijf hier je plan (minimaal 20 woorden)..." oninput="countWords('q3_3')"></textarea>
+      <div class="word-counter" id="q3_3_wc">0 woorden</div>
+      <button class="btn btn-primary btn-sm" id="q3_3_submit" onclick="submitOpen('q3_3')" style="margin-top:8px; display:none;">Klaar — toon voorbeeldantwoord</button>
+      <div class="example-answer" id="q3_3_ex">
+        <h4>📝 Voorbeeldantwoord (ter vergelijking)</h4>
+        <p><strong>Optie A:</strong> Ik zou de wedstrijden van Iran verplaatsen naar Canada of Mexico, zodat het team niet in de VS hoeft te spelen. Zo kunnen ze toch meedoen maar is het veiliger.</p>
+        <p><strong>Optie B:</strong> Ik zou Iran de keuze geven: als jullie niet willen komen, dan mogen jullie zonder straf thuisblijven. Het is niet eerlijk om een land te straffen dat het slachtoffer is van een aanval.</p>
+        <div class="self-assess" id="q3_3_assess">
+          <span style="font-size:0.85rem;color:var(--ice-300);font-weight:600;">Hoe beoordeel je je eigen antwoord?</span>
+          <button class="btn btn-sm btn-success" onclick="selfAssess('q3_3', true)">Goed ✓</button>
+          <button class="btn btn-sm btn-danger" onclick="selfAssess('q3_3', false)">Fout ✗</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="nav-bottom">
+    <button class="btn btn-secondary" onclick="goTab(2)">← Vorige</button>
+    <button class="btn btn-primary" onclick="goTab(4)">Volgende →</button>
+  </div>
+  <button class="reset-section-btn" onclick="resetSection(3)">🔄 Reset dit onderdeel</button>
+</div>
+</div>
+
+<!-- =============================== -->
+<!-- TAB 4: DATA & ANALYSE           -->
+<!-- =============================== -->
+<div class="tab-content" id="tab4">
+<div class="section-wrap">
+
+  <div class="card card-highlight">
+    <h2>📊 Data &amp; Analyse: De Cijfers achter het WK</h2>
+    <p>Bij aardrijkskunde draait het niet alleen om het aanwijzen van landen op een kaart. Het gaat ook om het lezen en begrijpen van <strong>data</strong> — cijfers, grafieken en tabellen. In deze sectie ga je data analyseren die te maken heeft met het WK en de landen die we besproken hebben.</p>
+    <p>Stel je voor dat je een sportjournalist bent. Je moet een artikel schrijven over het WK 2026 en je hebt data nodig om je verhaal te onderbouwen. Welke cijfers zou je gebruiken?</p>
+  </div>
+
+  <div class="card">
+    <h3>📈 Grafiek: WK-deelnames van de besproken landen</h3>
+    <p>Hieronder zie je hoe vaak verschillende landen hebben deelgenomen aan het WK. Bestudeer de grafiek goed — je hebt de informatie nodig voor de opdrachten.</p>
+    <div class="chart-wrapper">
+      <canvas id="chart1" height="250"></canvas>
+    </div>
+    <p>Wat valt je op? Iran heeft zich vaker gekwalificeerd dan je misschien zou verwachten. En Rusland/de Sovjet-Unie heeft een lange voetbalgeschiedenis, maar is nu uitgesloten.</p>
+  </div>
+
+  <div class="card">
+    <h3>💰 Grafiek: Financiële gevolgen</h3>
+    <p>Als een land zich terugtrekt uit het WK, heeft dat ook financiële gevolgen. FIFA betaalt elk deelnemend land miljoenen dollars. Bekijk de grafiek over de financiële impact.</p>
+    <div class="chart-wrapper">
+      <canvas id="chart2" height="250"></canvas>
+    </div>
+  </div>
+
+  <!-- Analysevraag bij grafiek -->
+  <div class="card">
+    <div class="quiz-block" id="q4_1">
+      <div class="quiz-label">Opdracht 13 — Grafiekanalyse</div>
+      <div class="quiz-question">Bekijk de eerste grafiek. Welk land heeft de meeste WK-deelnames?</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" onclick="checkMC('q4_1', this, false)">Iran</button>
+        <button class="quiz-opt" onclick="checkMC('q4_1', this, true)">Rusland/Sovjet-Unie</button>
+        <button class="quiz-opt" onclick="checkMC('q4_1', this, false)">Zuid-Afrika</button>
+        <button class="quiz-opt" onclick="checkMC('q4_1', this, false)">Joegoslavië</button>
+      </div>
+      <div class="feedback-box" id="q4_1_fb"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="quiz-block" id="q4_2">
+      <div class="quiz-label">Opdracht 14 — Grafiekanalyse</div>
+      <div class="quiz-question">Bekijk de tweede grafiek. Hoeveel dollar verliest Iran minimaal als het zich terugtrekt uit het WK 2026?</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" onclick="checkMC('q4_2', this, false)">€1 miljoen</button>
+        <button class="quiz-opt" onclick="checkMC('q4_2', this, false)">$5 miljoen</button>
+        <button class="quiz-opt" onclick="checkMC('q4_2', this, true)">$10,5 miljoen</button>
+        <button class="quiz-opt" onclick="checkMC('q4_2', this, false)">$50 miljoen</button>
+      </div>
+      <div class="feedback-box" id="q4_2_fb"></div>
+    </div>
+  </div>
+
+  <!-- OPEN: Data-interpretatie -->
+  <div class="card">
+    <div class="quiz-block" id="q4_3">
+      <div class="quiz-label">Opdracht 15 — Data-interpretatie ✍️</div>
+      <div class="quiz-question">Bekijk beide grafieken. Iran heeft zes WK-deelnames en zou meer dan 10 miljoen dollar mislopen bij terugtrekking. Leg uit waarom het voor Iran zo'n moeilijke keuze is: doorgaan of terugtrekken. Gebruik minstens twee argumenten.</div>
+      <textarea class="open-answer" id="q4_3_text" placeholder="Schrijf hier je analyse (minimaal 20 woorden)..." oninput="countWords('q4_3')"></textarea>
+      <div class="word-counter" id="q4_3_wc">0 woorden</div>
+      <button class="btn btn-primary btn-sm" id="q4_3_submit" onclick="submitOpen('q4_3')" style="margin-top:8px; display:none;">Klaar — toon voorbeeldantwoord</button>
+      <div class="example-answer" id="q4_3_ex">
+        <h4>📝 Voorbeeldantwoord (ter vergelijking)</h4>
+        <p>Het is een moeilijke keuze omdat Iran aan de ene kant trots is op het voetbal en veel geld zou mislopen (meer dan 10,5 miljoen dollar). Aan de andere kant is het team niet veilig in de VS vanwege het conflict, en de fans mogen niet eens komen kijken door het visumverbod. Bovendien kan Iran ook geschorst worden voor het WK 2030 als ze zich terugtrekken, dus het heeft gevolgen voor de lange termijn.</p>
+        <div class="self-assess" id="q4_3_assess">
+          <span style="font-size:0.85rem;color:var(--ice-300);font-weight:600;">Hoe beoordeel je je eigen antwoord?</span>
+          <button class="btn btn-sm btn-success" onclick="selfAssess('q4_3', true)">Goed ✓</button>
+          <button class="btn btn-sm btn-danger" onclick="selfAssess('q4_3', false)">Fout ✗</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DRAG: Rangschik gevolgen van uitsluiting -->
+  <div class="card">
+    <div class="quiz-block" id="q4_4">
+      <div class="quiz-label">Opdracht 16 — Rangschik 🔄</div>
+      <div class="quiz-question">Zet de gevolgen van een WK-terugtrekking in volgorde van meest ernstig (bovenaan) naar minst ernstig (onderaan). Dit is een meningsvraag — er is geen "fout" antwoord.</div>
+      <div class="drag-list" id="dragList2">
+        <div class="drag-item" draggable="true" data-order="opinion"><span class="drag-handle">☰</span> Verlies van meer dan $10 miljoen</div>
+        <div class="drag-item" draggable="true" data-order="opinion"><span class="drag-handle">☰</span> Mogelijke schorsing voor WK 2030</div>
+        <div class="drag-item" draggable="true" data-order="opinion"><span class="drag-handle">☰</span> Fans kunnen het team niet zien spelen</div>
+        <div class="drag-item" draggable="true" data-order="opinion"><span class="drag-handle">☰</span> Verlies van nationale trots en sportgeschiedenis</div>
+      </div>
+      <button class="btn btn-primary btn-sm" onclick="submitOpinionDrag('dragList2','q4_4')" style="margin-top:8px;">Bevestig mijn rangschikking</button>
+      <div class="feedback-box" id="q4_4_fb"></div>
+    </div>
+  </div>
+
+  <div class="nav-bottom">
+    <button class="btn btn-secondary" onclick="goTab(3)">← Vorige</button>
+    <button class="btn btn-primary" onclick="goTab(5)">Volgende →</button>
+  </div>
+  <button class="reset-section-btn" onclick="resetSection(4)">🔄 Reset dit onderdeel</button>
+</div>
+</div>
+
+<!-- =============================== -->
+<!-- TAB 5: REFLECTIE                -->
+<!-- =============================== -->
+<div class="tab-content" id="tab5">
+<div class="section-wrap">
+
+  <div class="card card-highlight">
+    <h2>🏁 Reflectie: Wat Heb Je Geleerd?</h2>
+    <p>Je hebt alle onderdelen doorgewerkt. Goed gedaan! Nu is het tijd om terug te kijken op wat je geleerd hebt. Reflecteren helpt je om de stof beter te onthouden en te begrijpen.</p>
+  </div>
+
+  <div class="card">
+    <h3>🎯 Leerdoelen — Check</h3>
+    <div class="info-block" style="margin:8px 0;">
+      <p><strong>Leerdoel 1:</strong> Ik begrijp waarom er twijfels zijn over de deelname van Iran aan het WK 2026.</p>
+    </div>
+    <div class="info-block" style="margin:8px 0;">
+      <p><strong>Leerdoel 2:</strong> Ik begrijp wie er bepaalt welke landen aan een toernooi mee mogen doen.</p>
+    </div>
+    <div class="info-block" style="margin:8px 0;">
+      <p><strong>Leerdoel 3:</strong> Ik snap waarom sommige landen, zoals Rusland, uitgesloten worden van een toernooi.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="final-score-box">
+      <div class="score-label">Je eindscore</div>
+      <div class="score-number" id="finalScore">-</div>
+      <div class="score-label" id="finalScoreText">Maak eerst alle opdrachten af</div>
+    </div>
+  </div>
+
+  <!-- Reflectievragen -->
+  <div class="card">
+    <div class="quiz-block" id="q5_1">
+      <div class="quiz-label">Reflectievraag 1 ✍️</div>
+      <div class="quiz-question">Wat vond je het lastigst in deze les en waarom? Denk aan de opdrachten, de onderwerpen of de manier van leren.</div>
+      <textarea class="open-answer" id="q5_1_text" placeholder="Schrijf hier (minimaal 20 woorden)..." oninput="countWords('q5_1')"></textarea>
+      <div class="word-counter" id="q5_1_wc">0 woorden</div>
+      <button class="btn btn-primary btn-sm" id="q5_1_submit" onclick="submitOpen('q5_1')" style="margin-top:8px; display:none;">Klaar — toon voorbeeldantwoord</button>
+      <div class="example-answer" id="q5_1_ex">
+        <h4>📝 Voorbeeldantwoord</h4>
+        <p>Er is geen goed of fout hier — het gaat erom dat je nadenkt over je eigen leerproces. Misschien vond je de open vragen lastig omdat je veel moest schrijven, of misschien was het conflict tussen Iran en de VS moeilijk te begrijpen. Elk eerlijk antwoord is goed!</p>
+        <div class="self-assess" id="q5_1_assess">
+          <span style="font-size:0.85rem;color:var(--ice-300);font-weight:600;">Heb je serieus nagedacht over deze vraag?</span>
+          <button class="btn btn-sm btn-success" onclick="selfAssess('q5_1', true)">Ja ✓</button>
+          <button class="btn btn-sm btn-danger" onclick="selfAssess('q5_1', false)">Niet echt ✗</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="quiz-block" id="q5_2">
+      <div class="quiz-label">Reflectievraag 2 ✍️</div>
+      <div class="quiz-question">Wat zou je een klasgenoot uitleggen over dit onderwerp? Schrijf het op alsof je het uitlegt aan iemand die er niets van weet.</div>
+      <textarea class="open-answer" id="q5_2_text" placeholder="Schrijf hier (minimaal 20 woorden)..." oninput="countWords('q5_2')"></textarea>
+      <div class="word-counter" id="q5_2_wc">0 woorden</div>
+      <button class="btn btn-primary btn-sm" id="q5_2_submit" onclick="submitOpen('q5_2')" style="margin-top:8px; display:none;">Klaar — toon voorbeeldantwoord</button>
+      <div class="example-answer" id="q5_2_ex">
+        <h4>📝 Voorbeeldantwoord</h4>
+        <p>Ik zou uitleggen dat FIFA de baas is van het wereldvoetbal en kan beslissen welke landen meedoen aan het WK. Als een land iets heel ergs doet, zoals een ander land binnenvallen, dan kan FIFA dat land uitsluiten. Dat is gebeurd met Rusland. En nu zijn er ook twijfels over Iran, omdat het WK in de VS wordt gespeeld en de VS en Iran in oorlog zijn.</p>
+        <div class="self-assess" id="q5_2_assess">
+          <span style="font-size:0.85rem;color:var(--ice-300);font-weight:600;">Heb je serieus nagedacht over deze vraag?</span>
+          <button class="btn btn-sm btn-success" onclick="selfAssess('q5_2', true)">Ja ✓</button>
+          <button class="btn btn-sm btn-danger" onclick="selfAssess('q5_2', false)">Niet echt ✗</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="quiz-block" id="q5_3">
+      <div class="quiz-label">Reflectievraag 3 ✍️</div>
+      <div class="quiz-question">Hoe zou je dit onderwerp herkennen in je eigen omgeving? Denk aan het nieuws dat je ziet, gesprekken met familie, of wat je op social media tegenkomt over het WK 2026.</div>
+      <textarea class="open-answer" id="q5_3_text" placeholder="Schrijf hier (minimaal 20 woorden)..." oninput="countWords('q5_3')"></textarea>
+      <div class="word-counter" id="q5_3_wc">0 woorden</div>
+      <button class="btn btn-primary btn-sm" id="q5_3_submit" onclick="submitOpen('q5_3')" style="margin-top:8px; display:none;">Klaar — toon voorbeeldantwoord</button>
+      <div class="example-answer" id="q5_3_ex">
+        <h4>📝 Voorbeeldantwoord</h4>
+        <p>Als ik op Instagram of TikTok kijk, zie ik steeds vaker berichten over het WK 2026. Soms staan er ook berichten bij over het conflict met Iran. Op het nieuws hoor ik mijn ouders erover praten. Nu snap ik beter waarom dit zo'n groot onderwerp is — het gaat niet alleen over voetbal, maar ook over politiek en de veiligheid van mensen.</p>
+        <div class="self-assess" id="q5_3_assess">
+          <span style="font-size:0.85rem;color:var(--ice-300);font-weight:600;">Heb je serieus nagedacht over deze vraag?</span>
+          <button class="btn btn-sm btn-success" onclick="selfAssess('q5_3', true)">Ja ✓</button>
+          <button class="btn btn-sm btn-danger" onclick="selfAssess('q5_3', false)">Niet echt ✗</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="nav-bottom">
+    <button class="btn btn-secondary" onclick="goTab(4)">← Vorige</button>
+    <div></div>
+  </div>
+  <button class="reset-section-btn" onclick="resetSection(5)">🔄 Reset dit onderdeel</button>
+</div>
+</div>
+
+<button class="clear-data-btn" onclick="clearAllData()">🗑️ Voortgang wissen</button>
+
+<script>
+// ========================================
+// STATE MANAGEMENT
+// ========================================
+var TOTAL_QUESTIONS = 19; // q0_1..q0_3, q1_1..q1_3, q2_1..q2_3, q3_1..q3_3, q4_1..q4_4, q5_1..q5_3
+var allQuestionIds = [
+  'q0_1','q0_2','q0_3',
+  'q1_1','q1_2','q1_3',
+  'q2_1','q2_2','q2_3',
+  'q3_1','q3_2','q3_3',
+  'q4_1','q4_2','q4_3','q4_4',
+  'q5_1','q5_2','q5_3'
+];
+var sectionQuestions = {
+  0: ['q0_1','q0_2','q0_3'],
+  1: ['q1_1','q1_2','q1_3'],
+  2: ['q2_1','q2_2','q2_3'],
+  3: ['q3_1','q3_2','q3_3'],
+  4: ['q4_1','q4_2','q4_3','q4_4'],
+  5: ['q5_1','q5_2','q5_3']
+};
+
+var state = {
+  completed: {},
+  correct: {},
+  attempts: {},
+  answers: {},
+  matchPairs: {},
+  currentTab: 0
+};
+
+var maps = [];
+
+// ========================================
+// LOCALSTORAGE
+// ========================================
+function saveState() {
+  try {
+    localStorage.setItem('geo_les_state', JSON.stringify(state));
+    localStorage.setItem('geo_les_time', new Date().toISOString());
+  } catch(e) {}
+}
+function loadState() {
+  try {
+    var s = localStorage.getItem('geo_les_state');
+    if (s) {
+      var parsed = JSON.parse(s);
+      state = Object.assign(state, parsed);
+    }
+  } catch(e) {}
+}
+function clearAllData() {
+  if (confirm('Weet je zeker dat je al je voortgang wilt wissen?')) {
+    try { localStorage.removeItem('geo_les_state'); localStorage.removeItem('geo_les_time'); } catch(e) {}
+    state = { completed: {}, correct: {}, attempts: {}, answers: {}, matchPairs: {}, currentTab: 0 };
+    location.reload();
+  }
+}
+
+// ========================================
+// PROGRESS
+// ========================================
+function updateProgress() {
+  var done = 0;
+  for (var i = 0; i < allQuestionIds.length; i++) {
+    if (state.completed[allQuestionIds[i]]) done++;
+  }
+  var pct = Math.round((done / TOTAL_QUESTIONS) * 100);
+  document.getElementById('progressBar').style.width = pct + '%';
+  document.getElementById('progressPct').textContent = pct + '% voltooid';
+
+  // Update tab completion
+  var btns = document.querySelectorAll('.tab-btn');
+  for (var t = 0; t < 6; t++) {
+    var qs = sectionQuestions[t];
+    var allDone = true;
+    for (var j = 0; j < qs.length; j++) {
+      if (!state.completed[qs[j]]) { allDone = false; break; }
+    }
+    if (allDone && qs.length > 0) {
+      btns[t].classList.add('completed');
+    } else {
+      btns[t].classList.remove('completed');
+    }
+  }
+
+  // Update final score
+  var correctCount = 0;
+  for (var k = 0; k < allQuestionIds.length; k++) {
+    if (state.correct[allQuestionIds[k]]) correctCount++;
+  }
+  var scoreEl = document.getElementById('finalScore');
+  var scoreTextEl = document.getElementById('finalScoreText');
+  if (done === TOTAL_QUESTIONS) {
+    scoreEl.textContent = correctCount + '/' + TOTAL_QUESTIONS;
+    scoreTextEl.textContent = 'Je hebt alle opdrachten afgerond!';
+  } else {
+    scoreEl.textContent = correctCount + '/' + done;
+    scoreTextEl.textContent = done + ' van ' + TOTAL_QUESTIONS + ' opdrachten gemaakt';
+  }
+
+  saveState();
+}
+
+// ========================================
+// TABS
+// ========================================
+function goTab(idx) {
+  state.currentTab = idx;
+  var tabs = document.querySelectorAll('.tab-content');
+  var btns = document.querySelectorAll('.tab-btn');
+  for (var i = 0; i < tabs.length; i++) {
+    tabs[i].classList.remove('active');
+    btns[i].classList.remove('active');
+  }
+  tabs[idx].classList.add('active');
+  btns[idx].classList.add('active');
+  document.getElementById('tabCounter').textContent = 'Onderdeel ' + (idx + 1) + ' van 6';
+
+  // Scroll tab into view
+  btns[idx].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  // Fix maps
+  setTimeout(function() {
+    for (var m = 0; m < maps.length; m++) {
+      maps[m].invalidateSize();
+    }
+  }, 200);
+
+  saveState();
+}
+
+// Tab bar click
+document.getElementById('tabBar').addEventListener('click', function(e) {
+  if (e.target.classList.contains('tab-btn')) {
+    goTab(parseInt(e.target.getAttribute('data-tab')));
+  }
+});
+
+// ========================================
+// MULTIPLE CHOICE
+// ========================================
+var mcHints = {
+  'q0_1': ['Kijk goed naar de kaart. Iran ligt ten oosten van Turkije en ten westen van Pakistan. In welk werelddeel is dat?', 'Denk aan het Midden-Oosten. Dat is een deel van...'],
+  'q0_2': ['Kijk goed — alle drie de landen liggen aan de westkust. Welk antwoord klopt dan?', 'Als ze allemaal aan de Stille Oceaan liggen, dan grenzen ze er alle drie aan!'],
+  'q1_2': ['FIFA heeft meer leden dan de VN. De VN heeft 193 leden...', 'Het getal begint met een 2...'],
+  'q2_2': ['Apartheid was een systeem van rassenscheiding. In welk land was dat?', 'Dit land ligt in het zuiden van Afrika en begon met een Z...'],
+  'q3_1': ['Iran heeft zich wél gekwalificeerd. Het probleem zit hem in het gastland...', 'De VS is zowel gastland als betrokken bij een conflict met Iran.'],
+  'q3_2': ['Lees de vergelijkingstabel nog eens. Bij Rusland nam FIFA het besluit. Bij Iran is de situatie anders...', 'Iran overweegt zelf of het veilig genoeg is om te gaan.'],
+  'q4_1': ['Kijk naar de hoogste balk in de grafiek. Rusland (en de Sovjet-Unie daarvoor) speelt al heel lang mee.', 'Tel de deelnames: welk land komt het vaakst boven de 10?'],
+  'q4_2': ['Bekijk de grafiek met de financiële gevolgen. Het bedrag voor deelnameprijs staat daar duidelijk in.', 'Het is meer dan 5 maar minder dan 50...']
+};
+
+function checkMC(qid, btn, isCorrect) {
+  var block = document.getElementById(qid);
+  if (state.completed[qid]) return;
+  if (!state.attempts[qid]) state.attempts[qid] = 0;
+  state.attempts[qid]++;
+
+  var fb = document.getElementById(qid + '_fb');
+  var opts = block.querySelectorAll('.quiz-opt');
+
+  if (isCorrect) {
+    btn.classList.add('correct');
+    for (var i = 0; i < opts.length; i++) opts[i].disabled = true;
+    fb.className = 'feedback-box correct-fb show';
+    fb.textContent = '🎉 Goed zo! Dat klopt helemaal.';
+    state.completed[qid] = true;
+    state.correct[qid] = true;
+  } else {
+    btn.classList.add('wrong');
+    btn.disabled = true;
+    var hints = mcHints[qid] || ['Probeer het nog eens!', 'Lees de tekst nog eens goed door.'];
+    var attempt = state.attempts[qid];
+    if (attempt >= 3) {
+      // Show correct answer
+      for (var j = 0; j < opts.length; j++) {
+        opts[j].disabled = true;
+        if (opts[j].getAttribute('onclick') && opts[j].getAttribute('onclick').indexOf('true') > -1) {
+          opts[j].classList.add('correct');
+        }
+      }
+      fb.className = 'feedback-box correct-fb show';
+      fb.textContent = '💡 Het juiste antwoord is hierboven groen gemarkeerd. Lees de uitleg nog eens door!';
+      state.completed[qid] = true;
+      state.correct[qid] = false;
+    } else {
+      fb.className = 'feedback-box hint show';
+      var hintText = hints[Math.min(attempt - 1, hints.length - 1)];
+      fb.textContent = '💭 ' + hintText + ' (Poging ' + attempt + '/3)';
+    }
+  }
+  updateProgress();
+}
+
+// ========================================
+// OPEN QUESTIONS
+// ========================================
+function countWords(qid) {
+  var text = document.getElementById(qid + '_text').value.trim();
+  var words = text ? text.split(/\s+/).length : 0;
+  var wc = document.getElementById(qid + '_wc');
+  wc.textContent = words + ' woorden';
+  var submitBtn = document.getElementById(qid + '_submit');
+  if (words >= 20) {
+    wc.classList.add('enough');
+    submitBtn.style.display = 'inline-flex';
+  } else {
+    wc.classList.remove('enough');
+    submitBtn.style.display = 'none';
+  }
+}
+
+function submitOpen(qid) {
+  if (state.completed[qid]) return;
+  state.answers[qid] = document.getElementById(qid + '_text').value;
+  var ex = document.getElementById(qid + '_ex');
+  ex.classList.add('show');
+  var assess = document.getElementById(qid + '_assess');
+  assess.classList.add('show');
+  document.getElementById(qid + '_submit').style.display = 'none';
+  saveState();
+}
+
+function selfAssess(qid, isGood) {
+  state.completed[qid] = true;
+  state.correct[qid] = isGood;
+  var assess = document.getElementById(qid + '_assess');
+  assess.innerHTML = isGood
+    ? '<span style="color:var(--success);font-weight:700;">✓ Genoteerd als goed!</span>'
+    : '<span style="color:var(--warn);font-weight:700;">✗ Genoteerd — probeer het volgende keer beter!</span>';
+  updateProgress();
+}
+
+// ========================================
+// MATCH / KOPPEL
+// ========================================
+var matchStates = {};
+
+function selectMatchSource(el, matchId) {
+  if (!matchStates[matchId]) matchStates[matchId] = { source: null, pairs: [] };
+  var sources = el.parentElement.querySelectorAll('.match-source');
+  for (var i = 0; i < sources.length; i++) sources[i].classList.remove('selected-match');
+  el.classList.add('selected-match');
+  matchStates[matchId].source = el;
+}
+
+function selectMatchTarget(el, matchId) {
+  if (!matchStates[matchId] || !matchStates[matchId].source) return;
+  var src = matchStates[matchId].source;
+
+  // Remove previous pair for this source
+  matchStates[matchId].pairs = matchStates[matchId].pairs.filter(function(p) {
+    return p.sourceMatch !== src.getAttribute('data-match');
+  });
+
+  matchStates[matchId].pairs.push({
+    sourceMatch: src.getAttribute('data-match'),
+    targetMatch: el.getAttribute('data-match'),
+    sourceText: src.textContent,
+    targetText: el.textContent
+  });
+
+  src.classList.remove('selected-match');
+  src.classList.add('matched');
+  matchStates[matchId].source = null;
+
+  // Display pairs
+  var pairsDiv = document.getElementById(matchId + '_pairs');
+  pairsDiv.innerHTML = '';
+  matchStates[matchId].pairs.forEach(function(p) {
+    var div = document.createElement('div');
+    div.className = 'match-pair-display';
+    div.innerHTML = '<span>' + p.sourceText + '</span><span class="pair-arrow">→</span><span>' + p.targetText.substring(0, 50) + '...</span>';
+    pairsDiv.appendChild(div);
+  });
+}
+
+function checkMatch(matchId, qid) {
+  if (state.completed[qid]) return;
+  if (!matchStates[matchId]) return;
+  var pairs = matchStates[matchId].pairs;
+  var allCorrect = true;
+  var total = 4; // We expect 4 pairs
+  if (pairs.length < total) {
+    var fb = document.getElementById(qid + '_fb');
+    fb.className = 'feedback-box hint show';
+    fb.textContent = '💭 Je hebt nog niet alle items gekoppeld. Koppel eerst alle ' + total + ' items.';
+    return;
+  }
+  for (var i = 0; i < pairs.length; i++) {
+    if (pairs[i].sourceMatch !== pairs[i].targetMatch) allCorrect = false;
+  }
+  var fb = document.getElementById(qid + '_fb');
+  if (allCorrect) {
+    fb.className = 'feedback-box correct-fb show';
+    fb.textContent = '🎉 Alle koppelingen zijn correct!';
+    state.correct[qid] = true;
+  } else {
+    fb.className = 'feedback-box hint show';
+    fb.textContent = '💭 Niet alle koppelingen kloppen. Kijk nog eens naar de uitleg in de tekst!';
+    state.correct[qid] = false;
+  }
+  state.completed[qid] = true;
+  updateProgress();
+}
+
+// ========================================
+// DRAG AND DROP
+// ========================================
+function initDragDrop(listId) {
+  var list = document.getElementById(listId);
+  var items = list.querySelectorAll('.drag-item');
+  var draggedItem = null;
+
+  items.forEach(function(item) {
+    // Mouse events
+    item.addEventListener('dragstart', function(e) {
+      draggedItem = this;
+      this.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+    });
+    item.addEventListener('dragend', function() {
+      this.classList.remove('dragging');
+      draggedItem = null;
+    });
+    item.addEventListener('dragover', function(e) {
+      e.preventDefault();
+      if (draggedItem && draggedItem !== this) {
+        var rect = this.getBoundingClientRect();
+        var midY = rect.top + rect.height / 2;
+        if (e.clientY < midY) {
+          list.insertBefore(draggedItem, this);
+        } else {
+          list.insertBefore(draggedItem, this.nextSibling);
+        }
+      }
+    });
+
+    // Touch events
+    var touchStartY = 0;
+    var touchClone = null;
+    item.addEventListener('touchstart', function(e) {
+      draggedItem = this;
+      touchStartY = e.touches[0].clientY;
+      this.classList.add('dragging');
+      e.preventDefault();
+    }, { passive: false });
+    item.addEventListener('touchmove', function(e) {
+      e.preventDefault();
+      if (!draggedItem) return;
+      var touchY = e.touches[0].clientY;
+      var siblings = list.querySelectorAll('.drag-item:not(.dragging)');
+      for (var s = 0; s < siblings.length; s++) {
+        var rect = siblings[s].getBoundingClientRect();
+        if (touchY > rect.top && touchY < rect.bottom) {
+          var midY = rect.top + rect.height / 2;
+          if (touchY < midY) {
+            list.insertBefore(draggedItem, siblings[s]);
+          } else {
+            list.insertBefore(draggedItem, siblings[s].nextSibling);
+          }
+          break;
+        }
+      }
+    }, { passive: false });
+    item.addEventListener('touchend', function() {
+      if (draggedItem) draggedItem.classList.remove('dragging');
+      draggedItem = null;
+    });
+  });
+}
+
+function checkDragOrder(listId, qid) {
+  if (state.completed[qid]) return;
+  if (!state.attempts[qid]) state.attempts[qid] = 0;
+  state.attempts[qid]++;
+
+  var list = document.getElementById(listId);
+  var items = list.querySelectorAll('.drag-item');
+  var allCorrect = true;
+  for (var i = 0; i < items.length; i++) {
+    var correct = parseInt(items[i].getAttribute('data-correct'));
+    if (correct === i) {
+      items[i].classList.add('correct-pos');
+      items[i].classList.remove('wrong-pos');
+    } else {
+      items[i].classList.add('wrong-pos');
+      items[i].classList.remove('correct-pos');
+      allCorrect = false;
+    }
+  }
+  var fb = document.getElementById(qid + '_fb');
+  if (allCorrect) {
+    fb.className = 'feedback-box correct-fb show';
+    fb.textContent = '🎉 De juiste volgorde! Goed gedaan!';
+    state.correct[qid] = true;
+    state.completed[qid] = true;
+  } else if (state.attempts[qid] >= 3) {
+    fb.className = 'feedback-box hint show';
+    fb.textContent = '💡 De juiste volgorde is: WK 2018 → Invasie Oekraïne → Polen weigert → FIFA sluit uit. Kijk of je het nu ziet!';
+    state.correct[qid] = false;
+    state.completed[qid] = true;
+  } else {
+    fb.className = 'feedback-box hint show';
+    fb.textContent = '💭 Nog niet helemaal goed! De groene items staan op de juiste plek. Sleep de rode items naar een andere positie. (Poging ' + state.attempts[qid] + '/3)';
+  }
+  updateProgress();
+}
+
+function submitOpinionDrag(listId, qid) {
+  if (state.completed[qid]) return;
+  state.completed[qid] = true;
+  state.correct[qid] = true; // opinion = always correct
+  var fb = document.getElementById(qid + '_fb');
+  fb.className = 'feedback-box correct-fb show';
+  fb.textContent = '✓ Je rangschikking is opgeslagen! Dit was een meningsvraag — er is geen fout antwoord. Goed dat je erover hebt nagedacht.';
+  updateProgress();
+}
+
+// ========================================
+// RESET SECTION
+// ========================================
+function resetSection(tabIdx) {
+  if (!confirm('Weet je zeker dat je dit onderdeel opnieuw wilt maken?')) return;
+  var qs = sectionQuestions[tabIdx];
+  for (var i = 0; i < qs.length; i++) {
+    var qid = qs[i];
+    delete state.completed[qid];
+    delete state.correct[qid];
+    delete state.attempts[qid];
+    delete state.answers[qid];
+
+    // Reset UI for MC
+    var block = document.getElementById(qid);
+    if (block) {
+      var opts = block.querySelectorAll('.quiz-opt');
+      for (var j = 0; j < opts.length; j++) {
+        opts[j].classList.remove('correct','wrong','selected');
+        opts[j].disabled = false;
+      }
+      var fb = document.getElementById(qid + '_fb');
+      if (fb) { fb.className = 'feedback-box'; fb.textContent = ''; }
+
+      // Reset open answer
+      var ta = document.getElementById(qid + '_text');
+      if (ta) { ta.value = ''; countWords(qid); }
+      var ex = document.getElementById(qid + '_ex');
+      if (ex) ex.classList.remove('show');
+      var submitBtn = document.getElementById(qid + '_submit');
+      if (submitBtn) submitBtn.style.display = 'none';
+      var assess = document.getElementById(qid + '_assess');
+      if (assess) { assess.classList.remove('show'); assess.classList.add('self-assess'); }
+
+      // Reset drag items
+      var dragItems = block.querySelectorAll('.drag-item');
+      dragItems.forEach(function(d) { d.classList.remove('correct-pos','wrong-pos'); });
+
+      // Reset match
+      var matchSources = block.querySelectorAll('.match-source');
+      matchSources.forEach(function(s) { s.classList.remove('matched','selected-match'); });
+    }
+  }
+  // Clear match states for this section
+  if (tabIdx === 1) { matchStates['match1'] = { source: null, pairs: [] }; var pd = document.getElementById('match1_pairs'); if(pd) pd.innerHTML=''; }
+
+  updateProgress();
+}
+
+// ========================================
+// MAPS
+// ========================================
+window.addEventListener('DOMContentLoaded', function() {
+  loadState();
+
+  // Map 1: World overview
+  var map1 = L.map('map1').setView([30, 30], 2);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; OpenStreetMap'
+  }).addTo(map1);
+
+  var markers1 = [
+    { lat: 35.6892, lng: 51.389, title: '🇮🇷 Teheran, Iran', desc: 'Hoofdstad van Iran. Het Iraanse voetbalteam is één van de sterkste in Azië.' },
+    { lat: 38.9072, lng: -77.0369, title: '🇺🇸 Washington D.C., VS', desc: 'Hoofdstad van de VS. De VS is mede-gastheer van het WK 2026.' },
+    { lat: 55.7558, lng: 37.6173, title: '🇷🇺 Moskou, Rusland', desc: 'Hoofdstad van Rusland. Gastheer WK 2018, uitgesloten sinds 2022.' },
+    { lat: 50.4501, lng: 30.5234, title: '🇺🇦 Kiev, Oekraïne', desc: 'Hoofdstad van Oekraïne. Rusland viel dit land binnen in februari 2022.' },
+    { lat: 19.4326, lng: -99.1332, title: '🇲🇽 Mexico-Stad, Mexico', desc: 'Hoofdstad van Mexico. Mede-gastheer WK 2026. Hier wordt de openingswedstrijd gespeeld.' },
+    { lat: 45.4215, lng: -75.6972, title: '🇨🇦 Ottawa, Canada', desc: 'Hoofdstad van Canada. Mede-gastheer van het WK 2026.' },
+    { lat: -25.7479, lng: 28.2293, title: '🇿🇦 Pretoria, Zuid-Afrika', desc: 'Hoofdstad van Zuid-Afrika. Was meer dan 30 jaar geschorst vanwege apartheid.' },
+    { lat: 52.3676, lng: 4.9041, title: '🇳🇱 Amsterdam, Nederland', desc: 'Jouw land! Nederland valt onder de KNVB en UEFA.' }
+  ];
+
+  markers1.forEach(function(m) {
+    L.marker([m.lat, m.lng]).addTo(map1).bindPopup('<strong>' + m.title + '</strong><br>' + m.desc);
+  });
+  maps.push(map1);
+
+  // Map 2: Iran conflict
+  var map2 = L.map('map2').setView([32, 40], 3);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; OpenStreetMap'
+  }).addTo(map2);
+
+  var markers2 = [
+    { lat: 35.6892, lng: 51.389, title: '🇮🇷 Teheran', desc: 'Hoofdstad van Iran. Zwaar getroffen door luchtaanvallen.' },
+    { lat: 33.8886, lng: -118.3057, title: '🏟️ Los Angeles (SoFi Stadium)', desc: 'Hier zou Iran twee WK-wedstrijden spelen.' },
+    { lat: 47.5951, lng: -122.3327, title: '🏟️ Seattle (Lumen Field)', desc: 'Hier zou Iran één WK-wedstrijd spelen.' },
+    { lat: 31.7683, lng: 35.2137, title: '🇮🇱 Jeruzalem, Israël', desc: 'Israël is samen met de VS betrokken bij het conflict.' },
+    { lat: 25.2854, lng: 51.5310, title: '🇶🇦 Doha, Qatar', desc: 'Gastheer WK 2022. Geraakt door Iraanse raketten als reactie.' },
+    { lat: 24.7136, lng: 46.6753, title: '🇸🇦 Riyad, Saudi-Arabië', desc: 'Toekomstig gastheer WK 2034. Ook doelwit van Iraanse raketten.' }
+  ];
+
+  markers2.forEach(function(m) {
+    L.marker([m.lat, m.lng]).addTo(map2).bindPopup('<strong>' + m.title + '</strong><br>' + m.desc);
+  });
+  maps.push(map2);
+
+  // Init drag and drop
+  initDragDrop('dragList1');
+  initDragDrop('dragList2');
+
+  // Charts
+  initCharts();
+
+  // Restore tab
+  if (state.currentTab) goTab(state.currentTab);
+
+  // Restore open answers
+  allQuestionIds.forEach(function(qid) {
+    if (state.answers && state.answers[qid]) {
+      var ta = document.getElementById(qid + '_text');
+      if (ta) {
+        ta.value = state.answers[qid];
+        countWords(qid);
+      }
+    }
+    if (state.completed && state.completed[qid]) {
+      // If it was an open question and completed, show the example
+      var ex = document.getElementById(qid + '_ex');
+      if (ex && state.answers && state.answers[qid]) {
+        ex.classList.add('show');
+        var submitBtn = document.getElementById(qid + '_submit');
+        if (submitBtn) submitBtn.style.display = 'none';
+        var assess = document.getElementById(qid + '_assess');
+        if (assess) {
+          if (state.correct[qid]) {
+            assess.innerHTML = '<span style="color:var(--success);font-weight:700;">✓ Genoteerd als goed!</span>';
+            assess.classList.add('show');
+          } else if (state.correct[qid] === false) {
+            assess.innerHTML = '<span style="color:var(--warn);font-weight:700;">✗ Genoteerd</span>';
+            assess.classList.add('show');
+          }
+        }
+      }
+    }
+  });
+
+  updateProgress();
+});
+
+// ========================================
+// CHARTS
+// ========================================
+function initCharts() {
+  // Chart 1: WK deelnames
+  var ctx1 = document.getElementById('chart1').getContext('2d');
+  new Chart(ctx1, {
+    type: 'bar',
+    data: {
+      labels: ['Rusland/\nSovjet-Unie', 'Iran', 'Zuid-Afrika', 'Joegoslavië/\nServië', 'Nederland', 'VS'],
+      datasets: [{
+        label: 'Aantal WK-deelnames',
+        data: [11, 6, 3, 11, 11, 11],
+        backgroundColor: [
+          'rgba(255,107,107,0.7)',
+          'rgba(0,229,204,0.7)',
+          'rgba(241,196,15,0.7)',
+          'rgba(155,89,182,0.7)',
+          'rgba(255,165,0,0.7)',
+          'rgba(52,152,219,0.7)'
+        ],
+        borderColor: [
+          'rgba(255,107,107,1)',
+          'rgba(0,229,204,1)',
+          'rgba(241,196,15,1)',
+          'rgba(155,89,182,1)',
+          'rgba(255,165,0,1)',
+          'rgba(52,152,219,1)'
+        ],
+        borderWidth: 2,
+        borderRadius: 6
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: false },
+        title: { display: true, text: 'Aantal WK-deelnames per land', color: '#9ef5f0', font: { size: 14, family: 'Nunito', weight: '700' } }
+      },
+      scales: {
+        y: { beginAtZero: true, ticks: { color: '#9ef5f0', font: { family: 'Nunito' } }, grid: { color: 'rgba(255,255,255,0.05)' } },
+        x: { ticks: { color: '#9ef5f0', font: { family: 'Nunito', size: 11 } }, grid: { display: false } }
+      }
+    }
+  });
+
+  // Chart 2: Financial impact
+  var ctx2 = document.getElementById('chart2').getContext('2d');
+  new Chart(ctx2, {
+    type: 'bar',
+    data: {
+      labels: ['WK-deelname\npremie', 'Boete bij\nterugtrekking\n(>1 maand)', 'Boete bij\nterugtrekking\n(<3 dagen)', 'Gemiste\nsponsorinkomsten\n(geschat)'],
+      datasets: [{
+        label: 'Bedrag in miljoenen $',
+        data: [10.5, 0.642, 0.321, 5],
+        backgroundColor: [
+          'rgba(46,204,113,0.7)',
+          'rgba(255,107,107,0.7)',
+          'rgba(241,196,15,0.7)',
+          'rgba(155,89,182,0.7)'
+        ],
+        borderColor: [
+          'rgba(46,204,113,1)',
+          'rgba(255,107,107,1)',
+          'rgba(241,196,15,1)',
+          'rgba(155,89,182,1)'
+        ],
+        borderWidth: 2,
+        borderRadius: 6
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: false },
+        title: { display: true, text: 'Financiële gevolgen voor Iran bij terugtrekking (in miljoenen $)', color: '#9ef5f0', font: { size: 14, family: 'Nunito', weight: '700' } }
+      },
+      scales: {
+        y: { beginAtZero: true, ticks: { color: '#9ef5f0', font: { family: 'Nunito' }, callback: function(v) { return '$' + v + 'M'; } }, grid: { color: 'rgba(255,255,255,0.05)' } },
+        x: { ticks: { color: '#9ef5f0', font: { family: 'Nunito', size: 11 } }, grid: { display: false } }
+      }
+    }
+  });
+}
+</script>
+
+</body>
+</html>
