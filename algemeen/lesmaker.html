@@ -716,7 +716,11 @@ function generatePrompt() {
   const opdrachtenTekst = state.opdrachten.map((o,i) => `  ${i+1}. ${o}`).join('\n');
   const lesduur = state.lesduur;
   const lesduurMin = parseInt(lesduur);
-  const aantalSecties = lesduurMin <= 40 ? 5 : (lesduurMin <= 60 ? 7 : 9);
+  const aantalSecties = lesduurMin <= 40 ? 6 : (lesduurMin <= 60 ? 8 : 10);
+  const isOndersteunend = state.moeilijkheid.startsWith('ondersteunend');
+  const isUitdagend = state.moeilijkheid.startsWith('uitdagend');
+  const mcVerhouding = isOndersteunend ? 'maximaal 55% multiple choice, minimaal 45% eigen denk- of schrijfwerk' : (isUitdagend ? 'maximaal 30% multiple choice, minimaal 70% eigen denk- of schrijfwerk' : 'maximaal 40% multiple choice, minimaal 60% eigen denk- of schrijfwerk');
+  const maxPogingen = isOndersteunend ? 2 : 3;
 
   let p = `Maak een complete, interactieve leeromgeving voor aardrijkskunde als één single-file HTML-pagina. Volg alle specificaties nauwkeurig op.
 
@@ -784,11 +788,8 @@ TECHNISCHE EISEN
    KAARTDATA — BELANGRIJK:
    Gebruik ALLEEN markers met popups voor locaties. Markers op steden, vulkanen, rivieren etc. zijn betrouwbaar.
    Teken GEEN polygonen, gebiedsoverlays of grenzen — de coördinaten hiervoor zijn te complex om correct te genereren en leiden tot feitelijk onjuiste kaarten.
-   KAART-RENDERING — CRUCIAAL:
-   Kaarten kunnen grijs worden na DOM-wijzigingen. Roep daarom map.invalidateSize() aan:
-   - Bij elke tabwisseling (nadat het nieuwe tabblad zichtbaar is)
-   - Na elke opdracht-interactie (antwoord submitten, feedback tonen)
-   Sla alle kaart-instanties op in een array en loop hierover bij elke relevante event.
+   KAART-RENDERING:
+   Roep map.invalidateSize() aan bij elke tabwisseling om te voorkomen dat kaarten grijs worden.
 
 3. CHART.JS: Gebruik Chart.js (CDN: https://cdn.jsdelivr.net/npm/chart.js) voor grafieken bij relevante statistieken of data. Laad het script in <head> of vóór je eigen code.
 
@@ -805,17 +806,18 @@ TECHNISCHE EISEN
    Elke sectie moet de stof expliciet verbinden aan de leefwereld van de leerling. Aardrijkskunde gaat niet over abstracte processen — het gaat over de wereld waarin leerlingen leven, waar ze aan bijdragen en die ze dagelijks ervaren. Gebruik herkenbare voorbeelden ("Als jij vanochtend naar school fietste..."), en stel minstens één vraag per sectie die de leerling uitnodigt om de stof te herkennen in de eigen omgeving.
 
 5. LESDUUR: De pagina moet volledig zijn voor ~${lesduurMin} minuten. Minimaal ${aantalSecties} inhoudelijke secties met uitleg én opdrachten.
-   Elke sectie moet substantieel zijn: minimaal 2 alinea's uitleg én minimaal 2 opdrachten per sectie. Zorg dat een leerling echt de tijd nodig heeft om alles door te werken — maak het niet mogelijk om in de helft van de tijd klaar te zijn.
+   Elke sectie moet substantieel zijn: minimaal 3 alinea's uitleg én minimaal 2-3 opdrachten per sectie. De uitleg moet echt informatief zijn — geen dunne paragraafjes maar rijke tekst waar een leerling van leert. Zorg dat een leerling echt de volle ${lesduurMin} minuten nodig heeft om alles door te werken.
 
 6. OPDRACHTEN MET DIEPGANG — CRUCIAAL:
    Niet alleen multiple choice en klik-en-klaar opdrachten. Elke sectie moet minstens één opdracht bevatten die DENKTIJD vereist. Gebruik hiervoor:
    a) Open vragen met een textarea (minimaal 2-3 zinnen). Toon een woordenteller, geef pas een vinkje bij ≥20 woorden.
-   b) Sorteer- of rangschikopdrachten met drag-and-drop (HTML5 Drag and Drop API). Gebruik GEEN pijltjesknoppen — die werken niet intuïtief. Implementeer draggable items die de leerling kan oppakken en op een andere positie kan loslaten, waarna de lijst zich visueel herschikt. Voeg een touch-fallback toe (touchstart/touchmove/touchend) zodat het ook op tablet werkt.
+   b) Sorteer- of rangschikopdrachten met drag-and-drop (HTML5 Drag and Drop API). Gebruik GEEN pijltjesknoppen — die werken niet intuïtief. Implementeer draggable items die de leerling kan oppakken en op een andere positie kan loslaten, waarna de lijst zich visueel herschikt. Touch-ondersteuning is een bonus, geen vereiste.
+      Voeg een "Controleer volgorde" knop toe die de huidige volgorde vergelijkt met de juiste volgorde en feedback geeft (welke items goed/fout staan).
    c) Vergelijkingsopdrachten: tabel invullen of begrippen koppelen aan beschrijvingen.
       Bij koppelopdrachten: toon na elke koppeling direct visueel dat items gekoppeld zijn (bijv. zet gekoppelde items naast elkaar, gebruik dezelfde achtergrondkleur, of toon een verbindingslijn). De leerling moet duidelijk zien welke koppelingen al gemaakt zijn voordat ze op "Controleer" klikken.
       BELANGRIJK: ondersteun veel-op-één koppelingen. Een doel-item (bijv. een klimaattype) mag meerdere bronnen ontvangen en mag NIET op slot gaan na de eerste koppeling.
    d) Analyseopdrachten bij grafieken/kaarten: data aflezen EN interpreteren.
-   Verhouding: maximaal 40% multiple choice, minimaal 60% eigen denk- of schrijfwerk.
+   Verhouding: ${mcVerhouding}.
 
    ALLE VRAGEN MOETEN CONTROLEERBAAR ZIJN:
    - Gesloten vragen: automatische controle met directe feedback.
@@ -834,7 +836,7 @@ TECHNISCHE EISEN
 9. FEEDBACK IN STIJL VAN DIDACTISCH COACHEN:
    Bij fout antwoord op gesloten vragen: geef NIET direct het juiste antwoord.
    Geef eerst een coachende hint in de vorm van een denkvraag ("Wat zou er gebeuren als...?", "Kijk nog eens naar..."). Positieve toon, ook bij fouten ("Je zit op het goede spoor, maar...").
-   Na max. 3 pogingen pas het juiste antwoord tonen met uitleg.
+   Na max. ${maxPogingen} pogingen pas het juiste antwoord tonen met uitleg.
    Bij open vragen: de referentieantwoorden zijn al coachend van aard (zie punt 6).
 
 10. LOCALSTORAGE:
@@ -852,9 +854,12 @@ TECHNISCHE EISEN
     - CSS custom properties voor kleuren, spacing, border-radius.
     - Schrijf de HTML-secties gewoon uit in de HTML — gebruik GEEN data-driven JSON-architectuur of generieke render-functies. Gewone, leesbare HTML-blokken per sectie zijn robuuster en minder foutgevoelig.
     - JavaScript functies mogen hergebruikt worden voor herhalende logica (quiz-check, voortgang-update), maar houd ze simpel en overzichtelijk.
+    - GEEN inline onclick handlers met strings of aanhalingstekens — dit veroorzaakt quote-conflicten en broken HTML. Gebruik altijd data-attributen (data-answer, data-hint, etc.) op HTML-elementen en koppel functionaliteit via addEventListener in JavaScript.
     - Als code langer wordt maar wel werkt, is dat altijd beter dan kortere code die crasht.
 
 14. GEEN PLACEHOLDER-CODE: Alles volledig werkend. Geen TODO's, geen lege functies, geen placeholder-tekst.
+
+Kies bij twijfel altijd voor een simpelere implementatie die werkt boven een complexere die kan falen.
 
 Geef ALLEEN de HTML-code terug, zonder uitleg ervoor of erna. Begin direct met <!DOCTYPE html>.`;
 
