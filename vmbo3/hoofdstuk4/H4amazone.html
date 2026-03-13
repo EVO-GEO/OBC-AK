@@ -43,526 +43,143 @@
   --radius-sm: 6px;
   --radius-md: 12px;
   --radius-lg: 18px;
-  --radius-xl: 24px;
   --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
   --shadow-md: 0 4px 12px rgba(0,0,0,0.1);
   --shadow-lg: 0 8px 30px rgba(0,0,0,0.12);
   --transition: all 0.3s ease;
 }
-
-* { margin: 0; padding: 0; box-sizing: border-box; }
-
+* { margin:0; padding:0; box-sizing:border-box; }
 body {
-  font-family: 'Nunito', sans-serif;
-  background: var(--green-50);
-  color: var(--gray-900);
-  line-height: 1.7;
-  min-height: 100vh;
+  font-family:'Nunito',sans-serif;
+  background:var(--green-50);
+  color:var(--gray-900);
+  line-height:1.7;
+  min-height:100vh;
 }
-
-/* ── HEADER ── */
 .main-header {
-  background: linear-gradient(135deg, var(--green-900) 0%, var(--green-700) 50%, var(--green-800) 100%);
-  color: var(--white);
-  padding: 2rem 1.5rem 1rem;
-  position: relative;
-  overflow: hidden;
+  background:linear-gradient(135deg,var(--green-900) 0%,var(--green-700) 50%,var(--green-800) 100%);
+  color:var(--white);
+  padding:2rem 1.5rem 1rem;
+  position:relative;
+  overflow:hidden;
 }
 .main-header::before {
-  content: '🌿🦜🌳🌺🦋🍃🐒🌴';
-  position: absolute;
-  top: 8px;
-  left: 0;
-  right: 0;
-  text-align: center;
-  font-size: 1.4rem;
-  letter-spacing: 12px;
-  opacity: 0.3;
-  pointer-events: none;
+  content:'🌿🦜🌳🌺🦋🍃🐒🌴';
+  position:absolute;top:8px;left:0;right:0;
+  text-align:center;font-size:1.4rem;letter-spacing:12px;opacity:0.3;pointer-events:none;
 }
-.header-content { max-width: 900px; margin: 0 auto; position: relative; z-index: 1; }
-.header-content h1 {
-  font-size: 1.8rem;
-  font-weight: 900;
-  margin-bottom: 0.25rem;
-  letter-spacing: -0.5px;
+.header-content{max-width:900px;margin:0 auto;position:relative;z-index:1}
+.header-content h1{font-size:1.8rem;font-weight:900;margin-bottom:0.25rem;letter-spacing:-0.5px}
+.header-subtitle{font-size:0.95rem;opacity:0.85;font-weight:400}
+.header-meta{display:flex;gap:1rem;margin-top:0.5rem;font-size:0.8rem;opacity:0.7}
+.progress-wrap{position:sticky;top:0;z-index:1000;background:var(--white);border-bottom:1px solid var(--gray-200);padding:0.5rem 1.5rem;box-shadow:var(--shadow-sm)}
+.progress-inner{max-width:900px;margin:0 auto}
+.progress-label{display:flex;justify-content:space-between;font-size:0.78rem;font-weight:700;color:var(--green-800);margin-bottom:4px}
+.progress-bar-bg{height:10px;background:var(--gray-200);border-radius:5px;overflow:hidden}
+.progress-bar-fill{height:100%;background:linear-gradient(90deg,var(--green-600),var(--green-400));border-radius:5px;transition:width 0.5s ease;width:0%}
+.tab-nav-wrap{background:var(--white);border-bottom:2px solid var(--green-200);position:sticky;top:42px;z-index:999}
+.tab-nav{max-width:900px;margin:0 auto;display:flex;overflow-x:auto;scrollbar-width:thin;padding:0 1rem;gap:2px}
+.tab-nav::-webkit-scrollbar{height:4px}
+.tab-nav::-webkit-scrollbar-thumb{background:var(--green-300);border-radius:2px}
+.tab-btn{flex-shrink:0;padding:0.6rem 1rem;border:none;background:none;font-family:inherit;font-size:0.78rem;font-weight:700;color:var(--gray-500);cursor:pointer;border-bottom:3px solid transparent;transition:var(--transition);white-space:nowrap}
+.tab-btn:hover{color:var(--green-700)}
+.tab-btn.active{color:var(--green-800);border-bottom-color:var(--green-600)}
+.tab-btn .tab-check{display:inline-block;margin-left:4px;color:var(--green-500);font-size:0.9rem}
+.section-counter{text-align:center;font-size:0.75rem;color:var(--gray-500);padding:2px 0;background:var(--white);font-weight:600}
+.main-container{max-width:900px;margin:0 auto;padding:1.5rem}
+.tab-panel{display:none}
+.tab-panel.active{display:block;animation:fadeIn 0.3s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.info-block{background:var(--white);border-radius:var(--radius-lg);padding:1.8rem;margin-bottom:1.5rem;box-shadow:var(--shadow-sm);border-left:4px solid var(--green-500)}
+.info-block h2{font-size:1.35rem;font-weight:800;color:var(--green-900);margin-bottom:0.75rem}
+.info-block h3{font-size:1.05rem;font-weight:700;color:var(--green-800);margin:1rem 0 0.5rem}
+.info-block p{margin-bottom:0.75rem;color:var(--gray-800)}
+.emoji-flow{display:flex;align-items:center;justify-content:center;gap:0.5rem;padding:1rem;margin:1rem 0;background:var(--green-100);border-radius:var(--radius-md);font-size:1.3rem;flex-wrap:wrap}
+.emoji-flow .arrow{color:var(--green-600);font-weight:900}
+.highlight-box{background:linear-gradient(135deg,var(--green-100),var(--earth-100));border-radius:var(--radius-md);padding:1.2rem;margin:1rem 0;border:1px solid var(--green-200)}
+.highlight-box.warning{background:linear-gradient(135deg,#fff8e1,#fff3cd);border-color:var(--accent-gold)}
+.highlight-box.water{background:linear-gradient(135deg,var(--water-200),#e0f2ff);border-color:var(--water-400)}
+.fact-badge{display:inline-block;background:var(--green-700);color:var(--white);padding:0.3rem 0.8rem;border-radius:20px;font-size:0.78rem;font-weight:700;margin-bottom:0.5rem}
+.compare-table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:0.9rem}
+.compare-table th{background:var(--green-800);color:var(--white);padding:0.7rem;text-align:left;font-weight:700}
+.compare-table td{padding:0.6rem 0.7rem;border-bottom:1px solid var(--gray-200)}
+.compare-table tr:nth-child(even) td{background:var(--green-50)}
+.compare-table .pro{color:var(--green-700);font-weight:700}
+.compare-table .con{color:var(--accent-red);font-weight:700}
+.assignment{background:var(--white);border-radius:var(--radius-lg);padding:1.5rem;margin-bottom:1.5rem;box-shadow:var(--shadow-md);border:2px solid var(--green-200)}
+.assignment-label{display:inline-block;background:var(--green-600);color:var(--white);padding:0.2rem 0.7rem;border-radius:20px;font-size:0.72rem;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:0.6rem}
+.assignment-label.open{background:var(--water-600)}
+.assignment-label.drag{background:var(--accent-orange)}
+.assignment-label.analysis{background:var(--earth-700)}
+.assignment h4{font-size:1rem;font-weight:800;color:var(--green-900);margin-bottom:0.6rem}
+.assignment p.q-text{margin-bottom:1rem;color:var(--gray-700)}
+.mc-options{display:flex;flex-direction:column;gap:0.5rem}
+.mc-option{display:flex;align-items:center;gap:0.7rem;padding:0.7rem 1rem;border:2px solid var(--gray-200);border-radius:var(--radius-md);cursor:pointer;transition:var(--transition);font-size:0.9rem}
+.mc-option:hover{border-color:var(--green-400);background:var(--green-50)}
+.mc-option.selected{border-color:var(--green-600);background:var(--green-100)}
+.mc-option.correct{border-color:var(--green-500);background:#d4edda}
+.mc-option.incorrect{border-color:var(--accent-red);background:#f8d7da}
+.mc-option .mc-radio{width:20px;height:20px;border:2px solid var(--gray-300);border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:var(--transition)}
+.mc-option.selected .mc-radio{border-color:var(--green-600);background:var(--green-600)}
+.mc-option.selected .mc-radio::after{content:'';width:8px;height:8px;background:var(--white);border-radius:50%}
+.open-textarea{width:100%;min-height:100px;padding:0.8rem;border:2px solid var(--gray-200);border-radius:var(--radius-md);font-family:inherit;font-size:0.9rem;line-height:1.6;resize:vertical;transition:var(--transition)}
+.open-textarea:focus{outline:none;border-color:var(--green-500)}
+.word-counter{text-align:right;font-size:0.75rem;color:var(--gray-500);margin-top:4px}
+.word-counter.enough{color:var(--green-600);font-weight:700}
+.btn{display:inline-flex;align-items:center;gap:0.4rem;padding:0.55rem 1.2rem;border:none;border-radius:var(--radius-md);font-family:inherit;font-size:0.85rem;font-weight:700;cursor:pointer;transition:var(--transition)}
+.btn-primary{background:var(--green-600);color:var(--white)}
+.btn-primary:hover{background:var(--green-700)}
+.btn-primary:disabled{background:var(--gray-300);cursor:not-allowed}
+.btn-secondary{background:var(--gray-200);color:var(--gray-700)}
+.btn-secondary:hover{background:var(--gray-300)}
+.btn-sm{padding:0.35rem 0.8rem;font-size:0.78rem}
+.btn-self-good{background:#d4edda;color:var(--green-800)}
+.btn-self-bad{background:#f8d7da;color:var(--accent-red)}
+.feedback-box{margin-top:0.8rem;padding:0.8rem;border-radius:var(--radius-md);font-size:0.88rem;display:none}
+.feedback-box.hint{background:#fff8e1;border:1px solid var(--accent-gold);color:var(--earth-900)}
+.feedback-box.correct{background:#d4edda;border:1px solid var(--green-400);color:var(--green-900)}
+.feedback-box.wrong{background:#f8d7da;border:1px solid var(--accent-red);color:#721c24}
+.feedback-box.sample{background:var(--water-200);border:1px solid var(--water-400);color:var(--green-900)}
+.drag-list{display:flex;flex-direction:column;gap:6px;margin:0.8rem 0}
+.drag-item{display:flex;align-items:center;gap:0.6rem;padding:0.7rem 1rem;background:var(--white);border:2px solid var(--gray-200);border-radius:var(--radius-md);cursor:grab;transition:var(--transition);font-size:0.9rem;user-select:none;touch-action:none}
+.drag-item:active{cursor:grabbing}
+.drag-item.dragging{opacity:0.5;border-color:var(--green-500)}
+.drag-item .drag-handle{color:var(--gray-400);font-size:1.1rem;flex-shrink:0}
+.drag-item.correct-pos{border-color:var(--green-500);background:#d4edda}
+.drag-item.wrong-pos{border-color:var(--accent-red);background:#f8d7da}
+.match-container{display:flex;gap:1rem;margin:1rem 0;flex-wrap:wrap}
+.match-col{flex:1;min-width:200px}
+.match-col h5{font-size:0.82rem;font-weight:800;text-transform:uppercase;color:var(--gray-500);margin-bottom:0.5rem}
+.match-item{padding:0.6rem 0.8rem;margin-bottom:0.4rem;border:2px solid var(--gray-200);border-radius:var(--radius-sm);font-size:0.85rem;cursor:pointer;transition:var(--transition)}
+.match-item:hover{border-color:var(--green-400)}
+.match-item.selected{border-color:var(--green-600);background:var(--green-100);box-shadow:0 0 0 2px var(--green-300)}
+.match-item.matched{opacity:0.85}
+.match-pair-display{margin:0.8rem 0;display:flex;flex-direction:column;gap:4px}
+.match-pair-row{display:flex;align-items:center;gap:0.5rem;padding:0.4rem 0.6rem;background:var(--green-50);border-radius:var(--radius-sm);font-size:0.82rem}
+.match-pair-row .pair-arrow{color:var(--green-600);font-weight:900}
+.match-pair-row .remove-pair{margin-left:auto;background:none;border:none;color:var(--accent-red);cursor:pointer;font-size:1rem;padding:0 4px}
+.chart-wrap{background:var(--white);border-radius:var(--radius-md);padding:1rem;margin:1rem 0;max-height:350px;position:relative}
+.chart-wrap canvas{max-height:300px}
+.map-container{height:380px;border-radius:var(--radius-md);overflow:hidden;margin:1rem 0;border:2px solid var(--green-200)}
+.nav-buttons{display:flex;justify-content:space-between;align-items:center;margin-top:2rem;padding-top:1rem;border-top:1px solid var(--gray-200)}
+.reset-section-btn{background:none;border:1px solid var(--gray-300);color:var(--gray-500);padding:0.3rem 0.8rem;border-radius:var(--radius-sm);font-family:inherit;font-size:0.72rem;cursor:pointer;transition:var(--transition)}
+.reset-section-btn:hover{border-color:var(--accent-red);color:var(--accent-red)}
+.leerdoel-item{display:flex;align-items:flex-start;gap:0.6rem;padding:0.6rem;margin-bottom:0.4rem;background:var(--green-50);border-radius:var(--radius-sm);font-size:0.88rem}
+.leerdoel-check{font-size:1.2rem;flex-shrink:0}
+.score-display{text-align:center;padding:2rem;background:linear-gradient(135deg,var(--green-100),var(--green-200));border-radius:var(--radius-lg);margin:1.5rem 0}
+.score-number{font-size:3rem;font-weight:900;color:var(--green-800)}
+.score-label{font-size:0.9rem;color:var(--green-700);font-weight:600}
+.clear-progress-btn{display:block;margin:1rem auto;background:var(--accent-red);color:var(--white)}
+.self-assess{display:none;gap:0.5rem;margin-top:0.5rem}
+.self-assess.visible{display:flex}
+@media(max-width:768px){
+  .main-header{padding:1.5rem 1rem 0.8rem}
+  .header-content h1{font-size:1.4rem}
+  .main-container{padding:1rem}
+  .info-block,.assignment{padding:1.2rem}
+  .match-container{flex-direction:column}
+  .tab-btn{padding:0.5rem 0.7rem;font-size:0.72rem}
 }
-.header-subtitle {
-  font-size: 0.95rem;
-  opacity: 0.85;
-  font-weight: 400;
-}
-.header-meta {
-  display: flex;
-  gap: 1rem;
-  margin-top: 0.5rem;
-  font-size: 0.8rem;
-  opacity: 0.7;
-}
-
-/* ── PROGRESS BAR ── */
-.progress-wrap {
-  position: sticky;
-  top: 0;
-  z-index: 1000;
-  background: var(--white);
-  border-bottom: 1px solid var(--gray-200);
-  padding: 0.5rem 1.5rem;
-  box-shadow: var(--shadow-sm);
-}
-.progress-inner { max-width: 900px; margin: 0 auto; }
-.progress-label {
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.78rem;
-  font-weight: 700;
-  color: var(--green-800);
-  margin-bottom: 4px;
-}
-.progress-bar-bg {
-  height: 10px;
-  background: var(--gray-200);
-  border-radius: 5px;
-  overflow: hidden;
-}
-.progress-bar-fill {
-  height: 100%;
-  background: linear-gradient(90deg, var(--green-600), var(--green-400));
-  border-radius: 5px;
-  transition: width 0.5s ease;
-  width: 0%;
-}
-
-/* ── TAB NAV ── */
-.tab-nav-wrap {
-  background: var(--white);
-  border-bottom: 2px solid var(--green-200);
-  position: sticky;
-  top: 42px;
-  z-index: 999;
-}
-.tab-nav {
-  max-width: 900px;
-  margin: 0 auto;
-  display: flex;
-  overflow-x: auto;
-  scrollbar-width: thin;
-  padding: 0 1rem;
-  gap: 2px;
-}
-.tab-nav::-webkit-scrollbar { height: 4px; }
-.tab-nav::-webkit-scrollbar-thumb { background: var(--green-300); border-radius: 2px; }
-.tab-btn {
-  flex-shrink: 0;
-  padding: 0.6rem 1rem;
-  border: none;
-  background: none;
-  font-family: inherit;
-  font-size: 0.78rem;
-  font-weight: 700;
-  color: var(--gray-500);
-  cursor: pointer;
-  border-bottom: 3px solid transparent;
-  transition: var(--transition);
-  white-space: nowrap;
-  position: relative;
-}
-.tab-btn:hover { color: var(--green-700); }
-.tab-btn.active {
-  color: var(--green-800);
-  border-bottom-color: var(--green-600);
-}
-.tab-btn .tab-check {
-  display: inline-block;
-  margin-left: 4px;
-  color: var(--green-500);
-  font-size: 0.9rem;
-}
-.section-counter {
-  text-align: center;
-  font-size: 0.75rem;
-  color: var(--gray-500);
-  padding: 2px 0;
-  background: var(--white);
-  font-weight: 600;
-}
-
-/* ── MAIN ── */
-.main-container {
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 1.5rem;
-}
-.tab-panel { display: none; }
-.tab-panel.active { display: block; animation: fadeIn 0.3s ease; }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-
-/* ── CONTENT BLOCKS ── */
-.info-block {
-  background: var(--white);
-  border-radius: var(--radius-lg);
-  padding: 1.8rem;
-  margin-bottom: 1.5rem;
-  box-shadow: var(--shadow-sm);
-  border-left: 4px solid var(--green-500);
-}
-.info-block h2 {
-  font-size: 1.35rem;
-  font-weight: 800;
-  color: var(--green-900);
-  margin-bottom: 0.75rem;
-}
-.info-block h3 {
-  font-size: 1.05rem;
-  font-weight: 700;
-  color: var(--green-800);
-  margin: 1rem 0 0.5rem;
-}
-.info-block p { margin-bottom: 0.75rem; color: var(--gray-800); }
-
-.emoji-flow {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  padding: 1rem;
-  margin: 1rem 0;
-  background: var(--green-100);
-  border-radius: var(--radius-md);
-  font-size: 1.3rem;
-  flex-wrap: wrap;
-}
-.emoji-flow .arrow { color: var(--green-600); font-weight: 900; }
-
-.highlight-box {
-  background: linear-gradient(135deg, var(--green-100), var(--earth-100));
-  border-radius: var(--radius-md);
-  padding: 1.2rem;
-  margin: 1rem 0;
-  border: 1px solid var(--green-200);
-}
-.highlight-box.warning {
-  background: linear-gradient(135deg, #fff8e1, #fff3cd);
-  border-color: var(--accent-gold);
-}
-.highlight-box.water {
-  background: linear-gradient(135deg, var(--water-200), #e0f2ff);
-  border-color: var(--water-400);
-}
-
-.fact-badge {
-  display: inline-block;
-  background: var(--green-700);
-  color: var(--white);
-  padding: 0.3rem 0.8rem;
-  border-radius: 20px;
-  font-size: 0.78rem;
-  font-weight: 700;
-  margin-bottom: 0.5rem;
-}
-
-.compare-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin: 1rem 0;
-  font-size: 0.9rem;
-}
-.compare-table th {
-  background: var(--green-800);
-  color: var(--white);
-  padding: 0.7rem;
-  text-align: left;
-  font-weight: 700;
-}
-.compare-table td {
-  padding: 0.6rem 0.7rem;
-  border-bottom: 1px solid var(--gray-200);
-}
-.compare-table tr:nth-child(even) td { background: var(--green-50); }
-.compare-table .pro { color: var(--green-700); font-weight: 700; }
-.compare-table .con { color: var(--accent-red); font-weight: 700; }
-
-/* ── ASSIGNMENTS ── */
-.assignment {
-  background: var(--white);
-  border-radius: var(--radius-lg);
-  padding: 1.5rem;
-  margin-bottom: 1.5rem;
-  box-shadow: var(--shadow-md);
-  border: 2px solid var(--green-200);
-}
-.assignment-label {
-  display: inline-block;
-  background: var(--green-600);
-  color: var(--white);
-  padding: 0.2rem 0.7rem;
-  border-radius: 20px;
-  font-size: 0.72rem;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-bottom: 0.6rem;
-}
-.assignment-label.open { background: var(--water-600); }
-.assignment-label.drag { background: var(--accent-orange); }
-.assignment-label.analysis { background: var(--earth-700); }
-.assignment h4 {
-  font-size: 1rem;
-  font-weight: 800;
-  color: var(--green-900);
-  margin-bottom: 0.6rem;
-}
-.assignment p.q-text { margin-bottom: 1rem; color: var(--gray-700); }
-
-/* MC */
-.mc-options { display: flex; flex-direction: column; gap: 0.5rem; }
-.mc-option {
-  display: flex;
-  align-items: center;
-  gap: 0.7rem;
-  padding: 0.7rem 1rem;
-  border: 2px solid var(--gray-200);
-  border-radius: var(--radius-md);
-  cursor: pointer;
-  transition: var(--transition);
-  font-size: 0.9rem;
-}
-.mc-option:hover { border-color: var(--green-400); background: var(--green-50); }
-.mc-option.selected { border-color: var(--green-600); background: var(--green-100); }
-.mc-option.correct { border-color: var(--green-500); background: #d4edda; }
-.mc-option.incorrect { border-color: var(--accent-red); background: #f8d7da; }
-.mc-option .mc-radio {
-  width: 20px; height: 20px;
-  border: 2px solid var(--gray-300);
-  border-radius: 50%;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: var(--transition);
-}
-.mc-option.selected .mc-radio { border-color: var(--green-600); background: var(--green-600); }
-.mc-option.selected .mc-radio::after { content: ''; width: 8px; height: 8px; background: var(--white); border-radius: 50%; }
-
-/* Textarea */
-.open-textarea {
-  width: 100%;
-  min-height: 100px;
-  padding: 0.8rem;
-  border: 2px solid var(--gray-200);
-  border-radius: var(--radius-md);
-  font-family: inherit;
-  font-size: 0.9rem;
-  line-height: 1.6;
-  resize: vertical;
-  transition: var(--transition);
-}
-.open-textarea:focus { outline: none; border-color: var(--green-500); }
-.word-counter {
-  text-align: right;
-  font-size: 0.75rem;
-  color: var(--gray-500);
-  margin-top: 4px;
-}
-.word-counter.enough { color: var(--green-600); font-weight: 700; }
-
-/* Buttons */
-.btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.55rem 1.2rem;
-  border: none;
-  border-radius: var(--radius-md);
-  font-family: inherit;
-  font-size: 0.85rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: var(--transition);
-}
-.btn-primary { background: var(--green-600); color: var(--white); }
-.btn-primary:hover { background: var(--green-700); }
-.btn-primary:disabled { background: var(--gray-300); cursor: not-allowed; }
-.btn-secondary { background: var(--gray-200); color: var(--gray-700); }
-.btn-secondary:hover { background: var(--gray-300); }
-.btn-sm { padding: 0.35rem 0.8rem; font-size: 0.78rem; }
-.btn-self-good { background: #d4edda; color: var(--green-800); }
-.btn-self-bad { background: #f8d7da; color: var(--accent-red); }
-
-.feedback-box {
-  margin-top: 0.8rem;
-  padding: 0.8rem;
-  border-radius: var(--radius-md);
-  font-size: 0.88rem;
-  display: none;
-}
-.feedback-box.hint { background: #fff8e1; border: 1px solid var(--accent-gold); color: var(--earth-900); }
-.feedback-box.correct { background: #d4edda; border: 1px solid var(--green-400); color: var(--green-900); }
-.feedback-box.wrong { background: #f8d7da; border: 1px solid var(--accent-red); color: #721c24; }
-.feedback-box.sample { background: var(--water-200); border: 1px solid var(--water-400); color: var(--green-900); }
-
-/* Drag and drop */
-.drag-list {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  margin: 0.8rem 0;
-}
-.drag-item {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  padding: 0.7rem 1rem;
-  background: var(--white);
-  border: 2px solid var(--gray-200);
-  border-radius: var(--radius-md);
-  cursor: grab;
-  transition: var(--transition);
-  font-size: 0.9rem;
-  user-select: none;
-  touch-action: none;
-}
-.drag-item:active { cursor: grabbing; }
-.drag-item.dragging { opacity: 0.5; border-color: var(--green-500); }
-.drag-item .drag-handle {
-  color: var(--gray-400);
-  font-size: 1.1rem;
-  flex-shrink: 0;
-}
-.drag-item.correct-pos { border-color: var(--green-500); background: #d4edda; }
-.drag-item.wrong-pos { border-color: var(--accent-red); background: #f8d7da; }
-
-/* Match/coupling */
-.match-container { display: flex; gap: 1rem; margin: 1rem 0; flex-wrap: wrap; }
-.match-col { flex: 1; min-width: 200px; }
-.match-col h5 { font-size: 0.82rem; font-weight: 800; text-transform: uppercase; color: var(--gray-500); margin-bottom: 0.5rem; }
-.match-item {
-  padding: 0.6rem 0.8rem;
-  margin-bottom: 0.4rem;
-  border: 2px solid var(--gray-200);
-  border-radius: var(--radius-sm);
-  font-size: 0.85rem;
-  cursor: pointer;
-  transition: var(--transition);
-}
-.match-item:hover { border-color: var(--green-400); }
-.match-item.selected { border-color: var(--green-600); background: var(--green-100); box-shadow: 0 0 0 2px var(--green-300); }
-.match-item.matched { opacity: 0.85; }
-.match-pair-display {
-  margin: 0.8rem 0;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-.match-pair-row {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.4rem 0.6rem;
-  background: var(--green-50);
-  border-radius: var(--radius-sm);
-  font-size: 0.82rem;
-}
-.match-pair-row .pair-arrow { color: var(--green-600); font-weight: 900; }
-.match-pair-row .remove-pair {
-  margin-left: auto;
-  background: none;
-  border: none;
-  color: var(--accent-red);
-  cursor: pointer;
-  font-size: 1rem;
-  padding: 0 4px;
-}
-
-/* Chart */
-.chart-wrap {
-  background: var(--white);
-  border-radius: var(--radius-md);
-  padding: 1rem;
-  margin: 1rem 0;
-  max-height: 350px;
-  position: relative;
-}
-.chart-wrap canvas { max-height: 300px; }
-
-/* Map */
-.map-container {
-  height: 380px;
-  border-radius: var(--radius-md);
-  overflow: hidden;
-  margin: 1rem 0;
-  border: 2px solid var(--green-200);
-}
-
-/* Nav buttons */
-.nav-buttons {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 2rem;
-  padding-top: 1rem;
-  border-top: 1px solid var(--gray-200);
-}
-.reset-section-btn {
-  background: none;
-  border: 1px solid var(--gray-300);
-  color: var(--gray-500);
-  padding: 0.3rem 0.8rem;
-  border-radius: var(--radius-sm);
-  font-family: inherit;
-  font-size: 0.72rem;
-  cursor: pointer;
-  transition: var(--transition);
-}
-.reset-section-btn:hover { border-color: var(--accent-red); color: var(--accent-red); }
-
-/* Reflection */
-.leerdoel-item {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.6rem;
-  padding: 0.6rem;
-  margin-bottom: 0.4rem;
-  background: var(--green-50);
-  border-radius: var(--radius-sm);
-  font-size: 0.88rem;
-}
-.leerdoel-check { font-size: 1.2rem; flex-shrink: 0; }
-
-.score-display {
-  text-align: center;
-  padding: 2rem;
-  background: linear-gradient(135deg, var(--green-100), var(--green-200));
-  border-radius: var(--radius-lg);
-  margin: 1.5rem 0;
-}
-.score-number {
-  font-size: 3rem;
-  font-weight: 900;
-  color: var(--green-800);
-}
-.score-label { font-size: 0.9rem; color: var(--green-700); font-weight: 600; }
-
-.clear-progress-btn {
-  display: block;
-  margin: 1rem auto;
-  background: var(--accent-red);
-  color: var(--white);
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-  .main-header { padding: 1.5rem 1rem 0.8rem; }
-  .header-content h1 { font-size: 1.4rem; }
-  .main-container { padding: 1rem; }
-  .info-block, .assignment { padding: 1.2rem; }
-  .match-container { flex-direction: column; }
-  .tab-btn { padding: 0.5rem 0.7rem; font-size: 0.72rem; }
-}
-
-/* Self-assess buttons */
-.self-assess { display: none; gap: 0.5rem; margin-top: 0.5rem; }
-.self-assess.visible { display: flex; }
 </style>
 </head>
 <body>
@@ -598,387 +215,316 @@ body {
 
 <main class="main-container">
 
-<!-- ═══════════════════ TAB 1: INTRODUCTIE ═══════════════════ -->
+<!-- ══════ TAB 0: INTRO ══════ -->
 <section class="tab-panel" id="tab0" data-title="Intro">
   <div class="info-block">
     <h2>🌎 Welkom in het Amazonegebied</h2>
     <p>Stel je voor: je stapt in een vliegtuig en landt midden in Brazilië. Onder je zie je een eindeloze groene deken van bomen — zo ver je kunt kijken. Dit is het <strong>Amazoneregenwoud</strong>, het grootste tropische regenwoud ter wereld. Het is zo groot dat heel West-Europa erin past!</p>
     <p>Het Amazonegebied is het <strong>dunstbevolkte deel van Brazilië</strong>, maar dat betekent niet dat er niks gebeurt. Er wonen zo'n <strong>20 miljoen mensen</strong>, en er is enorm veel activiteit: mijnbouwers graven naar goud en ijzer, energiebedrijven bouwen waterkrachtcentrales, houtkappers kappen bomen, en boeren branden het woud plat voor landbouwgrond. Iedereen wil een stukje van de Amazone — en dat leidt tot een strijd om de ruimte.</p>
-
     <div class="emoji-flow">
-      <span>🌳 Regenwoud</span>
-      <span class="arrow">→</span>
-      <span>⛏️ Mijnbouw</span>
-      <span class="arrow">+</span>
-      <span>🪵 Houtkap</span>
-      <span class="arrow">+</span>
-      <span>🐄 Veeteelt</span>
-      <span class="arrow">+</span>
-      <span>💧 Stuwdammen</span>
-      <span class="arrow">=</span>
-      <span>⚔️ Strijd om ruimte</span>
+      <span>🌳 Regenwoud</span><span class="arrow">→</span><span>⛏️ Mijnbouw</span><span class="arrow">+</span><span>🪵 Houtkap</span><span class="arrow">+</span><span>🐄 Veeteelt</span><span class="arrow">+</span><span>💧 Stuwdammen</span><span class="arrow">=</span><span>⚔️ Strijd om ruimte</span>
     </div>
-
     <div class="highlight-box">
       <strong>🌍 Koppeling met jouw wereld:</strong> Als jij vanochtend een broodje at, zat daar misschien wel soja in (als veevoer voor de kip of het varken). Die soja komt vaak uit Brazilië — uit gebieden waar vroeger regenwoud stond. Zonder dat je het doorhebt, ben jij verbonden met het Amazonegebied!
     </div>
-
     <h3>Wat ga je leren?</h3>
-    <p>In deze les reis je door het Amazonegebied en ontdek je:</p>
-    <p>🗺️ Welke groepen mensen er leven en wat hun belangen zijn · 🌾 Wat de gevolgen zijn van groeiende landbouw en veeteelt · 💧 De voor- en nadelen van waterkrachtcentrales · 🌿 Waarom het regenwoud zo ontzettend belangrijk is · 📜 Wat het Earth Charter inhoudt · 🤔 Wie er verantwoordelijk is voor bescherming én aantasting van de Amazone</p>
+    <p>In deze les reis je door het Amazonegebied en ontdek je: 🗺️ Welke groepen mensen er leven en wat hun belangen zijn · 🌾 Wat de gevolgen zijn van groeiende landbouw en veeteelt · 💧 De voor- en nadelen van waterkrachtcentrales · 🌿 Waarom het regenwoud zo ontzettend belangrijk is · 📜 Wat het Earth Charter inhoudt · 🤔 Wie er verantwoordelijk is voor bescherming én aantasting van de Amazone</p>
   </div>
-
   <div class="map-container" id="mapIntro"></div>
 
-  <!-- Opdracht 1.1: MC -->
-  <div class="assignment" id="a_0_0">
+  <!-- Opdracht 0_0 MC -->
+  <div class="assignment" id="a_0_0" data-type="mc" data-answer="b">
     <span class="assignment-label">Kennisvraag</span>
     <h4>Opdracht 1: Eerste indruk</h4>
     <p class="q-text">Hoeveel mensen wonen er ongeveer in het Amazonegebied?</p>
     <div class="mc-options">
-      <div class="mc-option" data-val="a" onclick="selectMC(this)"><div class="mc-radio"></div><span>Ongeveer 2 miljoen</span></div>
-      <div class="mc-option" data-val="b" onclick="selectMC(this)"><div class="mc-radio"></div><span>Ongeveer 20 miljoen</span></div>
-      <div class="mc-option" data-val="c" onclick="selectMC(this)"><div class="mc-radio"></div><span>Ongeveer 200 miljoen</span></div>
+      <div class="mc-option" data-val="a"><div class="mc-radio"></div><span>Ongeveer 2 miljoen</span></div>
+      <div class="mc-option" data-val="b"><div class="mc-radio"></div><span>Ongeveer 20 miljoen</span></div>
+      <div class="mc-option" data-val="c"><div class="mc-radio"></div><span>Ongeveer 200 miljoen</span></div>
     </div>
-    <button class="btn btn-primary" style="margin-top:0.8rem" onclick="checkMC(this,'b',['Kijk nog eens goed naar de tekst hierboven. Het gaat om het Amazonegebied, niet heel Brazilië.','Denk aan het woord \"dunstbevolkt\" — maar er wonen toch best veel mensen. Hoeveel precies?'])">Controleer</button>
+    <button class="btn btn-primary check-mc-btn" style="margin-top:0.8rem">Controleer</button>
     <div class="feedback-box"></div>
   </div>
 
-  <!-- Opdracht 1.2: Open -->
-  <div class="assignment" id="a_0_1">
+  <!-- Opdracht 0_1 Open -->
+  <div class="assignment" id="a_0_1" data-type="open">
     <span class="assignment-label open">Open vraag</span>
     <h4>Opdracht 2: Jouw Amazone-connectie</h4>
     <p class="q-text">Noem minstens twee producten die jij gebruikt en die (deels) uit het Amazonegebied kunnen komen. Leg uit hoe jij dus verbonden bent met het regenwoud, ook al woon je in Nederland.</p>
-    <textarea class="open-textarea" oninput="countWords(this)" placeholder="Schrijf hier je antwoord (minimaal 20 woorden)..."></textarea>
+    <textarea class="open-textarea" placeholder="Schrijf hier je antwoord (minimaal 20 woorden)..."></textarea>
     <div class="word-counter">0 woorden</div>
-    <button class="btn btn-primary" style="margin-top:0.5rem" onclick="submitOpen(this, 'Voorbeeldantwoord: Ik gebruik bijvoorbeeld hout (meubels, papier), soja (in veevoer voor vlees en zuivel), en misschien cosmetica met palmolie. Ook biobrandstof in benzine kan van Braziliaans suikerriet zijn. Zo ben ik verbonden met het Amazonegebied, omdat de productie van deze spullen vaak ontbossing veroorzaakt.')">Toon voorbeeldantwoord</button>
+    <button class="btn btn-primary show-sample-btn" style="margin-top:0.5rem">Toon voorbeeldantwoord</button>
     <div class="feedback-box"></div>
     <div class="self-assess">
-      <button class="btn btn-sm btn-self-good" onclick="selfAssess(this, true)">Goed ✓</button>
-      <button class="btn btn-sm btn-self-bad" onclick="selfAssess(this, false)">Fout ✗</button>
+      <button class="btn btn-sm btn-self-good">Goed ✓</button>
+      <button class="btn btn-sm btn-self-bad">Fout ✗</button>
     </div>
   </div>
 
   <div class="nav-buttons">
     <div></div>
-    <button class="btn btn-primary" onclick="goTab(1)">Volgende →</button>
-    <button class="reset-section-btn" onclick="resetSection(0)">🔄 Reset dit onderdeel</button>
+    <button class="btn btn-primary nav-next" data-target="1">Volgende →</button>
+    <button class="reset-section-btn" data-section="0">🔄 Reset dit onderdeel</button>
   </div>
 </section>
 
-<!-- ═══════════════════ TAB 2: DE KAART VERKENNEN ═══════════════════ -->
+<!-- ══════ TAB 1: KAART ══════ -->
 <section class="tab-panel" id="tab1" data-title="Kaart">
   <div class="info-block">
     <h2>🗺️ Het Amazonegebied op de kaart</h2>
-    <p>Het Amazonegebied beslaat een enorm deel van Zuid-Amerika, verspreid over negen landen. Het grootste deel ligt in <strong>Brazilië</strong>. De Amazonerivier is met ongeveer 6.400 km de langste of op-één-na-langste rivier ter wereld (wetenschappers discussiëren nog!) en voert meer water af dan welke rivier ook.</p>
-    <p>Belangrijke plekken in het Amazonegebied zijn de stad <strong>Manaus</strong> (de grootste stad midden in het regenwoud), de <strong>Xingu-rivier</strong> (waar de omstreden Belo Monte-dam ligt), en de deelstaat <strong>Mato Grosso</strong> (waar al 80% van de natuur verdwenen is voor landbouw). De <strong>landbouwgrens</strong> schuift steeds verder vanuit het drukke zuidoosten het regenwoud in.</p>
-
+    <p>Het Amazonegebied beslaat een enorm deel van Zuid-Amerika, verspreid over negen landen. Het grootste deel ligt in <strong>Brazilië</strong>. De Amazonerivier is met ongeveer 6.400 km de langste of op-één-na-langste rivier ter wereld en voert meer water af dan welke rivier ook.</p>
+    <p>Belangrijke plekken zijn de stad <strong>Manaus</strong> (de grootste stad midden in het regenwoud), de <strong>Xingu-rivier</strong> (waar de omstreden Belo Monte-dam ligt), en de deelstaat <strong>Mato Grosso</strong> (waar al 80% van de natuur verdwenen is voor landbouw). De <strong>landbouwgrens</strong> schuift steeds verder vanuit het drukke zuidoosten het regenwoud in.</p>
     <div class="highlight-box">
-      <strong>✈️ Reistip:</strong> Als je als toerist naar Manaus vliegt, land je midden in een stad van 2 miljoen inwoners, omgeven door dicht regenwoud. De stad heeft een beroemd operagebouw uit de rubberboom-tijd en is het startpunt voor jungle-expedities. Maar de stad groeit snel — en het bos wordt kleiner.
+      <strong>✈️ Reistip:</strong> Als je als toerist naar Manaus vliegt, land je midden in een stad van 2 miljoen inwoners, omgeven door dicht regenwoud. De stad heeft een beroemd operagebouw uit de rubberboom-tijd en is het startpunt voor jungle-expedities.
     </div>
   </div>
-
   <div class="map-container" id="mapExplore"></div>
 
-  <!-- Opdracht 2.1: MC Kaart -->
-  <div class="assignment" id="a_1_0">
+  <div class="assignment" id="a_1_0" data-type="mc" data-answer="c">
     <span class="assignment-label">Kaartvraag</span>
     <h4>Opdracht 3: Kaart lezen</h4>
     <p class="q-text">Bekijk de kaart hierboven. In welke deelstaat is al 80% van de natuurlijke begroeiing verdwenen voor landbouw?</p>
     <div class="mc-options">
-      <div class="mc-option" data-val="a" onclick="selectMC(this)"><div class="mc-radio"></div><span>Amazonas</span></div>
-      <div class="mc-option" data-val="b" onclick="selectMC(this)"><div class="mc-radio"></div><span>Pará</span></div>
-      <div class="mc-option" data-val="c" onclick="selectMC(this)"><div class="mc-radio"></div><span>Mato Grosso</span></div>
+      <div class="mc-option" data-val="a"><div class="mc-radio"></div><span>Amazonas</span></div>
+      <div class="mc-option" data-val="b"><div class="mc-radio"></div><span>Pará</span></div>
+      <div class="mc-option" data-val="c"><div class="mc-radio"></div><span>Mato Grosso</span></div>
     </div>
-    <button class="btn btn-primary" style="margin-top:0.8rem" onclick="checkMC(this,'c',['Kijk nog eens naar de markers op de kaart — welke plek wordt gelinkt aan landbouw?','De naam van deze deelstaat betekent \"dicht struikgewas\" — ironisch genoeg is daar nu niet veel van over.'])">Controleer</button>
+    <button class="btn btn-primary check-mc-btn" style="margin-top:0.8rem">Controleer</button>
     <div class="feedback-box"></div>
   </div>
 
-  <!-- Opdracht 2.2: Open -->
-  <div class="assignment" id="a_1_1">
+  <div class="assignment" id="a_1_1" data-type="open">
     <span class="assignment-label open">Open vraag</span>
     <h4>Opdracht 4: Reisverslag</h4>
-    <p class="q-text">Stel: je maakt een reis door het Amazonegebied. Je reist van Manaus via de rivier naar het zuiden richting Mato Grosso. Beschrijf wat je onderweg zou zien veranderen in het landschap. Gebruik de informatie die je tot nu toe geleerd hebt.</p>
-    <textarea class="open-textarea" oninput="countWords(this)" placeholder="Schrijf hier je reisverslag (minimaal 20 woorden)..."></textarea>
+    <p class="q-text">Stel: je maakt een reis door het Amazonegebied, van Manaus richting Mato Grosso. Beschrijf wat je onderweg zou zien veranderen in het landschap.</p>
+    <textarea class="open-textarea" placeholder="Schrijf hier je reisverslag (minimaal 20 woorden)..."></textarea>
     <div class="word-counter">0 woorden</div>
-    <button class="btn btn-primary" style="margin-top:0.5rem" onclick="submitOpen(this, 'Voorbeeldantwoord: Vanuit Manaus vaar je eerst door dicht, groen regenwoud aan beide kanten van de rivier. Naarmate je zuidelijker komt, zie je steeds meer open plekken: gekapte bomen, brandplekken, en uiteindelijk grote soja-akkers en weilanden met koeien. Het dichte woud maakt plaats voor landbouwgebied. In Mato Grosso is het landschap drastisch veranderd — het oorspronkelijke groen is bijna helemaal verdwenen.')">Toon voorbeeldantwoord</button>
+    <button class="btn btn-primary show-sample-btn" style="margin-top:0.5rem">Toon voorbeeldantwoord</button>
     <div class="feedback-box"></div>
     <div class="self-assess">
-      <button class="btn btn-sm btn-self-good" onclick="selfAssess(this, true)">Goed ✓</button>
-      <button class="btn btn-sm btn-self-bad" onclick="selfAssess(this, false)">Fout ✗</button>
+      <button class="btn btn-sm btn-self-good">Goed ✓</button>
+      <button class="btn btn-sm btn-self-bad">Fout ✗</button>
     </div>
   </div>
 
   <div class="nav-buttons">
-    <button class="btn btn-secondary" onclick="goTab(0)">← Vorige</button>
-    <button class="btn btn-primary" onclick="goTab(2)">Volgende →</button>
-    <button class="reset-section-btn" onclick="resetSection(1)">🔄 Reset dit onderdeel</button>
+    <button class="btn btn-secondary nav-prev" data-target="0">← Vorige</button>
+    <button class="btn btn-primary nav-next" data-target="2">Volgende →</button>
+    <button class="reset-section-btn" data-section="1">🔄 Reset dit onderdeel</button>
   </div>
 </section>
 
-<!-- ═══════════════════ TAB 3: BEVOLKINGSGROEPEN ═══════════════════ -->
+<!-- ══════ TAB 2: BEVOLKING ══════ -->
 <section class="tab-panel" id="tab2" data-title="Bevolking">
   <div class="info-block">
     <h2>👥 Bevolkingsgroepen en belangen</h2>
     <p>In het Amazonegebied leven verschillende groepen mensen, elk met hun eigen belangen. Dit zorgt voor <strong>concurrentie om de ruimte</strong>. Wat goed is voor de ene groep, is vaak slecht voor de andere.</p>
-
     <h3>🏹 Oorspronkelijke bewoners (inheemse volken)</h3>
-    <p>Al duizenden jaren leven er inheemse volken in het regenwoud. Ze leven <strong>in, met en van</strong> het woud: ze nemen niet meer dan nodig is en zorgen goed voor de natuur. Maar hun manier van leven staat zwaar onder druk. Hun grond wordt afgepakt voor mijnbouw, stuwdammen en landbouw. Van de oorspronkelijke bewoners zijn er nog maar kleine aantallen over.</p>
-
+    <p>Al duizenden jaren leven er inheemse volken in het regenwoud. Ze leven <strong>in, met en van</strong> het woud: ze nemen niet meer dan nodig is en zorgen goed voor de natuur. Maar hun manier van leven staat zwaar onder druk. Hun grond wordt afgepakt voor mijnbouw, stuwdammen en landbouw.</p>
     <h3>🐄 Boeren en veehouders</h3>
-    <p>Zowel grote als kleine boeren nemen stukken regenwoud in bezit om het geschikt te maken voor landbouw. Dit proces heet <strong>kolonisatie</strong>. Vanuit het drukke zuidoosten schuift de <strong>landbouwgrens</strong> steeds verder het regenwoud in. Ze verdienen hun geld met soja, veeteelt, suikerriet en oliepalmen.</p>
-
+    <p>Zowel grote als kleine boeren nemen stukken regenwoud in bezit om het geschikt te maken voor landbouw. Dit proces heet <strong>kolonisatie</strong>. Vanuit het drukke zuidoosten schuift de <strong>landbouwgrens</strong> steeds verder het regenwoud in.</p>
     <h3>⛏️ Mijnbouwers</h3>
     <p>Mijnbouwbedrijven graven naar waardevolle metalen zoals <strong>ijzer en goud</strong>. Dit levert veel geld op, maar vervuilt rivieren en vernietigt grote stukken bos.</p>
-
     <h3>⚡ Energiebedrijven</h3>
-    <p>Energiebedrijven zoeken naar aardolie en bouwen <strong>waterkrachtcentrales</strong>. Dit levert schone energie op, maar de stuwdammen hebben ook enorme nadelen (daar leer je meer over in het volgende onderdeel).</p>
-
+    <p>Energiebedrijven zoeken naar aardolie en bouwen <strong>waterkrachtcentrales</strong>. Dit levert schone energie op, maar de stuwdammen hebben ook enorme nadelen.</p>
     <h3>🪵 Houtkappers</h3>
-    <p>Tropisch hardhout is zeer gewild en levert veel geld op. Houtkappers — zowel legaal als illegaal — verzagen de tropische bomen. Nederland koopt hier grote hoeveelheden van in.</p>
-
+    <p>Tropisch hardhout is zeer gewild en levert veel geld op. Houtkappers verzagen de tropische bomen. Nederland koopt hier grote hoeveelheden van in.</p>
     <div class="highlight-box">
       <strong>🌍 In jouw buurt:</strong> Ook in Nederland hebben we te maken met verschillende belangen rond ruimte. Denk aan boeren die land willen, projectontwikkelaars die huizen bouwen, en natuurorganisaties die groen willen behouden. Ken jij een voorbeeld uit je eigen omgeving?
     </div>
   </div>
 
-  <!-- Opdracht 3.1: Koppelen -->
-  <div class="assignment" id="a_2_0">
+  <div class="assignment" id="a_2_0" data-type="match" data-match-id="match_2_0">
     <span class="assignment-label drag">Koppelopdracht</span>
     <h4>Opdracht 5: Wie doet wat?</h4>
-    <p class="q-text">Klik eerst op een groep (links), dan op de juiste activiteit (rechts) om ze te koppelen. Eén activiteit kan bij meerdere groepen horen!</p>
+    <p class="q-text">Klik eerst op een groep (links), dan op de juiste activiteit (rechts) om ze te koppelen.</p>
     <div class="match-container" id="match_2_0">
       <div class="match-col">
         <h5>Groepen</h5>
-        <div class="match-item" data-side="left" data-id="g1" onclick="matchClick(this,'match_2_0')">🏹 Inheemse volken</div>
-        <div class="match-item" data-side="left" data-id="g2" onclick="matchClick(this,'match_2_0')">🐄 Veehouders</div>
-        <div class="match-item" data-side="left" data-id="g3" onclick="matchClick(this,'match_2_0')">⛏️ Mijnbouwers</div>
-        <div class="match-item" data-side="left" data-id="g4" onclick="matchClick(this,'match_2_0')">⚡ Energiebedrijven</div>
-        <div class="match-item" data-side="left" data-id="g5" onclick="matchClick(this,'match_2_0')">🪵 Houtkappers</div>
+        <div class="match-item" data-side="left" data-id="g1">🏹 Inheemse volken</div>
+        <div class="match-item" data-side="left" data-id="g2">🐄 Veehouders</div>
+        <div class="match-item" data-side="left" data-id="g3">⛏️ Mijnbouwers</div>
+        <div class="match-item" data-side="left" data-id="g4">⚡ Energiebedrijven</div>
+        <div class="match-item" data-side="left" data-id="g5">🪵 Houtkappers</div>
       </div>
       <div class="match-col">
         <h5>Activiteiten</h5>
-        <div class="match-item" data-side="right" data-id="a1" onclick="matchClick(this,'match_2_0')">Bomen kappen en verkopen</div>
-        <div class="match-item" data-side="right" data-id="a2" onclick="matchClick(this,'match_2_0')">Stuwdammen bouwen</div>
-        <div class="match-item" data-side="right" data-id="a3" onclick="matchClick(this,'match_2_0')">Leven in balans met de natuur</div>
-        <div class="match-item" data-side="right" data-id="a4" onclick="matchClick(this,'match_2_0')">Ontbossing voor weiland en soja</div>
-        <div class="match-item" data-side="right" data-id="a5" onclick="matchClick(this,'match_2_0')">Graven naar goud en ijzer</div>
+        <div class="match-item" data-side="right" data-id="a1">Bomen kappen en verkopen</div>
+        <div class="match-item" data-side="right" data-id="a2">Stuwdammen bouwen</div>
+        <div class="match-item" data-side="right" data-id="a3">Leven in balans met de natuur</div>
+        <div class="match-item" data-side="right" data-id="a4">Ontbossing voor weiland en soja</div>
+        <div class="match-item" data-side="right" data-id="a5">Graven naar goud en ijzer</div>
       </div>
     </div>
     <div class="match-pair-display" id="pairs_match_2_0"></div>
-    <button class="btn btn-primary" style="margin-top:0.5rem" onclick="checkMatch('match_2_0',{g1:'a3',g2:'a4',g3:'a5',g4:'a2',g5:'a1'})">Controleer</button>
+    <button class="btn btn-primary check-match-btn" style="margin-top:0.5rem">Controleer</button>
     <div class="feedback-box"></div>
   </div>
 
-  <!-- Opdracht 3.2: Open -->
-  <div class="assignment" id="a_2_1">
+  <div class="assignment" id="a_2_1" data-type="open">
     <span class="assignment-label open">Open vraag</span>
     <h4>Opdracht 6: Belangenconflict</h4>
     <p class="q-text">Leg in je eigen woorden uit waarom de belangen van inheemse volken botsen met die van boeren en mijnbouwers. Geef een concreet voorbeeld.</p>
-    <textarea class="open-textarea" oninput="countWords(this)" placeholder="Schrijf hier je antwoord (minimaal 20 woorden)..."></textarea>
+    <textarea class="open-textarea" placeholder="Schrijf hier je antwoord (minimaal 20 woorden)..."></textarea>
     <div class="word-counter">0 woorden</div>
-    <button class="btn btn-primary" style="margin-top:0.5rem" onclick="submitOpen(this, 'Voorbeeldantwoord: Inheemse volken willen het regenwoud behouden omdat ze erin leven en ervan afhankelijk zijn. Boeren en mijnbouwers willen juist stukken bos kappen om land te gebruiken voor landbouw of om grondstoffen te winnen. Bijvoorbeeld: als een mijnbouwbedrijf goud wil delven in een gebied waar een inheemse stam woont, moeten die mensen weg — hun leefgebied wordt vernietigd voor geld.')">Toon voorbeeldantwoord</button>
+    <button class="btn btn-primary show-sample-btn" style="margin-top:0.5rem">Toon voorbeeldantwoord</button>
     <div class="feedback-box"></div>
     <div class="self-assess">
-      <button class="btn btn-sm btn-self-good" onclick="selfAssess(this, true)">Goed ✓</button>
-      <button class="btn btn-sm btn-self-bad" onclick="selfAssess(this, false)">Fout ✗</button>
+      <button class="btn btn-sm btn-self-good">Goed ✓</button>
+      <button class="btn btn-sm btn-self-bad">Fout ✗</button>
     </div>
   </div>
 
   <div class="nav-buttons">
-    <button class="btn btn-secondary" onclick="goTab(1)">← Vorige</button>
-    <button class="btn btn-primary" onclick="goTab(3)">Volgende →</button>
-    <button class="reset-section-btn" onclick="resetSection(2)">🔄 Reset dit onderdeel</button>
+    <button class="btn btn-secondary nav-prev" data-target="1">← Vorige</button>
+    <button class="btn btn-primary nav-next" data-target="3">Volgende →</button>
+    <button class="reset-section-btn" data-section="2">🔄 Reset dit onderdeel</button>
   </div>
 </section>
 
-<!-- ═══════════════════ TAB 4: LANDBOUW & VEETEELT ═══════════════════ -->
+<!-- ══════ TAB 3: LANDBOUW ══════ -->
 <section class="tab-panel" id="tab3" data-title="Landbouw">
   <div class="info-block">
     <h2>🌾 Landbouw en veeteelt in het Amazonegebied</h2>
     <p>De groeiende landbouw is een van de grootste bedreigingen voor het regenwoud. Vanuit het drukke zuidoosten van Brazilië schuift de <strong>landbouwgrens</strong> steeds verder het Amazoneregenwoud in. Dit proces heet <strong>kolonisatie</strong>: boeren nemen stukken regenwoud in bezit en maken het geschikt voor landbouw.</p>
     <p>In de deelstaat <strong>Mato Grosso</strong> is al <strong>80%</strong> van de natuurlijke begroeiing verdwenen. Dit is <strong>grootschalige landbouw</strong>: grote hoeveelheden worden geproduceerd met machines. Vooral <strong>veeteelt</strong> (runderen) en het verbouwen van <strong>soja</strong> zorgen voor ontbossing.</p>
-
     <h3>Waar wordt soja voor gebruikt?</h3>
     <div class="emoji-flow">
-      <span>🌱 Soja</span>
-      <span class="arrow">→</span>
-      <span>🐄 Veevoer</span>
-      <span class="arrow">|</span>
-      <span>💄 Cosmetica</span>
-      <span class="arrow">|</span>
-      <span>🎨 Verf</span>
-      <span class="arrow">|</span>
-      <span>⛽ Biobrandstof</span>
+      <span>🌱 Soja</span><span class="arrow">→</span><span>🐄 Veevoer</span><span class="arrow">|</span><span>💄 Cosmetica</span><span class="arrow">|</span><span>🎨 Verf</span><span class="arrow">|</span><span>⛽ Biobrandstof</span>
     </div>
-
     <h3>Biobrandstof: duurzaam of niet?</h3>
-    <p>Van soja, suikerriet en oliepalmen kan <strong>biobrandstof</strong> gemaakt worden. Dit klinkt milieuvriendelijk, maar is het duurzaam als er waardevol regenwoud voor moet wijken? Suikerriet en oliepalmen zijn sterk in opkomst in het gebied, wat de druk op het woud verder vergroot.</p>
-
+    <p>Van soja, suikerriet en oliepalmen kan <strong>biobrandstof</strong> gemaakt worden. Dit klinkt milieuvriendelijk, maar is het duurzaam als er waardevol regenwoud voor moet wijken? Suikerriet en oliepalmen zijn sterk in opkomst in het gebied.</p>
     <div class="highlight-box warning">
-      <strong>🔢 Wist je dat...</strong> het Amazonegebied elke <strong>15 seconden</strong> een oppervlakte ter grootte van een voetbalveld verliest? Dat is dus 4 voetbalvelden per minuut, 240 per uur, bijna 6.000 per dag!
+      <strong>🔢 Wist je dat...</strong> het Amazonegebied elke <strong>15 seconden</strong> een oppervlakte ter grootte van een voetbalveld verliest? Dat is dus 4 voetbalvelden per minuut!
     </div>
-
     <div class="highlight-box">
-      <strong>🛒 In de supermarkt:</strong> Kijk thuis eens op de verpakking van koekjes, chips of chocolade. Staat er 'soja-lecithine' of 'palmolie' bij de ingrediënten? Dan zit er misschien een stukje Amazone in jouw snack!
+      <strong>🛒 In de supermarkt:</strong> Kijk thuis eens op de verpakking van koekjes, chips of chocolade. Staat er "soja-lecithine" of "palmolie" bij de ingrediënten? Dan zit er misschien een stukje Amazone in jouw snack!
     </div>
   </div>
+  <div class="chart-wrap"><canvas id="chartOntbossing"></canvas></div>
 
-  <div class="chart-wrap">
-    <canvas id="chartOntbossing"></canvas>
-  </div>
-
-  <!-- Opdracht 4.1: Grafiek analyse -->
-  <div class="assignment" id="a_3_0">
+  <div class="assignment" id="a_3_0" data-type="mc" data-answer="b">
     <span class="assignment-label analysis">Data-analyse</span>
     <h4>Opdracht 7: Grafiek lezen</h4>
-    <p class="q-text">Bekijk de grafiek hierboven over ontbossing in het Amazonegebied. In welk jaar was de ontbossing het hoogst?</p>
+    <p class="q-text">Bekijk de grafiek hierboven. In welk jaar was de ontbossing het hoogst?</p>
     <div class="mc-options">
-      <div class="mc-option" data-val="a" onclick="selectMC(this)"><div class="mc-radio"></div><span>2000</span></div>
-      <div class="mc-option" data-val="b" onclick="selectMC(this)"><div class="mc-radio"></div><span>2004</span></div>
-      <div class="mc-option" data-val="c" onclick="selectMC(this)"><div class="mc-radio"></div><span>2012</span></div>
-      <div class="mc-option" data-val="d" onclick="selectMC(this)"><div class="mc-radio"></div><span>2020</span></div>
+      <div class="mc-option" data-val="a"><div class="mc-radio"></div><span>2000</span></div>
+      <div class="mc-option" data-val="b"><div class="mc-radio"></div><span>2004</span></div>
+      <div class="mc-option" data-val="c"><div class="mc-radio"></div><span>2012</span></div>
+      <div class="mc-option" data-val="d"><div class="mc-radio"></div><span>2020</span></div>
     </div>
-    <button class="btn btn-primary" style="margin-top:0.8rem" onclick="checkMC(this,'b',['Kijk naar de hoogste balk in de grafiek. In welk jaar piekt de ontbossing?','De piek ligt ergens in het begin van de jaren 2000. Kijk goed naar de getallen op de x-as.'])">Controleer</button>
+    <button class="btn btn-primary check-mc-btn" style="margin-top:0.8rem">Controleer</button>
     <div class="feedback-box"></div>
   </div>
 
-  <!-- Opdracht 4.2: Open analyse -->
-  <div class="assignment" id="a_3_1">
+  <div class="assignment" id="a_3_1" data-type="open">
     <span class="assignment-label open">Open vraag</span>
     <h4>Opdracht 8: Interpreteer de data</h4>
-    <p class="q-text">Na 2004 daalde de ontbossing, maar na 2012 steeg het weer. Bedenk minstens twee mogelijke oorzaken voor deze stijging. Denk aan wat je geleerd hebt over landbouw, veeteelt en de vraag naar grondstoffen.</p>
-    <textarea class="open-textarea" oninput="countWords(this)" placeholder="Schrijf hier je analyse (minimaal 20 woorden)..."></textarea>
+    <p class="q-text">Na 2004 daalde de ontbossing, maar na 2012 steeg het weer. Bedenk minstens twee mogelijke oorzaken voor deze stijging.</p>
+    <textarea class="open-textarea" placeholder="Schrijf hier je analyse (minimaal 20 woorden)..."></textarea>
     <div class="word-counter">0 woorden</div>
-    <button class="btn btn-primary" style="margin-top:0.5rem" onclick="submitOpen(this, 'Voorbeeldantwoord: Mogelijke oorzaken zijn: (1) De wereldwijde vraag naar soja en rundvlees groeide, waardoor meer bos gekapt werd voor akkers en weilanden. (2) De Braziliaanse regering versoepelde milieuregels, waardoor boeren makkelijker konden ontbossen. (3) De groeiende bevolking en economie van Brazilië zorgden voor meer druk op het Amazonegebied. (4) Illegale houtkap nam toe door minder controle.')">Toon voorbeeldantwoord</button>
+    <button class="btn btn-primary show-sample-btn" style="margin-top:0.5rem">Toon voorbeeldantwoord</button>
     <div class="feedback-box"></div>
     <div class="self-assess">
-      <button class="btn btn-sm btn-self-good" onclick="selfAssess(this, true)">Goed ✓</button>
-      <button class="btn btn-sm btn-self-bad" onclick="selfAssess(this, false)">Fout ✗</button>
+      <button class="btn btn-sm btn-self-good">Goed ✓</button>
+      <button class="btn btn-sm btn-self-bad">Fout ✗</button>
     </div>
   </div>
 
   <div class="nav-buttons">
-    <button class="btn btn-secondary" onclick="goTab(2)">← Vorige</button>
-    <button class="btn btn-primary" onclick="goTab(4)">Volgende →</button>
-    <button class="reset-section-btn" onclick="resetSection(3)">🔄 Reset dit onderdeel</button>
+    <button class="btn btn-secondary nav-prev" data-target="2">← Vorige</button>
+    <button class="btn btn-primary nav-next" data-target="4">Volgende →</button>
+    <button class="reset-section-btn" data-section="3">🔄 Reset dit onderdeel</button>
   </div>
 </section>
 
-<!-- ═══════════════════ TAB 5: WATERKRACHTCENTRALES ═══════════════════ -->
+<!-- ══════ TAB 4: WATERKRACHT ══════ -->
 <section class="tab-panel" id="tab4" data-title="Waterkracht">
   <div class="info-block">
     <h2>💧 Waterkrachtcentrales in het Amazonegebied</h2>
-    <p>Het Amazonegebied is de beste plek in Brazilië om stroom uit waterkracht te halen. De vele rivieren met hun sterke stroming zijn perfect voor het bouwen van <strong>stuwdammen</strong>. Een waterkrachtcentrale stoot geen CO₂ uit en de bouw geeft een flinke impuls aan de lokale economie.</p>
+    <p>Het Amazonegebied is de beste plek in Brazilië om stroom uit waterkracht te halen. De vele rivieren met hun sterke stroming zijn perfect voor <strong>stuwdammen</strong>. Een waterkrachtcentrale stoot geen CO₂ uit en de bouw geeft een flinke impuls aan de lokale economie.</p>
     <p>Maar er kleven ook serieuze nadelen aan. De bekendste en meest omstreden stuwdam is de <strong>Belo Monte-dam</strong> in de Xingu-rivier. Jarenlang is er fel — maar tevergeefs — geprotesteerd tegen de aanleg ervan.</p>
-
     <h3>Hoe werkt een waterkrachtcentrale?</h3>
     <div class="emoji-flow">
-      <span>🌊 Rivierwater</span>
-      <span class="arrow">→</span>
-      <span>🧱 Stuwdam</span>
-      <span class="arrow">→</span>
-      <span>💨 Water stroomt door turbine</span>
-      <span class="arrow">→</span>
-      <span>⚡ Elektriciteit</span>
+      <span>🌊 Rivierwater</span><span class="arrow">→</span><span>🧱 Stuwdam</span><span class="arrow">→</span><span>💨 Water door turbine</span><span class="arrow">→</span><span>⚡ Elektriciteit</span>
     </div>
-
     <h3>Voordelen en nadelen</h3>
     <table class="compare-table">
       <thead><tr><th class="pro">✅ Voordelen</th><th class="con">❌ Nadelen</th></tr></thead>
       <tbody>
         <tr><td>Geen CO₂-uitstoot</td><td><strong>Verlies van bos</strong> voor dam en infrastructuur</td></tr>
-        <tr><td>Stimuleert de lokale economie</td><td><strong>Inundatie</strong>: groot gebied komt onder water</td></tr>
-        <tr><td>Hernieuwbare energiebron</td><td>Verandering van de <strong>natuurlijke loop</strong> van de rivier</td></tr>
+        <tr><td>Stimuleert lokale economie</td><td><strong>Inundatie</strong>: groot gebied komt onder water</td></tr>
+        <tr><td>Hernieuwbare energiebron</td><td>Verandering van <strong>natuurlijke loop</strong> rivier</td></tr>
         <tr><td>Betrouwbare energievoorziening</td><td><strong>Schade voor bewoners</strong>: grond afgepakt, gedwongen verhuizing</td></tr>
-        <tr><td></td><td>Nieuwe wegen trekken <strong>meer activiteiten</strong> aan in het regenwoud</td></tr>
+        <tr><td></td><td>Nieuwe wegen trekken <strong>meer activiteiten</strong> aan</td></tr>
       </tbody>
     </table>
-
     <div class="highlight-box water">
-      <strong>💡 Belangrijk begrip — Inundatie:</strong> Dit is het proces waarbij een groot gebied achter een stuwdam onder water komt te staan. Dit verandert de natuurlijke loop en stroming van de rivier. Flora, fauna, vissers en landbouwers hebben hier last van.
+      <strong>💡 Belangrijk begrip — Inundatie:</strong> Het proces waarbij een groot gebied achter een stuwdam onder water komt te staan. De natuurlijke loop en stroming van de rivier verandert. Flora, fauna, vissers en landbouwers hebben hier last van.
     </div>
-
     <div class="highlight-box">
-      <strong>🌍 Vergelijk met Nederland:</strong> Ook in Nederland halen we stroom uit water (bijv. de Deltawerken, Afsluitdijk). Maar onze projecten zijn veel kleiner. Kun je bedenken waarom waterkracht in Nederland minder geschikt is dan in de Amazone? (Hint: denk aan het hoogteverschil!)
+      <strong>🌍 Vergelijk met Nederland:</strong> Ook in Nederland halen we stroom uit water. Maar onze projecten zijn veel kleiner. Kun je bedenken waarom waterkracht in Nederland minder geschikt is? (Hint: hoogteverschil!)
     </div>
   </div>
 
-  <!-- Opdracht 5.1: MC -->
-  <div class="assignment" id="a_4_0">
+  <div class="assignment" id="a_4_0" data-type="mc" data-answer="b">
     <span class="assignment-label">Kennisvraag</span>
     <h4>Opdracht 9: Begrip inundatie</h4>
-    <p class="q-text">Wat betekent het begrip 'inundatie' bij een stuwdam?</p>
+    <p class="q-text">Wat betekent het begrip "inundatie" bij een stuwdam?</p>
     <div class="mc-options">
-      <div class="mc-option" data-val="a" onclick="selectMC(this)"><div class="mc-radio"></div><span>Het kappen van bomen rond de dam</span></div>
-      <div class="mc-option" data-val="b" onclick="selectMC(this)"><div class="mc-radio"></div><span>Het onder water komen te staan van een groot gebied achter de dam</span></div>
-      <div class="mc-option" data-val="c" onclick="selectMC(this)"><div class="mc-radio"></div><span>Het bouwen van nieuwe wegen naar de dam</span></div>
+      <div class="mc-option" data-val="a"><div class="mc-radio"></div><span>Het kappen van bomen rond de dam</span></div>
+      <div class="mc-option" data-val="b"><div class="mc-radio"></div><span>Het onder water komen te staan van een groot gebied achter de dam</span></div>
+      <div class="mc-option" data-val="c"><div class="mc-radio"></div><span>Het bouwen van nieuwe wegen naar de dam</span></div>
     </div>
-    <button class="btn btn-primary" style="margin-top:0.8rem" onclick="checkMC(this,'b',['Kijk nog eens naar de uitlegbox hierboven over inundatie. Wat gebeurt er achter de dam?','Het woord \"inundatie\" heeft te maken met water. Wat gebeurt er als je een rivier blokkeert met een dam?'])">Controleer</button>
+    <button class="btn btn-primary check-mc-btn" style="margin-top:0.8rem">Controleer</button>
     <div class="feedback-box"></div>
   </div>
 
-  <!-- Opdracht 5.2: Open -->
-  <div class="assignment" id="a_4_1">
+  <div class="assignment" id="a_4_1" data-type="open">
     <span class="assignment-label open">Open vraag</span>
     <h4>Opdracht 10: Belo Monte dilemma</h4>
-    <p class="q-text">Stel: jij bent burgemeester van een stad bij de Xingu-rivier. Een energiebedrijf wil een waterkrachtcentrale bouwen. Aan de ene kant levert het banen en schone energie op, aan de andere kant moeten inheemse bewoners verhuizen en komt een groot natuurgebied onder water. Wat zou jij beslissen? Leg uit waarom, en noem argumenten voor én tegen.</p>
-    <textarea class="open-textarea" oninput="countWords(this)" placeholder="Schrijf hier je afweging (minimaal 20 woorden)..."></textarea>
+    <p class="q-text">Stel: jij bent burgemeester van een stad bij de Xingu-rivier. Een energiebedrijf wil een waterkrachtcentrale bouwen. Wat zou jij beslissen? Noem argumenten voor én tegen.</p>
+    <textarea class="open-textarea" placeholder="Schrijf hier je afweging (minimaal 20 woorden)..."></textarea>
     <div class="word-counter">0 woorden</div>
-    <button class="btn btn-primary" style="margin-top:0.5rem" onclick="submitOpen(this, 'Voorbeeldantwoord: Dit is een moeilijk dilemma. Vóór de dam: het levert schone energie zonder CO₂-uitstoot, er komen banen, en de regio krijgt een economische impuls. Tegen de dam: inheemse bewoners raken hun grond kwijt, een groot natuurgebied wordt vernietigd door inundatie, en de nieuwe wegen trekken meer ontbossing aan. Ik zou misschien kiezen voor een kleiner project dat minder impact heeft, en in overleg gaan met de inheemse bevolking over compensatie.')">Toon voorbeeldantwoord</button>
+    <button class="btn btn-primary show-sample-btn" style="margin-top:0.5rem">Toon voorbeeldantwoord</button>
     <div class="feedback-box"></div>
     <div class="self-assess">
-      <button class="btn btn-sm btn-self-good" onclick="selfAssess(this, true)">Goed ✓</button>
-      <button class="btn btn-sm btn-self-bad" onclick="selfAssess(this, false)">Fout ✗</button>
+      <button class="btn btn-sm btn-self-good">Goed ✓</button>
+      <button class="btn btn-sm btn-self-bad">Fout ✗</button>
     </div>
   </div>
 
   <div class="nav-buttons">
-    <button class="btn btn-secondary" onclick="goTab(3)">← Vorige</button>
-    <button class="btn btn-primary" onclick="goTab(5)">Volgende →</button>
-    <button class="reset-section-btn" onclick="resetSection(4)">🔄 Reset dit onderdeel</button>
+    <button class="btn btn-secondary nav-prev" data-target="3">← Vorige</button>
+    <button class="btn btn-primary nav-next" data-target="5">Volgende →</button>
+    <button class="reset-section-btn" data-section="4">🔄 Reset dit onderdeel</button>
   </div>
 </section>
 
-<!-- ═══════════════════ TAB 6: BELANG REGENWOUD ═══════════════════ -->
+<!-- ══════ TAB 5: REGENWOUD ══════ -->
 <section class="tab-panel" id="tab5" data-title="Regenwoud">
   <div class="info-block">
     <h2>🌿 Waarom is het regenwoud zo belangrijk?</h2>
-    <p>Het Amazoneregenwoud wordt niet voor niks de <strong>"longen van de aarde"</strong> genoemd. Op slechts één km² regenwoud kunnen meer dan <strong>200 soorten bomen</strong> staan. De <strong>biodiversiteit</strong> — het aantal verschillende soorten planten en dieren — is enorm.</p>
+    <p>Het Amazoneregenwoud wordt niet voor niks de <strong>"longen van de aarde"</strong> genoemd. Op slechts één km² regenwoud kunnen meer dan <strong>200 soorten bomen</strong> staan. De <strong>biodiversiteit</strong> is enorm.</p>
     <p>Maar het regenwoud is niet alleen belangrijk vanwege de natuur. Het heeft ook cruciale functies voor het <strong>klimaat</strong>, de <strong>waterkringloop</strong> en de <strong>economie</strong> wereldwijd.</p>
-
     <h3>🌬️ Luchtzuivering en koolstofopslag</h3>
-    <p>Bomen nemen CO₂ op en geven zuurstof af. Het Amazoneregenwoud slaat enorme hoeveelheden <strong>koolstof</strong> op. Als het bos gekapt of verbrand wordt, komt die koolstof weer vrij als CO₂ — en dat versterkt het broeikaseffect.</p>
-
+    <p>Bomen nemen CO₂ op en geven zuurstof af. Het Amazoneregenwoud slaat enorme hoeveelheden <strong>koolstof</strong> op. Als het bos gekapt wordt, komt die koolstof vrij als CO₂ — dat versterkt het broeikaseffect.</p>
     <h3>☁️ Wolkenmachine</h3>
-    <p>Regenwouden zijn letterlijk <strong>wolkenmachines</strong>. Bomen laten water verdampen via hun bladeren (dit heet transpiratie). Die waterdamp stijgt op, vormt wolken, en valt als regen weer neer. Zonder het bos valt er minder regen — ook in gebieden ver van de Amazone.</p>
+    <p>Regenwouden zijn letterlijk <strong>wolkenmachines</strong>. Bomen laten water verdampen via hun bladeren (transpiratie). Die waterdamp stijgt op, vormt wolken, en valt als regen weer neer.</p>
     <div class="emoji-flow">
-      <span>🌳 Bomen</span>
-      <span class="arrow">→</span>
-      <span>💧 Verdamping</span>
-      <span class="arrow">→</span>
-      <span>☁️ Wolken</span>
-      <span class="arrow">→</span>
-      <span>🌧️ Regen</span>
-      <span class="arrow">→</span>
-      <span>🌱 Groei</span>
-      <span class="arrow">→</span>
-      <span>🌳 Bomen</span>
+      <span>🌳 Bomen</span><span class="arrow">→</span><span>💧 Verdamping</span><span class="arrow">→</span><span>☁️ Wolken</span><span class="arrow">→</span><span>🌧️ Regen</span><span class="arrow">→</span><span>🌱 Groei</span><span class="arrow">→</span><span>🌳 Bomen</span>
     </div>
-
     <h3>💊 Grondstoffen en medicijnen</h3>
-    <p>Uit het regenwoud komen wereldwijd gewilde grondstoffen: hout, ertsen, en ook grondstof voor medicijnen — zoals het bekende <strong>aspirientje</strong>. Veel planten in het regenwoud zijn nog niet eens onderzocht. Wie weet welke medicijnen we nog kunnen ontdekken?</p>
-
+    <p>Uit het regenwoud komen wereldwijd gewilde grondstoffen: hout, ertsen, en grondstof voor medicijnen — zoals het bekende <strong>aspirientje</strong>. Veel planten zijn nog niet eens onderzocht!</p>
     <div class="highlight-box">
-      <strong>🌍 Herken het in je eigen leven:</strong> Elke keer dat je inademt, profiteer je indirect van de zuurstof die regenwouden produceren. En als het regent in Europa, kan dat mede komen door de waterkringloop waar tropische bossen aan bijdragen. Het Amazoneregenwoud is dus niet "ver weg" — het beïnvloedt jouw weer en jouw lucht.
+      <strong>🌍 Herken het in je eigen leven:</strong> Elke keer dat je inademt, profiteer je indirect van de zuurstof die regenwouden produceren. En als het regent in Europa, kan dat mede komen door de waterkringloop waar tropische bossen aan bijdragen.
     </div>
   </div>
 
-  <!-- Opdracht 6.1: Ranking/sorteren -->
-  <div class="assignment" id="a_5_0">
+  <div class="assignment" id="a_5_0" data-type="ranking">
     <span class="assignment-label drag">Sorteeropdracht</span>
     <h4>Opdracht 11: Functies rangschikken</h4>
-    <p class="q-text">Zet de functies van het regenwoud in volgorde van (volgens jou) meest belangrijk naar minst belangrijk. Sleep de items naar de juiste plek.</p>
+    <p class="q-text">Zet de functies van het regenwoud in volgorde van (volgens jou) meest naar minst belangrijk. Sleep de items.</p>
     <div class="drag-list" id="dragList_5_0">
       <div class="drag-item" draggable="true" data-val="co2"><span class="drag-handle">☰</span> CO₂ opslaan en zuurstof produceren</div>
       <div class="drag-item" draggable="true" data-val="bio"><span class="drag-handle">☰</span> Biodiversiteit beschermen</div>
@@ -986,255 +532,208 @@ body {
       <div class="drag-item" draggable="true" data-val="med"><span class="drag-handle">☰</span> Grondstoffen voor medicijnen leveren</div>
       <div class="drag-item" draggable="true" data-val="home"><span class="drag-handle">☰</span> Leefgebied voor inheemse volken</div>
     </div>
-    <button class="btn btn-primary" style="margin-top:0.5rem" onclick="checkRanking(this)">Bevestig mijn volgorde</button>
+    <button class="btn btn-primary check-ranking-btn" style="margin-top:0.5rem">Bevestig mijn volgorde</button>
     <div class="feedback-box"></div>
   </div>
 
-  <!-- Opdracht 6.2: MC -->
-  <div class="assignment" id="a_5_1">
+  <div class="assignment" id="a_5_1" data-type="mc" data-answer="b">
     <span class="assignment-label">Kennisvraag</span>
     <h4>Opdracht 12: Wolkenmachine</h4>
-    <p class="q-text">Waarom worden regenwouden 'wolkenmachines' genoemd?</p>
+    <p class="q-text">Waarom worden regenwouden "wolkenmachines" genoemd?</p>
     <div class="mc-options">
-      <div class="mc-option" data-val="a" onclick="selectMC(this)"><div class="mc-radio"></div><span>Omdat er altijd wolken boven hangen door de hoogte van de bomen</span></div>
-      <div class="mc-option" data-val="b" onclick="selectMC(this)"><div class="mc-radio"></div><span>Omdat bomen water verdampen dat wolken vormt en als regen terugvalt</span></div>
-      <div class="mc-option" data-val="c" onclick="selectMC(this)"><div class="mc-radio"></div><span>Omdat de rook van bosbranden op wolken lijkt</span></div>
+      <div class="mc-option" data-val="a"><div class="mc-radio"></div><span>Omdat er altijd wolken boven hangen door de hoogte van de bomen</span></div>
+      <div class="mc-option" data-val="b"><div class="mc-radio"></div><span>Omdat bomen water verdampen dat wolken vormt en als regen terugvalt</span></div>
+      <div class="mc-option" data-val="c"><div class="mc-radio"></div><span>Omdat de rook van bosbranden op wolken lijkt</span></div>
     </div>
-    <button class="btn btn-primary" style="margin-top:0.8rem" onclick="checkMC(this,'b',['Denk aan het proces van transpiratie — wat doen de bladeren van bomen met water?','Kijk nog eens naar het emoji-schema over de waterkringloop hierboven.'])">Controleer</button>
+    <button class="btn btn-primary check-mc-btn" style="margin-top:0.8rem">Controleer</button>
     <div class="feedback-box"></div>
   </div>
 
-  <!-- Opdracht 6.3: Open -->
-  <div class="assignment" id="a_5_2">
+  <div class="assignment" id="a_5_2" data-type="open">
     <span class="assignment-label open">Open vraag</span>
     <h4>Opdracht 13: Kettingreactie</h4>
-    <p class="q-text">Leg uit wat er zou gebeuren als een groot deel van het Amazoneregenwoud gekapt wordt. Beschrijf de gevolgen als een kettingreactie: wat leidt tot wat? Denk aan CO₂, regen, biodiversiteit en de mensen die er wonen.</p>
-    <textarea class="open-textarea" oninput="countWords(this)" placeholder="Beschrijf de kettingreactie (minimaal 20 woorden)..."></textarea>
+    <p class="q-text">Leg uit wat er zou gebeuren als een groot deel van het regenwoud gekapt wordt. Beschrijf de gevolgen als een kettingreactie.</p>
+    <textarea class="open-textarea" placeholder="Beschrijf de kettingreactie (minimaal 20 woorden)..."></textarea>
     <div class="word-counter">0 woorden</div>
-    <button class="btn btn-primary" style="margin-top:0.5rem" onclick="submitOpen(this, 'Voorbeeldantwoord: Als veel regenwoud gekapt wordt, komt er veel opgeslagen CO₂ vrij → dit versterkt het broeikaseffect → de aarde warmt sneller op. Tegelijk verdwijnt de \'wolkenmachine\' → er valt minder regen → de grond droogt uit → er groeien geen nieuwe bomen meer. De biodiversiteit stort in: planten en dieren sterven uit, inclusief soorten die we nog niet eens kennen (en die misschien medicijnen hadden kunnen opleveren). Inheemse volken verliezen hun leefgebied en cultuur.')">Toon voorbeeldantwoord</button>
+    <button class="btn btn-primary show-sample-btn" style="margin-top:0.5rem">Toon voorbeeldantwoord</button>
     <div class="feedback-box"></div>
     <div class="self-assess">
-      <button class="btn btn-sm btn-self-good" onclick="selfAssess(this, true)">Goed ✓</button>
-      <button class="btn btn-sm btn-self-bad" onclick="selfAssess(this, false)">Fout ✗</button>
+      <button class="btn btn-sm btn-self-good">Goed ✓</button>
+      <button class="btn btn-sm btn-self-bad">Fout ✗</button>
     </div>
   </div>
 
   <div class="nav-buttons">
-    <button class="btn btn-secondary" onclick="goTab(4)">← Vorige</button>
-    <button class="btn btn-primary" onclick="goTab(6)">Volgende →</button>
-    <button class="reset-section-btn" onclick="resetSection(5)">🔄 Reset dit onderdeel</button>
+    <button class="btn btn-secondary nav-prev" data-target="4">← Vorige</button>
+    <button class="btn btn-primary nav-next" data-target="6">Volgende →</button>
+    <button class="reset-section-btn" data-section="5">🔄 Reset dit onderdeel</button>
   </div>
 </section>
 
-<!-- ═══════════════════ TAB 7: VERANTWOORDELIJKHEID ═══════════════════ -->
+<!-- ══════ TAB 6: VERANTWOORDELIJKHEID ══════ -->
 <section class="tab-panel" id="tab6" data-title="Verantwoord.">
   <div class="info-block">
     <h2>🤝 Wie is verantwoordelijk?</h2>
-    <p>Brazilië verdient goed aan het Amazonegebied. Maar kan Brazilië in z'n eentje zorgen voor het behoud van het regenwoud? Het antwoord is: <strong>nee</strong>. En dit is waarom:</p>
+    <p>Brazilië verdient goed aan het Amazonegebied. Maar kan Brazilië in z'n eentje zorgen voor het behoud? <strong>Nee.</strong></p>
     <p>Grote <strong>internationale bedrijven</strong> trekken het regenwoud leeg met hun geld en machines. Hun producten worden wereldwijd verkocht. <strong>Nederland</strong> koopt bijvoorbeeld grote hoeveelheden Braziliaanse soja, bio-ethanol en tropisch hardhout. Als wij die producten kopen, houden wij de vraag in stand — en daarmee ook de ontbossing.</p>
-
-    <h3>Wie speelt welke rol?</h3>
     <div class="emoji-flow">
-      <span>🇧🇷 Brazilië</span>
-      <span class="arrow">+</span>
-      <span>🏢 Internationale bedrijven</span>
-      <span class="arrow">+</span>
-      <span>🇳🇱 Kooplanden (o.a. Nederland)</span>
-      <span class="arrow">+</span>
-      <span>🛒 Consumenten (jij!)</span>
-      <span class="arrow">=</span>
-      <span>🌍 Gedeelde verantwoordelijkheid</span>
+      <span>🇧🇷 Brazilië</span><span class="arrow">+</span><span>🏢 Internationale bedrijven</span><span class="arrow">+</span><span>🇳🇱 Kooplanden</span><span class="arrow">+</span><span>🛒 Consumenten (jij!)</span><span class="arrow">=</span><span>🌍 Gedeelde verantwoordelijkheid</span>
     </div>
-
-    <p>Er zijn steeds meer mensen en organisaties die strijden voor het behoud van de Amazone, zowel in als buiten Brazilië. Dit is hard nodig. De balans die er ooit was tussen mens en natuur is door alle economische activiteiten vaak ver te zoeken.</p>
-
+    <p>Er zijn steeds meer mensen en organisaties die strijden voor het behoud van de Amazone, zowel in als buiten Brazilië. De balans die er ooit was tussen mens en natuur is door alle economische activiteiten vaak ver te zoeken.</p>
     <div class="highlight-box">
-      <strong>🛒 Jouw keuzes tellen mee:</strong> Als je in de supermarkt kiest voor producten met een duurzaamheidskeurmerk (zoals FSC voor hout, of Rainforest Alliance), draag je bij aan minder ontbossing. Welke keurmerken ken jij al? Heb je er weleens op gelet?
+      <strong>🛒 Jouw keuzes tellen mee:</strong> Als je in de supermarkt kiest voor producten met een duurzaamheidskeurmerk (zoals FSC voor hout, of Rainforest Alliance), draag je bij aan minder ontbossing.
     </div>
   </div>
+  <div class="chart-wrap"><canvas id="chartExport"></canvas></div>
 
-  <div class="chart-wrap">
-    <canvas id="chartExport"></canvas>
-  </div>
-
-  <!-- Opdracht 7.1: MC -->
-  <div class="assignment" id="a_6_0">
+  <div class="assignment" id="a_6_0" data-type="mc" data-answer="b">
     <span class="assignment-label">Kennisvraag</span>
     <h4>Opdracht 14: Medeverantwoordelijk</h4>
     <p class="q-text">Waarom is niet alleen Brazilië, maar ook Nederland medeverantwoordelijk voor de ontbossing?</p>
     <div class="mc-options">
-      <div class="mc-option" data-val="a" onclick="selectMC(this)"><div class="mc-radio"></div><span>Omdat Nederlandse bedrijven bomen kappen in Brazilië</span></div>
-      <div class="mc-option" data-val="b" onclick="selectMC(this)"><div class="mc-radio"></div><span>Omdat Nederland grote hoeveelheden Braziliaanse soja, bio-ethanol en hardhout importeert</span></div>
-      <div class="mc-option" data-val="c" onclick="selectMC(this)"><div class="mc-radio"></div><span>Omdat Nederland deel uitmaakt van het Amazonegebied</span></div>
+      <div class="mc-option" data-val="a"><div class="mc-radio"></div><span>Omdat Nederlandse bedrijven bomen kappen in Brazilië</span></div>
+      <div class="mc-option" data-val="b"><div class="mc-radio"></div><span>Omdat Nederland grote hoeveelheden soja, bio-ethanol en hardhout importeert</span></div>
+      <div class="mc-option" data-val="c"><div class="mc-radio"></div><span>Omdat Nederland deel uitmaakt van het Amazonegebied</span></div>
     </div>
-    <button class="btn btn-primary" style="margin-top:0.8rem" onclick="checkMC(this,'b',['Denk na over de keten: wie koopt de producten die in het Amazonegebied gemaakt worden?','Het gaat om de vraag naar producten. Als landen als Nederland veel importeren, houden ze de ontbossing in stand.'])">Controleer</button>
+    <button class="btn btn-primary check-mc-btn" style="margin-top:0.8rem">Controleer</button>
     <div class="feedback-box"></div>
   </div>
 
-  <!-- Opdracht 7.2: Open -->
-  <div class="assignment" id="a_6_1">
+  <div class="assignment" id="a_6_1" data-type="open">
     <span class="assignment-label open">Open vraag</span>
     <h4>Opdracht 15: Verantwoordelijkheid verdelen</h4>
-    <p class="q-text">Wie is volgens jou het MEEST verantwoordelijk voor de bescherming van het Amazonegebied: de Braziliaanse overheid, internationale bedrijven, of consumenten zoals jij? Leg uit waarom en gebruik minstens twee argumenten.</p>
-    <textarea class="open-textarea" oninput="countWords(this)" placeholder="Schrijf hier je beargumenteerde mening (minimaal 20 woorden)..."></textarea>
+    <p class="q-text">Wie is volgens jou het MEEST verantwoordelijk voor de bescherming van het Amazonegebied: de Braziliaanse overheid, internationale bedrijven, of consumenten zoals jij? Gebruik minstens twee argumenten.</p>
+    <textarea class="open-textarea" placeholder="Schrijf hier je beargumenteerde mening (minimaal 20 woorden)..."></textarea>
     <div class="word-counter">0 woorden</div>
-    <button class="btn btn-primary" style="margin-top:0.5rem" onclick="submitOpen(this, 'Voorbeeldantwoord 1: Ik vind dat de Braziliaanse overheid het meest verantwoordelijk is, want zij maken de wetten en kunnen ontbossing verbieden of beperken. Zij hebben directe macht over wat er in het Amazonegebied gebeurt.\n\nVoorbeeldantwoord 2: Ik denk dat iedereen evenveel verantwoordelijk is. De overheid moet regels maken, bedrijven moeten duurzamer produceren, en consumenten moeten bewuster kiezen. Als één schakel wegvalt, werkt het hele systeem niet.')">Toon voorbeeldantwoord</button>
+    <button class="btn btn-primary show-sample-btn" style="margin-top:0.5rem">Toon voorbeeldantwoord</button>
     <div class="feedback-box"></div>
     <div class="self-assess">
-      <button class="btn btn-sm btn-self-good" onclick="selfAssess(this, true)">Goed ✓</button>
-      <button class="btn btn-sm btn-self-bad" onclick="selfAssess(this, false)">Fout ✗</button>
+      <button class="btn btn-sm btn-self-good">Goed ✓</button>
+      <button class="btn btn-sm btn-self-bad">Fout ✗</button>
     </div>
   </div>
 
   <div class="nav-buttons">
-    <button class="btn btn-secondary" onclick="goTab(5)">← Vorige</button>
-    <button class="btn btn-primary" onclick="goTab(7)">Volgende →</button>
-    <button class="reset-section-btn" onclick="resetSection(6)">🔄 Reset dit onderdeel</button>
+    <button class="btn btn-secondary nav-prev" data-target="5">← Vorige</button>
+    <button class="btn btn-primary nav-next" data-target="7">Volgende →</button>
+    <button class="reset-section-btn" data-section="6">🔄 Reset dit onderdeel</button>
   </div>
 </section>
 
-<!-- ═══════════════════ TAB 8: EARTH CHARTER ═══════════════════ -->
+<!-- ══════ TAB 7: EARTH CHARTER ══════ -->
 <section class="tab-panel" id="tab7" data-title="Earth Charter">
   <div class="info-block">
     <h2>📜 Het Earth Charter</h2>
     <p>In het jaar 2000 is het <strong>Earth Charter</strong> opgesteld — in het Nederlands: het <strong>Handvest van de Aarde</strong>. Dit document is wereldwijd door vele organisaties ondertekend. Het pleit voor respect voor de aarde én voor de mensenrechten.</p>
-
     <h3>De vier uitgangspunten</h3>
-    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:0.8rem; margin:1rem 0;">
-      <div class="highlight-box" style="text-align:center;">
-        <div style="font-size:2rem;">🌍</div>
-        <strong>1. Respecteer de aarde en het leven</strong>
-      </div>
-      <div class="highlight-box" style="text-align:center;">
-        <div style="font-size:2rem;">🐾</div>
-        <strong>2. Zorg goed voor alle levensvormen</strong>
-      </div>
-      <div class="highlight-box" style="text-align:center;">
-        <div style="font-size:2rem;">🏛️</div>
-        <strong>3. Bouw rechtvaardige en vreedzame samenlevingen</strong>
-      </div>
-      <div class="highlight-box" style="text-align:center;">
-        <div style="font-size:2rem;">💎</div>
-        <strong>4. Beheer de schatten en schoonheid van de aarde goed</strong>
-      </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.8rem;margin:1rem 0;">
+      <div class="highlight-box" style="text-align:center"><div style="font-size:2rem">🌍</div><strong>1. Respecteer de aarde en het leven</strong></div>
+      <div class="highlight-box" style="text-align:center"><div style="font-size:2rem">🐾</div><strong>2. Zorg goed voor alle levensvormen</strong></div>
+      <div class="highlight-box" style="text-align:center"><div style="font-size:2rem">🏛️</div><strong>3. Bouw rechtvaardige en vreedzame samenlevingen</strong></div>
+      <div class="highlight-box" style="text-align:center"><div style="font-size:2rem">💎</div><strong>4. Beheer de schatten en schoonheid van de aarde goed</strong></div>
     </div>
-
-    <p>Het Earth Charter is een <strong>handvat</strong> voor iedereen om zo zorgvuldig mogelijk met de aarde en elkaar om te gaan. Het is geen wet, maar een richtlijn die organisaties en landen inspireert om duurzamer te handelen.</p>
-
+    <p>Het Earth Charter is een <strong>handvat</strong> voor iedereen om zo zorgvuldig mogelijk met de aarde en elkaar om te gaan. Het is geen wet, maar een richtlijn.</p>
     <div class="highlight-box">
-      <strong>✈️ Wereldreis-perspectief:</strong> Stel je maakt een wereldreis en ziet overal de gevolgen van ontbossing, vervuiling en ongelijkheid. Het Earth Charter is als een kompas dat zegt: "We moeten het anders doen." Het verbindt milieubescherming met mensenrechten — want je kunt het één niet los zien van het ander.
+      <strong>✈️ Wereldreis-perspectief:</strong> Stel je maakt een wereldreis en ziet overal gevolgen van ontbossing en ongelijkheid. Het Earth Charter is als een kompas dat zegt: we moeten het anders doen.
     </div>
   </div>
 
-  <!-- Opdracht 8.1: Koppelen -->
-  <div class="assignment" id="a_7_0">
+  <div class="assignment" id="a_7_0" data-type="match" data-match-id="match_7_0">
     <span class="assignment-label drag">Koppelopdracht</span>
     <h4>Opdracht 16: Earth Charter koppelen</h4>
-    <p class="q-text">Koppel elk Earth Charter-uitgangspunt aan het juiste voorbeeld. Klik eerst links, dan rechts.</p>
+    <p class="q-text">Koppel elk uitgangspunt aan het juiste voorbeeld. Klik eerst links, dan rechts.</p>
     <div class="match-container" id="match_7_0">
       <div class="match-col">
         <h5>Uitgangspunten</h5>
-        <div class="match-item" data-side="left" data-id="ec1" onclick="matchClick(this,'match_7_0')">🌍 Respecteer de aarde</div>
-        <div class="match-item" data-side="left" data-id="ec2" onclick="matchClick(this,'match_7_0')">🐾 Zorg voor alle levensvormen</div>
-        <div class="match-item" data-side="left" data-id="ec3" onclick="matchClick(this,'match_7_0')">🏛️ Bouw rechtvaardige samenlevingen</div>
-        <div class="match-item" data-side="left" data-id="ec4" onclick="matchClick(this,'match_7_0')">💎 Beheer de schatten goed</div>
+        <div class="match-item" data-side="left" data-id="ec1">🌍 Respecteer de aarde</div>
+        <div class="match-item" data-side="left" data-id="ec2">🐾 Zorg voor alle levensvormen</div>
+        <div class="match-item" data-side="left" data-id="ec3">🏛️ Bouw rechtvaardige samenlevingen</div>
+        <div class="match-item" data-side="left" data-id="ec4">💎 Beheer de schatten goed</div>
       </div>
       <div class="match-col">
         <h5>Voorbeelden</h5>
-        <div class="match-item" data-side="right" data-id="ex1" onclick="matchClick(this,'match_7_0')">Bescherm bedreigde diersoorten in de Amazone</div>
-        <div class="match-item" data-side="right" data-id="ex2" onclick="matchClick(this,'match_7_0')">Stop geen gif in rivieren bij mijnbouw</div>
-        <div class="match-item" data-side="right" data-id="ex3" onclick="matchClick(this,'match_7_0')">Geef inheemse volken inspraak over hun land</div>
-        <div class="match-item" data-side="right" data-id="ex4" onclick="matchClick(this,'match_7_0')">Gebruik hout uit duurzaam beheerde bossen</div>
+        <div class="match-item" data-side="right" data-id="ex1">Bescherm bedreigde diersoorten in de Amazone</div>
+        <div class="match-item" data-side="right" data-id="ex2">Stop geen gif in rivieren bij mijnbouw</div>
+        <div class="match-item" data-side="right" data-id="ex3">Geef inheemse volken inspraak over hun land</div>
+        <div class="match-item" data-side="right" data-id="ex4">Gebruik hout uit duurzaam beheerde bossen</div>
       </div>
     </div>
     <div class="match-pair-display" id="pairs_match_7_0"></div>
-    <button class="btn btn-primary" style="margin-top:0.5rem" onclick="checkMatch('match_7_0',{ec1:'ex2',ec2:'ex1',ec3:'ex3',ec4:'ex4'})">Controleer</button>
+    <button class="btn btn-primary check-match-btn" style="margin-top:0.5rem">Controleer</button>
     <div class="feedback-box"></div>
   </div>
 
-  <!-- Opdracht 8.2: Open -->
-  <div class="assignment" id="a_7_1">
+  <div class="assignment" id="a_7_1" data-type="open">
     <span class="assignment-label open">Open vraag</span>
     <h4>Opdracht 17: Earth Charter in actie</h4>
-    <p class="q-text">Kies één van de vier uitgangspunten van het Earth Charter. Bedenk een concreet voorbeeld van hoe JIJ dit uitgangspunt zou kunnen toepassen in je eigen leven. Denk aan wat je koopt, hoe je met de natuur omgaat, of hoe je met anderen omgaat.</p>
-    <textarea class="open-textarea" oninput="countWords(this)" placeholder="Schrijf hier je voorbeeld (minimaal 20 woorden)..."></textarea>
+    <p class="q-text">Kies één uitgangspunt en bedenk hoe JIJ dit zou kunnen toepassen in je eigen leven.</p>
+    <textarea class="open-textarea" placeholder="Schrijf hier je voorbeeld (minimaal 20 woorden)..."></textarea>
     <div class="word-counter">0 woorden</div>
-    <button class="btn btn-primary" style="margin-top:0.5rem" onclick="submitOpen(this, 'Voorbeeldantwoord: Ik kies uitgangspunt 4: \"Beheer de schatten goed.\" In mijn eigen leven kan ik dit toepassen door bewuster te kiezen wat ik koop. Bijvoorbeeld: ik kan letten op FSC-keurmerken bij hout en papier, en kiezen voor producten zonder palmolie. Ook kan ik minder voedsel verspillen, want voor dat eten is misschien ergens natuur verdwenen.')">Toon voorbeeldantwoord</button>
+    <button class="btn btn-primary show-sample-btn" style="margin-top:0.5rem">Toon voorbeeldantwoord</button>
     <div class="feedback-box"></div>
     <div class="self-assess">
-      <button class="btn btn-sm btn-self-good" onclick="selfAssess(this, true)">Goed ✓</button>
-      <button class="btn btn-sm btn-self-bad" onclick="selfAssess(this, false)">Fout ✗</button>
+      <button class="btn btn-sm btn-self-good">Goed ✓</button>
+      <button class="btn btn-sm btn-self-bad">Fout ✗</button>
     </div>
   </div>
 
   <div class="nav-buttons">
-    <button class="btn btn-secondary" onclick="goTab(6)">← Vorige</button>
-    <button class="btn btn-primary" onclick="goTab(8)">Volgende →</button>
-    <button class="reset-section-btn" onclick="resetSection(7)">🔄 Reset dit onderdeel</button>
+    <button class="btn btn-secondary nav-prev" data-target="6">← Vorige</button>
+    <button class="btn btn-primary nav-next" data-target="8">Volgende →</button>
+    <button class="reset-section-btn" data-section="7">🔄 Reset dit onderdeel</button>
   </div>
 </section>
 
-<!-- ═══════════════════ TAB 9: SCENARIO / CASE ═══════════════════ -->
+<!-- ══════ TAB 8: SCENARIO ══════ -->
 <section class="tab-panel" id="tab8" data-title="Scenario">
   <div class="info-block">
     <h2>✈️ Scenario: Jouw reis door de Amazone</h2>
-    <p>Je hebt een reis gewonnen naar het Amazonegebied! Gedurende je reis kom je verschillende situaties tegen. Bij elke situatie moet je een keuze maken. Lees de scenario's goed en gebruik alles wat je in deze les geleerd hebt.</p>
-
-    <div class="highlight-box" style="background: linear-gradient(135deg, #e8f5e9, #c8e6c9); border-color: var(--green-400);">
-      <strong>📍 Dag 1 — Aankomst in Manaus</strong><br>
-      Je landt in Manaus en maakt een boottocht over de Amazonerivier. Je gids vertelt dat het waterpeil lager is dan normaal. "Dat komt door de ontbossing stroomopwaarts," zegt hij. "De bomen die het water vasthielden, zijn weg."
+    <p>Je hebt een reis gewonnen naar het Amazonegebied! Bij elke situatie moet je een keuze maken. Gebruik alles wat je geleerd hebt.</p>
+    <div class="highlight-box" style="background:linear-gradient(135deg,#e8f5e9,#c8e6c9);border-color:var(--green-400)">
+      <strong>📍 Dag 1 — Aankomst in Manaus</strong><br>Je landt in Manaus en maakt een boottocht. Je gids vertelt dat het waterpeil lager is dan normaal. "Dat komt door de ontbossing stroomopwaarts," zegt hij.
     </div>
-
-    <div class="highlight-box" style="background: linear-gradient(135deg, #fff8e1, #ffecb3); border-color: var(--accent-gold);">
-      <strong>📍 Dag 3 — Bezoek aan een inheems dorp</strong><br>
-      Je bezoekt een klein dorp van het Yanomami-volk. De dorpsoudste vertelt dat hun land steeds kleiner wordt door mijnbouwers die goud zoeken. "Vroeger was het bos van ons," zegt ze. "Nu moeten we vechten voor elke boom."
+    <div class="highlight-box" style="background:linear-gradient(135deg,#fff8e1,#ffecb3);border-color:var(--accent-gold)">
+      <strong>📍 Dag 3 — Bezoek aan een inheems dorp</strong><br>Je bezoekt een dorp van het Yanomami-volk. De dorpsoudste vertelt dat hun land steeds kleiner wordt door mijnbouwers die goud zoeken.
     </div>
-
     <div class="highlight-box water">
-      <strong>📍 Dag 5 — Bij de Belo Monte-dam</strong><br>
-      Je bezoekt de enorme stuwdam. Een ingenieur legt trots uit hoeveel stroom de dam produceert. Maar even verderop zie je een verplaatst dorp: huizen die gebouwd zijn voor mensen die moesten verhuizen vanwege de dam.
+      <strong>📍 Dag 5 — Bij de Belo Monte-dam</strong><br>Je bezoekt de enorme stuwdam. Een ingenieur legt trots uit hoeveel stroom de dam produceert. Maar even verderop zie je een verplaatst dorp.
     </div>
-
     <div class="highlight-box warning">
-      <strong>📍 Dag 7 — De landbouwgrens</strong><br>
-      Op je terugweg naar Manaus vlieg je over Mato Grosso. Vanuit het vliegtuig zie je een scherpe lijn: links eindeloos groen regenwoud, rechts kale, bruine soja-akkers tot aan de horizon. De grens schuift elk jaar verder naar links.
+      <strong>📍 Dag 7 — De landbouwgrens</strong><br>Op je terugweg vlieg je over Mato Grosso. Vanuit het vliegtuig zie je een scherpe lijn: links groen regenwoud, rechts kale soja-akkers tot aan de horizon.
     </div>
   </div>
 
-  <!-- Opdracht 9.1: MC scenario -->
-  <div class="assignment" id="a_8_0">
+  <div class="assignment" id="a_8_0" data-type="mc" data-answer="a">
     <span class="assignment-label">Scenariovraag</span>
     <h4>Opdracht 18: Waterpeil en ontbossing</h4>
-    <p class="q-text">De gids vertelt dat het waterpeil lager is door ontbossing. Welk proces verklaart dit verband?</p>
+    <p class="q-text">De gids vertelt dat het waterpeil lager is door ontbossing. Welk proces verklaart dit?</p>
     <div class="mc-options">
-      <div class="mc-option" data-val="a" onclick="selectMC(this)"><div class="mc-radio"></div><span>Minder bomen → minder verdamping → minder wolken → minder regen → lager waterpeil</span></div>
-      <div class="mc-option" data-val="b" onclick="selectMC(this)"><div class="mc-radio"></div><span>Minder bomen → meer CO₂ → het water wordt warmer → lager waterpeil</span></div>
-      <div class="mc-option" data-val="c" onclick="selectMC(this)"><div class="mc-radio"></div><span>Minder bomen → meer ruimte → het water stroomt sneller weg</span></div>
+      <div class="mc-option" data-val="a"><div class="mc-radio"></div><span>Minder bomen → minder verdamping → minder wolken → minder regen → lager waterpeil</span></div>
+      <div class="mc-option" data-val="b"><div class="mc-radio"></div><span>Minder bomen → meer CO₂ → het water wordt warmer → lager waterpeil</span></div>
+      <div class="mc-option" data-val="c"><div class="mc-radio"></div><span>Minder bomen → meer ruimte → het water stroomt sneller weg</span></div>
     </div>
-    <button class="btn btn-primary" style="margin-top:0.8rem" onclick="checkMC(this,'a',['Denk terug aan de \'wolkenmachine\'. Wat gebeurt er als die machine stopt?','Als er minder bomen zijn, verdampt er minder water. Wat betekent dat voor de regenval?'])">Controleer</button>
+    <button class="btn btn-primary check-mc-btn" style="margin-top:0.8rem">Controleer</button>
     <div class="feedback-box"></div>
   </div>
 
-  <!-- Opdracht 9.2: Open scenario -->
-  <div class="assignment" id="a_8_1">
+  <div class="assignment" id="a_8_1" data-type="open" data-min-words="30">
     <span class="assignment-label open">Open vraag</span>
     <h4>Opdracht 19: Brief aan de wereld</h4>
-    <p class="q-text">Na je reis schrijf je een brief voor social media om mensen bewust te maken van wat je gezien hebt. Schrijf deze brief. Gebruik minstens drie dingen die je in deze les geleerd hebt (denk aan: ontbossing, inheemse volken, waterkracht, biodiversiteit, verantwoordelijkheid, Earth Charter).</p>
-    <textarea class="open-textarea" style="min-height:140px" oninput="countWords(this)" placeholder="Schrijf hier je brief (minimaal 30 woorden)..."></textarea>
+    <p class="q-text">Na je reis schrijf je een bericht voor social media om mensen bewust te maken. Gebruik minstens drie dingen uit deze les.</p>
+    <textarea class="open-textarea" style="min-height:140px" placeholder="Schrijf hier je brief (minimaal 30 woorden)..."></textarea>
     <div class="word-counter">0 woorden (minimaal 30)</div>
-    <button class="btn btn-primary" style="margin-top:0.5rem" onclick="submitOpen(this, 'Voorbeeldantwoord: Lieve volgers, ik ben net terug van een reis door het Amazonegebied en ik moet dit met jullie delen. Ik heb gezien hoe het regenwoud — de longen van onze aarde — elke dag kleiner wordt. Inheemse volken verliezen hun thuis voor onze soja en ons hout. Een enorme stuwdam levert stroom, maar hele dorpen moesten ervoor verhuizen. Vanuit het vliegtuig zag ik de landbouwgrens: een scherpe lijn tussen groen en kaal. Wist je dat wij in Nederland medeverantwoordelijk zijn? We importeren enorm veel uit dit gebied. Laten we bewuster kiezen. #EarthCharter #Amazone', 30)">Toon voorbeeldantwoord</button>
+    <button class="btn btn-primary show-sample-btn" style="margin-top:0.5rem">Toon voorbeeldantwoord</button>
     <div class="feedback-box"></div>
     <div class="self-assess">
-      <button class="btn btn-sm btn-self-good" onclick="selfAssess(this, true)">Goed ✓</button>
-      <button class="btn btn-sm btn-self-bad" onclick="selfAssess(this, false)">Fout ✗</button>
+      <button class="btn btn-sm btn-self-good">Goed ✓</button>
+      <button class="btn btn-sm btn-self-bad">Fout ✗</button>
     </div>
   </div>
 
-  <!-- Opdracht 9.3: Tijdlijn sorteren -->
-  <div class="assignment" id="a_8_2">
+  <div class="assignment" id="a_8_2" data-type="sort" data-correct-order="1,2,3,4,5">
     <span class="assignment-label drag">Sorteeropdracht</span>
     <h4>Opdracht 20: Stappen naar bescherming</h4>
-    <p class="q-text">Zet de onderstaande stappen in een logische volgorde: van probleem herkennen tot oplossing. Sleep de stappen naar de juiste positie.</p>
+    <p class="q-text">Zet de stappen in een logische volgorde: van probleem herkennen tot oplossing. Sleep de stappen.</p>
     <div class="drag-list" id="dragList_8_2">
       <div class="drag-item" draggable="true" data-val="4"><span class="drag-handle">☰</span> Consumenten kiezen voor duurzame producten</div>
       <div class="drag-item" draggable="true" data-val="1"><span class="drag-handle">☰</span> Ontbossing wordt als probleem erkend</div>
@@ -1242,31 +741,30 @@ body {
       <div class="drag-item" draggable="true" data-val="5"><span class="drag-handle">☰</span> Het regenwoud krijgt tijd om te herstellen</div>
       <div class="drag-item" draggable="true" data-val="3"><span class="drag-handle">☰</span> Overheden maken strengere wetten tegen illegale houtkap</div>
     </div>
-    <button class="btn btn-primary" style="margin-top:0.5rem" onclick="checkSortOrder(this,'dragList_8_2',['1','2','3','4','5'],['Welke stap komt logischerwijs het eerst? Je moet een probleem eerst herkennen voordat je actie kunt ondernemen.','Denk na over de volgorde: eerst het probleem zien, dan afspraken maken, dan regels, dan actie, dan resultaat.'])">Controleer</button>
+    <button class="btn btn-primary check-sort-btn" style="margin-top:0.5rem">Controleer</button>
     <div class="feedback-box"></div>
   </div>
 
   <div class="nav-buttons">
-    <button class="btn btn-secondary" onclick="goTab(7)">← Vorige</button>
-    <button class="btn btn-primary" onclick="goTab(9)">Volgende →</button>
-    <button class="reset-section-btn" onclick="resetSection(8)">🔄 Reset dit onderdeel</button>
+    <button class="btn btn-secondary nav-prev" data-target="7">← Vorige</button>
+    <button class="btn btn-primary nav-next" data-target="9">Volgende →</button>
+    <button class="reset-section-btn" data-section="8">🔄 Reset dit onderdeel</button>
   </div>
 </section>
 
-<!-- ═══════════════════ TAB 10: REFLECTIE & AFSLUITING ═══════════════════ -->
+<!-- ══════ TAB 9: AFSLUITING ══════ -->
 <section class="tab-panel" id="tab9" data-title="Afsluiting">
   <div class="info-block">
     <h2>🎯 Reflectie en afsluiting</h2>
-    <p>Gefeliciteerd, je bent bijna klaar met deze les over het Amazonegebied! Laten we even terugkijken op wat je geleerd hebt.</p>
-
+    <p>Gefeliciteerd, je bent bijna klaar! Laten we terugkijken op wat je geleerd hebt.</p>
     <h3>Leerdoelen — Heb je ze behaald?</h3>
     <div id="leerdoelenList">
       <div class="leerdoel-item"><span class="leerdoel-check">📌</span> Je begrijpt dat er in het Amazonegebied verschillende bevolkingsgroepen zijn met elk verschillende belangen.</div>
-      <div class="leerdoel-item"><span class="leerdoel-check">📌</span> Je kunt uitleggen wat de gevolgen zijn van de groeiende landbouw en veeteelt voor het Amazonegebied.</div>
+      <div class="leerdoel-item"><span class="leerdoel-check">📌</span> Je kunt uitleggen wat de gevolgen zijn van de groeiende landbouw en veeteelt.</div>
       <div class="leerdoel-item"><span class="leerdoel-check">📌</span> Je begrijpt welke voor- en nadelen er zitten aan de waterkrachtcentrales.</div>
       <div class="leerdoel-item"><span class="leerdoel-check">📌</span> Je begrijpt waarom het regenwoud zo belangrijk is.</div>
       <div class="leerdoel-item"><span class="leerdoel-check">📌</span> Je weet wat men hoopt te bereiken met het Earth Charter.</div>
-      <div class="leerdoel-item"><span class="leerdoel-check">📌</span> Je kunt beargumenteren wie er verantwoordelijk zijn voor aantasting en behoud van het Amazonegebied.</div>
+      <div class="leerdoel-item"><span class="leerdoel-check">📌</span> Je kunt beargumenteren wie er verantwoordelijk zijn voor aantasting en behoud.</div>
     </div>
   </div>
 
@@ -1276,697 +774,806 @@ body {
     <div class="score-label" id="scoreDetail">0 van 0 opdrachten goed</div>
   </div>
 
-  <!-- Reflectievragen -->
-  <div class="assignment" id="a_9_0">
+  <div class="assignment" id="a_9_0" data-type="open">
     <span class="assignment-label open">Reflectie</span>
     <h4>Opdracht 21: Wat vond je het lastigst?</h4>
-    <p class="q-text">Wat vond je het moeilijkste onderdeel van deze les en waarom? Wat zou je anders aanpakken als je het opnieuw zou doen?</p>
-    <textarea class="open-textarea" oninput="countWords(this)" placeholder="Schrijf hier je reflectie (minimaal 20 woorden)..."></textarea>
+    <p class="q-text">Wat vond je het moeilijkste onderdeel en waarom? Wat zou je anders aanpakken?</p>
+    <textarea class="open-textarea" placeholder="Schrijf hier je reflectie (minimaal 20 woorden)..."></textarea>
     <div class="word-counter">0 woorden</div>
-    <button class="btn btn-primary" style="margin-top:0.5rem" onclick="submitOpen(this, 'Dit is een persoonlijke reflectie — er is geen fout antwoord. Belangrijk is dat je nadenkt over je eigen leerproces. Bijvoorbeeld: \"Ik vond het scenario-deel het lastigst omdat ik alle informatie moest combineren. Ik zou de volgende keer eerst de theorie nog een keer doorlezen.\"')">Toon voorbeeldantwoord</button>
+    <button class="btn btn-primary show-sample-btn" style="margin-top:0.5rem">Toon voorbeeldantwoord</button>
     <div class="feedback-box"></div>
     <div class="self-assess">
-      <button class="btn btn-sm btn-self-good" onclick="selfAssess(this, true)">Goed ✓</button>
-      <button class="btn btn-sm btn-self-bad" onclick="selfAssess(this, false)">Fout ✗</button>
+      <button class="btn btn-sm btn-self-good">Goed ✓</button>
+      <button class="btn btn-sm btn-self-bad">Fout ✗</button>
     </div>
   </div>
 
-  <div class="assignment" id="a_9_1">
+  <div class="assignment" id="a_9_1" data-type="open">
     <span class="assignment-label open">Reflectie</span>
     <h4>Opdracht 22: Uitleggen aan een klasgenoot</h4>
-    <p class="q-text">Stel, een klasgenoot was ziek en heeft deze les gemist. Leg in je eigen woorden uit wat de drie belangrijkste dingen zijn die hij of zij moet weten over het Amazonegebied.</p>
-    <textarea class="open-textarea" oninput="countWords(this)" placeholder="Schrijf hier je uitleg (minimaal 20 woorden)..."></textarea>
+    <p class="q-text">Een klasgenoot was ziek. Leg in je eigen woorden de drie belangrijkste dingen uit over het Amazonegebied.</p>
+    <textarea class="open-textarea" placeholder="Schrijf hier je uitleg (minimaal 20 woorden)..."></textarea>
     <div class="word-counter">0 woorden</div>
-    <button class="btn btn-primary" style="margin-top:0.5rem" onclick="submitOpen(this, 'Voorbeeldantwoord: De drie belangrijkste dingen zijn: (1) Het Amazoneregenwoud wordt bedreigd door ontbossing voor landbouw, veeteelt en mijnbouw. (2) Het regenwoud is super belangrijk voor het klimaat omdat het CO₂ opslaat en als wolkenmachine werkt. (3) Niet alleen Brazilië, maar ook wij in Nederland zijn medeverantwoordelijk omdat we producten importeren waarvoor het bos gekapt wordt.')">Toon voorbeeldantwoord</button>
+    <button class="btn btn-primary show-sample-btn" style="margin-top:0.5rem">Toon voorbeeldantwoord</button>
     <div class="feedback-box"></div>
     <div class="self-assess">
-      <button class="btn btn-sm btn-self-good" onclick="selfAssess(this, true)">Goed ✓</button>
-      <button class="btn btn-sm btn-self-bad" onclick="selfAssess(this, false)">Fout ✗</button>
+      <button class="btn btn-sm btn-self-good">Goed ✓</button>
+      <button class="btn btn-sm btn-self-bad">Fout ✗</button>
     </div>
   </div>
 
-  <div class="assignment" id="a_9_2">
+  <div class="assignment" id="a_9_2" data-type="open">
     <span class="assignment-label open">Reflectie</span>
     <h4>Opdracht 23: In jouw omgeving</h4>
-    <p class="q-text">Hoe zou je het onderwerp van deze les herkennen in je eigen omgeving? Denk aan producten die je koopt, nieuws dat je ziet, of keuzes die je maakt. Geef een concreet voorbeeld.</p>
-    <textarea class="open-textarea" oninput="countWords(this)" placeholder="Schrijf hier je antwoord (minimaal 20 woorden)..."></textarea>
+    <p class="q-text">Hoe zou je het onderwerp van deze les herkennen in je eigen omgeving? Geef een concreet voorbeeld.</p>
+    <textarea class="open-textarea" placeholder="Schrijf hier je antwoord (minimaal 20 woorden)..."></textarea>
     <div class="word-counter">0 woorden</div>
-    <button class="btn btn-primary" style="margin-top:0.5rem" onclick="submitOpen(this, 'Voorbeeldantwoord: Ik herken het als ik in de supermarkt ben: op veel producten staat palmolie of soja. Die komen vaak uit gebieden waar regenwoud is gekapt. Ook als ik houten meubels zie, denk ik: is dit tropisch hardhout? Komt dit uit de Amazone? Ik kan voortaan beter letten op keurmerken zoals FSC.')">Toon voorbeeldantwoord</button>
+    <button class="btn btn-primary show-sample-btn" style="margin-top:0.5rem">Toon voorbeeldantwoord</button>
     <div class="feedback-box"></div>
     <div class="self-assess">
-      <button class="btn btn-sm btn-self-good" onclick="selfAssess(this, true)">Goed ✓</button>
-      <button class="btn btn-sm btn-self-bad" onclick="selfAssess(this, false)">Fout ✗</button>
+      <button class="btn btn-sm btn-self-good">Goed ✓</button>
+      <button class="btn btn-sm btn-self-bad">Fout ✗</button>
     </div>
   </div>
 
-  <div style="text-align:center; margin-top:2rem;">
-    <button class="btn clear-progress-btn" onclick="clearAllProgress()">🗑️ Voortgang wissen</button>
+  <div style="text-align:center;margin-top:2rem">
+    <button class="btn clear-progress-btn" id="clearProgressBtn">🗑️ Voortgang wissen</button>
   </div>
 
   <div class="nav-buttons">
-    <button class="btn btn-secondary" onclick="goTab(8)">← Vorige</button>
+    <button class="btn btn-secondary nav-prev" data-target="8">← Vorige</button>
     <div></div>
-    <button class="reset-section-btn" onclick="resetSection(9)">🔄 Reset dit onderdeel</button>
+    <button class="reset-section-btn" data-section="9">🔄 Reset dit onderdeel</button>
   </div>
 </section>
 
 </main>
 
 <script>
-// ═══════════════════════════════════════
-// STATE & CONFIG
-// ═══════════════════════════════════════
-const TABS = 10;
-const PREFIX = 'geo_les_';
-let maps = [];
-let charts = [];
+(function() {
+  // ═══════════════════════════════════════
+  // CONFIG & DATA
+  // ═══════════════════════════════════════
+  var TABS = 10;
+  var PREFIX = 'geo_les_';
+  var maps = [];
+  var assignments = {};
+  var matchState = {};
+  var currentTab = 0;
 
-// Assignment tracking: {id: {done:bool, correct:bool, attempts:int}}
-let assignments = {};
+  // MC hints per assignment
+  var mcHints = {
+    'a_0_0': ['Kijk nog eens goed naar de tekst hierboven. Het gaat om het Amazonegebied, niet heel Brazilië.', 'Denk aan het woord "dunstbevolkt" — maar er wonen toch best veel mensen. Hoeveel precies?'],
+    'a_1_0': ['Kijk nog eens naar de markers op de kaart — welke plek wordt gelinkt aan landbouw?', 'De naam van deze deelstaat betekent "dicht struikgewas" — ironisch genoeg is daar nu niet veel van over.'],
+    'a_3_0': ['Kijk naar de hoogste balk in de grafiek. In welk jaar piekt de ontbossing?', 'De piek ligt ergens in het begin van de jaren 2000. Kijk goed naar de getallen op de x-as.'],
+    'a_4_0': ['Kijk nog eens naar de uitlegbox hierboven over inundatie. Wat gebeurt er achter de dam?', 'Het woord "inundatie" heeft te maken met water. Wat gebeurt er als je een rivier blokkeert met een dam?'],
+    'a_5_1': ['Denk aan het proces van transpiratie — wat doen de bladeren van bomen met water?', 'Kijk nog eens naar het emoji-schema over de waterkringloop hierboven.'],
+    'a_6_0': ['Denk na over de keten: wie koopt de producten die in het Amazonegebied gemaakt worden?', 'Het gaat om de vraag naar producten. Als landen als Nederland veel importeren, houden ze de ontbossing in stand.'],
+    'a_8_0': ['Denk terug aan de "wolkenmachine". Wat gebeurt er als die machine stopt?', 'Als er minder bomen zijn, verdampt er minder water. Wat betekent dat voor de regenval?']
+  };
 
-// ── localStorage helpers ──
-function lsGet(key) {
-  try { return JSON.parse(localStorage.getItem(PREFIX + key)); } catch(e) { return null; }
-}
-function lsSet(key, val) {
-  try { localStorage.setItem(PREFIX + key, JSON.stringify(val)); } catch(e) {}
-}
-function lsRemove(key) {
-  try { localStorage.removeItem(PREFIX + key); } catch(e) {}
-}
+  // Open question sample answers
+  var sampleAnswers = {
+    'a_0_1': 'Voorbeeldantwoord: Ik gebruik bijvoorbeeld hout (meubels, papier), soja (in veevoer voor vlees en zuivel), en misschien cosmetica met palmolie. Ook biobrandstof in benzine kan van Braziliaans suikerriet zijn. Zo ben ik verbonden met het Amazonegebied, omdat de productie van deze spullen vaak ontbossing veroorzaakt.',
+    'a_1_1': 'Voorbeeldantwoord: Vanuit Manaus vaar je eerst door dicht, groen regenwoud aan beide kanten van de rivier. Naarmate je zuidelijker komt, zie je steeds meer open plekken: gekapte bomen, brandplekken, en uiteindelijk grote soja-akkers en weilanden met koeien. Het dichte woud maakt plaats voor landbouwgebied. In Mato Grosso is het landschap drastisch veranderd.',
+    'a_2_1': 'Voorbeeldantwoord: Inheemse volken willen het regenwoud behouden omdat ze erin leven en ervan afhankelijk zijn. Boeren en mijnbouwers willen juist stukken bos kappen om land te gebruiken voor landbouw of om grondstoffen te winnen. Bijvoorbeeld: als een mijnbouwbedrijf goud wil delven in een gebied waar een inheemse stam woont, moeten die mensen weg.',
+    'a_3_1': 'Voorbeeldantwoord: Mogelijke oorzaken zijn: (1) De wereldwijde vraag naar soja en rundvlees groeide, waardoor meer bos gekapt werd. (2) De Braziliaanse regering versoepelde milieuregels. (3) De groeiende bevolking en economie zorgden voor meer druk. (4) Illegale houtkap nam toe door minder controle.',
+    'a_4_1': 'Voorbeeldantwoord: Dit is een moeilijk dilemma. Vóór de dam: schone energie zonder CO₂, banen, economische impuls. Tegen de dam: inheemse bewoners raken hun grond kwijt, een groot natuurgebied wordt vernietigd door inundatie, nieuwe wegen trekken meer ontbossing aan. Ik zou misschien kiezen voor een kleiner project met minder impact.',
+    'a_5_2': 'Voorbeeldantwoord: Als veel regenwoud gekapt wordt, komt opgeslagen CO₂ vrij → dit versterkt het broeikaseffect → de aarde warmt sneller op. De "wolkenmachine" verdwijnt → minder regen → de grond droogt uit → geen nieuwe bomen. Biodiversiteit stort in: soorten sterven uit. Inheemse volken verliezen hun leefgebied.',
+    'a_6_1': 'Voorbeeldantwoord 1: De Braziliaanse overheid is het meest verantwoordelijk, want zij maken de wetten.\n\nVoorbeeldantwoord 2: Iedereen is evenveel verantwoordelijk. De overheid moet regels maken, bedrijven moeten duurzamer produceren, en consumenten moeten bewuster kiezen.',
+    'a_7_1': 'Voorbeeldantwoord: Ik kies uitgangspunt 4: "Beheer de schatten goed." In mijn eigen leven kan ik letten op FSC-keurmerken bij hout en papier, kiezen voor producten zonder palmolie, en minder voedsel verspillen.',
+    'a_8_1': 'Voorbeeldantwoord: Lieve volgers, ik ben net terug van een reis door het Amazonegebied. Ik heb gezien hoe het regenwoud elke dag kleiner wordt. Inheemse volken verliezen hun thuis voor onze soja en ons hout. Een enorme stuwdam levert stroom, maar hele dorpen moesten verhuizen. Vanuit het vliegtuig zag ik de landbouwgrens: een scherpe lijn tussen groen en kaal. Wij in Nederland zijn medeverantwoordelijk. Laten we bewuster kiezen!',
+    'a_9_0': 'Dit is een persoonlijke reflectie — er is geen fout antwoord. Belangrijk is dat je nadenkt over je eigen leerproces.',
+    'a_9_1': 'Voorbeeldantwoord: De drie belangrijkste dingen zijn: (1) Het Amazoneregenwoud wordt bedreigd door ontbossing voor landbouw, veeteelt en mijnbouw. (2) Het regenwoud is super belangrijk voor het klimaat omdat het CO₂ opslaat en als wolkenmachine werkt. (3) Niet alleen Brazilië, maar ook wij zijn medeverantwoordelijk.',
+    'a_9_2': 'Voorbeeldantwoord: Ik herken het als ik in de supermarkt ben: op veel producten staat palmolie of soja. Die komen vaak uit gebieden waar regenwoud is gekapt. Ik kan voortaan beter letten op keurmerken zoals FSC.'
+  };
 
-function saveState() {
-  lsSet('assignments', assignments);
-  lsSet('timestamp', new Date().toISOString());
-}
-function loadState() {
-  const saved = lsGet('assignments');
-  if (saved) assignments = saved;
-}
+  // Match correct answers
+  var matchCorrect = {
+    'match_2_0': {g1:'a3', g2:'a4', g3:'a5', g4:'a2', g5:'a1'},
+    'match_7_0': {ec1:'ex2', ec2:'ex1', ec3:'ex3', ec4:'ex4'}
+  };
 
-// ═══════════════════════════════════════
-// TAB NAVIGATION
-// ═══════════════════════════════════════
-let currentTab = 0;
+  // Sort correct orders
+  var sortCorrect = {
+    'a_8_2': ['1','2','3','4','5']
+  };
+  var sortHints = {
+    'a_8_2': ['Welke stap komt logischerwijs het eerst? Je moet een probleem eerst herkennen voordat je actie kunt ondernemen.', 'Denk na: eerst probleem zien, dan afspraken, dan regels, dan actie, dan resultaat.']
+  };
 
-function buildTabs() {
-  const nav = document.getElementById('tabNav');
-  nav.innerHTML = '';
-  for (let i = 0; i < TABS; i++) {
-    const panel = document.getElementById('tab' + i);
-    const title = panel.dataset.title;
-    const btn = document.createElement('button');
-    btn.className = 'tab-btn' + (i === currentTab ? ' active' : '');
-    btn.innerHTML = (i + 1) + '. ' + title + '<span class="tab-check" id="tabCheck' + i + '"></span>';
-    btn.onclick = () => goTab(i);
-    nav.appendChild(btn);
+  // ═══════════════════════════════════════
+  // LOCALSTORAGE
+  // ═══════════════════════════════════════
+  function lsGet(key) {
+    try { return JSON.parse(localStorage.getItem(PREFIX + key)); } catch(e) { return null; }
   }
-  updateTabChecks();
-}
-
-function goTab(idx) {
-  if (idx < 0 || idx >= TABS) return;
-  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-  document.getElementById('tab' + idx).classList.add('active');
-  currentTab = idx;
-  document.querySelectorAll('.tab-btn').forEach((b, i) => {
-    b.classList.toggle('active', i === idx);
-  });
-  document.getElementById('sectionCounter').textContent = 'Onderdeel ' + (idx + 1) + ' van ' + TABS;
-  // Scroll to top
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-  // Invalidate maps
-  setTimeout(() => { maps.forEach(m => { try { m.invalidateSize(); } catch(e){} }); }, 300);
-  // Update score on last tab
-  if (idx === TABS - 1) updateFinalScore();
-}
-
-function updateTabChecks() {
-  for (let t = 0; t < TABS; t++) {
-    const el = document.getElementById('tabCheck' + t);
-    if (!el) continue;
-    const sectionAssignments = Object.keys(assignments).filter(k => k.startsWith('a_' + t + '_'));
-    const allDone = sectionAssignments.length > 0 && sectionAssignments.every(k => assignments[k] && assignments[k].done);
-    el.textContent = allDone ? ' ✓' : '';
+  function lsSet(key, val) {
+    try { localStorage.setItem(PREFIX + key, JSON.stringify(val)); } catch(e) {}
   }
-}
+  function saveState() {
+    lsSet('assignments', assignments);
+    lsSet('timestamp', new Date().toISOString());
+  }
+  function loadState() {
+    var saved = lsGet('assignments');
+    if (saved) assignments = saved;
+  }
 
-// ═══════════════════════════════════════
-// PROGRESS BAR
-// ═══════════════════════════════════════
-function updateProgress() {
-  const all = document.querySelectorAll('.assignment');
-  const total = all.length;
-  let done = 0;
-  all.forEach(a => {
-    if (assignments[a.id] && assignments[a.id].done) done++;
-  });
-  const pct = total > 0 ? Math.round((done / total) * 100) : 0;
-  document.getElementById('progressFill').style.width = pct + '%';
-  document.getElementById('progressPercent').textContent = pct + '%';
-  updateTabChecks();
-  saveState();
-}
+  // ═══════════════════════════════════════
+  // TABS
+  // ═══════════════════════════════════════
+  function buildTabs() {
+    var nav = document.getElementById('tabNav');
+    nav.innerHTML = '';
+    for (var i = 0; i < TABS; i++) {
+      var panel = document.getElementById('tab' + i);
+      var title = panel.getAttribute('data-title');
+      var btn = document.createElement('button');
+      btn.className = 'tab-btn' + (i === currentTab ? ' active' : '');
+      btn.innerHTML = (i+1) + '. ' + title + '<span class="tab-check" id="tabCheck' + i + '"></span>';
+      btn.setAttribute('data-tab', i);
+      nav.appendChild(btn);
+    }
+    updateTabChecks();
+  }
 
-// ═══════════════════════════════════════
-// MC QUESTIONS
-// ═══════════════════════════════════════
-function selectMC(el) {
-  const parent = el.closest('.assignment');
-  if (parent.dataset.locked) return;
-  parent.querySelectorAll('.mc-option').forEach(o => o.classList.remove('selected'));
-  el.classList.add('selected');
-}
+  function goTab(idx) {
+    if (idx < 0 || idx >= TABS) return;
+    var panels = document.querySelectorAll('.tab-panel');
+    for (var i = 0; i < panels.length; i++) panels[i].classList.remove('active');
+    document.getElementById('tab' + idx).classList.add('active');
+    currentTab = idx;
+    var btns = document.querySelectorAll('.tab-btn');
+    for (var i = 0; i < btns.length; i++) {
+      btns[i].classList.toggle('active', i === idx);
+    }
+    document.getElementById('sectionCounter').textContent = 'Onderdeel ' + (idx+1) + ' van ' + TABS;
+    window.scrollTo({top:0, behavior:'smooth'});
+    setTimeout(function() {
+      for (var i = 0; i < maps.length; i++) {
+        try { maps[i].invalidateSize(); } catch(e) {}
+      }
+    }, 300);
+    if (idx === TABS - 1) updateFinalScore();
+  }
 
-function checkMC(btn, correct, hints) {
-  const parent = btn.closest('.assignment');
-  if (parent.dataset.locked) return;
-  const selected = parent.querySelector('.mc-option.selected');
-  if (!selected) return;
-  const fb = parent.querySelector('.feedback-box');
-  const id = parent.id;
-  if (!assignments[id]) assignments[id] = { done: false, correct: false, attempts: 0 };
-  assignments[id].attempts++;
-
-  if (selected.dataset.val === correct) {
-    fb.className = 'feedback-box correct';
-    fb.innerHTML = '✅ <strong>Goed zo!</strong> Dat klopt helemaal.';
-    fb.style.display = 'block';
-    selected.classList.add('correct');
-    parent.dataset.locked = 'true';
-    assignments[id].done = true;
-    assignments[id].correct = true;
-  } else {
-    selected.classList.add('incorrect');
-    setTimeout(() => selected.classList.remove('incorrect'), 800);
-    selected.classList.remove('selected');
-    if (assignments[id].attempts >= 3) {
-      fb.className = 'feedback-box correct';
-      const correctOpt = parent.querySelector('.mc-option[data-val="' + correct + '"]');
-      correctOpt.classList.add('correct');
-      fb.innerHTML = '💡 Het juiste antwoord is: <strong>' + correctOpt.querySelector('span').textContent + '</strong>';
-      fb.style.display = 'block';
-      parent.dataset.locked = 'true';
-      assignments[id].done = true;
-      assignments[id].correct = false;
-    } else {
-      const hintIdx = Math.min(assignments[id].attempts - 1, hints.length - 1);
-      fb.className = 'feedback-box hint';
-      fb.innerHTML = '💭 <strong>Bijna!</strong> ' + hints[hintIdx];
-      fb.style.display = 'block';
+  function updateTabChecks() {
+    for (var t = 0; t < TABS; t++) {
+      var el = document.getElementById('tabCheck' + t);
+      if (!el) continue;
+      var sectionIds = [];
+      var panel = document.getElementById('tab' + t);
+      var asgns = panel.querySelectorAll('.assignment');
+      var allDone = asgns.length > 0;
+      for (var i = 0; i < asgns.length; i++) {
+        if (!assignments[asgns[i].id] || !assignments[asgns[i].id].done) { allDone = false; break; }
+      }
+      el.textContent = allDone ? ' ✓' : '';
     }
   }
-  updateProgress();
-}
 
-// ═══════════════════════════════════════
-// OPEN QUESTIONS
-// ═══════════════════════════════════════
-function countWords(textarea) {
-  const words = textarea.value.trim().split(/\s+/).filter(w => w.length > 0).length;
-  const counter = textarea.parentElement.querySelector('.word-counter');
-  counter.textContent = words + ' woorden';
-  counter.classList.toggle('enough', words >= 20);
-}
-
-function submitOpen(btn, sampleAnswer, minWords) {
-  const parent = btn.closest('.assignment');
-  const textarea = parent.querySelector('.open-textarea');
-  const words = textarea.value.trim().split(/\s+/).filter(w => w.length > 0).length;
-  const min = minWords || 20;
-  if (words < min) {
-    const fb = parent.querySelector('.feedback-box');
-    fb.className = 'feedback-box hint';
-    fb.innerHTML = '✍️ Schrijf nog wat meer — je hebt ' + words + ' woorden, maar je hebt minimaal ' + min + ' nodig.';
-    fb.style.display = 'block';
-    return;
+  // ═══════════════════════════════════════
+  // PROGRESS
+  // ═══════════════════════════════════════
+  function updateProgress() {
+    var all = document.querySelectorAll('.assignment');
+    var total = all.length;
+    var done = 0;
+    for (var i = 0; i < all.length; i++) {
+      if (assignments[all[i].id] && assignments[all[i].id].done) done++;
+    }
+    var pct = total > 0 ? Math.round((done/total)*100) : 0;
+    document.getElementById('progressFill').style.width = pct + '%';
+    document.getElementById('progressPercent').textContent = pct + '%';
+    updateTabChecks();
+    saveState();
   }
-  const fb = parent.querySelector('.feedback-box');
-  fb.className = 'feedback-box sample';
-  fb.innerHTML = '📝 <strong>Vergelijk je antwoord met dit voorbeeld:</strong><br><br>' + sampleAnswer.replace(/\n/g, '<br>') + '<br><br><em>Dit is een voorbeeldantwoord. Jouw antwoord kan anders zijn en toch goed.</em>';
-  fb.style.display = 'block';
-  parent.querySelector('.self-assess').classList.add('visible');
-  btn.disabled = true;
-}
 
-function selfAssess(btn, isGood) {
-  const parent = btn.closest('.assignment');
-  const id = parent.id;
-  assignments[id] = { done: true, correct: isGood, attempts: 1 };
-  parent.querySelector('.self-assess').innerHTML = isGood
-    ? '<span style="color:var(--green-700);font-weight:700;">✅ Genoteerd als goed</span>'
-    : '<span style="color:var(--accent-red);font-weight:700;">❌ Genoteerd — bekijk het voorbeeld nog eens goed</span>';
-  updateProgress();
-}
-
-// ═══════════════════════════════════════
-// MATCH / COUPLING
-// ═══════════════════════════════════════
-let matchState = {};
-
-function matchClick(el, containerId) {
-  const parent = el.closest('.assignment');
-  if (parent.dataset.locked) return;
-  if (!matchState[containerId]) matchState[containerId] = { left: null, pairs: [] };
-  const state = matchState[containerId];
-  const side = el.dataset.side;
-
-  if (side === 'left') {
-    // Deselect previous left
-    document.querySelectorAll('#' + containerId + ' .match-item[data-side="left"]').forEach(i => i.classList.remove('selected'));
+  // ═══════════════════════════════════════
+  // MC QUESTIONS
+  // ═══════════════════════════════════════
+  function handleMCOptionClick(el) {
+    var parent = el.closest('.assignment');
+    if (parent.getAttribute('data-locked')) return;
+    var opts = parent.querySelectorAll('.mc-option');
+    for (var i = 0; i < opts.length; i++) opts[i].classList.remove('selected');
     el.classList.add('selected');
-    state.left = el.dataset.id;
-  } else if (side === 'right' && state.left) {
-    // Make pair
-    state.pairs.push({ left: state.left, right: el.dataset.id });
-    // Visual feedback
-    const leftEl = document.querySelector('#' + containerId + ' .match-item[data-id="' + state.left + '"]');
-    leftEl.classList.remove('selected');
-    leftEl.classList.add('matched');
-    el.classList.add('matched');
-
-    // Generate a color for the pair
-    const colors = ['#c6f0d5','#bee3f8','#fef3c7','#fecaca','#e9d5ff','#ccfbf1','#fce7f3','#dbeafe'];
-    const colorIdx = (state.pairs.length - 1) % colors.length;
-    const pairColor = colors[colorIdx];
-    leftEl.style.backgroundColor = pairColor;
-    // Don't change right background so multiple can map to it
-
-    state.left = null;
-    renderPairs(containerId);
-  }
-}
-
-function renderPairs(containerId) {
-  const state = matchState[containerId];
-  const display = document.getElementById('pairs_' + containerId);
-  display.innerHTML = '';
-  state.pairs.forEach((p, idx) => {
-    const leftEl = document.querySelector('#' + containerId + ' .match-item[data-id="' + p.left + '"]');
-    const rightEl = document.querySelector('#' + containerId + ' .match-item[data-id="' + p.right + '"]');
-    const row = document.createElement('div');
-    row.className = 'match-pair-row';
-    row.innerHTML = '<span>' + (leftEl ? leftEl.textContent : p.left) + '</span><span class="pair-arrow">→</span><span>' + (rightEl ? rightEl.textContent : p.right) + '</span><button class="remove-pair" onclick="removePair(\'' + containerId + '\',' + idx + ')">✕</button>';
-    display.appendChild(row);
-  });
-}
-
-function removePair(containerId, idx) {
-  const state = matchState[containerId];
-  const pair = state.pairs[idx];
-  // Remove visual
-  const leftEl = document.querySelector('#' + containerId + ' .match-item[data-id="' + pair.left + '"]');
-  if (leftEl) { leftEl.classList.remove('matched'); leftEl.style.backgroundColor = ''; }
-  // Check if right still has pairs
-  state.pairs.splice(idx, 1);
-  const rightStillUsed = state.pairs.some(p => p.right === pair.right);
-  if (!rightStillUsed) {
-    const rightEl = document.querySelector('#' + containerId + ' .match-item[data-id="' + pair.right + '"]');
-    if (rightEl) rightEl.classList.remove('matched');
-  }
-  renderPairs(containerId);
-}
-
-function checkMatch(containerId, correctMap) {
-  const parent = document.querySelector('#' + containerId).closest('.assignment');
-  if (parent.dataset.locked) return;
-  const state = matchState[containerId];
-  if (!state || state.pairs.length === 0) return;
-  const fb = parent.querySelector('.feedback-box');
-  const id = parent.id;
-
-  let allCorrect = true;
-  const needed = Object.keys(correctMap).length;
-  if (state.pairs.length < needed) {
-    fb.className = 'feedback-box hint';
-    fb.innerHTML = '💭 Je hebt nog niet alle koppelingen gemaakt. Koppel alle items links aan een item rechts.';
-    fb.style.display = 'block';
-    return;
   }
 
-  state.pairs.forEach(p => {
-    if (correctMap[p.left] !== p.right) allCorrect = false;
-  });
+  function handleMCCheck(btn) {
+    var parent = btn.closest('.assignment');
+    if (parent.getAttribute('data-locked')) return;
+    var selected = parent.querySelector('.mc-option.selected');
+    if (!selected) return;
+    var correct = parent.getAttribute('data-answer');
+    var id = parent.id;
+    var hints = mcHints[id] || ['Probeer het nog eens.', 'Lees de tekst nog eens goed door.'];
+    var fb = parent.querySelector('.feedback-box');
+    if (!assignments[id]) assignments[id] = {done:false, correct:false, attempts:0};
+    assignments[id].attempts++;
 
-  if (!assignments[id]) assignments[id] = { done: false, correct: false, attempts: 0 };
-  assignments[id].attempts++;
-
-  if (allCorrect) {
-    fb.className = 'feedback-box correct';
-    fb.innerHTML = '✅ <strong>Uitstekend!</strong> Alle koppelingen zijn juist!';
-    fb.style.display = 'block';
-    parent.dataset.locked = 'true';
-    assignments[id] = { done: true, correct: true, attempts: assignments[id].attempts };
-  } else if (assignments[id].attempts >= 3) {
-    fb.className = 'feedback-box correct';
-    let html = '💡 De juiste koppelingen zijn:<br>';
-    Object.entries(correctMap).forEach(([l, r]) => {
-      const le = document.querySelector('#' + containerId + ' .match-item[data-id="' + l + '"]');
-      const re = document.querySelector('#' + containerId + ' .match-item[data-id="' + r + '"]');
-      html += '• ' + (le ? le.textContent : l) + ' → ' + (re ? re.textContent : r) + '<br>';
-    });
-    fb.innerHTML = html;
-    fb.style.display = 'block';
-    parent.dataset.locked = 'true';
-    assignments[id] = { done: true, correct: false, attempts: assignments[id].attempts };
-  } else {
-    fb.className = 'feedback-box hint';
-    fb.innerHTML = '💭 Niet alle koppelingen kloppen. Bekijk de uitleg hierboven nog eens en probeer opnieuw. Je kunt koppelingen verwijderen met het ✕ knopje.';
-    fb.style.display = 'block';
-  }
-  updateProgress();
-}
-
-// ═══════════════════════════════════════
-// DRAG AND DROP
-// ═══════════════════════════════════════
-function initDragDrop() {
-  document.querySelectorAll('.drag-list').forEach(list => {
-    let draggedItem = null;
-    let touchItem = null;
-    let placeholder = null;
-
-    list.querySelectorAll('.drag-item').forEach(item => {
-      // Mouse drag
-      item.addEventListener('dragstart', e => {
-        draggedItem = item;
-        item.classList.add('dragging');
-        e.dataTransfer.effectAllowed = 'move';
-      });
-      item.addEventListener('dragend', () => {
-        if (draggedItem) draggedItem.classList.remove('dragging');
-        draggedItem = null;
-      });
-      item.addEventListener('dragover', e => {
-        e.preventDefault();
-        if (!draggedItem || draggedItem === item) return;
-        const rect = item.getBoundingClientRect();
-        const mid = rect.top + rect.height / 2;
-        if (e.clientY < mid) {
-          list.insertBefore(draggedItem, item);
-        } else {
-          list.insertBefore(draggedItem, item.nextSibling);
-        }
-      });
-
-      // Touch
-      item.addEventListener('touchstart', e => {
-        touchItem = item;
-        item.classList.add('dragging');
-        e.preventDefault();
-      }, { passive: false });
-      item.addEventListener('touchmove', e => {
-        if (!touchItem) return;
-        e.preventDefault();
-        const touch = e.touches[0];
-        const elBelow = document.elementFromPoint(touch.clientX, touch.clientY);
-        if (elBelow && elBelow.closest('.drag-item') && elBelow.closest('.drag-item') !== touchItem) {
-          const target = elBelow.closest('.drag-item');
-          const rect = target.getBoundingClientRect();
-          const mid = rect.top + rect.height / 2;
-          if (touch.clientY < mid) {
-            list.insertBefore(touchItem, target);
-          } else {
-            list.insertBefore(touchItem, target.nextSibling);
-          }
-        }
-      }, { passive: false });
-      item.addEventListener('touchend', () => {
-        if (touchItem) touchItem.classList.remove('dragging');
-        touchItem = null;
-      });
-    });
-  });
-}
-
-function checkRanking(btn) {
-  // For opinion-based ranking, always accept
-  const parent = btn.closest('.assignment');
-  if (parent.dataset.locked) return;
-  const id = parent.id;
-  const fb = parent.querySelector('.feedback-box');
-  fb.className = 'feedback-box correct';
-  fb.innerHTML = '✅ <strong>Goed!</strong> Dit is jouw persoonlijke rangschikking. Er is hier geen fout antwoord — het gaat erom dat je nadenkt over welke functies je het belangrijkst vindt. Alle genoemde functies zijn essentieel voor het voortbestaan van het regenwoud.';
-  fb.style.display = 'block';
-  parent.dataset.locked = 'true';
-  assignments[id] = { done: true, correct: true, attempts: 1 };
-  updateProgress();
-}
-
-function checkSortOrder(btn, listId, correctOrder, hints) {
-  const parent = btn.closest('.assignment');
-  if (parent.dataset.locked) return;
-  const list = document.getElementById(listId);
-  const items = Array.from(list.querySelectorAll('.drag-item'));
-  const current = items.map(i => i.dataset.val);
-  const id = parent.id;
-  if (!assignments[id]) assignments[id] = { done: false, correct: false, attempts: 0 };
-  assignments[id].attempts++;
-  const fb = parent.querySelector('.feedback-box');
-
-  const isCorrect = current.every((v, i) => v === correctOrder[i]);
-  if (isCorrect) {
-    items.forEach(i => i.classList.add('correct-pos'));
-    fb.className = 'feedback-box correct';
-    fb.innerHTML = '✅ <strong>Helemaal goed!</strong> Je hebt de stappen in de juiste volgorde gezet.';
-    fb.style.display = 'block';
-    parent.dataset.locked = 'true';
-    assignments[id] = { done: true, correct: true, attempts: assignments[id].attempts };
-  } else if (assignments[id].attempts >= 3) {
-    fb.className = 'feedback-box correct';
-    fb.innerHTML = '💡 De juiste volgorde is:<br>';
-    correctOrder.forEach((v, i) => {
-      const el = list.querySelector('.drag-item[data-val="' + v + '"]');
-      fb.innerHTML += (i + 1) + '. ' + el.textContent.trim().replace('☰ ', '') + '<br>';
-    });
-    fb.style.display = 'block';
-    parent.dataset.locked = 'true';
-    assignments[id] = { done: true, correct: false, attempts: assignments[id].attempts };
-  } else {
-    items.forEach(i => { i.classList.remove('correct-pos', 'wrong-pos'); });
-    // Mark which are in the right spot
-    current.forEach((v, i) => {
-      if (v === correctOrder[i]) items[i].classList.add('correct-pos');
-      else items[i].classList.add('wrong-pos');
-    });
-    const hintIdx = Math.min(assignments[id].attempts - 1, hints.length - 1);
-    fb.className = 'feedback-box hint';
-    fb.innerHTML = '💭 ' + hints[hintIdx] + ' De groene items staan al goed!';
-    fb.style.display = 'block';
-  }
-  updateProgress();
-}
-
-// ═══════════════════════════════════════
-// SECTION RESET
-// ═══════════════════════════════════════
-function resetSection(tabIdx) {
-  const panel = document.getElementById('tab' + tabIdx);
-  // Reset assignments in this tab
-  panel.querySelectorAll('.assignment').forEach(a => {
-    delete assignments[a.id];
-    delete a.dataset.locked;
-    // Reset MC
-    a.querySelectorAll('.mc-option').forEach(o => {
-      o.classList.remove('selected', 'correct', 'incorrect');
-    });
-    // Reset textarea
-    const ta = a.querySelector('.open-textarea');
-    if (ta) ta.value = '';
-    const wc = a.querySelector('.word-counter');
-    if (wc) { wc.textContent = '0 woorden'; wc.classList.remove('enough'); }
-    // Reset feedback
-    const fb = a.querySelector('.feedback-box');
-    if (fb) { fb.style.display = 'none'; fb.innerHTML = ''; }
-    // Reset self-assess
-    const sa = a.querySelector('.self-assess');
-    if (sa) {
-      sa.classList.remove('visible');
-      sa.innerHTML = '<button class="btn btn-sm btn-self-good" onclick="selfAssess(this, true)">Goed ✓</button><button class="btn btn-sm btn-self-bad" onclick="selfAssess(this, false)">Fout ✗</button>';
-    }
-    // Re-enable buttons
-    a.querySelectorAll('.btn-primary:disabled').forEach(b => b.disabled = false);
-    // Reset drag items
-    a.querySelectorAll('.drag-item').forEach(d => {
-      d.classList.remove('correct-pos', 'wrong-pos');
-    });
-    // Reset match items
-    a.querySelectorAll('.match-item').forEach(m => {
-      m.classList.remove('selected', 'matched');
-      m.style.backgroundColor = '';
-    });
-    // Reset match pairs display
-    a.querySelectorAll('.match-pair-display').forEach(d => d.innerHTML = '');
-  });
-  // Reset match state for this section
-  Object.keys(matchState).forEach(k => {
-    if (k.startsWith('match_' + tabIdx + '_')) delete matchState[k];
-  });
-  updateProgress();
-}
-
-// ═══════════════════════════════════════
-// FINAL SCORE
-// ═══════════════════════════════════════
-function updateFinalScore() {
-  const all = document.querySelectorAll('.assignment');
-  let total = all.length;
-  let done = 0;
-  let correct = 0;
-  all.forEach(a => {
-    if (assignments[a.id] && assignments[a.id].done) {
-      done++;
-      if (assignments[a.id].correct) correct++;
-    }
-  });
-  const pct = total > 0 ? Math.round((correct / total) * 100) : 0;
-  document.getElementById('finalScore').textContent = pct + '%';
-  document.getElementById('scoreDetail').textContent = correct + ' van ' + total + ' opdrachten goed (' + done + ' ingevuld)';
-}
-
-function clearAllProgress() {
-  if (!confirm('Weet je zeker dat je al je voortgang wilt wissen? Dit kan niet ongedaan worden.')) return;
-  assignments = {};
-  matchState = {};
-  try {
-    Object.keys(localStorage).forEach(k => {
-      if (k.startsWith(PREFIX)) localStorage.removeItem(k);
-    });
-  } catch(e) {}
-  // Reset all sections
-  for (let i = 0; i < TABS; i++) resetSection(i);
-  goTab(0);
-}
-
-// ═══════════════════════════════════════
-// MAPS
-// ═══════════════════════════════════════
-function initMaps() {
-  // Intro map
-  const mapIntro = L.map('mapIntro').setView([-3.4, -60], 4);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '© OpenStreetMap',
-    maxZoom: 12
-  }).addTo(mapIntro);
-  L.marker([-3.12, -60.02]).addTo(mapIntro).bindPopup('<strong>Manaus</strong><br>Grootste stad in het Amazonegebied (2 miljoen inwoners)');
-  L.marker([-3.47, -51.94]).addTo(mapIntro).bindPopup('<strong>Belo Monte-dam</strong><br>Omstreden waterkrachtcentrale in de Xingu');
-  L.marker([-12.6, -55.4]).addTo(mapIntro).bindPopup('<strong>Mato Grosso</strong><br>80% natuur verdwenen voor landbouw');
-  L.marker([-1.45, -48.5]).addTo(mapIntro).bindPopup('<strong>Belém</strong><br>Havenstad aan de monding van de Amazone');
-  maps.push(mapIntro);
-
-  // Explore map
-  const mapExplore = L.map('mapExplore').setView([-5, -58], 4);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '© OpenStreetMap',
-    maxZoom: 12
-  }).addTo(mapExplore);
-  L.marker([-3.12, -60.02]).addTo(mapExplore).bindPopup('<strong>🏙️ Manaus</strong><br>Startpunt voor jungle-expedities. Beroemd operagebouw.');
-  L.marker([-3.47, -51.94]).addTo(mapExplore).bindPopup('<strong>💧 Belo Monte-dam (Xingu)</strong><br>Een van de grootste stuwdammen ter wereld. Jarenlang protest van inheemse volken.');
-  L.marker([-12.6, -55.4]).addTo(mapExplore).bindPopup('<strong>🌾 Mato Grosso</strong><br>Deelstaat waar 80% van de natuur verdwenen is voor grootschalige landbouw (soja, veeteelt).');
-  L.marker([-2.5, -64.0]).addTo(mapExplore).bindPopup('<strong>🏹 Yanomami-gebied</strong><br>Leefgebied van inheemse Yanomami. Bedreigd door goudmijnbouw.');
-  L.marker([0.05, -51.07]).addTo(mapExplore).bindPopup('<strong>🌊 Monding Amazone</strong><br>De Amazone is ~6.400 km lang en voert meer water af dan elke andere rivier.');
-  L.marker([-8.76, -63.9]).addTo(mapExplore).bindPopup('<strong>🪵 Porto Velho</strong><br>Belangrijk knooppunt voor houthandel en transport.');
-  maps.push(mapExplore);
-}
-
-// ═══════════════════════════════════════
-// CHARTS
-// ═══════════════════════════════════════
-function initCharts() {
-  // Ontbossing chart
-  const ctx1 = document.getElementById('chartOntbossing').getContext('2d');
-  new Chart(ctx1, {
-    type: 'bar',
-    data: {
-      labels: ['2000','2002','2004','2006','2008','2010','2012','2014','2016','2018','2020','2022'],
-      datasets: [{
-        label: 'Ontbossing (km² per jaar)',
-        data: [18226, 21650, 27772, 14286, 12911, 7000, 4571, 5012, 7893, 7536, 11088, 11568],
-        backgroundColor: 'rgba(45, 138, 86, 0.7)',
-        borderColor: 'rgba(37, 109, 71, 1)',
-        borderWidth: 1
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: { display: true, position: 'top' },
-        title: { display: true, text: 'Ontbossing Amazone (km² per jaar)', font: { size: 14, family: 'Nunito', weight: '700' } }
-      },
-      scales: {
-        y: { beginAtZero: true, title: { display: true, text: 'km²' } },
-        x: { title: { display: true, text: 'Jaar' } }
-      }
-    }
-  });
-
-  // Export chart
-  const ctx2 = document.getElementById('chartExport').getContext('2d');
-  new Chart(ctx2, {
-    type: 'doughnut',
-    data: {
-      labels: ['Soja', 'Rundvlees', 'Hout & houtproducten', 'IJzererts', 'Bio-ethanol', 'Overig'],
-      datasets: [{
-        data: [28, 22, 15, 18, 8, 9],
-        backgroundColor: [
-          '#38a169', '#2d8a56', '#256d47', '#1e4d35', '#d69e2e', '#a07850'
-        ],
-        borderWidth: 2,
-        borderColor: '#fff'
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: { position: 'bottom', labels: { font: { family: 'Nunito', size: 12 } } },
-        title: { display: true, text: 'Belangrijkste exportproducten uit het Amazonegebied (%)', font: { size: 14, family: 'Nunito', weight: '700' } }
-      }
-    }
-  });
-}
-
-// ═══════════════════════════════════════
-// RESTORE STATE
-// ═══════════════════════════════════════
-function restoreUI() {
-  Object.keys(assignments).forEach(id => {
-    const el = document.getElementById(id);
-    if (!el) return;
-    const a = assignments[id];
-    if (a.done) {
-      el.dataset.locked = 'true';
-      // For MC, mark the correct one
-      // For open, disable button
-      const fb = el.querySelector('.feedback-box');
-      if (fb) {
-        if (a.correct) {
-          fb.className = 'feedback-box correct';
-          fb.innerHTML = '✅ Eerder correct beantwoord.';
-        } else {
-          fb.className = 'feedback-box hint';
-          fb.innerHTML = '📋 Eerder ingevuld. Reset dit onderdeel om opnieuw te proberen.';
-        }
+    if (selected.getAttribute('data-val') === correct) {
+      fb.className = 'feedback-box correct';
+      fb.innerHTML = '✅ <strong>Goed zo!</strong> Dat klopt helemaal.';
+      fb.style.display = 'block';
+      selected.classList.add('correct');
+      parent.setAttribute('data-locked', 'true');
+      assignments[id].done = true;
+      assignments[id].correct = true;
+    } else {
+      selected.classList.add('incorrect');
+      setTimeout(function() { selected.classList.remove('incorrect'); selected.classList.remove('selected'); }, 800);
+      if (assignments[id].attempts >= 3) {
+        fb.className = 'feedback-box correct';
+        var correctOpt = parent.querySelector('.mc-option[data-val="' + correct + '"]');
+        correctOpt.classList.add('correct');
+        fb.innerHTML = '💡 Het juiste antwoord is: <strong>' + correctOpt.querySelector('span').textContent + '</strong>';
+        fb.style.display = 'block';
+        parent.setAttribute('data-locked', 'true');
+        assignments[id].done = true;
+        assignments[id].correct = false;
+      } else {
+        var hintIdx = Math.min(assignments[id].attempts - 1, hints.length - 1);
+        fb.className = 'feedback-box hint';
+        fb.innerHTML = '💭 <strong>Bijna!</strong> ' + hints[hintIdx];
         fb.style.display = 'block';
       }
     }
-  });
-}
+    updateProgress();
+  }
 
-// ═══════════════════════════════════════
-// INIT
-// ═══════════════════════════════════════
-window.addEventListener('DOMContentLoaded', function() {
-  loadState();
-  buildTabs();
-  goTab(0);
-  initMaps();
-  initCharts();
-  initDragDrop();
-  restoreUI();
-  updateProgress();
-});
+  // ═══════════════════════════════════════
+  // OPEN QUESTIONS
+  // ═══════════════════════════════════════
+  function handleWordCount(textarea) {
+    var words = textarea.value.trim().split(/\s+/).filter(function(w) { return w.length > 0; }).length;
+    var counter = textarea.parentElement.querySelector('.word-counter');
+    counter.textContent = words + ' woorden';
+    if (words >= 20) counter.classList.add('enough'); else counter.classList.remove('enough');
+  }
+
+  function handleShowSample(btn) {
+    var parent = btn.closest('.assignment');
+    var textarea = parent.querySelector('.open-textarea');
+    var words = textarea.value.trim().split(/\s+/).filter(function(w) { return w.length > 0; }).length;
+    var minWords = parseInt(parent.getAttribute('data-min-words')) || 20;
+    var fb = parent.querySelector('.feedback-box');
+    if (words < minWords) {
+      fb.className = 'feedback-box hint';
+      fb.innerHTML = '✍️ Schrijf nog wat meer — je hebt ' + words + ' woorden, maar je hebt minimaal ' + minWords + ' nodig.';
+      fb.style.display = 'block';
+      return;
+    }
+    var id = parent.id;
+    var sample = sampleAnswers[id] || 'Geen voorbeeldantwoord beschikbaar.';
+    fb.className = 'feedback-box sample';
+    fb.innerHTML = '📝 <strong>Vergelijk je antwoord met dit voorbeeld:</strong><br><br>' + sample.replace(/\n/g, '<br>') + '<br><br><em>Dit is een voorbeeldantwoord. Jouw antwoord kan anders zijn en toch goed.</em>';
+    fb.style.display = 'block';
+    parent.querySelector('.self-assess').classList.add('visible');
+    btn.disabled = true;
+  }
+
+  function handleSelfAssess(btn, isGood) {
+    var parent = btn.closest('.assignment');
+    var id = parent.id;
+    assignments[id] = {done:true, correct:isGood, attempts:1};
+    var sa = parent.querySelector('.self-assess');
+    sa.innerHTML = isGood
+      ? '<span style="color:var(--green-700);font-weight:700">✅ Genoteerd als goed</span>'
+      : '<span style="color:var(--accent-red);font-weight:700">❌ Genoteerd — bekijk het voorbeeld nog eens goed</span>';
+    updateProgress();
+  }
+
+  // ═══════════════════════════════════════
+  // MATCH / COUPLING
+  // ═══════════════════════════════════════
+  function handleMatchClick(el) {
+    var container = el.closest('.match-container');
+    var containerId = container.id;
+    var parent = container.closest('.assignment');
+    if (parent.getAttribute('data-locked')) return;
+    if (!matchState[containerId]) matchState[containerId] = {left:null, pairs:[]};
+    var state = matchState[containerId];
+    var side = el.getAttribute('data-side');
+
+    if (side === 'left') {
+      var leftItems = container.querySelectorAll('.match-item[data-side="left"]');
+      for (var i = 0; i < leftItems.length; i++) leftItems[i].classList.remove('selected');
+      el.classList.add('selected');
+      state.left = el.getAttribute('data-id');
+    } else if (side === 'right' && state.left) {
+      state.pairs.push({left: state.left, right: el.getAttribute('data-id')});
+      var leftEl = container.querySelector('.match-item[data-id="' + state.left + '"]');
+      leftEl.classList.remove('selected');
+      leftEl.classList.add('matched');
+      el.classList.add('matched');
+      var colors = ['#c6f0d5','#bee3f8','#fef3c7','#fecaca','#e9d5ff','#ccfbf1','#fce7f3','#dbeafe'];
+      var colorIdx = (state.pairs.length - 1) % colors.length;
+      leftEl.style.backgroundColor = colors[colorIdx];
+      state.left = null;
+      renderPairs(containerId);
+    }
+  }
+
+  function renderPairs(containerId) {
+    var state = matchState[containerId];
+    var display = document.getElementById('pairs_' + containerId);
+    var container = document.getElementById(containerId);
+    display.innerHTML = '';
+    for (var i = 0; i < state.pairs.length; i++) {
+      (function(idx) {
+        var p = state.pairs[idx];
+        var leftEl = container.querySelector('.match-item[data-id="' + p.left + '"]');
+        var rightEl = container.querySelector('.match-item[data-id="' + p.right + '"]');
+        var row = document.createElement('div');
+        row.className = 'match-pair-row';
+        var leftText = leftEl ? leftEl.textContent : p.left;
+        var rightText = rightEl ? rightEl.textContent : p.right;
+        row.innerHTML = '<span>' + leftText + '</span><span class="pair-arrow">→</span><span>' + rightText + '</span>';
+        var removeBtn = document.createElement('button');
+        removeBtn.className = 'remove-pair';
+        removeBtn.textContent = '✕';
+        removeBtn.addEventListener('click', function() { removePair(containerId, idx); });
+        row.appendChild(removeBtn);
+        display.appendChild(row);
+      })(i);
+    }
+  }
+
+  function removePair(containerId, idx) {
+    var state = matchState[containerId];
+    var container = document.getElementById(containerId);
+    var pair = state.pairs[idx];
+    var leftEl = container.querySelector('.match-item[data-id="' + pair.left + '"]');
+    if (leftEl) { leftEl.classList.remove('matched'); leftEl.style.backgroundColor = ''; }
+    state.pairs.splice(idx, 1);
+    var rightStillUsed = state.pairs.some(function(p) { return p.right === pair.right; });
+    if (!rightStillUsed) {
+      var rightEl = container.querySelector('.match-item[data-id="' + pair.right + '"]');
+      if (rightEl) rightEl.classList.remove('matched');
+    }
+    renderPairs(containerId);
+  }
+
+  function handleMatchCheck(btn) {
+    var parent = btn.closest('.assignment');
+    if (parent.getAttribute('data-locked')) return;
+    var containerId = parent.getAttribute('data-match-id');
+    var state = matchState[containerId];
+    if (!state || state.pairs.length === 0) return;
+    var correct = matchCorrect[containerId];
+    var fb = parent.querySelector('.feedback-box');
+    var id = parent.id;
+    var needed = Object.keys(correct).length;
+
+    if (state.pairs.length < needed) {
+      fb.className = 'feedback-box hint';
+      fb.innerHTML = '💭 Je hebt nog niet alle koppelingen gemaakt. Koppel alle items links aan een item rechts.';
+      fb.style.display = 'block';
+      return;
+    }
+
+    if (!assignments[id]) assignments[id] = {done:false, correct:false, attempts:0};
+    assignments[id].attempts++;
+
+    var allCorrect = true;
+    for (var i = 0; i < state.pairs.length; i++) {
+      if (correct[state.pairs[i].left] !== state.pairs[i].right) allCorrect = false;
+    }
+
+    if (allCorrect) {
+      fb.className = 'feedback-box correct';
+      fb.innerHTML = '✅ <strong>Uitstekend!</strong> Alle koppelingen zijn juist!';
+      fb.style.display = 'block';
+      parent.setAttribute('data-locked', 'true');
+      assignments[id] = {done:true, correct:true, attempts:assignments[id].attempts};
+    } else if (assignments[id].attempts >= 3) {
+      fb.className = 'feedback-box correct';
+      var container = document.getElementById(containerId);
+      var html = '💡 De juiste koppelingen zijn:<br>';
+      var keys = Object.keys(correct);
+      for (var k = 0; k < keys.length; k++) {
+        var le = container.querySelector('.match-item[data-id="' + keys[k] + '"]');
+        var re = container.querySelector('.match-item[data-id="' + correct[keys[k]] + '"]');
+        html += '• ' + (le ? le.textContent : keys[k]) + ' → ' + (re ? re.textContent : correct[keys[k]]) + '<br>';
+      }
+      fb.innerHTML = html;
+      fb.style.display = 'block';
+      parent.setAttribute('data-locked', 'true');
+      assignments[id] = {done:true, correct:false, attempts:assignments[id].attempts};
+    } else {
+      fb.className = 'feedback-box hint';
+      fb.innerHTML = '💭 Niet alle koppelingen kloppen. Bekijk de uitleg nog eens en probeer opnieuw. Verwijder koppelingen met ✕.';
+      fb.style.display = 'block';
+    }
+    updateProgress();
+  }
+
+  // ═══════════════════════════════════════
+  // DRAG AND DROP
+  // ═══════════════════════════════════════
+  function initDragDrop() {
+    var lists = document.querySelectorAll('.drag-list');
+    for (var l = 0; l < lists.length; l++) {
+      (function(list) {
+        var draggedItem = null;
+        var items = list.querySelectorAll('.drag-item');
+        for (var i = 0; i < items.length; i++) {
+          (function(item) {
+            item.addEventListener('dragstart', function(e) {
+              draggedItem = item;
+              item.classList.add('dragging');
+              e.dataTransfer.effectAllowed = 'move';
+            });
+            item.addEventListener('dragend', function() {
+              if (draggedItem) draggedItem.classList.remove('dragging');
+              draggedItem = null;
+            });
+            item.addEventListener('dragover', function(e) {
+              e.preventDefault();
+              if (!draggedItem || draggedItem === item) return;
+              var rect = item.getBoundingClientRect();
+              var mid = rect.top + rect.height / 2;
+              if (e.clientY < mid) {
+                list.insertBefore(draggedItem, item);
+              } else {
+                list.insertBefore(draggedItem, item.nextSibling);
+              }
+            });
+            // Touch
+            item.addEventListener('touchstart', function(e) {
+              draggedItem = item;
+              item.classList.add('dragging');
+              e.preventDefault();
+            }, {passive:false});
+            item.addEventListener('touchmove', function(e) {
+              if (!draggedItem) return;
+              e.preventDefault();
+              var touch = e.touches[0];
+              var elBelow = document.elementFromPoint(touch.clientX, touch.clientY);
+              if (elBelow) {
+                var target = elBelow.closest('.drag-item');
+                if (target && target !== draggedItem && target.parentElement === list) {
+                  var rect = target.getBoundingClientRect();
+                  var mid = rect.top + rect.height / 2;
+                  if (touch.clientY < mid) list.insertBefore(draggedItem, target);
+                  else list.insertBefore(draggedItem, target.nextSibling);
+                }
+              }
+            }, {passive:false});
+            item.addEventListener('touchend', function() {
+              if (draggedItem) draggedItem.classList.remove('dragging');
+              draggedItem = null;
+            });
+          })(items[i]);
+        }
+      })(lists[l]);
+    }
+  }
+
+  function handleRankingCheck(btn) {
+    var parent = btn.closest('.assignment');
+    if (parent.getAttribute('data-locked')) return;
+    var id = parent.id;
+    var fb = parent.querySelector('.feedback-box');
+    fb.className = 'feedback-box correct';
+    fb.innerHTML = '✅ <strong>Goed!</strong> Dit is jouw persoonlijke rangschikking. Er is geen fout antwoord — alle genoemde functies zijn essentieel.';
+    fb.style.display = 'block';
+    parent.setAttribute('data-locked', 'true');
+    assignments[id] = {done:true, correct:true, attempts:1};
+    updateProgress();
+  }
+
+  function handleSortCheck(btn) {
+    var parent = btn.closest('.assignment');
+    if (parent.getAttribute('data-locked')) return;
+    var id = parent.id;
+    var correctOrder = sortCorrect[id];
+    var hints = sortHints[id] || ['Probeer het nog eens.', 'Lees de tekst nog eens.'];
+    if (!correctOrder) return;
+    var list = parent.querySelector('.drag-list');
+    var items = list.querySelectorAll('.drag-item');
+    var current = [];
+    for (var i = 0; i < items.length; i++) current.push(items[i].getAttribute('data-val'));
+
+    if (!assignments[id]) assignments[id] = {done:false, correct:false, attempts:0};
+    assignments[id].attempts++;
+    var fb = parent.querySelector('.feedback-box');
+
+    var isCorrect = true;
+    for (var i = 0; i < current.length; i++) {
+      if (current[i] !== correctOrder[i]) { isCorrect = false; break; }
+    }
+
+    if (isCorrect) {
+      for (var i = 0; i < items.length; i++) items[i].classList.add('correct-pos');
+      fb.className = 'feedback-box correct';
+      fb.innerHTML = '✅ <strong>Helemaal goed!</strong> Je hebt de stappen in de juiste volgorde gezet.';
+      fb.style.display = 'block';
+      parent.setAttribute('data-locked', 'true');
+      assignments[id] = {done:true, correct:true, attempts:assignments[id].attempts};
+    } else if (assignments[id].attempts >= 3) {
+      fb.className = 'feedback-box correct';
+      var html = '💡 De juiste volgorde is:<br>';
+      for (var i = 0; i < correctOrder.length; i++) {
+        var el = list.querySelector('.drag-item[data-val="' + correctOrder[i] + '"]');
+        html += (i+1) + '. ' + el.textContent.trim().replace('☰ ', '') + '<br>';
+      }
+      fb.innerHTML = html;
+      fb.style.display = 'block';
+      parent.setAttribute('data-locked', 'true');
+      assignments[id] = {done:true, correct:false, attempts:assignments[id].attempts};
+    } else {
+      for (var i = 0; i < items.length; i++) {
+        items[i].classList.remove('correct-pos', 'wrong-pos');
+        if (current[i] === correctOrder[i]) items[i].classList.add('correct-pos');
+        else items[i].classList.add('wrong-pos');
+      }
+      var hintIdx = Math.min(assignments[id].attempts - 1, hints.length - 1);
+      fb.className = 'feedback-box hint';
+      fb.innerHTML = '💭 ' + hints[hintIdx] + ' De groene items staan al goed!';
+      fb.style.display = 'block';
+    }
+    updateProgress();
+  }
+
+  // ═══════════════════════════════════════
+  // SECTION RESET
+  // ═══════════════════════════════════════
+  function resetSection(tabIdx) {
+    var panel = document.getElementById('tab' + tabIdx);
+    var asgns = panel.querySelectorAll('.assignment');
+    for (var a = 0; a < asgns.length; a++) {
+      var el = asgns[a];
+      delete assignments[el.id];
+      el.removeAttribute('data-locked');
+      var opts = el.querySelectorAll('.mc-option');
+      for (var o = 0; o < opts.length; o++) opts[o].classList.remove('selected','correct','incorrect');
+      var ta = el.querySelector('.open-textarea');
+      if (ta) ta.value = '';
+      var wc = el.querySelector('.word-counter');
+      if (wc) { wc.textContent = '0 woorden'; wc.classList.remove('enough'); }
+      var fb = el.querySelector('.feedback-box');
+      if (fb) { fb.style.display = 'none'; fb.innerHTML = ''; }
+      var sa = el.querySelector('.self-assess');
+      if (sa) {
+        sa.classList.remove('visible');
+        sa.innerHTML = '<button class="btn btn-sm btn-self-good">Goed ✓</button><button class="btn btn-sm btn-self-bad">Fout ✗</button>';
+        // Re-attach events
+        sa.querySelector('.btn-self-good').addEventListener('click', function() { handleSelfAssess(this, true); });
+        sa.querySelector('.btn-self-bad').addEventListener('click', function() { handleSelfAssess(this, false); });
+      }
+      var enableBtns = el.querySelectorAll('.btn-primary:disabled');
+      for (var b = 0; b < enableBtns.length; b++) enableBtns[b].disabled = false;
+      var dragItems = el.querySelectorAll('.drag-item');
+      for (var d = 0; d < dragItems.length; d++) dragItems[d].classList.remove('correct-pos','wrong-pos');
+      var matchItems = el.querySelectorAll('.match-item');
+      for (var m = 0; m < matchItems.length; m++) {
+        matchItems[m].classList.remove('selected','matched');
+        matchItems[m].style.backgroundColor = '';
+      }
+      var pairDisplays = el.querySelectorAll('.match-pair-display');
+      for (var p = 0; p < pairDisplays.length; p++) pairDisplays[p].innerHTML = '';
+    }
+    // Reset match state
+    var keys = Object.keys(matchState);
+    for (var k = 0; k < keys.length; k++) {
+      if (keys[k].indexOf('match_' + tabIdx + '_') === 0) delete matchState[keys[k]];
+    }
+    updateProgress();
+  }
+
+  // ═══════════════════════════════════════
+  // FINAL SCORE
+  // ═══════════════════════════════════════
+  function updateFinalScore() {
+    var all = document.querySelectorAll('.assignment');
+    var total = all.length, done = 0, correct = 0;
+    for (var i = 0; i < all.length; i++) {
+      if (assignments[all[i].id] && assignments[all[i].id].done) {
+        done++;
+        if (assignments[all[i].id].correct) correct++;
+      }
+    }
+    var pct = total > 0 ? Math.round((correct/total)*100) : 0;
+    document.getElementById('finalScore').textContent = pct + '%';
+    document.getElementById('scoreDetail').textContent = correct + ' van ' + total + ' opdrachten goed (' + done + ' ingevuld)';
+  }
+
+  function clearAllProgress() {
+    if (!confirm('Weet je zeker dat je al je voortgang wilt wissen?')) return;
+    assignments = {};
+    matchState = {};
+    try {
+      var keys = Object.keys(localStorage);
+      for (var i = 0; i < keys.length; i++) {
+        if (keys[i].indexOf(PREFIX) === 0) localStorage.removeItem(keys[i]);
+      }
+    } catch(e) {}
+    for (var i = 0; i < TABS; i++) resetSection(i);
+    goTab(0);
+  }
+
+  // ═══════════════════════════════════════
+  // MAPS
+  // ═══════════════════════════════════════
+  function initMaps() {
+    try {
+      var m1 = L.map('mapIntro').setView([-3.4,-60], 4);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {attribution:'© OpenStreetMap', maxZoom:12}).addTo(m1);
+      L.marker([-3.12,-60.02]).addTo(m1).bindPopup('<strong>Manaus</strong><br>Grootste stad in het Amazonegebied');
+      L.marker([-3.47,-51.94]).addTo(m1).bindPopup('<strong>Belo Monte-dam</strong><br>Omstreden waterkrachtcentrale');
+      L.marker([-12.6,-55.4]).addTo(m1).bindPopup('<strong>Mato Grosso</strong><br>80% natuur verdwenen voor landbouw');
+      L.marker([-1.45,-48.5]).addTo(m1).bindPopup('<strong>Belém</strong><br>Havenstad aan de monding');
+      maps.push(m1);
+    } catch(e) { console.warn('Map 1 error:', e); }
+
+    try {
+      var m2 = L.map('mapExplore').setView([-5,-58], 4);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {attribution:'© OpenStreetMap', maxZoom:12}).addTo(m2);
+      L.marker([-3.12,-60.02]).addTo(m2).bindPopup('<strong>🏙️ Manaus</strong><br>Startpunt voor jungle-expedities');
+      L.marker([-3.47,-51.94]).addTo(m2).bindPopup('<strong>💧 Belo Monte-dam</strong><br>Grootste stuwdam, jarenlang protest');
+      L.marker([-12.6,-55.4]).addTo(m2).bindPopup('<strong>🌾 Mato Grosso</strong><br>80% natuur weg voor soja en veeteelt');
+      L.marker([-2.5,-64.0]).addTo(m2).bindPopup('<strong>🏹 Yanomami-gebied</strong><br>Bedreigd door goudmijnbouw');
+      L.marker([0.05,-51.07]).addTo(m2).bindPopup('<strong>🌊 Monding Amazone</strong><br>~6.400 km lang');
+      L.marker([-8.76,-63.9]).addTo(m2).bindPopup('<strong>🪵 Porto Velho</strong><br>Knooppunt voor houthandel');
+      maps.push(m2);
+    } catch(e) { console.warn('Map 2 error:', e); }
+  }
+
+  // ═══════════════════════════════════════
+  // CHARTS
+  // ═══════════════════════════════════════
+  function initCharts() {
+    try {
+      var ctx1 = document.getElementById('chartOntbossing').getContext('2d');
+      new Chart(ctx1, {
+        type:'bar',
+        data:{
+          labels:['2000','2002','2004','2006','2008','2010','2012','2014','2016','2018','2020','2022'],
+          datasets:[{label:'Ontbossing (km² per jaar)',data:[18226,21650,27772,14286,12911,7000,4571,5012,7893,7536,11088,11568],backgroundColor:'rgba(45,138,86,0.7)',borderColor:'rgba(37,109,71,1)',borderWidth:1}]
+        },
+        options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,position:'top'},title:{display:true,text:'Ontbossing Amazone (km² per jaar)',font:{size:14,family:'Nunito',weight:'700'}}},scales:{y:{beginAtZero:true,title:{display:true,text:'km²'}},x:{title:{display:true,text:'Jaar'}}}}
+      });
+    } catch(e) { console.warn('Chart 1 error:', e); }
+
+    try {
+      var ctx2 = document.getElementById('chartExport').getContext('2d');
+      new Chart(ctx2, {
+        type:'doughnut',
+        data:{
+          labels:['Soja','Rundvlees','Hout & houtproducten','IJzererts','Bio-ethanol','Overig'],
+          datasets:[{data:[28,22,15,18,8,9],backgroundColor:['#38a169','#2d8a56','#256d47','#1e4d35','#d69e2e','#a07850'],borderWidth:2,borderColor:'#fff'}]
+        },
+        options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{family:'Nunito',size:12}}},title:{display:true,text:'Belangrijkste exportproducten Amazonegebied (%)',font:{size:14,family:'Nunito',weight:'700'}}}}
+      });
+    } catch(e) { console.warn('Chart 2 error:', e); }
+  }
+
+  // ═══════════════════════════════════════
+  // EVENT BINDING
+  // ═══════════════════════════════════════
+  function bindEvents() {
+    // Tab nav clicks (delegated)
+    document.getElementById('tabNav').addEventListener('click', function(e) {
+      var btn = e.target.closest('.tab-btn');
+      if (btn) goTab(parseInt(btn.getAttribute('data-tab')));
+    });
+
+    // Nav prev/next
+    document.querySelectorAll('.nav-next').forEach(function(btn) {
+      btn.addEventListener('click', function() { goTab(parseInt(this.getAttribute('data-target'))); });
+    });
+    document.querySelectorAll('.nav-prev').forEach(function(btn) {
+      btn.addEventListener('click', function() { goTab(parseInt(this.getAttribute('data-target'))); });
+    });
+
+    // Reset section buttons
+    document.querySelectorAll('.reset-section-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() { resetSection(parseInt(this.getAttribute('data-section'))); });
+    });
+
+    // MC option clicks (delegated)
+    document.addEventListener('click', function(e) {
+      var opt = e.target.closest('.mc-option');
+      if (opt) handleMCOptionClick(opt);
+    });
+
+    // MC check buttons
+    document.querySelectorAll('.check-mc-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() { handleMCCheck(this); });
+    });
+
+    // Open textarea word count
+    document.querySelectorAll('.open-textarea').forEach(function(ta) {
+      ta.addEventListener('input', function() { handleWordCount(this); });
+    });
+
+    // Show sample buttons
+    document.querySelectorAll('.show-sample-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() { handleShowSample(this); });
+    });
+
+    // Self-assess buttons (delegated since they get replaced on reset)
+    document.addEventListener('click', function(e) {
+      if (e.target.classList.contains('btn-self-good')) handleSelfAssess(e.target, true);
+      if (e.target.classList.contains('btn-self-bad')) handleSelfAssess(e.target, false);
+    });
+
+    // Match item clicks (delegated)
+    document.addEventListener('click', function(e) {
+      var mi = e.target.closest('.match-item');
+      if (mi) handleMatchClick(mi);
+    });
+
+    // Match check buttons
+    document.querySelectorAll('.check-match-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() { handleMatchCheck(this); });
+    });
+
+    // Ranking check
+    document.querySelectorAll('.check-ranking-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() { handleRankingCheck(this); });
+    });
+
+    // Sort check
+    document.querySelectorAll('.check-sort-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() { handleSortCheck(this); });
+    });
+
+    // Clear progress
+    document.getElementById('clearProgressBtn').addEventListener('click', clearAllProgress);
+  }
+
+  // ═══════════════════════════════════════
+  // RESTORE UI FROM SAVED STATE
+  // ═══════════════════════════════════════
+  function restoreUI() {
+    var keys = Object.keys(assignments);
+    for (var k = 0; k < keys.length; k++) {
+      var id = keys[k];
+      var el = document.getElementById(id);
+      if (!el) continue;
+      var a = assignments[id];
+      if (a.done) {
+        el.setAttribute('data-locked', 'true');
+        var fb = el.querySelector('.feedback-box');
+        if (fb) {
+          if (a.correct) {
+            fb.className = 'feedback-box correct';
+            fb.innerHTML = '✅ Eerder correct beantwoord.';
+          } else {
+            fb.className = 'feedback-box hint';
+            fb.innerHTML = '📋 Eerder ingevuld. Reset dit onderdeel om opnieuw te proberen.';
+          }
+          fb.style.display = 'block';
+        }
+      }
+    }
+  }
+
+  // ═══════════════════════════════════════
+  // INIT
+  // ═══════════════════════════════════════
+  window.addEventListener('DOMContentLoaded', function() {
+    loadState();
+    buildTabs();
+    bindEvents();
+    goTab(0);
+    initMaps();
+    initCharts();
+    initDragDrop();
+    restoreUI();
+    updateProgress();
+  });
+
+  // Polyfill forEach for NodeList in older browsers
+  if (!NodeList.prototype.forEach) {
+    NodeList.prototype.forEach = Array.prototype.forEach;
+  }
+
+})();
 </script>
 </body>
 </html>
