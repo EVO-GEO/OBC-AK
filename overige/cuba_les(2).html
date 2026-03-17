@@ -1,0 +1,2235 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🇨🇺 Cuba in Crisis — Aardrijkskunde Ontdekkingsreis</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --deep-blue: #0a1628;
+  --ocean-blue: #0d2847;
+  --bright-blue: #1565c0;
+  --sky-blue: #42a5f5;
+  --cuba-red: #c62828;
+  --cuba-warm: #e65100;
+  --gold: #f9a825;
+  --sand: #fff3e0;
+  --white: #ffffff;
+  --light-gray: #e8edf2;
+  --text-dark: #0a1628;
+  --text-light: #b0bec5;
+  --success: #2e7d32;
+  --error: #c62828;
+  --hint: #ef6c00;
+  --radius: 12px;
+  --radius-lg: 20px;
+  --shadow: 0 4px 20px rgba(0,0,0,0.15);
+  --shadow-lg: 0 8px 40px rgba(0,0,0,0.2);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Nunito', sans-serif;
+  background: var(--deep-blue);
+  color: var(--text-dark);
+  min-height: 100vh;
+}
+
+/* ─── HEADER ─── */
+.hero-header {
+  background: linear-gradient(135deg, var(--ocean-blue) 0%, var(--deep-blue) 50%, #1a0a0a 100%);
+  padding: 2rem 1.5rem 1rem;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  border-bottom: 4px solid var(--cuba-red);
+}
+.hero-header::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: repeating-linear-gradient(45deg, transparent, transparent 40px, rgba(255,255,255,0.02) 40px, rgba(255,255,255,0.02) 80px);
+}
+.hero-header h1 {
+  font-size: 2rem;
+  font-weight: 900;
+  color: var(--white);
+  position: relative;
+  text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+  line-height: 1.3;
+}
+.hero-header h1 .accent { color: var(--gold); }
+.hero-subtitle {
+  color: var(--sky-blue);
+  font-size: 0.95rem;
+  margin-top: 0.5rem;
+  font-weight: 600;
+  position: relative;
+}
+
+/* ─── PROGRESS BAR ─── */
+.progress-container {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: var(--ocean-blue);
+  padding: 0.6rem 1rem;
+  border-bottom: 2px solid rgba(255,255,255,0.1);
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+.progress-label {
+  color: var(--gold);
+  font-weight: 700;
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+.progress-bar-outer {
+  flex: 1;
+  height: 14px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 7px;
+  overflow: hidden;
+}
+.progress-bar-inner {
+  height: 100%;
+  background: linear-gradient(90deg, var(--cuba-red), var(--gold));
+  border-radius: 7px;
+  transition: width 0.5s ease;
+  width: 0%;
+}
+.progress-pct {
+  color: var(--white);
+  font-weight: 800;
+  font-size: 0.85rem;
+  min-width: 40px;
+  text-align: right;
+}
+
+/* ─── TAB NAV ─── */
+.tab-nav-wrapper {
+  background: var(--ocean-blue);
+  padding: 0.5rem 0.5rem 0;
+  position: sticky;
+  top: 46px;
+  z-index: 999;
+}
+.tab-counter {
+  color: var(--text-light);
+  font-size: 0.8rem;
+  text-align: center;
+  padding-bottom: 0.4rem;
+  font-weight: 600;
+}
+.tab-nav {
+  display: flex;
+  overflow-x: auto;
+  gap: 4px;
+  padding-bottom: 0.5rem;
+  scrollbar-width: thin;
+  scrollbar-color: var(--bright-blue) transparent;
+}
+.tab-nav::-webkit-scrollbar { height: 4px; }
+.tab-nav::-webkit-scrollbar-thumb { background: var(--bright-blue); border-radius: 2px; }
+.tab-btn {
+  flex-shrink: 0;
+  padding: 0.5rem 0.9rem;
+  border: 2px solid rgba(255,255,255,0.15);
+  background: transparent;
+  color: var(--text-light);
+  font-family: 'Nunito', sans-serif;
+  font-weight: 700;
+  font-size: 0.78rem;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+  position: relative;
+}
+.tab-btn:hover { border-color: var(--sky-blue); color: var(--white); }
+.tab-btn.active {
+  background: var(--bright-blue);
+  border-color: var(--bright-blue);
+  color: var(--white);
+}
+.tab-btn.completed::after {
+  content: '✓';
+  position: absolute;
+  top: -6px; right: -4px;
+  background: var(--success);
+  color: white;
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  font-size: 0.65rem;
+  display: flex; align-items: center; justify-content: center;
+}
+
+/* ─── MAIN CONTENT ─── */
+.main-content {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+.tab-panel {
+  display: none;
+  animation: fadeIn 0.3s ease;
+}
+.tab-panel.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ─── CONTENT CARDS ─── */
+.content-card {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  padding: 1.8rem;
+  margin-bottom: 1.5rem;
+  box-shadow: var(--shadow);
+  border-left: 5px solid var(--bright-blue);
+}
+.content-card.cuban {
+  border-left-color: var(--cuba-red);
+  background: linear-gradient(135deg, #fff 0%, #fff9f0 100%);
+}
+.content-card.gold-accent {
+  border-left-color: var(--gold);
+}
+.card-title {
+  font-size: 1.35rem;
+  font-weight: 900;
+  color: var(--ocean-blue);
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.card-title .emoji { font-size: 1.5rem; }
+.info-text {
+  font-size: 0.95rem;
+  line-height: 1.75;
+  color: #333;
+  margin-bottom: 1rem;
+}
+.info-text strong { color: var(--ocean-blue); }
+
+/* ─── EMOJI VISUAL ─── */
+.emoji-flow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1.2rem;
+  background: linear-gradient(135deg, var(--ocean-blue), var(--deep-blue));
+  border-radius: var(--radius);
+  margin: 1rem 0;
+}
+.emoji-flow .step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+}
+.emoji-flow .step .icon { font-size: 2rem; }
+.emoji-flow .step .label {
+  font-size: 0.7rem;
+  color: var(--gold);
+  font-weight: 700;
+  text-align: center;
+  max-width: 80px;
+}
+.emoji-flow .arrow { font-size: 1.5rem; color: var(--sky-blue); }
+
+/* ─── HIGHLIGHT BOX ─── */
+.highlight-box {
+  background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+  border-radius: var(--radius);
+  padding: 1.2rem;
+  margin: 1rem 0;
+  border: 2px solid var(--bright-blue);
+}
+.highlight-box.red {
+  background: linear-gradient(135deg, #fce4ec, #ffcdd2);
+  border-color: var(--cuba-red);
+}
+.highlight-box.gold {
+  background: linear-gradient(135deg, #fff8e1, #ffecb3);
+  border-color: var(--gold);
+}
+.highlight-box-title {
+  font-weight: 800;
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+/* ─── QUIZ / QUESTIONS ─── */
+.question-block {
+  background: #f5f7fa;
+  border-radius: var(--radius);
+  padding: 1.4rem;
+  margin: 1.2rem 0;
+  border: 2px solid #dde3ea;
+}
+.question-block.open-q {
+  border-color: var(--cuba-warm);
+  background: #fff8f0;
+}
+.q-label {
+  font-weight: 800;
+  font-size: 0.95rem;
+  color: var(--ocean-blue);
+  margin-bottom: 0.8rem;
+}
+.q-label .tag {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 0.7rem;
+  color: white;
+  margin-left: 0.5rem;
+  vertical-align: middle;
+}
+.tag-mc { background: var(--bright-blue); }
+.tag-open { background: var(--cuba-warm); }
+.tag-drag { background: var(--success); }
+.tag-match { background: #7b1fa2; }
+.tag-data { background: #00838f; }
+
+.mc-options { display: flex; flex-direction: column; gap: 0.5rem; }
+.mc-opt {
+  padding: 0.7rem 1rem;
+  background: white;
+  border: 2px solid #dde3ea;
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+  text-align: left;
+}
+.mc-opt:hover { border-color: var(--bright-blue); background: #e3f2fd; }
+.mc-opt.correct { border-color: var(--success); background: #e8f5e9; }
+.mc-opt.wrong { border-color: var(--error); background: #ffebee; }
+.mc-opt.disabled { pointer-events: none; opacity: 0.7; }
+
+.feedback-box {
+  margin-top: 0.8rem;
+  padding: 0.8rem;
+  border-radius: var(--radius);
+  font-weight: 600;
+  font-size: 0.9rem;
+  display: none;
+}
+.feedback-box.show { display: block; }
+.feedback-box.success { background: #e8f5e9; color: var(--success); border: 2px solid var(--success); }
+.feedback-box.hint { background: #fff3e0; color: var(--hint); border: 2px solid var(--hint); }
+.feedback-box.answer { background: #e3f2fd; color: var(--bright-blue); border: 2px solid var(--bright-blue); }
+
+/* ─── TEXTAREA ─── */
+.open-textarea {
+  width: 100%;
+  min-height: 100px;
+  padding: 0.8rem;
+  border: 2px solid #dde3ea;
+  border-radius: var(--radius);
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.9rem;
+  resize: vertical;
+  transition: border-color 0.2s;
+}
+.open-textarea:focus { outline: none; border-color: var(--bright-blue); }
+.word-counter {
+  font-size: 0.8rem;
+  color: #999;
+  margin-top: 0.3rem;
+  font-weight: 600;
+}
+.word-counter.enough { color: var(--success); }
+
+/* ─── BUTTONS ─── */
+.btn {
+  padding: 0.6rem 1.2rem;
+  border: none;
+  border-radius: var(--radius);
+  font-family: 'Nunito', sans-serif;
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.btn-primary { background: var(--bright-blue); color: white; }
+.btn-primary:hover { background: #0d47a1; }
+.btn-success { background: var(--success); color: white; }
+.btn-danger { background: var(--error); color: white; }
+.btn-gold { background: var(--gold); color: var(--text-dark); }
+.btn-outline {
+  background: transparent;
+  border: 2px solid var(--bright-blue);
+  color: var(--bright-blue);
+}
+.btn-small { padding: 0.4rem 0.8rem; font-size: 0.78rem; }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.self-assess { display: none; gap: 0.5rem; margin-top: 0.5rem; }
+.self-assess.show { display: flex; }
+
+/* ─── DRAG DROP ─── */
+.drag-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin: 0.8rem 0;
+}
+.drag-item {
+  padding: 0.7rem 1rem;
+  background: white;
+  border: 2px solid #dde3ea;
+  border-radius: var(--radius);
+  cursor: grab;
+  font-weight: 600;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.2s;
+  user-select: none;
+}
+.drag-item:active { cursor: grabbing; }
+.drag-item .handle { color: #999; font-size: 1.2rem; }
+.drag-item.dragging { opacity: 0.5; border-color: var(--bright-blue); }
+.drag-item.correct-pos { border-color: var(--success); background: #e8f5e9; }
+.drag-item.wrong-pos { border-color: var(--error); background: #ffebee; }
+
+/* ─── MATCH EXERCISE ─── */
+.match-container { display: flex; gap: 1rem; flex-wrap: wrap; margin: 0.8rem 0; }
+.match-col {
+  flex: 1;
+  min-width: 200px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.match-col-title {
+  font-weight: 800;
+  font-size: 0.85rem;
+  color: var(--ocean-blue);
+  text-align: center;
+  padding: 0.4rem;
+  background: #e3f2fd;
+  border-radius: var(--radius);
+}
+.match-item {
+  padding: 0.6rem 0.8rem;
+  background: white;
+  border: 2px solid #dde3ea;
+  border-radius: var(--radius);
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+}
+.match-item:hover { border-color: var(--bright-blue); }
+.match-item.selected { border-color: var(--gold); background: #fff8e1; box-shadow: 0 0 0 3px rgba(249,168,37,0.3); }
+.match-item.matched { border-color: var(--success); background: #e8f5e9; }
+
+.match-pairs {
+  margin-top: 0.8rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.match-pair {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.8rem;
+  background: #e8f5e9;
+  border-radius: var(--radius);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+.match-pair .pair-arrow { color: var(--success); }
+.remove-pair {
+  margin-left: auto;
+  background: none;
+  border: none;
+  color: var(--error);
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+/* ─── COMPARISON TABLE ─── */
+.compare-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+  font-size: 0.9rem;
+}
+.compare-table th {
+  background: var(--ocean-blue);
+  color: white;
+  padding: 0.7rem;
+  font-weight: 700;
+  text-align: left;
+}
+.compare-table td {
+  padding: 0.6rem 0.7rem;
+  border-bottom: 1px solid #eee;
+}
+.compare-table tr:nth-child(even) td { background: #f8f9fa; }
+
+/* ─── MAP ─── */
+.map-container {
+  height: 400px;
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin: 1rem 0;
+  border: 3px solid var(--ocean-blue);
+}
+
+/* ─── CHART ─── */
+.chart-container {
+  background: white;
+  border-radius: var(--radius);
+  padding: 1rem;
+  margin: 1rem 0;
+}
+
+/* ─── NAV BUTTONS ─── */
+.nav-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 2px solid #eee;
+}
+.reset-section {
+  font-size: 0.75rem;
+  color: #999;
+  background: none;
+  border: 1px solid #ddd;
+  padding: 0.3rem 0.8rem;
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 600;
+}
+.reset-section:hover { background: #ffebee; border-color: var(--error); color: var(--error); }
+
+/* ─── TIMELINE ─── */
+.timeline {
+  position: relative;
+  padding-left: 2rem;
+  margin: 1rem 0;
+}
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 8px;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: linear-gradient(to bottom, var(--cuba-red), var(--bright-blue), var(--gold));
+  border-radius: 2px;
+}
+.tl-item {
+  position: relative;
+  margin-bottom: 1.2rem;
+  padding-left: 1rem;
+}
+.tl-item::before {
+  content: '';
+  position: absolute;
+  left: -1.55rem;
+  top: 0.4rem;
+  width: 12px;
+  height: 12px;
+  background: var(--bright-blue);
+  border-radius: 50%;
+  border: 3px solid var(--white);
+  box-shadow: 0 0 0 2px var(--bright-blue);
+}
+.tl-year {
+  font-weight: 900;
+  color: var(--cuba-red);
+  font-size: 1rem;
+}
+.tl-text {
+  font-size: 0.9rem;
+  color: #444;
+  line-height: 1.5;
+}
+
+/* ─── CLEAR PROGRESS ─── */
+.clear-progress-btn {
+  position: fixed;
+  bottom: 1rem;
+  right: 1rem;
+  background: rgba(10,22,40,0.9);
+  color: var(--text-light);
+  border: 1px solid rgba(255,255,255,0.2);
+  padding: 0.4rem 0.8rem;
+  border-radius: var(--radius);
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.75rem;
+  cursor: pointer;
+  z-index: 1001;
+}
+.clear-progress-btn:hover { background: var(--error); color: white; }
+
+/* ─── SCORE FINAL ─── */
+.score-display {
+  text-align: center;
+  padding: 2rem;
+  background: linear-gradient(135deg, var(--ocean-blue), var(--deep-blue));
+  border-radius: var(--radius-lg);
+  color: white;
+}
+.score-number {
+  font-size: 3.5rem;
+  font-weight: 900;
+  color: var(--gold);
+}
+.score-label {
+  font-size: 1rem;
+  color: var(--sky-blue);
+  font-weight: 600;
+}
+
+/* ─── NEWS TICKER ─── */
+.news-banner {
+  background: var(--cuba-red);
+  color: white;
+  padding: 0.5rem 1rem;
+  font-weight: 700;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  overflow: hidden;
+}
+.news-banner .blink {
+  animation: blink 1s infinite;
+  color: var(--gold);
+}
+@keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 768px) {
+  .hero-header h1 { font-size: 1.5rem; }
+  .content-card { padding: 1.2rem; }
+  .match-container { flex-direction: column; }
+  .map-container { height: 300px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ HEADER ═══ -->
+<div class="hero-header">
+  <h1>🇨🇺 Cuba in Crisis: <span class="accent">Een Ontdekkingsreis</span></h1>
+  <div class="hero-subtitle">✈️ VMBO 2 — Aardrijkskunde — ~80 minuten</div>
+</div>
+
+<!-- ═══ NEWS BANNER ═══ -->
+<div class="news-banner">
+  <span class="blink">● LIVE</span>
+  <span>Maart 2026 — Cuba volledig zonder stroom na instorten stroomnet. Olieblokkade VS duurt voort.</span>
+</div>
+
+<!-- ═══ PROGRESS BAR ═══ -->
+<div class="progress-container">
+  <span class="progress-label">📊 Voortgang</span>
+  <div class="progress-bar-outer"><div class="progress-bar-inner" id="progressBar"></div></div>
+  <span class="progress-pct" id="progressPct">0%</span>
+</div>
+
+<!-- ═══ TAB NAV ═══ -->
+<div class="tab-nav-wrapper">
+  <div class="tab-counter" id="tabCounter">Onderdeel 1 van 11</div>
+  <div class="tab-nav" id="tabNav"></div>
+</div>
+
+<!-- ═══ MAIN ═══ -->
+<div class="main-content">
+
+<!-- ══════════════════════════════════════════ -->
+<!-- TAB 1: WELKOM & ACTUEEL NIEUWS            -->
+<!-- ══════════════════════════════════════════ -->
+<div class="tab-panel" id="tab-0">
+  <div class="content-card cuban">
+    <div class="card-title"><span class="emoji">🌎</span> Welkom, ontdekkingsreiziger!</div>
+    <p class="info-text">Stel je voor: je boekt een vlucht naar het Caribisch gebied. ✈️ Zon, zee, strand — klinkt perfect. Maar als je op Cuba landt, merk je iets vreemds. Het is donker op het vliegveld. Er zijn nauwelijks auto's op de weg. In de stad staan mensen urenlang in de rij voor brood. Wat is hier aan de hand?</p>
+    <p class="info-text">Op dit moment (maart 2026) speelt er een enorme crisis op Cuba. Het eiland heeft al maanden geen olie meer ontvangen. De Verenigde Staten blokkeren olietankers die naar Cuba varen. Het stroomnet is volledig ingestort. Meer dan <strong>10 miljoen mensen</strong> zitten zonder elektriciteit. Ziekenhuizen kunnen operaties niet meer uitvoeren. Eten bederft omdat koelkasten niet werken. Vuilnis hoopt zich op in de straten omdat vuilniswagens geen brandstof hebben.</p>
+    <p class="info-text">In deze les ga je als een echte onderzoeker ontdekken: <strong>hoe is het zover gekomen?</strong> Je leert over de geschiedenis van Cuba, waarom het eiland zo afhankelijk is van buitenlandse olie, wat de VS precies doen en wat gewone Cubanen hiervan merken. Aan het eind kun je er je eigen mening over geven.</p>
+  </div>
+
+  <div class="highlight-box red">
+    <div class="highlight-box-title">📰 Actueel: Check zelf de nieuwsbronnen!</div>
+    <p class="info-text" style="margin-bottom:0;">Tijdens deze les is het slim om ook even te kijken op betrouwbare nieuwssites zoals <strong>NOS.nl</strong>, <strong>CNN.com</strong>, <strong>BBC News</strong> of <strong>Al Jazeera</strong>. Zo zie je dat wat je hier leert echt nu gebeurt. Zoek op: <em>"Cuba blackout"</em> of <em>"Cuba oil crisis 2026"</em>.</p>
+  </div>
+
+  <div class="content-card">
+    <div class="card-title"><span class="emoji">🎯</span> Wat ga je leren?</div>
+    <div class="highlight-box gold">
+      <p class="info-text"><strong>Leerdoel 1:</strong> Ik kan in het kort vertellen wat er in de geschiedenis van Cuba is gebeurd en waarom de VS en Cuba al zo lang ruzie hebben.</p>
+      <p class="info-text"><strong>Leerdoel 2:</strong> Ik kan uitleggen waarom Cuba zo afhankelijk is van olie uit andere landen en wat er gebeurt als die olie wegvalt.</p>
+      <p class="info-text"><strong>Leerdoel 3:</strong> Ik kan uitleggen wat de VS doen om Cuba onder druk te zetten en daar mijn eigen mening over geven.</p>
+      <p class="info-text" style="margin-bottom:0;"><strong>Leerdoel 4:</strong> Ik kan beschrijven wat de gevolgen van de crisis zijn voor gewone mensen in Cuba.</p>
+    </div>
+  </div>
+
+  <div class="question-block open-q" id="q-0-1">
+    <div class="q-label">✍️ Opdracht 1 <span class="tag tag-open">Open vraag</span></div>
+    <p class="info-text">Stel je voor: je bent op vakantie op Cuba ✈️ en ineens valt overal de stroom uit. Beschrijf in je eigen woorden wat je zou merken en hoe je je zou voelen. Denk aan: je telefoon, eten, vervoer, je hotelkamer.</p>
+    <textarea class="open-textarea" data-qid="q-0-1" placeholder="Schrijf hier minimaal 20 woorden..."></textarea>
+    <div class="word-counter" data-qid="q-0-1">0 woorden</div>
+    <button class="btn btn-primary btn-small" data-action="show-example" data-qid="q-0-1" style="margin-top:0.5rem;display:none;">Toon voorbeeldantwoord</button>
+    <div class="feedback-box" data-qid="q-0-1" data-type="example">
+      <strong>Voorbeeldantwoord:</strong> Als de stroom uitvalt terwijl ik op vakantie ben, kan ik mijn telefoon niet opladen en heb ik geen internet. De airco stopt, dus het wordt heel warm. In het hotel is er geen warm water en de lift werkt niet. Op straat zijn geen verkeerslichten en winkels zijn dicht. Eten in de koelkast bederft snel. Ik zou me onveilig en ongemakkelijk voelen, omdat ik niks kan doen zonder stroom.
+    </div>
+    <div class="self-assess" data-qid="q-0-1">
+      <button class="btn btn-success btn-small" data-action="self-good" data-qid="q-0-1">Goed ✓</button>
+      <button class="btn btn-danger btn-small" data-action="self-bad" data-qid="q-0-1">Fout ✗</button>
+    </div>
+  </div>
+
+  <div class="question-block" id="q-0-2">
+    <div class="q-label">🤔 Opdracht 2 <span class="tag tag-mc">Multiple choice</span></div>
+    <p class="info-text">Hoeveel inwoners heeft Cuba ongeveer?</p>
+    <div class="mc-options" data-qid="q-0-2" data-answer="2" data-attempts="0" data-hint1="Denk aan een eiland in het Caribisch gebied — het is een van de grotere eilanden." data-hint2="Het is meer dan 5 miljoen maar minder dan 50 miljoen.">
+      <button class="mc-opt" data-value="0">A) Ongeveer 2 miljoen</button>
+      <button class="mc-opt" data-value="1">B) Ongeveer 5 miljoen</button>
+      <button class="mc-opt" data-value="2">C) Ongeveer 11 miljoen</button>
+      <button class="mc-opt" data-value="3">D) Ongeveer 30 miljoen</button>
+    </div>
+    <div class="feedback-box" data-qid="q-0-2"></div>
+  </div>
+
+  <div class="nav-bottom">
+    <div></div>
+    <button class="btn btn-primary" data-action="next-tab">Volgende →</button>
+  </div>
+  <div style="text-align:center;margin-top:0.5rem;">
+    <button class="reset-section" data-tab="0">🔄 Reset dit onderdeel</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- TAB 2: DE KAART — CUBA ONTDEKKEN          -->
+<!-- ══════════════════════════════════════════ -->
+<div class="tab-panel" id="tab-1">
+  <div class="content-card">
+    <div class="card-title"><span class="emoji">🗺️</span> Cuba op de kaart</div>
+    <p class="info-text">Cuba is het grootste eiland van het Caribisch gebied. Het ligt in de Caribische Zee, vlak bij de kust van de Verenigde Staten. De afstand van de noordkust van Cuba naar de zuidpunt van Florida is maar <strong>150 kilometer</strong> — korter dan de afstand van Amsterdam naar Brussel! Als je op het vliegtuig stapt vanuit Miami ✈️, ben je binnen een uur in Havana, de hoofdstad.</p>
+    <p class="info-text">Cuba is een langgerekt eiland van ongeveer <strong>1.200 km lang</strong>, maar gemiddeld slechts 100 km breed. Het land heeft een tropisch klimaat met warme temperaturen het hele jaar door. De ligging in het Caribisch gebied maakt het kwetsbaar voor orkanen. Het eiland heeft weinig natuurlijke energiebronnen: er is een beetje olie en gas, maar lang niet genoeg voor de hele bevolking.</p>
+    <p class="info-text">Bekijk de kaart hieronder. De belangrijkste plaatsen zijn aangewezen met markers. Klik op een marker om meer informatie te zien.</p>
+  </div>
+
+  <div class="map-container" id="map1"></div>
+
+  <div class="content-card cuban">
+    <div class="card-title"><span class="emoji">🧭</span> De buren van Cuba</div>
+    <p class="info-text">Cuba ligt strategisch in het Caribisch gebied. Ten noorden liggen de VS (Florida), ten zuiden Jamaica, ten oosten Haïti en de Dominicaanse Republiek, en ten westen Mexico (het schiereiland Yucatán). Deze ligging heeft altijd een grote rol gespeeld in de politiek. De VS vonden Cuba altijd al belangrijk vanwege de nabijheid — ze zagen het als hun "achtertuin". Voor Cuba betekent dit dat alles wat de VS beslissen, direct invloed heeft op het eiland.</p>
+    <p class="info-text">Als je op reis gaat naar het Caribisch gebied ✈️, vlieg je waarschijnlijk via Miami of Cancún. Cuba is dan heel dichtbij. Toch is het voor Amerikanen lang moeilijk geweest om naar Cuba te reizen vanwege het handelsembargo.</p>
+  </div>
+
+  <div class="question-block" id="q-1-1">
+    <div class="q-label">🗺️ Opdracht 3 <span class="tag tag-mc">Multiple choice</span></div>
+    <p class="info-text">Welk land ligt het dichtst bij Cuba?</p>
+    <div class="mc-options" data-qid="q-1-1" data-answer="0" data-attempts="0" data-hint1="Kijk naar de kaart. Welk land is maar 150 km verwijderd?" data-hint2="Het is een staat in het zuiden van de Verenigde Staten...">
+      <button class="mc-opt" data-value="0">A) De VS (Florida)</button>
+      <button class="mc-opt" data-value="1">B) Mexico</button>
+      <button class="mc-opt" data-value="2">C) Jamaica</button>
+      <button class="mc-opt" data-value="3">D) Venezuela</button>
+    </div>
+    <div class="feedback-box" data-qid="q-1-1"></div>
+  </div>
+
+  <div class="question-block open-q" id="q-1-2">
+    <div class="q-label">✍️ Opdracht 4 <span class="tag tag-open">Open vraag</span></div>
+    <p class="info-text">Bekijk de kaart goed. Cuba ligt erg dicht bij de VS, maar Venezuela en Mexico liggen veel verder weg. Toch importeerde Cuba olie uit die verre landen, en niet uit de VS. Waarom denk je dat dit zo is? Gebruik je kennis van de relatie tussen Cuba en de VS.</p>
+    <textarea class="open-textarea" data-qid="q-1-2" placeholder="Schrijf hier minimaal 20 woorden..."></textarea>
+    <div class="word-counter" data-qid="q-1-2">0 woorden</div>
+    <button class="btn btn-primary btn-small" data-action="show-example" data-qid="q-1-2" style="margin-top:0.5rem;display:none;">Toon voorbeeldantwoord</button>
+    <div class="feedback-box" data-qid="q-1-2" data-type="example">
+      <strong>Voorbeeldantwoord:</strong> Cuba en de VS hebben al tientallen jaren ruzie. De VS hebben een handelsembargo tegen Cuba — dat betekent dat ze bijna niks met Cuba willen verhandelen. Daarom kan Cuba geen olie kopen van de VS, ook al liggen ze dichtbij. Cuba moest dus olie halen bij bevriende landen zoals Venezuela en Mexico, die veel verder weg liggen.
+    </div>
+    <div class="self-assess" data-qid="q-1-2">
+      <button class="btn btn-success btn-small" data-action="self-good" data-qid="q-1-2">Goed ✓</button>
+      <button class="btn btn-danger btn-small" data-action="self-bad" data-qid="q-1-2">Fout ✗</button>
+    </div>
+  </div>
+
+  <div class="question-block open-q" id="q-1-3">
+    <div class="q-label">🌍 Opdracht 5 <span class="tag tag-open">Leefwereld-vraag</span></div>
+    <p class="info-text">Nederland importeert ook energie uit andere landen (denk aan gas en olie). Als jij vanochtend je licht aandeed of de verwarming hoger zette — waar kwam die energie dan vandaan? Zoek eventueel op waar Nederland zijn gas en olie vandaan haalt en vergelijk dat met Cuba.</p>
+    <textarea class="open-textarea" data-qid="q-1-3" placeholder="Schrijf hier minimaal 20 woorden..."></textarea>
+    <div class="word-counter" data-qid="q-1-3">0 woorden</div>
+    <button class="btn btn-primary btn-small" data-action="show-example" data-qid="q-1-3" style="margin-top:0.5rem;display:none;">Toon voorbeeldantwoord</button>
+    <div class="feedback-box" data-qid="q-1-3" data-type="example">
+      <strong>Voorbeeldantwoord:</strong> Nederland haalt gas uit Noorwegen, Rusland en via LNG-schepen uit de VS en Qatar. Olie komt vooral uit het Midden-Oosten en de Noordzee. Net als Cuba is Nederland dus ook afhankelijk van energie uit het buitenland. Het verschil is dat Nederland meer verschillende leveranciers heeft en zelf ook nog wat gas en duurzame energie produceert.
+    </div>
+    <div class="self-assess" data-qid="q-1-3">
+      <button class="btn btn-success btn-small" data-action="self-good" data-qid="q-1-3">Goed ✓</button>
+      <button class="btn btn-danger btn-small" data-action="self-bad" data-qid="q-1-3">Fout ✗</button>
+    </div>
+  </div>
+
+  <div class="nav-bottom">
+    <button class="btn btn-outline" data-action="prev-tab">← Vorige</button>
+    <button class="btn btn-primary" data-action="next-tab">Volgende →</button>
+  </div>
+  <div style="text-align:center;margin-top:0.5rem;">
+    <button class="reset-section" data-tab="1">🔄 Reset dit onderdeel</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- TAB 3: GESCHIEDENIS VAN CUBA              -->
+<!-- ══════════════════════════════════════════ -->
+<div class="tab-panel" id="tab-2">
+  <div class="content-card cuban">
+    <div class="card-title"><span class="emoji">📜</span> De bewogen geschiedenis van Cuba</div>
+    <p class="info-text">Om te begrijpen waarom Cuba nu in zo'n diepe crisis zit, moet je de geschiedenis kennen. Het conflict tussen Cuba en de VS duurt al meer dan <strong>60 jaar</strong>. Het begon allemaal met een revolutie.</p>
+    <p class="info-text">Tot 1959 werd Cuba geregeerd door dictator <strong>Fulgencio Batista</strong>. Hij was een vriend van de VS. Rijke Amerikanen hadden hotels, casino's en suikerfabrieken op Cuba. Het was een populaire vakantiebestemming ✈️ voor rijke Amerikanen — denk aan luxe hotels in Havana, cocktails, muziek en dansen. Maar de meeste Cubanen waren straatarm en hadden geen toegang tot onderwijs of gezondheidszorg.</p>
+    <p class="info-text">In 1959 leidde <strong>Fidel Castro</strong> een opstand tegen Batista. Castro won en maakte van Cuba een communistisch land. Hij nationaliseerde alle Amerikaanse bedrijven op het eiland — dat wil zeggen, hij nam ze af zonder te betalen. De VS waren woedend. Zo begon een conflict dat tot op de dag van vandaag voortduurt.</p>
+  </div>
+
+  <div class="content-card">
+    <div class="card-title"><span class="emoji">⏰</span> Tijdlijn: Cuba & de VS</div>
+    <div class="timeline">
+      <div class="tl-item"><span class="tl-year">1898</span><div class="tl-text">VS helpen Cuba onafhankelijk te worden van Spanje, maar houden zelf grote invloed.</div></div>
+      <div class="tl-item"><span class="tl-year">1902-1959</span><div class="tl-text">Cuba is onafhankelijk maar sterk onder invloed van de VS. Amerikaanse bedrijven bezitten suikerfabrieken, hotels en casino's.</div></div>
+      <div class="tl-item"><span class="tl-year">1959</span><div class="tl-text">Fidel Castro grijpt de macht. Hij maakt Cuba communistisch en nationaliseert Amerikaanse bedrijven.</div></div>
+      <div class="tl-item"><span class="tl-year">1961</span><div class="tl-text">VS verbreken diplomatieke relaties. De CIA stuurt Cubaanse ballingen naar de Varkensbaai (Bay of Pigs), maar de invasie mislukt.</div></div>
+      <div class="tl-item"><span class="tl-year">1962</span><div class="tl-text">Cubacrisis: de Sovjet-Unie plaatst kernraketten op Cuba. De wereld staat op de rand van een kernoorlog.</div></div>
+      <div class="tl-item"><span class="tl-year">1962</span><div class="tl-text">VS starten een handelsembargo: bijna alle handel met Cuba wordt verboden.</div></div>
+      <div class="tl-item"><span class="tl-year">1991</span><div class="tl-text">De Sovjet-Unie valt uit elkaar. Cuba verliest zijn belangrijkste bondgenoot en economische steun.</div></div>
+      <div class="tl-item"><span class="tl-year">2014</span><div class="tl-text">Obama en Castro herstellen diplomatieke relaties. Ambassades heropend.</div></div>
+      <div class="tl-item"><span class="tl-year">2025</span><div class="tl-text">Trump verscherpt sancties tegen Cuba met "maximum pressure" strategie.</div></div>
+      <div class="tl-item"><span class="tl-year">2026</span><div class="tl-text">VS blokkeren olietankers. Cuba raakt zonder brandstof. Het stroomnet stort in.</div></div>
+    </div>
+  </div>
+
+  <div class="question-block" id="q-2-1">
+    <div class="q-label">📋 Opdracht 6 — Sorteer de tijdlijn <span class="tag tag-drag">Drag & drop</span></div>
+    <p class="info-text">Sleep de gebeurtenissen in de juiste chronologische volgorde (oudste bovenaan).</p>
+    <div class="drag-list" id="drag-2-1">
+      <div class="drag-item" draggable="true" data-order="3"><span class="handle">⠿</span> Cubacrisis — kernraketten op Cuba</div>
+      <div class="drag-item" draggable="true" data-order="0"><span class="handle">⠿</span> VS helpen Cuba onafhankelijk worden van Spanje</div>
+      <div class="drag-item" draggable="true" data-order="4"><span class="handle">⠿</span> Sovjet-Unie valt uiteen — Cuba verliest steun</div>
+      <div class="drag-item" draggable="true" data-order="1"><span class="handle">⠿</span> Fidel Castro grijpt de macht</div>
+      <div class="drag-item" draggable="true" data-order="5"><span class="handle">⠿</span> VS blokkeren olietankers naar Cuba (2026)</div>
+      <div class="drag-item" draggable="true" data-order="2"><span class="handle">⠿</span> VS starten handelsembargo tegen Cuba</div>
+    </div>
+    <button class="btn btn-primary btn-small" data-action="check-drag" data-qid="q-2-1" data-listid="drag-2-1">Controleer volgorde</button>
+    <div class="feedback-box" data-qid="q-2-1"></div>
+  </div>
+
+  <div class="question-block open-q" id="q-2-2">
+    <div class="q-label">✍️ Opdracht 7 <span class="tag tag-open">Open vraag</span></div>
+    <p class="info-text">Leg in je eigen woorden uit waarom de VS en Cuba ruzie kregen in de jaren '60. Wat deed Castro waardoor de VS zo boos werden? Noem minstens twee redenen.</p>
+    <textarea class="open-textarea" data-qid="q-2-2" placeholder="Schrijf hier minimaal 20 woorden..."></textarea>
+    <div class="word-counter" data-qid="q-2-2">0 woorden</div>
+    <button class="btn btn-primary btn-small" data-action="show-example" data-qid="q-2-2" style="margin-top:0.5rem;display:none;">Toon voorbeeldantwoord</button>
+    <div class="feedback-box" data-qid="q-2-2" data-type="example">
+      <strong>Voorbeeldantwoord:</strong> Castro maakte Cuba communistisch, terwijl de VS kapitalistisch zijn. Dat was reden 1: de VS wilden niet dat er een communistisch land vlak bij hun kust lag. Reden 2: Castro nam alle Amerikaanse bedrijven op Cuba af (nationalisatie) zonder ervoor te betalen. De VS verloren dus veel geld en invloed. Bovendien werden Cuba en de Sovjet-Unie bondgenoten, de grote vijand van de VS tijdens de Koude Oorlog.
+    </div>
+    <div class="self-assess" data-qid="q-2-2">
+      <button class="btn btn-success btn-small" data-action="self-good" data-qid="q-2-2">Goed ✓</button>
+      <button class="btn btn-danger btn-small" data-action="self-bad" data-qid="q-2-2">Fout ✗</button>
+    </div>
+  </div>
+
+  <div class="question-block" id="q-2-3">
+    <div class="q-label">🤔 Opdracht 8 <span class="tag tag-mc">Multiple choice</span></div>
+    <p class="info-text">Wat wordt bedoeld met een "handelsembargo"?</p>
+    <div class="mc-options" data-qid="q-2-3" data-answer="1" data-attempts="0" data-hint1="Het heeft te maken met handel — kopen en verkopen van goederen." data-hint2="Denk aan het woord 'embargo' als een verbod of blokkade op handel.">
+      <button class="mc-opt" data-value="0">A) Een land mag geen toeristen meer ontvangen</button>
+      <button class="mc-opt" data-value="1">B) Een verbod op bijna alle handel met een land</button>
+      <button class="mc-opt" data-value="2">C) Een militaire blokkade van een haven</button>
+      <button class="mc-opt" data-value="3">D) Een diplomatiek overleg tussen twee landen</button>
+    </div>
+    <div class="feedback-box" data-qid="q-2-3"></div>
+  </div>
+
+  <div class="nav-bottom">
+    <button class="btn btn-outline" data-action="prev-tab">← Vorige</button>
+    <button class="btn btn-primary" data-action="next-tab">Volgende →</button>
+  </div>
+  <div style="text-align:center;margin-top:0.5rem;">
+    <button class="reset-section" data-tab="2">🔄 Reset dit onderdeel</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- TAB 4: OLIE-AFHANKELIJKHEID               -->
+<!-- ══════════════════════════════════════════ -->
+<div class="tab-panel" id="tab-3">
+  <div class="content-card">
+    <div class="card-title"><span class="emoji">🛢️</span> Waarom is Cuba zo afhankelijk van olie?</div>
+    <p class="info-text">Cuba is voor meer dan <strong>90% van zijn energiebehoefte</strong> afhankelijk van geïmporteerde olie. Het eiland produceert zelf een beetje olie — ongeveer 40% van wat het nodig heeft — maar dat is bij lange na niet genoeg. De verouderde elektriciteitscentrales draaien bijna allemaal op olie. Zonder olie geen stroom, en zonder stroom kan bijna niks meer functioneren.</p>
+    <p class="info-text">Tijdens de Koude Oorlog (1945-1991) kreeg Cuba goedkope olie van de <strong>Sovjet-Unie</strong>. Toen die in 1991 uiteen viel, stortte de Cubaanse economie in — dit wordt de "Período Especial" (Speciale Periode) genoemd. Cubanen leden honger en er waren constante stroomuitval. Daarna sprong <strong>Venezuela</strong> bij: onder president Hugo Chávez stuurde Venezuela jarenlang goedkope olie naar Cuba, in ruil voor Cubaanse artsen en leraren. Ook <strong>Mexico</strong> leverde olie.</p>
+    <p class="info-text">Maar Venezuela raakte zelf in een economische crisis en kon steeds minder olie leveren. En nu, in 2026, heeft de VS de olietoevoer naar Cuba praktisch helemaal afgesneden. Cuba zit klem.</p>
+  </div>
+
+  <div class="emoji-flow">
+    <div class="step"><span class="icon">🛢️</span><span class="label">Olie uit Venezuela/Mexico</span></div>
+    <span class="arrow">→</span>
+    <div class="step"><span class="icon">🚢</span><span class="label">Tanker-schepen</span></div>
+    <span class="arrow">→</span>
+    <div class="step"><span class="icon">🏭</span><span class="label">Raffinaderij Cuba</span></div>
+    <span class="arrow">→</span>
+    <div class="step"><span class="icon">⚡</span><span class="label">Elektriciteits-centrales</span></div>
+    <span class="arrow">→</span>
+    <div class="step"><span class="icon">🏠</span><span class="label">Huizen, zieken-huizen, scholen</span></div>
+  </div>
+
+  <div class="highlight-box red">
+    <div class="highlight-box-title">🚫 Wat als de keten breekt?</div>
+    <p class="info-text" style="margin-bottom:0;">Als er geen olie meer binnenkomt, stopt de hele keten. Geen brandstof voor centrales = geen stroom. Geen stroom = geen koeling, geen pompen voor drinkwater, geen communicatie. Cuba produceert zelf wel een beetje zonne-energie en aardgas, maar dat is bij lange na niet genoeg voor 11 miljoen mensen.</p>
+  </div>
+
+  <div class="content-card gold-accent">
+    <div class="card-title"><span class="emoji">📊</span> Data: Cuba's energiemix</div>
+    <p class="info-text">Bekijk de grafiek hieronder. Je ziet hoe afhankelijk Cuba is van olie vergeleken met andere energiebronnen.</p>
+    <div class="chart-container"><canvas id="chart-energy"></canvas></div>
+  </div>
+
+  <div class="question-block" id="q-3-1">
+    <div class="q-label">📊 Opdracht 9 — Data analyseren <span class="tag tag-data">Data-analyse</span></div>
+    <p class="info-text">Bekijk de grafiek hierboven. Welk percentage van Cuba's energie komt uit olie?</p>
+    <div class="mc-options" data-qid="q-3-1" data-answer="2" data-attempts="0" data-hint1="Kijk naar de grootste balk in de grafiek." data-hint2="Het is meer dan de helft van alle energie...">
+      <button class="mc-opt" data-value="0">A) Ongeveer 40%</button>
+      <button class="mc-opt" data-value="1">B) Ongeveer 60%</button>
+      <button class="mc-opt" data-value="2">C) Meer dan 90%</button>
+      <button class="mc-opt" data-value="3">D) Ongeveer 75%</button>
+    </div>
+    <div class="feedback-box" data-qid="q-3-1"></div>
+  </div>
+
+  <div class="question-block open-q" id="q-3-2">
+    <div class="q-label">✍️ Opdracht 10 <span class="tag tag-open">Open vraag</span></div>
+    <p class="info-text">Leg uit waarom het zo gevaarlijk is als een land bijna al zijn energie uit één bron (olie) haalt, en die olie dan ook nog eens uit het buitenland moet komen. Gebruik het begrip "energieafhankelijkheid".</p>
+    <textarea class="open-textarea" data-qid="q-3-2" placeholder="Schrijf hier minimaal 20 woorden..."></textarea>
+    <div class="word-counter" data-qid="q-3-2">0 woorden</div>
+    <button class="btn btn-primary btn-small" data-action="show-example" data-qid="q-3-2" style="margin-top:0.5rem;display:none;">Toon voorbeeldantwoord</button>
+    <div class="feedback-box" data-qid="q-3-2" data-type="example">
+      <strong>Voorbeeldantwoord:</strong> Als een land bijna al zijn energie uit één bron haalt (energieafhankelijkheid), is het heel kwetsbaar. Als die ene bron wegvalt, staat alles stil. Cuba haalt meer dan 90% van zijn energie uit olie en die olie komt uit het buitenland. Als andere landen stoppen met leveren — of als ze onder druk worden gezet, zoals nu door de VS — heeft Cuba geen plan B. Daarom is het veiliger om energie uit meerdere bronnen te halen, zoals wind, zon en gas.
+    </div>
+    <div class="self-assess" data-qid="q-3-2">
+      <button class="btn btn-success btn-small" data-action="self-good" data-qid="q-3-2">Goed ✓</button>
+      <button class="btn btn-danger btn-small" data-action="self-bad" data-qid="q-3-2">Fout ✗</button>
+    </div>
+  </div>
+
+  <div class="question-block open-q" id="q-3-3">
+    <div class="q-label">🏠 Opdracht 11 — Leefwereld <span class="tag tag-open">Open vraag</span></div>
+    <p class="info-text">Denk aan jouw eigen huis. Maak een lijstje van 5 dingen die je dagelijks doet waarvoor je energie (stroom/gas) nodig hebt. Stel je dan voor dat al die dingen 20 uur per dag niet werken. Hoe zou je dag eruitzien?</p>
+    <textarea class="open-textarea" data-qid="q-3-3" placeholder="Schrijf hier minimaal 20 woorden..."></textarea>
+    <div class="word-counter" data-qid="q-3-3">0 woorden</div>
+    <button class="btn btn-primary btn-small" data-action="show-example" data-qid="q-3-3" style="margin-top:0.5rem;display:none;">Toon voorbeeldantwoord</button>
+    <div class="feedback-box" data-qid="q-3-3" data-type="example">
+      <strong>Voorbeeldantwoord:</strong> Ik gebruik stroom voor: 1) licht, 2) mijn telefoon opladen, 3) de koelkast, 4) koken (elektrisch of gas), 5) internet/wifi. Als dat 20 uur per dag niet werkt, kan ik na school niet mijn huiswerk maken op mijn laptop. Eten bederft in de koelkast. 's Avonds zit ik in het donker. Ik kan geen contact houden met vrienden. Het klinkt ondraaglijk — en dat is precies wat Cubanen nu meemaken.
+    </div>
+    <div class="self-assess" data-qid="q-3-3">
+      <button class="btn btn-success btn-small" data-action="self-good" data-qid="q-3-3">Goed ✓</button>
+      <button class="btn btn-danger btn-small" data-action="self-bad" data-qid="q-3-3">Fout ✗</button>
+    </div>
+  </div>
+
+  <div class="nav-bottom">
+    <button class="btn btn-outline" data-action="prev-tab">← Vorige</button>
+    <button class="btn btn-primary" data-action="next-tab">Volgende →</button>
+  </div>
+  <div style="text-align:center;margin-top:0.5rem;">
+    <button class="reset-section" data-tab="3">🔄 Reset dit onderdeel</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- TAB 5: DE DRUK VAN DE VS                  -->
+<!-- ══════════════════════════════════════════ -->
+<div class="tab-panel" id="tab-4">
+  <div class="content-card cuban">
+    <div class="card-title"><span class="emoji">🇺🇸</span> Hoe zetten de VS Cuba onder druk?</div>
+    <p class="info-text">De VS gebruiken al meer dan 60 jaar economische sancties tegen Cuba. Sancties zijn strafmaatregelen waarmee je een land economisch raakt. Het bekendste voorbeeld is het <strong>handelsembargo</strong> dat al sinds 1962 bestaat: de VS verbieden bijna alle handel met Cuba. Amerikaanse bedrijven mogen niet met Cuba handelen, en buitenlandse bedrijven die met Cuba zaken doen, riskeren problemen met de VS.</p>
+    <p class="info-text">Onder president Obama (2014-2016) was er een korte periode van toenadering. De ambassades werden heropend, reisrestricties werden versoepeld, en er was hoop op verbetering. Maar onder Trump werd het beleid weer strenger. In zijn tweede termijn (vanaf 2025) voert Trump een <strong>"maximum pressure"</strong> strategie: maximale druk om het Cubaanse regime te dwingen tot verandering.</p>
+    <p class="info-text">In januari 2026 tekende Trump een decreet dat Cuba een "buitengewone bedreiging" voor de nationale veiligheid noemt. De VS dreigen elk land dat olie aan Cuba verkoopt met handelstarieven (extra belastingen op hun export). Dit betekent dat landen zoals Mexico en Venezuela het niet meer aandurven om olie naar Cuba te sturen. Sinds januari 2026 heeft Cuba vrijwel geen olie meer ontvangen.</p>
+  </div>
+
+  <div class="content-card">
+    <div class="card-title"><span class="emoji">⚖️</span> Twee perspectieven</div>
+    <table class="compare-table">
+      <tr><th>Standpunt VS</th><th>Standpunt Cuba & critici</th></tr>
+      <tr><td>Cuba is een dictatuur die politieke gevangenen vastzit</td><td>De VS schenden internationaal recht met de blokkade</td></tr>
+      <tr><td>Druk is nodig om Cuba te dwingen tot democratische hervormingen</td><td>De sancties treffen vooral gewone burgers, niet de leiders</td></tr>
+      <tr><td>Cuba vormt een bedreiging door banden met vijandige landen</td><td>Cuba is een soeverein land dat zelf mag bepalen met wie het handelt</td></tr>
+      <tr><td>Doel: regimewissel — een democratisch Cuba</td><td>VN-experts noemen de brandstofblokkade een "collectieve bestraffing van burgers"</td></tr>
+    </table>
+  </div>
+
+  <div class="question-block" id="q-4-1">
+    <div class="q-label">🔗 Opdracht 12 — Koppelen <span class="tag tag-match">Koppelen</span></div>
+    <p class="info-text">Koppel elk drukmiddel van de VS aan het juiste effect. Klik eerst op een item links, dan op het juiste item rechts. Een effect kan bij meerdere drukmiddelen horen.</p>
+    <div class="match-container" id="match-4-1">
+      <div class="match-col">
+        <div class="match-col-title">Drukmiddel VS</div>
+        <div class="match-item" data-side="left" data-id="m1">Handelsembargo</div>
+        <div class="match-item" data-side="left" data-id="m2">Olieblokkade</div>
+        <div class="match-item" data-side="left" data-id="m3">Dreigen met tarieven</div>
+        <div class="match-item" data-side="left" data-id="m4">Diplomatieke druk</div>
+      </div>
+      <div class="match-col">
+        <div class="match-col-title">Effect</div>
+        <div class="match-item" data-side="right" data-id="e1">Cuba kan geen goederen importeren</div>
+        <div class="match-item" data-side="right" data-id="e2">Stroomnet valt uit</div>
+        <div class="match-item" data-side="right" data-id="e3">Andere landen durven geen olie te leveren</div>
+        <div class="match-item" data-side="right" data-id="e4">Cuba wordt geïsoleerd op het wereldtoneel</div>
+      </div>
+    </div>
+    <div class="match-pairs" id="pairs-4-1"></div>
+    <button class="btn btn-primary btn-small" data-action="check-match" data-qid="q-4-1" data-matchid="match-4-1" style="margin-top:0.5rem;">Controleer koppelingen</button>
+    <div class="feedback-box" data-qid="q-4-1"></div>
+  </div>
+
+  <div class="question-block open-q" id="q-4-2">
+    <div class="q-label">✍️ Opdracht 13 — Jouw mening <span class="tag tag-open">Meningsvraag</span></div>
+    <p class="info-text">De VS zeggen dat ze Cuba onder druk zetten om democratie te brengen. Critici zeggen dat vooral gewone burgers de dupe zijn. <strong>Wat vind jij?</strong> Zijn sancties een goed middel om een land tot verandering te dwingen, of veroorzaken ze juist meer leed? Geef minstens één argument voor jouw standpunt.</p>
+    <textarea class="open-textarea" data-qid="q-4-2" placeholder="Schrijf hier minimaal 20 woorden..."></textarea>
+    <div class="word-counter" data-qid="q-4-2">0 woorden</div>
+    <button class="btn btn-primary btn-small" data-action="show-example" data-qid="q-4-2" style="margin-top:0.5rem;display:none;">Toon voorbeeldantwoord</button>
+    <div class="feedback-box" data-qid="q-4-2" data-type="example">
+      <strong>Voorbeeldantwoord (twee kanten):</strong><br>
+      <em>Standpunt 1:</em> Ik vind sancties niet eerlijk omdat gewone mensen er het meest onder lijden. Zieke mensen krijgen geen medicijnen en kinderen kunnen niet naar school. De leiders van Cuba hebben zelf waarschijnlijk nog wel genoeg.<br>
+      <em>Standpunt 2:</em> Ik begrijp waarom de VS druk uitoefenen. Cuba is al tientallen jaren een dictatuur waar je niet vrij mag spreken. Soms moet je hard optreden om verandering af te dwingen. Maar ik vind wel dat er een uitzondering moet zijn voor voedsel en medicijnen.
+    </div>
+    <div class="self-assess" data-qid="q-4-2">
+      <button class="btn btn-success btn-small" data-action="self-good" data-qid="q-4-2">Goed ✓</button>
+      <button class="btn btn-danger btn-small" data-action="self-bad" data-qid="q-4-2">Fout ✗</button>
+    </div>
+  </div>
+
+  <div class="question-block" id="q-4-3">
+    <div class="q-label">🤔 Opdracht 14 <span class="tag tag-mc">Multiple choice</span></div>
+    <p class="info-text">Wat bedreigt de VS te doen als andere landen olie aan Cuba leveren?</p>
+    <div class="mc-options" data-qid="q-4-3" data-answer="2" data-attempts="0" data-hint1="Het gaat over een economische maatregel die import duurder maakt." data-hint2="Denk aan extra belastingen op producten die een land importeert...">
+      <button class="mc-opt" data-value="0">A) Militair ingrijpen</button>
+      <button class="mc-opt" data-value="1">B) Diplomatieke relaties verbreken</button>
+      <button class="mc-opt" data-value="2">C) Handelstarieven opleggen</button>
+      <button class="mc-opt" data-value="3">D) Een reisverbod instellen</button>
+    </div>
+    <div class="feedback-box" data-qid="q-4-3"></div>
+  </div>
+
+  <div class="nav-bottom">
+    <button class="btn btn-outline" data-action="prev-tab">← Vorige</button>
+    <button class="btn btn-primary" data-action="next-tab">Volgende →</button>
+  </div>
+  <div style="text-align:center;margin-top:0.5rem;">
+    <button class="reset-section" data-tab="4">🔄 Reset dit onderdeel</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- TAB 6: GEVOLGEN VOOR DE BEVOLKING         -->
+<!-- ══════════════════════════════════════════ -->
+<div class="tab-panel" id="tab-5">
+  <div class="content-card cuban">
+    <div class="card-title"><span class="emoji">👨‍👩‍👧‍👦</span> De gevolgen voor gewone Cubanen</div>
+    <p class="info-text">De crisis raakt het dagelijks leven van alle Cubanen. Dit is niet alleen een politiek probleem — het gaat over echte mensen die honger lijden, in het donker zitten en niet bij een dokter terecht kunnen. Stel je voor dat je als toerist ✈️ naar Cuba reist en deze dingen ziet met je eigen ogen.</p>
+    <p class="info-text"><strong>Stroomuitval:</strong> In maart 2026 is het hele eiland opnieuw getroffen door een complete blackout. Meer dan 10 miljoen mensen zitten zonder stroom. Dit is niet de eerste keer — er zijn al maandenlang dagelijks stroomuitval van 20 uur of meer. Mensen koken op houtvuur, steken kaarsen aan, en proberen zonnepanelen te regelen als ze die kunnen betalen.</p>
+    <p class="info-text"><strong>Voedsel:</strong> Zonder stroom werken koelkasten niet. Eten bederft. De voedseldistributie is verstoord omdat vrachtwagens geen brandstof hebben. Mensen staan urenlang in de rij voor brood. Een inwoner van Havana vertelde aan de pers dat ze soep die ze maakte meteen uitdeelde aan buren, omdat het anders zou bederven.</p>
+    <p class="info-text"><strong>Gezondheidszorg:</strong> Ziekenhuizen draaien op noodstroom, maar operaties worden uitgesteld. Duizenden kankerpatiënten wachten op behandelingen. Er zijn 32.000 zwangere vrouwen die medische zorg nodig hebben. Medicijnen zijn schaars.</p>
+    <p class="info-text"><strong>Water:</strong> Ongeveer 1 miljoen Cubanen krijgen hun drinkwater via watertankers. Maar die rijden niet meer zonder brandstof. 84% van de waterpompen werkt op elektriciteit — dus ook die vallen uit.</p>
+    <p class="info-text"><strong>Vuilnis:</strong> Vuilniswagens staan stil. In Havana en andere steden hoopt het afval zich op in de straten. Dit vormt een gevaar voor de volksgezondheid.</p>
+  </div>
+
+  <div class="emoji-flow">
+    <div class="step"><span class="icon">🚫🛢️</span><span class="label">Geen olie</span></div>
+    <span class="arrow">→</span>
+    <div class="step"><span class="icon">⚡❌</span><span class="label">Geen stroom</span></div>
+    <span class="arrow">→</span>
+    <div class="step"><span class="icon">🏥❌</span><span class="label">Zieken-huizen beperkt</span></div>
+    <span class="arrow">→</span>
+    <div class="step"><span class="icon">🚰❌</span><span class="label">Geen water-pompen</span></div>
+    <span class="arrow">→</span>
+    <div class="step"><span class="icon">😰</span><span class="label">Humani-taire crisis</span></div>
+  </div>
+
+  <div class="question-block open-q" id="q-5-1">
+    <div class="q-label">✍️ Opdracht 15 — Scenario <span class="tag tag-open">Verhalend scenario</span></div>
+    <p class="info-text">Je bent een 14-jarige scholier in Havana. Schrijf een kort dagboekfragment (minstens 30 woorden) over hoe een typische dag eruitziet tijdens de crisis. Gebruik de informatie uit de tekst: stroomuitval, voedselschaarste, geen water, vuilnis in de straten.</p>
+    <textarea class="open-textarea" data-qid="q-5-1" placeholder="Lieve dagboek, vandaag was weer een moeilijke dag..." style="min-height:130px;"></textarea>
+    <div class="word-counter" data-qid="q-5-1">0 woorden (min. 30)</div>
+    <button class="btn btn-primary btn-small" data-action="show-example" data-qid="q-5-1" style="margin-top:0.5rem;display:none;" data-minwords="30">Toon voorbeeldantwoord</button>
+    <div class="feedback-box" data-qid="q-5-1" data-type="example">
+      <strong>Voorbeeldantwoord:</strong> Lieve dagboek, vandaag werd ik weer wakker in het donker. De stroom was 's nachts weer uitgevallen. Mama had gisteren rijst gekookt op een houtvuurtje buiten, maar het was al op. We stonden twee uur in de rij bij de bakker voor brood. Op school waren we maar twee uur, want de leraren zeggen dat er geen stroom is voor de ventilatoren. Het stinkt op straat omdat het vuilnis zich ophoopt. Ik mis mijn telefoon — die is al dagen leeg.
+    </div>
+    <div class="self-assess" data-qid="q-5-1">
+      <button class="btn btn-success btn-small" data-action="self-good" data-qid="q-5-1">Goed ✓</button>
+      <button class="btn btn-danger btn-small" data-action="self-bad" data-qid="q-5-1">Fout ✗</button>
+    </div>
+  </div>
+
+  <div class="question-block" id="q-5-2">
+    <div class="q-label">🤔 Opdracht 16 <span class="tag tag-mc">Multiple choice</span></div>
+    <p class="info-text">Waarom is de stroomuitval in Cuba zo gevaarlijk voor de gezondheidszorg?</p>
+    <div class="mc-options" data-qid="q-5-2" data-answer="3" data-attempts="0" data-hint1="Denk aan alles in een ziekenhuis dat stroom nodig heeft." data-hint2="Operaties, apparatuur, koeling van medicijnen — wat gebeurt er als al die dingen stoppen?">
+      <button class="mc-opt" data-value="0">A) Artsen kunnen niet naar hun werk reizen</button>
+      <button class="mc-opt" data-value="1">B) Er zijn niet genoeg ziekenhuisbedden</button>
+      <button class="mc-opt" data-value="2">C) Patiënten kunnen het ziekenhuis niet vinden in het donker</button>
+      <button class="mc-opt" data-value="3">D) Operaties worden uitgesteld en medicijnen bederven zonder koeling</button>
+    </div>
+    <div class="feedback-box" data-qid="q-5-2"></div>
+  </div>
+
+  <div class="question-block open-q" id="q-5-3">
+    <div class="q-label">✍️ Opdracht 17 <span class="tag tag-open">Open vraag</span></div>
+    <p class="info-text">De VN noemen de situatie in Cuba een "humanitaire crisis". Leg in je eigen woorden uit wat een humanitaire crisis is en noem drie voorbeelden uit Cuba die dit laten zien.</p>
+    <textarea class="open-textarea" data-qid="q-5-3" placeholder="Schrijf hier minimaal 20 woorden..."></textarea>
+    <div class="word-counter" data-qid="q-5-3">0 woorden</div>
+    <button class="btn btn-primary btn-small" data-action="show-example" data-qid="q-5-3" style="margin-top:0.5rem;display:none;">Toon voorbeeldantwoord</button>
+    <div class="feedback-box" data-qid="q-5-3" data-type="example">
+      <strong>Voorbeeldantwoord:</strong> Een humanitaire crisis is een situatie waarbij het leven en de gezondheid van veel mensen in gevaar is. In Cuba zien we drie voorbeelden: 1) Ziekenhuizen kunnen operaties niet uitvoeren — duizenden kankerpatiënten moeten wachten; 2) Drinkwater is schaars omdat pompen niet werken zonder stroom; 3) Voedsel bederft door gebrek aan koeling en distributie is verstoord. De VN waarschuwen dat als er niks verandert, de situatie "kan instorten".
+    </div>
+    <div class="self-assess" data-qid="q-5-3">
+      <button class="btn btn-success btn-small" data-action="self-good" data-qid="q-5-3">Goed ✓</button>
+      <button class="btn btn-danger btn-small" data-action="self-bad" data-qid="q-5-3">Fout ✗</button>
+    </div>
+  </div>
+
+  <div class="nav-bottom">
+    <button class="btn btn-outline" data-action="prev-tab">← Vorige</button>
+    <button class="btn btn-primary" data-action="next-tab">Volgende →</button>
+  </div>
+  <div style="text-align:center;margin-top:0.5rem;">
+    <button class="reset-section" data-tab="5">🔄 Reset dit onderdeel</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- TAB 7: DATA & GRAFIEKEN                   -->
+<!-- ══════════════════════════════════════════ -->
+<div class="tab-panel" id="tab-6">
+  <div class="content-card">
+    <div class="card-title"><span class="emoji">📈</span> Cuba in cijfers</div>
+    <p class="info-text">Getallen vertellen een verhaal. Als je naar de data kijkt, ziet je hoe de crisis zich ontwikkelt. Hieronder vind je twee grafieken met belangrijke informatie over Cuba. Als aardrijkskunde-onderzoeker moet je data kunnen lezen én interpreteren — dat betekent niet alleen aflezen <em>wat</em> er staat, maar ook begrijpen <em>waarom</em>.</p>
+  </div>
+
+  <div class="content-card gold-accent">
+    <div class="card-title"><span class="emoji">📉</span> Olie-import Cuba (2020-2026)</div>
+    <p class="info-text">Deze grafiek toont hoeveel vaten olie Cuba per dag importeerde in de afgelopen jaren. Let op de scherpe daling in 2025 en 2026.</p>
+    <div class="chart-container"><canvas id="chart-oil"></canvas></div>
+  </div>
+
+  <div class="content-card">
+    <div class="card-title"><span class="emoji">🔌</span> Stroomuitval: uren per dag</div>
+    <p class="info-text">Hoeveel uur per dag zaten Cubanen gemiddeld zonder stroom? Bekijk de ontwikkeling.</p>
+    <div class="chart-container"><canvas id="chart-blackout"></canvas></div>
+  </div>
+
+  <div class="question-block" id="q-6-1">
+    <div class="q-label">📊 Opdracht 18 — Grafiekanalyse <span class="tag tag-data">Data-analyse</span></div>
+    <p class="info-text">Bekijk de olie-importgrafiek. In welk jaar begon de olie-import flink te dalen?</p>
+    <div class="mc-options" data-qid="q-6-1" data-answer="1" data-attempts="0" data-hint1="Kijk waar de lijn het steilst naar beneden gaat." data-hint2="Het was het jaar waarin de VS hun druk flink opvoerden...">
+      <button class="mc-opt" data-value="0">A) 2022</button>
+      <button class="mc-opt" data-value="1">B) 2025</button>
+      <button class="mc-opt" data-value="2">C) 2023</button>
+      <button class="mc-opt" data-value="3">D) 2020</button>
+    </div>
+    <div class="feedback-box" data-qid="q-6-1"></div>
+  </div>
+
+  <div class="question-block open-q" id="q-6-2">
+    <div class="q-label">✍️ Opdracht 19 <span class="tag tag-open">Open vraag</span></div>
+    <p class="info-text">Bekijk beide grafieken. Er is een duidelijk verband tussen de olie-import en het aantal uren stroomuitval. Beschrijf dit verband in je eigen woorden. Waarom is er zo'n sterk verband?</p>
+    <textarea class="open-textarea" data-qid="q-6-2" placeholder="Schrijf hier minimaal 20 woorden..."></textarea>
+    <div class="word-counter" data-qid="q-6-2">0 woorden</div>
+    <button class="btn btn-primary btn-small" data-action="show-example" data-qid="q-6-2" style="margin-top:0.5rem;display:none;">Toon voorbeeldantwoord</button>
+    <div class="feedback-box" data-qid="q-6-2" data-type="example">
+      <strong>Voorbeeldantwoord:</strong> Je ziet dat als de olie-import daalt, het aantal uren stroomuitval stijgt. Dit is een omgekeerd verband: minder olie = meer stroomuitval. Dit komt omdat Cuba's elektriciteitscentrales bijna allemaal op olie draaien. Als er minder olie binnenkomt, kunnen de centrales minder stroom opwekken. In 2026 is de olie-import bijna nul, en het aantal uren uitval is gestegen naar 20+ uur per dag — bijna een complete blackout.
+    </div>
+    <div class="self-assess" data-qid="q-6-2">
+      <button class="btn btn-success btn-small" data-action="self-good" data-qid="q-6-2">Goed ✓</button>
+      <button class="btn btn-danger btn-small" data-action="self-bad" data-qid="q-6-2">Fout ✗</button>
+    </div>
+  </div>
+
+  <div class="question-block open-q" id="q-6-3">
+    <div class="q-label">🌍 Opdracht 20 — Vergelijking <span class="tag tag-open">Open vraag</span></div>
+    <p class="info-text">In Nederland hebben we zelden stroomuitval. Waarom niet? Noem minstens twee verschillen tussen de energievoorziening van Nederland en Cuba.</p>
+    <textarea class="open-textarea" data-qid="q-6-3" placeholder="Schrijf hier minimaal 20 woorden..."></textarea>
+    <div class="word-counter" data-qid="q-6-3">0 woorden</div>
+    <button class="btn btn-primary btn-small" data-action="show-example" data-qid="q-6-3" style="margin-top:0.5rem;display:none;">Toon voorbeeldantwoord</button>
+    <div class="feedback-box" data-qid="q-6-3" data-type="example">
+      <strong>Voorbeeldantwoord:</strong> Verschil 1: Nederland heeft een moderne, goed onderhouden infrastructuur voor stroom. Cuba's stroomnet is verouderd en al jarenlang slecht onderhouden. Verschil 2: Nederland haalt energie uit veel verschillende bronnen (gas, wind, zon, kernenergie binnenkort), terwijl Cuba bijna helemaal afhankelijk is van olie. Verschil 3: Nederland wordt niet getroffen door sancties, dus kan vrij handel drijven voor energie.
+    </div>
+    <div class="self-assess" data-qid="q-6-3">
+      <button class="btn btn-success btn-small" data-action="self-good" data-qid="q-6-3">Goed ✓</button>
+      <button class="btn btn-danger btn-small" data-action="self-bad" data-qid="q-6-3">Fout ✗</button>
+    </div>
+  </div>
+
+  <div class="nav-bottom">
+    <button class="btn btn-outline" data-action="prev-tab">← Vorige</button>
+    <button class="btn btn-primary" data-action="next-tab">Volgende →</button>
+  </div>
+  <div style="text-align:center;margin-top:0.5rem;">
+    <button class="reset-section" data-tab="6">🔄 Reset dit onderdeel</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- TAB 8: MIGRATIE & VLUCHTELINGEN           -->
+<!-- ══════════════════════════════════════════ -->
+<div class="tab-panel" id="tab-7">
+  <div class="content-card cuban">
+    <div class="card-title"><span class="emoji">🚣</span> Vluchten uit Cuba</div>
+    <p class="info-text">Wanneer het leven in een land ondraaglijk wordt, gaan mensen op zoek naar een beter bestaan elders. Sinds 2021 hebben meer dan <strong>1 miljoen Cubanen</strong> het eiland verlaten — dat is bijna 10% van de bevolking! Sommige schattingen spreken zelfs van 2 miljoen. Dit is de grootste migratiegolf in de moderne geschiedenis van Cuba.</p>
+    <p class="info-text">Veel Cubanen proberen de VS te bereiken. Sommigen vliegen naar Nicaragua of andere Latijns-Amerikaanse landen en reizen dan over land naar de Amerikaanse grens. Anderen wagen de gevaarlijke overtocht over de Straat van Florida in kleine bootjes. ✈️ De reis is levensgevaarlijk — mensen verdrinken, worden beroofd, of stranden in landen waar ze niemand kennen.</p>
+    <p class="info-text">Ironisch genoeg sluiten steeds meer routes. Nicaragua heeft in februari 2026 visumvrij reizen voor Cubanen afgeschaft — waarschijnlijk onder druk van de VS. Zo worden Cubanen steeds meer opgesloten op hun eigen eiland.</p>
+  </div>
+
+  <div class="content-card">
+    <div class="card-title"><span class="emoji">📊</span> Migratiecijfers Cuba</div>
+    <div class="chart-container"><canvas id="chart-migration"></canvas></div>
+    <p class="info-text">Deze grafiek laat zien hoeveel Cubanen per jaar het land verlieten. Let op de enorme stijging vanaf 2021.</p>
+  </div>
+
+  <div class="question-block" id="q-7-1">
+    <div class="q-label">📊 Opdracht 21 <span class="tag tag-data">Data-analyse</span></div>
+    <p class="info-text">Bekijk de migratiegrafiek. In welk jaar was de emigratie het hoogst?</p>
+    <div class="mc-options" data-qid="q-7-1" data-answer="2" data-attempts="0" data-hint1="Zoek de hoogste balk in de grafiek." data-hint2="Het was een jaar na de grote protesten op Cuba...">
+      <button class="mc-opt" data-value="0">A) 2020</button>
+      <button class="mc-opt" data-value="1">B) 2021</button>
+      <button class="mc-opt" data-value="2">C) 2023</button>
+      <button class="mc-opt" data-value="3">D) 2025</button>
+    </div>
+    <div class="feedback-box" data-qid="q-7-1"></div>
+  </div>
+
+  <div class="question-block open-q" id="q-7-2">
+    <div class="q-label">✍️ Opdracht 22 <span class="tag tag-open">Open vraag</span></div>
+    <p class="info-text">Waarom denk je dat zoveel Cubanen hun land willen verlaten? Noem minstens drie redenen op basis van wat je in deze les hebt geleerd. Denk ook aan wat dit betekent voor het land dat achterblijft.</p>
+    <textarea class="open-textarea" data-qid="q-7-2" placeholder="Schrijf hier minimaal 20 woorden..."></textarea>
+    <div class="word-counter" data-qid="q-7-2">0 woorden</div>
+    <button class="btn btn-primary btn-small" data-action="show-example" data-qid="q-7-2" style="margin-top:0.5rem;display:none;">Toon voorbeeldantwoord</button>
+    <div class="feedback-box" data-qid="q-7-2" data-type="example">
+      <strong>Voorbeeldantwoord:</strong> Cubanen willen weg vanwege: 1) De economische crisis — er is geen werk en geen geld; 2) De stroomuitval en voedseltekorten maken het dagelijks leven ondraaglijk; 3) Er is weinig politieke vrijheid — je mag niet vrij protesteren. Voor Cuba als land is dit een ramp: als de sterkste, jongste mensen weggaan (braindrain), blijft er niemand over om het land weer op te bouwen.
+    </div>
+    <div class="self-assess" data-qid="q-7-2">
+      <button class="btn btn-success btn-small" data-action="self-good" data-qid="q-7-2">Goed ✓</button>
+      <button class="btn btn-danger btn-small" data-action="self-bad" data-qid="q-7-2">Fout ✗</button>
+    </div>
+  </div>
+
+  <div class="question-block open-q" id="q-7-3">
+    <div class="q-label">🌍 Opdracht 23 — Leefwereld <span class="tag tag-open">Open vraag</span></div>
+    <p class="info-text">Stel je voor dat jouw gezin zou moeten vluchten uit Nederland. Wat zou je meenemen? Waar zou je naartoe gaan? Hoe zou je je voelen? Vergelijk dit met de situatie van Cubaanse vluchtelingen.</p>
+    <textarea class="open-textarea" data-qid="q-7-3" placeholder="Schrijf hier minimaal 20 woorden..."></textarea>
+    <div class="word-counter" data-qid="q-7-3">0 woorden</div>
+    <button class="btn btn-primary btn-small" data-action="show-example" data-qid="q-7-3" style="margin-top:0.5rem;display:none;">Toon voorbeeldantwoord</button>
+    <div class="feedback-box" data-qid="q-7-3" data-type="example">
+      <strong>Voorbeeldantwoord:</strong> Als ik zou moeten vluchten, zou ik mijn telefoon, paspoort en wat kleren meenemen. Ik zou waarschijnlijk naar België of Duitsland gaan, omdat die dichtbij zijn. Ik zou bang en verdrietig zijn om mijn vrienden en school achter te laten. Cubanen hebben het nog zwaarder: ze moeten over zee vluchten of een lange reis door meerdere landen maken. Ze spreken vaak de taal niet en hebben weinig geld.
+    </div>
+    <div class="self-assess" data-qid="q-7-3">
+      <button class="btn btn-success btn-small" data-action="self-good" data-qid="q-7-3">Goed ✓</button>
+      <button class="btn btn-danger btn-small" data-action="self-bad" data-qid="q-7-3">Fout ✗</button>
+    </div>
+  </div>
+
+  <div class="nav-bottom">
+    <button class="btn btn-outline" data-action="prev-tab">← Vorige</button>
+    <button class="btn btn-primary" data-action="next-tab">Volgende →</button>
+  </div>
+  <div style="text-align:center;margin-top:0.5rem;">
+    <button class="reset-section" data-tab="7">🔄 Reset dit onderdeel</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- TAB 9: INTERNATIONALE REACTIES            -->
+<!-- ══════════════════════════════════════════ -->
+<div class="tab-panel" id="tab-8">
+  <div class="content-card">
+    <div class="card-title"><span class="emoji">🌐</span> De wereld reageert</div>
+    <p class="info-text">De crisis in Cuba staat niet op zichzelf. De hele wereld kijkt mee en reageert. Verschillende landen en organisaties hebben hun stem laten horen — maar ze zijn het lang niet allemaal eens.</p>
+    <p class="info-text">De <strong>Verenigde Naties</strong> hebben de situatie veroordeeld. VN-secretaris-generaal António Guterres zei dat hij "extreem bezorgd" is over de humanitaire situatie. VN-mensenrechtenexperts noemen de brandstofblokkade een schending van internationaal recht en waarschuwen dat het neerkwam op "collectieve bestraffing van burgers". De VN-vertegenwoordiger in Cuba waarschuwde dat de crisis kan leiden tot een "instorting" als er niet snel olie komt.</p>
+    <p class="info-text"><strong>Mexico</strong> stopte tijdelijk met olieleveringen onder druk van de VS, maar stuurde wel twee schepen met humanitaire hulp in februari 2026. Landen als <strong>Belarus, Iran, Spanje, Vietnam</strong> en de <strong>Afrikaanse Unie</strong> spraken hun steun uit voor Cuba. Activisten kondigden de "Nuestra América Flotilla" aan — een poging om met schepen de blokkade te doorbreken en hulpgoederen te leveren.</p>
+    <p class="info-text">Het Amerikaanse <strong>Hooggerechtshof</strong> heeft inmiddels geoordeeld dat het onwettig is voor de VS om de noodwet op deze manier te gebruiken voor handelstarieven — maar de effecten van de blokkade zijn al voelbaar.</p>
+  </div>
+
+  <div class="content-card cuban">
+    <div class="card-title"><span class="emoji">🗣️</span> Wie zegt wat?</div>
+    <table class="compare-table">
+      <tr><th>Actor</th><th>Standpunt</th></tr>
+      <tr><td>🇺🇸 VS (Trump)</td><td>Wil "regimewissel" — het vertrek van president Díaz-Canel. Spreekt over "Cuba overnemen".</td></tr>
+      <tr><td>🇨🇺 Cuba (Díaz-Canel)</td><td>Wijst de blokkade af, bevestigt onderhandelingen met VS, weigert concessies op soevereiniteit.</td></tr>
+      <tr><td>🇺🇳 VN</td><td>Veroordeelt de blokkade als schending van internationaal recht. Waarschuwt voor humanitaire instorting.</td></tr>
+      <tr><td>🇲🇽 Mexico</td><td>Stopte olieleveringen maar stuurde humanitaire hulp.</td></tr>
+      <tr><td>🏛️ VS Hooggerechtshof</td><td>Oordeelde dat het gebruik van de noodwet voor tarieven onwettig is.</td></tr>
+    </table>
+  </div>
+
+  <div class="question-block" id="q-8-1">
+    <div class="q-label">📋 Opdracht 24 — Sorteer de standpunten <span class="tag tag-drag">Drag & drop</span></div>
+    <p class="info-text">Rangschik deze actoren van meest kritisch op de VS (bovenaan) tot meest steunend aan het VS-beleid (onderaan).</p>
+    <div class="drag-list" id="drag-8-1">
+      <div class="drag-item" draggable="true" data-order="2"><span class="handle">⠿</span> Mexico — probeerde een middenweg te bewandelen</div>
+      <div class="drag-item" draggable="true" data-order="0"><span class="handle">⠿</span> VN-mensenrechtenexperts — veroordeelden de blokkade als schending van internationaal recht</div>
+      <div class="drag-item" draggable="true" data-order="3"><span class="handle">⠿</span> Trinidad & Tobago — noemt de crisis zorgelijk, maar wil geen dictatuur steunen</div>
+      <div class="drag-item" draggable="true" data-order="1"><span class="handle">⠿</span> Cuba — noemt de blokkade illegaal en onmenselijk</div>
+    </div>
+    <button class="btn btn-primary btn-small" data-action="check-drag" data-qid="q-8-1" data-listid="drag-8-1">Controleer volgorde</button>
+    <div class="feedback-box" data-qid="q-8-1"></div>
+  </div>
+
+  <div class="question-block open-q" id="q-8-2">
+    <div class="q-label">✍️ Opdracht 25 — Rollenspel <span class="tag tag-open">Open vraag</span></div>
+    <p class="info-text">Kies één van de actoren uit de tabel (VS, Cuba, VN of Mexico). Schrijf een korte toespraak (minimaal 25 woorden) vanuit het perspectief van die actor. Leg uit waarom jij vindt dat jouw standpunt het juiste is.</p>
+    <textarea class="open-textarea" data-qid="q-8-2" placeholder="Ik spreek namens... en ik vind dat..." style="min-height:120px;"></textarea>
+    <div class="word-counter" data-qid="q-8-2">0 woorden (min. 25)</div>
+    <button class="btn btn-primary btn-small" data-action="show-example" data-qid="q-8-2" style="margin-top:0.5rem;display:none;" data-minwords="25">Toon voorbeeldantwoord</button>
+    <div class="feedback-box" data-qid="q-8-2" data-type="example">
+      <strong>Voorbeeldantwoord (VN-perspectief):</strong> Als Verenigde Naties maken wij ons grote zorgen over het lot van 11 miljoen Cubanen. De brandstofblokkade treft niet de leiders van Cuba, maar de gewone bevolking: kinderen, ouderen, zieken. Wij roepen de VS op om humanitaire hulp toe te staan. Brandstof is geen luxe — het is nodig voor ziekenhuizen, drinkwater en voedseldistributie. Een diplomatieke oplossing is de enige uitweg.
+    </div>
+    <div class="self-assess" data-qid="q-8-2">
+      <button class="btn btn-success btn-small" data-action="self-good" data-qid="q-8-2">Goed ✓</button>
+      <button class="btn btn-danger btn-small" data-action="self-bad" data-qid="q-8-2">Fout ✗</button>
+    </div>
+  </div>
+
+  <div class="question-block" id="q-8-3">
+    <div class="q-label">🤔 Opdracht 26 <span class="tag tag-mc">Multiple choice</span></div>
+    <p class="info-text">Wat oordeelde het Amerikaanse Hooggerechtshof over de brandstofblokkade?</p>
+    <div class="mc-options" data-qid="q-8-3" data-answer="1" data-attempts="0" data-hint1="Het Hooggerechtshof keek naar de juridische basis — de noodwet." data-hint2="Ze vonden dat de wet niet op deze manier gebruikt mocht worden...">
+      <button class="mc-opt" data-value="0">A) De blokkade is volledig legaal</button>
+      <button class="mc-opt" data-value="1">B) Het gebruik van de noodwet voor deze tarieven is onwettig</button>
+      <button class="mc-opt" data-value="2">C) De VS moeten Cuba militair binnenvallen</button>
+      <button class="mc-opt" data-value="3">D) Cuba moet zelf meer olie produceren</button>
+    </div>
+    <div class="feedback-box" data-qid="q-8-3"></div>
+  </div>
+
+  <div class="nav-bottom">
+    <button class="btn btn-outline" data-action="prev-tab">← Vorige</button>
+    <button class="btn btn-primary" data-action="next-tab">Volgende →</button>
+  </div>
+  <div style="text-align:center;margin-top:0.5rem;">
+    <button class="reset-section" data-tab="8">🔄 Reset dit onderdeel</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- TAB 10: OPLOSSINGEN & TOEKOMST            -->
+<!-- ══════════════════════════════════════════ -->
+<div class="tab-panel" id="tab-9">
+  <div class="content-card cuban">
+    <div class="card-title"><span class="emoji">💡</span> Welke oplossingen zijn er?</div>
+    <p class="info-text">De situatie in Cuba is nijpend, maar er zijn wel mogelijke oplossingen — al zijn ze niet allemaal even realistisch. Als aardrijkskunde-onderzoeker moet je nadenken over verschillende scenario's en hun voor- en nadelen overwegen.</p>
+    <p class="info-text"><strong>Optie 1 — Diplomatieke onderhandelingen:</strong> Cuba en de VS zijn al in gesprek. Cuba bevestigde in maart 2026 voor het eerst dat er onderhandelingen plaatsvinden. De VS willen dat president Díaz-Canel aftreedt en dat Cuba democratiseert. Cuba wil dat de blokkade wordt opgeheven.</p>
+    <p class="info-text"><strong>Optie 2 — Investeren in hernieuwbare energie:</strong> Cuba heeft veel zon en wind. Zonne-energie zou een deel van de olie-afhankelijkheid kunnen vervangen. China levert al zonnepanelen. Maar dit kost tijd en geld, en Cuba heeft allebei niet.</p>
+    <p class="info-text"><strong>Optie 3 — Internationale hulp:</strong> Organisaties en landen kunnen humanitaire hulp sturen. De "Nuestra América Flotilla" probeert de blokkade te doorbreken. Maar zolang de VS dreigen met tarieven, durven veel landen niet te helpen.</p>
+    <p class="info-text"><strong>Optie 4 — Regimewissel:</strong> De VS hopen dat de druk leidt tot een verandering van regime in Cuba. Dit zou kunnen leiden tot opheffing van sancties, maar het is onzeker of dit de situatie voor burgers verbetert.</p>
+  </div>
+
+  <div class="question-block" id="q-9-1">
+    <div class="q-label">📋 Opdracht 27 — Rangschik oplossingen <span class="tag tag-drag">Drag & drop</span></div>
+    <p class="info-text">Rangschik de vier oplossingen van <strong>meest realistisch op korte termijn</strong> (bovenaan) tot <strong>minst realistisch op korte termijn</strong> (onderaan). Er is geen "fout" antwoord — het gaat om je redenering.</p>
+    <div class="drag-list" id="drag-9-1">
+      <div class="drag-item" draggable="true" data-order="x"><span class="handle">⠿</span> Diplomatieke onderhandelingen</div>
+      <div class="drag-item" draggable="true" data-order="x"><span class="handle">⠿</span> Investeren in zonne-energie</div>
+      <div class="drag-item" draggable="true" data-order="x"><span class="handle">⠿</span> Internationale humanitaire hulp</div>
+      <div class="drag-item" draggable="true" data-order="x"><span class="handle">⠿</span> Regimewissel in Cuba</div>
+    </div>
+    <p class="info-text" style="font-style:italic;font-size:0.85rem;color:#666;">Bij deze opdracht is er geen vaste juiste volgorde — druk op "Toon voorbeeldantwoord" om een beredeneerd voorbeeld te zien.</p>
+    <button class="btn btn-primary btn-small" data-action="show-example-drag" data-qid="q-9-1" style="margin-top:0.5rem;">Toon voorbeeldantwoord</button>
+    <div class="feedback-box" data-qid="q-9-1" data-type="example">
+      <strong>Voorbeeld redenering:</strong><br>
+      1. <strong>Internationale humanitaire hulp</strong> — dit kan het snelst worden ingezet<br>
+      2. <strong>Diplomatieke onderhandelingen</strong> — zijn al bezig, maar kosten tijd<br>
+      3. <strong>Investeren in zonne-energie</strong> — goed voor de lange termijn, maar duurt jaren<br>
+      4. <strong>Regimewissel</strong> — zeer onzeker en kan tot meer chaos leiden
+    </div>
+    <div class="self-assess" data-qid="q-9-1">
+      <button class="btn btn-success btn-small" data-action="self-good" data-qid="q-9-1">Goed ✓</button>
+      <button class="btn btn-danger btn-small" data-action="self-bad" data-qid="q-9-1">Fout ✗</button>
+    </div>
+  </div>
+
+  <div class="question-block open-q" id="q-9-2">
+    <div class="q-label">✍️ Opdracht 28 — Jouw advies <span class="tag tag-open">Open vraag</span></div>
+    <p class="info-text">Stel je voor dat je adviseur bent van de VN. Schrijf een kort advies (minimaal 30 woorden) over wat er moet gebeuren om de crisis in Cuba op te lossen. Denk aan zowel de korte termijn (nu helpen) als de lange termijn (structurele oplossing).</p>
+    <textarea class="open-textarea" data-qid="q-9-2" placeholder="Geachte VN-raad, mijn advies is..." style="min-height:130px;"></textarea>
+    <div class="word-counter" data-qid="q-9-2">0 woorden (min. 30)</div>
+    <button class="btn btn-primary btn-small" data-action="show-example" data-qid="q-9-2" style="margin-top:0.5rem;display:none;" data-minwords="30">Toon voorbeeldantwoord</button>
+    <div class="feedback-box" data-qid="q-9-2" data-type="example">
+      <strong>Voorbeeldantwoord:</strong> Geachte VN-raad, op de korte termijn moet er een humanitaire corridor komen zodat olie en medicijnen Cuba kunnen bereiken, ongeacht het politieke conflict. Mensenlevens staan op het spel. Op de lange termijn raad ik aan om te investeren in hernieuwbare energie op Cuba, zodat het land minder afhankelijk wordt van geïmporteerde olie. Daarnaast moeten de VS en Cuba aan de onderhandelingstafel — met als doel niet regimewissel, maar het verbeteren van de levensomstandigheden voor gewone Cubanen.
+    </div>
+    <div class="self-assess" data-qid="q-9-2">
+      <button class="btn btn-success btn-small" data-action="self-good" data-qid="q-9-2">Goed ✓</button>
+      <button class="btn btn-danger btn-small" data-action="self-bad" data-qid="q-9-2">Fout ✗</button>
+    </div>
+  </div>
+
+  <div class="question-block" id="q-9-3">
+    <div class="q-label">🤔 Opdracht 29 <span class="tag tag-mc">Multiple choice</span></div>
+    <p class="info-text">Welke energiebron zou Cuba op lange termijn minder afhankelijk maken van olie-import?</p>
+    <div class="mc-options" data-qid="q-9-3" data-answer="1" data-attempts="0" data-hint1="Cuba heeft veel zon en wind..." data-hint2="Het gaat om een energiebron die je ter plekke kunt opwekken.">
+      <button class="mc-opt" data-value="0">A) Kernenergie</button>
+      <button class="mc-opt" data-value="1">B) Zonne-energie</button>
+      <button class="mc-opt" data-value="2">C) Steenkool</button>
+      <button class="mc-opt" data-value="3">D) Aardgas uit Rusland</button>
+    </div>
+    <div class="feedback-box" data-qid="q-9-3"></div>
+  </div>
+
+  <div class="nav-bottom">
+    <button class="btn btn-outline" data-action="prev-tab">← Vorige</button>
+    <button class="btn btn-primary" data-action="next-tab">Volgende →</button>
+  </div>
+  <div style="text-align:center;margin-top:0.5rem;">
+    <button class="reset-section" data-tab="9">🔄 Reset dit onderdeel</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- TAB 11: REFLECTIE & EINDSCORE             -->
+<!-- ══════════════════════════════════════════ -->
+<div class="tab-panel" id="tab-10">
+  <div class="content-card cuban">
+    <div class="card-title"><span class="emoji">🏁</span> Reflectie & Afsluiting</div>
+    <p class="info-text">Gefeliciteerd, ontdekkingsreiziger! Je hebt je reis door Cuba voltooid ✈️. Je hebt geleerd over de geschiedenis, de olie-afhankelijkheid, de druk van de VS en de gevolgen voor gewone mensen. Laten we terugkijken op wat je hebt geleerd.</p>
+  </div>
+
+  <div class="score-display" id="finalScore">
+    <div class="score-label">Jouw eindscore</div>
+    <div class="score-number" id="scoreNumber">0%</div>
+    <div class="score-label" id="scoreDetail">0 van 0 opdrachten voltooid</div>
+  </div>
+
+  <div class="content-card" style="margin-top:1.5rem;">
+    <div class="card-title"><span class="emoji">🎯</span> Leerdoelen terugblik</div>
+    <div class="highlight-box gold">
+      <p class="info-text">✅ <strong>Leerdoel 1:</strong> Ik kan in het kort vertellen wat er in de geschiedenis van Cuba is gebeurd en waarom de VS en Cuba al zo lang ruzie hebben.</p>
+      <p class="info-text">✅ <strong>Leerdoel 2:</strong> Ik kan uitleggen waarom Cuba zo afhankelijk is van olie uit andere landen en wat er gebeurt als die olie wegvalt.</p>
+      <p class="info-text">✅ <strong>Leerdoel 3:</strong> Ik kan uitleggen wat de VS doen om Cuba onder druk te zetten en daar mijn eigen mening over geven.</p>
+      <p class="info-text" style="margin-bottom:0;">✅ <strong>Leerdoel 4:</strong> Ik kan beschrijven wat de gevolgen van de crisis zijn voor gewone mensen in Cuba.</p>
+    </div>
+  </div>
+
+  <div class="question-block open-q" id="q-10-1">
+    <div class="q-label">✍️ Reflectie 1 <span class="tag tag-open">Reflectievraag</span></div>
+    <p class="info-text">Wat vond je het lastigst in deze les en waarom?</p>
+    <textarea class="open-textarea" data-qid="q-10-1" placeholder="Het lastigst vond ik..."></textarea>
+    <div class="word-counter" data-qid="q-10-1">0 woorden</div>
+    <button class="btn btn-primary btn-small" data-action="show-example" data-qid="q-10-1" style="margin-top:0.5rem;display:none;">Toon voorbeeldantwoord</button>
+    <div class="feedback-box" data-qid="q-10-1" data-type="example">
+      <strong>Ter inspiratie:</strong> Je kunt denken aan: een specifieke opdracht die moeilijk was, het vormen van je eigen mening over de sancties, het begrijpen van de olie-afhankelijkheid, of het verplaatsen in iemand anders.
+    </div>
+    <div class="self-assess" data-qid="q-10-1">
+      <button class="btn btn-success btn-small" data-action="self-good" data-qid="q-10-1">Goed ✓</button>
+      <button class="btn btn-danger btn-small" data-action="self-bad" data-qid="q-10-1">Fout ✗</button>
+    </div>
+  </div>
+
+  <div class="question-block open-q" id="q-10-2">
+    <div class="q-label">✍️ Reflectie 2 <span class="tag tag-open">Reflectievraag</span></div>
+    <p class="info-text">Wat zou je een klasgenoot uitleggen over dit onderwerp als die deze les niet heeft gedaan?</p>
+    <textarea class="open-textarea" data-qid="q-10-2" placeholder="Ik zou uitleggen dat..."></textarea>
+    <div class="word-counter" data-qid="q-10-2">0 woorden</div>
+    <button class="btn btn-primary btn-small" data-action="show-example" data-qid="q-10-2" style="margin-top:0.5rem;display:none;">Toon voorbeeldantwoord</button>
+    <div class="feedback-box" data-qid="q-10-2" data-type="example">
+      <strong>Ter inspiratie:</strong> Probeer in 2-3 zinnen samen te vatten wat de kern is van de Cuba-crisis: de geschiedenis, de olie, de sancties en de gevolgen.
+    </div>
+    <div class="self-assess" data-qid="q-10-2">
+      <button class="btn btn-success btn-small" data-action="self-good" data-qid="q-10-2">Goed ✓</button>
+      <button class="btn btn-danger btn-small" data-action="self-bad" data-qid="q-10-2">Fout ✗</button>
+    </div>
+  </div>
+
+  <div class="question-block open-q" id="q-10-3">
+    <div class="q-label">✍️ Reflectie 3 <span class="tag tag-open">Reflectievraag</span></div>
+    <p class="info-text">Hoe zou je dit onderwerp herkennen in je eigen omgeving? Denk aan: energieprijzen, vluchtelingen, nieuws over sancties, etc.</p>
+    <textarea class="open-textarea" data-qid="q-10-3" placeholder="In mijn eigen omgeving..."></textarea>
+    <div class="word-counter" data-qid="q-10-3">0 woorden</div>
+    <button class="btn btn-primary btn-small" data-action="show-example" data-qid="q-10-3" style="margin-top:0.5rem;display:none;">Toon voorbeeldantwoord</button>
+    <div class="feedback-box" data-qid="q-10-3" data-type="example">
+      <strong>Ter inspiratie:</strong> Denk aan de energiecrisis in Europa na de oorlog in Oekraïne, hoe gasprijzen stegen, hoe vluchtelingen in Nederland worden opgevangen, en hoe afhankelijk wij ook zijn van energie uit het buitenland.
+    </div>
+    <div class="self-assess" data-qid="q-10-3">
+      <button class="btn btn-success btn-small" data-action="self-good" data-qid="q-10-3">Goed ✓</button>
+      <button class="btn btn-danger btn-small" data-action="self-bad" data-qid="q-10-3">Fout ✗</button>
+    </div>
+  </div>
+
+  <div class="highlight-box" style="margin-top:1.5rem;">
+    <div class="highlight-box-title">📰 Blijf op de hoogte!</div>
+    <p class="info-text" style="margin-bottom:0;">De Cuba-crisis is nog niet voorbij. Check regelmatig <strong>NOS.nl</strong>, <strong>CNN.com</strong>, <strong>BBC News</strong> en <strong>Al Jazeera</strong> voor het laatste nieuws. Zoek op "Cuba crisis 2026" om te zien hoe de situatie zich ontwikkelt.</p>
+  </div>
+
+  <div class="nav-bottom">
+    <button class="btn btn-outline" data-action="prev-tab">← Vorige</button>
+    <div></div>
+  </div>
+  <div style="text-align:center;margin-top:0.5rem;">
+    <button class="reset-section" data-tab="10">🔄 Reset dit onderdeel</button>
+  </div>
+</div>
+
+</div><!-- end main-content -->
+
+<button class="clear-progress-btn" id="clearAllBtn">🗑️ Voortgang wissen</button>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- JAVASCRIPT                              -->
+<!-- ═══════════════════════════════════════ -->
+<script>
+(function() {
+  'use strict';
+
+  // ─── CONFIG ───
+  var TABS = [
+    'Welkom & Nieuws', 'Kaart', 'Geschiedenis', 'Olie-afhankelijk',
+    'Druk van VS', 'Gevolgen bevolking', 'Data & grafieken',
+    'Migratie', 'Wereld reageert', 'Oplossingen', 'Reflectie'
+  ];
+  var TOTAL_TABS = TABS.length;
+  var currentTab = 0;
+  var PREFIX = 'geo_les_';
+
+  // Track all questions per tab
+  var tabQuestions = {};
+  var questionState = {}; // qid -> {completed, correct}
+  var matchCorrectPairs = {
+    'match-4-1': { m1:'e1', m2:'e2', m3:'e3', m4:'e4' }
+  };
+  var matchSelections = {};
+  var matchPairedItems = {};
+
+  // ─── STORAGE HELPERS ───
+  function lsGet(key) {
+    try { return JSON.parse(localStorage.getItem(PREFIX + key)); } catch(e) { return null; }
+  }
+  function lsSet(key, val) {
+    try { localStorage.setItem(PREFIX + key, JSON.stringify(val)); } catch(e) {}
+  }
+  function lsRemove(key) {
+    try { localStorage.removeItem(PREFIX + key); } catch(e) {}
+  }
+
+  // ─── INIT TAB NAV ───
+  var tabNav = document.getElementById('tabNav');
+  TABS.forEach(function(name, i) {
+    var btn = document.createElement('button');
+    btn.className = 'tab-btn' + (i === 0 ? ' active' : '');
+    btn.textContent = (i + 1) + '. ' + name;
+    btn.setAttribute('data-tab-index', i);
+    btn.addEventListener('click', function() { switchTab(i); });
+    tabNav.appendChild(btn);
+  });
+
+  // ─── DISCOVER QUESTIONS ───
+  for (var t = 0; t < TOTAL_TABS; t++) {
+    var panel = document.getElementById('tab-' + t);
+    if (!panel) continue;
+    tabQuestions[t] = [];
+    var blocks = panel.querySelectorAll('.question-block');
+    blocks.forEach(function(block) {
+      var qid = block.id;
+      if (qid) {
+        tabQuestions[t].push(qid);
+        questionState[qid] = { completed: false, correct: false };
+      }
+    });
+  }
+
+  // ─── SWITCH TAB ───
+  function switchTab(idx) {
+    currentTab = idx;
+    document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
+    document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+    var panel = document.getElementById('tab-' + idx);
+    if (panel) panel.classList.add('active');
+    var btns = tabNav.querySelectorAll('.tab-btn');
+    if (btns[idx]) {
+      btns[idx].classList.add('active');
+      btns[idx].scrollIntoView({ behavior:'smooth', inline:'center', block:'nearest' });
+    }
+    document.getElementById('tabCounter').textContent = 'Onderdeel ' + (idx + 1) + ' van ' + TOTAL_TABS;
+
+    // Invalidate maps
+    setTimeout(function() {
+      if (typeof map1 !== 'undefined' && map1) map1.invalidateSize();
+    }, 200);
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    lsSet('currentTab', idx);
+  }
+
+  // ─── NAV BUTTONS ───
+  document.addEventListener('click', function(e) {
+    var btn = e.target.closest('[data-action]');
+    if (!btn) return;
+    var action = btn.getAttribute('data-action');
+
+    if (action === 'next-tab' && currentTab < TOTAL_TABS - 1) switchTab(currentTab + 1);
+    if (action === 'prev-tab' && currentTab > 0) switchTab(currentTab - 1);
+
+    // ─── MC ANSWER ───
+    if (e.target.classList.contains('mc-opt') && !e.target.classList.contains('disabled')) {
+      handleMC(e.target);
+    }
+
+    // ─── SHOW EXAMPLE ───
+    if (action === 'show-example') {
+      var qid = btn.getAttribute('data-qid');
+      var fb = document.querySelector('.feedback-box[data-qid="' + qid + '"][data-type="example"]');
+      if (fb) { fb.classList.add('show'); fb.className = 'feedback-box show answer'; }
+      btn.style.display = 'none';
+      var sa = document.querySelector('.self-assess[data-qid="' + qid + '"]');
+      if (sa) sa.classList.add('show');
+    }
+    if (action === 'show-example-drag') {
+      var qid2 = btn.getAttribute('data-qid');
+      var fb2 = document.querySelector('.feedback-box[data-qid="' + qid2 + '"][data-type="example"]');
+      if (fb2) { fb2.classList.add('show'); fb2.className = 'feedback-box show answer'; }
+      var sa2 = document.querySelector('.self-assess[data-qid="' + qid2 + '"]');
+      if (sa2) sa2.classList.add('show');
+      markComplete(qid2, true);
+    }
+
+    // ─── SELF ASSESS ───
+    if (action === 'self-good') {
+      markComplete(btn.getAttribute('data-qid'), true);
+      btn.parentElement.innerHTML = '<span style="color:var(--success);font-weight:700;">✓ Goed beoordeeld!</span>';
+    }
+    if (action === 'self-bad') {
+      markComplete(btn.getAttribute('data-qid'), false);
+      btn.parentElement.innerHTML = '<span style="color:var(--hint);font-weight:700;">Niet erg — je leert ervan!</span>';
+    }
+
+    // ─── CHECK DRAG ───
+    if (action === 'check-drag') {
+      checkDragOrder(btn.getAttribute('data-listid'), btn.getAttribute('data-qid'));
+    }
+
+    // ─── CHECK MATCH ───
+    if (action === 'check-match') {
+      checkMatch(btn.getAttribute('data-matchid'), btn.getAttribute('data-qid'));
+    }
+  });
+
+  // ─── RESET SECTION ───
+  document.querySelectorAll('.reset-section').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var tabIdx = parseInt(btn.getAttribute('data-tab'));
+      var qs = tabQuestions[tabIdx] || [];
+      qs.forEach(function(qid) {
+        questionState[qid] = { completed: false, correct: false };
+        lsRemove('q_' + qid);
+
+        var block = document.getElementById(qid);
+        if (!block) return;
+
+        // Reset textareas
+        block.querySelectorAll('.open-textarea').forEach(function(ta) { ta.value = ''; });
+        block.querySelectorAll('.word-counter').forEach(function(wc) { wc.textContent = '0 woorden'; wc.classList.remove('enough'); });
+
+        // Reset MC
+        block.querySelectorAll('.mc-opt').forEach(function(opt) {
+          opt.classList.remove('correct','wrong','disabled');
+        });
+        var mcOpts = block.querySelector('.mc-options');
+        if (mcOpts) mcOpts.setAttribute('data-attempts', '0');
+
+        // Reset feedback (non-example only, clear text; example ones just hide)
+        block.querySelectorAll('.feedback-box:not([data-type])').forEach(function(fb) { fb.classList.remove('show','success','hint','answer'); fb.textContent = ''; });
+        // Restore example text - just hide them
+        block.querySelectorAll('.feedback-box[data-type="example"]').forEach(function(fb) { fb.classList.remove('show','success','hint','answer'); });
+
+        // Reset show-example buttons
+        block.querySelectorAll('[data-action="show-example"]').forEach(function(b) { b.style.display = 'none'; });
+
+        // Reset self-assess - restore buttons
+        block.querySelectorAll('.self-assess').forEach(function(sa) {
+          sa.classList.remove('show');
+          var saQid = sa.getAttribute('data-qid');
+          sa.innerHTML = '<button class="btn btn-success btn-small" data-action="self-good" data-qid="' + saQid + '">Goed ✓</button><button class="btn btn-danger btn-small" data-action="self-bad" data-qid="' + saQid + '">Fout ✗</button>';
+        });
+
+        // Reset drag items
+        block.querySelectorAll('.drag-item').forEach(function(di) { di.classList.remove('correct-pos','wrong-pos'); di.setAttribute('draggable', 'true'); di.style.cursor = 'grab'; });
+
+        // Reset drag/match attempts
+        if (dragAttempts[qid]) dragAttempts[qid] = 0;
+        if (matchAttempts[qid]) matchAttempts[qid] = 0;
+
+        // Reset match items
+        block.querySelectorAll('.match-item').forEach(function(mi) { mi.classList.remove('matched','selected'); mi.style.pointerEvents = ''; });
+        // Clear match pairs display
+        var pairsDiv = block.querySelector('.match-pairs');
+        if (pairsDiv) pairsDiv.innerHTML = '';
+        // Reset matchPairedItems for this block's match container
+        var matchContainer = block.querySelector('.match-container');
+        if (matchContainer && matchPairedItems[matchContainer.id]) {
+          matchPairedItems[matchContainer.id] = [];
+        }
+      });
+      updateProgress();
+    });
+  });
+
+  // ─── MC HANDLER ───
+  function handleMC(opt) {
+    var container = opt.closest('.mc-options');
+    var qid = container.getAttribute('data-qid');
+    var correctIdx = container.getAttribute('data-answer');
+    var attempts = parseInt(container.getAttribute('data-attempts') || '0');
+    var clickedIdx = opt.getAttribute('data-value');
+    var fb = document.querySelector('.feedback-box[data-qid="' + qid + '"]:not([data-type])');
+
+    attempts++;
+    container.setAttribute('data-attempts', attempts);
+
+    if (clickedIdx === correctIdx) {
+      opt.classList.add('correct');
+      container.querySelectorAll('.mc-opt').forEach(function(o) { o.classList.add('disabled'); });
+      fb.textContent = '🎉 Goed zo! Dat klopt helemaal!';
+      fb.className = 'feedback-box show success';
+      markComplete(qid, true);
+    } else {
+      opt.classList.add('wrong');
+      opt.classList.add('disabled');
+      if (attempts >= 3) {
+        // Show answer
+        container.querySelectorAll('.mc-opt').forEach(function(o) {
+          o.classList.add('disabled');
+          if (o.getAttribute('data-value') === correctIdx) o.classList.add('correct');
+        });
+        fb.textContent = 'Het juiste antwoord is gemarkeerd. Lees de uitleg nog eens terug!';
+        fb.className = 'feedback-box show answer';
+        markComplete(qid, false);
+      } else {
+        var hintKey = 'hint' + attempts;
+        var hint = container.getAttribute('data-' + hintKey) || 'Probeer het nog eens!';
+        fb.textContent = '💭 ' + hint + ' (poging ' + attempts + '/3)';
+        fb.className = 'feedback-box show hint';
+      }
+    }
+    saveQuestion(qid);
+  }
+
+  // ─── DRAG AND DROP ───
+  var dragSrcEl = null;
+
+  function initDragDrop() {
+    document.querySelectorAll('.drag-list').forEach(function(list) {
+      list.querySelectorAll('.drag-item').forEach(function(item) {
+        item.addEventListener('dragstart', function(e) {
+          dragSrcEl = this;
+          this.classList.add('dragging');
+          e.dataTransfer.effectAllowed = 'move';
+          e.dataTransfer.setData('text/html', this.innerHTML);
+        });
+        item.addEventListener('dragend', function() {
+          this.classList.remove('dragging');
+          list.querySelectorAll('.drag-item').forEach(function(i) { i.classList.remove('dragging'); });
+        });
+        item.addEventListener('dragover', function(e) { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; });
+        item.addEventListener('drop', function(e) {
+          e.preventDefault();
+          if (dragSrcEl !== this) {
+            // Swap
+            var parent = this.parentNode;
+            var items = Array.from(parent.querySelectorAll('.drag-item'));
+            var srcIdx = items.indexOf(dragSrcEl);
+            var tgtIdx = items.indexOf(this);
+            if (srcIdx < tgtIdx) {
+              parent.insertBefore(dragSrcEl, this.nextSibling);
+            } else {
+              parent.insertBefore(dragSrcEl, this);
+            }
+          }
+        });
+      });
+    });
+  }
+  initDragDrop();
+
+  var dragAttempts = {};
+
+  function checkDragOrder(listId, qid) {
+    var list = document.getElementById(listId);
+    var items = list.querySelectorAll('.drag-item');
+    // Skip check for open-ended drags (data-order="x")
+    var firstOrder = items[0] ? items[0].getAttribute('data-order') : '0';
+    if (firstOrder === 'x') {
+      // Open-ended: just mark complete
+      markComplete(qid, true);
+      var fb0 = document.querySelector('.feedback-box[data-qid="' + qid + '"]:not([data-type])');
+      if (fb0) {
+        fb0.textContent = '✅ Je rangschikking is opgeslagen!';
+        fb0.className = 'feedback-box show success';
+      }
+      return;
+    }
+
+    if (!dragAttempts[qid]) dragAttempts[qid] = 0;
+    dragAttempts[qid]++;
+
+    var allCorrect = true;
+    var correctCount = 0;
+    items.forEach(function(item, idx) {
+      var correctOrder = parseInt(item.getAttribute('data-order'));
+      if (correctOrder === idx) {
+        item.classList.add('correct-pos');
+        item.classList.remove('wrong-pos');
+        correctCount++;
+      } else {
+        item.classList.add('wrong-pos');
+        item.classList.remove('correct-pos');
+        allCorrect = false;
+      }
+    });
+    var fb = document.querySelector('.feedback-box[data-qid="' + qid + '"]:not([data-type])');
+    if (fb) {
+      if (allCorrect) {
+        fb.textContent = '🎉 Perfect! Alle items staan op de juiste plek!';
+        fb.className = 'feedback-box show success';
+        markComplete(qid, true);
+      } else if (dragAttempts[qid] >= 3) {
+        // Show correct order after 3 attempts
+        var sorted = Array.from(items).sort(function(a, b) {
+          return parseInt(a.getAttribute('data-order')) - parseInt(b.getAttribute('data-order'));
+        });
+        sorted.forEach(function(item) { list.appendChild(item); });
+        items = list.querySelectorAll('.drag-item');
+        items.forEach(function(item) { item.classList.add('correct-pos'); item.classList.remove('wrong-pos'); item.setAttribute('draggable', 'false'); item.style.cursor = 'default'; });
+        fb.textContent = '📖 Na 3 pogingen is de juiste volgorde getoond. Bestudeer de volgorde goed!';
+        fb.className = 'feedback-box show answer';
+        markComplete(qid, false);
+      } else {
+        fb.textContent = '💭 ' + correctCount + ' van ' + items.length + ' items staan goed. Groene items zijn juist, rode moeten nog verplaatst worden. (poging ' + dragAttempts[qid] + '/3)';
+        fb.className = 'feedback-box show hint';
+      }
+    }
+  }
+
+  // ─── MATCH EXERCISE ───
+  function initMatch() {
+    document.querySelectorAll('.match-container').forEach(function(container) {
+      var matchId = container.id;
+      matchSelections[matchId] = { left: null, right: null };
+      matchPairedItems[matchId] = [];
+
+      container.querySelectorAll('.match-item').forEach(function(item) {
+        item.addEventListener('click', function() {
+          var side = item.getAttribute('data-side');
+          var id = item.getAttribute('data-id');
+
+          if (side === 'left') {
+            container.querySelectorAll('.match-item[data-side="left"]').forEach(function(i) { i.classList.remove('selected'); });
+            item.classList.add('selected');
+            matchSelections[matchId].left = id;
+          } else {
+            container.querySelectorAll('.match-item[data-side="right"]').forEach(function(i) { i.classList.remove('selected'); });
+            item.classList.add('selected');
+            matchSelections[matchId].right = id;
+          }
+
+          if (matchSelections[matchId].left && matchSelections[matchId].right) {
+            addPair(matchId, matchSelections[matchId].left, matchSelections[matchId].right);
+            container.querySelectorAll('.match-item').forEach(function(i) { i.classList.remove('selected'); });
+            matchSelections[matchId] = { left: null, right: null };
+          }
+        });
+      });
+    });
+  }
+
+  function addPair(matchId, leftId, rightId) {
+    // Remove existing pair for this left item
+    matchPairedItems[matchId] = matchPairedItems[matchId].filter(function(p) { return p.left !== leftId; });
+    matchPairedItems[matchId].push({ left: leftId, right: rightId });
+
+    var container = document.getElementById(matchId);
+    var leftItem = container.querySelector('[data-id="' + leftId + '"]');
+    var rightItem = container.querySelector('[data-id="' + rightId + '"]');
+
+    // Mark left as matched
+    leftItem.classList.add('matched');
+
+    renderPairs(matchId);
+  }
+
+  function renderPairs(matchId) {
+    var pairsDiv = document.getElementById('pairs-' + matchId.split('-').slice(1).join('-'));
+    if (!pairsDiv) {
+      // Try alternate ID format
+      var parts = matchId.split('-');
+      pairsDiv = document.getElementById('pairs-' + parts[1] + '-' + parts[2]);
+    }
+    if (!pairsDiv) return;
+    pairsDiv.innerHTML = '';
+    var container = document.getElementById(matchId);
+
+    matchPairedItems[matchId].forEach(function(pair) {
+      var leftEl = container.querySelector('[data-id="' + pair.left + '"]');
+      var rightEl = container.querySelector('[data-id="' + pair.right + '"]');
+      var div = document.createElement('div');
+      div.className = 'match-pair';
+      div.innerHTML = '<span>' + leftEl.textContent + '</span><span class="pair-arrow">↔</span><span>' + rightEl.textContent + '</span><button class="remove-pair" data-matchid="' + matchId + '" data-left="' + pair.left + '">✕</button>';
+      pairsDiv.appendChild(div);
+    });
+
+    // Remove pair handler
+    pairsDiv.querySelectorAll('.remove-pair').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var mid = btn.getAttribute('data-matchid');
+        var left = btn.getAttribute('data-left');
+        matchPairedItems[mid] = matchPairedItems[mid].filter(function(p) { return p.left !== left; });
+        var cont = document.getElementById(mid);
+        cont.querySelector('[data-id="' + left + '"]').classList.remove('matched');
+        renderPairs(mid);
+      });
+    });
+  }
+
+  var matchAttempts = {};
+
+  function checkMatch(matchId, qid) {
+    var correct = matchCorrectPairs[matchId];
+    if (!correct) return;
+    var pairs = matchPairedItems[matchId];
+    var allCorrect = true;
+    var totalPairs = Object.keys(correct).length;
+    var correctCount = 0;
+
+    if (!matchAttempts[qid]) matchAttempts[qid] = 0;
+    matchAttempts[qid]++;
+
+    pairs.forEach(function(pair) {
+      if (correct[pair.left] === pair.right) {
+        correctCount++;
+      }
+    });
+
+    if (pairs.length < totalPairs) allCorrect = false;
+    else allCorrect = correctCount === totalPairs;
+
+    var fb = document.querySelector('.feedback-box[data-qid="' + qid + '"]:not([data-type])');
+    if (fb) {
+      if (allCorrect) {
+        fb.textContent = '🎉 Alle koppelingen zijn correct!';
+        fb.className = 'feedback-box show success';
+        markComplete(qid, true);
+      } else if (matchAttempts[qid] >= 3) {
+        // Show correct answers
+        var container = document.getElementById(matchId);
+        matchPairedItems[matchId] = [];
+        Object.keys(correct).forEach(function(leftId) {
+          matchPairedItems[matchId].push({ left: leftId, right: correct[leftId] });
+          var leftEl = container.querySelector('[data-id="' + leftId + '"]');
+          if (leftEl) leftEl.classList.add('matched');
+        });
+        renderPairs(matchId);
+        // Disable further clicking
+        container.querySelectorAll('.match-item').forEach(function(item) {
+          item.style.pointerEvents = 'none';
+        });
+        fb.innerHTML = '📖 Na 3 pogingen zijn de juiste koppelingen getoond. Bestudeer ze goed!';
+        fb.className = 'feedback-box show answer';
+        markComplete(qid, false);
+      } else {
+        fb.textContent = '💭 ' + correctCount + ' van ' + totalPairs + ' koppelingen kloppen. Pas de andere aan en probeer opnieuw! (poging ' + matchAttempts[qid] + '/3)';
+        fb.className = 'feedback-box show hint';
+      }
+    }
+  }
+
+  initMatch();
+
+  // ─── TEXTAREA WORD COUNT ───
+  document.querySelectorAll('.open-textarea').forEach(function(ta) {
+    ta.addEventListener('input', function() {
+      var qid = ta.getAttribute('data-qid');
+      var words = ta.value.trim().split(/\s+/).filter(function(w) { return w.length > 0; }).length;
+      var counter = document.querySelector('.word-counter[data-qid="' + qid + '"]');
+      var minWords = 20;
+      var exBtn = document.querySelector('[data-action="show-example"][data-qid="' + qid + '"]');
+      if (exBtn && exBtn.getAttribute('data-minwords')) minWords = parseInt(exBtn.getAttribute('data-minwords'));
+
+      if (counter) {
+        counter.textContent = words + ' woorden' + (minWords > 20 ? ' (min. ' + minWords + ')' : '');
+        if (words >= minWords) {
+          counter.classList.add('enough');
+          if (exBtn) exBtn.style.display = 'inline-flex';
+        } else {
+          counter.classList.remove('enough');
+        }
+      }
+      // Save
+      lsSet('q_text_' + qid, ta.value);
+    });
+  });
+
+  // ─── MARK COMPLETE ───
+  function markComplete(qid, correct) {
+    questionState[qid] = { completed: true, correct: correct };
+    lsSet('q_' + qid, { completed: true, correct: correct, time: Date.now() });
+    updateProgress();
+  }
+
+  function saveQuestion(qid) {
+    var state = questionState[qid];
+    lsSet('q_' + qid, { completed: state.completed, correct: state.correct, time: Date.now() });
+  }
+
+  // ─── UPDATE PROGRESS ───
+  function updateProgress() {
+    var total = 0;
+    var done = 0;
+    var correct = 0;
+
+    for (var t = 0; t < TOTAL_TABS; t++) {
+      var qs = tabQuestions[t] || [];
+      total += qs.length;
+      var tabDone = 0;
+      qs.forEach(function(qid) {
+        if (questionState[qid] && questionState[qid].completed) {
+          done++;
+          tabDone++;
+          if (questionState[qid].correct) correct++;
+        }
+      });
+      // Mark tab as completed
+      var tabBtn = tabNav.querySelectorAll('.tab-btn')[t];
+      if (tabBtn) {
+        if (tabDone === qs.length && qs.length > 0) {
+          tabBtn.classList.add('completed');
+        } else {
+          tabBtn.classList.remove('completed');
+        }
+      }
+    }
+
+    var pct = total > 0 ? Math.round((done / total) * 100) : 0;
+    document.getElementById('progressBar').style.width = pct + '%';
+    document.getElementById('progressPct').textContent = pct + '%';
+
+    // Final score
+    var scoreNum = document.getElementById('scoreNumber');
+    var scoreDetail = document.getElementById('scoreDetail');
+    if (scoreNum) scoreNum.textContent = pct + '%';
+    if (scoreDetail) scoreDetail.textContent = done + ' van ' + total + ' opdrachten voltooid (' + correct + ' goed)';
+  }
+
+  // ─── CLEAR ALL ───
+  document.getElementById('clearAllBtn').addEventListener('click', function() {
+    if (confirm('Weet je zeker dat je al je voortgang wilt wissen?')) {
+      try {
+        var keys = [];
+        for (var i = 0; i < localStorage.length; i++) {
+          var key = localStorage.key(i);
+          if (key && key.startsWith(PREFIX)) keys.push(key);
+        }
+        keys.forEach(function(k) { localStorage.removeItem(k); });
+      } catch(e) {}
+      location.reload();
+    }
+  });
+
+  // ─── LOAD SAVED STATE ───
+  function loadState() {
+    var savedTab = lsGet('currentTab');
+    if (savedTab !== null) switchTab(savedTab);
+
+    for (var t = 0; t < TOTAL_TABS; t++) {
+      var qs = tabQuestions[t] || [];
+      qs.forEach(function(qid) {
+        var saved = lsGet('q_' + qid);
+        if (saved && saved.completed) {
+          questionState[qid] = saved;
+        }
+      });
+    }
+
+    // Load textarea values
+    document.querySelectorAll('.open-textarea').forEach(function(ta) {
+      var qid = ta.getAttribute('data-qid');
+      var val = lsGet('q_text_' + qid);
+      if (val) {
+        ta.value = val;
+        ta.dispatchEvent(new Event('input'));
+      }
+    });
+
+    updateProgress();
+  }
+
+  // ─── CHARTS ───
+  function initCharts() {
+    // Energy mix chart
+    var ctx1 = document.getElementById('chart-energy');
+    if (ctx1) {
+      new Chart(ctx1, {
+        type: 'doughnut',
+        data: {
+          labels: ['Olie (import)', 'Olie (eigen productie)', 'Aardgas', 'Zonne-energie', 'Overig'],
+          datasets: [{
+            data: [56, 34, 6, 3, 1],
+            backgroundColor: ['#c62828','#e65100','#f9a825','#43a047','#1565c0'],
+            borderWidth: 2,
+            borderColor: '#fff'
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { position: 'bottom', labels: { font: { family: 'Nunito', weight: '600' } } },
+            title: { display: true, text: 'Energiemix Cuba (schatting)', font: { family: 'Nunito', size: 16, weight: '700' } }
+          }
+        }
+      });
+    }
+
+    // Oil import chart
+    var ctx2 = document.getElementById('chart-oil');
+    if (ctx2) {
+      new Chart(ctx2, {
+        type: 'line',
+        data: {
+          labels: ['2020','2021','2022','2023','2024','2025','jan 2026','feb 2026','mrt 2026'],
+          datasets: [{
+            label: 'Olie-import (duizend vaten/dag)',
+            data: [80, 70, 65, 55, 45, 25, 5, 2, 0],
+            borderColor: '#c62828',
+            backgroundColor: 'rgba(198,40,40,0.1)',
+            borderWidth: 3,
+            fill: true,
+            tension: 0.3,
+            pointRadius: 5,
+            pointBackgroundColor: '#c62828'
+          }]
+        },
+        options: {
+          responsive: true,
+          scales: {
+            y: { beginAtZero: true, title: { display: true, text: 'Duizend vaten per dag', font: { family: 'Nunito', weight: '600' } } }
+          },
+          plugins: {
+            legend: { labels: { font: { family: 'Nunito', weight: '600' } } }
+          }
+        }
+      });
+    }
+
+    // Blackout chart
+    var ctx3 = document.getElementById('chart-blackout');
+    if (ctx3) {
+      new Chart(ctx3, {
+        type: 'bar',
+        data: {
+          labels: ['2020','2021','2022','2023','2024','2025','jan 2026','feb 2026','mrt 2026'],
+          datasets: [{
+            label: 'Gemiddeld uren stroomuitval/dag',
+            data: [2, 3, 4, 6, 10, 14, 18, 20, 24],
+            backgroundColor: ['#1565c0','#1565c0','#1565c0','#e65100','#e65100','#c62828','#c62828','#c62828','#c62828'],
+            borderRadius: 6
+          }]
+        },
+        options: {
+          responsive: true,
+          scales: {
+            y: { beginAtZero: true, max: 24, title: { display: true, text: 'Uren per dag', font: { family: 'Nunito', weight: '600' } } }
+          },
+          plugins: {
+            legend: { labels: { font: { family: 'Nunito', weight: '600' } } }
+          }
+        }
+      });
+    }
+
+    // Migration chart
+    var ctx4 = document.getElementById('chart-migration');
+    if (ctx4) {
+      new Chart(ctx4, {
+        type: 'bar',
+        data: {
+          labels: ['2018','2019','2020','2021','2022','2023','2024','2025'],
+          datasets: [{
+            label: 'Geschat aantal emigranten (duizenden)',
+            data: [15, 20, 10, 80, 200, 350, 250, 180],
+            backgroundColor: '#1565c0',
+            borderRadius: 6
+          }]
+        },
+        options: {
+          responsive: true,
+          scales: {
+            y: { beginAtZero: true, title: { display: true, text: 'Duizenden personen', font: { family: 'Nunito', weight: '600' } } }
+          },
+          plugins: {
+            legend: { labels: { font: { family: 'Nunito', weight: '600' } } }
+          }
+        }
+      });
+    }
+  }
+
+  // ─── MAP ───
+  var map1;
+  function initMap() {
+    var mapDiv = document.getElementById('map1');
+    if (!mapDiv) return;
+    map1 = L.map('map1').setView([22.0, -79.5], 6);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap'
+    }).addTo(map1);
+
+    var markers = [
+      { lat: 23.1136, lng: -82.3666, title: 'Havana', desc: '🏛️ <strong>Havana</strong> — De hoofdstad van Cuba. Ruim 2 miljoen inwoners. Hier staan de beroemde oldtimers en het historische centrum is UNESCO-werelderfgoed.' },
+      { lat: 20.0217, lng: -75.8294, title: 'Santiago de Cuba', desc: '🎵 <strong>Santiago de Cuba</strong> — De tweede stad. Bekend om muziek, carnaval en de plek waar de revolutie van Castro begon.' },
+      { lat: 21.3775, lng: -79.9544, title: 'Santa Clara', desc: '⭐ <strong>Santa Clara</strong> — Hier staat het monument voor Che Guevara. De slag om Santa Clara was beslissend in de revolutie.' },
+      { lat: 25.7617, lng: -80.1918, title: 'Miami, VS', desc: '🇺🇸 <strong>Miami</strong> — Slechts 150 km van Cuba! Grote Cubaans-Amerikaanse gemeenschap. Veel Cubanen vluchtten hierheen.' },
+      { lat: 10.4806, lng: -66.9036, title: 'Caracas, Venezuela', desc: '🛢️ <strong>Caracas</strong> — Hoofdstad van Venezuela, Cuba\'s belangrijkste olieleverancier tot 2025.' },
+      { lat: 19.4326, lng: -99.1332, title: 'Mexico-Stad', desc: '🇲🇽 <strong>Mexico-Stad</strong> — Mexico leverde ook olie aan Cuba maar stopte onder druk van de VS.' },
+      { lat: 21.9404, lng: -79.8869, title: 'Matanzas', desc: '🏭 <strong>Matanzas</strong> — Hier staat de Antonio Guiteras-centrale, de grootste van Cuba. In maart 2026 viel deze uit.' },
+      { lat: 19.9651, lng: -75.1169, title: 'Guantánamo Bay', desc: '🏗️ <strong>Guantánamo Bay</strong> — Amerikaanse marinebasis op Cubaans grondgebied sinds 1903. Bron van spanning.' }
+    ];
+
+    markers.forEach(function(m) {
+      L.marker([m.lat, m.lng]).addTo(map1).bindPopup(m.desc);
+    });
+  }
+
+  // ─── INIT ───
+  window.addEventListener('DOMContentLoaded', function() {
+    switchTab(0);
+    initCharts();
+    initMap();
+    loadState();
+  });
+
+})();
+</script>
+</body>
+</html>
