@@ -1586,17 +1586,19 @@ body {
 
   // ─── NAV BUTTONS ───
   document.addEventListener('click', function(e) {
+
+    // ─── MC ANSWER (checked before data-action gate since mc-opts have no data-action) ───
+    if (e.target.classList.contains('mc-opt') && !e.target.classList.contains('disabled')) {
+      handleMC(e.target);
+      return;
+    }
+
     var btn = e.target.closest('[data-action]');
     if (!btn) return;
     var action = btn.getAttribute('data-action');
 
     if (action === 'next-tab' && currentTab < TOTAL_TABS - 1) switchTab(currentTab + 1);
     if (action === 'prev-tab' && currentTab > 0) switchTab(currentTab - 1);
-
-    // ─── MC ANSWER ───
-    if (e.target.classList.contains('mc-opt') && !e.target.classList.contains('disabled')) {
-      handleMC(e.target);
-    }
 
     // ─── SHOW EXAMPLE ───
     if (action === 'show-example') {
