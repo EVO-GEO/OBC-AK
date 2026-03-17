@@ -823,6 +823,7 @@ TECHNISCHE EISEN
    - Gesloten vragen: automatische controle met directe feedback.
    - Open/meningvragen: een "Toon voorbeeldantwoord"-knop die pas na het invullen verschijnt. Toon 1-2 referentieantwoorden ter vergelijking (maak duidelijk dat het voorbeelden zijn).
    - Na het voorbeeldantwoord verschijnen "Goed ✓" en "Fout ✗" knoppen voor zelfbeoordeling. Telt mee in voortgangsbalk en eindscore.
+   - TECHNISCH: gebruik voor ALLE knoppen en interacties data-attributen (data-answer, data-hint, data-correct) en addEventListener in JavaScript. NOOIT inline onclick met strings of aanhalingstekens — dit breekt de HTML-parsing en maakt vragen oncontroleerbaar.
 
 7. NAVIGATIE MET TABBLADEN:
    Verdeel alle secties over tabbladen (NIET één lange scrollpagina).
