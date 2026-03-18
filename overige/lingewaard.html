@@ -1,0 +1,2144 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aardrijkskunde — Bestuur in Lingewaard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+:root {
+  --clr-primary: #005D3E;
+  --clr-primary-light: #00845A;
+  --clr-primary-dark: #003D28;
+  --clr-accent: #4BA83D;
+  --clr-accent-light: #6EC862;
+  --clr-blue: #1A5276;
+  --clr-blue-light: #2980B9;
+  --clr-bg: #F4F7F5;
+  --clr-card: #FFFFFF;
+  --clr-text: #1E2D24;
+  --clr-text-light: #4A6352;
+  --clr-border: #D5E0D8;
+  --clr-success: #27AE60;
+  --clr-error: #E74C3C;
+  --clr-warning: #F39C12;
+  --clr-hint: #FFF8E7;
+  --clr-hint-border: #F5D56E;
+  --radius: 12px;
+  --radius-sm: 8px;
+  --shadow: 0 2px 12px rgba(0,60,30,0.08);
+  --shadow-lg: 0 8px 32px rgba(0,60,30,0.12);
+  --transition: 0.25s ease;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Nunito', sans-serif;
+  background: var(--clr-bg);
+  color: var(--clr-text);
+  line-height: 1.65;
+  min-height: 100vh;
+}
+/* ─── HEADER ─── */
+.site-header {
+  background: linear-gradient(135deg, var(--clr-primary-dark) 0%, var(--clr-primary) 40%, var(--clr-accent) 100%);
+  color: #fff;
+  padding: 1.5rem 2rem 1rem;
+  position: relative;
+  overflow: hidden;
+}
+.site-header::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -10%;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+.header-top { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 0.5rem; }
+.header-title h1 { font-size: 1.6rem; font-weight: 900; letter-spacing: -0.5px; }
+.header-title p { font-size: 0.85rem; opacity: 0.85; font-weight: 600; }
+.header-badge {
+  background: rgba(255,255,255,0.15);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: var(--radius-sm);
+  padding: 0.35rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+/* ─── PROGRESS ─── */
+.progress-wrap {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--clr-card);
+  border-bottom: 1px solid var(--clr-border);
+  padding: 0.6rem 2rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+.progress-inner { display: flex; align-items: center; gap: 1rem; max-width: 1000px; margin: 0 auto; }
+.progress-bar-bg {
+  flex: 1;
+  height: 10px;
+  background: var(--clr-border);
+  border-radius: 99px;
+  overflow: hidden;
+}
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--clr-primary), var(--clr-accent));
+  border-radius: 99px;
+  transition: width 0.5s ease;
+  width: 0%;
+}
+.progress-text { font-size: 0.8rem; font-weight: 700; color: var(--clr-primary); white-space: nowrap; }
+.progress-clear {
+  background: none;
+  border: 1px solid var(--clr-border);
+  border-radius: var(--radius-sm);
+  padding: 0.25rem 0.6rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--clr-text-light);
+  cursor: pointer;
+  transition: var(--transition);
+  font-family: inherit;
+}
+.progress-clear:hover { border-color: var(--clr-error); color: var(--clr-error); }
+/* ─── TAB NAV ─── */
+.tab-nav-wrap {
+  background: var(--clr-card);
+  border-bottom: 2px solid var(--clr-border);
+  padding: 0 1rem;
+}
+.tab-counter {
+  text-align: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--clr-text-light);
+  padding: 0.4rem 0 0;
+}
+.tab-nav {
+  display: flex;
+  overflow-x: auto;
+  gap: 0.25rem;
+  padding: 0.4rem 0 0;
+  scrollbar-width: thin;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+.tab-nav::-webkit-scrollbar { height: 4px; }
+.tab-nav::-webkit-scrollbar-thumb { background: var(--clr-border); border-radius: 99px; }
+.tab-btn {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  padding: 0.5rem 0.8rem;
+  font-family: inherit;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--clr-text-light);
+  cursor: pointer;
+  transition: var(--transition);
+  white-space: nowrap;
+  position: relative;
+}
+.tab-btn:hover { color: var(--clr-primary); }
+.tab-btn.active { color: var(--clr-primary); border-bottom-color: var(--clr-primary); }
+.tab-btn .tab-check { color: var(--clr-success); margin-left: 0.3rem; }
+/* ─── MAIN CONTENT ─── */
+.main-content { max-width: 1000px; margin: 0 auto; padding: 1.5rem 1rem 3rem; }
+.tab-panel { display: none; animation: fadeIn 0.3s ease; }
+.tab-panel.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+/* ─── CARDS ─── */
+.card {
+  background: var(--clr-card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  border: 1px solid var(--clr-border);
+}
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 1rem;
+}
+.card-emoji { font-size: 1.8rem; }
+.card-title { font-size: 1.15rem; font-weight: 800; color: var(--clr-primary-dark); }
+.card p { margin-bottom: 0.75rem; color: var(--clr-text); font-size: 0.92rem; }
+.card p:last-child { margin-bottom: 0; }
+/* ─── INFO BLOCKS ─── */
+.info-block {
+  background: linear-gradient(135deg, #E8F5E9 0%, #F1F8E9 100%);
+  border-left: 4px solid var(--clr-accent);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  padding: 1rem 1.25rem;
+  margin: 1rem 0;
+}
+.info-block.blue {
+  background: linear-gradient(135deg, #E3F2FD 0%, #E8EAF6 100%);
+  border-left-color: var(--clr-blue-light);
+}
+.info-block-title { font-weight: 800; font-size: 0.95rem; margin-bottom: 0.4rem; }
+/* ─── EMOJI FLOW ─── */
+.emoji-flow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 1rem;
+  background: linear-gradient(135deg, var(--clr-primary-dark), var(--clr-primary));
+  border-radius: var(--radius);
+  margin: 1rem 0;
+}
+.emoji-flow-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: #fff;
+  gap: 0.2rem;
+}
+.emoji-flow-icon { font-size: 2rem; }
+.emoji-flow-label { font-size: 0.7rem; font-weight: 700; text-align: center; }
+.emoji-flow-arrow { font-size: 1.3rem; color: rgba(255,255,255,0.6); }
+/* ─── COMPARISON TABLE ─── */
+.compare-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  margin: 1rem 0;
+  font-size: 0.85rem;
+}
+.compare-table th {
+  background: var(--clr-primary);
+  color: #fff;
+  padding: 0.7rem 1rem;
+  text-align: left;
+  font-weight: 700;
+}
+.compare-table td {
+  padding: 0.6rem 1rem;
+  border-bottom: 1px solid var(--clr-border);
+}
+.compare-table tr:nth-child(even) td { background: #F9FCF9; }
+.compare-table tr:last-child td { border-bottom: none; }
+/* ─── QUIZ ─── */
+.quiz-block { margin: 1.25rem 0; }
+.quiz-q {
+  font-weight: 700;
+  font-size: 0.95rem;
+  margin-bottom: 0.6rem;
+  color: var(--clr-primary-dark);
+}
+.quiz-options { display: flex; flex-direction: column; gap: 0.4rem; }
+.quiz-opt {
+  background: var(--clr-bg);
+  border: 2px solid var(--clr-border);
+  border-radius: var(--radius-sm);
+  padding: 0.6rem 1rem;
+  font-family: inherit;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--clr-text);
+  cursor: pointer;
+  transition: var(--transition);
+  text-align: left;
+  width: 100%;
+}
+.quiz-opt:hover:not(:disabled) { border-color: var(--clr-primary); background: #E8F5E9; }
+.quiz-opt.correct { border-color: var(--clr-success); background: #E8F5E9; color: var(--clr-success); }
+.quiz-opt.wrong { border-color: var(--clr-error); background: #FDEDEC; color: var(--clr-error); }
+.quiz-opt:disabled { cursor: default; opacity: 0.7; }
+.quiz-feedback {
+  margin-top: 0.5rem;
+  padding: 0.6rem 1rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  font-weight: 600;
+  display: none;
+}
+.quiz-feedback.hint { background: var(--clr-hint); border: 1px solid var(--clr-hint-border); color: #7D6608; }
+.quiz-feedback.correct { background: #E8F5E9; border: 1px solid var(--clr-success); color: #1E7E34; }
+.quiz-feedback.wrong-final { background: #FDEDEC; border: 1px solid var(--clr-error); color: #922B21; }
+/* ─── OPEN QUESTION ─── */
+.open-q { margin: 1.25rem 0; }
+.open-q label { display: block; font-weight: 700; font-size: 0.95rem; margin-bottom: 0.5rem; color: var(--clr-primary-dark); }
+.open-q textarea {
+  width: 100%;
+  min-height: 100px;
+  padding: 0.8rem;
+  border: 2px solid var(--clr-border);
+  border-radius: var(--radius-sm);
+  font-family: inherit;
+  font-size: 0.9rem;
+  resize: vertical;
+  transition: var(--transition);
+  line-height: 1.6;
+}
+.open-q textarea:focus { outline: none; border-color: var(--clr-primary); }
+.word-counter { font-size: 0.75rem; color: var(--clr-text-light); margin-top: 0.25rem; font-weight: 600; }
+.word-counter.sufficient { color: var(--clr-success); }
+.open-q-btns { margin-top: 0.5rem; display: flex; gap: 0.5rem; flex-wrap: wrap; }
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: var(--transition);
+}
+.btn-primary { background: var(--clr-primary); color: #fff; }
+.btn-primary:hover { background: var(--clr-primary-light); }
+.btn-success { background: var(--clr-success); color: #fff; }
+.btn-error { background: var(--clr-error); color: #fff; }
+.btn-outline {
+  background: transparent;
+  border: 2px solid var(--clr-border);
+  color: var(--clr-text-light);
+}
+.btn-outline:hover { border-color: var(--clr-primary); color: var(--clr-primary); }
+.btn:disabled { opacity: 0.5; cursor: default; }
+.example-answer {
+  margin-top: 0.75rem;
+  padding: 0.8rem 1rem;
+  background: linear-gradient(135deg, #E3F2FD, #E8EAF6);
+  border-radius: var(--radius-sm);
+  border-left: 4px solid var(--clr-blue-light);
+  font-size: 0.85rem;
+  display: none;
+}
+.example-answer strong { color: var(--clr-blue); }
+.self-assess { display: none; margin-top: 0.5rem; gap: 0.5rem; }
+.self-assess.show { display: flex; }
+/* ─── DRAG AND DROP ─── */
+.drag-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin: 0.75rem 0;
+}
+.drag-item {
+  background: var(--clr-bg);
+  border: 2px solid var(--clr-border);
+  border-radius: var(--radius-sm);
+  padding: 0.6rem 1rem;
+  font-weight: 600;
+  font-size: 0.88rem;
+  cursor: grab;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  user-select: none;
+}
+.drag-item:active { cursor: grabbing; }
+.drag-item.dragging { opacity: 0.5; border-color: var(--clr-primary); }
+.drag-item .drag-handle { color: var(--clr-text-light); font-size: 1.1rem; }
+.drag-item.correct-pos { border-color: var(--clr-success); background: #E8F5E9; }
+.drag-item.wrong-pos { border-color: var(--clr-error); background: #FDEDEC; }
+/* ─── MATCH EXERCISE ─── */
+.match-container { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 0.75rem 0; }
+.match-col-title { font-weight: 800; font-size: 0.85rem; color: var(--clr-primary-dark); margin-bottom: 0.5rem; }
+.match-item {
+  background: var(--clr-bg);
+  border: 2px solid var(--clr-border);
+  border-radius: var(--radius-sm);
+  padding: 0.5rem 0.75rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+  margin-bottom: 0.35rem;
+}
+.match-item:hover { border-color: var(--clr-primary); }
+.match-item.selected { border-color: var(--clr-primary); background: #E8F5E9; box-shadow: 0 0 0 2px rgba(0,93,62,0.2); }
+.match-item.matched { border-color: var(--clr-success); opacity: 0.7; }
+.match-result { margin-top: 0.5rem; font-size: 0.85rem; font-weight: 600; }
+/* ─── MAP ─── */
+.map-container { height: 400px; border-radius: var(--radius-sm); margin: 1rem 0; border: 2px solid var(--clr-border); z-index: 1; }
+/* ─── CHART ─── */
+.chart-wrap { position: relative; margin: 1rem 0; max-height: 350px; }
+.chart-wrap canvas { max-height: 350px; }
+/* ─── NAV BUTTONS ─── */
+.tab-nav-btns {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--clr-border);
+}
+.reset-section-btn {
+  background: none;
+  border: 1px solid var(--clr-border);
+  border-radius: var(--radius-sm);
+  padding: 0.35rem 0.75rem;
+  font-family: inherit;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--clr-text-light);
+  cursor: pointer;
+  transition: var(--transition);
+}
+.reset-section-btn:hover { border-color: var(--clr-warning); color: var(--clr-warning); }
+/* ─── RESPONSIVE ─── */
+@media (max-width: 768px) {
+  .site-header { padding: 1rem; }
+  .header-title h1 { font-size: 1.2rem; }
+  .progress-wrap { padding: 0.5rem 1rem; }
+  .card { padding: 1rem; }
+  .match-container { grid-template-columns: 1fr; }
+  .map-container { height: 300px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ════════════ HEADER ════════════ -->
+<header class="site-header">
+  <div class="header-top">
+    <div class="header-title">
+      <h1>🏛️ Bestuur in Lingewaard</h1>
+      <p>Aardrijkskunde — VMBO 2 — Hoe wordt jouw gemeente bestuurd?</p>
+    </div>
+    <div class="header-badge">📱 ~80 min</div>
+  </div>
+</header>
+
+<!-- ════════════ PROGRESS ════════════ -->
+<div class="progress-wrap">
+  <div class="progress-inner">
+    <div class="progress-bar-bg"><div class="progress-bar-fill" id="progressFill"></div></div>
+    <span class="progress-text" id="progressText">0%</span>
+    <button class="progress-clear" id="clearProgressBtn">Voortgang wissen</button>
+  </div>
+</div>
+
+<!-- ════════════ TAB NAV ════════════ -->
+<div class="tab-nav-wrap">
+  <div class="tab-counter" id="tabCounter">Onderdeel 1 van 11</div>
+  <div class="tab-nav" id="tabNav"></div>
+</div>
+
+<!-- ════════════ MAIN ════════════ -->
+<div class="main-content">
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- TAB 1: Welkom & Introductie                -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="tab-panel" id="tab-0">
+  <div class="card">
+    <div class="card-header"><span class="card-emoji">👋</span><span class="card-title">Welkom bij deze les!</span></div>
+    <p>Vandaag leer je hoe Nederland wordt bestuurd — en dan vooral: hoe jouw eigen gemeente <strong>Lingewaard</strong> werkt. Want het bestuur van je gemeente heeft meer invloed op jouw dagelijks leven dan je misschien denkt!</p>
+    <p>Denk maar eens na: wie zorgt ervoor dat je 's ochtends veilig naar school kunt fietsen? Wie bepaalt of er een nieuw skatepark komt? En wie beslist over het ophalen van jullie afval? Dat is allemaal de <strong>gemeente</strong>.</p>
+    <p>In deze les werk je stap voor stap door 11 onderdelen. Je leert over de drie bestuurslagen van Nederland, over de gemeenteraad, over politieke partijen in Lingewaard, en je leert je eigen mening goed onderbouwen. Aan het eind weet je precies hoe de politiek werkt, vlak bij jou thuis.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><span class="card-emoji">🎯</span><span class="card-title">Wat ga je leren?</span></div>
+    <div class="info-block">
+      <div class="info-block-title">Leerdoel 1</div>
+      <p>Ik kan uitleggen hoe de Nederlandse overheid is opgebouwd in drie bestuurslagen (Rijk, provincie, gemeente) en beschrijven welke taken de gemeente heeft.</p>
+    </div>
+    <div class="info-block blue">
+      <div class="info-block-title">Leerdoel 2</div>
+      <p>Ik kan uitleggen wat de gemeenteraad doet, hoe die wordt gekozen en welke rol de burgemeester en wethouders hebben — toegepast op Lingewaard.</p>
+    </div>
+    <div class="info-block">
+      <div class="info-block-title">Leerdoel 3</div>
+      <p>Ik kan van ten minste twee Lingewaardse partijen de standpunten vergelijken en aangeven waarin ze verschillen.</p>
+    </div>
+    <div class="info-block blue">
+      <div class="info-block-title">Leerdoel 4</div>
+      <p>Ik kan een eigen mening formuleren over een lokaal vraagstuk, met argumenten én een tegenargument.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><span class="card-emoji">📱</span><span class="card-title">Even kennismaken</span></div>
+    <p>Stel je voor: je opent Instagram of TikTok en ziet een bericht van de gemeente Lingewaard. Ze vragen: <em>"Wat moet er veranderen in jouw buurt?"</em> Heel veel jongeren scrollen er gewoon voorbij. Maar stel dat je wél reageert — hoe werkt dat dan? Wie leest jouw bericht? Wie kan er iets mee doen?</p>
+    <p>Aan het eind van deze les begrijp je precies hoe dat werkt. Laten we beginnen!</p>
+
+    <div class="quiz-block" data-qid="q1_1">
+      <div class="quiz-q">Vraag 1: Welke van deze dingen regelt de gemeente waar je woont?</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-answer="wrong" data-hint="Het leger wordt geregeld door de landelijke overheid (het Rijk). Denk aan dingen die je in je eigen buurt tegenkomt.">Het leger van Nederland</button>
+        <button class="quiz-opt" data-answer="correct" data-hint="">Het ophalen van afval bij jou thuis</button>
+        <button class="quiz-opt" data-answer="wrong" data-hint="Vliegvelden worden door de landelijke overheid geregeld. De gemeente houdt zich bezig met dingen in jouw directe omgeving.">De luchthaven Schiphol</button>
+        <button class="quiz-opt" data-answer="wrong" data-hint="Ambassades zijn van de landelijke overheid. Denk dichterbij huis!">De ambassade in het buitenland</button>
+      </div>
+      <div class="quiz-feedback"></div>
+    </div>
+
+    <div class="open-q" data-qid="q1_2">
+      <label>Vraag 2: Noem twee dingen die de gemeente regelt en die jij vandaag al bent tegengekomen (bijv. op weg naar school). Schrijf minimaal 2 zinnen.</label>
+      <textarea placeholder="Schrijf hier je antwoord..."></textarea>
+      <div class="word-counter">0 woorden</div>
+      <div class="open-q-btns">
+        <button class="btn btn-primary show-example-btn" style="display:none;">Toon voorbeeldantwoord</button>
+      </div>
+      <div class="example-answer">
+        <strong>Voorbeeldantwoord:</strong> Toen ik naar school fietste, reed ik over het fietspad. Dat fietspad wordt onderhouden door de gemeente. Ook kwam ik langs de vuilnisbak op straat — die wordt ook door de gemeente geplaatst en geleegd. Zonder de gemeente zou het een bende worden in de straten!
+      </div>
+      <div class="self-assess">
+        <button class="btn btn-success self-good">Goed ✓</button>
+        <button class="btn btn-error self-bad">Fout ✗</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-nav-btns">
+    <div></div>
+    <button class="btn btn-primary next-tab-btn">Volgende →</button>
+    <button class="reset-section-btn" data-tab="0">Reset dit onderdeel</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- TAB 2: Drie bestuurslagen                  -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="tab-panel" id="tab-1">
+  <div class="card">
+    <div class="card-header"><span class="card-emoji">🏗️</span><span class="card-title">De drie bestuurslagen van Nederland</span></div>
+    <p>Nederland wordt bestuurd op drie niveaus. We noemen dit de <strong>drie bestuurslagen</strong>. Stel je een piramide voor: bovenaan staat het Rijk (de landelijke overheid), in het midden de provincie, en onderaan — het dichtst bij jou — de gemeente.</p>
+    <p>Elke bestuurslaag heeft zijn eigen taken. Het Rijk gaat over grote, landelijke zaken zoals defensie (het leger), buitenlandse politiek en de wetten die voor heel Nederland gelden. De provincie zit ertussenin: die houdt zich bezig met zaken als natuur, wegen tussen steden, en ruimtelijke ordening in een groter gebied. En de gemeente? Die gaat over alles wat direct met jouw dagelijks leven te maken heeft.</p>
+    <p>Dit systeem heet <strong>gedecentraliseerd bestuur</strong>. Dat klinkt ingewikkeld, maar het betekent simpelweg: niet alles wordt vanuit Den Haag beslist. Veel beslissingen worden genomen door de overheid die het dichtst bij de inwoners staat. Dat is logisch, want de gemeente weet het beste wat er in jouw buurt speelt!</p>
+
+    <div class="emoji-flow">
+      <div class="emoji-flow-item"><span class="emoji-flow-icon">🏛️</span><span class="emoji-flow-label">Rijk<br>(Den Haag)</span></div>
+      <span class="emoji-flow-arrow">→</span>
+      <div class="emoji-flow-item"><span class="emoji-flow-icon">🏢</span><span class="emoji-flow-label">Provincie<br>(Gelderland)</span></div>
+      <span class="emoji-flow-arrow">→</span>
+      <div class="emoji-flow-item"><span class="emoji-flow-icon">🏠</span><span class="emoji-flow-label">Gemeente<br>(Lingewaard)</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><span class="card-emoji">📊</span><span class="card-title">Vergelijking: wie doet wat?</span></div>
+    <p>Hieronder zie je een overzicht van voorbeeldtaken per bestuurslaag. Let op: sommige taken worden gedeeld, maar de hoofdverantwoordelijkheid ligt bij één laag.</p>
+    <table class="compare-table">
+      <tr><th>🏛️ Rijk</th><th>🏢 Provincie</th><th>🏠 Gemeente</th></tr>
+      <tr><td>Defensie & leger</td><td>Aanleg provinciale wegen</td><td>Ophalen huisvuil</td></tr>
+      <tr><td>Buitenlandse zaken</td><td>Natuur & milieu regionaal</td><td>Onderhoud fietspaden</td></tr>
+      <tr><td>Landelijke wetten</td><td>Openbaar vervoer (bussen)</td><td>Bouw van scholen</td></tr>
+      <tr><td>Belastingdienst</td><td>Toezicht op gemeenten</td><td>Paspoorten & ID-kaarten</td></tr>
+      <tr><td>Onderwijs (landelijk beleid)</td><td>Ruimtelijke ordening regio</td><td>Sportvoorzieningen</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><span class="card-emoji">📱</span><span class="card-title">Social media en bestuurslagen</span></div>
+    <p>Stel: je ziet op TikTok een video over een kapot fietspad in Bemmel. Iemand klaagt erover. Maar bij wie moet die persoon eigenlijk zijn? Bij de gemeente Lingewaard! Want fietspaden in de buurt zijn een gemeentetaak. Als diezelfde persoon klaagt over de trein die te laat is — dan moet diegene bij het Rijk of de provincie zijn, want het spoor is geen gemeentetaak.</p>
+    <p><strong>Herken je dat?</strong> Heb jij ooit iets op social media gezien waarover je dacht: daar moet iemand iets aan doen? Vaak is de gemeente de plek waar je dan moet zijn!</p>
+
+    <div class="quiz-block" data-qid="q2_1">
+      <div class="quiz-q">Vraag 1: Het Rijk, de provincie en de gemeente zijn samen de drie bestuurslagen. Welke bestuurslaag staat het dichtst bij de inwoners?</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-answer="wrong" data-hint="Het Rijk gaat over heel Nederland. Welke bestuurslaag is het kleinst en staat het dichtst bij jou?">Het Rijk</button>
+        <button class="quiz-opt" data-answer="wrong" data-hint="De provincie is groter dan een gemeente. Denk aan de kleinste bestuurslaag.">De provincie</button>
+        <button class="quiz-opt" data-answer="correct" data-hint="">De gemeente</button>
+      </div>
+      <div class="quiz-feedback"></div>
+    </div>
+
+    <div class="quiz-block" data-qid="q2_2">
+      <div class="quiz-q">Vraag 2: In welke provincie ligt de gemeente Lingewaard?</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-answer="wrong" data-hint="Noord-Brabant ligt meer in het zuiden. Lingewaard ligt in de Betuwe, tussen Arnhem en Nijmegen. Welke provincie hoort daarbij?">Noord-Brabant</button>
+        <button class="quiz-opt" data-answer="correct" data-hint="">Gelderland</button>
+        <button class="quiz-opt" data-answer="wrong" data-hint="Utrecht ligt westelijker. Lingewaard ligt bij Arnhem en Nijmegen.">Utrecht</button>
+        <button class="quiz-opt" data-answer="wrong" data-hint="Zuid-Holland is helemaal in het westen, bij Den Haag en Rotterdam.">Zuid-Holland</button>
+      </div>
+      <div class="quiz-feedback"></div>
+    </div>
+
+    <div class="quiz-block" data-qid="q2_3">
+      <div class="quiz-q">Vraag 3: Je buurt heeft een nieuw speelveld nodig. Bij welke bestuurslaag moet je daarvoor zijn?</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-answer="wrong" data-hint="Het Rijk gaat over grote landelijke zaken. Een speelveld in je buurt is iets voor de bestuurslaag die het dichtst bij je staat.">Het Rijk</button>
+        <button class="quiz-opt" data-answer="wrong" data-hint="De provincie houdt zich meer bezig met wegen en natuur in de regio. Wie gaat er over voorzieningen in jouw buurt?">De provincie</button>
+        <button class="quiz-opt" data-answer="correct" data-hint="">De gemeente</button>
+      </div>
+      <div class="quiz-feedback"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><span class="card-emoji">🔀</span><span class="card-title">Sorteeropdracht: zet de taken bij de juiste bestuurslaag</span></div>
+    <p>Sleep de taken naar de juiste volgorde. De volgorde is: eerst taken van het <strong>Rijk</strong>, dan taken van de <strong>provincie</strong>, en als laatste taken van de <strong>gemeente</strong>.</p>
+    <p><em>Juiste volgorde: Leger (Rijk) → Provinciale wegen (Provincie) → Afval ophalen (Gemeente)</em></p>
+    <ul class="drag-list" id="dragSort1" data-qid="q2_sort" data-correct="Leger van Nederland,Provinciale wegen aanleggen,Afval ophalen in de buurt">
+      <li class="drag-item" draggable="true"><span class="drag-handle">☰</span> Afval ophalen in de buurt</li>
+      <li class="drag-item" draggable="true"><span class="drag-handle">☰</span> Leger van Nederland</li>
+      <li class="drag-item" draggable="true"><span class="drag-handle">☰</span> Provinciale wegen aanleggen</li>
+    </ul>
+    <button class="btn btn-primary check-sort-btn" data-list="dragSort1">Controleer volgorde</button>
+    <div class="quiz-feedback" id="dragSort1-feedback"></div>
+  </div>
+
+  <div class="tab-nav-btns">
+    <button class="btn btn-outline prev-tab-btn">← Vorige</button>
+    <button class="btn btn-primary next-tab-btn">Volgende →</button>
+    <button class="reset-section-btn" data-tab="1">Reset dit onderdeel</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- TAB 3: Gemeente Lingewaard op de kaart     -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="tab-panel" id="tab-2">
+  <div class="card">
+    <div class="card-header"><span class="card-emoji">🗺️</span><span class="card-title">Lingewaard op de kaart</span></div>
+    <p>De gemeente Lingewaard ligt in het oosten van de Betuwe, in de provincie Gelderland. De gemeente is in 2001 ontstaan door een fusie van drie gemeenten: <strong>Bemmel</strong>, <strong>Gendt</strong> en <strong>Huissen</strong>. Tegenwoordig telt Lingewaard ongeveer <strong>47.800 inwoners</strong> verdeeld over 8 kernen (dorpen).</p>
+    <p>Lingewaard ligt tussen twee grote steden: <strong>Arnhem</strong> (in het noorden) en <strong>Nijmegen</strong> (in het westen). De gemeente wordt omringd door rivieren — de Waal in het zuiden, de Nederrijn in het noorden, en de Linge stroomt er doorheen. Dankzij deze vruchtbare riviergrond is het gebied bekend om fruitteelt en tuinbouw: denk aan de bloesem in het voorjaar!</p>
+    <p>Het gemeentehuis staat in <strong>Bemmel</strong>. Daar vergadert de gemeenteraad en werken de ambtenaren die de besluiten van de raad uitvoeren.</p>
+
+    <div id="map1" class="map-container"></div>
+
+    <div class="info-block">
+      <div class="info-block-title">💡 Wist je dat?</div>
+      <p>De naam "Lingewaard" is geen bestaand dorp — het is een verzonnen naam die gekozen is via een referendum (stemming) onder inwoners. De naam verwijst naar de rivier de Linge en het woord "waard" (een stuk land tussen rivieren).</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><span class="card-emoji">📱</span><span class="card-title">Ken jij je gemeente?</span></div>
+    <p>Stel, je maakt een Instagram-post over je gemeente. Je wilt laten zien hoe mooi Lingewaard is. Welke plek zou je kiezen? De uiterwaarden bij Gendt? Het centrum van Huissen? De fruitboomgaarden bij Bemmel?</p>
+
+    <div class="quiz-block" data-qid="q3_1">
+      <div class="quiz-q">Vraag 1: Hoeveel inwoners heeft Lingewaard ongeveer?</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-answer="wrong" data-hint="Dat is te weinig. Lingewaard is groter dan je denkt! Er wonen mensen in 8 verschillende dorpen.">12.000</button>
+        <button class="quiz-opt" data-answer="wrong" data-hint="Dat is een beetje te weinig. Denk aan alle dorpen samen: Bemmel, Huissen, Gendt, Haalderen...">25.000</button>
+        <button class="quiz-opt" data-answer="correct" data-hint="">Ongeveer 47.800</button>
+        <button class="quiz-opt" data-answer="wrong" data-hint="Dat is te veel! Zoveel inwoners heeft een grote stad. Lingewaard is een gemeente met dorpen.">150.000</button>
+      </div>
+      <div class="quiz-feedback"></div>
+    </div>
+
+    <div class="quiz-block" data-qid="q3_2">
+      <div class="quiz-q">Vraag 2: Uit welke drie gemeenten is Lingewaard in 2001 ontstaan?</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-answer="wrong" data-hint="Arnhem is een aparte, grote stad. De drie gemeenten waren kleiner en lagen in de Betuwe.">Arnhem, Nijmegen, Bemmel</button>
+        <button class="quiz-opt" data-answer="correct" data-hint="">Bemmel, Gendt, Huissen</button>
+        <button class="quiz-opt" data-answer="wrong" data-hint="Elst en Driel liggen in een andere gemeente (Overbetuwe). Kijk goed in de uitleg hierboven!">Elst, Driel, Huissen</button>
+      </div>
+      <div class="quiz-feedback"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><span class="card-emoji">✍️</span><span class="card-title">Schrijfopdracht</span></div>
+    <div class="open-q" data-qid="q3_3">
+      <label>Vraag 3: In welk dorp of welke kern van Lingewaard woon jij (of woon je het dichtst bij)? Beschrijf in minimaal 3 zinnen wat je leuk vindt aan die plek en wat de gemeente daar zou kunnen verbeteren.</label>
+      <textarea placeholder="Schrijf hier je antwoord..."></textarea>
+      <div class="word-counter">0 woorden</div>
+      <div class="open-q-btns">
+        <button class="btn btn-primary show-example-btn" style="display:none;">Toon voorbeeldantwoord</button>
+      </div>
+      <div class="example-answer">
+        <strong>Voorbeeldantwoord:</strong> Ik woon het dichtst bij Bemmel. Wat ik leuk vind is dat er een groot sportpark is waar ik op zaterdag voetbal. Ik vind het ook fijn dat er veel groen is rondom het dorp. Wat beter zou kunnen is dat er meer plekken komen waar jongeren kunnen chillen, want daar is nu weinig van. De gemeente zou misschien een plek kunnen maken met bankjes en wifi.
+      </div>
+      <div class="self-assess">
+        <button class="btn btn-success self-good">Goed ✓</button>
+        <button class="btn btn-error self-bad">Fout ✗</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-nav-btns">
+    <button class="btn btn-outline prev-tab-btn">← Vorige</button>
+    <button class="btn btn-primary next-tab-btn">Volgende →</button>
+    <button class="reset-section-btn" data-tab="2">Reset dit onderdeel</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- TAB 4: Taken van de gemeente               -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="tab-panel" id="tab-3">
+  <div class="card">
+    <div class="card-header"><span class="card-emoji">📋</span><span class="card-title">Wat doet de gemeente eigenlijk?</span></div>
+    <p>De gemeente heeft heel veel taken. Die taken zijn onder te verdelen in een paar grote categorieën. Hieronder leggen we de belangrijkste uit, steeds met een voorbeeld uit Lingewaard.</p>
+
+    <div class="info-block">
+      <div class="info-block-title">🏗️ Bouwen en wonen</div>
+      <p>De gemeente beslist waar nieuwe huizen, winkels en scholen worden gebouwd. In Lingewaard is er bijvoorbeeld discussie over nieuwbouw in Bemmel en Huissen: er zijn meer woningen nodig, maar inwoners willen ook het groene karakter van de dorpen behouden.</p>
+    </div>
+    <div class="info-block blue">
+      <div class="info-block-title">🚲 Verkeer en wegen</div>
+      <p>Fietspaden, rotondes, parkeerplaatsen, verkeersborden — de gemeente legt ze aan en onderhoudt ze. Als er een gevaarlijk kruispunt is in Haalderen, dan is het de gemeente die daar iets aan moet doen.</p>
+    </div>
+    <div class="info-block">
+      <div class="info-block-title">🗑️ Milieu en afval</div>
+      <p>Het ophalen van je gft-bak, restafval en plastic. De gemeente regelt ook milieustraten en stimuleert duurzaamheid. Lingewaard heeft bijvoorbeeld een Energieloket dat inwoners helpt met zonnepanelen en isolatie.</p>
+    </div>
+    <div class="info-block blue">
+      <div class="info-block-title">🏥 Zorg en welzijn</div>
+      <p>De gemeente organiseert jeugdhulp, thuiszorg (WMO), en ondersteuning voor mensen die dat nodig hebben. Als iemand in Gendt hulp nodig heeft bij het huishouden, regelt de gemeente dat.</p>
+    </div>
+    <div class="info-block">
+      <div class="info-block-title">⚽ Sport, cultuur en vrije tijd</div>
+      <p>Subsidies voor sportclubs, onderhoud van sportvelden, bibliotheken, evenementen — allemaal gemeentetaken. Het muziekfestival "Under The Milky Way" in de uiterwaarden bij Huissen is een mooi voorbeeld.</p>
+    </div>
+    <div class="info-block blue">
+      <div class="info-block-title">📄 Burgerzaken</div>
+      <p>Je paspoort, ID-kaart, rijbewijs, geboorteaangifte — je haalt het allemaal op bij het gemeentehuis in Bemmel. De gemeente houdt ook de basisregistratie bij: een lijst van iedereen die in Lingewaard woont.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><span class="card-emoji">📱</span><span class="card-title">Denk mee: social media en de gemeente</span></div>
+    <p>Steeds meer gemeenten gebruiken social media om contact te houden met inwoners. De gemeente Lingewaard heeft een eigen website en sociale media. Maar bereiken ze jongeren wel? Op de verkiezingspagina van de gemeente staan interviews met jongeren die zeggen dat ze de lokale politiek best ingewikkeld vinden.</p>
+
+    <div class="quiz-block" data-qid="q4_1">
+      <div class="quiz-q">Vraag 1: Welke taak hoort NIET bij de gemeente?</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-answer="wrong" data-hint="Jeugdhulp is wél een gemeentetaak. Sinds 2015 is de gemeente verantwoordelijk voor jeugdzorg.">Jeugdhulp organiseren</button>
+        <button class="quiz-opt" data-answer="wrong" data-hint="Paspoorten zijn wél een gemeentetaak. Je haalt ze op bij het gemeentehuis.">Paspoorten uitgeven</button>
+        <button class="quiz-opt" data-answer="correct" data-hint="">Het spoorwegennet aanleggen</button>
+        <button class="quiz-opt" data-answer="wrong" data-hint="Afval ophalen is bij uitstek een gemeentetaak!">Afval ophalen</button>
+      </div>
+      <div class="quiz-feedback"></div>
+    </div>
+
+    <div class="quiz-block" data-qid="q4_2">
+      <div class="quiz-q">Vraag 2: Waarom is het logisch dat de gemeente (en niet het Rijk) beslist over een nieuw speelveld in jouw wijk?</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-answer="correct" data-hint="">Omdat de gemeente het beste weet wat er in de buurt nodig is</button>
+        <button class="quiz-opt" data-answer="wrong" data-hint="Dat klopt niet. Het Rijk heeft wel geld, maar het gaat erom wie het beste weet wat er lokaal nodig is.">Omdat het Rijk geen geld heeft</button>
+        <button class="quiz-opt" data-answer="wrong" data-hint="De provincie heeft andere taken. Het gaat erom dat de gemeente het dichtst bij de inwoners staat.">Omdat de provincie geen tijd heeft</button>
+      </div>
+      <div class="quiz-feedback"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><span class="card-emoji">🔗</span><span class="card-title">Koppelopdracht: taak bij de juiste categorie</span></div>
+    <p>Klik eerst op een taak links, dan op de categorie rechts. Eén categorie kan meerdere taken hebben!</p>
+    <div class="match-container" id="match1" data-qid="q4_match" data-pairs='{"Fietspad repareren":"Verkeer","Paspoort ophalen":"Burgerzaken","Jeugdhulp aanvragen":"Zorg","Vuilnis ophalen":"Milieu","Sportveld onderhouden":"Sport"}'>
+      <div>
+        <div class="match-col-title">Taken</div>
+        <div class="match-source">
+          <div class="match-item" data-side="source" data-value="Fietspad repareren">🚲 Fietspad repareren</div>
+          <div class="match-item" data-side="source" data-value="Paspoort ophalen">📄 Paspoort ophalen</div>
+          <div class="match-item" data-side="source" data-value="Jeugdhulp aanvragen">🏥 Jeugdhulp aanvragen</div>
+          <div class="match-item" data-side="source" data-value="Vuilnis ophalen">🗑️ Vuilnis ophalen</div>
+          <div class="match-item" data-side="source" data-value="Sportveld onderhouden">⚽ Sportveld onderhouden</div>
+        </div>
+      </div>
+      <div>
+        <div class="match-col-title">Categorieën</div>
+        <div class="match-target">
+          <div class="match-item" data-side="target" data-value="Verkeer">🚗 Verkeer</div>
+          <div class="match-item" data-side="target" data-value="Burgerzaken">📋 Burgerzaken</div>
+          <div class="match-item" data-side="target" data-value="Zorg">💊 Zorg</div>
+          <div class="match-item" data-side="target" data-value="Milieu">♻️ Milieu</div>
+          <div class="match-item" data-side="target" data-value="Sport">🏅 Sport</div>
+        </div>
+      </div>
+    </div>
+    <div style="margin-top:0.5rem;">
+      <span class="match-result" id="match1-result"></span>
+    </div>
+    <button class="btn btn-primary check-match-btn" data-match="match1" style="margin-top:0.5rem;">Controleer koppelingen</button>
+    <div class="quiz-feedback" id="match1-feedback"></div>
+  </div>
+
+  <div class="tab-nav-btns">
+    <button class="btn btn-outline prev-tab-btn">← Vorige</button>
+    <button class="btn btn-primary next-tab-btn">Volgende →</button>
+    <button class="reset-section-btn" data-tab="3">Reset dit onderdeel</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- TAB 5: De gemeenteraad                     -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="tab-panel" id="tab-4">
+  <div class="card">
+    <div class="card-header"><span class="card-emoji">🏛️</span><span class="card-title">Hoe werkt de gemeenteraad?</span></div>
+    <p>De <strong>gemeenteraad</strong> is het belangrijkste orgaan van de gemeente. De raad wordt door de inwoners gekozen tijdens gemeenteraadsverkiezingen. In Lingewaard bestaat de gemeenteraad uit <strong>29 raadsleden</strong>, verdeeld over 9 fracties (groepen van dezelfde partij).</p>
+    <p>De gemeenteraad heeft drie hoofdtaken:</p>
+    <div class="info-block">
+      <div class="info-block-title">1️⃣ Kaders stellen</div>
+      <p>De raad bepaalt de grote lijnen: wat zijn de plannen voor de gemeente? Hoeveel geld geven we uit aan welke dingen? De raad stelt het beleid vast, een soort "regels en plannen" waar het college zich aan moet houden.</p>
+    </div>
+    <div class="info-block blue">
+      <div class="info-block-title">2️⃣ Controleren</div>
+      <p>De raad controleert het college van B&W (burgemeester en wethouders). Doen zij hun werk goed? Houden ze zich aan de afspraken? De raad kan vragen stellen, debatten voeren en zelfs een wethouder naar huis sturen als het niet goed gaat.</p>
+    </div>
+    <div class="info-block">
+      <div class="info-block-title">3️⃣ Volksvertegenwoordiging</div>
+      <p>Raadsleden vertegenwoordigen de inwoners. Ze luisteren naar wat mensen in de gemeente willen en nemen dat mee in hun beslissingen. In Lingewaard kunnen inwoners ook zelf onderwerpen aandragen via een "inwonersinitiatiefrecht".</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><span class="card-emoji">🗳️</span><span class="card-title">Verkiezingen in Lingewaard</span></div>
+    <p>Gemeenteraadsverkiezingen worden elke <strong>4 jaar</strong> gehouden. De eerstvolgende verkiezingen in Lingewaard zijn op <strong>18 maart 2026</strong>. Er doen 9 partijen mee. Iedereen die 18 jaar of ouder is en in Lingewaard woont, mag stemmen.</p>
+    <p>Het werkt zo: je krijgt een stempas thuis. Op de verkiezingsdag ga je naar een stembureau (stemlocatie) in je buurt. Je kiest één kandidaat van één partij. De partijen met de meeste stemmen krijgen de meeste zetels (plekken) in de raad. 29 zetels worden verdeeld.</p>
+
+    <div class="emoji-flow">
+      <div class="emoji-flow-item"><span class="emoji-flow-icon">📬</span><span class="emoji-flow-label">Stempas<br>ontvangen</span></div>
+      <span class="emoji-flow-arrow">→</span>
+      <div class="emoji-flow-item"><span class="emoji-flow-icon">🗳️</span><span class="emoji-flow-label">Stemmen<br>op 18 maart</span></div>
+      <span class="emoji-flow-arrow">→</span>
+      <div class="emoji-flow-item"><span class="emoji-flow-icon">📊</span><span class="emoji-flow-label">Stemmen<br>tellen</span></div>
+      <span class="emoji-flow-arrow">→</span>
+      <div class="emoji-flow-item"><span class="emoji-flow-icon">🏛️</span><span class="emoji-flow-label">Nieuwe<br>raad</span></div>
+    </div>
+
+    <div class="info-block blue">
+      <div class="info-block-title">📱 Wist je dat?</div>
+      <p>De opkomst bij gemeenteraadsverkiezingen is veel lager dan bij landelijke verkiezingen. In Lingewaard stemmen ook veel jongeren niet. De gemeente probeert jongeren te bereiken via social media en interviews. Misschien heb je zelf ook wel gezien dat de lokale politiek minder aandacht krijgt op TikTok of Instagram dan landelijke politiek.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><span class="card-emoji">✅</span><span class="card-title">Opdrachten</span></div>
+    <div class="quiz-block" data-qid="q5_1">
+      <div class="quiz-q">Vraag 1: Hoeveel raadsleden heeft de gemeenteraad van Lingewaard?</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-answer="wrong" data-hint="15 is te weinig. Lingewaard heeft bijna 48.000 inwoners, dat vraagt om meer raadsleden.">15</button>
+        <button class="quiz-opt" data-answer="correct" data-hint="">29</button>
+        <button class="quiz-opt" data-answer="wrong" data-hint="39 is te veel. De Tweede Kamer heeft 150 leden, maar dat is voor heel Nederland. Een gemeente heeft er minder nodig.">39</button>
+        <button class="quiz-opt" data-answer="wrong" data-hint="50 is veel te veel voor een gemeente van deze grootte.">50</button>
+      </div>
+      <div class="quiz-feedback"></div>
+    </div>
+
+    <div class="quiz-block" data-qid="q5_2">
+      <div class="quiz-q">Vraag 2: Wat is GEEN taak van de gemeenteraad?</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-answer="wrong" data-hint="Controleren van het college is wél een taak van de raad. Denk na: wie voert de plannen echt uit?">Het college controleren</button>
+        <button class="quiz-opt" data-answer="correct" data-hint="">Het dagelijks bestuur uitvoeren</button>
+        <button class="quiz-opt" data-answer="wrong" data-hint="Kaders stellen is juist de kerntaak van de raad.">Kaders stellen voor beleid</button>
+        <button class="quiz-opt" data-answer="wrong" data-hint="Volksvertegenwoordiging is een van de drie hoofdtaken van de raad.">Inwoners vertegenwoordigen</button>
+      </div>
+      <div class="quiz-feedback"></div>
+    </div>
+
+    <div class="open-q" data-qid="q5_3">
+      <label>Vraag 3: Leg in eigen woorden uit waarom het belangrijk is dat jongeren ook gaan stemmen bij gemeenteraadsverkiezingen. Geef minimaal twee redenen.</label>
+      <textarea placeholder="Schrijf hier je antwoord..."></textarea>
+      <div class="word-counter">0 woorden</div>
+      <div class="open-q-btns">
+        <button class="btn btn-primary show-example-btn" style="display:none;">Toon voorbeeldantwoord</button>
+      </div>
+      <div class="example-answer">
+        <strong>Voorbeeldantwoord:</strong> Het is belangrijk dat jongeren stemmen omdat de gemeente beslist over dingen die jongeren direct raken, zoals sportvoorzieningen, fietspaden naar school en jongerenplekken. Als jongeren niet stemmen, worden hun wensen niet meegenomen in beslissingen. Ten tweede: als alleen oudere mensen stemmen, wordt er ook meer beleid gemaakt dat bij hen past, en minder bij jongeren. Door te stemmen heb je invloed op je eigen leefomgeving.
+      </div>
+      <div class="self-assess">
+        <button class="btn btn-success self-good">Goed ✓</button>
+        <button class="btn btn-error self-bad">Fout ✗</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-nav-btns">
+    <button class="btn btn-outline prev-tab-btn">← Vorige</button>
+    <button class="btn btn-primary next-tab-btn">Volgende →</button>
+    <button class="reset-section-btn" data-tab="4">Reset dit onderdeel</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- TAB 6: Burgemeester & Wethouders            -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="tab-panel" id="tab-5">
+  <div class="card">
+    <div class="card-header"><span class="card-emoji">👔</span><span class="card-title">Het college van B&W</span></div>
+    <p>Naast de gemeenteraad is er het <strong>college van burgemeester en wethouders</strong> (B&W). Dit is het <strong>dagelijks bestuur</strong> van de gemeente. Als de gemeenteraad de "plannenmakers" zijn, dan is het college de "uitvoerders".</p>
+
+    <div class="info-block">
+      <div class="info-block-title">👩‍💼 De burgemeester</div>
+      <p>De burgemeester van Lingewaard is <strong>Nelly Kalfs</strong> (partijloos). De burgemeester wordt niet gekozen door inwoners, maar benoemd door de Koning, op voordracht van de minister. De burgemeester is voorzitter van de gemeenteraad én van het college. Belangrijke taken zijn: openbare orde en veiligheid, communicatie, en juridische zaken. De burgemeester is een soort "scheidsrechter" die ervoor zorgt dat de democratie goed werkt.</p>
+    </div>
+    <div class="info-block blue">
+      <div class="info-block-title">🧑‍💼 De wethouders</div>
+      <p>Lingewaard heeft <strong>4 wethouders</strong>. Wethouders worden gekozen door de gemeenteraad aan het begin van een nieuwe periode. Elke wethouder heeft een eigen "portefeuille" — een pakket van taken. Bijvoorbeeld:</p>
+      <p>• Eén wethouder gaat over wonen en economie<br>
+      • Eén over financiën en onderwijs<br>
+      • Eén over zorg, jeugdhulp en sport<br>
+      • Eén over duurzaamheid en openbare ruimte</p>
+    </div>
+
+    <div class="emoji-flow">
+      <div class="emoji-flow-item"><span class="emoji-flow-icon">👥</span><span class="emoji-flow-label">Inwoners<br>stemmen</span></div>
+      <span class="emoji-flow-arrow">→</span>
+      <div class="emoji-flow-item"><span class="emoji-flow-icon">🏛️</span><span class="emoji-flow-label">Gemeenteraad<br>(29 leden)</span></div>
+      <span class="emoji-flow-arrow">→</span>
+      <div class="emoji-flow-item"><span class="emoji-flow-icon">🤝</span><span class="emoji-flow-label">Raad kiest<br>wethouders</span></div>
+      <span class="emoji-flow-arrow">→</span>
+      <div class="emoji-flow-item"><span class="emoji-flow-icon">👔</span><span class="emoji-flow-label">College<br>voert uit</span></div>
+    </div>
+
+    <p>Het coalitieakkoord 2022-2026 van Lingewaard heet "Samen kunnen we veel aan". De coalitie bestond uit LBL, VVD, CDA en PvdA. Dat zijn de partijen die samen een meerderheid in de raad hadden en samen de wethouders leverden.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><span class="card-emoji">✅</span><span class="card-title">Opdrachten</span></div>
+
+    <div class="quiz-block" data-qid="q6_1">
+      <div class="quiz-q">Vraag 1: Wie benoemd de burgemeester?</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-answer="wrong" data-hint="De inwoners kiezen de gemeenteraad, maar niet de burgemeester. Wie benoemd de burgemeester officieel?">De inwoners via verkiezingen</button>
+        <button class="quiz-opt" data-answer="wrong" data-hint="De gemeenteraad kiest de wethouders, maar de burgemeester wordt op een andere manier benoemd.">De gemeenteraad</button>
+        <button class="quiz-opt" data-answer="correct" data-hint="">De Koning, op voordracht van de minister</button>
+        <button class="quiz-opt" data-answer="wrong" data-hint="De wethouders hebben daar geen zeggenschap over.">De wethouders</button>
+      </div>
+      <div class="quiz-feedback"></div>
+    </div>
+
+    <div class="quiz-block" data-qid="q6_2">
+      <div class="quiz-q">Vraag 2: Wat is het verschil tussen de gemeenteraad en het college van B&W?</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-answer="correct" data-hint="">De raad stelt plannen vast en controleert; het college voert uit</button>
+        <button class="quiz-opt" data-answer="wrong" data-hint="Het is precies andersom! De raad bepaalt en het college voert uit.">Het college maakt de plannen en de raad voert ze uit</button>
+        <button class="quiz-opt" data-answer="wrong" data-hint="Er is juist een heel duidelijk verschil. De raad controleert het college.">Er is geen verschil</button>
+      </div>
+      <div class="quiz-feedback"></div>
+    </div>
+
+    <div class="open-q" data-qid="q6_3">
+      <label>Vraag 3: Stel, je wilt dat er een skatebaan komt in jouw dorp. Beschrijf stap voor stap hoe dat via de gemeente zou kunnen werken. Wie moet je benaderen? Wie beslist er uiteindelijk? (Minimaal 3 zinnen)</label>
+      <textarea placeholder="Schrijf hier je antwoord..."></textarea>
+      <div class="word-counter">0 woorden</div>
+      <div class="open-q-btns">
+        <button class="btn btn-primary show-example-btn" style="display:none;">Toon voorbeeldantwoord</button>
+      </div>
+      <div class="example-answer">
+        <strong>Voorbeeldantwoord:</strong> Als ik een skatebaan wil, zou ik eerst contact opnemen met een raadslid of een politieke partij in Lingewaard. Ik kan ook een inwonersinitiatiefrecht gebruiken om het onderwerp op de agenda van de gemeenteraad te zetten. De gemeenteraad bespreekt het plan en kan het college vragen om het uit te zoeken. Het college (de wethouders) kijkt dan of er geld en ruimte is. Uiteindelijk beslist de gemeenteraad of het doorgaat.
+      </div>
+      <div class="self-assess">
+        <button class="btn btn-success self-good">Goed ✓</button>
+        <button class="btn btn-error self-bad">Fout ✗</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-nav-btns">
+    <button class="btn btn-outline prev-tab-btn">← Vorige</button>
+    <button class="btn btn-primary next-tab-btn">Volgende →</button>
+    <button class="reset-section-btn" data-tab="5">Reset dit onderdeel</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- TAB 7: Politieke partijen in Lingewaard    -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="tab-panel" id="tab-6">
+  <div class="card">
+    <div class="card-header"><span class="card-emoji">🎭</span><span class="card-title">Politieke partijen in Lingewaard</span></div>
+    <p>Bij de gemeenteraadsverkiezingen van 2026 doen <strong>9 partijen</strong> mee in Lingewaard. Sommige zijn landelijke partijen (zoals VVD, CDA, D66), andere zijn lokale partijen die alleen in Lingewaard bestaan. Lokale partijen richten zich helemaal op de problemen en wensen van Lingewaardse inwoners.</p>
+
+    <p>Hier zijn de partijen die meedoen aan de verkiezingen van 2026:</p>
+    <table class="compare-table">
+      <tr><th>Partij</th><th>Type</th><th>Korte beschrijving</th></tr>
+      <tr><td><strong>Lingewaard.NU - B06</strong></td><td>Lokaal (fusie)</td><td>Twee lokale partijen die samen de krachten bundelen. Richten zich op lokaal bestuur en inwonersbelangen.</td></tr>
+      <tr><td><strong>Lokaal Belang Lingewaard (LBL)</strong></td><td>Lokaal</td><td>Lokale partij die opkomt voor het belang van Lingewaardse inwoners. Was coalitielid 2022-2026.</td></tr>
+      <tr><td><strong>VVD</strong></td><td>Landelijk</td><td>Liberale partij, nadruk op eigen verantwoordelijkheid, ondernemerschap en economie.</td></tr>
+      <tr><td><strong>CDA</strong></td><td>Landelijk</td><td>Christendemocratisch, nadruk op samenleving, normen en waarden, en verantwoordelijkheid.</td></tr>
+      <tr><td><strong>GroenLinks-PvdA</strong></td><td>Landelijk (fusie)</td><td>Linkse samenwerking: nadruk op duurzaamheid, sociale gelijkheid en groene politiek.</td></tr>
+      <tr><td><strong>D66</strong></td><td>Landelijk</td><td>Progressief-liberaal, nadruk op onderwijs, democratie en innovatie.</td></tr>
+      <tr><td><strong>SP</strong></td><td>Landelijk</td><td>Socialistisch: opkomen voor gewone mensen, tegen ongelijkheid.</td></tr>
+      <tr><td><strong>Forum voor Democratie</strong></td><td>Landelijk</td><td>Conservatief-nationalistisch, kritisch op EU en immigratie.</td></tr>
+      <tr><td><strong>Blanco</strong></td><td>Lokaal</td><td>Onafhankelijke kandidaat.</td></tr>
+    </table>
+
+    <div class="info-block">
+      <div class="info-block-title">💡 Lokaal vs. landelijk</div>
+      <p>Het verschil tussen lokale en landelijke partijen is belangrijk. Een landelijke partij als de VVD heeft een programma voor heel Nederland, maar past het toe op Lingewaard. Een lokale partij als LBL richt zich alleen op wat Lingewaard nodig heeft, zonder landelijke partijlijnen.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><span class="card-emoji">✅</span><span class="card-title">Opdrachten</span></div>
+
+    <div class="quiz-block" data-qid="q7_1">
+      <div class="quiz-q">Vraag 1: Hoeveel partijen doen mee aan de gemeenteraadsverkiezingen van 2026 in Lingewaard?</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-answer="wrong" data-hint="Dat is te weinig. Kijk nog eens naar de tabel hierboven.">5</button>
+        <button class="quiz-opt" data-answer="correct" data-hint="">9</button>
+        <button class="quiz-opt" data-answer="wrong" data-hint="Dat is te veel. Er doen er minder mee op lokaal niveau dan op landelijk niveau.">15</button>
+      </div>
+      <div class="quiz-feedback"></div>
+    </div>
+
+    <div class="quiz-block" data-qid="q7_2">
+      <div class="quiz-q">Vraag 2: Wat is een lokale partij?</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-answer="wrong" data-hint="Dat klopt niet. Lokale partijen bestaan juist alleen in een bepaalde gemeente.">Een partij die in heel Nederland meedoet</button>
+        <button class="quiz-opt" data-answer="correct" data-hint="">Een partij die alleen in één gemeente actief is</button>
+        <button class="quiz-opt" data-answer="wrong" data-hint="Lokale partijen zijn heel normaal en doen mee aan echte verkiezingen.">Een partij die niet serieus wordt genomen</button>
+      </div>
+      <div class="quiz-feedback"></div>
+    </div>
+
+    <div class="open-q" data-qid="q7_3">
+      <label>Vraag 3: Wat is volgens jou een voordeel van een lokale partij (zoals LBL) ten opzichte van een landelijke partij (zoals VVD)? En wat is een nadeel? Schrijf minimaal 3 zinnen.</label>
+      <textarea placeholder="Schrijf hier je antwoord..."></textarea>
+      <div class="word-counter">0 woorden</div>
+      <div class="open-q-btns">
+        <button class="btn btn-primary show-example-btn" style="display:none;">Toon voorbeeldantwoord</button>
+      </div>
+      <div class="example-answer">
+        <strong>Voorbeeldantwoord:</strong> Een voordeel van een lokale partij is dat ze zich helemaal richten op problemen in Lingewaard. Ze hoeven geen rekening te houden met een landelijk partijprogramma en kunnen doen wat het beste is voor de inwoners hier. Een nadeel kan zijn dat een lokale partij minder ervaring en minder geld heeft dan een grote landelijke partij. Ook heeft een lokale partij geen steun van Kamerleden in Den Haag die eventueel extra druk kunnen uitoefenen.
+      </div>
+      <div class="self-assess">
+        <button class="btn btn-success self-good">Goed ✓</button>
+        <button class="btn btn-error self-bad">Fout ✗</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-nav-btns">
+    <button class="btn btn-outline prev-tab-btn">← Vorige</button>
+    <button class="btn btn-primary next-tab-btn">Volgende →</button>
+    <button class="reset-section-btn" data-tab="6">Reset dit onderdeel</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- TAB 8: Standpunten vergelijken             -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="tab-panel" id="tab-7">
+  <div class="card">
+    <div class="card-header"><span class="card-emoji">⚖️</span><span class="card-title">Standpunten vergelijken: Wonen in Lingewaard</span></div>
+    <p>Een belangrijk thema in Lingewaard is <strong>wonen</strong>. Er is een woningtekort: veel mensen willen in Lingewaard wonen, maar er zijn niet genoeg huizen. Hoe gaan verschillende partijen hiermee om? Laten we twee partijen vergelijken op dit thema.</p>
+
+    <div class="info-block">
+      <div class="info-block-title">🏠 Lokaal Belang Lingewaard (LBL)</div>
+      <p><strong>Standpunt wonen:</strong> LBL wil dat er meer betaalbare woningen komen, vooral voor starters en jonge gezinnen. Ze vinden het belangrijk dat er gebouwd wordt, maar ook dat het groene karakter van de dorpen behouden blijft. Ze willen dat inwoners meer inspraak krijgen over bouwplannen in hun buurt.</p>
+    </div>
+    <div class="info-block blue">
+      <div class="info-block-title">🏡 GroenLinks-PvdA</div>
+      <p><strong>Standpunt wonen:</strong> GroenLinks-PvdA wil ook meer woningen, maar legt extra nadruk op duurzaam bouwen (energiezuinig, goed geïsoleerd). Ze willen meer sociale huurwoningen en vinden dat rijkere inwoners niet altijd voorrang mogen krijgen. Ze zijn ook voor meer groen in nieuwbouwwijken.</p>
+    </div>
+
+    <table class="compare-table">
+      <tr><th>Aspect</th><th>LBL</th><th>GroenLinks-PvdA</th></tr>
+      <tr><td>Meer bouwen?</td><td>Ja, maar dorps karakter bewaken</td><td>Ja, maar duurzaam en groen</td></tr>
+      <tr><td>Focus doelgroep</td><td>Starters en jonge gezinnen</td><td>Sociale huur, lagere inkomens</td></tr>
+      <tr><td>Inspraak inwoners</td><td>Zeer belangrijk</td><td>Belangrijk</td></tr>
+      <tr><td>Duurzaamheid</td><td>Mee eens, geen topprioriteit</td><td>Topprioriteit</td></tr>
+      <tr><td>Groen in wijken</td><td>Behouden wat er is</td><td>Meer groen toevoegen</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><span class="card-emoji">📱</span><span class="card-title">Stel je voor...</span></div>
+    <p>Stel: er komt een Instagrambericht van de gemeente: <em>"Er komt een plan voor 200 nieuwe woningen op een weiland bij Haalderen. Wat vind jij?"</em> LBL zou reageren: "Prima, maar luister goed naar de inwoners van Haalderen!" GroenLinks-PvdA zou zeggen: "Goed, maar maak ze energiezuinig en plant bomen in de wijk!"</p>
+    <p>Zie je het verschil? Beide partijen willen woningen, maar ze leggen andere accenten.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><span class="card-emoji">✅</span><span class="card-title">Opdrachten</span></div>
+
+    <div class="quiz-block" data-qid="q8_1">
+      <div class="quiz-q">Vraag 1: Wat is het grootste verschil tussen LBL en GroenLinks-PvdA op het thema wonen?</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-answer="wrong" data-hint="Beide partijen willen wel bouwen. Het verschil zit in waar ze de nadruk op leggen.">LBL wil helemaal niet bouwen</button>
+        <button class="quiz-opt" data-answer="correct" data-hint="">LBL legt nadruk op inspraak en dorps karakter; GroenLinks-PvdA op duurzaamheid en sociale huur</button>
+        <button class="quiz-opt" data-answer="wrong" data-hint="Dat klopt niet. Kijk nog eens naar de vergelijkingstabel.">GroenLinks-PvdA is tegen nieuwbouw</button>
+      </div>
+      <div class="quiz-feedback"></div>
+    </div>
+
+    <div class="open-q" data-qid="q8_2">
+      <label>Vraag 2: Vergelijk de standpunten van LBL en GroenLinks-PvdA op het thema wonen. Noem minstens één overeenkomst en één verschil. Geef ook aan welke partij jij meer aanspreekt op dit thema en waarom. (Minimaal 4 zinnen)</label>
+      <textarea placeholder="Schrijf hier je antwoord..."></textarea>
+      <div class="word-counter">0 woorden</div>
+      <div class="open-q-btns">
+        <button class="btn btn-primary show-example-btn" style="display:none;">Toon voorbeeldantwoord</button>
+      </div>
+      <div class="example-answer">
+        <strong>Voorbeeldantwoord:</strong> Een overeenkomst is dat beide partijen vinden dat er meer woningen moeten komen in Lingewaard. Een verschil is dat LBL vooral vindt dat inwoners inspraak moeten hebben en dat het dorpse karakter bewaard moet blijven, terwijl GroenLinks-PvdA de nadruk legt op duurzaam en groen bouwen. Ik zou zelf meer kiezen voor GroenLinks-PvdA, omdat ik duurzaamheid belangrijk vind en het goed vind als er meer bomen komen in nieuwe wijken. Maar ik snap ook dat LBL vindt dat inwoners gehoord moeten worden, want die wonen er straks naast.
+      </div>
+      <div class="self-assess">
+        <button class="btn btn-success self-good">Goed ✓</button>
+        <button class="btn btn-error self-bad">Fout ✗</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-nav-btns">
+    <button class="btn btn-outline prev-tab-btn">← Vorige</button>
+    <button class="btn btn-primary next-tab-btn">Volgende →</button>
+    <button class="reset-section-btn" data-tab="7">Reset dit onderdeel</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- TAB 9: Data & grafiek                      -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="tab-panel" id="tab-8">
+  <div class="card">
+    <div class="card-header"><span class="card-emoji">📈</span><span class="card-title">Lingewaard in cijfers</span></div>
+    <p>Een goede manier om je gemeente te begrijpen is door naar data te kijken. Hieronder zie je een grafiek met het aantal inwoners van Lingewaard door de jaren heen. De gemeente groeit! In 1995 waren er nog geen 39.000 inwoners, in 2026 zijn het er bijna 48.000.</p>
+    <p>Die groei betekent ook meer druk op woningen, wegen, scholen en voorzieningen. Dat verklaart waarom wonen zo'n groot thema is in de lokale politiek.</p>
+
+    <div class="chart-wrap"><canvas id="chart1"></canvas></div>
+
+    <p>De grafiek laat zien dat de bevolking bijna elk jaar is gegroeid. Dat komt door nieuwe woningen, gezinsvorming en mensen die vanuit de steden (Arnhem, Nijmegen) naar de rustigere dorpen van Lingewaard verhuizen.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><span class="card-emoji">🏘️</span><span class="card-title">Woningen in Lingewaard</span></div>
+    <p>Lingewaard heeft ongeveer <strong>20.500 woningen</strong>. Maar liefst <strong>73%</strong> daarvan is een koopwoning. De gemiddelde WOZ-waarde (de geschatte waarde van een huis) is <strong>€415.000</strong>. Dat is best hoog! Voor jongere mensen die net beginnen met werken is het daarom lastig om een huis te kopen in Lingewaard.</p>
+
+    <div class="chart-wrap"><canvas id="chart2"></canvas></div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><span class="card-emoji">✅</span><span class="card-title">Opdrachten bij de data</span></div>
+
+    <div class="quiz-block" data-qid="q9_1">
+      <div class="quiz-q">Vraag 1: Hoeveel inwoners zijn er ongeveer bijgekomen in Lingewaard tussen 1995 en 2026?</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-answer="wrong" data-hint="Dat is te weinig. Kijk naar het verschil tussen 39.000 en 48.000.">Ongeveer 2.000</button>
+        <button class="quiz-opt" data-answer="correct" data-hint="">Ongeveer 9.000</button>
+        <button class="quiz-opt" data-answer="wrong" data-hint="Dat is te veel. Lingewaard is niet zó snel gegroeid.">Ongeveer 25.000</button>
+      </div>
+      <div class="quiz-feedback"></div>
+    </div>
+
+    <div class="quiz-block" data-qid="q9_2">
+      <div class="quiz-q">Vraag 2: Welk percentage van de woningen in Lingewaard is een koopwoning?</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-answer="wrong" data-hint="Dat is te laag. Kijk naar de taartgrafiek hierboven.">40%</button>
+        <button class="quiz-opt" data-answer="correct" data-hint="">73%</button>
+        <button class="quiz-opt" data-answer="wrong" data-hint="Dat is te hoog. Er zijn ook huurwoningen in Lingewaard.">95%</button>
+      </div>
+      <div class="quiz-feedback"></div>
+    </div>
+
+    <div class="open-q" data-qid="q9_3">
+      <label>Vraag 3: Bekijk de groei van Lingewaard. Waarom leidt bevolkingsgroei tot politieke discussie? Noem minstens twee gevolgen van groei en leg uit waarom partijen het daar niet altijd over eens zijn. (Minimaal 3 zinnen)</label>
+      <textarea placeholder="Schrijf hier je antwoord..."></textarea>
+      <div class="word-counter">0 woorden</div>
+      <div class="open-q-btns">
+        <button class="btn btn-primary show-example-btn" style="display:none;">Toon voorbeeldantwoord</button>
+      </div>
+      <div class="example-answer">
+        <strong>Voorbeeldantwoord:</strong> Als er meer mensen komen wonen, zijn er meer huizen nodig. Dat kan betekenen dat er gebouwd moet worden op plekken waar nu nog natuur of weilanden zijn. Sommige partijen vinden dat prima, andere willen juist het groen beschermen. Ook hebben meer inwoners meer verkeer tot gevolg, waardoor wegen drukker worden. Partijen zijn het er niet over eens omdat ze andere prioriteiten hebben: de ene partij vindt woningen bouwen belangrijker, de andere vindt natuur en leefbaarheid belangrijker.
+      </div>
+      <div class="self-assess">
+        <button class="btn btn-success self-good">Goed ✓</button>
+        <button class="btn btn-error self-bad">Fout ✗</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-nav-btns">
+    <button class="btn btn-outline prev-tab-btn">← Vorige</button>
+    <button class="btn btn-primary next-tab-btn">Volgende →</button>
+    <button class="reset-section-btn" data-tab="8">Reset dit onderdeel</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- TAB 10: Eigen mening formuleren            -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="tab-panel" id="tab-9">
+  <div class="card">
+    <div class="card-header"><span class="card-emoji">💬</span><span class="card-title">Je eigen mening onderbouwen</span></div>
+    <p>In de politiek draait het niet alleen om feiten, maar ook om <strong>meningen</strong>. Maar een goede mening is meer dan "ik vind dit" — je moet je mening kunnen <strong>onderbouwen</strong> met argumenten. En een echt sterke mening houdt ook rekening met een <strong>tegenargument</strong>: een reden waarom iemand anders het niet met je eens zou zijn.</p>
+    <p>Dit is een belangrijke vaardigheid, niet alleen voor school maar ook in het dagelijks leven. Of je nu een discussie hebt op social media, een werkstuk schrijft, of later zelf gaat stemmen: je mening goed kunnen uitleggen is superbelangrijk.</p>
+
+    <div class="info-block">
+      <div class="info-block-title">🧱 Bouwstenen van een goede mening</div>
+      <p><strong>Stap 1:</strong> Formuleer je standpunt ("Ik vind dat...")<br>
+      <strong>Stap 2:</strong> Geef argument 1 ("Want...")<br>
+      <strong>Stap 3:</strong> Geef argument 2 ("Bovendien...")<br>
+      <strong>Stap 4:</strong> Noem een tegenargument ("Anderen zeggen dat... maar...")</p>
+    </div>
+
+    <div class="emoji-flow">
+      <div class="emoji-flow-item"><span class="emoji-flow-icon">🎯</span><span class="emoji-flow-label">Standpunt</span></div>
+      <span class="emoji-flow-arrow">+</span>
+      <div class="emoji-flow-item"><span class="emoji-flow-icon">💪</span><span class="emoji-flow-label">Argument 1</span></div>
+      <span class="emoji-flow-arrow">+</span>
+      <div class="emoji-flow-item"><span class="emoji-flow-icon">💪</span><span class="emoji-flow-label">Argument 2</span></div>
+      <span class="emoji-flow-arrow">+</span>
+      <div class="emoji-flow-item"><span class="emoji-flow-icon">🤔</span><span class="emoji-flow-label">Tegenargument</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><span class="card-emoji">📋</span><span class="card-title">Voorbeeld: social media en de gemeente</span></div>
+    <p>Hier is een voorbeeld van een goed onderbouwde mening:</p>
+    <div class="info-block blue">
+      <p><strong>Standpunt:</strong> "Ik vind dat de gemeente Lingewaard meer moet doen op social media om jongeren te bereiken."</p>
+      <p><strong>Argument 1:</strong> "Want de opkomst van jongeren bij gemeenteraadsverkiezingen is laag, en via TikTok en Instagram kun je ze wél bereiken."</p>
+      <p><strong>Argument 2:</strong> "Bovendien maken jongeren dagelijks gebruik van gemeentevoorzieningen, dus ze hebben recht op informatie die bij hen past."</p>
+      <p><strong>Tegenargument:</strong> "Anderen zeggen dat social media niet geschikt is voor serieuze politiek. Maar ik denk dat je de taal kunt aanpassen zonder de inhoud simpeler te maken."</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><span class="card-emoji">✅</span><span class="card-title">Opdrachten</span></div>
+
+    <div class="quiz-block" data-qid="q10_1">
+      <div class="quiz-q">Vraag 1: Wat hoort er bij een goed onderbouwde mening?</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-answer="wrong" data-hint="'Ik vind het stom' is geen onderbouwing. Een mening heeft argumenten nodig.">Alleen zeggen wat je vindt</button>
+        <button class="quiz-opt" data-answer="wrong" data-hint="Argumenten zijn belangrijk, maar een sterke mening houdt ook rekening met andersdenkenden.">Een standpunt met twee argumenten</button>
+        <button class="quiz-opt" data-answer="correct" data-hint="">Een standpunt, twee argumenten én een tegenargument</button>
+      </div>
+      <div class="quiz-feedback"></div>
+    </div>
+
+    <div class="open-q" data-qid="q10_2">
+      <label>Vraag 2: Kies een van deze stellingen over Lingewaard en schrijf een onderbouwde mening met minimaal 2 argumenten en 1 tegenargument:<br><br>
+      A) "Er moeten meer woningen gebouwd worden in Lingewaard, ook als dat ten koste gaat van groen."<br>
+      B) "De gemeente moet meer geld uitgeven aan voorzieningen voor jongeren."<br>
+      C) "De gemeente moet actiever zijn op social media."<br><br>
+      (Minimaal 5 zinnen)</label>
+      <textarea placeholder="Schrijf hier je onderbouwde mening..."></textarea>
+      <div class="word-counter">0 woorden</div>
+      <div class="open-q-btns">
+        <button class="btn btn-primary show-example-btn" style="display:none;">Toon voorbeeldantwoord</button>
+      </div>
+      <div class="example-answer">
+        <strong>Voorbeeldantwoord (stelling B):</strong> Ik vind dat de gemeente meer geld moet uitgeven aan voorzieningen voor jongeren. Mijn eerste argument is dat er in veel dorpen van Lingewaard weinig te doen is voor jongeren: er zijn geen hangplekken, geen skateparken en weinig activiteiten buiten sportclubs. Mijn tweede argument is dat als jongeren meer voorzieningen hebben, ze zich meer verbonden voelen met hun gemeente en misschien ook meer interesse krijgen in lokale politiek. Een tegenargument is dat de gemeente ook geld nodig heeft voor andere dingen, zoals zorg voor ouderen en onderhoud van wegen. Toch denk ik dat investeren in jongeren op lange termijn juist geld bespaart, omdat jongeren die zich gezien voelen minder overlast veroorzaken.
+      </div>
+      <div class="self-assess">
+        <button class="btn btn-success self-good">Goed ✓</button>
+        <button class="btn btn-error self-bad">Fout ✗</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-nav-btns">
+    <button class="btn btn-outline prev-tab-btn">← Vorige</button>
+    <button class="btn btn-primary next-tab-btn">Volgende →</button>
+    <button class="reset-section-btn" data-tab="9">Reset dit onderdeel</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- TAB 11: Scenario / Case                    -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="tab-panel" id="tab-10">
+  <div class="card">
+    <div class="card-header"><span class="card-emoji">📖</span><span class="card-title">Case: het jongerenpark in Bemmel</span></div>
+    <p>Lees het volgende scenario goed door en beantwoord de vragen.</p>
+
+    <div class="info-block">
+      <div class="info-block-title">📱 Het verhaal</div>
+      <p>Op Instagram verschijnt een bericht van een groep jongeren uit Bemmel. Ze hebben een plan gemaakt voor een "Jongerenpark" met een skatebaan, picknicktafels, wifi en een podium voor kleine optredens. Ze hebben al 500 handtekeningen verzameld via een online petitie.</p>
+      <p>De gemeenteraad bespreekt het plan. LBL is enthousiast: "Dit is precies wat inwoners willen, laten we het doen!" GroenLinks-PvdA vindt het goed, maar wil dat het park duurzaam wordt gebouwd met veel groen. De VVD twijfelt: "Wie betaalt dit? We moeten niet te veel belastinggeld uitgeven." Het CDA wil dat er ook aandacht is voor overlast: "Omwonenden moeten niet last hebben van lawaai."</p>
+      <p>De burgemeester stelt voor om een inwonersavond te organiseren waar jongeren en omwonenden samen kunnen praten. De wethouder van sport en cultuur gaat uitzoeken hoeveel het kost.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><span class="card-emoji">✅</span><span class="card-title">Vragen bij de case</span></div>
+
+    <div class="quiz-block" data-qid="q11_1">
+      <div class="quiz-q">Vraag 1: Wie beslist uiteindelijk of het Jongerenpark er komt?</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-answer="wrong" data-hint="De burgemeester heeft wel een belangrijke rol, maar beslist niet alleen. Wie neemt de besluiten in de gemeente?">De burgemeester</button>
+        <button class="quiz-opt" data-answer="correct" data-hint="">De gemeenteraad</button>
+        <button class="quiz-opt" data-answer="wrong" data-hint="De wethouder voert uit, maar de beslissing ligt ergens anders.">De wethouder</button>
+        <button class="quiz-opt" data-answer="wrong" data-hint="De jongeren kunnen het voorstel indienen, maar beslissen niet zelf.">De jongeren die de petitie hebben gestart</button>
+      </div>
+      <div class="quiz-feedback"></div>
+    </div>
+
+    <div class="quiz-block" data-qid="q11_2">
+      <div class="quiz-q">Vraag 2: Welke rol speelt de wethouder in dit verhaal?</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-answer="wrong" data-hint="Beslissen doet de gemeenteraad, niet de wethouder.">De wethouder beslist of het doorgaat</button>
+        <button class="quiz-opt" data-answer="correct" data-hint="">De wethouder zoekt uit hoeveel het kost (uitvoerende rol)</button>
+        <button class="quiz-opt" data-answer="wrong" data-hint="De wethouder is onderdeel van het college, niet van de oppositie.">De wethouder is tegen het plan</button>
+      </div>
+      <div class="quiz-feedback"></div>
+    </div>
+
+    <div class="open-q" data-qid="q11_3">
+      <label>Vraag 3: Schrijf een kort stukje (minimaal 5 zinnen) waarin je de burgemeester adviseert. Moet het Jongerenpark er komen? Gebruik de structuur: standpunt + 2 argumenten + 1 tegenargument.</label>
+      <textarea placeholder="Schrijf hier je advies..."></textarea>
+      <div class="word-counter">0 woorden</div>
+      <div class="open-q-btns">
+        <button class="btn btn-primary show-example-btn" style="display:none;">Toon voorbeeldantwoord</button>
+      </div>
+      <div class="example-answer">
+        <strong>Voorbeeldantwoord:</strong> Ik adviseer de burgemeester om het Jongerenpark te laten bouwen. Mijn eerste argument is dat 500 handtekeningen laten zien dat er grote behoefte aan is onder jongeren. Als de gemeente luistert naar haar inwoners, versterkt dat het vertrouwen in de democratie. Mijn tweede argument is dat een jongerenpark kan helpen om overlast op andere plekken te verminderen, omdat jongeren dan een eigen plek hebben. Een tegenargument is dat omwonenden last kunnen hebben van geluid. Maar dit kan opgelost worden door goede afspraken over openingstijden en door het park niet direct naast woningen te plaatsen.
+      </div>
+      <div class="self-assess">
+        <button class="btn btn-success self-good">Goed ✓</button>
+        <button class="btn btn-error self-bad">Fout ✗</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-nav-btns">
+    <button class="btn btn-outline prev-tab-btn">← Vorige</button>
+    <button class="btn btn-primary next-tab-btn">Volgende →</button>
+    <button class="reset-section-btn" data-tab="10">Reset dit onderdeel</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- TAB 12: Afsluiting & reflectie             -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="tab-panel" id="tab-11">
+  <div class="card">
+    <div class="card-header"><span class="card-emoji">🏆</span><span class="card-title">Afsluiting — Wat heb je geleerd?</span></div>
+    <p>Gefeliciteerd, je bent bijna klaar met de les! Laten we even terugkijken op wat je hebt geleerd.</p>
+
+    <div class="info-block">
+      <div class="info-block-title">🎯 Leerdoel 1: Drie bestuurslagen</div>
+      <p>Je weet nu dat Nederland wordt bestuurd op drie niveaus: Rijk, provincie en gemeente. De gemeente staat het dichtst bij jou en regelt dingen als afval, wegen, zorg en sport.</p>
+    </div>
+    <div class="info-block blue">
+      <div class="info-block-title">🎯 Leerdoel 2: Gemeenteraad en college</div>
+      <p>Je weet hoe de gemeenteraad wordt gekozen, dat die uit 29 leden bestaat in Lingewaard, en dat het college van B&W het dagelijks bestuur uitvoert. Burgemeester Nelly Kalfs leidt dat college.</p>
+    </div>
+    <div class="info-block">
+      <div class="info-block-title">🎯 Leerdoel 3: Partijen vergelijken</div>
+      <p>Je hebt geleerd hoe je standpunten van partijen kunt vergelijken, bijvoorbeeld LBL en GroenLinks-PvdA op het thema wonen.</p>
+    </div>
+    <div class="info-block blue">
+      <div class="info-block-title">🎯 Leerdoel 4: Eigen mening</div>
+      <p>Je kunt nu een mening onderbouwen met argumenten en een tegenargument benoemen.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><span class="card-emoji">📊</span><span class="card-title">Jouw eindscore</span></div>
+    <p id="finalScoreText">Je hebt de les nog niet afgerond. Maak alle onderdelen om je score te zien.</p>
+    <div id="finalScoreBar" style="display:none;">
+      <div class="progress-bar-bg" style="height:16px;">
+        <div class="progress-bar-fill" id="finalFill" style="width:0%;height:100%;"></div>
+      </div>
+      <p style="margin-top:0.5rem;font-weight:700;font-size:1.1rem;color:var(--clr-primary);" id="finalPercent"></p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><span class="card-emoji">🪞</span><span class="card-title">Reflectievragen</span></div>
+
+    <div class="open-q" data-qid="q12_1">
+      <label>Wat vond je het lastigst in deze les en waarom?</label>
+      <textarea placeholder="Schrijf hier je antwoord..."></textarea>
+      <div class="word-counter">0 woorden</div>
+      <div class="open-q-btns">
+        <button class="btn btn-primary show-example-btn" style="display:none;">Toon voorbeeldantwoord</button>
+      </div>
+      <div class="example-answer">
+        <strong>Voorbeeld:</strong> Ik vond het het lastigst om een tegenargument te bedenken, want als je ergens van overtuigd bent, is het moeilijk om te bedenken waarom iemand anders er anders over zou denken. Maar het hielp om te bedenken wat een vriend of familielid zou zeggen.
+      </div>
+      <div class="self-assess">
+        <button class="btn btn-success self-good">Goed ✓</button>
+        <button class="btn btn-error self-bad">Fout ✗</button>
+      </div>
+    </div>
+
+    <div class="open-q" data-qid="q12_2">
+      <label>Wat zou je een klasgenoot uitleggen over hoe de gemeente werkt?</label>
+      <textarea placeholder="Schrijf hier je antwoord..."></textarea>
+      <div class="word-counter">0 woorden</div>
+      <div class="open-q-btns">
+        <button class="btn btn-primary show-example-btn" style="display:none;">Toon voorbeeldantwoord</button>
+      </div>
+      <div class="example-answer">
+        <strong>Voorbeeld:</strong> Ik zou uitleggen dat de gemeente het dichtstbijzijnde stukje overheid is. De gemeenteraad wordt gekozen door inwoners, en die raad maakt de plannen. De burgemeester en wethouders voeren die plannen uit. Alles wat je dagelijks tegenkomt — van fietspaden tot je paspoort — regelt de gemeente.
+      </div>
+      <div class="self-assess">
+        <button class="btn btn-success self-good">Goed ✓</button>
+        <button class="btn btn-error self-bad">Fout ✗</button>
+      </div>
+    </div>
+
+    <div class="open-q" data-qid="q12_3">
+      <label>Hoe zou je dit onderwerp herkennen in je eigen omgeving? Noem een concreet voorbeeld.</label>
+      <textarea placeholder="Schrijf hier je antwoord..."></textarea>
+      <div class="word-counter">0 woorden</div>
+      <div class="open-q-btns">
+        <button class="btn btn-primary show-example-btn" style="display:none;">Toon voorbeeldantwoord</button>
+      </div>
+      <div class="example-answer">
+        <strong>Voorbeeld:</strong> Als ik door Bemmel fiets, zie ik overal dingen die de gemeente regelt: het fietspad waarop ik rijd, de lantaarnpalen die 's avonds branden, de prullenbakken langs de weg, en het bord met "Welkom in Bemmel". Als er een stoeptegel scheef ligt, kan ik dat melden bij de gemeente. Dat is het onderwerp van deze les in de praktijk.
+      </div>
+      <div class="self-assess">
+        <button class="btn btn-success self-good">Goed ✓</button>
+        <button class="btn btn-error self-bad">Fout ✗</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-nav-btns">
+    <button class="btn btn-outline prev-tab-btn">← Vorige</button>
+    <div></div>
+    <button class="reset-section-btn" data-tab="11">Reset dit onderdeel</button>
+  </div>
+</div>
+
+</div><!-- end main-content -->
+
+<script>
+/* ══════════════════════════════════════════════════
+   GLOBAL STATE
+   ══════════════════════════════════════════════════ */
+const TABS = [
+  {id:0, label:'Welkom'},
+  {id:1, label:'Bestuurslagen'},
+  {id:2, label:'Kaart'},
+  {id:3, label:'Gemeentetaken'},
+  {id:4, label:'Gemeenteraad'},
+  {id:5, label:'B&W'},
+  {id:6, label:'Partijen'},
+  {id:7, label:'Vergelijken'},
+  {id:8, label:'Data'},
+  {id:9, label:'Mening'},
+  {id:10, label:'Case'},
+  {id:11, label:'Afsluiting'}
+];
+let currentTab = 0;
+let questionState = {}; // qid -> {completed, correct, attempts}
+const PREFIX = 'geo_les_';
+
+/* ══════════════════════════════════════════════════
+   LOCALSTORAGE HELPERS
+   ══════════════════════════════════════════════════ */
+function lsGet(key) {
+  try { const v = localStorage.getItem(PREFIX + key); return v ? JSON.parse(v) : null; } catch(e) { return null; }
+}
+function lsSet(key, val) {
+  try { localStorage.setItem(PREFIX + key, JSON.stringify(val)); } catch(e) {}
+}
+function lsRemove(key) {
+  try { localStorage.removeItem(PREFIX + key); } catch(e) {}
+}
+function clearAllProgress() {
+  try {
+    const keys = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k && k.startsWith(PREFIX)) keys.push(k);
+    }
+    keys.forEach(k => localStorage.removeItem(k));
+  } catch(e) {}
+  questionState = {};
+  location.reload();
+}
+
+/* ══════════════════════════════════════════════════
+   INIT TABS
+   ══════════════════════════════════════════════════ */
+function buildTabs() {
+  const nav = document.getElementById('tabNav');
+  nav.innerHTML = '';
+  TABS.forEach((t, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'tab-btn' + (i === currentTab ? ' active' : '');
+    btn.textContent = t.label;
+    const check = document.createElement('span');
+    check.className = 'tab-check';
+    check.style.display = 'none';
+    check.textContent = ' ✓';
+    btn.appendChild(check);
+    btn.addEventListener('click', () => switchTab(i));
+    nav.appendChild(btn);
+  });
+}
+
+function switchTab(idx) {
+  currentTab = idx;
+  document.querySelectorAll('.tab-panel').forEach((p, i) => {
+    p.classList.toggle('active', i === idx);
+  });
+  document.querySelectorAll('.tab-btn').forEach((b, i) => {
+    b.classList.toggle('active', i === idx);
+  });
+  document.getElementById('tabCounter').textContent = 'Onderdeel ' + (idx + 1) + ' van ' + TABS.length;
+  // scroll tab into view
+  const btns = document.querySelectorAll('.tab-btn');
+  if (btns[idx]) btns[idx].scrollIntoView({behavior:'smooth', inline:'center', block:'nearest'});
+  // invalidate maps
+  setTimeout(() => {
+    if (window.map1Instance) window.map1Instance.invalidateSize();
+  }, 200);
+  // init charts if on that tab
+  if (idx === 8) initCharts();
+  // init map if on tab 2
+  if (idx === 2) initMap();
+  lsSet('currentTab', idx);
+  updateFinalScore();
+}
+
+/* ══════════════════════════════════════════════════
+   PROGRESS
+   ══════════════════════════════════════════════════ */
+function getAllQuestionIds() {
+  const ids = [];
+  document.querySelectorAll('[data-qid]').forEach(el => {
+    if (!ids.includes(el.dataset.qid)) ids.push(el.dataset.qid);
+  });
+  return ids;
+}
+
+function updateProgress() {
+  const all = getAllQuestionIds();
+  const done = all.filter(qid => questionState[qid] && questionState[qid].completed);
+  const pct = all.length > 0 ? Math.round((done.length / all.length) * 100) : 0;
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressText').textContent = pct + '%';
+  // update tab checks
+  TABS.forEach((t, i) => {
+    const panel = document.getElementById('tab-' + i);
+    if (!panel) return;
+    const tabQids = [];
+    panel.querySelectorAll('[data-qid]').forEach(el => {
+      if (!tabQids.includes(el.dataset.qid)) tabQids.push(el.dataset.qid);
+    });
+    const tabDone = tabQids.length > 0 && tabQids.every(qid => questionState[qid] && questionState[qid].completed);
+    const checkEl = document.querySelectorAll('.tab-btn')[i]?.querySelector('.tab-check');
+    if (checkEl) checkEl.style.display = tabDone ? 'inline' : 'none';
+  });
+  lsSet('questionState', questionState);
+  updateFinalScore();
+}
+
+function updateFinalScore() {
+  if (currentTab !== 11) return;
+  const all = getAllQuestionIds();
+  const done = all.filter(qid => questionState[qid] && questionState[qid].completed);
+  const correct = all.filter(qid => questionState[qid] && questionState[qid].completed && questionState[qid].correct);
+  if (done.length > 0) {
+    const pct = Math.round((correct.length / all.length) * 100);
+    document.getElementById('finalScoreText').textContent = 'Je hebt ' + done.length + ' van de ' + all.length + ' opdrachten afgerond, waarvan ' + correct.length + ' goed.';
+    document.getElementById('finalScoreBar').style.display = 'block';
+    document.getElementById('finalFill').style.width = pct + '%';
+    document.getElementById('finalPercent').textContent = pct + '% correct';
+  }
+}
+
+/* ══════════════════════════════════════════════════
+   QUIZ (MULTIPLE CHOICE)
+   ══════════════════════════════════════════════════ */
+function initQuizzes() {
+  document.querySelectorAll('.quiz-block').forEach(block => {
+    const qid = block.dataset.qid;
+    if (!qid) return;
+    if (!questionState[qid]) questionState[qid] = {completed: false, correct: false, attempts: 0};
+    const opts = block.querySelectorAll('.quiz-opt');
+    const fb = block.querySelector('.quiz-feedback');
+
+    opts.forEach(opt => {
+      opt.addEventListener('click', function() {
+        if (questionState[qid].completed) return;
+        questionState[qid].attempts++;
+        const isCorrect = this.dataset.answer === 'correct';
+
+        if (isCorrect) {
+          questionState[qid].completed = true;
+          questionState[qid].correct = true;
+          this.classList.add('correct');
+          opts.forEach(o => o.disabled = true);
+          fb.className = 'quiz-feedback correct';
+          fb.textContent = '✅ Goed zo! Dat klopt helemaal!';
+          fb.style.display = 'block';
+          updateProgress();
+        } else if (questionState[qid].attempts >= 2) {
+          questionState[qid].completed = true;
+          questionState[qid].correct = false;
+          this.classList.add('wrong');
+          opts.forEach(o => {
+            o.disabled = true;
+            if (o.dataset.answer === 'correct') o.classList.add('correct');
+          });
+          fb.className = 'quiz-feedback wrong-final';
+          fb.textContent = '❌ Helaas, dat was niet goed. Het juiste antwoord is hierboven groen gemarkeerd.';
+          fb.style.display = 'block';
+          updateProgress();
+        } else {
+          this.classList.add('wrong');
+          this.disabled = true;
+          fb.className = 'quiz-feedback hint';
+          fb.textContent = '💡 ' + (this.dataset.hint || 'Probeer het nog eens!');
+          fb.style.display = 'block';
+        }
+      });
+    });
+  });
+}
+
+/* ══════════════════════════════════════════════════
+   OPEN QUESTIONS
+   ══════════════════════════════════════════════════ */
+function initOpenQuestions() {
+  document.querySelectorAll('.open-q').forEach(block => {
+    const qid = block.dataset.qid;
+    if (!qid) return;
+    if (!questionState[qid]) questionState[qid] = {completed: false, correct: false, attempts: 0};
+    const textarea = block.querySelector('textarea');
+    const counter = block.querySelector('.word-counter');
+    const showBtn = block.querySelector('.show-example-btn');
+    const exampleDiv = block.querySelector('.example-answer');
+    const selfAssess = block.querySelector('.self-assess');
+
+    textarea.addEventListener('input', function() {
+      const words = this.value.trim().split(/\s+/).filter(w => w.length > 0).length;
+      counter.textContent = words + ' woorden';
+      counter.className = 'word-counter' + (words >= 20 ? ' sufficient' : '');
+      if (words >= 20 && !questionState[qid].completed) {
+        showBtn.style.display = 'inline-flex';
+      }
+    });
+
+    showBtn.addEventListener('click', function() {
+      exampleDiv.style.display = 'block';
+      selfAssess.classList.add('show');
+      this.style.display = 'none';
+    });
+
+    const goodBtn = selfAssess.querySelector('.self-good');
+    const badBtn = selfAssess.querySelector('.self-bad');
+
+    goodBtn.addEventListener('click', function() {
+      questionState[qid].completed = true;
+      questionState[qid].correct = true;
+      textarea.disabled = true;
+      selfAssess.innerHTML = '<span style="color:var(--clr-success);font-weight:700;">✅ Goed beoordeeld!</span>';
+      updateProgress();
+    });
+
+    badBtn.addEventListener('click', function() {
+      questionState[qid].completed = true;
+      questionState[qid].correct = false;
+      textarea.disabled = true;
+      selfAssess.innerHTML = '<span style="color:var(--clr-warning);font-weight:700;">📝 Geen probleem! Lees het voorbeeldantwoord nog eens en probeer het de volgende keer.</span>';
+      updateProgress();
+    });
+  });
+}
+
+/* ══════════════════════════════════════════════════
+   DRAG & DROP SORTING
+   ══════════════════════════════════════════════════ */
+function initDragSort() {
+  document.querySelectorAll('.drag-list').forEach(list => {
+    let draggedItem = null;
+    const items = list.querySelectorAll('.drag-item');
+
+    items.forEach(item => {
+      item.addEventListener('dragstart', function(e) {
+        draggedItem = this;
+        setTimeout(() => this.classList.add('dragging'), 0);
+      });
+      item.addEventListener('dragend', function() {
+        this.classList.remove('dragging');
+        draggedItem = null;
+      });
+      item.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        if (draggedItem && draggedItem !== this) {
+          const rect = this.getBoundingClientRect();
+          const midY = rect.top + rect.height / 2;
+          if (e.clientY < midY) {
+            list.insertBefore(draggedItem, this);
+          } else {
+            list.insertBefore(draggedItem, this.nextSibling);
+          }
+        }
+      });
+    });
+  });
+
+  document.querySelectorAll('.check-sort-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const listId = this.dataset.list;
+      const list = document.getElementById(listId);
+      const qid = list.dataset.qid;
+      if (!questionState[qid]) questionState[qid] = {completed: false, correct: false, attempts: 0};
+      if (questionState[qid].completed) return;
+
+      const correct = list.dataset.correct.split(',');
+      const current = Array.from(list.querySelectorAll('.drag-item')).map(el => el.textContent.replace('☰ ', '').trim());
+      const fb = document.getElementById(listId + '-feedback');
+
+      let allCorrect = true;
+      list.querySelectorAll('.drag-item').forEach((item, i) => {
+        const text = item.textContent.replace('☰ ', '').trim();
+        if (text === correct[i]) {
+          item.classList.add('correct-pos');
+          item.classList.remove('wrong-pos');
+        } else {
+          item.classList.add('wrong-pos');
+          item.classList.remove('correct-pos');
+          allCorrect = false;
+        }
+      });
+
+      questionState[qid].attempts++;
+
+      if (allCorrect) {
+        questionState[qid].completed = true;
+        questionState[qid].correct = true;
+        fb.className = 'quiz-feedback correct';
+        fb.textContent = '✅ Perfect! De volgorde klopt!';
+        fb.style.display = 'block';
+        list.querySelectorAll('.drag-item').forEach(item => item.draggable = false);
+        updateProgress();
+      } else if (questionState[qid].attempts >= 2) {
+        questionState[qid].completed = true;
+        questionState[qid].correct = false;
+        fb.className = 'quiz-feedback wrong-final';
+        fb.textContent = '❌ De juiste volgorde is: ' + correct.join(' → ');
+        fb.style.display = 'block';
+        list.querySelectorAll('.drag-item').forEach(item => item.draggable = false);
+        updateProgress();
+      } else {
+        fb.className = 'quiz-feedback hint';
+        fb.textContent = '💡 Nog niet helemaal goed. De groene items staan op de juiste plek, de rode niet. Probeer het nog eens!';
+        fb.style.display = 'block';
+      }
+    });
+  });
+}
+
+/* ══════════════════════════════════════════════════
+   MATCHING EXERCISE
+   ══════════════════════════════════════════════════ */
+function initMatching() {
+  document.querySelectorAll('.match-container').forEach(container => {
+    const qid = container.dataset.qid;
+    const pairs = JSON.parse(container.dataset.pairs);
+    if (!questionState[qid]) questionState[qid] = {completed: false, correct: false, attempts: 0};
+
+    let selectedSource = null;
+    const made = {}; // source -> target
+    const resultEl = document.getElementById(container.id + '-result');
+
+    container.querySelectorAll('.match-item').forEach(item => {
+      item.addEventListener('click', function() {
+        if (questionState[qid].completed) return;
+
+        if (this.dataset.side === 'source') {
+          container.querySelectorAll('.match-item[data-side="source"]').forEach(s => s.classList.remove('selected'));
+          this.classList.add('selected');
+          selectedSource = this.dataset.value;
+        } else if (this.dataset.side === 'target' && selectedSource) {
+          made[selectedSource] = this.dataset.value;
+          // visual feedback
+          const srcEl = container.querySelector('.match-item[data-side="source"][data-value="' + selectedSource + '"]');
+          if (srcEl) {
+            srcEl.classList.remove('selected');
+            srcEl.classList.add('matched');
+            srcEl.style.borderColor = 'var(--clr-accent)';
+            srcEl.textContent = srcEl.textContent + ' → ' + this.dataset.value;
+          }
+          selectedSource = null;
+          // update result text
+          const doneCount = Object.keys(made).length;
+          const totalCount = Object.keys(pairs).length;
+          resultEl.textContent = doneCount + ' van ' + totalCount + ' gekoppeld';
+        }
+      });
+    });
+
+    const checkBtn = document.querySelector('.check-match-btn[data-match="' + container.id + '"]');
+    if (checkBtn) {
+      checkBtn.addEventListener('click', function() {
+        if (questionState[qid].completed) return;
+        questionState[qid].attempts++;
+
+        let correctCount = 0;
+        const totalCount = Object.keys(pairs).length;
+        Object.keys(pairs).forEach(src => {
+          if (made[src] === pairs[src]) correctCount++;
+        });
+
+        const fb = document.getElementById(container.id + '-feedback');
+
+        if (correctCount === totalCount) {
+          questionState[qid].completed = true;
+          questionState[qid].correct = true;
+          fb.className = 'quiz-feedback correct';
+          fb.textContent = '✅ Alles correct gekoppeld!';
+          fb.style.display = 'block';
+          updateProgress();
+        } else if (questionState[qid].attempts >= 2) {
+          questionState[qid].completed = true;
+          questionState[qid].correct = false;
+          fb.className = 'quiz-feedback wrong-final';
+          let answerText = 'De juiste koppelingen: ';
+          Object.keys(pairs).forEach(src => { answerText += src + ' → ' + pairs[src] + ', '; });
+          fb.textContent = '❌ ' + correctCount + '/' + totalCount + ' goed. ' + answerText;
+          fb.style.display = 'block';
+          updateProgress();
+        } else {
+          fb.className = 'quiz-feedback hint';
+          fb.textContent = '💡 ' + correctCount + ' van ' + totalCount + ' correct. Kijk nog eens goed naar de categorieën en probeer het opnieuw!';
+          fb.style.display = 'block';
+        }
+      });
+    }
+  });
+}
+
+/* ══════════════════════════════════════════════════
+   TAB NAVIGATION BUTTONS
+   ══════════════════════════════════════════════════ */
+function initNavButtons() {
+  document.querySelectorAll('.next-tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (currentTab < TABS.length - 1) switchTab(currentTab + 1);
+    });
+  });
+  document.querySelectorAll('.prev-tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (currentTab > 0) switchTab(currentTab - 1);
+    });
+  });
+}
+
+/* ══════════════════════════════════════════════════
+   RESET SECTION
+   ══════════════════════════════════════════════════ */
+function initResetButtons() {
+  document.querySelectorAll('.reset-section-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const tabIdx = parseInt(this.dataset.tab);
+      const panel = document.getElementById('tab-' + tabIdx);
+      if (!panel) return;
+
+      // collect qids in this tab
+      const qids = [];
+      panel.querySelectorAll('[data-qid]').forEach(el => {
+        if (!qids.includes(el.dataset.qid)) qids.push(el.dataset.qid);
+      });
+
+      // reset state
+      qids.forEach(qid => {
+        questionState[qid] = {completed: false, correct: false, attempts: 0};
+      });
+
+      // reset quiz blocks
+      panel.querySelectorAll('.quiz-block').forEach(block => {
+        block.querySelectorAll('.quiz-opt').forEach(opt => {
+          opt.disabled = false;
+          opt.classList.remove('correct', 'wrong');
+        });
+        const fb = block.querySelector('.quiz-feedback');
+        if (fb) { fb.style.display = 'none'; fb.className = 'quiz-feedback'; }
+      });
+
+      // reset open questions
+      panel.querySelectorAll('.open-q').forEach(block => {
+        const ta = block.querySelector('textarea');
+        if (ta) { ta.value = ''; ta.disabled = false; }
+        const wc = block.querySelector('.word-counter');
+        if (wc) { wc.textContent = '0 woorden'; wc.className = 'word-counter'; }
+        const sb = block.querySelector('.show-example-btn');
+        if (sb) sb.style.display = 'none';
+        const ea = block.querySelector('.example-answer');
+        if (ea) ea.style.display = 'none';
+        const sa = block.querySelector('.self-assess');
+        if (sa) {
+          sa.classList.remove('show');
+          sa.innerHTML = '<button class="btn btn-success self-good">Goed ✓</button><button class="btn btn-error self-bad">Fout ✗</button>';
+        }
+      });
+
+      // reset drag lists
+      panel.querySelectorAll('.drag-item').forEach(item => {
+        item.classList.remove('correct-pos', 'wrong-pos');
+        item.draggable = true;
+      });
+      panel.querySelectorAll('.drag-list').forEach(list => {
+        const fb = document.getElementById(list.id + '-feedback');
+        if (fb) { fb.style.display = 'none'; }
+      });
+
+      // reset match
+      panel.querySelectorAll('.match-container').forEach(mc => {
+        mc.querySelectorAll('.match-item').forEach(mi => {
+          mi.classList.remove('selected', 'matched');
+          mi.style.borderColor = '';
+        });
+        // restore original text (remove arrows)
+        mc.querySelectorAll('.match-item[data-side="source"]').forEach(mi => {
+          const val = mi.dataset.value;
+          const emojis = {'Fietspad repareren':'🚲','Paspoort ophalen':'📄','Jeugdhulp aanvragen':'🏥','Vuilnis ophalen':'🗑️','Sportveld onderhouden':'⚽'};
+          mi.textContent = (emojis[val] || '') + ' ' + val;
+        });
+        const res = document.getElementById(mc.id + '-result');
+        if (res) res.textContent = '';
+        const fb = document.getElementById(mc.id + '-feedback');
+        if (fb) { fb.style.display = 'none'; }
+      });
+
+      // re-init event listeners for this panel
+      reinitPanel(panel);
+      updateProgress();
+    });
+  });
+}
+
+function reinitPanel(panel) {
+  // re-attach open question listeners
+  panel.querySelectorAll('.open-q').forEach(block => {
+    const qid = block.dataset.qid;
+    const textarea = block.querySelector('textarea');
+    const counter = block.querySelector('.word-counter');
+    const showBtn = block.querySelector('.show-example-btn');
+    const exampleDiv = block.querySelector('.example-answer');
+    const selfAssess = block.querySelector('.self-assess');
+
+    // clone and replace to remove old listeners
+    const newTextarea = textarea.cloneNode(true);
+    textarea.parentNode.replaceChild(newTextarea, textarea);
+    newTextarea.addEventListener('input', function() {
+      const words = this.value.trim().split(/\s+/).filter(w => w.length > 0).length;
+      counter.textContent = words + ' woorden';
+      counter.className = 'word-counter' + (words >= 20 ? ' sufficient' : '');
+      if (words >= 20 && !questionState[qid].completed) {
+        showBtn.style.display = 'inline-flex';
+      }
+    });
+
+    const newShowBtn = showBtn.cloneNode(true);
+    showBtn.parentNode.replaceChild(newShowBtn, showBtn);
+    newShowBtn.addEventListener('click', function() {
+      exampleDiv.style.display = 'block';
+      selfAssess.classList.add('show');
+      this.style.display = 'none';
+    });
+
+    const goodBtn = selfAssess.querySelector('.self-good');
+    const badBtn = selfAssess.querySelector('.self-bad');
+    if (goodBtn) {
+      const newGood = goodBtn.cloneNode(true);
+      goodBtn.parentNode.replaceChild(newGood, goodBtn);
+      newGood.addEventListener('click', function() {
+        questionState[qid].completed = true;
+        questionState[qid].correct = true;
+        newTextarea.disabled = true;
+        selfAssess.innerHTML = '<span style="color:var(--clr-success);font-weight:700;">✅ Goed beoordeeld!</span>';
+        updateProgress();
+      });
+    }
+    if (badBtn) {
+      const newBad = badBtn.cloneNode(true);
+      badBtn.parentNode.replaceChild(newBad, badBtn);
+      newBad.addEventListener('click', function() {
+        questionState[qid].completed = true;
+        questionState[qid].correct = false;
+        newTextarea.disabled = true;
+        selfAssess.innerHTML = '<span style="color:var(--clr-warning);font-weight:700;">📝 Geen probleem!</span>';
+        updateProgress();
+      });
+    }
+  });
+
+  // re-attach quiz listeners
+  panel.querySelectorAll('.quiz-block').forEach(block => {
+    const qid = block.dataset.qid;
+    const fb = block.querySelector('.quiz-feedback');
+    block.querySelectorAll('.quiz-opt').forEach(opt => {
+      const newOpt = opt.cloneNode(true);
+      opt.parentNode.replaceChild(newOpt, opt);
+      newOpt.addEventListener('click', function() {
+        if (questionState[qid].completed) return;
+        questionState[qid].attempts++;
+        const isCorrect = this.dataset.answer === 'correct';
+        if (isCorrect) {
+          questionState[qid].completed = true;
+          questionState[qid].correct = true;
+          this.classList.add('correct');
+          block.querySelectorAll('.quiz-opt').forEach(o => o.disabled = true);
+          fb.className = 'quiz-feedback correct';
+          fb.textContent = '✅ Goed zo!';
+          fb.style.display = 'block';
+          updateProgress();
+        } else if (questionState[qid].attempts >= 2) {
+          questionState[qid].completed = true;
+          questionState[qid].correct = false;
+          this.classList.add('wrong');
+          block.querySelectorAll('.quiz-opt').forEach(o => {
+            o.disabled = true;
+            if (o.dataset.answer === 'correct') o.classList.add('correct');
+          });
+          fb.className = 'quiz-feedback wrong-final';
+          fb.textContent = '❌ Helaas. Het juiste antwoord is hierboven groen gemarkeerd.';
+          fb.style.display = 'block';
+          updateProgress();
+        } else {
+          this.classList.add('wrong');
+          this.disabled = true;
+          fb.className = 'quiz-feedback hint';
+          fb.textContent = '💡 ' + (this.dataset.hint || 'Probeer het nog eens!');
+          fb.style.display = 'block';
+        }
+      });
+    });
+  });
+}
+
+/* ══════════════════════════════════════════════════
+   MAP (Leaflet)
+   ══════════════════════════════════════════════════ */
+let mapInitialized = false;
+function initMap() {
+  if (mapInitialized) {
+    if (window.map1Instance) window.map1Instance.invalidateSize();
+    return;
+  }
+  mapInitialized = true;
+  const map = L.map('map1').setView([51.885, 5.93], 12);
+  window.map1Instance = map;
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap contributors',
+    maxZoom: 18
+  }).addTo(map);
+
+  const markers = [
+    {lat: 51.892, lng: 5.898, name: 'Bemmel', desc: 'Grootste kern, hier staat het gemeentehuis'},
+    {lat: 51.876, lng: 5.974, name: 'Huissen', desc: 'Historisch stadje met eigen karakter'},
+    {lat: 51.873, lng: 5.843, name: 'Gendt', desc: 'Dorp aan de Waal, bekend om de uiterwaarden'},
+    {lat: 51.907, lng: 5.889, name: 'Haalderen', desc: 'Klein dorp ten noorden van Bemmel'},
+    {lat: 51.888, lng: 5.952, name: 'Angeren', desc: 'Rustig dorp in het oosten van de gemeente'},
+    {lat: 51.865, lng: 5.877, name: 'Doornenburg', desc: 'Bekend om kasteel Doornenburg'},
+    {lat: 51.857, lng: 5.852, name: 'Loo', desc: 'Kleine kern bij Gendt'},
+    {lat: 51.900, lng: 5.84, name: 'Ressen', desc: 'Nieuwbouwwijk bij Nijmegen'}
+  ];
+
+  const icon = L.divIcon({
+    className: '',
+    html: '<div style="background:var(--clr-primary);color:#fff;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;box-shadow:0 2px 6px rgba(0,0,0,0.3);border:2px solid #fff;">📍</div>',
+    iconSize: [28, 28],
+    iconAnchor: [14, 14]
+  });
+
+  markers.forEach(m => {
+    L.marker([m.lat, m.lng], {icon: icon})
+      .addTo(map)
+      .bindPopup('<strong>' + m.name + '</strong><br>' + m.desc);
+  });
+
+  setTimeout(() => map.invalidateSize(), 300);
+}
+
+/* ══════════════════════════════════════════════════
+   CHARTS (Chart.js)
+   ══════════════════════════════════════════════════ */
+let chartsInitialized = false;
+function initCharts() {
+  if (chartsInitialized) return;
+  chartsInitialized = true;
+
+  // Chart 1: Population growth
+  const ctx1 = document.getElementById('chart1').getContext('2d');
+  new Chart(ctx1, {
+    type: 'line',
+    data: {
+      labels: ['1995','2000','2005','2010','2015','2020','2026'],
+      datasets: [{
+        label: 'Inwoners Lingewaard',
+        data: [38898, 41500, 44200, 45500, 46100, 47200, 47804],
+        borderColor: '#005D3E',
+        backgroundColor: 'rgba(0,93,62,0.1)',
+        fill: true,
+        tension: 0.3,
+        pointBackgroundColor: '#005D3E',
+        pointRadius: 5,
+        borderWidth: 3
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      plugins: {
+        legend: { display: true, labels: { font: { family: 'Nunito', weight: '700' } } },
+        title: { display: true, text: 'Bevolkingsgroei Lingewaard (1995–2026)', font: { family: 'Nunito', size: 14, weight: '800' } }
+      },
+      scales: {
+        y: { beginAtZero: false, min: 35000, title: { display: true, text: 'Aantal inwoners', font: { family: 'Nunito' } } }
+      }
+    }
+  });
+
+  // Chart 2: Housing types
+  const ctx2 = document.getElementById('chart2').getContext('2d');
+  new Chart(ctx2, {
+    type: 'doughnut',
+    data: {
+      labels: ['Koopwoning (73%)', 'Huurwoning (27%)'],
+      datasets: [{
+        data: [73, 27],
+        backgroundColor: ['#005D3E', '#4BA83D'],
+        borderWidth: 3,
+        borderColor: '#fff'
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      plugins: {
+        legend: { position: 'bottom', labels: { font: { family: 'Nunito', weight: '700' } } },
+        title: { display: true, text: 'Woningbezit in Lingewaard', font: { family: 'Nunito', size: 14, weight: '800' } }
+      }
+    }
+  });
+}
+
+/* ══════════════════════════════════════════════════
+   CLEAR PROGRESS
+   ══════════════════════════════════════════════════ */
+document.getElementById('clearProgressBtn').addEventListener('click', function() {
+  if (confirm('Weet je zeker dat je al je voortgang wilt wissen? Dit kan niet ongedaan gemaakt worden.')) {
+    clearAllProgress();
+  }
+});
+
+/* ══════════════════════════════════════════════════
+   INIT
+   ══════════════════════════════════════════════════ */
+window.addEventListener('DOMContentLoaded', function() {
+  // Load saved state
+  const saved = lsGet('questionState');
+  if (saved) questionState = saved;
+  const savedTab = lsGet('currentTab');
+  if (savedTab !== null) currentTab = savedTab;
+
+  buildTabs();
+  initQuizzes();
+  initOpenQuestions();
+  initDragSort();
+  initMatching();
+  initNavButtons();
+  initResetButtons();
+  switchTab(currentTab);
+  updateProgress();
+});
+</script>
+</body>
+</html>
