@@ -1,1 +1,2039 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Klimaatreis: Italië vs. Rusland</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+:root {
+  --ocean-900: #0a1628;
+  --ocean-800: #0f2440;
+  --ocean-700: #143660;
+  --ocean-600: #1a4a80;
+  --ocean-500: #2563a0;
+  --ocean-400: #3b82c4;
+  --ocean-300: #60a5e8;
+  --ocean-200: #93c5fd;
+  --ocean-100: #c8e0ff;
+  --ocean-50: #eaf3ff;
+  --sand-100: #f5f0e8;
+  --sand-200: #e8dfd0;
+  --sand-300: #d4c8b0;
+  --terra: #c47a4a;
+  --terra-light: #e8a870;
+  --italia-warm: #d4603a;
+  --italia-gold: #e8b830;
+  --russia-blue: #3a6fa0;
+  --russia-frost: #a8c8e8;
+  --success: #2d8a56;
+  --success-bg: #e8f5ee;
+  --error: #c44040;
+  --error-bg: #fde8e8;
+  --hint-bg: #fff8e0;
+  --hint-border: #e8c840;
+  --radius: 12px;
+  --radius-sm: 8px;
+  --radius-lg: 18px;
+  --shadow: 0 2px 12px rgba(10,22,40,0.08);
+  --shadow-lg: 0 8px 30px rgba(10,22,40,0.12);
+  --transition: 0.3s ease;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Nunito', sans-serif;
+  background: linear-gradient(175deg, var(--ocean-50) 0%, var(--sand-100) 40%, #fff 100%);
+  color: var(--ocean-900);
+  min-height: 100vh;
+  line-height: 1.7;
+}
+/* HEADER */
+.site-header {
+  background: linear-gradient(135deg, var(--ocean-800) 0%, var(--ocean-700) 50%, var(--ocean-600) 100%);
+  color: #fff;
+  padding: 28px 24px 18px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.site-header::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -20%;
+  width: 140%;
+  height: 200%;
+  background: radial-gradient(ellipse at 30% 50%, rgba(196,122,74,0.12) 0%, transparent 60%),
+              radial-gradient(ellipse at 70% 50%, rgba(58,111,160,0.15) 0%, transparent 60%);
+  pointer-events: none;
+}
+.site-header h1 {
+  font-size: 2rem;
+  font-weight: 900;
+  letter-spacing: -0.5px;
+  position: relative;
+}
+.site-header .subtitle {
+  font-size: 1rem;
+  font-weight: 400;
+  opacity: 0.85;
+  margin-top: 4px;
+  position: relative;
+}
+.flag-row { position: relative; font-size: 1.5rem; margin-bottom: 6px; letter-spacing: 4px; }
 
+/* PROGRESS BAR */
+.progress-wrap {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: rgba(255,255,255,0.95);
+  backdrop-filter: blur(8px);
+  padding: 10px 20px;
+  border-bottom: 1px solid var(--ocean-100);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.progress-bar-outer {
+  flex: 1;
+  height: 10px;
+  background: var(--ocean-100);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.progress-bar-inner {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--ocean-500), var(--terra));
+  border-radius: 10px;
+  transition: width 0.5s ease;
+}
+.progress-text {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--ocean-700);
+  white-space: nowrap;
+}
+
+/* TAB NAV */
+.tab-nav-wrap {
+  background: #fff;
+  border-bottom: 2px solid var(--ocean-100);
+  padding: 0 12px;
+  position: sticky;
+  top: 42px;
+  z-index: 999;
+}
+.tab-nav {
+  display: flex;
+  overflow-x: auto;
+  scrollbar-width: thin;
+  gap: 4px;
+  padding: 8px 0;
+}
+.tab-nav::-webkit-scrollbar { height: 4px; }
+.tab-nav::-webkit-scrollbar-thumb { background: var(--ocean-200); border-radius: 4px; }
+.tab-btn {
+  flex-shrink: 0;
+  padding: 8px 16px;
+  border: none;
+  background: transparent;
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--ocean-600);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: var(--transition);
+  white-space: nowrap;
+  position: relative;
+}
+.tab-btn:hover { background: var(--ocean-50); }
+.tab-btn.active {
+  background: var(--ocean-700);
+  color: #fff;
+}
+.tab-btn .tab-check {
+  font-size: 0.75rem;
+  margin-left: 4px;
+}
+.tab-counter {
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--ocean-500);
+  padding: 4px 0 2px;
+  font-weight: 600;
+}
+
+/* CONTENT */
+.tab-content { display: none; padding: 24px 16px 40px; max-width: 860px; margin: 0 auto; }
+.tab-content.active { display: block; animation: fadeIn 0.35s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+.section-title {
+  font-size: 1.5rem;
+  font-weight: 900;
+  color: var(--ocean-800);
+  margin-bottom: 6px;
+}
+.section-icon { font-size: 1.8rem; margin-bottom: 8px; display: block; }
+.section-intro {
+  font-size: 0.95rem;
+  color: var(--ocean-600);
+  margin-bottom: 20px;
+  font-weight: 600;
+}
+
+/* INFO BLOCKS */
+.info-block {
+  background: #fff;
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  margin-bottom: 20px;
+  box-shadow: var(--shadow);
+  border-left: 4px solid var(--ocean-400);
+}
+.info-block.italia { border-left-color: var(--italia-warm); background: linear-gradient(135deg, #fff 80%, #fff5ee); }
+.info-block.russia { border-left-color: var(--russia-blue); background: linear-gradient(135deg, #fff 80%, #eef5ff); }
+.info-block.combined { border-left-color: var(--terra); }
+.info-block h3 {
+  font-size: 1.15rem;
+  font-weight: 800;
+  margin-bottom: 10px;
+  color: var(--ocean-800);
+}
+.info-block p { margin-bottom: 10px; font-size: 0.93rem; }
+.info-block p:last-child { margin-bottom: 0; }
+
+/* EMOJI FLOW */
+.emoji-flow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  font-size: 1.1rem;
+  padding: 14px 18px;
+  background: var(--ocean-50);
+  border-radius: var(--radius);
+  margin: 14px 0;
+  font-weight: 600;
+}
+.emoji-flow .arrow { color: var(--ocean-400); }
+
+/* COMPARISON TABLE */
+.compare-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin: 16px 0;
+  box-shadow: var(--shadow);
+}
+.compare-table th {
+  background: var(--ocean-700);
+  color: #fff;
+  padding: 12px 14px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-align: left;
+}
+.compare-table td {
+  padding: 10px 14px;
+  font-size: 0.88rem;
+  border-bottom: 1px solid var(--ocean-50);
+  background: #fff;
+}
+.compare-table tr:last-child td { border-bottom: none; }
+.compare-table .italia-cell { background: #fff8f4; }
+.compare-table .russia-cell { background: #f4f8ff; }
+
+/* QUIZ / EXERCISE BLOCKS */
+.exercise-block {
+  background: #fff;
+  border-radius: var(--radius-lg);
+  padding: 22px;
+  margin: 20px 0;
+  box-shadow: var(--shadow);
+  border: 2px solid var(--ocean-100);
+}
+.exercise-block h4 {
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--ocean-700);
+  margin-bottom: 12px;
+}
+.exercise-block h4 .ex-icon { margin-right: 6px; }
+.mc-options { display: flex; flex-direction: column; gap: 8px; margin: 10px 0; }
+.mc-option {
+  padding: 12px 16px;
+  border: 2px solid var(--ocean-100);
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: var(--transition);
+  background: #fff;
+}
+.mc-option:hover { border-color: var(--ocean-400); background: var(--ocean-50); }
+.mc-option.selected { border-color: var(--ocean-500); background: var(--ocean-50); }
+.mc-option.correct { border-color: var(--success); background: var(--success-bg); }
+.mc-option.incorrect { border-color: var(--error); background: var(--error-bg); }
+.mc-option.locked { pointer-events: none; opacity: 0.85; }
+
+/* BUTTONS */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: var(--radius);
+  font-family: inherit;
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: var(--transition);
+}
+.btn-primary { background: var(--ocean-600); color: #fff; }
+.btn-primary:hover { background: var(--ocean-700); }
+.btn-check { background: var(--ocean-500); color: #fff; }
+.btn-check:hover { background: var(--ocean-600); }
+.btn-hint { background: var(--hint-bg); color: #8a6d00; border: 1px solid var(--hint-border); }
+.btn-small { padding: 6px 14px; font-size: 0.8rem; }
+.btn-success { background: var(--success); color: #fff; }
+.btn-error { background: var(--error); color: #fff; }
+.btn-reset-section {
+  background: transparent;
+  color: var(--ocean-500);
+  border: 1px solid var(--ocean-200);
+  padding: 6px 14px;
+  font-size: 0.78rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: 600;
+  transition: var(--transition);
+}
+.btn-reset-section:hover { background: var(--ocean-50); }
+
+/* FEEDBACK */
+.feedback {
+  padding: 12px 16px;
+  border-radius: var(--radius);
+  margin-top: 10px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  display: none;
+}
+.feedback.show { display: block; animation: fadeIn 0.3s ease; }
+.feedback.correct { background: var(--success-bg); color: var(--success); border: 1px solid #b8e0c8; }
+.feedback.incorrect { background: var(--error-bg); color: var(--error); border: 1px solid #f0c0c0; }
+.feedback.hint { background: var(--hint-bg); color: #6a5300; border: 1px solid var(--hint-border); }
+.feedback.neutral { background: var(--ocean-50); color: var(--ocean-700); border: 1px solid var(--ocean-200); }
+
+/* TEXTAREA */
+.open-textarea {
+  width: 100%;
+  min-height: 90px;
+  border: 2px solid var(--ocean-200);
+  border-radius: var(--radius);
+  padding: 12px;
+  font-family: inherit;
+  font-size: 0.9rem;
+  resize: vertical;
+  transition: var(--transition);
+  line-height: 1.6;
+}
+.open-textarea:focus { outline: none; border-color: var(--ocean-400); box-shadow: 0 0 0 3px rgba(37,99,160,0.1); }
+.word-count { font-size: 0.78rem; color: var(--ocean-400); margin-top: 4px; font-weight: 600; }
+.word-count.enough { color: var(--success); }
+
+/* SELF ASSESS */
+.self-assess { display: none; gap: 8px; margin-top: 10px; align-items: center; }
+.self-assess.show { display: flex; flex-wrap: wrap; }
+.self-assess span { font-size: 0.85rem; font-weight: 600; color: var(--ocean-600); }
+
+/* DRAG & DROP */
+.drag-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 10px 0;
+}
+.drag-item {
+  padding: 12px 16px;
+  background: #fff;
+  border: 2px solid var(--ocean-200);
+  border-radius: var(--radius);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: grab;
+  user-select: none;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.drag-item:active { cursor: grabbing; }
+.drag-item .drag-handle { color: var(--ocean-300); font-size: 1.1rem; }
+.drag-item.dragging { opacity: 0.4; border-style: dashed; }
+.drag-item.drag-over { border-color: var(--ocean-500); background: var(--ocean-50); }
+.drag-item.correct-pos { border-color: var(--success); background: var(--success-bg); }
+.drag-item.wrong-pos { border-color: var(--error); background: var(--error-bg); }
+
+/* MATCH EXERCISE */
+.match-container { display: flex; gap: 16px; flex-wrap: wrap; margin: 12px 0; }
+.match-col { flex: 1; min-width: 200px; }
+.match-col h5 { font-size: 0.85rem; font-weight: 700; color: var(--ocean-600); margin-bottom: 8px; }
+.match-item {
+  padding: 10px 14px;
+  border: 2px solid var(--ocean-200);
+  border-radius: var(--radius-sm);
+  margin-bottom: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+  background: #fff;
+}
+.match-item:hover { border-color: var(--ocean-400); }
+.match-item.selected-match { border-color: var(--ocean-500); background: var(--ocean-50); box-shadow: 0 0 0 2px rgba(37,99,160,0.2); }
+.match-item.matched { opacity: 0.7; }
+.match-pair-display {
+  margin: 8px 0;
+  padding: 8px 12px;
+  background: var(--ocean-50);
+  border-radius: var(--radius-sm);
+  font-size: 0.83rem;
+  font-weight: 600;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.match-pair-display .remove-match {
+  cursor: pointer;
+  color: var(--error);
+  font-weight: 800;
+  font-size: 1rem;
+  background: none;
+  border: none;
+  font-family: inherit;
+}
+
+/* MAP */
+.map-container { height: 400px; border-radius: var(--radius); overflow: hidden; margin: 16px 0; box-shadow: var(--shadow); }
+
+/* CHART */
+.chart-container { background: #fff; border-radius: var(--radius); padding: 16px; margin: 16px 0; box-shadow: var(--shadow); }
+.chart-container canvas { max-height: 320px; }
+
+/* NAV BUTTONS */
+.nav-buttons {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 1px solid var(--ocean-100);
+}
+.nav-buttons .left-btns { display: flex; gap: 8px; }
+
+/* REFLECTION */
+.leerdoel-check {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 14px;
+  border-radius: var(--radius);
+  margin: 8px 0;
+  background: var(--ocean-50);
+}
+.leerdoel-check .ld-icon { font-size: 1.3rem; }
+.leerdoel-check p { font-size: 0.9rem; }
+
+/* CLEAR BTN */
+.clear-progress-btn {
+  background: transparent;
+  border: 1px solid var(--error);
+  color: var(--error);
+  padding: 6px 14px;
+  border-radius: var(--radius-sm);
+  font-family: inherit;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+}
+.clear-progress-btn:hover { background: var(--error-bg); }
+
+/* SCORE DISPLAY */
+.score-display {
+  text-align: center;
+  padding: 30px;
+  background: linear-gradient(135deg, var(--ocean-700), var(--ocean-600));
+  color: #fff;
+  border-radius: var(--radius-lg);
+  margin: 20px 0;
+}
+.score-display .score-big {
+  font-size: 3rem;
+  font-weight: 900;
+}
+.score-display .score-label {
+  font-size: 1rem;
+  opacity: 0.85;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .site-header h1 { font-size: 1.5rem; }
+  .tab-content { padding: 16px 12px 30px; }
+  .info-block { padding: 18px; }
+  .exercise-block { padding: 16px; }
+  .match-container { flex-direction: column; }
+  .map-container { height: 300px; }
+}
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="flag-row">🇮🇹 ✈️ 🇷🇺</div>
+  <h1>Klimaatreis: Italië vs. Rusland</h1>
+  <p class="subtitle">HAVO 1 — Aardrijkskunde — Interactieve les (~60 min)</p>
+</header>
+
+<div class="progress-wrap">
+  <span class="progress-text" id="progressText">0% voltooid</span>
+  <div class="progress-bar-outer">
+    <div class="progress-bar-inner" id="progressBar"></div>
+  </div>
+  <button class="clear-progress-btn" id="clearProgressBtn">Wis voortgang</button>
+</div>
+
+<div class="tab-nav-wrap">
+  <div class="tab-counter" id="tabCounter">Onderdeel 1 van 9</div>
+  <div class="tab-nav" id="tabNav"></div>
+</div>
+
+<!-- ============ TAB 1: INTRODUCTIE ============ -->
+<div class="tab-content" id="tab-0" data-tab="0">
+  <span class="section-icon">✈️</span>
+  <h2 class="section-title">Welkom aan boord!</h2>
+  <p class="section-intro">Stel je voor: je stapt op het vliegtuig voor twee reizen. Eerst naar Rome, dan door naar Moskou. Wat trek je aan? Dat hangt af van het klimaat!</p>
+
+  <div class="info-block combined">
+    <h3>🌍 Wat ga je leren?</h3>
+    <p>In deze les ontdek je waarom het klimaat in Italië zo anders is dan in Rusland. Je leert over temperatuur, neerslag en de oorzaken van klimaatverschillen. Aan het einde kun je op een klimaatgrafiek aflezen welk klimaattype bij elk land hoort.</p>
+    <p>We gebruiken het thema <strong>reizen</strong> als rode draad. Elke reiziger moet het klimaat begrijpen — anders sta je met een korte broek in de sneeuw! ❄️👖</p>
+    <p>Werk alle onderdelen door in je eigen tempo. Je hebt ongeveer <strong>60 minuten</strong> nodig. Je voortgang wordt automatisch opgeslagen.</p>
+  </div>
+
+  <div class="info-block">
+    <h3>📋 Jouw leerdoelen</h3>
+    <p><strong>1.</strong> Ik kan de belangrijkste klimaatverschillen tussen Italië en Rusland benoemen aan de hand van temperatuur en neerslag.</p>
+    <p><strong>2.</strong> Ik kan uitleggen waardoor het klimaat in Italië en Rusland zo verschillend is, door ten minste twee oorzaken te noemen.</p>
+    <p><strong>3.</strong> Ik kan op een klimaatgrafiek aflezen welk klimaattype bij Italië en Rusland hoort en deze met elkaar vergelijken.</p>
+  </div>
+
+  <div class="info-block italia">
+    <h3>🇮🇹 Even kennismaken: Italië</h3>
+    <p>Italië ligt in Zuid-Europa, als een laars die in de Middellandse Zee steekt. Het land staat bekend om pizza, pasta, kunst — en heerlijk warm weer in de zomer. Miljoenen toeristen reizen elk jaar naar Italië vanwege het aangename klimaat. De zomers zijn warm en droog, de winters zijn mild en vrij nat.</p>
+    <p>Stel je voor: je loopt in juli door Rome. Het is 32°C, de zon brandt, en je zoekt schaduw bij een fontein. Dat is typisch Italiaans zomerklimaat!</p>
+  </div>
+
+  <div class="info-block russia">
+    <h3>🇷🇺 Even kennismaken: Rusland</h3>
+    <p>Rusland is het grootste land ter wereld — het strekt zich uit van Europa tot aan de Stille Oceaan. Het klimaat is heel anders dan in Italië: de winters zijn extreem koud en lang, en de zomers zijn relatief kort en mild. In Moskou kan het in januari makkelijk -15°C worden!</p>
+    <p>Stel je voor: je stapt in december uit het vliegtuig in Moskou. Alles is bedekt met sneeuw, je adem maakt wolkjes, en je bent blij dat je een dikke winterjas hebt ingepakt. Welkom in het continentale klimaat!</p>
+  </div>
+
+  <div class="exercise-block" data-exercises="intro-q1,intro-q2">
+    <h4><span class="ex-icon">✏️</span> Opdracht 1: Wat weet je al?</h4>
+    <p>Schrijf in minimaal 3 zinnen op: <strong>Wat denk je dat het grootste verschil is tussen het weer in Italië en Rusland? Heb je zelf ervaring met verschillende klimaten, bijvoorbeeld op vakantie?</strong></p>
+    <textarea class="open-textarea" id="intro-q1-text" placeholder="Schrijf hier je antwoord..."></textarea>
+    <div class="word-count" id="intro-q1-wc">0 woorden</div>
+    <button class="btn btn-check btn-small" id="intro-q1-show" style="display:none;" data-target="intro-q1">Toon voorbeeldantwoord</button>
+    <div class="feedback" id="intro-q1-fb"></div>
+    <div class="self-assess" id="intro-q1-assess">
+      <span>Hoe goed was jouw antwoord?</span>
+      <button class="btn btn-success btn-small" data-assess="intro-q1" data-val="1">Goed ✓</button>
+      <button class="btn btn-error btn-small" data-assess="intro-q1" data-val="0">Fout ✗</button>
+    </div>
+  </div>
+
+  <div class="exercise-block">
+    <h4><span class="ex-icon">🤔</span> Opdracht 2: Inpaklijst</h4>
+    <p>Je gaat volgende week naar Rome (Italië) in <strong>juli</strong>. Welk kledingstuk neem je zeker MET mee?</p>
+    <div class="mc-options" id="intro-q2-options">
+      <div class="mc-option" data-answer="a" data-question="intro-q2">A) Dikke winterjas</div>
+      <div class="mc-option" data-answer="b" data-question="intro-q2">B) Zonnebril en korte broek</div>
+      <div class="mc-option" data-answer="c" data-question="intro-q2">C) Regenbroek en thermoshirt</div>
+      <div class="mc-option" data-answer="d" data-question="intro-q2">D) Sneeuwlaarzen</div>
+    </div>
+    <div class="feedback" id="intro-q2-fb"></div>
+  </div>
+
+  <div class="nav-buttons">
+    <div class="left-btns">
+      <button class="btn-reset-section" data-reset-tab="0">🔄 Reset dit onderdeel</button>
+    </div>
+    <button class="btn btn-primary" data-nav="next">Volgende →</button>
+  </div>
+</div>
+
+<!-- ============ TAB 2: DE KAART ============ -->
+<div class="tab-content" id="tab-1" data-tab="1">
+  <span class="section-icon">🗺️</span>
+  <h2 class="section-title">De kaart: waar liggen ze?</h2>
+  <p class="section-intro">Voordat we over klimaat praten, moeten we weten wáár deze landen liggen. De ligging bepaalt namelijk heel veel!</p>
+
+  <div class="info-block">
+    <h3>📍 Ligging en breedtegraad</h3>
+    <p>Italië ligt tussen de <strong>36°N en 47°N breedtegraad</strong>. Het land wordt omringd door de Middellandse Zee, wat een enorme invloed heeft op het klimaat. De zee werkt als een soort warmwaterkruik: in de winter houdt ze de lucht relatief warm, in de zomer brengt ze verkoelende zeebries.</p>
+    <p>Rusland strekt zich uit van ongeveer <strong>41°N tot 82°N</strong>. Moskou, de hoofdstad, ligt op <strong>55°N</strong> — dat is veel noordelijker dan Rome (41°N). Bovendien ligt Moskou ver van de zee, diep in het binnenland. Daardoor mist het de matigende invloed van het water.</p>
+    <p>Vergelijk het zo: als jij in Nederland woont (52°N), zit je qua breedtegraad dichter bij Moskou dan bij Rome! Toch is het klimaat in Nederland heel anders dan in Moskou, omdat Nederland wél dicht bij de zee ligt.</p>
+  </div>
+
+  <div class="info-block">
+    <h3>🌡️ Waarom maakt ligging uit?</h3>
+    <div class="emoji-flow">
+      <span>🌞 Zonnestralen</span>
+      <span class="arrow">→</span>
+      <span>📐 Hoek van inval</span>
+      <span class="arrow">→</span>
+      <span>🌡️ Temperatuur</span>
+    </div>
+    <p>Hoe dichter bij de evenaar, hoe steiler de zonnestralen op het aardoppervlak vallen. Steile stralen verwarmen een klein oppervlak sterk. Bij de polen vallen de stralen schuin, waardoor dezelfde energie over een groter oppervlak verdeeld wordt — en het dus kouder is.</p>
+    <p>Rome ligt op 41°N en krijgt dus steilere zonnestralen dan Moskou op 55°N. Dat is een van de redenen waarom het in Italië warmer is.</p>
+    <p><strong>🤔 Denk even na:</strong> als jij vanochtend naar school fietste, hoe hoog stond de zon dan? In de zomer staat de zon hoger dan in de winter — precies hetzelfde principe!</p>
+  </div>
+
+  <div id="map1" class="map-container"></div>
+
+  <div class="exercise-block">
+    <h4><span class="ex-icon">🗺️</span> Opdracht 3: Kaart aflezen</h4>
+    <p>Bekijk de kaart hierboven. Hoeveel graden breedtegraad zit er ongeveer tussen Rome en Moskou?</p>
+    <div class="mc-options" id="map-q1-options">
+      <div class="mc-option" data-answer="a" data-question="map-q1">A) Ongeveer 5 graden</div>
+      <div class="mc-option" data-answer="b" data-question="map-q1">B) Ongeveer 14 graden</div>
+      <div class="mc-option" data-answer="c" data-question="map-q1">C) Ongeveer 30 graden</div>
+      <div class="mc-option" data-answer="d" data-question="map-q1">D) Ongeveer 50 graden</div>
+    </div>
+    <div class="feedback" id="map-q1-fb"></div>
+  </div>
+
+  <div class="exercise-block">
+    <h4><span class="ex-icon">✏️</span> Opdracht 4: Zee of binnenland?</h4>
+    <p>Leg in je eigen woorden uit (minimaal 3 zinnen): <strong>Waarom maakt het uit of een stad dicht bij de zee ligt of diep in het binnenland? Denk aan temperatuurverschillen tussen zomer en winter.</strong></p>
+    <textarea class="open-textarea" id="map-q2-text" placeholder="Schrijf hier je antwoord..."></textarea>
+    <div class="word-count" id="map-q2-wc">0 woorden</div>
+    <button class="btn btn-check btn-small" id="map-q2-show" style="display:none;" data-target="map-q2">Toon voorbeeldantwoord</button>
+    <div class="feedback" id="map-q2-fb"></div>
+    <div class="self-assess" id="map-q2-assess">
+      <span>Hoe goed was jouw antwoord?</span>
+      <button class="btn btn-success btn-small" data-assess="map-q2" data-val="1">Goed ✓</button>
+      <button class="btn btn-error btn-small" data-assess="map-q2" data-val="0">Fout ✗</button>
+    </div>
+  </div>
+
+  <div class="exercise-block">
+    <h4><span class="ex-icon">🤔</span> Opdracht 5: Welke stad?</h4>
+    <p>Een stad ligt op 55°N breedtegraad, ver van de zee, en heeft in de winter een gemiddelde temperatuur van -10°C. Over welke stad gaat het waarschijnlijk?</p>
+    <div class="mc-options" id="map-q3-options">
+      <div class="mc-option" data-answer="a" data-question="map-q3">A) Rome</div>
+      <div class="mc-option" data-answer="b" data-question="map-q3">B) Moskou</div>
+      <div class="mc-option" data-answer="c" data-question="map-q3">C) Napels</div>
+      <div class="mc-option" data-answer="d" data-question="map-q3">D) Venetië</div>
+    </div>
+    <div class="feedback" id="map-q3-fb"></div>
+  </div>
+
+  <div class="nav-buttons">
+    <div class="left-btns">
+      <button class="btn btn-primary" data-nav="prev">← Vorige</button>
+      <button class="btn-reset-section" data-reset-tab="1">🔄 Reset dit onderdeel</button>
+    </div>
+    <button class="btn btn-primary" data-nav="next">Volgende →</button>
+  </div>
+</div>
+
+<!-- ============ TAB 3: TEMPERATUUR & NEERSLAG ============ -->
+<div class="tab-content" id="tab-2" data-tab="2">
+  <span class="section-icon">🌡️</span>
+  <h2 class="section-title">Temperatuur en neerslag vergelijken</h2>
+  <p class="section-intro">Laten we de harde cijfers bekijken. Wat zeggen de temperatuur- en neerslaggegevens over het klimaat van Rome en Moskou?</p>
+
+  <div class="info-block italia">
+    <h3>🇮🇹 Klimaat in Rome</h3>
+    <p>Rome heeft een <strong>mediterraan klimaat</strong> (ook wel: zeeklimaat van de subtropen). Dit type klimaat herken je aan warme, droge zomers en milde, natte winters. De gemiddelde temperatuur in juli is rond de <strong>26°C</strong>, terwijl januari gemiddeld nog <strong>8°C</strong> is — vrij mild dus!</p>
+    <p>De neerslag in Rome valt vooral in de herfst en winter (oktober–februari). In de zomer is het juist heel droog. Per jaar valt er gemiddeld zo'n <strong>800 mm</strong> neerslag. Als je in augustus naar Rome vliegt, heb je grote kans op strakblauwe luchten en dagen zonder een druppel regen.</p>
+    <p>Dit patroon van droge, hete zomers en natte, milde winters noemen we het <strong>Cs-klimaat</strong> volgens de classificatie van Köppen.</p>
+  </div>
+
+  <div class="info-block russia">
+    <h3>🇷🇺 Klimaat in Moskou</h3>
+    <p>Moskou heeft een <strong>koudgematigd landklimaat</strong> (continentaal klimaat). Dit betekent: grote temperatuurverschillen tussen zomer en winter. De gemiddelde temperatuur in juli is <strong>19°C</strong> — best aangenaam — maar in januari zakt het kwik naar gemiddeld <strong>-8°C</strong>. Dat is een verschil van maar liefst 27 graden!</p>
+    <p>De neerslag in Moskou is vrij gelijkmatig verdeeld over het jaar, met iets meer regen in de zomer. Per jaar valt er zo'n <strong>700 mm</strong> neerslag. Een groot deel van de winterneerslag valt als sneeuw, die soms maandenlang blijft liggen.</p>
+    <p>Dit type klimaat heet het <strong>Dfb-klimaat</strong> in de Köppen-classificatie: een koud klimaat zonder droge periode, met een warme zomer.</p>
+  </div>
+
+  <div class="info-block combined">
+    <h3>📊 De cijfers naast elkaar</h3>
+    <table class="compare-table">
+      <thead>
+        <tr><th></th><th>🇮🇹 Rome</th><th>🇷🇺 Moskou</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>Gem. temp. januari</strong></td><td class="italia-cell">8°C</td><td class="russia-cell">-8°C</td></tr>
+        <tr><td><strong>Gem. temp. juli</strong></td><td class="italia-cell">26°C</td><td class="russia-cell">19°C</td></tr>
+        <tr><td><strong>Temp. verschil jan–jul</strong></td><td class="italia-cell">18°C</td><td class="russia-cell">27°C</td></tr>
+        <tr><td><strong>Jaarlijkse neerslag</strong></td><td class="italia-cell">~800 mm</td><td class="russia-cell">~700 mm</td></tr>
+        <tr><td><strong>Droogste periode</strong></td><td class="italia-cell">Zomer</td><td class="russia-cell">Winter (sneeuw)</td></tr>
+        <tr><td><strong>Köppen-code</strong></td><td class="italia-cell">Cs (mediterraan)</td><td class="russia-cell">Dfb (continentaal)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="chart-container">
+    <h3 style="font-size:1rem;font-weight:800;color:var(--ocean-800);margin-bottom:12px;">📈 Gemiddelde maandtemperatuur (°C)</h3>
+    <canvas id="tempChart"></canvas>
+  </div>
+
+  <div class="chart-container">
+    <h3 style="font-size:1rem;font-weight:800;color:var(--ocean-800);margin-bottom:12px;">🌧️ Gemiddelde maandelijkse neerslag (mm)</h3>
+    <canvas id="rainChart"></canvas>
+  </div>
+
+  <div class="exercise-block">
+    <h4><span class="ex-icon">📊</span> Opdracht 6: Grafiek aflezen</h4>
+    <p>Bekijk de temperatuurgrafiek hierboven. In welke maand is het temperatuurverschil tussen Rome en Moskou het grootst?</p>
+    <div class="mc-options" id="temp-q1-options">
+      <div class="mc-option" data-answer="a" data-question="temp-q1">A) Juli</div>
+      <div class="mc-option" data-answer="b" data-question="temp-q1">B) Januari</div>
+      <div class="mc-option" data-answer="c" data-question="temp-q1">C) April</div>
+      <div class="mc-option" data-answer="d" data-question="temp-q1">D) Oktober</div>
+    </div>
+    <div class="feedback" id="temp-q1-fb"></div>
+  </div>
+
+  <div class="exercise-block">
+    <h4><span class="ex-icon">✏️</span> Opdracht 7: Analyseer de data</h4>
+    <p>Bekijk de neerslaggrafiek en de tabel. Beantwoord in minimaal 3 zinnen: <strong>Waarin verschilt het neerslagpatroon van Rome en Moskou? Wanneer valt de meeste neerslag in elk land, en hoe kun je dat verklaren?</strong></p>
+    <textarea class="open-textarea" id="temp-q2-text" placeholder="Schrijf hier je analyse..."></textarea>
+    <div class="word-count" id="temp-q2-wc">0 woorden</div>
+    <button class="btn btn-check btn-small" id="temp-q2-show" style="display:none;" data-target="temp-q2">Toon voorbeeldantwoord</button>
+    <div class="feedback" id="temp-q2-fb"></div>
+    <div class="self-assess" id="temp-q2-assess">
+      <span>Hoe goed was jouw antwoord?</span>
+      <button class="btn btn-success btn-small" data-assess="temp-q2" data-val="1">Goed ✓</button>
+      <button class="btn btn-error btn-small" data-assess="temp-q2" data-val="0">Fout ✗</button>
+    </div>
+  </div>
+
+  <div class="exercise-block">
+    <h4><span class="ex-icon">🤔</span> Opdracht 8: Koffercheck</h4>
+    <p>Je reist in <strong>januari</strong> naar Moskou. Welke temperatuur kun je het best verwachten?</p>
+    <div class="mc-options" id="temp-q3-options">
+      <div class="mc-option" data-answer="a" data-question="temp-q3">A) Rond 5°C — koel maar oké</div>
+      <div class="mc-option" data-answer="b" data-question="temp-q3">B) Rond -8°C — flink koud!</div>
+      <div class="mc-option" data-answer="c" data-question="temp-q3">C) Rond 15°C — lekker mild</div>
+      <div class="mc-option" data-answer="d" data-question="temp-q3">D) Rond -30°C — extreme kou</div>
+    </div>
+    <div class="feedback" id="temp-q3-fb"></div>
+  </div>
+
+  <div class="nav-buttons">
+    <div class="left-btns">
+      <button class="btn btn-primary" data-nav="prev">← Vorige</button>
+      <button class="btn-reset-section" data-reset-tab="2">🔄 Reset dit onderdeel</button>
+    </div>
+    <button class="btn btn-primary" data-nav="next">Volgende →</button>
+  </div>
+</div>
+
+<!-- ============ TAB 4: OORZAKEN ============ -->
+<div class="tab-content" id="tab-3" data-tab="3">
+  <span class="section-icon">🔬</span>
+  <h2 class="section-title">Oorzaken van klimaatverschillen</h2>
+  <p class="section-intro">We weten nu dat het klimaat in Italië en Rusland enorm verschilt. Maar waarom eigenlijk? Er zijn meerdere oorzaken — laten we ze stuk voor stuk bekijken.</p>
+
+  <div class="info-block">
+    <h3>📐 Oorzaak 1: Breedteligging (afstand tot de evenaar)</h3>
+    <p>De belangrijkste reden voor temperatuurverschillen op aarde is de <strong>breedteligging</strong>. Hoe dichter bij de evenaar, hoe steiler de zonnestralen op het aardoppervlak vallen. Rome ligt op 41°N, Moskou op 55°N. Dat verschil van 14 graden breedtegraad zorgt ervoor dat Moskou structureel minder zonne-energie per vierkante meter ontvangt.</p>
+    <p>Je kunt het vergelijken met een zaklamp: als je recht naar beneden schijnt, is de lichtvlek klein en helder (veel energie op een klein oppervlak). Schijn je schuin, dan wordt de lichtvlek groter maar minder helder — dezelfde energie, maar verspreid.</p>
+    <div class="emoji-flow">
+      <span>🌞 Zon</span>
+      <span class="arrow">→</span>
+      <span>📐 Steil bij evenaar</span>
+      <span class="arrow">=</span>
+      <span>🔥 Warm</span>
+      <span>&nbsp;|&nbsp;</span>
+      <span>📐 Schuin bij pool</span>
+      <span class="arrow">=</span>
+      <span>❄️ Koud</span>
+    </div>
+    <p><strong>🤔 Denk even na:</strong> Nederland ligt op ongeveer 52°N. Dat is dichter bij Moskou dan bij Rome! Toch is het in Nederland lang niet zo koud als in Moskou in de winter. Hoe zou dat komen? (Hint: de volgende oorzaak geeft antwoord!)</p>
+  </div>
+
+  <div class="info-block">
+    <h3>🌊 Oorzaak 2: Invloed van de zee (maritiem vs. continentaal)</h3>
+    <p>Water warmt langzamer op dan land, maar koelt ook langzamer af. Dit heeft een enorm effect op het klimaat. Landen en steden aan de kust hebben daardoor <strong>mildere winters en koelere zomers</strong> dan plekken diep in het binnenland.</p>
+    <p>Rome ligt pal aan de Middellandse Zee, die werkt als een warmtebuffer. In de winter geeft de zee warmte af aan de lucht, waardoor het niet erg koud wordt. In de zomer neemt de zee juist warmte op, waardoor extreme hitte getemperd wordt (al kan het nog steeds flink warm zijn!).</p>
+    <p>Moskou daarentegen ligt ruim <strong>600 km</strong> van de dichtstbijzijnde zee. Er is geen watermassa die de temperatuur matigt. Hierdoor zijn de temperatuurverschillen tussen zomer en winter enorm: van -8°C in januari tot +19°C in juli. Dit noemen we een <strong>continentaal klimaat</strong>.</p>
+    <div class="emoji-flow">
+      <span>🌊 Zee</span>
+      <span class="arrow">→</span>
+      <span>🌡️ Dempt extremen</span>
+      <span class="arrow">→</span>
+      <span>😌 Mild klimaat</span>
+    </div>
+    <div class="emoji-flow">
+      <span>🏔️ Binnenland</span>
+      <span class="arrow">→</span>
+      <span>🌡️ Geen demping</span>
+      <span class="arrow">→</span>
+      <span>🥶🥵 Grote verschillen</span>
+    </div>
+  </div>
+
+  <div class="info-block">
+    <h3>💨 Oorzaak 3: Windrichting en zeestromen</h3>
+    <p>In West-Europa waait de wind vaak vanuit het westen, van de Atlantische Oceaan. Die wind neemt warmte en vocht mee van de warme Golfstroom. Italië profiteert hier deels van, en ook de warme Middellandse Zee speelt mee.</p>
+    <p>Moskou ligt zo ver naar het oosten en in het binnenland dat deze zachte westenwinden nauwelijks invloed meer hebben. In de winter waait er juist koude lucht vanuit Siberië — het koudste bewoonde gebied op aarde.</p>
+    <p>Als jij in Nederland op een winterdag een zachte westenwind voelt, is dat lucht die over de relatief warme Noordzee is gekomen. Dát is de invloed van de zee die je letterlijk op je huid voelt!</p>
+  </div>
+
+  <div class="exercise-block">
+    <h4><span class="ex-icon">🔀</span> Opdracht 9: Rangschik de oorzaken</h4>
+    <p>Sleep de oorzaken in volgorde van <strong>meest invloed</strong> op het klimaatverschil tussen Italië en Rusland naar <strong>minst invloed</strong>.</p>
+    <div class="drag-list" id="drag-oorzaken">
+      <div class="drag-item" draggable="true" data-drag-id="breed"><span class="drag-handle">⠿</span> Breedteligging (afstand tot evenaar)</div>
+      <div class="drag-item" draggable="true" data-drag-id="zee"><span class="drag-handle">⠿</span> Invloed van de zee</div>
+      <div class="drag-item" draggable="true" data-drag-id="wind"><span class="drag-handle">⠿</span> Windrichting en zeestromen</div>
+    </div>
+    <button class="btn btn-check btn-small" id="drag-check-oorzaken" data-correct="breed,zee,wind">Controleer volgorde</button>
+    <div class="feedback" id="drag-oorzaken-fb"></div>
+  </div>
+
+  <div class="exercise-block">
+    <h4><span class="ex-icon">✏️</span> Opdracht 10: Leg het uit!</h4>
+    <p>Leg in je eigen woorden uit (minimaal 4 zinnen): <strong>Noem twee oorzaken waardoor het klimaat in Italië warmer is dan in Rusland. Leg bij elke oorzaak uit hoe het werkt.</strong></p>
+    <textarea class="open-textarea" id="cause-q1-text" placeholder="Schrijf hier je uitleg..."></textarea>
+    <div class="word-count" id="cause-q1-wc">0 woorden</div>
+    <button class="btn btn-check btn-small" id="cause-q1-show" style="display:none;" data-target="cause-q1">Toon voorbeeldantwoord</button>
+    <div class="feedback" id="cause-q1-fb"></div>
+    <div class="self-assess" id="cause-q1-assess">
+      <span>Hoe goed was jouw antwoord?</span>
+      <button class="btn btn-success btn-small" data-assess="cause-q1" data-val="1">Goed ✓</button>
+      <button class="btn btn-error btn-small" data-assess="cause-q1" data-val="0">Fout ✗</button>
+    </div>
+  </div>
+
+  <div class="exercise-block">
+    <h4><span class="ex-icon">🤔</span> Opdracht 11: Nederland ertussen</h4>
+    <p>Nederland ligt op 52°N — bijna even noordelijk als Moskou (55°N). Toch zijn de winters in Nederland veel milder. Wat is de belangrijkste reden?</p>
+    <div class="mc-options" id="cause-q2-options">
+      <div class="mc-option" data-answer="a" data-question="cause-q2">A) Nederland ligt dichter bij de evenaar</div>
+      <div class="mc-option" data-answer="b" data-question="cause-q2">B) Nederland ligt aan de zee en voelt de invloed van de warme Golfstroom</div>
+      <div class="mc-option" data-answer="c" data-question="cause-q2">C) Nederland heeft meer bergen die koude wind tegenhouden</div>
+      <div class="mc-option" data-answer="d" data-question="cause-q2">D) Nederland heeft meer zonuren per jaar</div>
+    </div>
+    <div class="feedback" id="cause-q2-fb"></div>
+  </div>
+
+  <div class="nav-buttons">
+    <div class="left-btns">
+      <button class="btn btn-primary" data-nav="prev">← Vorige</button>
+      <button class="btn-reset-section" data-reset-tab="3">🔄 Reset dit onderdeel</button>
+    </div>
+    <button class="btn btn-primary" data-nav="next">Volgende →</button>
+  </div>
+</div>
+
+<!-- ============ TAB 5: KLIMAATTYPEN ============ -->
+<div class="tab-content" id="tab-4" data-tab="4">
+  <span class="section-icon">🏷️</span>
+  <h2 class="section-title">Klimaattypen herkennen</h2>
+  <p class="section-intro">Wetenschappers delen klimaten in met het systeem van Köppen. Laten we leren herkennen welk type bij Italië en Rusland hoort.</p>
+
+  <div class="info-block italia">
+    <h3>☀️ Mediterraan klimaat (Cs)</h3>
+    <p>Het mediterraan klimaat is vernoemd naar de Middellandse Zee (Mare Mediterraneum in het Latijn). Je herkent dit klimaat aan drie kenmerken:</p>
+    <p><strong>1.</strong> <em>Warme tot hete zomers</em> — de gemiddelde temperatuur in de warmste maand is boven 22°C.<br>
+    <strong>2.</strong> <em>Milde winters</em> — de koudste maand blijft boven 0°C (vaak zelfs boven 5°C).<br>
+    <strong>3.</strong> <em>Droge zomers, natte winters</em> — dit is het meest kenmerkende: de regen valt vooral in herfst en winter.</p>
+    <p>Landen rondom de Middellandse Zee hebben dit klimaat: Italië, Spanje, Griekenland, Turkije (kust), en delen van Noord-Afrika. Als je op vakantie gaat naar deze gebieden in de zomer, weet je bijna zeker: warm en droog!</p>
+  </div>
+
+  <div class="info-block russia">
+    <h3>❄️ Koudgematigd continentaal klimaat (Dfb)</h3>
+    <p>Het continentale klimaat vind je in grote landmassa's, ver van de oceaan. De kenmerken:</p>
+    <p><strong>1.</strong> <em>Grote temperatuurverschillen</em> — het verschil tussen de warmste en koudste maand is meer dan 25°C.<br>
+    <strong>2.</strong> <em>Koude winters</em> — de koudste maand is onder 0°C (in Moskou: -8°C gemiddeld).<br>
+    <strong>3.</strong> <em>Vrij korte, warme zomers</em> — de warmste maand is tussen 10°C en 22°C.</p>
+    <p>Neerslag valt het hele jaar, maar de winter is relatief droog (veel neerslag valt als sneeuw). Je vindt dit klimaat in Rusland, delen van Canada, Scandinavië en het noorden van de VS.</p>
+  </div>
+
+  <div class="info-block">
+    <h3>🔑 Zo herken je het verschil op een grafiek</h3>
+    <p>Als je een <strong>klimaatgrafiek</strong> (klimatogram) ziet, let dan op twee dingen:</p>
+    <p><strong>Temperatuurlijn:</strong> Bij een mediterraan klimaat is de curve mild — hoge pieken in de zomer maar nooit ver onder nul in de winter. Bij een continentaal klimaat is de curve veel steiler: hoog in de zomer, diep onder nul in de winter.</p>
+    <p><strong>Neerslagstaven:</strong> Bij een mediterraan klimaat zijn de staven in de zomer kort (droog!) en in de winter lang. Bij een continentaal klimaat is de neerslag meer gelijk verdeeld, met een lichte piek in de zomer.</p>
+    <p><strong>🤔 Denk even na:</strong> als je voor een schoolproject een klimaatgrafiek van jouw eigen woonplaats zou maken, zou die dan meer lijken op Rome of op Moskou? Waarom?</p>
+  </div>
+
+  <div class="exercise-block">
+    <h4><span class="ex-icon">🔗</span> Opdracht 12: Koppel de kenmerken</h4>
+    <p>Koppel elk kenmerk aan het juiste klimaattype. Klik eerst op een kenmerk (links), dan op het klimaattype (rechts). Een klimaattype kan meerdere kenmerken hebben!</p>
+    <div class="match-container" id="match-klimaat">
+      <div class="match-col">
+        <h5>Kenmerken</h5>
+        <div class="match-item" data-match-source="k1" data-match-correct="med">Droge, hete zomers</div>
+        <div class="match-item" data-match-source="k2" data-match-correct="con">Temperatuurverschil > 25°C</div>
+        <div class="match-item" data-match-source="k3" data-match-correct="med">Milde winters (boven 0°C)</div>
+        <div class="match-item" data-match-source="k4" data-match-correct="con">Koude winters (onder -5°C)</div>
+        <div class="match-item" data-match-source="k5" data-match-correct="med">Neerslag vooral in herfst/winter</div>
+        <div class="match-item" data-match-source="k6" data-match-correct="con">Neerslag vrij gelijk verdeeld</div>
+      </div>
+      <div class="match-col">
+        <h5>Klimaattype</h5>
+        <div class="match-item" data-match-target="med">☀️ Mediterraan (Cs)</div>
+        <div class="match-item" data-match-target="con">❄️ Continentaal (Dfb)</div>
+      </div>
+    </div>
+    <div id="match-klimaat-pairs"></div>
+    <button class="btn btn-check btn-small" id="match-klimaat-check">Controleer koppelingen</button>
+    <div class="feedback" id="match-klimaat-fb"></div>
+  </div>
+
+  <div class="exercise-block">
+    <h4><span class="ex-icon">✏️</span> Opdracht 13: Jouw reisadvies</h4>
+    <p>Een vriendin wil in <strong>december</strong> op vakantie en twijfelt tussen Rome en Moskou. Schrijf haar een kort reisadvies (minimaal 4 zinnen) waarin je het klimaat van beide steden in december vergelijkt en een aanbeveling doet. Gebruik wat je geleerd hebt over klimaattypen!</p>
+    <textarea class="open-textarea" id="type-q1-text" placeholder="Schrijf hier je reisadvies..."></textarea>
+    <div class="word-count" id="type-q1-wc">0 woorden</div>
+    <button class="btn btn-check btn-small" id="type-q1-show" style="display:none;" data-target="type-q1">Toon voorbeeldantwoord</button>
+    <div class="feedback" id="type-q1-fb"></div>
+    <div class="self-assess" id="type-q1-assess">
+      <span>Hoe goed was jouw antwoord?</span>
+      <button class="btn btn-success btn-small" data-assess="type-q1" data-val="1">Goed ✓</button>
+      <button class="btn btn-error btn-small" data-assess="type-q1" data-val="0">Fout ✗</button>
+    </div>
+  </div>
+
+  <div class="nav-buttons">
+    <div class="left-btns">
+      <button class="btn btn-primary" data-nav="prev">← Vorige</button>
+      <button class="btn-reset-section" data-reset-tab="4">🔄 Reset dit onderdeel</button>
+    </div>
+    <button class="btn btn-primary" data-nav="next">Volgende →</button>
+  </div>
+</div>
+
+<!-- ============ TAB 6: REISSCENARIO ============ -->
+<div class="tab-content" id="tab-5" data-tab="5">
+  <span class="section-icon">✈️</span>
+  <h2 class="section-title">Reisscenario: Een jaar in twee steden</h2>
+  <p class="section-intro">Stel je voor: je gaat een uitwisselingsjaar doen. De eerste zes maanden in Rome, daarna zes maanden in Moskou. Wat maak je mee?</p>
+
+  <div class="info-block italia">
+    <h3>🇮🇹 Januari–Juni: Rome</h3>
+    <p><strong>Januari (8°C):</strong> Je arriveert in Rome en het is koel, maar niet echt koud. Je draagt een jas, maar geen winterjas. Het regent af en toe. De Italianen klagen over de "kou" — jij vindt het best meevallen vergeleken met Nederland!</p>
+    <p><strong>Maart–april (12–16°C):</strong> De lente is prachtig. Overal bloeien bloemen, de terrassen gaan open. Het regent steeds minder. Je begint korte mouwen te dragen.</p>
+    <p><strong>Juni (24°C):</strong> Het wordt serieus warm. De zon is fel, de lucht strakblauw. Je snapt waarom Italianen een middagpauze (siesta) houden — het is te heet om te werken! Bijna geen regen meer.</p>
+  </div>
+
+  <div class="info-block russia">
+    <h3>🇷🇺 Juli–December: Moskou</h3>
+    <p><strong>Juli (19°C):</strong> Je komt aan in Moskou op het mooiste moment. Het is aangenaam warm, de parken zijn groen, de dagen zijn lang (het wordt pas om 22:00 donker). Je geniet van het korte Russische zomerfeest.</p>
+    <p><strong>September–oktober (5–10°C):</strong> De herfst slaat toe — en snel. Binnen een paar weken vallen de temperaturen. De beroemde Russische berkenbomen kleuren goudgeel. Je haalt je winterjas tevoorschijn.</p>
+    <p><strong>December (-8°C):</strong> De echte Russische winter. Sneeuw bedekt alles. Je adem bevriest in de lucht. De Moskou-rivier is bevroren. Toch is het ook magisch: de stad is prachtig verlicht en de sneeuw dempt alle geluiden. Je begrijpt nu waarom Russen zulke dikke bontmutsen dragen!</p>
+  </div>
+
+  <div class="info-block combined">
+    <h3>🤔 Wat leert dit scenario je?</h3>
+    <p>Als je een heel jaar in beide steden woont, ervaar je het klimaatverschil aan den lijve. In Rome is het verschil tussen de koudste en warmste maand "slechts" 18°C, in Moskou maar liefst 27°C. Die 9 graden extra maken een wereld van verschil in hoe je dagelijks leeft, wat je eet, hoe je je kleedt en hoe de stad eruitziet.</p>
+    <p><strong>Koppeling met jouw wereld:</strong> Hoe groot is het temperatuurverschil tussen zomer en winter in jouw woonplaats? In Nederland is dat verschil gemiddeld zo'n 15–17°C — vergelijkbaar met Rome, en veel minder extreem dan Moskou. Dat komt doordat Nederland, net als Rome, een sterk maritieme invloed heeft.</p>
+  </div>
+
+  <div class="exercise-block">
+    <h4><span class="ex-icon">🔀</span> Opdracht 14: Rangschik de maanden</h4>
+    <p>Zet de volgende Moskou-maanden op volgorde van <strong>warmst naar koudst</strong>.</p>
+    <div class="drag-list" id="drag-maanden">
+      <div class="drag-item" draggable="true" data-drag-id="jul"><span class="drag-handle">⠿</span> Juli (19°C)</div>
+      <div class="drag-item" draggable="true" data-drag-id="okt"><span class="drag-handle">⠿</span> Oktober (5°C)</div>
+      <div class="drag-item" draggable="true" data-drag-id="jan"><span class="drag-handle">⠿</span> Januari (-8°C)</div>
+      <div class="drag-item" draggable="true" data-drag-id="apr"><span class="drag-handle">⠿</span> April (7°C)</div>
+    </div>
+    <button class="btn btn-check btn-small" id="drag-check-maanden" data-correct="jul,okt,apr,jan">Controleer volgorde</button>
+    <div class="feedback" id="drag-maanden-fb"></div>
+  </div>
+
+  <div class="exercise-block">
+    <h4><span class="ex-icon">✏️</span> Opdracht 15: Dagboekfragment</h4>
+    <p>Schrijf een kort dagboekfragment (minimaal 4 zinnen) vanuit het perspectief van een uitwisselingsstudent. Kies zelf: <strong>augustus in Rome</strong> of <strong>december in Moskou</strong>. Beschrijf wat je ziet, voelt en doet — en verwerk minstens twee klimaatfeiten.</p>
+    <textarea class="open-textarea" id="scenario-q1-text" placeholder="Lief dagboek, vandaag..."></textarea>
+    <div class="word-count" id="scenario-q1-wc">0 woorden</div>
+    <button class="btn btn-check btn-small" id="scenario-q1-show" style="display:none;" data-target="scenario-q1">Toon voorbeeldantwoord</button>
+    <div class="feedback" id="scenario-q1-fb"></div>
+    <div class="self-assess" id="scenario-q1-assess">
+      <span>Hoe goed was jouw antwoord?</span>
+      <button class="btn btn-success btn-small" data-assess="scenario-q1" data-val="1">Goed ✓</button>
+      <button class="btn btn-error btn-small" data-assess="scenario-q1" data-val="0">Fout ✗</button>
+    </div>
+  </div>
+
+  <div class="exercise-block">
+    <h4><span class="ex-icon">🤔</span> Opdracht 16: Vergelijking</h4>
+    <p>Welke uitspraak klopt over het verschil in temperatuurschommeling?</p>
+    <div class="mc-options" id="scenario-q2-options">
+      <div class="mc-option" data-answer="a" data-question="scenario-q2">A) Moskou heeft een kleiner verschil tussen zomer en winter dan Rome</div>
+      <div class="mc-option" data-answer="b" data-question="scenario-q2">B) Rome en Moskou hebben ongeveer evenveel temperatuurverschil</div>
+      <div class="mc-option" data-answer="c" data-question="scenario-q2">C) Moskou heeft een veel groter verschil tussen zomer en winter dan Rome</div>
+      <div class="mc-option" data-answer="d" data-question="scenario-q2">D) Rome heeft een groter temperatuurverschil omdat het dichter bij de evenaar ligt</div>
+    </div>
+    <div class="feedback" id="scenario-q2-fb"></div>
+  </div>
+
+  <div class="nav-buttons">
+    <div class="left-btns">
+      <button class="btn btn-primary" data-nav="prev">← Vorige</button>
+      <button class="btn-reset-section" data-reset-tab="5">🔄 Reset dit onderdeel</button>
+    </div>
+    <button class="btn btn-primary" data-nav="next">Volgende →</button>
+  </div>
+</div>
+
+<!-- ============ TAB 7: KLIMAATGRAFIEK LEZEN ============ -->
+<div class="tab-content" id="tab-6" data-tab="6">
+  <span class="section-icon">📊</span>
+  <h2 class="section-title">Klimaatgrafieken lezen als een pro</h2>
+  <p class="section-intro">Een klimaatgrafiek (klimatogram) is een van de belangrijkste hulpmiddelen in de aardrijkskunde. Laten we oefenen met het aflezen en interpreteren.</p>
+
+  <div class="info-block">
+    <h3>📖 Hoe lees je een klimatogram?</h3>
+    <p>Een klimatogram combineert twee soorten informatie in één grafiek:</p>
+    <p><strong>1. Temperatuurlijn (rode/oranje lijn):</strong> Deze lijn laat de gemiddelde temperatuur per maand zien. Je leest de temperatuur af op de linker-as (y-as). Let op: een hogere lijn = hogere temperatuur.</p>
+    <p><strong>2. Neerslagstaven (blauwe staven):</strong> Deze staven tonen hoeveel millimeter neerslag er gemiddeld per maand valt. Je leest de hoeveelheid af op de rechter-as.</p>
+    <p><strong>3. Wat zoek je?</strong></p>
+    <p>• De warmste en koudste maand → verschil = <strong>temperatuuramplitude</strong><br>
+    • Wanneer het droog of nat is → neerslagpatroon<br>
+    • De combinatie → welk klimaattype het is</p>
+    <p><strong>🤔 Tip:</strong> Als je thuis naar het weerbericht kijkt op je telefoon, zie je eigenlijk dezelfde informatie — temperatuur en neerslag — maar dan voor de komende week in plaats van een heel jaar.</p>
+  </div>
+
+  <div class="chart-container">
+    <h3 style="font-size:1rem;font-weight:800;color:var(--ocean-800);margin-bottom:12px;">🇮🇹 Klimatogram Rome</h3>
+    <canvas id="climatogramRome"></canvas>
+  </div>
+
+  <div class="chart-container">
+    <h3 style="font-size:1rem;font-weight:800;color:var(--ocean-800);margin-bottom:12px;">🇷🇺 Klimatogram Moskou</h3>
+    <canvas id="climatogramMoscow"></canvas>
+  </div>
+
+  <div class="exercise-block">
+    <h4><span class="ex-icon">📊</span> Opdracht 17: Aflezen Rome</h4>
+    <p>Bekijk het klimatogram van Rome. Hoeveel mm neerslag valt er ongeveer in de droogste maand (juli)?</p>
+    <div class="mc-options" id="clim-q1-options">
+      <div class="mc-option" data-answer="a" data-question="clim-q1">A) Ongeveer 15 mm</div>
+      <div class="mc-option" data-answer="b" data-question="clim-q1">B) Ongeveer 50 mm</div>
+      <div class="mc-option" data-answer="c" data-question="clim-q1">C) Ongeveer 100 mm</div>
+      <div class="mc-option" data-answer="d" data-question="clim-q1">D) Ongeveer 150 mm</div>
+    </div>
+    <div class="feedback" id="clim-q1-fb"></div>
+  </div>
+
+  <div class="exercise-block">
+    <h4><span class="ex-icon">📊</span> Opdracht 18: Aflezen Moskou</h4>
+    <p>Bekijk het klimatogram van Moskou. Wat is de gemiddelde temperatuur in de warmste maand?</p>
+    <div class="mc-options" id="clim-q2-options">
+      <div class="mc-option" data-answer="a" data-question="clim-q2">A) Ongeveer 12°C</div>
+      <div class="mc-option" data-answer="b" data-question="clim-q2">B) Ongeveer 19°C</div>
+      <div class="mc-option" data-answer="c" data-question="clim-q2">C) Ongeveer 26°C</div>
+      <div class="mc-option" data-answer="d" data-question="clim-q2">D) Ongeveer 30°C</div>
+    </div>
+    <div class="feedback" id="clim-q2-fb"></div>
+  </div>
+
+  <div class="exercise-block">
+    <h4><span class="ex-icon">✏️</span> Opdracht 19: Vergelijk de klimatogrammen</h4>
+    <p>Bekijk beide klimatogrammen. Schrijf in minimaal 4 zinnen: <strong>Noem drie concrete verschillen die je kunt aflezen tussen het klimatogram van Rome en dat van Moskou. Leg bij elk verschil uit wat het betekent voor het dagelijks leven.</strong></p>
+    <textarea class="open-textarea" id="clim-q3-text" placeholder="Schrijf hier je vergelijking..."></textarea>
+    <div class="word-count" id="clim-q3-wc">0 woorden</div>
+    <button class="btn btn-check btn-small" id="clim-q3-show" style="display:none;" data-target="clim-q3">Toon voorbeeldantwoord</button>
+    <div class="feedback" id="clim-q3-fb"></div>
+    <div class="self-assess" id="clim-q3-assess">
+      <span>Hoe goed was jouw antwoord?</span>
+      <button class="btn btn-success btn-small" data-assess="clim-q3" data-val="1">Goed ✓</button>
+      <button class="btn btn-error btn-small" data-assess="clim-q3" data-val="0">Fout ✗</button>
+    </div>
+  </div>
+
+  <div class="nav-buttons">
+    <div class="left-btns">
+      <button class="btn btn-primary" data-nav="prev">← Vorige</button>
+      <button class="btn-reset-section" data-reset-tab="6">🔄 Reset dit onderdeel</button>
+    </div>
+    <button class="btn btn-primary" data-nav="next">Volgende →</button>
+  </div>
+</div>
+
+<!-- ============ TAB 8: VERDIEPING ============ -->
+<div class="tab-content" id="tab-7" data-tab="7">
+  <span class="section-icon">🧠</span>
+  <h2 class="section-title">Verdieping: klimaat en het dagelijks leven</h2>
+  <p class="section-intro">Klimaat is niet alleen een abstract begrip — het bepaalt hoe mensen wonen, eten, werken en reizen. Laten we dat verband onderzoeken.</p>
+
+  <div class="info-block italia">
+    <h3>🇮🇹 Leven met een mediterraan klimaat</h3>
+    <p>In Italië past het hele dagelijks leven zich aan het klimaat aan. In de zomer gaan Italianen vroeg uit hun bed om de koele uren te benutten. Tussen 13:00 en 16:00 houdt het land een soort rustpauze — veel winkels sluiten. Dit is de beroemde <em>riposo</em> of siesta. 's Avonds wordt het aangenaam en eten Italianen laat: om 20:30 of 21:00.</p>
+    <p>De droge zomers maken Italië ideaal voor het verbouwen van olijven, druiven en tomaten. Niet voor niets staat de Italiaanse keuken bekend om deze ingrediënten! Het mediterrane klimaat is letterlijk de basis van de Italiaanse cultuur.</p>
+    <p>Architectuur past zich ook aan: dikke stenen muren houden huizen koel in de zomer, smalle steegjes bieden schaduw, en binnenplaatsen met fonteinen zorgen voor verkoeling.</p>
+  </div>
+
+  <div class="info-block russia">
+    <h3>🇷🇺 Leven met een continentaal klimaat</h3>
+    <p>In Rusland draait in de winter alles om warmte. Huizen zijn zwaar geïsoleerd met driedubbele beglazing. Het openbaar vervoer is grotendeels ondergronds (de beroemde Moskou-metro), omdat bussen op bevroren wegen niet betrouwbaar zijn. Mensen dragen lagen kleding: thermisch ondergoed, wollen trui, dikke jas, bontmuts (oeshanka).</p>
+    <p>De lange winters beïnvloeden ook de voedselcultuur. Traditionele Russische gerechten zijn warm en zwaar: borsjtj (bietensoep), pelmeni (gevulde pastadeegballetjes), en brood bij elke maaltijd. Verse groenten waren vroeger in de winter schaars, dus conserveert men veel: ingemaakte komkommer, zuurkool, en jam van wilde bessen.</p>
+    <p>De korte zomer is des te kostbaarder. Als het mooi weer is, stromen de parken vol. Russen hebben een traditie van <em>datja's</em> — buitenhuisjes waar ze in de zomer tuinieren en genieten van de warmte.</p>
+  </div>
+
+  <div class="exercise-block">
+    <h4><span class="ex-icon">🔗</span> Opdracht 20: Koppel cultuur aan klimaat</h4>
+    <p>Koppel elk cultuurelement aan het juiste land. Klik eerst op een element (links), dan op het land (rechts).</p>
+    <div class="match-container" id="match-cultuur">
+      <div class="match-col">
+        <h5>Cultuurelement</h5>
+        <div class="match-item" data-match-source="c1" data-match-correct="ita">Middagpauze (siesta/riposo)</div>
+        <div class="match-item" data-match-source="c2" data-match-correct="rus">Driedubbele beglazing</div>
+        <div class="match-item" data-match-source="c3" data-match-correct="ita">Olijfolie en tomaten</div>
+        <div class="match-item" data-match-source="c4" data-match-correct="rus">Bontmuts (oeshanka)</div>
+        <div class="match-item" data-match-source="c5" data-match-correct="ita">Smalle steegjes voor schaduw</div>
+        <div class="match-item" data-match-source="c6" data-match-correct="rus">Zware soepen als borsjtj</div>
+      </div>
+      <div class="match-col">
+        <h5>Land</h5>
+        <div class="match-item" data-match-target="ita">🇮🇹 Italië</div>
+        <div class="match-item" data-match-target="rus">🇷🇺 Rusland</div>
+      </div>
+    </div>
+    <div id="match-cultuur-pairs"></div>
+    <button class="btn btn-check btn-small" id="match-cultuur-check">Controleer koppelingen</button>
+    <div class="feedback" id="match-cultuur-fb"></div>
+  </div>
+
+  <div class="exercise-block">
+    <h4><span class="ex-icon">✏️</span> Opdracht 21: Klimaat in jouw omgeving</h4>
+    <p>Schrijf minimaal 4 zinnen: <strong>Hoe beïnvloedt het klimaat jouw dagelijks leven in Nederland? Denk aan kleding, eten, huizen, vervoer of vrije tijd. Vergelijk dit met wat je geleerd hebt over Italië en Rusland.</strong></p>
+    <textarea class="open-textarea" id="deep-q1-text" placeholder="Schrijf hier je antwoord..."></textarea>
+    <div class="word-count" id="deep-q1-wc">0 woorden</div>
+    <button class="btn btn-check btn-small" id="deep-q1-show" style="display:none;" data-target="deep-q1">Toon voorbeeldantwoord</button>
+    <div class="feedback" id="deep-q1-fb"></div>
+    <div class="self-assess" id="deep-q1-assess">
+      <span>Hoe goed was jouw antwoord?</span>
+      <button class="btn btn-success btn-small" data-assess="deep-q1" data-val="1">Goed ✓</button>
+      <button class="btn btn-error btn-small" data-assess="deep-q1" data-val="0">Fout ✗</button>
+    </div>
+  </div>
+
+  <div class="exercise-block">
+    <h4><span class="ex-icon">🤔</span> Opdracht 22: Welk land?</h4>
+    <p>Een traditioneel gerecht van een land bevat veel ingemaakte groenten en zware soepen. In welk land eet men dit waarschijnlijk en waarom?</p>
+    <div class="mc-options" id="deep-q2-options">
+      <div class="mc-option" data-answer="a" data-question="deep-q2">A) Italië — vanwege de droge zomers</div>
+      <div class="mc-option" data-answer="b" data-question="deep-q2">B) Rusland — omdat verse groenten in de lange winter schaars waren</div>
+      <div class="mc-option" data-answer="c" data-question="deep-q2">C) Italië — omdat men graag warm eet bij koud weer</div>
+      <div class="mc-option" data-answer="d" data-question="deep-q2">D) Rusland — omdat er in de zomer te veel groenten zijn</div>
+    </div>
+    <div class="feedback" id="deep-q2-fb"></div>
+  </div>
+
+  <div class="nav-buttons">
+    <div class="left-btns">
+      <button class="btn btn-primary" data-nav="prev">← Vorige</button>
+      <button class="btn-reset-section" data-reset-tab="7">🔄 Reset dit onderdeel</button>
+    </div>
+    <button class="btn btn-primary" data-nav="next">Volgende →</button>
+  </div>
+</div>
+
+<!-- ============ TAB 9: REFLECTIE & AFSLUITING ============ -->
+<div class="tab-content" id="tab-8" data-tab="8">
+  <span class="section-icon">🎓</span>
+  <h2 class="section-title">Afsluiting & Reflectie</h2>
+  <p class="section-intro">Gefeliciteerd, je hebt alle onderdelen doorgewerkt! Laten we kijken wat je geleerd hebt.</p>
+
+  <div class="score-display" id="scoreDisplay">
+    <div class="score-label">Jouw eindscore</div>
+    <div class="score-big" id="finalScore">—</div>
+    <div class="score-label" id="finalScoreDetail">Werk alle opdrachten af om je score te zien</div>
+  </div>
+
+  <div class="info-block">
+    <h3>📋 Leerdoelen terugblik</h3>
+    <div class="leerdoel-check">
+      <span class="ld-icon">🎯</span>
+      <p><strong>Leerdoel 1:</strong> Ik kan de belangrijkste klimaatverschillen tussen Italië en Rusland benoemen aan de hand van temperatuur en neerslag.</p>
+    </div>
+    <div class="leerdoel-check">
+      <span class="ld-icon">🎯</span>
+      <p><strong>Leerdoel 2:</strong> Ik kan uitleggen waardoor het klimaat in Italië en Rusland zo verschillend is, door ten minste twee oorzaken te noemen.</p>
+    </div>
+    <div class="leerdoel-check">
+      <span class="ld-icon">🎯</span>
+      <p><strong>Leerdoel 3:</strong> Ik kan op een klimaatgrafiek aflezen welk klimaattype bij Italië en Rusland hoort en deze met elkaar vergelijken.</p>
+    </div>
+  </div>
+
+  <div class="exercise-block">
+    <h4><span class="ex-icon">✏️</span> Reflectie 1: Wat was het lastigst?</h4>
+    <p>Wat vond je het lastigste onderdeel van deze les en waarom? Schrijf minimaal 3 zinnen.</p>
+    <textarea class="open-textarea" id="refl-q1-text" placeholder="Schrijf hier..."></textarea>
+    <div class="word-count" id="refl-q1-wc">0 woorden</div>
+    <button class="btn btn-check btn-small" id="refl-q1-show" style="display:none;" data-target="refl-q1">Toon voorbeeldantwoord</button>
+    <div class="feedback" id="refl-q1-fb"></div>
+    <div class="self-assess" id="refl-q1-assess">
+      <span>Klaar met reflecteren?</span>
+      <button class="btn btn-success btn-small" data-assess="refl-q1" data-val="1">Ja, klaar ✓</button>
+    </div>
+  </div>
+
+  <div class="exercise-block">
+    <h4><span class="ex-icon">✏️</span> Reflectie 2: Uitleggen aan een klasgenoot</h4>
+    <p>Stel, een klasgenoot heeft deze les gemist. Leg in maximaal 5 zinnen uit wat de belangrijkste dingen zijn die je geleerd hebt over het klimaatverschil tussen Italië en Rusland.</p>
+    <textarea class="open-textarea" id="refl-q2-text" placeholder="Schrijf hier..."></textarea>
+    <div class="word-count" id="refl-q2-wc">0 woorden</div>
+    <button class="btn btn-check btn-small" id="refl-q2-show" style="display:none;" data-target="refl-q2">Toon voorbeeldantwoord</button>
+    <div class="feedback" id="refl-q2-fb"></div>
+    <div class="self-assess" id="refl-q2-assess">
+      <span>Klaar met reflecteren?</span>
+      <button class="btn btn-success btn-small" data-assess="refl-q2" data-val="1">Ja, klaar ✓</button>
+    </div>
+  </div>
+
+  <div class="exercise-block">
+    <h4><span class="ex-icon">✏️</span> Reflectie 3: Klimaat in je eigen omgeving</h4>
+    <p>Hoe zou je het klimaat van jouw woonplaats herkennen als je er een klimaatgrafiek van zou maken? Lijkt het meer op Rome of Moskou? Schrijf minimaal 3 zinnen.</p>
+    <textarea class="open-textarea" id="refl-q3-text" placeholder="Schrijf hier..."></textarea>
+    <div class="word-count" id="refl-q3-wc">0 woorden</div>
+    <button class="btn btn-check btn-small" id="refl-q3-show" style="display:none;" data-target="refl-q3">Toon voorbeeldantwoord</button>
+    <div class="feedback" id="refl-q3-fb"></div>
+    <div class="self-assess" id="refl-q3-assess">
+      <span>Klaar met reflecteren?</span>
+      <button class="btn btn-success btn-small" data-assess="refl-q3" data-val="1">Ja, klaar ✓</button>
+    </div>
+  </div>
+
+  <div class="nav-buttons">
+    <div class="left-btns">
+      <button class="btn btn-primary" data-nav="prev">← Vorige</button>
+      <button class="btn-reset-section" data-reset-tab="8">🔄 Reset dit onderdeel</button>
+    </div>
+    <span style="font-size:0.9rem;color:var(--ocean-500);font-weight:600;">🎉 Einde van de les!</span>
+  </div>
+</div>
+
+<script>
+(function() {
+  'use strict';
+
+  // ========== CONFIG ==========
+  const TOTAL_TABS = 9;
+  const TAB_NAMES = ['Introductie','De kaart','Temperatuur','Oorzaken','Klimaattypen','Reisscenario','Grafieken lezen','Verdieping','Reflectie'];
+  const STORAGE_PREFIX = 'geo_les_';
+
+  // Correct answers for MC questions
+  const MC_ANSWERS = {
+    'intro-q2': { correct: 'b', hints: ['Denk na: wat is het weer in Italië in de zomer? Warm of koud?','Italië heeft hete zomers. Wat neem je mee als het 30°C is?'], answer: 'Rome in juli is warm (rond 32°C), dus een zonnebril en korte broek zijn perfect!' },
+    'map-q1': { correct: 'b', hints: ['Rome ligt op 41°N en Moskou op 55°N. Wat is 55 min 41?','Tel de breedtegraden af: 55°N minus 41°N = ?'], answer: 'Rome (41°N) en Moskou (55°N): het verschil is 55-41 = 14 graden.' },
+    'map-q3': { correct: 'b', hints: ['Welke stad ligt op 55°N en ver van de zee?','Kijk in je aantekeningen: welke stad heeft koude winters en ligt in het binnenland?'], answer: 'Moskou ligt op 55°N, ver van de zee, en heeft gemiddeld -10°C in de winter.' },
+    'temp-q1': { correct: 'b', hints: ['Kijk naar de grafiek: wanneer zijn de lijnen het verst uit elkaar?','In de winter is Rome mild maar Moskou ijskoud. Wanneer is dat verschil het grootst?'], answer: 'In januari is het verschil het grootst: Rome 8°C vs Moskou -8°C = 16 graden verschil!' },
+    'temp-q3': { correct: 'b', hints: ['Kijk in de tabel: wat is de gemiddelde temperatuur in Moskou in januari?','Moskou heeft een continentaal klimaat — de winters zijn behoorlijk koud.'], answer: 'In januari is de gemiddelde temperatuur in Moskou rond -8°C. Flink koud!' },
+    'cause-q2': { correct: 'b', hints: ['Het gaat niet om de breedtegraad — die is bijna gelijk. Wat is er wél anders?','Nederland ligt aan de Noordzee. Welk effect heeft water op het klimaat?'], answer: 'Nederland ligt aan de zee en profiteert van de warme Golfstroom, wat de winters veel milder maakt.' },
+    'scenario-q2': { correct: 'c', hints: ['Denk aan de cijfers: Rome 8–26°C, Moskou -8–19°C. Waar is het verschil groter?','Bereken: Rome: 26-8=18°C verschil. Moskou: 19-(-8)=27°C verschil.'], answer: 'Moskou heeft 27°C verschil (zomer-winter) tegenover 18°C in Rome — veel extremer!' },
+    'clim-q1': { correct: 'a', hints: ['Juli is de droogste maand in Rome. Kijk naar de blauwe staven in de grafiek.','De staven in de zomermaanden zijn heel kort bij Rome. Hoeveel mm is dat?'], answer: 'In juli valt er in Rome slechts ongeveer 15 mm neerslag — bijna niets!' },
+    'clim-q2': { correct: 'b', hints: ['De warmste maand in Moskou is juli. Kijk naar de rode lijn in de grafiek.','De rode lijn piekt in juli. Lees de temperatuur af op de linker-as.'], answer: 'De warmste maand in Moskou is juli met gemiddeld ongeveer 19°C.' },
+    'deep-q2': { correct: 'b', hints: ['Denk na: in welk land zijn de winters zo lang en koud dat verse groenten schaars waren?','Ingemaakte groenten zijn een manier om voedsel te bewaren tijdens lange, koude winters.'], answer: 'Rusland — de lange, koude winters maakten verse groenten schaars, dus men conserveerde veel.' }
+  };
+
+  // Example answers for open questions
+  const OPEN_EXAMPLES = {
+    'intro-q1': 'Ik denk dat het grootste verschil is dat het in Italië veel warmer is, vooral in de zomer. Rusland staat bekend om de koude winters met sneeuw. Toen ik op vakantie was in Spanje merkte ik ook hoe anders het klimaat daar is — veel droger en heter dan in Nederland.',
+    'map-q2': 'De zee werkt als een warmtebuffer. Water warmt langzamer op dan land, maar koelt ook langzamer af. Daardoor zijn kustgebieden milder: niet te heet in de zomer en niet te koud in de winter. Een stad in het binnenland mist die demping en heeft daardoor grotere temperatuurverschillen tussen de seizoenen.',
+    'temp-q2': 'In Rome valt de meeste neerslag in de herfst en winter, terwijl de zomer juist droog is. In Moskou is de neerslag meer gelijk verdeeld over het jaar, met een lichte piek in de zomer. Dit verschil komt doordat Rome een mediterraan klimaat heeft (droge zomers) en Moskou een continentaal klimaat (geen uitgesproken droge periode).',
+    'cause-q1': 'De eerste oorzaak is de breedteligging. Rome ligt op 41°N, veel dichter bij de evenaar dan Moskou (55°N). Daardoor vallen de zonnestralen in Rome steiler, wat meer opwarming geeft. De tweede oorzaak is de invloed van de zee. Rome ligt aan de Middellandse Zee, die de temperatuur matigt. Moskou ligt ver in het binnenland en mist die matigende werking.',
+    'type-q1': 'In december is Rome mild (gemiddeld 8°C) met wat regen. Je hebt een jas nodig maar geen winterkleding. Moskou daarentegen is ijskoud (-8°C gemiddeld) met sneeuw en ijs. Als je vriendin van warmte houdt, zou ik Rome aanraden. Als ze juist van wintersfeer en sneeuw houdt, is Moskou een bijzondere ervaring, maar ze moet zich goed inpakken!',
+    'scenario-q1': 'Lief dagboek, vandaag was het weer een prachtige dag in Rome. Het is augustus en het is ruim 30 graden — typisch voor het mediterrane klimaat hier. Ik heb de hele middag binnen gezeten omdat het te heet was om buiten te lopen, net zoals de Italianen dat doen tijdens hun riposo. Er is al weken geen druppel regen gevallen; de zomer is hier echt kurkdroog.',
+    'clim-q3': 'Het eerste verschil is de wintertemperatuur: in Rome daalt deze niet onder 5°C, terwijl Moskou tot -10°C zakt. Dat betekent dat je in Rome ook in de winter buiten kunt wandelen, maar in Moskou heb je zware winterkleding nodig. Het tweede verschil is het neerslagpatroon: Rome is droog in de zomer maar nat in de herfst, terwijl Moskou het hele jaar door neerslag heeft. Het derde verschil is de temperatuuramplitude: Moskou heeft een veel grotere schommeling (27°C) dan Rome (18°C), wat het dagelijks leven sterk beïnvloedt.',
+    'deep-q1': 'In Nederland beïnvloedt het klimaat mijn leven op veel manieren. We dragen het hele jaar door meerdere lagen kleding en hebben altijd een regenjas bij de hand — typisch voor ons zeeklimaat. Onze huizen zijn goed geïsoleerd maar niet zo extreem als in Rusland. We eten veel aardappelen en stamppot in de winter, net als Russen hun soepen eten. Vergeleken met Italië missen we de droge, hete zomers, maar we hebben ook niet de extreme koude van Rusland.',
+    'refl-q1': 'Ik vond het lastig om de klimaatgrafieken te vergelijken, omdat je op twee dingen tegelijk moet letten: temperatuur én neerslag. Het was ook moeilijk om de oorzaken van de klimaatverschillen in mijn eigen woorden uit te leggen. Maar door de oefeningen snap ik het nu beter.',
+    'refl-q2': 'Italië heeft een mediterraan klimaat met warme, droge zomers en milde winters. Rusland heeft een continentaal klimaat met ijskoude winters en grote temperatuurverschillen. De belangrijkste oorzaken zijn de breedteligging (Rusland ligt noordelijker) en de afstand tot de zee (Moskou ligt in het binnenland). Je kunt dit allemaal aflezen op een klimaatgrafiek.',
+    'refl-q3': 'Mijn woonplaats in Nederland zou op een klimaatgrafiek meer lijken op Rome dan op Moskou, maar dan koeler en natter. We hebben milde winters (rond 3-5°C), geen extreme zomers, en neerslag het hele jaar door. Het lijkt meer op Rome omdat het temperatuurverschil klein is (maritieme invloed), maar de neerslag is anders verdeeld dan bij Rome.'
+  };
+
+  // ========== STATE ==========
+  let currentTab = 0;
+  let exerciseState = {}; // { id: { completed, correct, attempts } }
+  let maps = {};
+  let charts = {};
+
+  // ========== STORAGE ==========
+  function storageGet(key) {
+    try { return JSON.parse(localStorage.getItem(STORAGE_PREFIX + key)); } catch(e) { return null; }
+  }
+  function storageSet(key, val) {
+    try { localStorage.setItem(STORAGE_PREFIX + key, JSON.stringify(val)); } catch(e) {}
+  }
+  function storageClear() {
+    try {
+      Object.keys(localStorage).forEach(k => { if(k.startsWith(STORAGE_PREFIX)) localStorage.removeItem(k); });
+    } catch(e) {}
+  }
+  function saveState() {
+    storageSet('exerciseState', exerciseState);
+    storageSet('currentTab', currentTab);
+    storageSet('timestamp', new Date().toISOString());
+  }
+  function loadState() {
+    const saved = storageGet('exerciseState');
+    if(saved) exerciseState = saved;
+    const tab = storageGet('currentTab');
+    if(tab !== null) currentTab = tab;
+  }
+
+  // ========== EXERCISE TRACKING ==========
+  function markExercise(id, correct) {
+    if(!exerciseState[id]) exerciseState[id] = { completed: false, correct: false, attempts: 0 };
+    exerciseState[id].completed = true;
+    exerciseState[id].correct = correct;
+    saveState();
+    updateProgress();
+  }
+  function getAttempts(id) {
+    if(!exerciseState[id]) exerciseState[id] = { completed: false, correct: false, attempts: 0 };
+    return exerciseState[id].attempts;
+  }
+  function addAttempt(id) {
+    if(!exerciseState[id]) exerciseState[id] = { completed: false, correct: false, attempts: 0 };
+    exerciseState[id].attempts++;
+    saveState();
+  }
+  function isCompleted(id) {
+    return exerciseState[id] && exerciseState[id].completed;
+  }
+
+  // All exercise IDs
+  function getAllExerciseIds() {
+    return [
+      'intro-q1','intro-q2',
+      'map-q1','map-q2','map-q3',
+      'temp-q1','temp-q2','temp-q3',
+      'drag-oorzaken','cause-q1','cause-q2',
+      'match-klimaat','type-q1',
+      'drag-maanden','scenario-q1','scenario-q2',
+      'clim-q1','clim-q2','clim-q3',
+      'match-cultuur','deep-q1','deep-q2',
+      'refl-q1','refl-q2','refl-q3'
+    ];
+  }
+  function getTabExercises(tabIdx) {
+    const mapping = [
+      ['intro-q1','intro-q2'],
+      ['map-q1','map-q2','map-q3'],
+      ['temp-q1','temp-q2','temp-q3'],
+      ['drag-oorzaken','cause-q1','cause-q2'],
+      ['match-klimaat','type-q1'],
+      ['drag-maanden','scenario-q1','scenario-q2'],
+      ['clim-q1','clim-q2','clim-q3'],
+      ['match-cultuur','deep-q1','deep-q2'],
+      ['refl-q1','refl-q2','refl-q3']
+    ];
+    return mapping[tabIdx] || [];
+  }
+
+  // ========== PROGRESS ==========
+  function updateProgress() {
+    const all = getAllExerciseIds();
+    const done = all.filter(id => isCompleted(id)).length;
+    const pct = Math.round((done / all.length) * 100);
+    document.getElementById('progressBar').style.width = pct + '%';
+    document.getElementById('progressText').textContent = pct + '% voltooid';
+    // Update tab checks
+    for(let i = 0; i < TOTAL_TABS; i++) {
+      const tabExs = getTabExercises(i);
+      const tabDone = tabExs.every(id => isCompleted(id));
+      const btn = document.querySelector('.tab-btn[data-tab="'+i+'"]');
+      if(btn) {
+        const check = btn.querySelector('.tab-check');
+        if(check) check.textContent = tabDone ? '✓' : '';
+      }
+    }
+    // Final score
+    updateFinalScore();
+  }
+  function updateFinalScore() {
+    const all = getAllExerciseIds();
+    const done = all.filter(id => isCompleted(id));
+    const correct = all.filter(id => exerciseState[id] && exerciseState[id].correct);
+    const el = document.getElementById('finalScore');
+    const det = document.getElementById('finalScoreDetail');
+    if(done.length > 0) {
+      el.textContent = correct.length + '/' + all.length;
+      det.textContent = done.length + ' van ' + all.length + ' opdrachten voltooid, ' + correct.length + ' goed';
+    }
+  }
+
+  // ========== TAB NAVIGATION ==========
+  function buildTabs() {
+    const nav = document.getElementById('tabNav');
+    nav.innerHTML = '';
+    TAB_NAMES.forEach((name, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'tab-btn' + (i === currentTab ? ' active' : '');
+      btn.setAttribute('data-tab', i);
+      btn.innerHTML = name + ' <span class="tab-check"></span>';
+      btn.addEventListener('click', function() { switchTab(i); });
+      nav.appendChild(btn);
+    });
+  }
+  function switchTab(idx) {
+    currentTab = idx;
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    const tabEl = document.getElementById('tab-' + idx);
+    if(tabEl) tabEl.classList.add('active');
+    const btn = document.querySelector('.tab-btn[data-tab="'+idx+'"]');
+    if(btn) {
+      btn.classList.add('active');
+      btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+    }
+    document.getElementById('tabCounter').textContent = 'Onderdeel ' + (idx+1) + ' van ' + TOTAL_TABS;
+    // Invalidate maps
+    setTimeout(() => {
+      Object.values(maps).forEach(m => { if(m) m.invalidateSize(); });
+    }, 200);
+    saveState();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // ========== MC QUESTIONS ==========
+  function setupMC() {
+    document.querySelectorAll('.mc-option').forEach(opt => {
+      opt.addEventListener('click', function() {
+        const qId = this.getAttribute('data-question');
+        if(isCompleted(qId)) return;
+        const answer = this.getAttribute('data-answer');
+        const config = MC_ANSWERS[qId];
+        if(!config) return;
+
+        addAttempt(qId);
+        const attempts = getAttempts(qId);
+        const fb = document.getElementById(qId + '-fb');
+
+        // Remove previous selection styling
+        this.closest('.mc-options').querySelectorAll('.mc-option').forEach(o => {
+          o.classList.remove('selected','correct','incorrect');
+        });
+
+        if(answer === config.correct) {
+          this.classList.add('correct');
+          fb.className = 'feedback show correct';
+          fb.textContent = '✓ Goed zo! ' + config.answer;
+          markExercise(qId, true);
+          lockMC(qId);
+        } else {
+          this.classList.add('incorrect');
+          if(attempts >= 3) {
+            fb.className = 'feedback show neutral';
+            fb.textContent = 'Het juiste antwoord was: ' + config.answer;
+            markExercise(qId, false);
+            lockMC(qId);
+            // Highlight correct
+            this.closest('.mc-options').querySelectorAll('.mc-option').forEach(o => {
+              if(o.getAttribute('data-answer') === config.correct) o.classList.add('correct');
+            });
+          } else {
+            const hint = config.hints[Math.min(attempts-1, config.hints.length-1)];
+            fb.className = 'feedback show hint';
+            fb.textContent = '💡 ' + hint + ' (Poging ' + attempts + '/3)';
+          }
+        }
+      });
+    });
+  }
+  function lockMC(qId) {
+    const container = document.getElementById(qId + '-options');
+    if(container) container.querySelectorAll('.mc-option').forEach(o => o.classList.add('locked'));
+  }
+
+  // ========== OPEN QUESTIONS ==========
+  function setupOpen() {
+    // Word counters and show buttons
+    document.querySelectorAll('.open-textarea').forEach(ta => {
+      const id = ta.id.replace('-text','');
+      const wcEl = document.getElementById(id + '-wc');
+      const showBtn = document.getElementById(id + '-show');
+
+      ta.addEventListener('input', function() {
+        const words = this.value.trim().split(/\s+/).filter(w => w.length > 0).length;
+        if(wcEl) {
+          wcEl.textContent = words + ' woorden';
+          wcEl.classList.toggle('enough', words >= 20);
+        }
+        if(showBtn) {
+          showBtn.style.display = words >= 20 ? 'inline-flex' : 'none';
+        }
+      });
+    });
+
+    // Show example answer buttons
+    document.querySelectorAll('[data-target]').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const id = this.getAttribute('data-target');
+        if(isCompleted(id)) return;
+        const fb = document.getElementById(id + '-fb');
+        const example = OPEN_EXAMPLES[id];
+        if(fb && example) {
+          fb.className = 'feedback show neutral';
+          fb.innerHTML = '<strong>Voorbeeldantwoord:</strong> ' + example;
+        }
+        const assess = document.getElementById(id + '-assess');
+        if(assess) assess.classList.add('show');
+        this.style.display = 'none';
+      });
+    });
+
+    // Self-assess buttons
+    document.querySelectorAll('[data-assess]').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const id = this.getAttribute('data-assess');
+        const val = parseInt(this.getAttribute('data-val'));
+        if(isCompleted(id)) return;
+        markExercise(id, val === 1);
+        const assess = document.getElementById(id + '-assess');
+        if(assess) {
+          assess.innerHTML = val === 1 ? '<span style="color:var(--success)">✓ Goed beoordeeld!</span>' : '<span style="color:var(--error)">✗ Genoteerd. Kijk het voorbeeldantwoord nog eens na.</span>';
+        }
+      });
+    });
+  }
+
+  // ========== DRAG & DROP ==========
+  function setupDragDrop() {
+    document.querySelectorAll('.drag-list').forEach(list => {
+      const items = list.querySelectorAll('.drag-item');
+      let draggedEl = null;
+
+      items.forEach(item => {
+        item.addEventListener('dragstart', function(e) {
+          draggedEl = this;
+          this.classList.add('dragging');
+          e.dataTransfer.effectAllowed = 'move';
+        });
+        item.addEventListener('dragend', function() {
+          this.classList.remove('dragging');
+          list.querySelectorAll('.drag-item').forEach(i => i.classList.remove('drag-over'));
+          draggedEl = null;
+        });
+        item.addEventListener('dragover', function(e) {
+          e.preventDefault();
+          e.dataTransfer.dropEffect = 'move';
+          if(this !== draggedEl) this.classList.add('drag-over');
+        });
+        item.addEventListener('dragleave', function() {
+          this.classList.remove('drag-over');
+        });
+        item.addEventListener('drop', function(e) {
+          e.preventDefault();
+          this.classList.remove('drag-over');
+          if(draggedEl && draggedEl !== this) {
+            const allItems = Array.from(list.querySelectorAll('.drag-item'));
+            const fromIdx = allItems.indexOf(draggedEl);
+            const toIdx = allItems.indexOf(this);
+            if(fromIdx < toIdx) {
+              list.insertBefore(draggedEl, this.nextSibling);
+            } else {
+              list.insertBefore(draggedEl, this);
+            }
+          }
+        });
+      });
+    });
+
+    // Check buttons for drag
+    document.querySelectorAll('[id^="drag-check-"]').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const listId = this.id.replace('drag-check-','');
+        const dragId = 'drag-' + listId;
+        if(isCompleted(dragId)) return;
+        const correctOrder = this.getAttribute('data-correct').split(',');
+        const list = document.getElementById(dragId);
+        const currentItems = Array.from(list.querySelectorAll('.drag-item'));
+        const currentOrder = currentItems.map(i => i.getAttribute('data-drag-id'));
+        const fb = document.getElementById(dragId + '-fb');
+
+        addAttempt(dragId);
+        const attempts = getAttempts(dragId);
+
+        let allCorrect = true;
+        currentItems.forEach((item, idx) => {
+          item.classList.remove('correct-pos','wrong-pos');
+          if(currentOrder[idx] === correctOrder[idx]) {
+            item.classList.add('correct-pos');
+          } else {
+            item.classList.add('wrong-pos');
+            allCorrect = false;
+          }
+        });
+
+        if(allCorrect) {
+          fb.className = 'feedback show correct';
+          fb.textContent = '✓ Uitstekend! De volgorde klopt helemaal!';
+          markExercise(dragId, true);
+        } else if(attempts >= 3) {
+          fb.className = 'feedback show neutral';
+          fb.textContent = 'De juiste volgorde is: ' + correctOrder.map((id,i) => (i+1)+'. '+currentItems.find(el=>el.getAttribute('data-drag-id')===id).textContent.replace('⠿ ','')).join(', ');
+          markExercise(dragId, false);
+        } else {
+          fb.className = 'feedback show hint';
+          fb.textContent = '💡 Nog niet helemaal goed. Items met een groene rand staan op de juiste plek. Probeer de rode items te verschuiven. (Poging ' + attempts + '/3)';
+        }
+      });
+    });
+  }
+
+  // ========== MATCH EXERCISES ==========
+  function setupMatch() {
+    document.querySelectorAll('.match-container').forEach(container => {
+      const matchId = container.id;
+      let selectedSource = null;
+      const pairs = []; // {source, target}
+
+      const pairsDiv = document.getElementById(matchId + '-pairs');
+
+      container.querySelectorAll('[data-match-source]').forEach(item => {
+        item.addEventListener('click', function() {
+          if(isCompleted(matchId)) return;
+          container.querySelectorAll('[data-match-source]').forEach(i => i.classList.remove('selected-match'));
+          this.classList.add('selected-match');
+          selectedSource = this.getAttribute('data-match-source');
+        });
+      });
+
+      container.querySelectorAll('[data-match-target]').forEach(item => {
+        item.addEventListener('click', function() {
+          if(isCompleted(matchId) || !selectedSource) return;
+          const target = this.getAttribute('data-match-target');
+          // Check if this source is already paired
+          const existingIdx = pairs.findIndex(p => p.source === selectedSource);
+          if(existingIdx >= 0) pairs.splice(existingIdx, 1);
+          pairs.push({ source: selectedSource, target: target });
+
+          // Visual
+          container.querySelectorAll('[data-match-source]').forEach(i => i.classList.remove('selected-match'));
+          const srcEl = container.querySelector('[data-match-source="'+selectedSource+'"]');
+          if(srcEl) srcEl.classList.add('matched');
+          selectedSource = null;
+
+          renderPairs(matchId, pairs, pairsDiv, container);
+        });
+      });
+
+      // Check button
+      const checkBtn = document.getElementById(matchId + '-check');
+      if(checkBtn) {
+        checkBtn.addEventListener('click', function() {
+          if(isCompleted(matchId)) return;
+          const fb = document.getElementById(matchId + '-fb');
+          const sources = container.querySelectorAll('[data-match-source]');
+          const totalSources = sources.length;
+
+          if(pairs.length < totalSources) {
+            fb.className = 'feedback show hint';
+            fb.textContent = '💡 Koppel eerst alle kenmerken voordat je controleert!';
+            return;
+          }
+
+          addAttempt(matchId);
+          let correctCount = 0;
+          pairs.forEach(p => {
+            const srcEl = container.querySelector('[data-match-source="'+p.source+'"]');
+            if(srcEl && srcEl.getAttribute('data-match-correct') === p.target) correctCount++;
+          });
+
+          if(correctCount === totalSources) {
+            fb.className = 'feedback show correct';
+            fb.textContent = '✓ Alles goed gekoppeld! Uitstekend!';
+            markExercise(matchId, true);
+          } else if(getAttempts(matchId) >= 3) {
+            fb.className = 'feedback show neutral';
+            let correctText = 'De juiste koppelingen zijn: ';
+            sources.forEach(s => {
+              const name = s.textContent.trim();
+              const correctTarget = s.getAttribute('data-match-correct');
+              const targetEl = container.querySelector('[data-match-target="'+correctTarget+'"]');
+              correctText += name + ' → ' + (targetEl ? targetEl.textContent.trim() : correctTarget) + '; ';
+            });
+            fb.textContent = correctText;
+            markExercise(matchId, false);
+          } else {
+            fb.className = 'feedback show hint';
+            fb.textContent = '💡 ' + correctCount + ' van ' + totalSources + ' koppelingen zijn goed. Probeer de rest opnieuw! (Poging '+getAttempts(matchId)+'/3)';
+          }
+        });
+      }
+    });
+  }
+
+  function renderPairs(matchId, pairs, pairsDiv, container) {
+    if(!pairsDiv) return;
+    pairsDiv.innerHTML = '';
+    pairs.forEach((p, idx) => {
+      const srcEl = container.querySelector('[data-match-source="'+p.source+'"]');
+      const tgtEl = container.querySelector('[data-match-target="'+p.target+'"]');
+      if(!srcEl || !tgtEl) return;
+      const div = document.createElement('div');
+      div.className = 'match-pair-display';
+      div.innerHTML = '<span>' + srcEl.textContent.trim() + ' → ' + tgtEl.textContent.trim() + '</span>';
+      if(!isCompleted(matchId)) {
+        const removeBtn = document.createElement('button');
+        removeBtn.className = 'remove-match';
+        removeBtn.textContent = '✕';
+        removeBtn.addEventListener('click', function() {
+          pairs.splice(idx, 1);
+          srcEl.classList.remove('matched');
+          renderPairs(matchId, pairs, pairsDiv, container);
+        });
+        div.appendChild(removeBtn);
+      }
+      pairsDiv.appendChild(div);
+    });
+  }
+
+  // ========== NAV BUTTONS ==========
+  function setupNav() {
+    document.querySelectorAll('[data-nav]').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const dir = this.getAttribute('data-nav');
+        if(dir === 'next' && currentTab < TOTAL_TABS - 1) switchTab(currentTab + 1);
+        if(dir === 'prev' && currentTab > 0) switchTab(currentTab - 1);
+      });
+    });
+  }
+
+  // ========== RESET SECTION ==========
+  function setupReset() {
+    document.querySelectorAll('[data-reset-tab]').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const tabIdx = parseInt(this.getAttribute('data-reset-tab'));
+        const exIds = getTabExercises(tabIdx);
+
+        exIds.forEach(id => {
+          delete exerciseState[id];
+
+          // Reset MC
+          const mcContainer = document.getElementById(id + '-options');
+          if(mcContainer) {
+            mcContainer.querySelectorAll('.mc-option').forEach(o => {
+              o.classList.remove('selected','correct','incorrect','locked');
+            });
+          }
+
+          // Reset feedback
+          const fb = document.getElementById(id + '-fb');
+          if(fb) { fb.className = 'feedback'; fb.textContent = ''; }
+
+          // Reset textarea
+          const ta = document.getElementById(id + '-text');
+          if(ta) ta.value = '';
+
+          // Reset word count
+          const wc = document.getElementById(id + '-wc');
+          if(wc) { wc.textContent = '0 woorden'; wc.classList.remove('enough'); }
+
+          // Reset show button
+          const showBtn = document.getElementById(id + '-show');
+          if(showBtn) showBtn.style.display = 'none';
+
+          // Reset self-assess
+          const assess = document.getElementById(id + '-assess');
+          if(assess) {
+            assess.classList.remove('show');
+            // Rebuild assess buttons if they were replaced
+            const originalHTML = assess.getAttribute('data-original');
+            if(originalHTML) assess.innerHTML = originalHTML;
+          }
+
+          // Reset drag items
+          const dragList = document.getElementById(id);
+          if(dragList && dragList.classList.contains('drag-list')) {
+            dragList.querySelectorAll('.drag-item').forEach(item => {
+              item.classList.remove('correct-pos','wrong-pos');
+            });
+          }
+
+          // Reset match
+          const matchContainer = document.getElementById(id);
+          if(matchContainer && matchContainer.classList.contains('match-container')) {
+            matchContainer.querySelectorAll('.match-item').forEach(item => {
+              item.classList.remove('selected-match','matched');
+            });
+            const pDiv = document.getElementById(id + '-pairs');
+            if(pDiv) pDiv.innerHTML = '';
+          }
+        });
+
+        saveState();
+        updateProgress();
+        // Re-setup event listeners for self-assess
+        setupSelfAssessForTab(tabIdx);
+      });
+    });
+  }
+
+  function setupSelfAssessForTab(tabIdx) {
+    const exIds = getTabExercises(tabIdx);
+    exIds.forEach(id => {
+      const assess = document.getElementById(id + '-assess');
+      if(!assess) return;
+      assess.querySelectorAll('[data-assess]').forEach(btn => {
+        // Clone and replace to remove old listeners
+        const newBtn = btn.cloneNode(true);
+        btn.parentNode.replaceChild(newBtn, btn);
+        newBtn.addEventListener('click', function() {
+          const aid = this.getAttribute('data-assess');
+          const val = parseInt(this.getAttribute('data-val'));
+          if(isCompleted(aid)) return;
+          markExercise(aid, val === 1);
+          assess.innerHTML = val === 1 ? '<span style="color:var(--success)">✓ Goed beoordeeld!</span>' : '<span style="color:var(--error)">✗ Genoteerd.</span>';
+        });
+      });
+    });
+  }
+
+  // ========== CLEAR PROGRESS ==========
+  function setupClearProgress() {
+    document.getElementById('clearProgressBtn').addEventListener('click', function() {
+      if(confirm('Weet je zeker dat je alle voortgang wilt wissen?')) {
+        storageClear();
+        exerciseState = {};
+        location.reload();
+      }
+    });
+  }
+
+  // ========== MAP ==========
+  function initMap() {
+    const mapEl = document.getElementById('map1');
+    if(!mapEl) return;
+    const map = L.map('map1').setView([50, 25], 4);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap'
+    }).addTo(map);
+
+    L.marker([41.9, 12.5]).addTo(map).bindPopup('<strong>🇮🇹 Rome</strong><br>Breedtegraad: 41°N<br>Klimaat: Mediterraan (Cs)');
+    L.marker([55.75, 37.62]).addTo(map).bindPopup('<strong>🇷🇺 Moskou</strong><br>Breedtegraad: 55°N<br>Klimaat: Continentaal (Dfb)');
+    L.marker([52.37, 4.90]).addTo(map).bindPopup('<strong>🇳🇱 Amsterdam</strong><br>Breedtegraad: 52°N<br>Ter vergelijking');
+
+    maps['map1'] = map;
+  }
+
+  // ========== CHARTS ==========
+  function initCharts() {
+    const months = ['Jan','Feb','Mrt','Apr','Mei','Jun','Jul','Aug','Sep','Okt','Nov','Dec'];
+    const romeTemp = [8,9,12,14,19,23,26,26,22,17,12,9];
+    const moscowTemp = [-8,-6,-1,7,13,17,19,17,11,5,-1,-6];
+    const romeRain = [80,75,65,55,30,18,15,22,68,95,115,90];
+    const moscowRain = [45,38,35,40,55,75,85,78,65,55,50,48];
+
+    // Temperature chart
+    const tempCtx = document.getElementById('tempChart');
+    if(tempCtx) {
+      charts['temp'] = new Chart(tempCtx.getContext('2d'), {
+        type: 'line',
+        data: {
+          labels: months,
+          datasets: [
+            { label: '🇮🇹 Rome', data: romeTemp, borderColor: '#d4603a', backgroundColor: 'rgba(212,96,58,0.1)', borderWidth: 3, fill: true, tension: 0.3 },
+            { label: '🇷🇺 Moskou', data: moscowTemp, borderColor: '#3a6fa0', backgroundColor: 'rgba(58,111,160,0.1)', borderWidth: 3, fill: true, tension: 0.3 }
+          ]
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { position: 'top' } },
+          scales: { y: { title: { display: true, text: '°C' } } }
+        }
+      });
+    }
+
+    // Rain chart
+    const rainCtx = document.getElementById('rainChart');
+    if(rainCtx) {
+      charts['rain'] = new Chart(rainCtx.getContext('2d'), {
+        type: 'bar',
+        data: {
+          labels: months,
+          datasets: [
+            { label: '🇮🇹 Rome', data: romeRain, backgroundColor: 'rgba(212,96,58,0.6)', borderRadius: 4 },
+            { label: '🇷🇺 Moskou', data: moscowRain, backgroundColor: 'rgba(58,111,160,0.6)', borderRadius: 4 }
+          ]
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { position: 'top' } },
+          scales: { y: { title: { display: true, text: 'mm' } } }
+        }
+      });
+    }
+
+    // Climatogram Rome
+    const climRomeCtx = document.getElementById('climatogramRome');
+    if(climRomeCtx) {
+      charts['climRome'] = new Chart(climRomeCtx.getContext('2d'), {
+        type: 'bar',
+        data: {
+          labels: months,
+          datasets: [
+            { label: 'Neerslag (mm)', data: romeRain, backgroundColor: 'rgba(58,111,160,0.5)', borderRadius: 4, yAxisID: 'y1', order: 2 },
+            { label: 'Temperatuur (°C)', data: romeTemp, type: 'line', borderColor: '#d4603a', backgroundColor: 'transparent', borderWidth: 3, tension: 0.3, yAxisID: 'y', order: 1, pointRadius: 4, pointBackgroundColor: '#d4603a' }
+          ]
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { position: 'top' } },
+          scales: {
+            y: { position: 'left', title: { display: true, text: '°C' }, min: -15, max: 35 },
+            y1: { position: 'right', title: { display: true, text: 'mm' }, min: 0, max: 150, grid: { drawOnChartArea: false } }
+          }
+        }
+      });
+    }
+
+    // Climatogram Moscow
+    const climMoscCtx = document.getElementById('climatogramMoscow');
+    if(climMoscCtx) {
+      charts['climMosc'] = new Chart(climMoscCtx.getContext('2d'), {
+        type: 'bar',
+        data: {
+          labels: months,
+          datasets: [
+            { label: 'Neerslag (mm)', data: moscowRain, backgroundColor: 'rgba(58,111,160,0.5)', borderRadius: 4, yAxisID: 'y1', order: 2 },
+            { label: 'Temperatuur (°C)', data: moscowTemp, type: 'line', borderColor: '#3a6fa0', backgroundColor: 'transparent', borderWidth: 3, tension: 0.3, yAxisID: 'y', order: 1, pointRadius: 4, pointBackgroundColor: '#3a6fa0' }
+          ]
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { position: 'top' } },
+          scales: {
+            y: { position: 'left', title: { display: true, text: '°C' }, min: -15, max: 35 },
+            y1: { position: 'right', title: { display: true, text: 'mm' }, min: 0, max: 150, grid: { drawOnChartArea: false } }
+          }
+        }
+      });
+    }
+  }
+
+  // ========== SAVE ORIGINAL ASSESS HTML ==========
+  function saveAssessOriginals() {
+    document.querySelectorAll('.self-assess').forEach(el => {
+      el.setAttribute('data-original', el.innerHTML);
+    });
+  }
+
+  // ========== RESTORE STATE ON LOAD ==========
+  function restoreUI() {
+    // Restore MC states
+    Object.keys(MC_ANSWERS).forEach(qId => {
+      if(isCompleted(qId)) {
+        const config = MC_ANSWERS[qId];
+        lockMC(qId);
+        const fb = document.getElementById(qId + '-fb');
+        if(fb) {
+          if(exerciseState[qId].correct) {
+            fb.className = 'feedback show correct';
+            fb.textContent = '✓ Goed zo! ' + config.answer;
+          } else {
+            fb.className = 'feedback show neutral';
+            fb.textContent = 'Het juiste antwoord was: ' + config.answer;
+          }
+        }
+        // Highlight correct option
+        const container = document.getElementById(qId + '-options');
+        if(container) {
+          container.querySelectorAll('.mc-option').forEach(o => {
+            if(o.getAttribute('data-answer') === config.correct) o.classList.add('correct');
+          });
+        }
+      }
+    });
+
+    // Restore open question states
+    Object.keys(OPEN_EXAMPLES).forEach(id => {
+      if(isCompleted(id)) {
+        const showBtn = document.getElementById(id + '-show');
+        if(showBtn) showBtn.style.display = 'none';
+        const assess = document.getElementById(id + '-assess');
+        if(assess) {
+          if(exerciseState[id].correct) {
+            assess.classList.add('show');
+            assess.innerHTML = '<span style="color:var(--success)">✓ Goed beoordeeld!</span>';
+          } else {
+            assess.classList.add('show');
+            assess.innerHTML = '<span style="color:var(--error)">✗ Genoteerd.</span>';
+          }
+        }
+      }
+    });
+
+    // Restore drag states
+    ['drag-oorzaken','drag-maanden'].forEach(id => {
+      if(isCompleted(id)) {
+        const fb = document.getElementById(id + '-fb');
+        if(fb && exerciseState[id].correct) {
+          fb.className = 'feedback show correct';
+          fb.textContent = '✓ Volgorde correct!';
+        }
+      }
+    });
+
+    // Restore match states
+    ['match-klimaat','match-cultuur'].forEach(id => {
+      if(isCompleted(id)) {
+        const fb = document.getElementById(id + '-fb');
+        if(fb && exerciseState[id].correct) {
+          fb.className = 'feedback show correct';
+          fb.textContent = '✓ Alles goed gekoppeld!';
+        }
+      }
+    });
+  }
+
+  // ========== INIT ==========
+  window.addEventListener('DOMContentLoaded', function() {
+    loadState();
+    buildTabs();
+    saveAssessOriginals();
+    setupMC();
+    setupOpen();
+    setupDragDrop();
+    setupMatch();
+    setupNav();
+    setupReset();
+    setupClearProgress();
+    initMap();
+    initCharts();
+    switchTab(currentTab);
+    restoreUI();
+    updateProgress();
+  });
+
+})();
+</script>
+</body>
+</html>
