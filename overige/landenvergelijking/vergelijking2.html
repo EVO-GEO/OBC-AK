@@ -1,1 +1,2387 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Klimaatreis: Zwitserland & Brazilië</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --forest-deep: #1a3c2a;
+  --forest-mid: #2d5e3f;
+  --forest-light: #4a8c5e;
+  --forest-pale: #7ab88a;
+  --forest-mist: #c8e6cf;
+  --forest-whisper: #e8f5eb;
+  --earth-warm: #8b6914;
+  --earth-gold: #d4a017;
+  --earth-sand: #f0e4c4;
+  --earth-cream: #faf6ee;
+  --brazil-green: #009c3b;
+  --brazil-yellow: #ffdf00;
+  --brazil-blue: #002776;
+  --swiss-red: #d52b1e;
+  --swiss-white: #ffffff;
+  --text-dark: #1a2e1f;
+  --text-mid: #3d5c47;
+  --text-light: #6b8f74;
+  --bg-main: #f4f9f5;
+  --bg-card: #ffffff;
+  --shadow-soft: 0 2px 12px rgba(26,60,42,0.08);
+  --shadow-mid: 0 4px 20px rgba(26,60,42,0.12);
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --spacing-xs: 8px;
+  --spacing-sm: 14px;
+  --spacing-md: 24px;
+  --spacing-lg: 40px;
+  --correct-bg: #e6f9ed;
+  --correct-border: #2ecc71;
+  --wrong-bg: #fdecea;
+  --wrong-border: #e74c3c;
+  --hint-bg: #fff8e1;
+  --hint-border: #f9a825;
+}
 
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Nunito', sans-serif;
+  background: var(--bg-main);
+  color: var(--text-dark);
+  line-height: 1.7;
+  min-height: 100vh;
+}
+
+/* ── Progress Bar ── */
+.progress-container {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: var(--forest-deep);
+  padding: 10px 20px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  box-shadow: 0 3px 16px rgba(0,0,0,0.2);
+}
+
+.progress-title {
+  color: var(--forest-mist);
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+  letter-spacing: 0.5px;
+}
+
+.progress-bar-outer {
+  flex: 1;
+  height: 14px;
+  background: rgba(255,255,255,0.12);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.progress-bar-inner {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--forest-light), var(--brazil-yellow));
+  border-radius: 10px;
+  transition: width 0.5s ease;
+}
+
+.progress-pct {
+  color: var(--brazil-yellow);
+  font-weight: 800;
+  font-size: 14px;
+  min-width: 42px;
+  text-align: right;
+}
+
+/* ── Tab Navigation ── */
+.tab-nav-wrapper {
+  position: sticky;
+  top: 44px;
+  z-index: 999;
+  background: var(--forest-mid);
+  border-bottom: 3px solid var(--earth-gold);
+}
+
+.tab-counter {
+  text-align: center;
+  color: var(--forest-mist);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 0 0 0;
+  letter-spacing: 0.5px;
+}
+
+.tab-nav {
+  display: flex;
+  overflow-x: auto;
+  padding: 6px 10px 8px;
+  gap: 4px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--forest-pale) transparent;
+}
+
+.tab-nav::-webkit-scrollbar { height: 4px; }
+.tab-nav::-webkit-scrollbar-thumb { background: var(--forest-pale); border-radius: 4px; }
+
+.tab-btn {
+  flex-shrink: 0;
+  padding: 7px 16px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: rgba(255,255,255,0.08);
+  color: var(--forest-mist);
+  font-family: 'Nunito', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s;
+  white-space: nowrap;
+}
+
+.tab-btn:hover { background: rgba(255,255,255,0.18); }
+.tab-btn.active {
+  background: var(--bg-main);
+  color: var(--forest-deep);
+  font-weight: 800;
+}
+
+.tab-btn.completed::after {
+  content: ' ✓';
+  color: var(--correct-border);
+}
+
+/* ── Content Area ── */
+.tab-content { display: none; padding: 24px 16px 60px; max-width: 860px; margin: 0 auto; }
+.tab-content.active { display: block; }
+
+/* ── Section Styles ── */
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: var(--spacing-md);
+}
+
+.section-emoji {
+  font-size: 42px;
+  line-height: 1;
+}
+
+.section-title {
+  font-size: 26px;
+  font-weight: 900;
+  color: var(--forest-deep);
+  line-height: 1.2;
+}
+
+.section-subtitle {
+  font-size: 14px;
+  color: var(--text-light);
+  font-weight: 600;
+  margin-top: 2px;
+}
+
+/* ── Info Cards ── */
+.info-card {
+  background: var(--bg-card);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
+  box-shadow: var(--shadow-soft);
+  border-left: 5px solid var(--forest-light);
+}
+
+.info-card h3 {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--forest-mid);
+  margin-bottom: 10px;
+}
+
+.info-card p { margin-bottom: 12px; font-size: 15px; color: var(--text-dark); }
+
+.brazil-card { border-left-color: var(--brazil-green); }
+.swiss-card { border-left-color: var(--swiss-red); }
+.gold-card { border-left-color: var(--earth-gold); }
+
+/* ── Comparison Table ── */
+.compare-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  margin: var(--spacing-md) 0;
+  box-shadow: var(--shadow-soft);
+  font-size: 14px;
+}
+
+.compare-table th {
+  background: var(--forest-deep);
+  color: white;
+  padding: 12px 14px;
+  text-align: left;
+  font-weight: 700;
+}
+
+.compare-table td {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--forest-whisper);
+  background: white;
+}
+
+.compare-table tr:last-child td { border-bottom: none; }
+.compare-table tr:nth-child(even) td { background: var(--forest-whisper); }
+
+/* ── Emoji Process Flow ── */
+.process-flow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: var(--spacing-md);
+  background: linear-gradient(135deg, var(--forest-whisper), var(--earth-cream));
+  border-radius: var(--radius-md);
+  margin: var(--spacing-md) 0;
+}
+
+.process-step {
+  text-align: center;
+  padding: 10px 14px;
+  background: white;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-soft);
+  min-width: 90px;
+}
+
+.process-step .emoji { font-size: 32px; display: block; margin-bottom: 4px; }
+.process-step .label { font-size: 12px; font-weight: 700; color: var(--text-mid); }
+.process-arrow { font-size: 24px; color: var(--forest-light); }
+
+/* ── Quiz / Question Blocks ── */
+.question-block {
+  background: var(--bg-card);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-md);
+  margin: var(--spacing-md) 0;
+  box-shadow: var(--shadow-soft);
+  border: 2px solid var(--forest-mist);
+}
+
+.question-block.completed-correct { border-color: var(--correct-border); background: var(--correct-bg); }
+.question-block.completed-wrong { border-color: var(--wrong-border); background: var(--wrong-bg); }
+.question-block.completed-self { border-color: var(--forest-light); background: var(--forest-whisper); }
+
+.q-label {
+  display: inline-block;
+  background: var(--forest-deep);
+  color: white;
+  font-size: 11px;
+  font-weight: 800;
+  padding: 3px 10px;
+  border-radius: 20px;
+  margin-bottom: 10px;
+  letter-spacing: 0.5px;
+}
+
+.q-text {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--forest-deep);
+  margin-bottom: 14px;
+  line-height: 1.5;
+}
+
+/* MC options */
+.mc-options { display: flex; flex-direction: column; gap: 8px; }
+
+.mc-opt {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 12px 16px;
+  border: 2px solid var(--forest-mist);
+  border-radius: var(--radius-sm);
+  background: white;
+  font-family: 'Nunito', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-dark);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.mc-opt:hover:not(:disabled) { border-color: var(--forest-light); background: var(--forest-whisper); }
+.mc-opt:disabled { cursor: default; opacity: 0.8; }
+.mc-opt.selected-correct { border-color: var(--correct-border); background: var(--correct-bg); }
+.mc-opt.selected-wrong { border-color: var(--wrong-border); background: var(--wrong-bg); }
+.mc-opt.show-correct { border-color: var(--correct-border); background: var(--correct-bg); }
+
+/* Feedback */
+.feedback {
+  display: none;
+  padding: 12px 16px;
+  border-radius: var(--radius-sm);
+  margin-top: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.feedback.hint { background: var(--hint-bg); border: 1px solid var(--hint-border); color: #7a6200; }
+.feedback.correct { background: var(--correct-bg); border: 1px solid var(--correct-border); color: #1a7a3a; }
+.feedback.wrong { background: var(--wrong-bg); border: 1px solid var(--wrong-border); color: #a8321e; }
+
+/* Textarea questions */
+.open-textarea {
+  width: 100%;
+  min-height: 100px;
+  padding: 12px;
+  border: 2px solid var(--forest-mist);
+  border-radius: var(--radius-sm);
+  font-family: 'Nunito', sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  resize: vertical;
+  color: var(--text-dark);
+}
+
+.open-textarea:focus { outline: none; border-color: var(--forest-light); }
+
+.word-counter {
+  text-align: right;
+  font-size: 12px;
+  color: var(--text-light);
+  margin-top: 4px;
+  font-weight: 600;
+}
+
+.word-counter.enough { color: var(--correct-border); }
+
+.btn-show-example, .btn-self-correct, .btn-self-wrong {
+  display: none;
+  padding: 8px 18px;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: 'Nunito', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 8px;
+  margin-right: 6px;
+  transition: all 0.2s;
+}
+
+.btn-show-example { background: var(--earth-gold); color: white; }
+.btn-show-example:hover { background: var(--earth-warm); }
+.btn-self-correct { background: var(--correct-border); color: white; }
+.btn-self-wrong { background: var(--wrong-border); color: white; }
+
+.example-answer {
+  display: none;
+  background: var(--earth-cream);
+  border: 1px solid var(--earth-gold);
+  padding: 14px;
+  border-radius: var(--radius-sm);
+  margin-top: 10px;
+  font-size: 14px;
+  color: var(--text-dark);
+  line-height: 1.6;
+}
+
+.self-assess-btns { display: none; margin-top: 10px; }
+
+/* Drag and Drop */
+.drag-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 12px 0;
+}
+
+.drag-item {
+  padding: 12px 16px;
+  background: white;
+  border: 2px solid var(--forest-mist);
+  border-radius: var(--radius-sm);
+  cursor: grab;
+  font-size: 14px;
+  font-weight: 600;
+  user-select: none;
+  transition: all 0.15s;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.drag-item:active { cursor: grabbing; }
+.drag-item .drag-handle { color: var(--text-light); font-size: 18px; }
+.drag-item.dragging { opacity: 0.4; border-style: dashed; }
+.drag-item.drag-over { border-color: var(--forest-light); background: var(--forest-whisper); }
+.drag-item.correct-pos { border-color: var(--correct-border); background: var(--correct-bg); }
+.drag-item.wrong-pos { border-color: var(--wrong-border); background: var(--wrong-bg); }
+
+/* Match / Koppel */
+.match-container { display: flex; flex-direction: column; gap: 10px; margin: 14px 0; }
+
+.match-sources, .match-targets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.match-source {
+  padding: 8px 16px;
+  background: white;
+  border: 2px solid var(--forest-mist);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 700;
+  transition: all 0.2s;
+}
+
+.match-source:hover:not(.matched) { border-color: var(--forest-light); }
+.match-source.selected { border-color: var(--earth-gold); background: var(--hint-bg); }
+.match-source.matched { border-color: var(--forest-pale); background: var(--forest-whisper); opacity: 0.7; }
+
+.match-target {
+  padding: 12px 16px;
+  background: white;
+  border: 2px dashed var(--forest-mist);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  min-height: 50px;
+  transition: all 0.2s;
+  position: relative;
+}
+
+.match-target:hover { border-color: var(--forest-light); }
+
+.match-target .matched-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 6px;
+}
+
+.matched-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  background: var(--forest-whisper);
+  border: 1px solid var(--forest-pale);
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--forest-deep);
+}
+
+.matched-tag .remove-match {
+  cursor: pointer;
+  color: var(--swiss-red);
+  font-weight: 800;
+  font-size: 14px;
+  margin-left: 2px;
+}
+
+/* Buttons */
+.btn {
+  padding: 10px 22px;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: 'Nunito', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-primary { background: var(--forest-mid); color: white; }
+.btn-primary:hover { background: var(--forest-deep); }
+.btn-secondary { background: var(--earth-sand); color: var(--earth-warm); }
+.btn-secondary:hover { background: var(--earth-gold); color: white; }
+.btn-check { background: var(--forest-light); color: white; margin-top: 10px; }
+.btn-check:hover { background: var(--forest-mid); }
+
+/* Nav Buttons */
+.nav-buttons {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: var(--spacing-lg);
+  padding-top: var(--spacing-md);
+  border-top: 2px solid var(--forest-whisper);
+}
+
+.btn-nav {
+  padding: 12px 28px;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: 'Nunito', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-prev { background: var(--earth-sand); color: var(--earth-warm); }
+.btn-prev:hover { background: var(--earth-gold); color: white; }
+.btn-next { background: var(--forest-mid); color: white; }
+.btn-next:hover { background: var(--forest-deep); }
+
+.btn-reset-tab {
+  display: block;
+  margin: var(--spacing-md) auto 0;
+  padding: 6px 16px;
+  border: 1px solid var(--forest-mist);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-light);
+  font-family: 'Nunito', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-reset-tab:hover { background: var(--wrong-bg); color: var(--wrong-border); border-color: var(--wrong-border); }
+
+/* Map */
+.map-container {
+  height: 400px;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  margin: var(--spacing-md) 0;
+  box-shadow: var(--shadow-mid);
+  border: 3px solid var(--forest-mist);
+}
+
+/* Chart */
+.chart-container {
+  background: white;
+  border-radius: var(--radius-md);
+  padding: var(--spacing-md);
+  margin: var(--spacing-md) 0;
+  box-shadow: var(--shadow-soft);
+}
+
+/* Fun Fact */
+.fun-fact {
+  background: linear-gradient(135deg, var(--forest-whisper), var(--earth-cream));
+  border-radius: var(--radius-md);
+  padding: var(--spacing-md);
+  margin: var(--spacing-md) 0;
+  border: 2px dashed var(--earth-gold);
+}
+
+.fun-fact .ff-title {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--earth-warm);
+  margin-bottom: 6px;
+}
+
+/* Leefwereld box */
+.leefwereld-box {
+  background: linear-gradient(135deg, #e8f0fe, #f0f4ff);
+  border-left: 5px solid #5b86e5;
+  border-radius: var(--radius-sm);
+  padding: 16px;
+  margin: var(--spacing-md) 0;
+  font-size: 14px;
+}
+
+.leefwereld-box .lw-title {
+  font-weight: 800;
+  color: #3d5ba9;
+  margin-bottom: 6px;
+  font-size: 14px;
+}
+
+/* Score Panel */
+.score-panel {
+  background: linear-gradient(135deg, var(--forest-deep), var(--forest-mid));
+  color: white;
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+  text-align: center;
+  margin: var(--spacing-md) 0;
+}
+
+.score-big { font-size: 60px; font-weight: 900; color: var(--brazil-yellow); }
+.score-label { font-size: 16px; font-weight: 600; opacity: 0.8; }
+
+/* Clear progress btn */
+.btn-clear-progress {
+  display: block;
+  margin: var(--spacing-md) auto;
+  padding: 8px 20px;
+  border: 2px solid var(--wrong-border);
+  border-radius: var(--radius-sm);
+  background: white;
+  color: var(--wrong-border);
+  font-family: 'Nunito', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.btn-clear-progress:hover { background: var(--wrong-bg); }
+
+/* Welcome header */
+.welcome-header {
+  text-align: center;
+  padding: var(--spacing-lg) 0 var(--spacing-md);
+}
+
+.welcome-header h1 {
+  font-size: 32px;
+  font-weight: 900;
+  color: var(--forest-deep);
+  margin-bottom: 8px;
+}
+
+.welcome-header p {
+  font-size: 16px;
+  color: var(--text-mid);
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.welcome-flags {
+  font-size: 48px;
+  margin-bottom: 10px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .tab-content { padding: 16px 12px 50px; }
+  .section-title { font-size: 22px; }
+  .section-emoji { font-size: 34px; }
+  .map-container { height: 300px; }
+  .score-big { font-size: 44px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ══ Progress Bar ══ -->
+<div class="progress-container">
+  <span class="progress-title">✈️ KLIMAATREIS</span>
+  <div class="progress-bar-outer"><div class="progress-bar-inner" id="progressBar"></div></div>
+  <span class="progress-pct" id="progressPct">0%</span>
+</div>
+
+<!-- ══ Tab Navigation ══ -->
+<div class="tab-nav-wrapper">
+  <div class="tab-counter" id="tabCounter">Onderdeel 1 van 11</div>
+  <div class="tab-nav" id="tabNav"></div>
+</div>
+
+<!-- ════════════════════════════════════════════ -->
+<!-- TAB 0: WELKOM -->
+<!-- ════════════════════════════════════════════ -->
+<div class="tab-content" id="tab0">
+  <div class="welcome-header">
+    <div class="welcome-flags">🇨🇭 ✈️ 🇧🇷</div>
+    <h1>Klimaatreis: Zwitserland & Brazilië</h1>
+    <p>Welkom bij deze interactieve les! Je gaat ontdekken waarom het klimaat in Zwitserland en Brazilië zo enorm verschilt — en wat dat betekent voor de mensen die er wonen.</p>
+  </div>
+
+  <div class="info-card gold-card">
+    <h3>📋 Wat ga je leren?</h3>
+    <p><strong>Leerdoel 1:</strong> Je kunt de belangrijkste klimaatverschillen tussen Zwitserland en Brazilië benoemen aan de hand van temperatuur en neerslag.</p>
+    <p><strong>Leerdoel 2:</strong> Je kunt uitleggen waardoor het klimaat in beide landen zo verschilt, door ten minste twee oorzaken te noemen (zoals ligging t.o.v. de evenaar en hoogteligging).</p>
+    <p><strong>Leerdoel 3:</strong> Je kunt op een klimaatgrafiek aflezen welk klimaattype bij elk land hoort en deze vergelijken.</p>
+  </div>
+
+  <div class="info-card">
+    <h3>🧭 Hoe werkt deze les?</h3>
+    <p>Je werkt door 11 onderdelen. Bovenaan zie je je voortgang. Gebruik de tabbladen of de knoppen onderaan om door de les te navigeren. Bij elke opdracht krijg je feedback — soms direct, soms met een voorbeeldantwoord waarmee je jezelf beoordeelt.</p>
+    <p>Neem de tijd: deze les is ontworpen voor ongeveer 80 minuten. Lees de uitleg goed door, want je hebt geen boek nodig — alle informatie staat hier.</p>
+    <p><strong>Tip:</strong> Je voortgang wordt automatisch opgeslagen. Je kunt later verder waar je gebleven bent.</p>
+  </div>
+
+  <div class="leefwereld-box">
+    <div class="lw-title">🌍 Jouw wereld</div>
+    <p>Stel je voor: je wint een reis en mag kiezen tussen twee weken Zwitserland of twee weken Brazilië. Welk land kies je? Houd je keuze in gedachten — aan het einde van de les kijk je of je antwoord veranderd is!</p>
+  </div>
+
+  <!-- Q0-1: Open vraag -->
+  <div class="question-block" id="q0_1">
+    <span class="q-label">OPEN VRAAG</span>
+    <div class="q-text">Welk land zou jij kiezen voor een vakantie: Zwitserland of Brazilië? Leg in minimaal 2 zinnen uit waarom.</div>
+    <textarea class="open-textarea" data-qid="q0_1" placeholder="Schrijf hier je antwoord..."></textarea>
+    <div class="word-counter" data-qid="q0_1">0 woorden</div>
+    <button class="btn-show-example" data-qid="q0_1">Toon voorbeeldantwoord</button>
+    <div class="example-answer" data-qid="q0_1">
+      <strong>Voorbeeldantwoord:</strong> "Ik zou kiezen voor Brazilië, omdat ik graag naar het strand ga en van warm weer houd. Ik wil graag het regenwoud zien en de cultuur in Rio de Janeiro ervaren." <em>Of:</em> "Ik zou kiezen voor Zwitserland, want ik houd van bergen en wintersport. Ik zou graag gaan skiën in de Alpen en chocolade proeven."
+    </div>
+    <div class="self-assess-btns" data-qid="q0_1">
+      <button class="btn-self-correct" data-qid="q0_1">Goed ✓</button>
+      <button class="btn-self-wrong" data-qid="q0_1">Fout ✗</button>
+    </div>
+  </div>
+
+  <div class="nav-buttons">
+    <div></div>
+    <button class="btn-nav btn-next" data-next="1">Volgende →</button>
+  </div>
+  <button class="btn-reset-tab" data-tab="0">↺ Reset dit onderdeel</button>
+</div>
+
+<!-- ════════════════════════════════════════════ -->
+<!-- TAB 1: DE KAART VERKENNEN -->
+<!-- ════════════════════════════════════════════ -->
+<div class="tab-content" id="tab1">
+  <div class="section-header">
+    <span class="section-emoji">🗺️</span>
+    <div>
+      <div class="section-title">De kaart verkennen</div>
+      <div class="section-subtitle">Waar liggen Zwitserland en Brazilië precies?</div>
+    </div>
+  </div>
+
+  <div class="info-card">
+    <h3>📍 Ligging op de wereldkaart</h3>
+    <p>Zwitserland en Brazilië liggen op totaal verschillende plekken op de aarde. Zwitserland is een klein bergland in het midden van Europa, op ongeveer 47° noorderbreedte. Brazilië is het grootste land van Zuid-Amerika en strekt zich uit van de evenaar tot ongeveer 33° zuiderbreedte.</p>
+    <p>Dat verschil in ligging is cruciaal voor het klimaat. Hoe dichter een land bij de evenaar ligt, hoe meer direct zonlicht het ontvangt. De evenaar is de denkbeeldige lijn die de aarde in twee helften deelt — het noordelijk en het zuidelijk halfrond. Rond de evenaar schijnt de zon het hele jaar bijna recht van boven, waardoor het er warm is.</p>
+    <p>Zwitserland ligt veel verder van de evenaar af, in de zogenaamde <strong>gematigde zone</strong>. Daar zijn de seizoenen duidelijk merkbaar: warme zomers en koude winters. Brazilië ligt grotendeels in de <strong>tropische zone</strong>, waar het het hele jaar door warm is.</p>
+  </div>
+
+  <div class="leefwereld-box">
+    <div class="lw-title">🌍 Jouw wereld</div>
+    <p>Nederland ligt op ongeveer 52° noorderbreedte — nog verder van de evenaar dan Zwitserland. Als je 's winters naar school fietst en het is donker en koud, komt dat doordat de zon dan laag aan de hemel staat. In Brazilië staat de zon op dat moment hoog en is het lekker warm!</p>
+  </div>
+
+  <div id="map1" class="map-container"></div>
+
+  <div class="fun-fact">
+    <div class="ff-title">✈️ Reiswetje</div>
+    <p>Een vlucht van Zürich naar São Paulo duurt ongeveer 12 uur. Je overbrugt dan zo'n 9.500 kilometer — en je reist van de gematigde klimaatzone naar de tropen!</p>
+  </div>
+
+  <!-- Q1-1: MC -->
+  <div class="question-block" id="q1_1">
+    <span class="q-label">KENNISVRAAG</span>
+    <div class="q-text">Op welk halfrond ligt Zwitserland?</div>
+    <div class="mc-options">
+      <button class="mc-opt" data-qid="q1_1" data-value="a">A. Zuidelijk halfrond</button>
+      <button class="mc-opt" data-qid="q1_1" data-value="b">B. Noordelijk halfrond</button>
+      <button class="mc-opt" data-qid="q1_1" data-value="c">C. Op de evenaar</button>
+    </div>
+    <div class="feedback" data-qid="q1_1"></div>
+  </div>
+
+  <!-- Q1-2: MC -->
+  <div class="question-block" id="q1_2">
+    <span class="q-label">KENNISVRAAG</span>
+    <div class="q-text">In welke klimaatzone ligt het grootste deel van Brazilië?</div>
+    <div class="mc-options">
+      <button class="mc-opt" data-qid="q1_2" data-value="a">A. De poolzone</button>
+      <button class="mc-opt" data-qid="q1_2" data-value="b">B. De gematigde zone</button>
+      <button class="mc-opt" data-qid="q1_2" data-value="c">C. De tropische zone</button>
+    </div>
+    <div class="feedback" data-qid="q1_2"></div>
+  </div>
+
+  <!-- Q1-3: Open -->
+  <div class="question-block" id="q1_3">
+    <span class="q-label">DENKVRAAG</span>
+    <div class="q-text">Bekijk de kaart hierboven. Beschrijf in je eigen woorden waarom de afstand tot de evenaar invloed heeft op de temperatuur van een land. Gebruik minstens 2 zinnen.</div>
+    <textarea class="open-textarea" data-qid="q1_3" placeholder="Schrijf hier je antwoord..."></textarea>
+    <div class="word-counter" data-qid="q1_3">0 woorden</div>
+    <button class="btn-show-example" data-qid="q1_3">Toon voorbeeldantwoord</button>
+    <div class="example-answer" data-qid="q1_3">
+      <strong>Voorbeeldantwoord:</strong> "Bij de evenaar komen de zonnestralen recht naar beneden, waardoor de energie geconcentreerd is op een klein oppervlak. Daardoor wordt het er warm. Verder van de evenaar vallen de zonnestralen schuin, waardoor dezelfde hoeveelheid energie over een groter oppervlak wordt verspreid en het dus koeler is."
+    </div>
+    <div class="self-assess-btns" data-qid="q1_3">
+      <button class="btn-self-correct" data-qid="q1_3">Goed ✓</button>
+      <button class="btn-self-wrong" data-qid="q1_3">Fout ✗</button>
+    </div>
+  </div>
+
+  <div class="nav-buttons">
+    <button class="btn-nav btn-prev" data-prev="0">← Vorige</button>
+    <button class="btn-nav btn-next" data-next="2">Volgende →</button>
+  </div>
+  <button class="btn-reset-tab" data-tab="1">↺ Reset dit onderdeel</button>
+</div>
+
+<!-- ════════════════════════════════════════════ -->
+<!-- TAB 2: TEMPERATUUR VERGELIJKEN -->
+<!-- ════════════════════════════════════════════ -->
+<div class="tab-content" id="tab2">
+  <div class="section-header">
+    <span class="section-emoji">🌡️</span>
+    <div>
+      <div class="section-title">Temperatuur vergelijken</div>
+      <div class="section-subtitle">Hoe verschillen de temperaturen door het jaar heen?</div>
+    </div>
+  </div>
+
+  <div class="info-card swiss-card">
+    <h3>🇨🇭 Temperatuur in Zwitserland (Bern)</h3>
+    <p>Zwitserland heeft een <strong>gematigd klimaat</strong> met vier duidelijke seizoenen. In de winter (december–februari) daalt de gemiddelde temperatuur in Bern tot rond het vriespunt: 0°C tot -2°C. In de zomer (juni–augustus) stijgt de temperatuur tot gemiddeld 18–20°C. Het verschil tussen de warmste en koudste maand is dus zo'n 20 graden.</p>
+    <p>In de bergen is het nog veel kouder. Op de top van de Jungfrau (4.158 meter hoogte) is het zelfs in de zomer vaak onder nul. Per 1.000 meter hoogte daalt de temperatuur gemiddeld met 6,5°C — dit noemen we de <strong>temperatuurgradiënt</strong>.</p>
+    <p>Zwitserland heeft gemiddeld 1.500 tot 1.700 zonuren per jaar. Ter vergelijking: Nederland heeft er ongeveer 1.650.</p>
+  </div>
+
+  <div class="info-card brazil-card">
+    <h3>🇧🇷 Temperatuur in Brazilië (Manaus)</h3>
+    <p>Manaus ligt midden in het Amazonegebied, vlak bij de evenaar. De gemiddelde temperatuur is het hele jaar rond de 27–28°C. Er is nauwelijks verschil tussen de seizoenen. Het "koudste" moment is de regentijd, wanneer de bewolking meer zonlicht tegenhoudt, maar ook dan is het nog steeds tropisch warm.</p>
+    <p>In het zuiden van Brazilië (bijv. São Paulo of Porto Alegre) is het iets koeler en zijn er wel lichte seizoensverschillen. Maar nergens in Brazilië wordt het zo koud als in een Zwitserse winter. De gemiddelde jaartemperatuur in São Paulo is ongeveer 20°C, versus 9°C in Bern.</p>
+    <p>De constante warmte bij de evenaar komt doordat de zon daar het hele jaar hoog aan de hemel staat. Er is geen "korte winterdag" zoals wij die kennen.</p>
+  </div>
+
+  <div class="chart-container">
+    <h3 style="margin-bottom:12px;font-weight:800;color:var(--forest-deep);">📊 Gemiddelde maandtemperatuur (°C)</h3>
+    <canvas id="tempChart" height="220"></canvas>
+  </div>
+
+  <div class="leefwereld-box">
+    <div class="lw-title">🌍 Jouw wereld</div>
+    <p>In Nederland heb je vast weleens meegemaakt dat het 's zomers 30°C was en 's winters -5°C. Dat verschil van 35 graden is typisch voor de gematigde zone. In Manaus schommelt de temperatuur het hele jaar slechts 2-3 graden. Stel je voor: je hoeft nooit een winterjas in te pakken!</p>
+  </div>
+
+  <!-- Q2-1: Grafiek aflezen MC -->
+  <div class="question-block" id="q2_1">
+    <span class="q-label">DATA-ANALYSE</span>
+    <div class="q-text">Bekijk de grafiek hierboven. Wat is ongeveer de gemiddelde temperatuur in Bern in januari?</div>
+    <div class="mc-options">
+      <button class="mc-opt" data-qid="q2_1" data-value="a">A. Ongeveer 15°C</button>
+      <button class="mc-opt" data-qid="q2_1" data-value="b">B. Ongeveer 0°C</button>
+      <button class="mc-opt" data-qid="q2_1" data-value="c">C. Ongeveer 10°C</button>
+      <button class="mc-opt" data-qid="q2_1" data-value="d">D. Ongeveer -10°C</button>
+    </div>
+    <div class="feedback" data-qid="q2_1"></div>
+  </div>
+
+  <!-- Q2-2: Grafiek aflezen MC -->
+  <div class="question-block" id="q2_2">
+    <span class="q-label">DATA-ANALYSE</span>
+    <div class="q-text">In welke maand is het temperatuurverschil tussen Bern en Manaus het grootst?</div>
+    <div class="mc-options">
+      <button class="mc-opt" data-qid="q2_2" data-value="a">A. Juli</button>
+      <button class="mc-opt" data-qid="q2_2" data-value="b">B. Januari</button>
+      <button class="mc-opt" data-qid="q2_2" data-value="c">C. April</button>
+    </div>
+    <div class="feedback" data-qid="q2_2"></div>
+  </div>
+
+  <!-- Q2-3: Open -->
+  <div class="question-block" id="q2_3">
+    <span class="q-label">DENKVRAAG</span>
+    <div class="q-text">Leg uit waarom het temperatuurverschil tussen zomer en winter in Bern veel groter is dan in Manaus. Noem minstens één oorzaak.</div>
+    <textarea class="open-textarea" data-qid="q2_3" placeholder="Schrijf hier je antwoord..."></textarea>
+    <div class="word-counter" data-qid="q2_3">0 woorden</div>
+    <button class="btn-show-example" data-qid="q2_3">Toon voorbeeldantwoord</button>
+    <div class="example-answer" data-qid="q2_3">
+      <strong>Voorbeeldantwoord:</strong> "Bern ligt ver van de evenaar (47°N) in de gematigde zone. Door de schuine stand van de aardas krijgt Bern in de winter veel minder zonlicht dan in de zomer. Bij de evenaar is dat verschil minimaal: de zon staat het hele jaar hoog. Daardoor verandert de temperatuur in Manaus nauwelijks."
+    </div>
+    <div class="self-assess-btns" data-qid="q2_3">
+      <button class="btn-self-correct" data-qid="q2_3">Goed ✓</button>
+      <button class="btn-self-wrong" data-qid="q2_3">Fout ✗</button>
+    </div>
+  </div>
+
+  <div class="nav-buttons">
+    <button class="btn-nav btn-prev" data-prev="1">← Vorige</button>
+    <button class="btn-nav btn-next" data-next="3">Volgende →</button>
+  </div>
+  <button class="btn-reset-tab" data-tab="2">↺ Reset dit onderdeel</button>
+</div>
+
+<!-- ════════════════════════════════════════════ -->
+<!-- TAB 3: NEERSLAG VERGELIJKEN -->
+<!-- ════════════════════════════════════════════ -->
+<div class="tab-content" id="tab3">
+  <div class="section-header">
+    <span class="section-emoji">🌧️</span>
+    <div>
+      <div class="section-title">Neerslag vergelijken</div>
+      <div class="section-subtitle">Waar regent het meer — en wanneer?</div>
+    </div>
+  </div>
+
+  <div class="info-card">
+    <h3>💧 Wat is neerslag?</h3>
+    <p>Neerslag is al het water dat uit de lucht valt: regen, sneeuw, hagel en motregen. We meten neerslag in millimeters (mm). Als er 1 mm neerslag valt, betekent dat er op elk vierkante meter 1 liter water is gevallen. In Nederland valt gemiddeld zo'n 850 mm neerslag per jaar, redelijk verspreid over alle maanden.</p>
+    <p>De hoeveelheid neerslag hangt af van verschillende factoren: hoeveel vocht er in de lucht zit, hoe warm de lucht is (warme lucht kan meer vocht bevatten), en of er bergen zijn die wolken dwingen om te stijgen en af te koelen.</p>
+  </div>
+
+  <div class="process-flow">
+    <div class="process-step"><span class="emoji">☀️</span><span class="label">Zon verwarmt water</span></div>
+    <span class="process-arrow">→</span>
+    <div class="process-step"><span class="emoji">🌊</span><span class="label">Verdamping</span></div>
+    <span class="process-arrow">→</span>
+    <div class="process-step"><span class="emoji">☁️</span><span class="label">Wolkvorming</span></div>
+    <span class="process-arrow">→</span>
+    <div class="process-step"><span class="emoji">🌧️</span><span class="label">Neerslag</span></div>
+    <span class="process-arrow">→</span>
+    <div class="process-step"><span class="emoji">🌳</span><span class="label">Afvoer & groei</span></div>
+  </div>
+
+  <div class="info-card brazil-card">
+    <h3>🇧🇷 Neerslag in Brazilië</h3>
+    <p>In Manaus valt gemiddeld zo'n <strong>2.300 mm</strong> neerslag per jaar — bijna drie keer zoveel als in Nederland! Dit komt door de enorme verdamping in de tropen: de felle zon verwarmt het water van de Amazone-rivier en het regenwoud, waardoor er continu veel waterdamp in de lucht zit.</p>
+    <p>Brazilië kent een duidelijk <strong>droog seizoen</strong> (juni–september) en een <strong>nat seizoen</strong> (december–mei). In het natte seizoen kan het elke dag urenlang stortregenen. De regenbuien zijn vaak kort maar hevig — heel anders dan de motregen die we in Nederland kennen.</p>
+  </div>
+
+  <div class="info-card swiss-card">
+    <h3>🇨🇭 Neerslag in Zwitserland</h3>
+    <p>In Bern valt gemiddeld zo'n <strong>1.000 mm</strong> neerslag per jaar. De neerslag is vrij gelijkmatig verspreid over het jaar, met iets meer in de zomer door onweersbuien. In de bergen valt meer neerslag dan in het dal — en in de winter valt die neerslag als sneeuw.</p>
+    <p>De Alpen spelen een grote rol: vochtige lucht die vanuit het zuiden komt, wordt door de bergen omhoog gedwongen. Terwijl de lucht stijgt, koelt deze af en kan het vocht niet meer vasthouden. Zo ontstaat <strong>stuwingsneerslag</strong> — regen of sneeuw aan de windzijde van de bergen.</p>
+  </div>
+
+  <div class="chart-container">
+    <h3 style="margin-bottom:12px;font-weight:800;color:var(--forest-deep);">📊 Gemiddelde maandelijkse neerslag (mm)</h3>
+    <canvas id="rainChart" height="220"></canvas>
+  </div>
+
+  <div class="leefwereld-box">
+    <div class="lw-title">🌍 Jouw wereld</div>
+    <p>Als het in Nederland regent, is dat meestal rustige motregen die uren kan duren. In de tropen werkt dat anders: daar bouwt de warmte overdag op, en 's middags barst een korte maar heftige stortbui los. Heb jij weleens zo'n tropische bui meegemaakt, bijvoorbeeld op vakantie?</p>
+  </div>
+
+  <!-- Q3-1: MC -->
+  <div class="question-block" id="q3_1">
+    <span class="q-label">DATA-ANALYSE</span>
+    <div class="q-text">Bekijk de neerslaggrafiek. In welke maand valt er in Manaus de meeste regen?</div>
+    <div class="mc-options">
+      <button class="mc-opt" data-qid="q3_1" data-value="a">A. Maart</button>
+      <button class="mc-opt" data-qid="q3_1" data-value="b">B. Augustus</button>
+      <button class="mc-opt" data-qid="q3_1" data-value="c">C. December</button>
+    </div>
+    <div class="feedback" data-qid="q3_1"></div>
+  </div>
+
+  <!-- Q3-2: Open -->
+  <div class="question-block" id="q3_2">
+    <span class="q-label">DENKVRAAG</span>
+    <div class="q-text">Leg in je eigen woorden uit wat stuwingsneerslag is en waarom dit in Zwitserland vaak voorkomt. Gebruik minstens 3 zinnen.</div>
+    <textarea class="open-textarea" data-qid="q3_2" placeholder="Schrijf hier je antwoord..."></textarea>
+    <div class="word-counter" data-qid="q3_2">0 woorden</div>
+    <button class="btn-show-example" data-qid="q3_2">Toon voorbeeldantwoord</button>
+    <div class="example-answer" data-qid="q3_2">
+      <strong>Voorbeeldantwoord:</strong> "Stuwingsneerslag ontstaat wanneer vochtige lucht tegen een berg of bergketen wordt gedwongen. De lucht stijgt langs de berghelling omhoog en koelt daarbij af. Koude lucht kan minder waterdamp vasthouden, waardoor het vocht condenseert en het gaat regenen of sneeuwen. In Zwitserland gebeurt dit veel doordat de Alpen als een muur dwars door het land liggen en vochtige lucht uit het zuiden tegenhouden."
+    </div>
+    <div class="self-assess-btns" data-qid="q3_2">
+      <button class="btn-self-correct" data-qid="q3_2">Goed ✓</button>
+      <button class="btn-self-wrong" data-qid="q3_2">Fout ✗</button>
+    </div>
+  </div>
+
+  <!-- Q3-3: MC -->
+  <div class="question-block" id="q3_3">
+    <span class="q-label">KENNISVRAAG</span>
+    <div class="q-text">Hoeveel mm neerslag valt er gemiddeld per jaar in Manaus?</div>
+    <div class="mc-options">
+      <button class="mc-opt" data-qid="q3_3" data-value="a">A. Ongeveer 850 mm</button>
+      <button class="mc-opt" data-qid="q3_3" data-value="b">B. Ongeveer 2.300 mm</button>
+      <button class="mc-opt" data-qid="q3_3" data-value="c">C. Ongeveer 1.500 mm</button>
+    </div>
+    <div class="feedback" data-qid="q3_3"></div>
+  </div>
+
+  <div class="nav-buttons">
+    <button class="btn-nav btn-prev" data-prev="2">← Vorige</button>
+    <button class="btn-nav btn-next" data-next="4">Volgende →</button>
+  </div>
+  <button class="btn-reset-tab" data-tab="3">↺ Reset dit onderdeel</button>
+</div>
+
+<!-- ════════════════════════════════════════════ -->
+<!-- TAB 4: OORZAKEN VAN KLIMAATVERSCHILLEN -->
+<!-- ════════════════════════════════════════════ -->
+<div class="tab-content" id="tab4">
+  <div class="section-header">
+    <span class="section-emoji">🔍</span>
+    <div>
+      <div class="section-title">Oorzaken van klimaatverschillen</div>
+      <div class="section-subtitle">Waarom is het klimaat zo anders?</div>
+    </div>
+  </div>
+
+  <div class="info-card">
+    <h3>🌍 De vier grote oorzaken</h3>
+    <p>Het klimaat van een plek wordt bepaald door een combinatie van factoren. Voor het verschil tussen Zwitserland en Brazilië zijn er vier hoofdoorzaken:</p>
+  </div>
+
+  <div class="info-card gold-card">
+    <h3>1️⃣ Breedteligging (afstand tot de evenaar)</h3>
+    <p>Dit is de belangrijkste factor. De <strong>breedteligging</strong> bepaalt hoeveel zonlicht een plek ontvangt. Brazilië (0–15° ZB) ligt dicht bij de evenaar en krijgt het hele jaar veel direct zonlicht. Zwitserland (47° NB) krijgt in de winter veel minder zon doordat de stralen schuin invallen.</p>
+    <p>Je kunt het vergelijken met een zaklamp: richt je hem recht omlaag op de tafel, dan is de lichtvlek klein en helder (= evenaar). Richt je hem schuin, dan wordt de vlek groter en zwakker (= gematigde zone).</p>
+  </div>
+
+  <div class="info-card gold-card">
+    <h3>2️⃣ Hoogteligging</h3>
+    <p>Hoe hoger je komt, hoe kouder het wordt. Per 1.000 meter stijging daalt de temperatuur gemiddeld met <strong>6,5°C</strong>. Zwitserland is een bergland: Bern ligt al op 540 meter, en de Alpentoppen reiken tot boven de 4.000 meter. Die hoogte maakt het extra koud.</p>
+    <p>Brazilië is grotendeels laagland. Manaus ligt op slechts 90 meter boven zeeniveau, midden in het enorme Amazonebekken. Er zijn geen hoge bergen die de temperatuur drukken.</p>
+  </div>
+
+  <div class="info-card gold-card">
+    <h3>3️⃣ Afstand tot de zee (continentaliteit)</h3>
+    <p>De zee werkt als een <strong>temperatuurbuffer</strong>: water warmt langzamer op dan land, maar koelt ook langzamer af. Kustgebieden hebben daardoor mildere temperaturen. Zwitserland is een binnenland zonder kust, waardoor het continentaler is met grotere temperatuurschommelingen.</p>
+    <p>In het Amazonegebied speelt de enorme verdamping van de rivier en het regenwoud een vergelijkbare rol: het vocht in de lucht houdt de temperatuur stabiel.</p>
+  </div>
+
+  <div class="info-card gold-card">
+    <h3>4️⃣ Luchtcirculatie en windpatronen</h3>
+    <p>Rond de evenaar stijgt warme lucht op, koelt af, en veroorzaakt veel neerslag — dit heet de <strong>Intertropische Convergentiezone (ITCZ)</strong>. Dit is een van de redenen waarom het in Manaus zo veel regent. In de gematigde zone (waar Zwitserland ligt) heersen westwinden die vochtige lucht vanuit de Atlantische Oceaan aanvoeren.</p>
+  </div>
+
+  <div class="leefwereld-box">
+    <div class="lw-title">🌍 Jouw wereld</div>
+    <p>In Nederland merk je de invloed van de zee heel goed: onze winters zijn milder dan in landen op dezelfde breedtegraad maar verder van de zee (zoals Polen of Rusland). Dat is continentaliteit in actie! Heb je weleens gemerkt dat het aan de kust anders aanvoelt dan in Limburg?</p>
+  </div>
+
+  <!-- Q4-1: Drag & Drop sorteer -->
+  <div class="question-block" id="q4_1">
+    <span class="q-label">SORTEEROPDRACHT</span>
+    <div class="q-text">Zet de vier oorzaken van klimaatverschillen in volgorde van meest naar minst belangrijk voor het verschil tussen Zwitserland en Brazilië. Sleep de items naar de juiste positie.</div>
+    <ul class="drag-list" id="dragList1">
+      <li class="drag-item" draggable="true" data-value="breedteligging"><span class="drag-handle">☰</span> Breedteligging</li>
+      <li class="drag-item" draggable="true" data-value="continentaliteit"><span class="drag-handle">☰</span> Continentaliteit</li>
+      <li class="drag-item" draggable="true" data-value="hoogteligging"><span class="drag-handle">☰</span> Hoogteligging</li>
+      <li class="drag-item" draggable="true" data-value="luchtcirculatie"><span class="drag-handle">☰</span> Luchtcirculatie</li>
+    </ul>
+    <button class="btn btn-check" data-qid="q4_1">Controleer volgorde</button>
+    <div class="feedback" data-qid="q4_1"></div>
+  </div>
+
+  <!-- Q4-2: Open -->
+  <div class="question-block" id="q4_2">
+    <span class="q-label">DENKVRAAG</span>
+    <div class="q-text">Stel: je bent op vakantie in Zwitserland en je neemt een kabelbaan van het dal (600m) naar een bergtop op 3.100m hoogte. Hoeveel graden kouder is het op de top dan in het dal? Laat je berekening zien.</div>
+    <textarea class="open-textarea" data-qid="q4_2" placeholder="Schrijf hier je berekening en antwoord..."></textarea>
+    <div class="word-counter" data-qid="q4_2">0 woorden</div>
+    <button class="btn-show-example" data-qid="q4_2">Toon voorbeeldantwoord</button>
+    <div class="example-answer" data-qid="q4_2">
+      <strong>Voorbeeldantwoord:</strong> "Het hoogteverschil is 3.100 - 600 = 2.500 meter. Per 1.000 meter daalt de temperatuur 6,5°C. Dus: 2.500 ÷ 1.000 × 6,5 = 16,25°C. Het is op de top dus ongeveer 16°C kouder dan in het dal. Als het in het dal 20°C is, is het op de top maar 4°C!"
+    </div>
+    <div class="self-assess-btns" data-qid="q4_2">
+      <button class="btn-self-correct" data-qid="q4_2">Goed ✓</button>
+      <button class="btn-self-wrong" data-qid="q4_2">Fout ✗</button>
+    </div>
+  </div>
+
+  <!-- Q4-3: MC -->
+  <div class="question-block" id="q4_3">
+    <span class="q-label">KENNISVRAAG</span>
+    <div class="q-text">Wat betekent "continentaliteit"?</div>
+    <div class="mc-options">
+      <button class="mc-opt" data-qid="q4_3" data-value="a">A. De invloed van de hoogteligging op het klimaat</button>
+      <button class="mc-opt" data-qid="q4_3" data-value="b">B. De invloed van de afstand tot de zee op het klimaat</button>
+      <button class="mc-opt" data-qid="q4_3" data-value="c">C. De invloed van windrichting op het klimaat</button>
+    </div>
+    <div class="feedback" data-qid="q4_3"></div>
+  </div>
+
+  <div class="nav-buttons">
+    <button class="btn-nav btn-prev" data-prev="3">← Vorige</button>
+    <button class="btn-nav btn-next" data-next="5">Volgende →</button>
+  </div>
+  <button class="btn-reset-tab" data-tab="4">↺ Reset dit onderdeel</button>
+</div>
+
+<!-- ════════════════════════════════════════════ -->
+<!-- TAB 5: KLIMAATTYPEN -->
+<!-- ════════════════════════════════════════════ -->
+<div class="tab-content" id="tab5">
+  <div class="section-header">
+    <span class="section-emoji">🏷️</span>
+    <div>
+      <div class="section-title">Klimaattypen herkennen</div>
+      <div class="section-subtitle">De indeling van Köppen</div>
+    </div>
+  </div>
+
+  <div class="info-card">
+    <h3>🗂️ Klimaatclassificatie van Köppen</h3>
+    <p>Wetenschappers hebben het klimaat op aarde ingedeeld in klimaattypen. De bekendste indeling is die van <strong>Wladimir Köppen</strong> (1846–1940), een Duits-Russische klimatoloog. Hij deelde klimaten in op basis van temperatuur en neerslag — dezelfde kenmerken die je in deze les hebt bestudeerd.</p>
+    <p>De hoofdgroepen zijn aangeduid met letters: <strong>A</strong> (tropisch), <strong>B</strong> (droog), <strong>C</strong> (gematigd), <strong>D</strong> (continentaal), en <strong>E</strong> (polair). Elke letter krijgt nog sublettes voor details over neerslag en temperatuur.</p>
+    <p>Voor deze les zijn twee typen het belangrijkst:</p>
+  </div>
+
+  <table class="compare-table">
+    <tr>
+      <th></th>
+      <th>🇧🇷 Brazilië (Manaus)</th>
+      <th>🇨🇭 Zwitserland (Bern)</th>
+    </tr>
+    <tr>
+      <td><strong>Köppen-code</strong></td>
+      <td>Af (Tropisch regenwoudklimaat)</td>
+      <td>Cfb (Gematigd zeeklimaat)</td>
+    </tr>
+    <tr>
+      <td><strong>Temperatuur</strong></td>
+      <td>Elke maand boven 18°C</td>
+      <td>Warmste maand onder 22°C, 4+ maanden boven 10°C</td>
+    </tr>
+    <tr>
+      <td><strong>Neerslag</strong></td>
+      <td>Elke maand minstens 60 mm</td>
+      <td>Vrij gelijkmatig verdeeld, geen echt droog seizoen</td>
+    </tr>
+    <tr>
+      <td><strong>Kenmerkend</strong></td>
+      <td>Altijd warm en nat</td>
+      <td>Milde zomers, koele winters</td>
+    </tr>
+    <tr>
+      <td><strong>Vegetatie</strong></td>
+      <td>Tropisch regenwoud</td>
+      <td>Loofbos, alpenweiden</td>
+    </tr>
+  </table>
+
+  <div class="info-card">
+    <h3>📖 Hoe lees je de Köppen-code?</h3>
+    <p>De code <strong>Af</strong> lees je als volgt: de <strong>A</strong> staat voor tropisch klimaat (gemiddelde temperatuur elke maand boven 18°C). De kleine <strong>f</strong> betekent dat er geen droog seizoen is ("f" van het Duitse woord "feucht" = vochtig). Elke maand valt er minstens 60 mm regen.</p>
+    <p>De code <strong>Cfb</strong>: de <strong>C</strong> staat voor gematigd (warmkoud), de <strong>f</strong> betekent geen droog seizoen, en de <strong>b</strong> betekent dat de warmste maand onder de 22°C blijft. Dit type heet ook wel "zeeklimaat" of "West-Europees klimaat" — en het is hetzelfde klimaattype als Nederland!</p>
+  </div>
+
+  <div class="leefwereld-box">
+    <div class="lw-title">🌍 Jouw wereld</div>
+    <p>Nederland heeft ook klimaattype Cfb, net als Bern. Dat betekent dat jij in hetzelfde type klimaat woont als de Zwitsers in de dalen. Het verschil zit vooral in de hoogte: zodra je de bergen in gaat, verandert het klimaat snel.</p>
+  </div>
+
+  <!-- Q5-1: Koppel-opdracht -->
+  <div class="question-block" id="q5_1">
+    <span class="q-label">KOPPELOPDRACHT</span>
+    <div class="q-text">Koppel elk kenmerk aan het juiste klimaattype. Klik eerst op een kenmerk, dan op het klimaattype waar het bij hoort. Eén klimaattype kan meerdere kenmerken krijgen.</div>
+    <div class="match-container" id="match5_1">
+      <div class="match-sources" id="matchSources5_1">
+        <div class="match-source" data-source="s1" data-correct="af">Altijd boven 18°C</div>
+        <div class="match-source" data-source="s2" data-correct="cfb">Milde zomers</div>
+        <div class="match-source" data-source="s3" data-correct="af">Tropisch regenwoud</div>
+        <div class="match-source" data-source="s4" data-correct="cfb">Loofbos en alpenweiden</div>
+        <div class="match-source" data-source="s5" data-correct="af">Elke maand minstens 60mm regen</div>
+        <div class="match-source" data-source="s6" data-correct="cfb">Warmste maand onder 22°C</div>
+      </div>
+      <div style="margin-top:14px;">
+        <div class="match-target" data-target="af">
+          <strong>🇧🇷 Af — Tropisch regenwoudklimaat</strong>
+          <div class="matched-items"></div>
+        </div>
+        <div class="match-target" data-target="cfb" style="margin-top:8px;">
+          <strong>🇨🇭 Cfb — Gematigd zeeklimaat</strong>
+          <div class="matched-items"></div>
+        </div>
+      </div>
+    </div>
+    <button class="btn btn-check" data-qid="q5_1">Controleer koppelingen</button>
+    <div class="feedback" data-qid="q5_1"></div>
+  </div>
+
+  <!-- Q5-2: MC -->
+  <div class="question-block" id="q5_2">
+    <span class="q-label">KENNISVRAAG</span>
+    <div class="q-text">Welk klimaattype heeft Nederland volgens de Köppen-classificatie?</div>
+    <div class="mc-options">
+      <button class="mc-opt" data-qid="q5_2" data-value="a">A. Af — Tropisch regenwoudklimaat</button>
+      <button class="mc-opt" data-qid="q5_2" data-value="b">B. Cfb — Gematigd zeeklimaat</button>
+      <button class="mc-opt" data-qid="q5_2" data-value="c">C. Dfc — Koud continentaal klimaat</button>
+    </div>
+    <div class="feedback" data-qid="q5_2"></div>
+  </div>
+
+  <!-- Q5-3: Open -->
+  <div class="question-block" id="q5_3">
+    <span class="q-label">DENKVRAAG</span>
+    <div class="q-text">Je reist van Bern (Cfb) naar Manaus (Af). Beschrijf in minimaal 3 zinnen welke veranderingen je zou merken in het weer als je daar aankomt.</div>
+    <textarea class="open-textarea" data-qid="q5_3" placeholder="Schrijf hier je antwoord..."></textarea>
+    <div class="word-counter" data-qid="q5_3">0 woorden</div>
+    <button class="btn-show-example" data-qid="q5_3">Toon voorbeeldantwoord</button>
+    <div class="example-answer" data-qid="q5_3">
+      <strong>Voorbeeldantwoord:</strong> "Als je van Bern naar Manaus reist, merk je allereerst dat het veel warmer en vochtiger is. De temperatuur is 27-28°C en de lucht voelt zwaar en plakkerig aan door de hoge luchtvochtigheid. Je merkt ook dat het vegetatie compleet anders is: in plaats van nette Europese steden met loofbomen zie je tropisch regenwoud met enorme bomen en planten. Verder zul je merken dat het weer minder voorspelbaar is — 's middags kan er plotseling een hevige tropische bui losbarsten."
+    </div>
+    <div class="self-assess-btns" data-qid="q5_3">
+      <button class="btn-self-correct" data-qid="q5_3">Goed ✓</button>
+      <button class="btn-self-wrong" data-qid="q5_3">Fout ✗</button>
+    </div>
+  </div>
+
+  <div class="nav-buttons">
+    <button class="btn-nav btn-prev" data-prev="4">← Vorige</button>
+    <button class="btn-nav btn-next" data-next="6">Volgende →</button>
+  </div>
+  <button class="btn-reset-tab" data-tab="5">↺ Reset dit onderdeel</button>
+</div>
+
+<!-- ════════════════════════════════════════════ -->
+<!-- TAB 6: HOOGTELIGGING NADER BEKEKEN -->
+<!-- ════════════════════════════════════════════ -->
+<div class="tab-content" id="tab6">
+  <div class="section-header">
+    <span class="section-emoji">🏔️</span>
+    <div>
+      <div class="section-title">Hoogteligging nader bekeken</div>
+      <div class="section-subtitle">Hoe bergen het klimaat veranderen</div>
+    </div>
+  </div>
+
+  <div class="info-card swiss-card">
+    <h3>⛰️ De Alpen: een klimaatmuur</h3>
+    <p>De Alpen vormen de ruggengraat van Zwitserland. Met toppen tot boven de 4.500 meter (de Dufourspitze is met 4.634 meter het hoogste punt) zijn het de hoogste bergen van West-Europa. Deze bergketen heeft een enorme invloed op het klimaat van Zwitserland en omgeving.</p>
+    <p>Allereerst zorgen de bergen voor <strong>hoogtezones</strong>. Op zeeniveau kan het warm zijn, maar op de bergtop is het bevroren. Dit betekent dat Zwitserland op korte afstand heel verschillende klimaten heeft: in het dal druiven en maïs, op de alpenweide koeien, en op de top eeuwige sneeuw en ijs.</p>
+    <p>Ten tweede werken de Alpen als een <strong>weergrens</strong>. De zuidkant (richting Italië) is warmer en natter dan de noordkant. Vochtige lucht wordt gedwongen om te stijgen, koelt af, en laat haar water los als regen of sneeuw. Aan de andere kant (lijzijde) komt de lucht droog en warm naar beneden — dit heet het <strong>föhn-effect</strong>.</p>
+  </div>
+
+  <div class="process-flow">
+    <div class="process-step"><span class="emoji">💨</span><span class="label">Vochtige wind</span></div>
+    <span class="process-arrow">→</span>
+    <div class="process-step"><span class="emoji">⛰️</span><span class="label">Lucht stijgt</span></div>
+    <span class="process-arrow">→</span>
+    <div class="process-step"><span class="emoji">❄️</span><span class="label">Afkoeling</span></div>
+    <span class="process-arrow">→</span>
+    <div class="process-step"><span class="emoji">🌧️</span><span class="label">Neerslag (loefzijde)</span></div>
+    <span class="process-arrow">→</span>
+    <div class="process-step"><span class="emoji">☀️</span><span class="label">Droog & warm (lijzijde)</span></div>
+  </div>
+
+  <div class="info-card brazil-card">
+    <h3>🇧🇷 Brazilië: laagland en plateaus</h3>
+    <p>In tegenstelling tot Zwitserland is Brazilië grotendeels laagland. Het Amazonebekken — het grootste tropische regenwoud ter wereld — ligt op gemiddeld slechts 50–100 meter boven zeeniveau. Daardoor speelt hoogteligging hier nauwelijks een rol in het klimaat.</p>
+    <p>In het zuidoosten van Brazilië liggen wel hoger gelegen plateaus (tot ~1.000 meter), waardoor steden als São Paulo en Brasília iets koeler zijn dan de kustgebieden. Maar vergeleken met de Alpen is dit verschil klein.</p>
+  </div>
+
+  <div id="map2" class="map-container"></div>
+
+  <div class="leefwereld-box">
+    <div class="lw-title">🌍 Jouw wereld</div>
+    <p>Nederland is zo vlak als een pannenkoek — ons hoogste punt (de Vaalserberg) is slechts 323 meter. Dat betekent dat hoogteligging bij ons bijna geen rol speelt in het klimaat. Maar als je op wintersport gaat in Oostenrijk of Zwitserland, merk je het direct: bovenaan de piste is het veel kouder dan in het dorp beneden!</p>
+  </div>
+
+  <!-- Q6-1: Berekening MC -->
+  <div class="question-block" id="q6_1">
+    <span class="q-label">REKENVRAAG</span>
+    <div class="q-text">In het dal bij Interlaken (570m) is het 22°C. Wat is de verwachte temperatuur op de top van de Jungfrau (4.158m)?</div>
+    <div class="mc-options">
+      <button class="mc-opt" data-qid="q6_1" data-value="a">A. Ongeveer 12°C</button>
+      <button class="mc-opt" data-qid="q6_1" data-value="b">B. Ongeveer 0°C</button>
+      <button class="mc-opt" data-qid="q6_1" data-value="c">C. Ongeveer -1°C</button>
+      <button class="mc-opt" data-qid="q6_1" data-value="d">D. Ongeveer 5°C</button>
+    </div>
+    <div class="feedback" data-qid="q6_1"></div>
+  </div>
+
+  <!-- Q6-2: Open -->
+  <div class="question-block" id="q6_2">
+    <span class="q-label">DENKVRAAG</span>
+    <div class="q-text">Leg uit wat het föhn-effect is. Beschrijf stap voor stap wat er gebeurt met de lucht als deze over een berg heen waait. Gebruik minstens 3 zinnen.</div>
+    <textarea class="open-textarea" data-qid="q6_2" placeholder="Schrijf hier je antwoord..."></textarea>
+    <div class="word-counter" data-qid="q6_2">0 woorden</div>
+    <button class="btn-show-example" data-qid="q6_2">Toon voorbeeldantwoord</button>
+    <div class="example-answer" data-qid="q6_2">
+      <strong>Voorbeeldantwoord:</strong> "Bij het föhn-effect waait vochtige lucht tegen een bergketen aan. Aan de windzijde (loefzijde) stijgt de lucht, koelt af, en laat vocht los als regen of sneeuw. Aan de andere kant (lijzijde) daalt de lucht weer, maar nu zonder vocht. Dalende lucht warmt op, waardoor het aan de lijzijde droog en relatief warm is. Dit verklaart waarom het aan de ene kant van de Alpen heel anders kan zijn dan aan de andere kant."
+    </div>
+    <div class="self-assess-btns" data-qid="q6_2">
+      <button class="btn-self-correct" data-qid="q6_2">Goed ✓</button>
+      <button class="btn-self-wrong" data-qid="q6_2">Fout ✗</button>
+    </div>
+  </div>
+
+  <!-- Q6-3: MC -->
+  <div class="question-block" id="q6_3">
+    <span class="q-label">KENNISVRAAG</span>
+    <div class="q-text">Aan welke kant van de berg valt de meeste neerslag bij stuwingsneerslag?</div>
+    <div class="mc-options">
+      <button class="mc-opt" data-qid="q6_3" data-value="a">A. De lijzijde (uit de wind)</button>
+      <button class="mc-opt" data-qid="q6_3" data-value="b">B. De loefzijde (in de wind)</button>
+      <button class="mc-opt" data-qid="q6_3" data-value="c">C. Op de top</button>
+    </div>
+    <div class="feedback" data-qid="q6_3"></div>
+  </div>
+
+  <div class="nav-buttons">
+    <button class="btn-nav btn-prev" data-prev="5">← Vorige</button>
+    <button class="btn-nav btn-next" data-next="7">Volgende →</button>
+  </div>
+  <button class="btn-reset-tab" data-tab="6">↺ Reset dit onderdeel</button>
+</div>
+
+<!-- ════════════════════════════════════════════ -->
+<!-- TAB 7: HET AMAZONE-REGENWOUD -->
+<!-- ════════════════════════════════════════════ -->
+<div class="tab-content" id="tab7">
+  <div class="section-header">
+    <span class="section-emoji">🌳</span>
+    <div>
+      <div class="section-title">Het Amazone-regenwoud</div>
+      <div class="section-subtitle">Een klimaatmachine van formaat</div>
+    </div>
+  </div>
+
+  <div class="info-card brazil-card">
+    <h3>🌿 De groene long van de aarde</h3>
+    <p>Het Amazone-regenwoud is het grootste tropische regenwoud ter wereld. Het beslaat zo'n <strong>5,5 miljoen km²</strong> — dat is meer dan 130 keer de oppervlakte van Nederland! Het woud strekt zich uit over negen landen, maar het grootste deel (60%) ligt in Brazilië.</p>
+    <p>Het regenwoud speelt een cruciale rol in het klimaat, niet alleen lokaal maar wereldwijd. De bomen nemen CO₂ op en produceren zuurstof — vandaar de bijnaam "de groene long van de aarde". Maar het bos doet meer: het <strong>recyclet water</strong>. Bomen zuigen grondwater op via hun wortels en laten het via hun bladeren weer verdampen. Dit heet <strong>evapotranspiratie</strong>.</p>
+    <p>Door deze enorme verdamping ontstaan er boven het regenwoud dagelijks dikke wolken die weer als regen terugvallen. Zonder het bos zou er veel minder regen vallen in het Amazonegebied. Wetenschappers noemen dit de <strong>"vliegende rivieren"</strong>: onzichtbare stromen waterdamp die door de lucht boven het regenwoud bewegen.</p>
+  </div>
+
+  <div class="process-flow">
+    <div class="process-step"><span class="emoji">🌳</span><span class="label">Bomen verdampen water</span></div>
+    <span class="process-arrow">→</span>
+    <div class="process-step"><span class="emoji">💧</span><span class="label">Waterdamp stijgt</span></div>
+    <span class="process-arrow">→</span>
+    <div class="process-step"><span class="emoji">☁️</span><span class="label">Wolken vormen</span></div>
+    <span class="process-arrow">→</span>
+    <div class="process-step"><span class="emoji">🌧️</span><span class="label">Regen valt</span></div>
+    <span class="process-arrow">→</span>
+    <div class="process-step"><span class="emoji">🌳</span><span class="label">Bomen nemen op</span></div>
+  </div>
+
+  <div class="info-card">
+    <h3>🪓 Ontbossing: een bedreiging</h3>
+    <p>Elk jaar wordt een groot stuk Amazone-regenwoud gekapt voor landbouw, veeteelt en houtwinning. Tussen 2000 en 2020 is er naar schatting zo'n 300.000 km² verloren gegaan — bijna 8 keer Nederland. Dit is een groot probleem, want zonder bomen:</p>
+    <p>➊ Valt er minder regen (geen evapotranspiratie meer)<br>
+    ➋ Wordt er minder CO₂ opgenomen (versterkt klimaatverandering)<br>
+    ➌ Verdwijnen duizenden dier- en plantensoorten<br>
+    ➍ Verandert het lokale klimaat: het wordt droger en warmer</p>
+  </div>
+
+  <div class="fun-fact">
+    <div class="ff-title">✈️ Reiswetje</div>
+    <p>Als je een boottocht maakt over de Amazone-rivier, vaar je over de langste rivier ter wereld (ca. 6.400 km). De rivier voert ongeveer 20% van al het zoete water op aarde af naar de Atlantische Oceaan!</p>
+  </div>
+
+  <div class="leefwereld-box">
+    <div class="lw-title">🌍 Jouw wereld</div>
+    <p>De producten die je dagelijks gebruikt — soja in veevoer, palmolie in koekjes, hout in meubels — kunnen een link hebben met ontbossing in de Amazone. Door bewust te kiezen, kun jij vanuit Nederland bijdragen aan het behoud van het regenwoud. Ken jij producten met een "ontbossingsvrij" keurmerk?</p>
+  </div>
+
+  <!-- Q7-1: MC -->
+  <div class="question-block" id="q7_1">
+    <span class="q-label">KENNISVRAAG</span>
+    <div class="q-text">Wat is evapotranspiratie?</div>
+    <div class="mc-options">
+      <button class="mc-opt" data-qid="q7_1" data-value="a">A. Het proces waarbij bomen CO₂ opnemen</button>
+      <button class="mc-opt" data-qid="q7_1" data-value="b">B. Het proces waarbij bomen water verdampen via hun bladeren</button>
+      <button class="mc-opt" data-qid="q7_1" data-value="c">C. Het proces waarbij regen in de bodem zakt</button>
+    </div>
+    <div class="feedback" data-qid="q7_1"></div>
+  </div>
+
+  <!-- Q7-2: Open -->
+  <div class="question-block" id="q7_2">
+    <span class="q-label">DENKVRAAG</span>
+    <div class="q-text">Leg uit waarom het kappen van het Amazone-regenwoud kan leiden tot minder regen in het gebied. Beschrijf het proces in minstens 3 zinnen en gebruik het begrip "evapotranspiratie".</div>
+    <textarea class="open-textarea" data-qid="q7_2" placeholder="Schrijf hier je antwoord..."></textarea>
+    <div class="word-counter" data-qid="q7_2">0 woorden</div>
+    <button class="btn-show-example" data-qid="q7_2">Toon voorbeeldantwoord</button>
+    <div class="example-answer" data-qid="q7_2">
+      <strong>Voorbeeldantwoord:</strong> "Bomen in het regenwoud nemen water op via hun wortels en laten dit verdampen via hun bladeren. Dit heet evapotranspiratie. De waterdamp stijgt op, vormt wolken en valt weer als regen terug op het bos. Als je de bomen kapt, verdwijnt deze waterkringloop: er wordt minder water verdampt, dus vormen er minder wolken en valt er minder regen. Het gebied kan daardoor langzaam veranderen van tropisch regenwoud in droge savanne."
+    </div>
+    <div class="self-assess-btns" data-qid="q7_2">
+      <button class="btn-self-correct" data-qid="q7_2">Goed ✓</button>
+      <button class="btn-self-wrong" data-qid="q7_2">Fout ✗</button>
+    </div>
+  </div>
+
+  <!-- Q7-3: MC -->
+  <div class="question-block" id="q7_3">
+    <span class="q-label">KENNISVRAAG</span>
+    <div class="q-text">Hoeveel procent van al het zoete water op aarde voert de Amazone-rivier af?</div>
+    <div class="mc-options">
+      <button class="mc-opt" data-qid="q7_3" data-value="a">A. Ongeveer 5%</button>
+      <button class="mc-opt" data-qid="q7_3" data-value="b">B. Ongeveer 20%</button>
+      <button class="mc-opt" data-qid="q7_3" data-value="c">C. Ongeveer 50%</button>
+    </div>
+    <div class="feedback" data-qid="q7_3"></div>
+  </div>
+
+  <div class="nav-buttons">
+    <button class="btn-nav btn-prev" data-prev="6">← Vorige</button>
+    <button class="btn-nav btn-next" data-next="8">Volgende →</button>
+  </div>
+  <button class="btn-reset-tab" data-tab="7">↺ Reset dit onderdeel</button>
+</div>
+
+<!-- ════════════════════════════════════════════ -->
+<!-- TAB 8: REISSCENARIO -->
+<!-- ════════════════════════════════════════════ -->
+<div class="tab-content" id="tab8">
+  <div class="section-header">
+    <span class="section-emoji">✈️</span>
+    <div>
+      <div class="section-title">Reisscenario: Jouw klimaatreis</div>
+      <div class="section-subtitle">Pas je kennis toe in de praktijk</div>
+    </div>
+  </div>
+
+  <div class="info-card gold-card">
+    <h3>🧳 Het scenario</h3>
+    <p>Stel je voor: je hebt een reisbeurs gewonnen en mag in één reis zowel Zwitserland als Brazilië bezoeken. Je reist in <strong>januari</strong>. Je begint in <strong>Bern</strong> (Zwitserland), vliegt dan naar <strong>Manaus</strong> (Brazilië), en eindigt in <strong>São Paulo</strong>. Bij elke stop moet je beslissingen nemen op basis van je klimaatkennis.</p>
+  </div>
+
+  <div class="info-card swiss-card">
+    <h3>📍 Stop 1: Bern, Zwitserland — Januari</h3>
+    <p>Je landt op het vliegveld van Bern. Het is januari. De temperatuur is rond de 0°C. Er ligt een dun laagje sneeuw. De lucht is grijs en het wordt al vroeg donker — rond 17:00 is het al schemerdonker. De volgende dag neem je de trein naar de Jungfrau. Bovenaan (3.454m bij het station) is het -15°C en waait het hard.</p>
+    <p>De Zwitserse steden zijn compact en goed georganiseerd. Je ziet veel stenen gebouwen met dikke muren en dubbel glas — logisch in een land met koude winters. De verwarmingskosten zijn een groot deel van de huishouduitgaven.</p>
+  </div>
+
+  <div class="info-card brazil-card">
+    <h3>📍 Stop 2: Manaus, Brazilië — Januari</h3>
+    <p>Na een vlucht van 12 uur stap je uit in Manaus. De hitte slaat je in het gezicht: 32°C, en de luchtvochtigheid is boven de 80%. Je kleren plakken meteen aan je lijf. Het is het natte seizoen: elke middag barst er een tropische stortbui los die een uur kan duren, waarna de zon weer doorbreekt.</p>
+    <p>De huizen in Manaus zijn heel anders gebouwd dan in Zwitserland: open, met veel ventilatie, en vaak op palen tegen overstromingen. Airconditioning is bijna overal aanwezig.</p>
+  </div>
+
+  <div class="info-card brazil-card">
+    <h3>📍 Stop 3: São Paulo, Brazilië — Januari</h3>
+    <p>São Paulo ligt op een plateau op circa 760 meter hoogte. Daardoor is het hier iets koeler dan in Manaus: rond de 25°C. Het is ook het natte seizoen, met geregeld hevige buien. São Paulo is een megastad van 22 miljoen inwoners, met wolkenkrabbers en enorme verkeersopstoppingen.</p>
+  </div>
+
+  <!-- Q8-1: MC -->
+  <div class="question-block" id="q8_1">
+    <span class="q-label">SCENARIOVRAAG</span>
+    <div class="q-text">Je pakt je koffer voor de eerste stop: Bern in januari. Welke kleding neem je mee?</div>
+    <div class="mc-options">
+      <button class="mc-opt" data-qid="q8_1" data-value="a">A. Korte broek, T-shirt en slippers</button>
+      <button class="mc-opt" data-qid="q8_1" data-value="b">B. Dikke winterjas, sjaal, muts, handschoenen en stevige schoenen</button>
+      <button class="mc-opt" data-qid="q8_1" data-value="c">C. Licht jasje en regenjas</button>
+    </div>
+    <div class="feedback" data-qid="q8_1"></div>
+  </div>
+
+  <!-- Q8-2: Open scenario -->
+  <div class="question-block" id="q8_2">
+    <span class="q-label">SCENARIOVRAAG — OPEN</span>
+    <div class="q-text">Je bent in Manaus en een lokale gids vraagt: "Waarom regent het hier elke dag?" Schrijf in minstens 3 zinnen een uitleg die je aan de gids zou geven. Gebruik je kennis over verdamping, de ITCZ en het regenwoud.</div>
+    <textarea class="open-textarea" data-qid="q8_2" placeholder="Schrijf hier je uitleg aan de gids..."></textarea>
+    <div class="word-counter" data-qid="q8_2">0 woorden</div>
+    <button class="btn-show-example" data-qid="q8_2">Toon voorbeeldantwoord</button>
+    <div class="example-answer" data-qid="q8_2">
+      <strong>Voorbeeldantwoord:</strong> "Het regent hier elke dag omdat Manaus vlak bij de evenaar ligt, waar de zon de hele dag krachtig schijnt. De intense warmte zorgt ervoor dat er enorm veel water verdampt uit de rivier en het regenwoud — dit heet evapotranspiratie. Die waterdamp stijgt op en vormt dikke wolken. Bovendien komt hier de ITCZ langs, een zone waar warme lucht van het noorden en zuiden samenkomt en omhoog wordt gedwongen, wat extra wolken en neerslag oplevert."
+    </div>
+    <div class="self-assess-btns" data-qid="q8_2">
+      <button class="btn-self-correct" data-qid="q8_2">Goed ✓</button>
+      <button class="btn-self-wrong" data-qid="q8_2">Fout ✗</button>
+    </div>
+  </div>
+
+  <!-- Q8-3: MC -->
+  <div class="question-block" id="q8_3">
+    <span class="q-label">SCENARIOVRAAG</span>
+    <div class="q-text">In São Paulo is het 25°C, terwijl het in Manaus 32°C is. Beide steden liggen in Brazilië. Wat is de belangrijkste reden voor dit verschil?</div>
+    <div class="mc-options">
+      <button class="mc-opt" data-qid="q8_3" data-value="a">A. São Paulo ligt verder van de evenaar EN op een hoger plateau</button>
+      <button class="mc-opt" data-qid="q8_3" data-value="b">B. São Paulo ligt dichter bij de zee</button>
+      <button class="mc-opt" data-qid="q8_3" data-value="c">C. In São Paulo waait het meer</button>
+    </div>
+    <div class="feedback" data-qid="q8_3"></div>
+  </div>
+
+  <div class="nav-buttons">
+    <button class="btn-nav btn-prev" data-prev="7">← Vorige</button>
+    <button class="btn-nav btn-next" data-next="9">Volgende →</button>
+  </div>
+  <button class="btn-reset-tab" data-tab="8">↺ Reset dit onderdeel</button>
+</div>
+
+<!-- ════════════════════════════════════════════ -->
+<!-- TAB 9: KLIMAAT & LEVEN -->
+<!-- ════════════════════════════════════════════ -->
+<div class="tab-content" id="tab9">
+  <div class="section-header">
+    <span class="section-emoji">🏘️</span>
+    <div>
+      <div class="section-title">Klimaat & dagelijks leven</div>
+      <div class="section-subtitle">Hoe beïnvloedt het klimaat hoe mensen leven?</div>
+    </div>
+  </div>
+
+  <div class="info-card">
+    <h3>🏠 Wonen & bouwen</h3>
+    <p>Het klimaat heeft een enorme invloed op hoe mensen wonen, wat ze eten, en hoe ze hun dag indelen. In Zwitserland zijn huizen gebouwd voor de kou: dikke muren, isolatie, dubbel glas, en centrale verwarming. De typische Zwitserse chalets hebben schuine daken zodat de sneeuw er vanaf glijdt. Energieverbruik voor verwarming is een groot deel van het huishoudbudget.</p>
+    <p>In het tropische deel van Brazilië draait alles om koelte: huizen hebben vaak open ramen, brede luifels voor schaduw, en airconditioning. In armere gebieden zijn huizen van lichtere materialen gebouwd, met golfplaten daken. In gebieden die overstromen (zoals langs de Amazone) staan huizen op palen.</p>
+  </div>
+
+  <div class="info-card">
+    <h3>🍽️ Eten & landbouw</h3>
+    <p>In Zwitserland groeien gewassen die tegen kou kunnen: gras voor koeien (kaas!), graan, aardappelen, en in het warmere zuiden (Ticino) wijnranken. De beroemde Zwitserse chocolade wordt gemaakt van cacaobonen die uit tropische landen als… Brazilië komen!</p>
+    <p>In Brazilië groeien tropische gewassen: koffie, suikerriet, soja, sinaasappels, cacaobonen en mango's. Het warme, natte klimaat maakt Brazilië de grootste koffieproducent ter wereld. In het Amazonegebied leven inheemse volkeren die het regenwoud gebruiken om voedsel, medicijnen en bouwmaterialen te verzamelen.</p>
+  </div>
+
+  <table class="compare-table">
+    <tr>
+      <th>Aspect</th>
+      <th>🇨🇭 Zwitserland</th>
+      <th>🇧🇷 Brazilië</th>
+    </tr>
+    <tr><td><strong>Typische woning</strong></td><td>Chalet, dikke muren, isolatie</td><td>Open structuur, palen, airco</td></tr>
+    <tr><td><strong>Landbouw</strong></td><td>Kaas, graan, wijn</td><td>Koffie, soja, suikerriet</td></tr>
+    <tr><td><strong>Kleding</strong></td><td>Seizoensgebonden garderobe</td><td>Licht, heel jaar door</td></tr>
+    <tr><td><strong>Energie</strong></td><td>Veel verwarming in winter</td><td>Veel airco in zomer</td></tr>
+    <tr><td><strong>Dagritme</strong></td><td>Vroeg donker in winter</td><td>~12 uur daglicht, hele jaar</td></tr>
+  </table>
+
+  <div class="leefwereld-box">
+    <div class="lw-title">🌍 Jouw wereld</div>
+    <p>De koffie die je ouders 's ochtends drinken, de chocolade die je na school eet — die producten kunnen alleen groeien in een tropisch klimaat. Zonder het klimaat in Brazilië zou jouw dagelijks leven in Nederland er heel anders uitzien. Kun jij nog meer producten bedenken die uit tropische landen komen?</p>
+  </div>
+
+  <!-- Q9-1: Koppel -->
+  <div class="question-block" id="q9_1">
+    <span class="q-label">KOPPELOPDRACHT</span>
+    <div class="q-text">Koppel elk product of kenmerk aan het juiste land. Klik eerst op een item, dan op het land.</div>
+    <div class="match-container" id="match9_1">
+      <div class="match-sources" id="matchSources9_1">
+        <div class="match-source" data-source="a1" data-correct="ch">Kaasfondue</div>
+        <div class="match-source" data-source="a2" data-correct="br">Koffieplantages</div>
+        <div class="match-source" data-source="a3" data-correct="ch">Chalet met schuin dak</div>
+        <div class="match-source" data-source="a4" data-correct="br">Huizen op palen</div>
+        <div class="match-source" data-source="a5" data-correct="br">Suikerrietvelden</div>
+        <div class="match-source" data-source="a6" data-correct="ch">Centrale verwarming</div>
+      </div>
+      <div style="margin-top:14px;">
+        <div class="match-target" data-target="ch">
+          <strong>🇨🇭 Zwitserland</strong>
+          <div class="matched-items"></div>
+        </div>
+        <div class="match-target" data-target="br" style="margin-top:8px;">
+          <strong>🇧🇷 Brazilië</strong>
+          <div class="matched-items"></div>
+        </div>
+      </div>
+    </div>
+    <button class="btn btn-check" data-qid="q9_1">Controleer koppelingen</button>
+    <div class="feedback" data-qid="q9_1"></div>
+  </div>
+
+  <!-- Q9-2: Open -->
+  <div class="question-block" id="q9_2">
+    <span class="q-label">DENKVRAAG</span>
+    <div class="q-text">Beschrijf minstens twee manieren waarop het klimaat invloed heeft op jouw eigen dagelijks leven in Nederland. Denk aan kleding, voedsel, energie, of je dagritme.</div>
+    <textarea class="open-textarea" data-qid="q9_2" placeholder="Schrijf hier je antwoord..."></textarea>
+    <div class="word-counter" data-qid="q9_2">0 woorden</div>
+    <button class="btn-show-example" data-qid="q9_2">Toon voorbeeldantwoord</button>
+    <div class="example-answer" data-qid="q9_2">
+      <strong>Voorbeeldantwoord:</strong> "In de winter draag ik een dikke jas, sjaal en handschoenen naar school, terwijl ik in de zomer met korte broek op de fiets stap. Dat is direct de invloed van het klimaat op mijn kleding. Daarnaast hebben we thuis de verwarming aan van oktober tot april — dat kost veel energie en geld. In de zomer is het juist lang licht, waardoor ik meer buiten speel en later naar bed ga."
+    </div>
+    <div class="self-assess-btns" data-qid="q9_2">
+      <button class="btn-self-correct" data-qid="q9_2">Goed ✓</button>
+      <button class="btn-self-wrong" data-qid="q9_2">Fout ✗</button>
+    </div>
+  </div>
+
+  <!-- Q9-3: MC -->
+  <div class="question-block" id="q9_3">
+    <span class="q-label">KENNISVRAAG</span>
+    <div class="q-text">Waarom heeft Brazilië schuine daken op chalets NIET nodig, maar Zwitserland wel?</div>
+    <div class="mc-options">
+      <button class="mc-opt" data-qid="q9_3" data-value="a">A. In Brazilië regent het niet</button>
+      <button class="mc-opt" data-qid="q9_3" data-value="b">B. In Brazilië sneeuwt het niet, en schuine daken zijn bedoeld om sneeuw af te laten glijden</button>
+      <button class="mc-opt" data-qid="q9_3" data-value="c">C. In Brazilië zijn alle daken plat vanwege de traditie</button>
+    </div>
+    <div class="feedback" data-qid="q9_3"></div>
+  </div>
+
+  <div class="nav-buttons">
+    <button class="btn-nav btn-prev" data-prev="8">← Vorige</button>
+    <button class="btn-nav btn-next" data-next="10">Volgende →</button>
+  </div>
+  <button class="btn-reset-tab" data-tab="9">↺ Reset dit onderdeel</button>
+</div>
+
+<!-- ════════════════════════════════════════════ -->
+<!-- TAB 10: AFSLUITING & REFLECTIE -->
+<!-- ════════════════════════════════════════════ -->
+<div class="tab-content" id="tab10">
+  <div class="section-header">
+    <span class="section-emoji">🎓</span>
+    <div>
+      <div class="section-title">Afsluiting & Reflectie</div>
+      <div class="section-subtitle">Wat heb je geleerd?</div>
+    </div>
+  </div>
+
+  <div class="score-panel" id="scorePanel">
+    <div class="score-label">Jouw eindscore</div>
+    <div class="score-big" id="finalScore">—</div>
+    <div class="score-label" id="scoreDetail">Rond alle opdrachten af om je score te zien</div>
+  </div>
+
+  <div class="info-card gold-card">
+    <h3>📋 Leerdoelen: hoe heb je het gedaan?</h3>
+    <p><strong>✅ Leerdoel 1:</strong> Je kunt de belangrijkste klimaatverschillen tussen Zwitserland en Brazilië benoemen aan de hand van temperatuur en neerslag.</p>
+    <p><strong>✅ Leerdoel 2:</strong> Je kunt uitleggen waardoor het klimaat in beide landen zo verschilt (breedteligging, hoogteligging, continentaliteit, luchtcirculatie).</p>
+    <p><strong>✅ Leerdoel 3:</strong> Je kunt op een klimaatgrafiek aflezen welk klimaattype bij elk land hoort (Af vs. Cfb) en deze vergelijken.</p>
+  </div>
+
+  <!-- Q10-1: Reflectie open -->
+  <div class="question-block" id="q10_1">
+    <span class="q-label">REFLECTIE</span>
+    <div class="q-text">Wat vond je het lastigste onderdeel van deze les en waarom? Schrijf minstens 2 zinnen.</div>
+    <textarea class="open-textarea" data-qid="q10_1" placeholder="Schrijf hier je reflectie..."></textarea>
+    <div class="word-counter" data-qid="q10_1">0 woorden</div>
+    <button class="btn-show-example" data-qid="q10_1">Toon voorbeeldantwoord</button>
+    <div class="example-answer" data-qid="q10_1">
+      <strong>Voorbeeld:</strong> "Ik vond de berekening met de temperatuurgradiënt het lastigst, omdat ik even moest nadenken over hoe ik het hoogteverschil moest omrekenen naar graden. Het helpt wel dat het een duidelijke formule is die je kunt toepassen."
+    </div>
+    <div class="self-assess-btns" data-qid="q10_1">
+      <button class="btn-self-correct" data-qid="q10_1">Goed ✓</button>
+      <button class="btn-self-wrong" data-qid="q10_1">Fout ✗</button>
+    </div>
+  </div>
+
+  <!-- Q10-2: Reflectie open -->
+  <div class="question-block" id="q10_2">
+    <span class="q-label">REFLECTIE</span>
+    <div class="q-text">Stel dat een klasgenoot deze les heeft gemist. Leg in 3-4 zinnen de belangrijkste punten uit die hij/zij moet weten over de klimaatverschillen tussen Zwitserland en Brazilië.</div>
+    <textarea class="open-textarea" data-qid="q10_2" placeholder="Schrijf hier je samenvatting..."></textarea>
+    <div class="word-counter" data-qid="q10_2">0 woorden</div>
+    <button class="btn-show-example" data-qid="q10_2">Toon voorbeeldantwoord</button>
+    <div class="example-answer" data-qid="q10_2">
+      <strong>Voorbeeld:</strong> "Brazilië ligt bij de evenaar en heeft een tropisch klimaat: het hele jaar warm (27°C) met veel regen (2.300mm/jaar). Zwitserland ligt op 47° NB in de gematigde zone met duidelijke seizoenen: koude winters (0°C) en milde zomers (19°C). De belangrijkste oorzaken van het verschil zijn de breedteligging (afstand tot evenaar) en hoogteligging (Alpen in Zwitserland). Het klimaat beïnvloedt ook hoe mensen wonen, eten en hun dagelijks leven inrichten."
+    </div>
+    <div class="self-assess-btns" data-qid="q10_2">
+      <button class="btn-self-correct" data-qid="q10_2">Goed ✓</button>
+      <button class="btn-self-wrong" data-qid="q10_2">Fout ✗</button>
+    </div>
+  </div>
+
+  <!-- Q10-3: Terugblik reis -->
+  <div class="question-block" id="q10_3">
+    <span class="q-label">REFLECTIE</span>
+    <div class="q-text">Aan het begin koos je een land voor een vakantie. Is je keuze veranderd nu je meer weet over het klimaat? Waarom wel of niet? Gebruik minstens 2 zinnen.</div>
+    <textarea class="open-textarea" data-qid="q10_3" placeholder="Schrijf hier je antwoord..."></textarea>
+    <div class="word-counter" data-qid="q10_3">0 woorden</div>
+    <button class="btn-show-example" data-qid="q10_3">Toon voorbeeldantwoord</button>
+    <div class="example-answer" data-qid="q10_3">
+      <strong>Voorbeeld:</strong> "Ik koos eerst Brazilië voor de warmte, maar nu ik weet hoe vochtig en heet het in Manaus is, zou ik misschien liever naar São Paulo gaan waar het iets koeler is. Maar ik vind het nog steeds een fascinerend land vanwege het Amazone-regenwoud."
+    </div>
+    <div class="self-assess-btns" data-qid="q10_3">
+      <button class="btn-self-correct" data-qid="q10_3">Goed ✓</button>
+      <button class="btn-self-wrong" data-qid="q10_3">Fout ✗</button>
+    </div>
+  </div>
+
+  <button class="btn-clear-progress" id="btnClearProgress">🗑️ Voortgang wissen</button>
+
+  <div class="nav-buttons">
+    <button class="btn-nav btn-prev" data-prev="9">← Vorige</button>
+    <div></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════ -->
+<!-- JAVASCRIPT -->
+<!-- ══════════════════════════════════════════════════════════════════ -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+
+  // ────────── CONFIG ──────────
+  var TAB_COUNT = 11;
+  var STORAGE_PREFIX = 'geo_les_';
+  var tabNames = [
+    'Welkom', 'Kaart verkennen', 'Temperatuur', 'Neerslag',
+    'Oorzaken', 'Klimaattypen', 'Hoogteligging', 'Amazone',
+    'Reisscenario', 'Klimaat & Leven', 'Afsluiting'
+  ];
+
+  // MC answer key: qid -> {correct, hints[]}
+  var mcAnswers = {
+    q1_1: { correct: 'b', hints: ['Denk aan de breedtegraad: 47° NB. Wat betekent de N?', 'NB staat voor noorderbreedte. Op welk halfrond ligt dat?'] },
+    q1_2: { correct: 'c', hints: ['Het grootste deel van Brazilië ligt dicht bij de evenaar. Welke zone is dat?', 'De evenaar loopt door het tropische deel van de aarde.'] },
+    q2_1: { correct: 'b', hints: ['Kijk goed naar de blauwe lijn in de grafiek bij januari. Waar kruist die de y-as?', 'De temperatuur in Bern in januari ligt rond het vriespunt.'] },
+    q2_2: { correct: 'b', hints: ['In welke maand is het in Bern het koudst, terwijl Manaus warm blijft?', 'Het verschil is het grootst als Bern op zijn koudst is.'] },
+    q3_1: { correct: 'a', hints: ['Kijk naar de groene balken in de grafiek. Welke maand heeft de hoogste groene balk?', 'Het natte seizoen in Manaus loopt van december tot mei. Maart zit daar middenin.'] },
+    q3_3: { correct: 'b', hints: ['Je hebt dit gelezen in de tekst over neerslag in Brazilië. Het was bijna 3x zoveel als in Nederland.', 'Nederland heeft ~850mm. Drie keer zoveel is...'] },
+    q4_3: { correct: 'b', hints: ['Het woord "continentaal" verwijst naar "continent" — land. Denk aan de tegenstelling: land vs. ...?', 'Continentaliteit gaat over hoe ver iets van de oceaan/zee af ligt.'] },
+    q5_2: { correct: 'b', hints: ['Nederland heeft milde zomers, koele winters en regen door het hele jaar. Welk type past?', 'Nederland heeft hetzelfde type als Bern: gematigd, geen droog seizoen.'] },
+    q6_1: { correct: 'c', hints: ['Reken: hoogteverschil = 4158 - 570 = 3588m. Per 1000m daalt T met 6,5°C. Hoeveel graden verschil?', '3588/1000 × 6,5 = 23,3°C. Trek dat af van 22°C...'] },
+    q6_3: { correct: 'b', hints: ['Waar wordt de lucht gedwongen omhoog? Aan de kant waar de wind tegenaan blaast of aan de andere kant?', 'De loefzijde is de kant IN de wind — daar moet de lucht stijgen.'] },
+    q7_1: { correct: 'b', hints: ['Het woord bevat "transpiratie" — net als zweten bij mensen. Wat doen planten/bomen dan?', 'Evapotranspiratie = verdamping (evaporatie) + transpiratie door bladeren.'] },
+    q7_3: { correct: 'b', hints: ['Dit stond in het reiswetje. Het was een verrassend hoog percentage!', 'De Amazone is de waterrijkste rivier ter wereld.'] },
+    q8_1: { correct: 'b', hints: ['Het is januari in Bern — midden in de winter. Hoe koud is het daar dan?', 'Bij 0°C heb je écht warme kleding nodig.'] },
+    q8_3: { correct: 'a', hints: ['São Paulo ligt op 23°ZB (verder van evenaar) én op 760m hoogte. Welk effect heeft dat?', 'Combineer breedteligging EN hoogteligging.'] },
+    q9_3: { correct: 'b', hints: ['Waarvoor zijn schuine daken bedoeld? Denk aan wat er in de winter op daken valt in de bergen.', 'Sneeuw is zwaar. Als het zich ophoopt op een plat dak kan dat instorten.'] }
+  };
+
+  // Drag answer key
+  var dragAnswers = {
+    q4_1: ['breedteligging', 'hoogteligging', 'luchtcirculatie', 'continentaliteit']
+  };
+
+  // State
+  var state = {
+    answers: {},   // qid -> { result: 'correct'|'wrong'|'self-correct'|'self-wrong'|'pending', attempts: N }
+    currentTab: 0,
+    completedTabs: {}
+  };
+
+  // ────────── STORAGE ──────────
+  function saveState() {
+    try { localStorage.setItem(STORAGE_PREFIX + 'state', JSON.stringify(state)); } catch(e) {}
+  }
+  function loadState() {
+    try {
+      var s = localStorage.getItem(STORAGE_PREFIX + 'state');
+      if (s) { var parsed = JSON.parse(s); Object.assign(state, parsed); }
+    } catch(e) {}
+  }
+  function clearState() {
+    try { localStorage.removeItem(STORAGE_PREFIX + 'state'); } catch(e) {}
+    state = { answers: {}, currentTab: 0, completedTabs: {} };
+    location.reload();
+  }
+
+  // ────────── TAB NAVIGATION ──────────
+  var tabNavEl = document.getElementById('tabNav');
+  for (var t = 0; t < TAB_COUNT; t++) {
+    var btn = document.createElement('button');
+    btn.className = 'tab-btn';
+    btn.textContent = (t + 1) + '. ' + tabNames[t];
+    btn.setAttribute('data-tab', t);
+    tabNavEl.appendChild(btn);
+  }
+
+  function showTab(idx) {
+    state.currentTab = idx;
+    for (var i = 0; i < TAB_COUNT; i++) {
+      var content = document.getElementById('tab' + i);
+      var btn = tabNavEl.children[i];
+      if (i === idx) {
+        content.classList.add('active');
+        btn.classList.add('active');
+      } else {
+        content.classList.remove('active');
+        btn.classList.remove('active');
+      }
+      if (state.completedTabs[i]) btn.classList.add('completed');
+      else btn.classList.remove('completed');
+    }
+    document.getElementById('tabCounter').textContent = 'Onderdeel ' + (idx + 1) + ' van ' + TAB_COUNT;
+    // Scroll tab into view
+    tabNavEl.children[idx].scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+    // Invalidate maps
+    setTimeout(function() {
+      if (window.map1) window.map1.invalidateSize();
+      if (window.map2) window.map2.invalidateSize();
+    }, 200);
+    saveState();
+    window.scrollTo({ top: 0 });
+  }
+
+  // Tab click handlers
+  tabNavEl.addEventListener('click', function(e) {
+    if (e.target.classList.contains('tab-btn')) {
+      showTab(parseInt(e.target.getAttribute('data-tab')));
+    }
+  });
+
+  // Nav buttons
+  document.querySelectorAll('.btn-next').forEach(function(btn) {
+    btn.addEventListener('click', function() { showTab(parseInt(this.getAttribute('data-next'))); });
+  });
+  document.querySelectorAll('.btn-prev').forEach(function(btn) {
+    btn.addEventListener('click', function() { showTab(parseInt(this.getAttribute('data-prev'))); });
+  });
+
+  // ────────── PROGRESS ──────────
+  function getAllQuestionIds() {
+    var ids = [];
+    document.querySelectorAll('.question-block').forEach(function(qb) { ids.push(qb.id); });
+    return ids;
+  }
+
+  function updateProgress() {
+    var allQ = getAllQuestionIds();
+    var done = 0;
+    allQ.forEach(function(qid) {
+      var a = state.answers[qid];
+      if (a && (a.result === 'correct' || a.result === 'wrong' || a.result === 'self-correct' || a.result === 'self-wrong')) {
+        done++;
+      }
+    });
+    var pct = allQ.length > 0 ? Math.round(done / allQ.length * 100) : 0;
+    document.getElementById('progressBar').style.width = pct + '%';
+    document.getElementById('progressPct').textContent = pct + '%';
+
+    // Check tab completion
+    for (var t = 0; t < TAB_COUNT; t++) {
+      var tabEl = document.getElementById('tab' + t);
+      var tabQs = tabEl.querySelectorAll('.question-block');
+      var allDone = tabQs.length > 0;
+      tabQs.forEach(function(qb) {
+        var a = state.answers[qb.id];
+        if (!a || (a.result !== 'correct' && a.result !== 'wrong' && a.result !== 'self-correct' && a.result !== 'self-wrong')) {
+          allDone = false;
+        }
+      });
+      if (allDone && tabQs.length > 0) state.completedTabs[t] = true;
+      else state.completedTabs[t] = false;
+      if (tabNavEl.children[t]) {
+        if (state.completedTabs[t]) tabNavEl.children[t].classList.add('completed');
+        else tabNavEl.children[t].classList.remove('completed');
+      }
+    }
+
+    // Final score
+    updateFinalScore();
+    saveState();
+  }
+
+  function updateFinalScore() {
+    var allQ = getAllQuestionIds();
+    var correct = 0; var total = 0;
+    allQ.forEach(function(qid) {
+      var a = state.answers[qid];
+      if (a && (a.result === 'correct' || a.result === 'wrong' || a.result === 'self-correct' || a.result === 'self-wrong')) {
+        total++;
+        if (a.result === 'correct' || a.result === 'self-correct') correct++;
+      }
+    });
+    if (total === allQ.length && total > 0) {
+      var pct = Math.round(correct / total * 100);
+      document.getElementById('finalScore').textContent = pct + '%';
+      document.getElementById('scoreDetail').textContent = correct + ' van ' + total + ' opdrachten goed';
+    }
+  }
+
+  // ────────── MC QUESTIONS ──────────
+  document.querySelectorAll('.mc-opt').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var qid = this.getAttribute('data-qid');
+      var value = this.getAttribute('data-value');
+      var config = mcAnswers[qid];
+      if (!config) return;
+
+      if (!state.answers[qid]) state.answers[qid] = { result: 'pending', attempts: 0 };
+      var ans = state.answers[qid];
+      if (ans.result === 'correct' || ans.result === 'wrong') return; // locked
+
+      ans.attempts++;
+      var feedbackEl = document.querySelector('.feedback[data-qid="' + qid + '"]');
+
+      if (value === config.correct) {
+        ans.result = 'correct';
+        this.classList.add('selected-correct');
+        feedbackEl.className = 'feedback correct';
+        feedbackEl.textContent = '✅ Goed zo! Dat klopt helemaal.';
+        feedbackEl.style.display = 'block';
+        lockMC(qid, config.correct);
+        document.getElementById(qid).classList.add('completed-correct');
+      } else {
+        this.classList.add('selected-wrong');
+        setTimeout(function(el) { el.classList.remove('selected-wrong'); }, 1200, this);
+
+        if (ans.attempts >= 3) {
+          ans.result = 'wrong';
+          feedbackEl.className = 'feedback wrong';
+          feedbackEl.innerHTML = '❌ Helaas, dat was niet juist. Het goede antwoord is <strong>' + config.correct.toUpperCase() + '</strong>.';
+          feedbackEl.style.display = 'block';
+          lockMC(qid, config.correct);
+          document.getElementById(qid).classList.add('completed-wrong');
+        } else {
+          var hint = config.hints[Math.min(ans.attempts - 1, config.hints.length - 1)];
+          feedbackEl.className = 'feedback hint';
+          feedbackEl.innerHTML = '💡 ' + hint + ' (poging ' + ans.attempts + '/3)';
+          feedbackEl.style.display = 'block';
+        }
+      }
+      updateProgress();
+    });
+  });
+
+  function lockMC(qid, correct) {
+    document.querySelectorAll('.mc-opt[data-qid="' + qid + '"]').forEach(function(b) {
+      b.disabled = true;
+      if (b.getAttribute('data-value') === correct) b.classList.add('show-correct');
+    });
+  }
+
+  // ────────── OPEN QUESTIONS ──────────
+  document.querySelectorAll('.open-textarea').forEach(function(ta) {
+    ta.addEventListener('input', function() {
+      var qid = this.getAttribute('data-qid');
+      var words = this.value.trim().split(/\s+/).filter(function(w) { return w.length > 0; }).length;
+      var counter = document.querySelector('.word-counter[data-qid="' + qid + '"]');
+      counter.textContent = words + ' woorden';
+      counter.classList.toggle('enough', words >= 20);
+
+      var showBtn = document.querySelector('.btn-show-example[data-qid="' + qid + '"]');
+      if (words >= 20) showBtn.style.display = 'inline-block';
+      else showBtn.style.display = 'none';
+    });
+  });
+
+  document.querySelectorAll('.btn-show-example').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var qid = this.getAttribute('data-qid');
+      document.querySelector('.example-answer[data-qid="' + qid + '"]').style.display = 'block';
+      document.querySelector('.self-assess-btns[data-qid="' + qid + '"]').style.display = 'block';
+      this.style.display = 'none';
+    });
+  });
+
+  document.querySelectorAll('.btn-self-correct').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var qid = this.getAttribute('data-qid');
+      if (!state.answers[qid]) state.answers[qid] = { result: 'pending', attempts: 0 };
+      state.answers[qid].result = 'self-correct';
+      document.getElementById(qid).classList.add('completed-self');
+      document.querySelector('.self-assess-btns[data-qid="' + qid + '"]').style.display = 'none';
+      var ta = document.querySelector('.open-textarea[data-qid="' + qid + '"]');
+      if (ta) ta.disabled = true;
+      updateProgress();
+    });
+  });
+
+  document.querySelectorAll('.btn-self-wrong').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var qid = this.getAttribute('data-qid');
+      if (!state.answers[qid]) state.answers[qid] = { result: 'pending', attempts: 0 };
+      state.answers[qid].result = 'self-wrong';
+      document.getElementById(qid).classList.add('completed-wrong');
+      document.querySelector('.self-assess-btns[data-qid="' + qid + '"]').style.display = 'none';
+      var ta = document.querySelector('.open-textarea[data-qid="' + qid + '"]');
+      if (ta) ta.disabled = true;
+      updateProgress();
+    });
+  });
+
+  // ────────── DRAG AND DROP ──────────
+  function initDragList(listId) {
+    var list = document.getElementById(listId);
+    if (!list) return;
+    var items = list.querySelectorAll('.drag-item');
+    var draggedItem = null;
+
+    items.forEach(function(item) {
+      item.addEventListener('dragstart', function(e) {
+        draggedItem = this;
+        this.classList.add('dragging');
+        e.dataTransfer.effectAllowed = 'move';
+      });
+
+      item.addEventListener('dragend', function() {
+        this.classList.remove('dragging');
+        list.querySelectorAll('.drag-item').forEach(function(i) { i.classList.remove('drag-over'); });
+        draggedItem = null;
+      });
+
+      item.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        this.classList.add('drag-over');
+      });
+
+      item.addEventListener('dragleave', function() {
+        this.classList.remove('drag-over');
+      });
+
+      item.addEventListener('drop', function(e) {
+        e.preventDefault();
+        this.classList.remove('drag-over');
+        if (draggedItem && draggedItem !== this) {
+          var allItems = Array.from(list.children);
+          var fromIdx = allItems.indexOf(draggedItem);
+          var toIdx = allItems.indexOf(this);
+          if (fromIdx < toIdx) {
+            list.insertBefore(draggedItem, this.nextSibling);
+          } else {
+            list.insertBefore(draggedItem, this);
+          }
+        }
+      });
+    });
+  }
+
+  initDragList('dragList1');
+
+  // Drag check handler
+  document.querySelectorAll('.btn-check[data-qid^="q4_1"]').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var qid = this.getAttribute('data-qid');
+      var listId = 'dragList1';
+      var correct = dragAnswers[qid];
+      if (!correct) return;
+
+      if (!state.answers[qid]) state.answers[qid] = { result: 'pending', attempts: 0 };
+      var ans = state.answers[qid];
+      if (ans.result === 'correct' || ans.result === 'wrong') return;
+      ans.attempts++;
+
+      var list = document.getElementById(listId);
+      var items = list.querySelectorAll('.drag-item');
+      var current = [];
+      items.forEach(function(it) { current.push(it.getAttribute('data-value')); });
+
+      var allCorrect = true;
+      items.forEach(function(it, idx) {
+        if (current[idx] === correct[idx]) {
+          it.classList.add('correct-pos');
+          it.classList.remove('wrong-pos');
+        } else {
+          it.classList.add('wrong-pos');
+          it.classList.remove('correct-pos');
+          allCorrect = false;
+        }
+      });
+
+      var feedbackEl = document.querySelector('.feedback[data-qid="' + qid + '"]');
+      if (allCorrect) {
+        ans.result = 'correct';
+        feedbackEl.className = 'feedback correct';
+        feedbackEl.textContent = '✅ Perfect! De volgorde klopt helemaal.';
+        feedbackEl.style.display = 'block';
+        items.forEach(function(it) { it.draggable = false; it.style.cursor = 'default'; });
+        document.getElementById(qid).classList.add('completed-correct');
+      } else if (ans.attempts >= 3) {
+        ans.result = 'wrong';
+        feedbackEl.className = 'feedback wrong';
+        feedbackEl.innerHTML = '❌ De juiste volgorde is: 1. Breedteligging, 2. Hoogteligging, 3. Luchtcirculatie, 4. Continentaliteit.';
+        feedbackEl.style.display = 'block';
+        // Show correct order
+        correct.forEach(function(val) {
+          items.forEach(function(it) {
+            if (it.getAttribute('data-value') === val) list.appendChild(it);
+          });
+        });
+        items.forEach(function(it) { it.draggable = false; it.style.cursor = 'default'; it.classList.remove('wrong-pos'); it.classList.add('correct-pos'); });
+        document.getElementById(qid).classList.add('completed-wrong');
+      } else {
+        feedbackEl.className = 'feedback hint';
+        feedbackEl.innerHTML = '💡 Nog niet helemaal goed. Groene items staan op de juiste plek, rode niet. Probeer opnieuw! (poging ' + ans.attempts + '/3)';
+        feedbackEl.style.display = 'block';
+      }
+      updateProgress();
+    });
+  });
+
+  // ────────── MATCH / KOPPEL ──────────
+  function initMatchExercise(containerId, qid) {
+    var container = document.getElementById(containerId);
+    if (!container) return;
+    var selectedSource = null;
+    var matches = {}; // sourceId -> targetId
+
+    container.querySelectorAll('.match-source').forEach(function(src) {
+      src.addEventListener('click', function() {
+        if (this.classList.contains('matched')) {
+          // Allow re-selecting matched items to change them
+        }
+        container.querySelectorAll('.match-source').forEach(function(s) { s.classList.remove('selected'); });
+        this.classList.add('selected');
+        selectedSource = this;
+      });
+    });
+
+    container.querySelectorAll('.match-target').forEach(function(tgt) {
+      tgt.addEventListener('click', function() {
+        if (!selectedSource) return;
+        var srcId = selectedSource.getAttribute('data-source');
+        var tgtId = this.getAttribute('data-target');
+
+        // Remove from previous target if already matched
+        if (matches[srcId]) {
+          var prevTarget = container.querySelector('.match-target[data-target="' + matches[srcId] + '"]');
+          if (prevTarget) {
+            var tag = prevTarget.querySelector('.matched-tag[data-source="' + srcId + '"]');
+            if (tag) tag.remove();
+          }
+        }
+
+        matches[srcId] = tgtId;
+        selectedSource.classList.remove('selected');
+        selectedSource.classList.add('matched');
+
+        // Add tag to target
+        var itemsDiv = this.querySelector('.matched-items');
+        var tag = document.createElement('span');
+        tag.className = 'matched-tag';
+        tag.setAttribute('data-source', srcId);
+        tag.innerHTML = selectedSource.textContent.trim() + ' <span class="remove-match">&times;</span>';
+
+        tag.querySelector('.remove-match').addEventListener('click', function(e) {
+          e.stopPropagation();
+          delete matches[srcId];
+          container.querySelector('.match-source[data-source="' + srcId + '"]').classList.remove('matched');
+          tag.remove();
+        });
+
+        itemsDiv.appendChild(tag);
+        selectedSource = null;
+      });
+    });
+
+    // Check button
+    var checkBtn = document.querySelector('.btn-check[data-qid="' + qid + '"]');
+    if (checkBtn) {
+      checkBtn.addEventListener('click', function() {
+        if (!state.answers[qid]) state.answers[qid] = { result: 'pending', attempts: 0 };
+        var ans = state.answers[qid];
+        if (ans.result === 'correct' || ans.result === 'wrong') return;
+        ans.attempts++;
+
+        var sources = container.querySelectorAll('.match-source');
+        var allCorrect = true;
+        var allMatched = true;
+
+        sources.forEach(function(src) {
+          var srcId = src.getAttribute('data-source');
+          var correctTarget = src.getAttribute('data-correct');
+          if (!matches[srcId]) { allMatched = false; allCorrect = false; return; }
+          if (matches[srcId] !== correctTarget) allCorrect = false;
+        });
+
+        var feedbackEl = document.querySelector('.feedback[data-qid="' + qid + '"]');
+
+        if (!allMatched) {
+          feedbackEl.className = 'feedback hint';
+          feedbackEl.textContent = '💡 Je hebt nog niet alles gekoppeld. Klik op een kenmerk en dan op het juiste klimaattype.';
+          feedbackEl.style.display = 'block';
+          ans.attempts--;
+          return;
+        }
+
+        if (allCorrect) {
+          ans.result = 'correct';
+          feedbackEl.className = 'feedback correct';
+          feedbackEl.textContent = '✅ Uitstekend! Alle koppelingen kloppen.';
+          feedbackEl.style.display = 'block';
+          document.getElementById(qid).classList.add('completed-correct');
+        } else if (ans.attempts >= 3) {
+          ans.result = 'wrong';
+          feedbackEl.className = 'feedback wrong';
+          feedbackEl.textContent = '❌ Helaas, niet alles was goed. Bekijk de tabel hierboven om te zien welke kenmerken bij welk klimaattype horen.';
+          feedbackEl.style.display = 'block';
+          document.getElementById(qid).classList.add('completed-wrong');
+        } else {
+          feedbackEl.className = 'feedback hint';
+          feedbackEl.innerHTML = '💡 Nog niet alles klopt. Kijk goed naar de tabel hierboven! (poging ' + ans.attempts + '/3)';
+          feedbackEl.style.display = 'block';
+        }
+        updateProgress();
+      });
+    }
+  }
+
+  initMatchExercise('match5_1', 'q5_1');
+  initMatchExercise('match9_1', 'q9_1');
+
+  // ────────── RESET TAB ──────────
+  document.querySelectorAll('.btn-reset-tab').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var tabIdx = parseInt(this.getAttribute('data-tab'));
+      var tabEl = document.getElementById('tab' + tabIdx);
+
+      tabEl.querySelectorAll('.question-block').forEach(function(qb) {
+        var qid = qb.id;
+        delete state.answers[qid];
+        qb.classList.remove('completed-correct', 'completed-wrong', 'completed-self');
+
+        // Reset MC
+        qb.querySelectorAll('.mc-opt').forEach(function(o) {
+          o.disabled = false;
+          o.classList.remove('selected-correct', 'selected-wrong', 'show-correct');
+        });
+
+        // Reset feedback
+        qb.querySelectorAll('.feedback').forEach(function(f) { f.style.display = 'none'; f.className = 'feedback'; });
+
+        // Reset open questions
+        qb.querySelectorAll('.open-textarea').forEach(function(ta) {
+          ta.value = '';
+          ta.disabled = false;
+        });
+        qb.querySelectorAll('.word-counter').forEach(function(wc) { wc.textContent = '0 woorden'; wc.classList.remove('enough'); });
+        qb.querySelectorAll('.btn-show-example').forEach(function(b) { b.style.display = 'none'; });
+        qb.querySelectorAll('.example-answer').forEach(function(ea) { ea.style.display = 'none'; });
+        qb.querySelectorAll('.self-assess-btns').forEach(function(sa) { sa.style.display = 'none'; });
+
+        // Reset drag items
+        qb.querySelectorAll('.drag-item').forEach(function(di) {
+          di.draggable = true;
+          di.style.cursor = 'grab';
+          di.classList.remove('correct-pos', 'wrong-pos');
+        });
+
+        // Reset match sources
+        qb.querySelectorAll('.match-source').forEach(function(ms) {
+          ms.classList.remove('selected', 'matched');
+        });
+        qb.querySelectorAll('.matched-items').forEach(function(mi) { mi.innerHTML = ''; });
+      });
+
+      state.completedTabs[tabIdx] = false;
+      updateProgress();
+    });
+  });
+
+  // ────────── CLEAR PROGRESS ──────────
+  document.getElementById('btnClearProgress').addEventListener('click', function() {
+    if (confirm('Weet je zeker dat je al je voortgang wilt wissen? Dit kan niet ongedaan worden.')) {
+      clearState();
+    }
+  });
+
+  // ────────── CHARTS ──────────
+  // Temperature chart
+  var tempCtx = document.getElementById('tempChart');
+  if (tempCtx) {
+    new Chart(tempCtx.getContext('2d'), {
+      type: 'line',
+      data: {
+        labels: ['Jan','Feb','Mrt','Apr','Mei','Jun','Jul','Aug','Sep','Okt','Nov','Dec'],
+        datasets: [
+          {
+            label: 'Bern (Zwitserland)',
+            data: [0, 1, 5, 9, 13, 17, 19, 18, 14, 9, 4, 1],
+            borderColor: '#d52b1e',
+            backgroundColor: 'rgba(213,43,30,0.1)',
+            tension: 0.4,
+            fill: true,
+            pointRadius: 5,
+            pointBackgroundColor: '#d52b1e'
+          },
+          {
+            label: 'Manaus (Brazilië)',
+            data: [27, 27, 27, 27, 27, 27, 28, 28, 28, 28, 28, 27],
+            borderColor: '#009c3b',
+            backgroundColor: 'rgba(0,156,59,0.1)',
+            tension: 0.4,
+            fill: true,
+            pointRadius: 5,
+            pointBackgroundColor: '#009c3b'
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { position: 'bottom' } },
+        scales: {
+          y: { title: { display: true, text: 'Temperatuur (°C)' }, min: -5, max: 35 }
+        }
+      }
+    });
+  }
+
+  // Rain chart
+  var rainCtx = document.getElementById('rainChart');
+  if (rainCtx) {
+    new Chart(rainCtx.getContext('2d'), {
+      type: 'bar',
+      data: {
+        labels: ['Jan','Feb','Mrt','Apr','Mei','Jun','Jul','Aug','Sep','Okt','Nov','Dec'],
+        datasets: [
+          {
+            label: 'Bern (Zwitserland)',
+            data: [60, 55, 70, 80, 100, 110, 100, 105, 85, 75, 70, 65],
+            backgroundColor: 'rgba(213,43,30,0.6)',
+            borderColor: '#d52b1e',
+            borderWidth: 1
+          },
+          {
+            label: 'Manaus (Brazilië)',
+            data: [260, 280, 310, 270, 200, 100, 60, 40, 70, 120, 170, 220],
+            backgroundColor: 'rgba(0,156,59,0.6)',
+            borderColor: '#009c3b',
+            borderWidth: 1
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { position: 'bottom' } },
+        scales: {
+          y: { title: { display: true, text: 'Neerslag (mm)' }, min: 0, max: 350 }
+        }
+      }
+    });
+  }
+
+  // ────────── MAPS ──────────
+  // Map 1: World overview
+  window.map1 = L.map('map1').setView([10, 0], 2);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap'
+  }).addTo(window.map1);
+
+  L.marker([46.95, 7.45]).addTo(window.map1)
+    .bindPopup('<strong>🇨🇭 Bern, Zwitserland</strong><br>47°N, 540m hoogte<br>Gematigd klimaat (Cfb)');
+  L.marker([-3.12, -60.02]).addTo(window.map1)
+    .bindPopup('<strong>🇧🇷 Manaus, Brazilië</strong><br>3°Z, 90m hoogte<br>Tropisch klimaat (Af)');
+  L.marker([-23.55, -46.63]).addTo(window.map1)
+    .bindPopup('<strong>🇧🇷 São Paulo, Brazilië</strong><br>23°Z, 760m hoogte');
+  L.marker([52.37, 4.89]).addTo(window.map1)
+    .bindPopup('<strong>🇳🇱 Amsterdam, Nederland</strong><br>52°N — ter vergelijking');
+
+  // Equator line
+  L.polyline([[0, -180], [0, 180]], { color: '#e74c3c', weight: 2, dashArray: '10,10', opacity: 0.7 }).addTo(window.map1);
+
+  // Map 2: Switzerland detail
+  window.map2 = L.map('map2').setView([46.8, 8.2], 7);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap'
+  }).addTo(window.map2);
+
+  L.marker([46.95, 7.45]).addTo(window.map2)
+    .bindPopup('<strong>Bern</strong><br>540m — Hoofdstad');
+  L.marker([46.54, 7.96]).addTo(window.map2)
+    .bindPopup('<strong>Jungfrau</strong><br>4.158m — Beroemde bergtop');
+  L.marker([45.94, 7.87]).addTo(window.map2)
+    .bindPopup('<strong>Dufourspitze</strong><br>4.634m — Hoogste punt van Zwitserland');
+  L.marker([46.69, 7.85]).addTo(window.map2)
+    .bindPopup('<strong>Interlaken</strong><br>570m — Toeristisch dal');
+  L.marker([46.01, 8.96]).addTo(window.map2)
+    .bindPopup('<strong>Lugano (Ticino)</strong><br>273m — Zuidkant Alpen, warmer & natter');
+
+  // ────────── RESTORE STATE ──────────
+  loadState();
+
+  // Restore MC answers
+  Object.keys(state.answers).forEach(function(qid) {
+    var ans = state.answers[qid];
+    if (!ans) return;
+    var qb = document.getElementById(qid);
+    if (!qb) return;
+
+    if (ans.result === 'correct' || ans.result === 'wrong') {
+      // MC
+      var config = mcAnswers[qid];
+      if (config) {
+        lockMC(qid, config.correct);
+        var feedbackEl = document.querySelector('.feedback[data-qid="' + qid + '"]');
+        if (ans.result === 'correct') {
+          feedbackEl.className = 'feedback correct';
+          feedbackEl.textContent = '✅ Goed zo! Dat klopt helemaal.';
+          qb.classList.add('completed-correct');
+        } else {
+          feedbackEl.className = 'feedback wrong';
+          feedbackEl.innerHTML = '❌ Het goede antwoord is <strong>' + config.correct.toUpperCase() + '</strong>.';
+          qb.classList.add('completed-wrong');
+        }
+        feedbackEl.style.display = 'block';
+      }
+    }
+
+    if (ans.result === 'self-correct') qb.classList.add('completed-self');
+    if (ans.result === 'self-wrong') qb.classList.add('completed-wrong');
+  });
+
+  showTab(state.currentTab);
+  updateProgress();
+
+});
+</script>
+</body>
+</html>
