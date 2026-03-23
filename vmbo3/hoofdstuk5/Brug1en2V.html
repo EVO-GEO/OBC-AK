@@ -1,1 +1,1921 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Grenzen &amp; Identiteit — Aardrijkskunde VMBO 3</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+:root {
+  --c-forest: #2D5A3D;
+  --c-forest-dark: #1E3D2A;
+  --c-forest-light: #3E7A52;
+  --c-sage: #7A9E7E;
+  --c-sage-light: #A8C5AB;
+  --c-moss: #4A7C59;
+  --c-leaf: #5B9A6A;
+  --c-cream: #F5F1EB;
+  --c-sand: #E8E0D4;
+  --c-warm: #D4C5B0;
+  --c-bark: #6B5B4A;
+  --c-text: #2C2C2C;
+  --c-text-light: #5A5A5A;
+  --c-white: #FFFFFF;
+  --c-correct: #3A8A4F;
+  --c-wrong: #C0392B;
+  --c-hint: #D4A843;
+  --c-accent: #E8C547;
+  --radius: 12px;
+  --radius-sm: 8px;
+  --shadow: 0 2px 12px rgba(45,90,61,0.10);
+  --shadow-lg: 0 4px 24px rgba(45,90,61,0.15);
+  --transition: 0.3s ease;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Nunito', sans-serif;
+  background: var(--c-cream);
+  color: var(--c-text);
+  line-height: 1.7;
+  min-height: 100vh;
+}
+/* HEADER */
+.site-header {
+  background: linear-gradient(135deg, var(--c-forest-dark) 0%, var(--c-forest) 40%, var(--c-moss) 100%);
+  color: var(--c-white);
+  padding: 1.5rem 2rem 1rem;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.site-header::before {
+  content: '🌿🗺️🌍';
+  position: absolute;
+  top: 8px;
+  left: 20px;
+  font-size: 1.5rem;
+  opacity: 0.3;
+}
+.site-header h1 {
+  font-size: 1.8rem;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  margin-bottom: 0.2rem;
+}
+.site-header .subtitle {
+  font-size: 0.9rem;
+  opacity: 0.85;
+  font-weight: 400;
+}
+/* PROGRESS BAR */
+.progress-container {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: var(--c-white);
+  border-bottom: 1px solid var(--c-sand);
+  padding: 0.6rem 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+.progress-label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--c-forest);
+  white-space: nowrap;
+}
+.progress-bar-outer {
+  flex: 1;
+  height: 10px;
+  background: var(--c-sand);
+  border-radius: 5px;
+  overflow: hidden;
+}
+.progress-bar-inner {
+  height: 100%;
+  background: linear-gradient(90deg, var(--c-leaf), var(--c-accent));
+  border-radius: 5px;
+  transition: width 0.5s ease;
+  width: 0%;
+}
+.progress-pct {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--c-forest);
+  min-width: 40px;
+  text-align: right;
+}
+/* TABS */
+.tab-bar-wrapper {
+  background: var(--c-white);
+  border-bottom: 2px solid var(--c-sand);
+  position: sticky;
+  top: 42px;
+  z-index: 999;
+}
+.tab-counter {
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--c-text-light);
+  padding: 0.3rem 0 0;
+  font-weight: 600;
+}
+.tab-bar {
+  display: flex;
+  overflow-x: auto;
+  padding: 0 1rem 0;
+  gap: 0;
+  scrollbar-width: thin;
+}
+.tab-bar::-webkit-scrollbar { height: 3px; }
+.tab-bar::-webkit-scrollbar-thumb { background: var(--c-sage); border-radius: 3px; }
+.tab-btn {
+  flex-shrink: 0;
+  padding: 0.6rem 1rem;
+  border: none;
+  background: transparent;
+  font-family: inherit;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--c-text-light);
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  transition: var(--transition);
+  white-space: nowrap;
+  position: relative;
+}
+.tab-btn:hover { color: var(--c-forest); }
+.tab-btn.active {
+  color: var(--c-forest);
+  border-bottom-color: var(--c-forest);
+}
+.tab-btn .tab-check {
+  color: var(--c-correct);
+  margin-left: 4px;
+  font-size: 0.75rem;
+}
+/* CONTENT */
+.tab-content {
+  display: none;
+  max-width: 850px;
+  margin: 0 auto;
+  padding: 1.5rem;
+  animation: fadeIn 0.3s ease;
+}
+.tab-content.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+/* SECTION STYLING */
+.section-title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--c-forest-dark);
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.section-intro {
+  font-size: 0.95rem;
+  color: var(--c-text-light);
+  margin-bottom: 1.5rem;
+  border-left: 4px solid var(--c-sage-light);
+  padding-left: 1rem;
+}
+/* INFO BLOCKS */
+.info-block {
+  background: var(--c-white);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: var(--shadow);
+  border-left: 5px solid var(--c-sage);
+}
+.info-block h3 {
+  font-size: 1.1rem;
+  color: var(--c-forest);
+  margin-bottom: 0.5rem;
+  font-weight: 700;
+}
+.info-block p { margin-bottom: 0.8rem; font-size: 0.92rem; }
+.info-block p:last-child { margin-bottom: 0; }
+.emoji-flow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  font-size: 1.1rem;
+  margin: 1rem 0;
+  padding: 1rem;
+  background: linear-gradient(135deg, var(--c-sage-light), var(--c-cream));
+  border-radius: var(--radius-sm);
+}
+.emoji-flow .arrow { color: var(--c-forest); font-weight: 800; }
+/* HIGHLIGHT BOX */
+.highlight-box {
+  background: linear-gradient(135deg, var(--c-forest), var(--c-moss));
+  color: var(--c-white);
+  border-radius: var(--radius);
+  padding: 1.2rem 1.5rem;
+  margin: 1.2rem 0;
+  font-size: 0.92rem;
+}
+.highlight-box strong { color: var(--c-accent); }
+/* COMPARISON TABLE */
+.compare-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+  font-size: 0.88rem;
+  background: var(--c-white);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+.compare-table th {
+  background: var(--c-forest);
+  color: var(--c-white);
+  padding: 0.7rem 1rem;
+  text-align: left;
+  font-weight: 700;
+}
+.compare-table td {
+  padding: 0.6rem 1rem;
+  border-bottom: 1px solid var(--c-sand);
+}
+.compare-table tr:nth-child(even) td { background: rgba(122,158,126,0.07); }
+/* LEEFWERELD BOX */
+.leefwereld {
+  background: linear-gradient(135deg, #FFF8E7, #FFF3D6);
+  border: 2px dashed var(--c-hint);
+  border-radius: var(--radius);
+  padding: 1.2rem 1.5rem;
+  margin: 1.2rem 0;
+  font-size: 0.92rem;
+}
+.leefwereld::before {
+  content: '🌍 Herken je dit?';
+  display: block;
+  font-weight: 800;
+  color: var(--c-bark);
+  margin-bottom: 0.4rem;
+  font-size: 0.95rem;
+}
+/* QUIZ ITEMS */
+.quiz-item {
+  background: var(--c-white);
+  border-radius: var(--radius);
+  padding: 1.3rem 1.5rem;
+  margin-bottom: 1.3rem;
+  box-shadow: var(--shadow);
+  border: 2px solid var(--c-sand);
+  transition: border-color 0.3s;
+}
+.quiz-item.completed-correct { border-color: var(--c-correct); }
+.quiz-item.completed-wrong { border-color: var(--c-wrong); }
+.quiz-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--c-sage);
+  margin-bottom: 0.3rem;
+}
+.quiz-question {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--c-forest-dark);
+  margin-bottom: 0.8rem;
+  line-height: 1.5;
+}
+/* MC OPTIONS */
+.mc-options { display: flex; flex-direction: column; gap: 0.5rem; }
+.mc-opt {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 0.7rem 1rem;
+  border: 2px solid var(--c-sand);
+  border-radius: var(--radius-sm);
+  background: var(--c-cream);
+  font-family: inherit;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: var(--transition);
+}
+.mc-opt:hover { border-color: var(--c-sage); background: var(--c-white); }
+.mc-opt.selected { border-color: var(--c-forest); background: #E8F5E9; }
+.mc-opt.correct-reveal { border-color: var(--c-correct); background: #E8F5E9; }
+.mc-opt.wrong-reveal { border-color: var(--c-wrong); background: #FFEBEE; }
+.mc-opt:disabled { cursor: default; opacity: 0.85; }
+/* FEEDBACK */
+.feedback {
+  margin-top: 0.7rem;
+  padding: 0.8rem 1rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.88rem;
+  display: none;
+  line-height: 1.5;
+}
+.feedback.show { display: block; animation: fadeIn 0.3s; }
+.feedback.hint { background: #FFF8E1; border-left: 4px solid var(--c-hint); color: #7A6520; }
+.feedback.correct { background: #E8F5E9; border-left: 4px solid var(--c-correct); color: #1B5E20; }
+.feedback.wrong { background: #FFEBEE; border-left: 4px solid var(--c-wrong); color: #B71C1C; }
+/* OPEN QUESTION */
+.open-textarea {
+  width: 100%;
+  min-height: 80px;
+  padding: 0.8rem;
+  border: 2px solid var(--c-sand);
+  border-radius: var(--radius-sm);
+  font-family: inherit;
+  font-size: 0.9rem;
+  resize: vertical;
+  transition: border-color 0.3s;
+  line-height: 1.6;
+}
+.open-textarea:focus { outline: none; border-color: var(--c-sage); }
+.word-count {
+  font-size: 0.75rem;
+  color: var(--c-text-light);
+  margin-top: 0.3rem;
+}
+.word-count.enough { color: var(--c-correct); font-weight: 600; }
+.btn-show-example {
+  display: none;
+  margin-top: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: var(--c-sage);
+  color: var(--c-white);
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+}
+.btn-show-example:hover { background: var(--c-forest); }
+.example-answer {
+  display: none;
+  margin-top: 0.6rem;
+  padding: 0.8rem 1rem;
+  background: #F0F7F1;
+  border-radius: var(--radius-sm);
+  font-size: 0.88rem;
+  border-left: 4px solid var(--c-sage);
+}
+.self-assess {
+  display: none;
+  margin-top: 0.5rem;
+  gap: 0.5rem;
+}
+.self-assess.show { display: flex; }
+.btn-self {
+  padding: 0.4rem 1rem;
+  border: 2px solid;
+  border-radius: var(--radius-sm);
+  font-family: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: var(--transition);
+}
+.btn-self.good { border-color: var(--c-correct); color: var(--c-correct); background: transparent; }
+.btn-self.good:hover { background: #E8F5E9; }
+.btn-self.bad { border-color: var(--c-wrong); color: var(--c-wrong); background: transparent; }
+.btn-self.bad:hover { background: #FFEBEE; }
+/* DRAG AND DROP */
+.drag-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin: 0.8rem 0;
+}
+.drag-item {
+  padding: 0.7rem 1rem;
+  background: var(--c-white);
+  border: 2px solid var(--c-sand);
+  border-radius: var(--radius-sm);
+  cursor: grab;
+  font-size: 0.9rem;
+  transition: var(--transition);
+  user-select: none;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.drag-item:active { cursor: grabbing; }
+.drag-item .drag-handle { color: var(--c-sage); font-size: 1.1rem; }
+.drag-item.dragging { opacity: 0.4; border-color: var(--c-forest); }
+.drag-item.drag-over { border-color: var(--c-forest); background: #E8F5E9; }
+.drag-item.correct-pos { border-color: var(--c-correct); background: #E8F5E9; }
+.drag-item.wrong-pos { border-color: var(--c-wrong); background: #FFEBEE; }
+/* MATCH */
+.match-container { display: flex; gap: 1rem; flex-wrap: wrap; margin: 0.8rem 0; }
+.match-col { flex: 1; min-width: 200px; }
+.match-col h4 { font-size: 0.85rem; color: var(--c-forest); margin-bottom: 0.5rem; font-weight: 700; }
+.match-item {
+  padding: 0.6rem 0.8rem;
+  margin-bottom: 0.4rem;
+  border: 2px solid var(--c-sand);
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: var(--transition);
+  background: var(--c-white);
+}
+.match-item.selected { border-color: var(--c-forest); background: #E8F5E9; }
+.match-item.matched { opacity: 0.7; border-style: dashed; }
+.match-pairs { margin-top: 0.5rem; }
+.match-pair {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  background: var(--c-sage-light);
+  padding: 0.3rem 0.6rem;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  margin: 0.2rem;
+}
+.match-pair .remove-pair {
+  cursor: pointer;
+  font-weight: 800;
+  color: var(--c-wrong);
+  margin-left: 0.3rem;
+}
+/* BUTTONS */
+.btn {
+  padding: 0.6rem 1.2rem;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  font-size: 0.88rem;
+  transition: var(--transition);
+}
+.btn-primary { background: var(--c-forest); color: var(--c-white); }
+.btn-primary:hover { background: var(--c-forest-dark); }
+.btn-secondary { background: var(--c-sand); color: var(--c-text); }
+.btn-secondary:hover { background: var(--c-warm); }
+.btn-check {
+  margin-top: 0.5rem;
+  background: var(--c-forest);
+  color: var(--c-white);
+  padding: 0.5rem 1.2rem;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+.btn-check:hover { background: var(--c-forest-dark); }
+.btn-check:disabled { background: var(--c-sage-light); cursor: default; }
+/* NAV BUTTONS */
+.nav-buttons {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 2px solid var(--c-sand);
+}
+.btn-reset-tab {
+  font-size: 0.75rem;
+  color: var(--c-text-light);
+  background: none;
+  border: 1px solid var(--c-sand);
+  border-radius: var(--radius-sm);
+  padding: 0.3rem 0.8rem;
+  cursor: pointer;
+  font-family: inherit;
+}
+.btn-reset-tab:hover { background: var(--c-sand); }
+/* MAP */
+.map-container {
+  height: 400px;
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin: 1rem 0;
+  box-shadow: var(--shadow);
+  border: 2px solid var(--c-sand);
+}
+/* CHART */
+.chart-container {
+  background: var(--c-white);
+  border-radius: var(--radius);
+  padding: 1rem;
+  margin: 1rem 0;
+  box-shadow: var(--shadow);
+  max-height: 350px;
+}
+/* SCORE FINAL */
+.final-score {
+  text-align: center;
+  padding: 2rem;
+  background: linear-gradient(135deg, var(--c-forest), var(--c-moss));
+  color: var(--c-white);
+  border-radius: var(--radius);
+  margin: 1.5rem 0;
+}
+.final-score .score-num {
+  font-size: 3rem;
+  font-weight: 800;
+}
+.final-score .score-label {
+  font-size: 0.9rem;
+  opacity: 0.9;
+}
+.btn-clear-progress {
+  display: block;
+  margin: 1rem auto;
+  padding: 0.5rem 1.5rem;
+  background: var(--c-wrong);
+  color: white;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+/* RESPONSIVE */
+@media (max-width: 900px) {
+  .tab-content { padding: 1rem; }
+  .site-header h1 { font-size: 1.4rem; }
+  .match-container { flex-direction: column; }
+}
+</style>
+</head>
+<body>
 
+<header class="site-header">
+  <h1>🌍 Grenzen &amp; Identiteit</h1>
+  <div class="subtitle">Aardrijkskunde VMBO 3 — Interactieve les (~60 min)</div>
+</header>
+
+<div class="progress-container">
+  <span class="progress-label">Voortgang:</span>
+  <div class="progress-bar-outer"><div class="progress-bar-inner" id="progressBar"></div></div>
+  <span class="progress-pct" id="progressPct">0%</span>
+</div>
+
+<div class="tab-bar-wrapper">
+  <div class="tab-counter" id="tabCounter">Onderdeel 1 van 9</div>
+  <div class="tab-bar" id="tabBar"></div>
+</div>
+
+<!-- ==================== TAB 1: Landen en Grenzen ==================== -->
+<div class="tab-content" id="tab-1" data-title="1. Landen &amp; Grenzen">
+  <div class="section-title">🗺️ Landen en Grenzen</div>
+  <div class="section-intro">Grenzen zijn overal om je heen — en ze zijn niet altijd zichtbaar. Laten we ontdekken wat grenzen eigenlijk zijn en waarom ze zo verschillend kunnen zijn.</div>
+
+  <div class="info-block">
+    <h3>Wat is een land?</h3>
+    <p>Een land is een gebied met duidelijke grenzen en een eigen regering. Denk aan Nederland: we hebben een grondwet, een koning, een parlement en landsgrenzen die precies aangeven waar Nederland ophoudt en waar België of Duitsland begint. De <strong>landsgrens</strong> is de officiële scheidingslijn tussen twee landen.</p>
+    <p>Maar grenzen bestaan niet alleen tussen landen. Je komt ze overal tegen: tussen klimaatzones, tussen cultuurgebieden, tussen rijke en arme regio's, en zelfs tussen je eigen buurt en de volgende wijk. Het verschil is dat landsgrenzen <strong>altijd door mensen bepaald</strong> zijn — de natuur kent geen paspoorten.</p>
+    <p>Als je op reis gaat — bijvoorbeeld naar Spanje — merk je dat je bij de grens soms helemaal niets ziet. Binnen Europa zijn veel grenzen <strong>open (of zacht)</strong>: er zijn weinig controles en je kunt makkelijk doorrijden. Maar probeer eens naar de VS te vliegen zonder visum: dan merk je hoe <strong>hard (of gesloten)</strong> een grens kan zijn, met paspoortcontroles, visa en soms zelfs hekken of muren.</p>
+  </div>
+
+  <div class="info-block">
+    <h3>🏔️ Natuurlijke vs. kunstmatige grenzen</h3>
+    <p>Sommige landsgrenzen volgen opvallende kenmerken in het landschap. De <strong>Pyreneeën</strong> vormen de grens tussen Frankrijk en Spanje — een hoog gebergte dat eeuwenlang als natuurlijke barrière diende. De <strong>Rijn</strong> vormde ooit de noordgrens van het Romeinse Rijk. Zulke grenzen noemen we <strong>natuurlijke grenzen</strong>.</p>
+    <div class="emoji-flow">
+      <span>🏔️ Gebergte</span><span class="arrow">→</span>
+      <span>🌊 Zee/oceaan</span><span class="arrow">→</span>
+      <span>🏞️ Rivier</span><span class="arrow">→</span>
+      <span>🌲 Meer/bos</span>
+    </div>
+    <p><strong>Kunstmatige grenzen</strong> zijn door mensen getrokken zonder dat het landschap daarvoor een reden geeft. Kijk naar de kaart van Afrika: veel grenzen zijn kaarsrechte lijnen, getekend door Europese kolonisten die geen rekening hielden met de volkeren die daar al leefden. In de woestijn of een vlak weiland zie je de grens niet — soms alleen een grenspaal of hek.</p>
+    <p>En vergeet het water niet: vanaf het Nederlandse strand hoort nog <strong>12 zeemijl</strong> (≈ 22 km) zee bij Nederland. Dit zijn de <strong>territoriale wateren</strong>. Niet alleen het water, maar ook het luchtruim erboven en de bodem eronder zijn Nederlands grondgebied.</p>
+  </div>
+
+  <div class="leefwereld">
+    Als je met je familie op vakantie gaat met de auto naar Frankrijk, rij je dwars door België zonder dat je je paspoort hoeft te laten zien. Maar als je oma vanuit Turkije of Marokko naar Nederland wil komen, moet ze misschien een visum aanvragen. Hoe kan het dat grenzen niet voor iedereen hetzelfde werken?
+  </div>
+
+  <!-- Quiz 1.1: MC -->
+  <div class="quiz-item" id="q1-1">
+    <div class="quiz-label">Opdracht 1 · Meerkeuze</div>
+    <div class="quiz-question">De Pyreneeën vormen de grens tussen Frankrijk en Spanje. Wat voor soort grens is dit?</div>
+    <div class="mc-options">
+      <button class="mc-opt" data-answer="a">Een kunstmatige grens</button>
+      <button class="mc-opt" data-answer="b">Een natuurlijke grens</button>
+      <button class="mc-opt" data-answer="c">Een territoriale grens</button>
+      <button class="mc-opt" data-answer="d">Een zachte grens</button>
+    </div>
+    <div class="feedback" id="fb-q1-1"></div>
+  </div>
+
+  <!-- Quiz 1.2: Open -->
+  <div class="quiz-item" id="q1-2">
+    <div class="quiz-label">Opdracht 2 · Schrijfopdracht</div>
+    <div class="quiz-question">Leg in je eigen woorden uit wat het verschil is tussen een zachte grens en een harde grens. Geef bij elke soort een voorbeeld uit de echte wereld.</div>
+    <textarea class="open-textarea" data-qid="q1-2" placeholder="Schrijf hier je antwoord (minimaal 20 woorden)..."></textarea>
+    <div class="word-count" data-qid="q1-2">0 woorden</div>
+    <button class="btn-show-example" data-qid="q1-2">Toon voorbeeldantwoord</button>
+    <div class="example-answer" data-qid="q1-2">
+      <strong>Voorbeeldantwoord:</strong> Een zachte grens is een grens die je makkelijk kunt oversteken, zonder strenge controles. Bijvoorbeeld de grens tussen Nederland en België: je rijdt zo door. Een harde grens is zwaar bewaakt, met hekken, muren of strenge paspoortcontroles. Een voorbeeld is de grens tussen de VS en Mexico, waar een groot hek staat en bewakers controleren.
+    </div>
+    <div class="self-assess" data-qid="q1-2">
+      <button class="btn-self good" data-qid="q1-2" data-result="correct">Goed ✓</button>
+      <button class="btn-self bad" data-qid="q1-2" data-result="wrong">Fout ✗</button>
+    </div>
+  </div>
+
+  <!-- Quiz 1.3: MC -->
+  <div class="quiz-item" id="q1-3">
+    <div class="quiz-label">Opdracht 3 · Meerkeuze</div>
+    <div class="quiz-question">Hoeveel zeemijl aan zee hoort er bij Nederland, gemeten vanaf het strand?</div>
+    <div class="mc-options">
+      <button class="mc-opt" data-answer="a">6 zeemijl</button>
+      <button class="mc-opt" data-answer="b">12 zeemijl</button>
+      <button class="mc-opt" data-answer="c">24 zeemijl</button>
+      <button class="mc-opt" data-answer="d">50 zeemijl</button>
+    </div>
+    <div class="feedback" id="fb-q1-3"></div>
+  </div>
+
+  <div class="nav-buttons">
+    <button class="btn-reset-tab" data-tab="1">↻ Reset dit onderdeel</button>
+    <div></div>
+    <button class="btn btn-primary" data-nav="next">Volgende →</button>
+  </div>
+</div>
+
+<!-- ==================== TAB 2: Kaart - Grenzen Verkennen ==================== -->
+<div class="tab-content" id="tab-2" data-title="2. Kaart: Grenzen">
+  <div class="section-title">🧭 Grenzen op de Kaart</div>
+  <div class="section-intro">Tijd om je reizigersoog te gebruiken! Verken op de kaart verschillende soorten grenzen in Europa en daarbuiten.</div>
+
+  <div class="info-block">
+    <h3>Grenzen verkennen als een reiziger</h3>
+    <p>Stel je voor dat je een grote reis maakt door Europa. Je begint in Nederland en reist richting het zuiden. Bij sommige grenzen merk je helemaal niets — je rijdt gewoon door. Bij andere grenzen wordt het spannend: paspoortcontrole, lange rijen, misschien zelfs een hek. Die verschillen vertellen je veel over de relatie tussen landen.</p>
+    <p>Op de kaart hieronder zie je belangrijke grenzen en locaties. Klik op de markers voor meer informatie over elk type grens. Let op: niet alle grenzen zijn gelijk. Binnen de <strong>Schengenzone</strong> (een afspraak tussen 27 Europese landen) kun je vrij reizen zonder grenscontroles. Maar zodra je de Schengenzone verlaat, veranderen de regels.</p>
+  </div>
+
+  <div id="map1" class="map-container"></div>
+
+  <!-- Quiz 2.1: Open -->
+  <div class="quiz-item" id="q2-1">
+    <div class="quiz-label">Opdracht 1 · Kaartopdracht</div>
+    <div class="quiz-question">Bekijk de kaart hierboven. Noem twee grenzen waar je zonder paspoortcontrole doorheen kunt rijden, en één grens waar wél strenge controles zijn. Leg uit waarom dit verschil bestaat.</div>
+    <textarea class="open-textarea" data-qid="q2-1" placeholder="Gebruik de kaart als hulpmiddel... (min. 20 woorden)"></textarea>
+    <div class="word-count" data-qid="q2-1">0 woorden</div>
+    <button class="btn-show-example" data-qid="q2-1">Toon voorbeeldantwoord</button>
+    <div class="example-answer" data-qid="q2-1">
+      <strong>Voorbeeldantwoord:</strong> De grens Nederland-België en Nederland-Duitsland kun je zonder controle oversteken, want deze landen zitten in de Schengenzone. De grens tussen Turkije en Griekenland heeft wél strenge controles, omdat Turkije niet bij Schengen hoort. Het verschil bestaat omdat Schengenlanden onderling hebben afgesproken dat ze vrij verkeer van personen toestaan.
+    </div>
+    <div class="self-assess" data-qid="q2-1">
+      <button class="btn-self good" data-qid="q2-1" data-result="correct">Goed ✓</button>
+      <button class="btn-self bad" data-qid="q2-1" data-result="wrong">Fout ✗</button>
+    </div>
+  </div>
+
+  <!-- Quiz 2.2: MC -->
+  <div class="quiz-item" id="q2-2">
+    <div class="quiz-label">Opdracht 2 · Meerkeuze</div>
+    <div class="quiz-question">De grenzen in Afrika zijn vaak kaarsrecht getrokken. Wat is hiervoor de belangrijkste verklaring?</div>
+    <div class="mc-options">
+      <button class="mc-opt" data-answer="a">Afrikaanse landen kozen zelf voor rechte grenzen</button>
+      <button class="mc-opt" data-answer="b">Europese kolonisten trokken grenzen zonder rekening te houden met de bevolking</button>
+      <button class="mc-opt" data-answer="c">Rechte grenzen zijn het eerlijkst</button>
+      <button class="mc-opt" data-answer="d">Er zijn geen natuurlijke kenmerken in Afrika</button>
+    </div>
+    <div class="feedback" id="fb-q2-2"></div>
+  </div>
+
+  <!-- Quiz 2.3: Open -->
+  <div class="quiz-item" id="q2-3">
+    <div class="quiz-label">Opdracht 3 · Denkopdracht</div>
+    <div class="quiz-question">Stel je voor: je gaat op reis met je klas naar Marokko. Je vliegt van Amsterdam naar Marrakech. Welke grenzen passeer je (denk aan luchtruim, Schengen, landsgrenzen) en wat merk je daar als reiziger van?</div>
+    <textarea class="open-textarea" data-qid="q2-3" placeholder="Beschrijf je reis en de grenzen die je passeert... (min. 20 woorden)"></textarea>
+    <div class="word-count" data-qid="q2-3">0 woorden</div>
+    <button class="btn-show-example" data-qid="q2-3">Toon voorbeeldantwoord</button>
+    <div class="example-answer" data-qid="q2-3">
+      <strong>Voorbeeldantwoord:</strong> Als je van Amsterdam naar Marrakech vliegt, verlaat je eerst het Nederlandse luchtruim, dan vlieg je over België, Frankrijk en Spanje (allemaal Schengen — geen controle onderling). Maar als je landt in Marokko, verlaat je de Schengenzone én de EU. Dan moet je door een paspoortcontrole, je paspoort wordt gestempeld, en afhankelijk van je nationaliteit heb je misschien een visum nodig. Je merkt dus pas echt een grens als je buiten Schengen komt.
+    </div>
+    <div class="self-assess" data-qid="q2-3">
+      <button class="btn-self good" data-qid="q2-3" data-result="correct">Goed ✓</button>
+      <button class="btn-self bad" data-qid="q2-3" data-result="wrong">Fout ✗</button>
+    </div>
+  </div>
+
+  <div class="nav-buttons">
+    <button class="btn-reset-tab" data-tab="2">↻ Reset dit onderdeel</button>
+    <button class="btn btn-secondary" data-nav="prev">← Vorige</button>
+    <button class="btn btn-primary" data-nav="next">Volgende →</button>
+  </div>
+</div>
+
+<!-- ==================== TAB 3: Verbonden met je Land ==================== -->
+<div class="tab-content" id="tab-3" data-title="3. Verbonden met je Land">
+  <div class="section-title">🔗 Verbonden met je Land</div>
+  <div class="section-intro">Je bent op drie belangrijke manieren verbonden aan het land waar je woont. Die verbindingen beïnvloeden je dagelijks leven — ook al sta je er misschien nooit bij stil.</div>
+
+  <div class="info-block">
+    <h3>1. 🏛️ Politieke verbondenheid</h3>
+    <p>Een land dat zelfstandig is en niet door andere landen wordt bestuurd, noemen we <strong>soeverein</strong>. Nederland is soeverein: we maken onze eigen wetten, hebben een eigen regering en bepalen zelf ons beleid. Als je wettelijk bij een land hoort, heb je de <strong>nationaliteit</strong> van dat land. Dit staat in je paspoort.</p>
+    <p>Sommige mensen hebben <strong>meerdere nationaliteiten</strong>. Misschien heb je een Nederlands paspoort én een Marokkaans paspoort. De regels hiervoor verschillen per land — niet elk land staat het toe. Je nationaliteit bepaalt waar je mag stemmen, welke ambassade je helpt als je in het buitenland in de problemen komt, en welke rechten en plichten je hebt.</p>
+  </div>
+
+  <div class="info-block">
+    <h3>2. 💰 Economische verbondenheid</h3>
+    <p>Je bent ook financieel gebonden aan je land. Denk aan: je ouders betalen <strong>belasting</strong> in Nederland, ze ontvangen misschien <strong>kinderbijslag</strong> (elk kwartaal een bedrag per kind), en als ze een huis hebben, geldt de Nederlandse hypotheekwetgeving. Als je zou emigreren naar een land buiten de EU, vervallen sommige van die financiële rechten. De kinderbijslag stopt bijvoorbeeld.</p>
+    <p>Ook als je later gaat werken, ben je economisch gebonden: je betaalt inkomstenbelasting, je bouwt pensioen op, en je hebt recht op een uitkering als je je baan verliest. Al deze dingen zijn verbonden aan het land waar je woont en werkt.</p>
+  </div>
+
+  <div class="info-block">
+    <h3>3. 🤝 Sociaal-culturele verbondenheid</h3>
+    <p>In veel landen delen inwoners dezelfde <strong>taal, gewoonten en tradities</strong>. In Nederland spreken we Nederlands, vieren we Koningsdag, eten we oliebollen met Oud en Nieuw, en discussiëren we graag over van alles. Deze gedeelde cultuur geeft een gevoel van <strong>sociale verbondenheid</strong>.</p>
+    <p>Maar niet iedereen voelt die verbondenheid even sterk. Misschien voel jij je meer verbonden met de cultuur van het land waar je ouders vandaan komen, of met een specifieke vriendengroep. Verbondenheid is persoonlijk en kan veranderen.</p>
+  </div>
+
+  <div class="leefwereld">
+    Denk eens na: als je op vakantie bent in het buitenland en je hoort iemand Nederlands praten, voel je dan iets? Veel mensen voelen een soort herkenning of verbondenheid. Dat is die sociale verbondenheid in actie — zelfs ver van huis.
+  </div>
+
+  <!-- Quiz 3.1: Koppelopdracht -->
+  <div class="quiz-item" id="q3-1">
+    <div class="quiz-label">Opdracht 1 · Koppelen</div>
+    <div class="quiz-question">Koppel elk voorbeeld aan het juiste type verbondenheid. Klik eerst op een voorbeeld (links), dan op het type (rechts). Je kunt meerdere voorbeelden aan hetzelfde type koppelen.</div>
+    <div class="match-container" id="match-3-1">
+      <div class="match-col">
+        <h4>Voorbeeld</h4>
+        <div class="match-item match-source" data-match-id="m1" data-correct="politiek">Je hebt een Nederlands paspoort</div>
+        <div class="match-item match-source" data-match-id="m2" data-correct="economisch">Je ouders betalen belasting</div>
+        <div class="match-item match-source" data-match-id="m3" data-correct="sociaal">Je viert Koningsdag met buren</div>
+        <div class="match-item match-source" data-match-id="m4" data-correct="economisch">Je moeder ontvangt kinderbijslag</div>
+        <div class="match-item match-source" data-match-id="m5" data-correct="sociaal">Je spreekt dezelfde taal als je klasgenoten</div>
+        <div class="match-item match-source" data-match-id="m6" data-correct="politiek">Nederland maakt eigen wetten</div>
+      </div>
+      <div class="match-col">
+        <h4>Type verbondenheid</h4>
+        <div class="match-item match-target" data-match-target="politiek">🏛️ Politiek</div>
+        <div class="match-item match-target" data-match-target="economisch">💰 Economisch</div>
+        <div class="match-item match-target" data-match-target="sociaal">🤝 Sociaal-cultureel</div>
+      </div>
+    </div>
+    <div class="match-pairs" id="pairs-3-1"></div>
+    <button class="btn-check" id="check-3-1">Controleer koppelingen</button>
+    <div class="feedback" id="fb-q3-1"></div>
+  </div>
+
+  <!-- Quiz 3.2: Open -->
+  <div class="quiz-item" id="q3-2">
+    <div class="quiz-label">Opdracht 2 · Schrijfopdracht</div>
+    <div class="quiz-question">Stel je voor: een Nederlands gezin emigreert naar Canada. Beschrijf voor elk type verbondenheid (politiek, economisch, sociaal-cultureel) minstens één ding dat verandert voor dit gezin.</div>
+    <textarea class="open-textarea" data-qid="q3-2" placeholder="Beschrijf de veranderingen per type... (min. 20 woorden)"></textarea>
+    <div class="word-count" data-qid="q3-2">0 woorden</div>
+    <button class="btn-show-example" data-qid="q3-2">Toon voorbeeldantwoord</button>
+    <div class="example-answer" data-qid="q3-2">
+      <strong>Voorbeeldantwoord:</strong> Politiek: het gezin moet zich houden aan Canadese wetten en kan niet meer stemmen voor de Tweede Kamer. Economisch: ze betalen nu Canadese belasting en ontvangen geen Nederlandse kinderbijslag meer. Sociaal-cultureel: ze spreken thuis misschien nog Nederlands, maar op school en werk moeten ze Engels of Frans spreken. Koningsdag vieren ze niet meer met de buurt.
+    </div>
+    <div class="self-assess" data-qid="q3-2">
+      <button class="btn-self good" data-qid="q3-2" data-result="correct">Goed ✓</button>
+      <button class="btn-self bad" data-qid="q3-2" data-result="wrong">Fout ✗</button>
+    </div>
+  </div>
+
+  <!-- Quiz 3.3: MC -->
+  <div class="quiz-item" id="q3-3">
+    <div class="quiz-label">Opdracht 3 · Meerkeuze</div>
+    <div class="quiz-question">Wat betekent het als een land 'soeverein' is?</div>
+    <div class="mc-options">
+      <button class="mc-opt" data-answer="a">Het land is lid van de EU</button>
+      <button class="mc-opt" data-answer="b">Het land is zelfstandig en maakt eigen wetten zonder invloed van buitenaf</button>
+      <button class="mc-opt" data-answer="c">Het land heeft een koning of koningin</button>
+      <button class="mc-opt" data-answer="d">Het land heeft meer dan 10 miljoen inwoners</button>
+    </div>
+    <div class="feedback" id="fb-q3-3"></div>
+  </div>
+
+  <div class="nav-buttons">
+    <button class="btn-reset-tab" data-tab="3">↻ Reset dit onderdeel</button>
+    <button class="btn btn-secondary" data-nav="prev">← Vorige</button>
+    <button class="btn btn-primary" data-nav="next">Volgende →</button>
+  </div>
+</div>
+
+<!-- ==================== TAB 4: Identiteit ==================== -->
+<div class="tab-content" id="tab-4" data-title="4. Wie ben je?">
+  <div class="section-title">🪞 Wie ben je? — Identiteit</div>
+  <div class="section-intro">Op je ID-kaart staan je naam, foto en geboortedatum. Maar wie je écht bent, is veel meer dan dat.</div>
+
+  <div class="info-block">
+    <h3>Uiterlijk vs. innerlijk</h3>
+    <p>Je identiteitskaart beschrijft je <strong>uiterlijke kenmerken</strong>: lengte, geslacht, geboortedatum, foto. Maar wat maakt jou echt tot wie je bent? Je <strong>gedachten, overtuigingen, passies, humor, dromen</strong> — dat alles staat niet op een pasje. Identiteit is het geheel van wie je bent: zowel de zichtbare als de onzichtbare kanten.</p>
+    <p>Je identiteit is ook niet vast. Je verandert voortdurend: de dingen die je op je twaalfde belangrijk vond, zijn misschien heel anders dan wat je nu belangrijk vindt. En over vijf jaar denk je er misschien weer anders over. Identiteit is een <strong>proces</strong>, geen eindpunt.</p>
+  </div>
+
+  <div class="info-block">
+    <h3>🇳🇱 De Nederlandse identiteit — bestaat die?</h3>
+    <p>Het is lastig om te zeggen wat <em>dé</em> Nederlandse identiteit is. Nederland hoort bij het <strong>Europese cultuurgebied</strong>, waar het christendom historisch de belangrijkste godsdienst is, de meeste mensen in steden wonen, de welvaart relatief hoog is, en vrijheid van meningsuiting een belangrijke waarde is.</p>
+    <p>Maar binnen Nederland zijn er grote verschillen. Iemand die opgroeit in Amsterdam-West heeft een andere dagelijkse ervaring dan iemand uit een dorp in Drenthe. De <strong>Nederlandse identiteit</strong> is dus geen één ding — het is een verzameling van gedeelde maar ook heel diverse ervaringen, talen, tradities en overtuigingen.</p>
+    <p>En je hoeft je niet altijd en overal 'Nederlands' te voelen. Misschien voel je je op vakantie bij je familie in Kenia juist meer Keniaans, of voel je je op een Turkse bruiloft meer Turks. <strong>Identiteit is meervoudig</strong>: je kunt meerdere identiteiten tegelijk hebben, en welke je het sterkst voelt, hangt af van de situatie.</p>
+  </div>
+
+  <div class="leefwereld">
+    Stel je staat op het schoolplein. Voel je je dan vooral Nederlander? Of eerder iemand uit je stad, je wijk, of misschien juist verbonden met het land van je (groot)ouders? De meeste mensen schakelen onbewust tussen deze identiteiten — en dat is heel normaal.
+  </div>
+
+  <!-- Quiz 4.1: Open -->
+  <div class="quiz-item" id="q4-1">
+    <div class="quiz-label">Opdracht 1 · Schrijfopdracht</div>
+    <div class="quiz-question">Beschrijf drie dingen die jouw identiteit vormen die NIET op je ID-kaart staan. Leg uit waarom deze dingen belangrijk voor je zijn.</div>
+    <textarea class="open-textarea" data-qid="q4-1" placeholder="Denk na over wie je bent, los van je pasje... (min. 20 woorden)"></textarea>
+    <div class="word-count" data-qid="q4-1">0 woorden</div>
+    <button class="btn-show-example" data-qid="q4-1">Toon voorbeeldantwoord</button>
+    <div class="example-answer" data-qid="q4-1">
+      <strong>Voorbeeldantwoord:</strong> 1) Mijn passie voor voetbal — het geeft me een groep vrienden en een doel om voor te werken. 2) Dat ik tweetalig ben (Nederlands en Arabisch) — dat verbindt me met twee culturen. 3) Mijn humor — ik maak graag mensen aan het lachen, dat is wie ik ben. Deze dingen vormen mij meer dan mijn lengte of geboortedatum.
+    </div>
+    <div class="self-assess" data-qid="q4-1">
+      <button class="btn-self good" data-qid="q4-1" data-result="correct">Goed ✓</button>
+      <button class="btn-self bad" data-qid="q4-1" data-result="wrong">Fout ✗</button>
+    </div>
+  </div>
+
+  <!-- Quiz 4.2: MC -->
+  <div class="quiz-item" id="q4-2">
+    <div class="quiz-label">Opdracht 2 · Meerkeuze</div>
+    <div class="quiz-question">Welke uitspraak over identiteit is het meest correct?</div>
+    <div class="mc-options">
+      <button class="mc-opt" data-answer="a">Je identiteit staat vast vanaf je geboorte</button>
+      <button class="mc-opt" data-answer="b">Je identiteit wordt alleen bepaald door je nationaliteit</button>
+      <button class="mc-opt" data-answer="c">Je identiteit is meervoudig en kan veranderen per situatie</button>
+      <button class="mc-opt" data-answer="d">Iedereen in Nederland heeft dezelfde identiteit</button>
+    </div>
+    <div class="feedback" id="fb-q4-2"></div>
+  </div>
+
+  <!-- Quiz 4.3: Sorteer -->
+  <div class="quiz-item" id="q4-3">
+    <div class="quiz-label">Opdracht 3 · Sorteeropdracht</div>
+    <div class="quiz-question">Sleep de items in de juiste volgorde: van het meest persoonlijk/onzichtbaar naar het meest officieel/zichtbaar.</div>
+    <div class="drag-list" id="drag-4-3">
+      <div class="drag-item" draggable="true" data-order="3"><span class="drag-handle">☰</span> Je geboortedatum</div>
+      <div class="drag-item" draggable="true" data-order="1"><span class="drag-handle">☰</span> Je dromen en ambities</div>
+      <div class="drag-item" draggable="true" data-order="4"><span class="drag-handle">☰</span> Je pasfoto</div>
+      <div class="drag-item" draggable="true" data-order="2"><span class="drag-handle">☰</span> Je moedertaal</div>
+      <div class="drag-item" draggable="true" data-order="5"><span class="drag-handle">☰</span> Je nationaliteit op je paspoort</div>
+    </div>
+    <button class="btn-check" id="check-4-3">Controleer volgorde</button>
+    <div class="feedback" id="fb-q4-3"></div>
+  </div>
+
+  <div class="nav-buttons">
+    <button class="btn-reset-tab" data-tab="4">↻ Reset dit onderdeel</button>
+    <button class="btn btn-secondary" data-nav="prev">← Vorige</button>
+    <button class="btn btn-primary" data-nav="next">Volgende →</button>
+  </div>
+</div>
+
+<!-- ==================== TAB 5: Mentaliteit ==================== -->
+<div class="tab-content" id="tab-5" data-title="5. Mentaliteit">
+  <div class="section-title">🧠 Hoe denk je? — Mentaliteit</div>
+  <div class="section-intro">Waar je opgroeit, beïnvloedt hoe je denkt en leeft. De mentaliteit op het platteland verschilt van die in de stad — maar die verschillen worden kleiner.</div>
+
+  <div class="info-block">
+    <h3>Dorps vs. stedelijk</h3>
+    <p>Als je bent opgegroeid in een dorp, herken je misschien het <strong>ons-kent-ons-gevoel</strong>: je groet de buurman, je weet wie er in welk huis woont, en als iemand ziek is, brengt de buurt eten langs. Er is een sterke <strong>sociale controle</strong> — iedereen let een beetje op elkaar.</p>
+    <p>In de grote steden van de Randstad (Amsterdam, Rotterdam, Den Haag, Utrecht) is de mentaliteit vaak anders. Mensen zijn meer op <strong>zichzelf gericht</strong>, kennen hun buren soms niet eens, en zijn drukker met werk en hun eigen leven. Dit noemen we een <strong>stedelijke mentaliteit</strong>: individualistischer, anoniemer, meer gericht op je eigen pad.</p>
+    <p>Maar let op: dit zijn <strong>generalisaties</strong>. Niet iedereen in de stad is een einzelgänger, en niet elk dorp is een hechte gemeenschap. De werkelijkheid is altijd genuanceerder dan het beeld.</p>
+  </div>
+
+  <div class="info-block">
+    <h3>📱 Mentale verstedelijking</h3>
+    <p>Een interessant fenomeen is <strong>mentale verstedelijking</strong>: ook op het platteland gedragen mensen zich steeds meer zoals in de stad. Mensen zijn minder vaak lid van een lokale vereniging, kijken meer naar hun telefoon dan naar hun buren, en het duurt soms weken voordat iemand doorheeft dat de buurman een gebroken been heeft.</p>
+    <p>Hoe komt dit? Door internet, sociale media en streaming zijn mensen <strong>digitaal verbonden met de hele wereld</strong>, maar soms minder met hun directe omgeving. De dorpsvereniging concurreert nu met Netflix, en de buurvrouw met een WhatsApp-groep van vrienden uit het hele land. De wereld is kleiner geworden, maar de afstand tot je buurman soms groter.</p>
+  </div>
+
+  <div class="highlight-box">
+    <strong>Denk erover na:</strong> Als je op reis bent en in een klein dorpje in Italië of Griekenland komt, merk je vaak dat de dorpscultuur daar nog héél sterk is. Iedereen zit 's avonds buiten, de kinderen spelen op het plein, en je wordt als toerist uitgenodigd om mee te eten. Dat contrast met een grote stad als Londen of Parijs, waar mensen haast hebben en je nauwelijks aankijken. Reizen maakt deze mentaliteitsverschillen heel tastbaar.
+  </div>
+
+  <div class="leefwereld">
+    Ken jij al je buren bij naam? Of weet je eigenlijk niet eens wie er naast je woont? Hoe je die vraag beantwoordt, zegt iets over de mentaliteit in jouw omgeving.
+  </div>
+
+  <!-- Quiz 5.1: MC -->
+  <div class="quiz-item" id="q5-1">
+    <div class="quiz-label">Opdracht 1 · Meerkeuze</div>
+    <div class="quiz-question">Wat is 'mentale verstedelijking'?</div>
+    <div class="mc-options">
+      <button class="mc-opt" data-answer="a">Dat steeds meer mensen naar de stad verhuizen</button>
+      <button class="mc-opt" data-answer="b">Dat mensen op het platteland zich steeds meer gedragen zoals in de stad</button>
+      <button class="mc-opt" data-answer="c">Dat steden steeds groter worden</button>
+      <button class="mc-opt" data-answer="d">Dat mensen in de stad zich dorpser gaan gedragen</button>
+    </div>
+    <div class="feedback" id="fb-q5-1"></div>
+  </div>
+
+  <!-- Quiz 5.2: Open -->
+  <div class="quiz-item" id="q5-2">
+    <div class="quiz-label">Opdracht 2 · Analyseopdracht</div>
+    <div class="quiz-question">Geef twee concrete voorbeelden van mentale verstedelijking die je misschien in je eigen omgeving herkent. Leg bij elk voorbeeld uit waarom dit een teken is van mentale verstedelijking.</div>
+    <textarea class="open-textarea" data-qid="q5-2" placeholder="Denk aan je eigen buurt of dorp... (min. 20 woorden)"></textarea>
+    <div class="word-count" data-qid="q5-2">0 woorden</div>
+    <button class="btn-show-example" data-qid="q5-2">Toon voorbeeldantwoord</button>
+    <div class="example-answer" data-qid="q5-2">
+      <strong>Voorbeeldantwoord:</strong> 1) Bij ons in het dorp zijn de laatste vijf jaar twee sportverenigingen opgeheven omdat er te weinig leden waren. Dit is mentale verstedelijking omdat mensen hun vrije tijd individueler invullen, net als in de stad. 2) Mijn opa kende vroeger iedereen in de straat, maar mijn ouders kennen maar drie buren. Dat komt doordat mensen minder op hun directe omgeving gericht zijn.
+    </div>
+    <div class="self-assess" data-qid="q5-2">
+      <button class="btn-self good" data-qid="q5-2" data-result="correct">Goed ✓</button>
+      <button class="btn-self bad" data-qid="q5-2" data-result="wrong">Fout ✗</button>
+    </div>
+  </div>
+
+  <!-- Quiz 5.3: Vergelijkingstabel -->
+  <div class="quiz-item" id="q5-3">
+    <div class="quiz-label">Opdracht 3 · Koppelen</div>
+    <div class="quiz-question">Koppel elk kenmerk aan de juiste mentaliteit. Let op: sommige kenmerken kunnen veranderen door mentale verstedelijking!</div>
+    <div class="match-container" id="match-5-3">
+      <div class="match-col">
+        <h4>Kenmerk</h4>
+        <div class="match-item match-source" data-match-id="s1" data-correct="dorps">Ons-kent-ons-gevoel</div>
+        <div class="match-item match-source" data-match-id="s2" data-correct="stedelijk">Meer gericht op werk en jezelf</div>
+        <div class="match-item match-source" data-match-id="s3" data-correct="dorps">Sterke sociale controle</div>
+        <div class="match-item match-source" data-match-id="s4" data-correct="stedelijk">Buren nauwelijks kennen</div>
+        <div class="match-item match-source" data-match-id="s5" data-correct="stedelijk">Anoniemer leven</div>
+      </div>
+      <div class="match-col">
+        <h4>Mentaliteit</h4>
+        <div class="match-item match-target" data-match-target="dorps">🏡 Dorpse mentaliteit</div>
+        <div class="match-item match-target" data-match-target="stedelijk">🏙️ Stedelijke mentaliteit</div>
+      </div>
+    </div>
+    <div class="match-pairs" id="pairs-5-3"></div>
+    <button class="btn-check" id="check-5-3">Controleer koppelingen</button>
+    <div class="feedback" id="fb-q5-3"></div>
+  </div>
+
+  <div class="nav-buttons">
+    <button class="btn-reset-tab" data-tab="5">↻ Reset dit onderdeel</button>
+    <button class="btn btn-secondary" data-nav="prev">← Vorige</button>
+    <button class="btn btn-primary" data-nav="next">Volgende →</button>
+  </div>
+</div>
+
+<!-- ==================== TAB 6: Data & Grafiek ==================== -->
+<div class="tab-content" id="tab-6" data-title="6. Data: Verbondenheid">
+  <div class="section-title">📊 Verbondenheid in Cijfers</div>
+  <div class="section-intro">Onderzoekers hebben Nederlanders gevraagd waarmee ze zich het meest verbonden voelen. De resultaten zijn verrassend!</div>
+
+  <div class="info-block">
+    <h3>Wat zeggen de cijfers?</h3>
+    <p>Uit onderzoek blijkt dat <strong>57% van de Nederlanders</strong> zich in de eerste plaats Nederlander voelt. Maar in drie provincies is dat anders: <strong>Groningers, Friezen en Limburgers</strong> voelen zich meer verbonden met hun provincie dan met Nederland als geheel.</p>
+    <p>In Overijssel is het nóg specifieker: daar voelen mensen zich meer verbonden met hun <strong>streek</strong> (zoals Twente of Salland) dan met de provincie. En in de Randstad-provincies (Noord-Holland, Zuid-Holland, Utrecht) voelen mensen zich vooral verbonden met hun <strong>woonplaats</strong> — waarschijnlijk door de uitstraling van de grote steden.</p>
+    <p>Bekijk de grafiek hieronder en analyseer de verschillen. Wat valt je op?</p>
+  </div>
+
+  <div class="chart-container">
+    <canvas id="chart-verbondenheid"></canvas>
+  </div>
+
+  <div class="leefwereld">
+    En jij? Voel je je vooral verbonden met Nederland, met je provincie, je stad, of je wijk? Als je op reis bent in het buitenland en iemand vraagt "waar kom je vandaan?", zeg je dan "Nederland" of noem je je stad?
+  </div>
+
+  <!-- Quiz 6.1: Data-analyse -->
+  <div class="quiz-item" id="q6-1">
+    <div class="quiz-label">Opdracht 1 · Data-analyse</div>
+    <div class="quiz-question">Bekijk de grafiek. In welke provincie voelen mensen zich het MINST verbonden met Nederland als geheel? Waarom denk je dat dit zo is?</div>
+    <textarea class="open-textarea" data-qid="q6-1" placeholder="Analyseer de grafiek... (min. 20 woorden)"></textarea>
+    <div class="word-count" data-qid="q6-1">0 woorden</div>
+    <button class="btn-show-example" data-qid="q6-1">Toon voorbeeldantwoord</button>
+    <div class="example-answer" data-qid="q6-1">
+      <strong>Voorbeeldantwoord:</strong> Uit de grafiek blijkt dat Friesland het laagste percentage heeft voor 'voelt zich vooral Nederlander'. Dit komt waarschijnlijk doordat Friezen een sterke eigen cultuur en taal hebben (het Fries), een eigen vlag, en een volkslied. Ze zijn trots op hun Friese identiteit en die is zo sterk dat het Nederlandse gevoel op de tweede plaats komt.
+    </div>
+    <div class="self-assess" data-qid="q6-1">
+      <button class="btn-self good" data-qid="q6-1" data-result="correct">Goed ✓</button>
+      <button class="btn-self bad" data-qid="q6-1" data-result="wrong">Fout ✗</button>
+    </div>
+  </div>
+
+  <!-- Quiz 6.2: MC -->
+  <div class="quiz-item" id="q6-2">
+    <div class="quiz-label">Opdracht 2 · Meerkeuze</div>
+    <div class="quiz-question">Waarom voelen mensen in de Randstad zich eerder verbonden met hun woonplaats dan met hun provincie?</div>
+    <div class="mc-options">
+      <button class="mc-opt" data-answer="a">Omdat provincies in de Randstad heel klein zijn</button>
+      <button class="mc-opt" data-answer="b">Omdat de grote steden zo'n sterke uitstraling hebben dat de stad belangrijker voelt dan de provincie</button>
+      <button class="mc-opt" data-answer="c">Omdat mensen in de Randstad niet weten in welke provincie ze wonen</button>
+      <button class="mc-opt" data-answer="d">Omdat de Randstad geen provincies heeft</button>
+    </div>
+    <div class="feedback" id="fb-q6-2"></div>
+  </div>
+
+  <!-- Quiz 6.3: Open -->
+  <div class="quiz-item" id="q6-3">
+    <div class="quiz-label">Opdracht 3 · Denkopdracht</div>
+    <div class="quiz-question">Een vriend van je zegt: "Ik ben geen Nederlander, ik ben Amsterdammer." Leg uit wat deze uitspraak zegt over identiteit en verbondenheid, en gebruik daarbij de termen 'lokalisme' en 'nationalisme'.</div>
+    <textarea class="open-textarea" data-qid="q6-3" placeholder="Gebruik de begrippen uit de les... (min. 20 woorden)"></textarea>
+    <div class="word-count" data-qid="q6-3">0 woorden</div>
+    <button class="btn-show-example" data-qid="q6-3">Toon voorbeeldantwoord</button>
+    <div class="example-answer" data-qid="q6-3">
+      <strong>Voorbeeldantwoord:</strong> Deze uitspraak is een voorbeeld van lokalisme: je vriend voelt zich meer verbonden met zijn directe omgeving (Amsterdam) dan met het hele land. Dit is het tegenovergestelde van nationalisme, waarbij je juist het hele land als het belangrijkst ziet. Het laat zien dat identiteit niet per se aan een land gebonden is — je woonplaats kan een veel sterkere rol spelen in wie je je voelt.
+    </div>
+    <div class="self-assess" data-qid="q6-3">
+      <button class="btn-self good" data-qid="q6-3" data-result="correct">Goed ✓</button>
+      <button class="btn-self bad" data-qid="q6-3" data-result="wrong">Fout ✗</button>
+    </div>
+  </div>
+
+  <div class="nav-buttons">
+    <button class="btn-reset-tab" data-tab="6">↻ Reset dit onderdeel</button>
+    <button class="btn btn-secondary" data-nav="prev">← Vorige</button>
+    <button class="btn btn-primary" data-nav="next">Volgende →</button>
+  </div>
+</div>
+
+<!-- ==================== TAB 7: Eigen Omgeving ==================== -->
+<div class="tab-content" id="tab-7" data-title="7. Eigen Omgeving">
+  <div class="section-title">🏠 Jouw Eigen Omgeving</div>
+  <div class="section-intro">Nationalisme, regionalisme, lokalisme — grote woorden, maar ze gaan over iets heel herkenbaars: de plek waar jij je thuis voelt.</div>
+
+  <div class="info-block">
+    <h3>🏴 Nationalisme</h3>
+    <p>Sommige mensen hebben een sterke voorkeur voor hun eigen land en volk, en een zekere afkeer van alles wat 'anders' is. Dit noemen we <strong>nationalisme</strong>. Een nationalist vindt dat het eigen volk het beste is en dat de nationale cultuur beschermd moet worden.</p>
+    <p>Nationalisme kan <strong>positief</strong> zijn: trots zijn op je land, je vlag, je sportteam bij de Olympische Spelen. Maar het kan ook <strong>negatief</strong> worden als het leidt tot uitsluiting van anderen, discriminatie of zelfs geweld. De grens daartussen is soms dun.</p>
+  </div>
+
+  <div class="info-block">
+    <h3>🏔️ Regionalisme</h3>
+    <p><strong>Regionalisme</strong> is wanneer inwoners van een regio vasthouden aan hun eigen geschiedenis, cultuur en tradities. Het mooiste voorbeeld in Nederland zijn de <strong>Friezen</strong>: ze hebben een eigen taal (Fries), een eigen vlag, en een eigen volkslied (<em>Frysk Folksliet</em>). Veel Friezen voelen zich eerder Fries dan Nederlands.</p>
+    <p>Maar ook Limburgers met hun carnavalstradities, en Groningers met hun eigen dialect en aardbevingsproblematiek voelen vaak een sterke band met hun regio. Regionalisme geeft mensen een gevoel van <strong>veiligheid, herkenning en trots</strong>.</p>
+  </div>
+
+  <div class="info-block">
+    <h3>🏘️ Lokalisme</h3>
+    <p>Nog dichter bij huis: <strong>lokalisme</strong>. Dit is wanneer je je vooral verbonden voelt met je eigen woonplaats of wijk. Logisch eigenlijk — je woont er, je gaat er naar school, je kent de straten en de winkels. Vooral in de grote steden van de Randstad voelen mensen zich sterker verbonden met hun stad dan met hun land.</p>
+  </div>
+
+  <div class="emoji-flow" style="justify-content: center; font-size: 1rem;">
+    <span>🌍 Nationalisme</span><span class="arrow">→</span>
+    <span>🏔️ Regionalisme</span><span class="arrow">→</span>
+    <span>🏘️ Lokalisme</span>
+    <br><span style="font-size:0.8rem;color:var(--c-text-light);width:100%;text-align:center;margin-top:0.3rem;">Van groot schaalniveau → naar klein schaalniveau</span>
+  </div>
+
+  <div class="leefwereld">
+    Als je op vakantie naar het buitenland gaat en iemand vraagt waar je vandaan komt — zeg je dan "Nederland", je provincie, of je stad? Je antwoord zegt veel over welk schaalniveau voor jou het belangrijkst voelt.
+  </div>
+
+  <!-- Quiz 7.1: Sorteer -->
+  <div class="quiz-item" id="q7-1">
+    <div class="quiz-label">Opdracht 1 · Sorteeropdracht</div>
+    <div class="quiz-question">Sleep de begrippen in de juiste volgorde: van het kleinste schaalniveau (meest lokaal) naar het grootste (meest nationaal).</div>
+    <div class="drag-list" id="drag-7-1">
+      <div class="drag-item" draggable="true" data-order="3"><span class="drag-handle">☰</span> Nationalisme</div>
+      <div class="drag-item" draggable="true" data-order="1"><span class="drag-handle">☰</span> Lokalisme</div>
+      <div class="drag-item" draggable="true" data-order="2"><span class="drag-handle">☰</span> Regionalisme</div>
+    </div>
+    <button class="btn-check" id="check-7-1">Controleer volgorde</button>
+    <div class="feedback" id="fb-q7-1"></div>
+  </div>
+
+  <!-- Quiz 7.2: Open -->
+  <div class="quiz-item" id="q7-2">
+    <div class="quiz-label">Opdracht 2 · Caseopdracht</div>
+    <div class="quiz-question">Lees het scenario: Een Friese scholier draagt elke dag een Friese vlag-armband, spreekt thuis Fries, en zegt altijd dat ze 'Fries' is als iemand vraagt waar ze vandaan komt. Is dit een voorbeeld van nationalisme, regionalisme of lokalisme? Leg je antwoord uit.</div>
+    <textarea class="open-textarea" data-qid="q7-2" placeholder="Analyseer het scenario... (min. 20 woorden)"></textarea>
+    <div class="word-count" data-qid="q7-2">0 woorden</div>
+    <button class="btn-show-example" data-qid="q7-2">Toon voorbeeldantwoord</button>
+    <div class="example-answer" data-qid="q7-2">
+      <strong>Voorbeeldantwoord:</strong> Dit is een voorbeeld van regionalisme. De scholier voelt zich het meest verbonden met haar regio (Friesland) en houdt vast aan de Friese cultuur, taal en symbolen (vlag). Het gaat niet om haar woonplaats specifiek (dat zou lokalisme zijn) en niet om Nederland als geheel (dat zou nationalisme zijn), maar om de provincie en haar regionale identiteit.
+    </div>
+    <div class="self-assess" data-qid="q7-2">
+      <button class="btn-self good" data-qid="q7-2" data-result="correct">Goed ✓</button>
+      <button class="btn-self bad" data-qid="q7-2" data-result="wrong">Fout ✗</button>
+    </div>
+  </div>
+
+  <!-- Quiz 7.3: MC -->
+  <div class="quiz-item" id="q7-3">
+    <div class="quiz-label">Opdracht 3 · Meerkeuze</div>
+    <div class="quiz-question">In welke drie provincies voelen inwoners zich meer verbonden met de provincie dan met Nederland?</div>
+    <div class="mc-options">
+      <button class="mc-opt" data-answer="a">Noord-Holland, Zuid-Holland, Utrecht</button>
+      <button class="mc-opt" data-answer="b">Groningen, Friesland, Limburg</button>
+      <button class="mc-opt" data-answer="c">Zeeland, Drenthe, Gelderland</button>
+      <button class="mc-opt" data-answer="d">Overijssel, Brabant, Flevoland</button>
+    </div>
+    <div class="feedback" id="fb-q7-3"></div>
+  </div>
+
+  <div class="nav-buttons">
+    <button class="btn-reset-tab" data-tab="7">↻ Reset dit onderdeel</button>
+    <button class="btn btn-secondary" data-nav="prev">← Vorige</button>
+    <button class="btn btn-primary" data-nav="next">Volgende →</button>
+  </div>
+</div>
+
+<!-- ==================== TAB 8: Reisscenario ==================== -->
+<div class="tab-content" id="tab-8" data-title="8. Reisscenario">
+  <div class="section-title">✈️ Het Grote Reisscenario</div>
+  <div class="section-intro">Tijd om alles samen te brengen! Volg het verhaal van Youssef en beantwoord de vragen. Gebruik alles wat je in deze les hebt geleerd.</div>
+
+  <div class="info-block" style="border-left-color: var(--c-hint);">
+    <h3>✈️ Het verhaal van Youssef</h3>
+    <p><strong>Youssef (15)</strong> woont in Rotterdam en heeft zowel een Nederlands als een Marokkaans paspoort. Zijn ouders komen oorspronkelijk uit Nador (Noord-Marokko). Elke zomer reist het gezin met de auto naar Marokko — een reis van meer dan 2.500 km door Frankrijk en Spanje.</p>
+    <p>In Rotterdam voelt Youssef zich een echte Rotterdammer: hij is fan van Feyenoord, spreekt plat Rotterdams, en kent zijn wijk op zijn duimpje. Maar in Marokko bij zijn opa en oma voelt hij zich ook thuis: hij spreekt Tarifit (Berbers), eet bij de buren, en kent de straten van het dorp.</p>
+    <p>Op school wordt Youssef soms gevraagd: "Maar wat <em>ben</em> je nou eigenlijk?" Hij vindt dat een lastige vraag. "Ik ben gewoon Youssef," zegt hij dan. "Rotterdammer, Nederlander, Marokkaan — alles tegelijk."</p>
+  </div>
+
+  <!-- Quiz 8.1: Open -->
+  <div class="quiz-item" id="q8-1">
+    <div class="quiz-label">Opdracht 1 · Scenario-analyse</div>
+    <div class="quiz-question">Op welke drie manieren is Youssef verbonden met Nederland? Benoem bij elk antwoord of het politiek, economisch of sociaal-cultureel is.</div>
+    <textarea class="open-textarea" data-qid="q8-1" placeholder="Denk aan de drie vormen van verbondenheid... (min. 20 woorden)"></textarea>
+    <div class="word-count" data-qid="q8-1">0 woorden</div>
+    <button class="btn-show-example" data-qid="q8-1">Toon voorbeeldantwoord</button>
+    <div class="example-answer" data-qid="q8-1">
+      <strong>Voorbeeldantwoord:</strong> Politiek: Youssef heeft een Nederlands paspoort en valt onder de Nederlandse wetten. Economisch: zijn ouders betalen belasting in Nederland en ontvangen kinderbijslag. Sociaal-cultureel: hij voelt zich Rotterdammer, spreekt Nederlands, is Feyenoord-fan en kent zijn wijk goed.
+    </div>
+    <div class="self-assess" data-qid="q8-1">
+      <button class="btn-self good" data-qid="q8-1" data-result="correct">Goed ✓</button>
+      <button class="btn-self bad" data-qid="q8-1" data-result="wrong">Fout ✗</button>
+    </div>
+  </div>
+
+  <!-- Quiz 8.2: MC -->
+  <div class="quiz-item" id="q8-2">
+    <div class="quiz-label">Opdracht 2 · Meerkeuze</div>
+    <div class="quiz-question">Youssef voelt zich vooral een Rotterdammer. Welk begrip past hier het best bij?</div>
+    <div class="mc-options">
+      <button class="mc-opt" data-answer="a">Nationalisme</button>
+      <button class="mc-opt" data-answer="b">Regionalisme</button>
+      <button class="mc-opt" data-answer="c">Lokalisme</button>
+      <button class="mc-opt" data-answer="d">Mentale verstedelijking</button>
+    </div>
+    <div class="feedback" id="fb-q8-2"></div>
+  </div>
+
+  <!-- Quiz 8.3: Open -->
+  <div class="quiz-item" id="q8-3">
+    <div class="quiz-label">Opdracht 3 · Complexe denkvraag</div>
+    <div class="quiz-question">Youssef rijdt met zijn gezin van Rotterdam naar Marokko. Beschrijf welke grenzen hij passeert (noem minstens drie) en leg bij elke grens uit of het een zachte of harde grens is, en waarom. Leg ook uit welke soort grenzen het zijn (natuurlijk of kunstmatig).</div>
+    <textarea class="open-textarea" data-qid="q8-3" placeholder="Beschrijf de reis stap voor stap... (min. 30 woorden)"></textarea>
+    <div class="word-count" data-qid="q8-3">0 woorden</div>
+    <button class="btn-show-example" data-qid="q8-3">Toon voorbeeldantwoord</button>
+    <div class="example-answer" data-qid="q8-3">
+      <strong>Voorbeeldantwoord:</strong> 1) Nederland → België: zachte grens (Schengen), kunstmatig — je rijdt zo door. 2) Frankrijk → Spanje: zachte grens (Schengen), maar deels een natuurlijke grens door de Pyreneeën. 3) Spanje → Marokko (via de boot bij Algeciras-Tanger): harde grens — Marokko is geen Schengenlid, dus er zijn paspoortcontroles. De Straat van Gibraltar is een natuurlijke grens (zee). Youssef merkt de grens pas echt bij de oversteek naar Marokko.
+    </div>
+    <div class="self-assess" data-qid="q8-3">
+      <button class="btn-self good" data-qid="q8-3" data-result="correct">Goed ✓</button>
+      <button class="btn-self bad" data-qid="q8-3" data-result="wrong">Fout ✗</button>
+    </div>
+  </div>
+
+  <div class="nav-buttons">
+    <button class="btn-reset-tab" data-tab="8">↻ Reset dit onderdeel</button>
+    <button class="btn btn-secondary" data-nav="prev">← Vorige</button>
+    <button class="btn btn-primary" data-nav="next">Volgende →</button>
+  </div>
+</div>
+
+<!-- ==================== TAB 9: Reflectie & Afsluiting ==================== -->
+<div class="tab-content" id="tab-9" data-title="9. Reflectie">
+  <div class="section-title">🎯 Reflectie &amp; Afsluiting</div>
+  <div class="section-intro">Goed gedaan! Je bent bijna klaar. Tijd om terug te kijken op wat je hebt geleerd.</div>
+
+  <div class="final-score" id="finalScoreBox">
+    <div class="score-label">Jouw eindscore</div>
+    <div class="score-num" id="finalScoreNum">0%</div>
+    <div class="score-label" id="finalScoreDetail">0 van 0 opdrachten goed</div>
+  </div>
+
+  <div class="info-block">
+    <h3>🎯 Leerdoelen — heb je ze gehaald?</h3>
+    <table class="compare-table">
+      <tr><th>Leerdoel</th><th>Heb je dit geleerd?</th></tr>
+      <tr><td>Je begrijpt dat mensen op verschillende manieren verbonden zijn met een land (politiek, economisch, sociaal-cultureel)</td><td>Tab 3 & 8</td></tr>
+      <tr><td>Je weet welke soorten grenzen er zijn (natuurlijk, kunstmatig, zacht, hard)</td><td>Tab 1 & 2</td></tr>
+      <tr><td>Je weet dat een persoon en een groep een bepaalde identiteit heeft</td><td>Tab 4</td></tr>
+      <tr><td>Je begrijpt dat groepen mensen kunnen verschillen in mentaliteit en wat de gevolgen zijn</td><td>Tab 5</td></tr>
+      <tr><td>Je begrijpt waarom mensen hun eigen omgeving zo belangrijk vinden (nationalisme, regionalisme, lokalisme)</td><td>Tab 6 & 7</td></tr>
+    </table>
+  </div>
+
+  <!-- Reflectie 9.1 -->
+  <div class="quiz-item" id="q9-1">
+    <div class="quiz-label">Reflectie 1</div>
+    <div class="quiz-question">Wat vond je het lastigste onderwerp in deze les, en waarom?</div>
+    <textarea class="open-textarea" data-qid="q9-1" placeholder="Denk na over het leerproces... (min. 20 woorden)"></textarea>
+    <div class="word-count" data-qid="q9-1">0 woorden</div>
+    <button class="btn-show-example" data-qid="q9-1">Toon voorbeeldantwoord</button>
+    <div class="example-answer" data-qid="q9-1">
+      <strong>Er is geen goed of fout — dit gaat over jouw leerproces.</strong> Een voorbeeld: "Ik vond het verschil tussen regionalisme en lokalisme lastig, omdat ze allebei gaan over een kleiner gebied dan het hele land. Maar nu snap ik dat regionalisme over een regio/provincie gaat en lokalisme over je directe woonplaats."
+    </div>
+    <div class="self-assess" data-qid="q9-1">
+      <button class="btn-self good" data-qid="q9-1" data-result="correct">Goed ✓</button>
+      <button class="btn-self bad" data-qid="q9-1" data-result="wrong">Fout ✗</button>
+    </div>
+  </div>
+
+  <!-- Reflectie 9.2 -->
+  <div class="quiz-item" id="q9-2">
+    <div class="quiz-label">Reflectie 2</div>
+    <div class="quiz-question">Wat zou je een klasgenoot uitleggen over dit onderwerp als ze de les gemist hebben? Vat de drie belangrijkste dingen samen.</div>
+    <textarea class="open-textarea" data-qid="q9-2" placeholder="Drie kernpunten... (min. 20 woorden)"></textarea>
+    <div class="word-count" data-qid="q9-2">0 woorden</div>
+    <button class="btn-show-example" data-qid="q9-2">Toon voorbeeldantwoord</button>
+    <div class="example-answer" data-qid="q9-2">
+      <strong>Voorbeeld:</strong> 1) Er zijn verschillende soorten grenzen: natuurlijk of kunstmatig, zacht of hard. 2) Je bent op drie manieren verbonden met je land: politiek, economisch en sociaal-cultureel. 3) Identiteit is niet één ding — je kunt je tegelijk Nederlander, Rotterdammer en Marokkaan voelen, en wat je het sterkst voelt hangt af van de situatie.
+    </div>
+    <div class="self-assess" data-qid="q9-2">
+      <button class="btn-self good" data-qid="q9-2" data-result="correct">Goed ✓</button>
+      <button class="btn-self bad" data-qid="q9-2" data-result="wrong">Fout ✗</button>
+    </div>
+  </div>
+
+  <!-- Reflectie 9.3 -->
+  <div class="quiz-item" id="q9-3">
+    <div class="quiz-label">Reflectie 3</div>
+    <div class="quiz-question">Hoe zou je de onderwerpen uit deze les herkennen in je eigen dagelijks leven? Geef minstens twee concrete voorbeelden.</div>
+    <textarea class="open-textarea" data-qid="q9-3" placeholder="Koppel het aan je eigen leven... (min. 20 woorden)"></textarea>
+    <div class="word-count" data-qid="q9-3">0 woorden</div>
+    <button class="btn-show-example" data-qid="q9-3">Toon voorbeeldantwoord</button>
+    <div class="example-answer" data-qid="q9-3">
+      <strong>Voorbeeld:</strong> 1) Als ik mijn ID-kaart laat zien bij het kopen van een treinkaartje, gebruik ik mijn politieke verbondenheid met Nederland. 2) De buurman die ik al maanden niet gesproken heb, terwijl we in een klein dorp wonen — dat is mentale verstedelijking in actie.
+    </div>
+    <div class="self-assess" data-qid="q9-3">
+      <button class="btn-self good" data-qid="q9-3" data-result="correct">Goed ✓</button>
+      <button class="btn-self bad" data-qid="q9-3" data-result="wrong">Fout ✗</button>
+    </div>
+  </div>
+
+  <div style="text-align:center; margin-top:2rem;">
+    <button class="btn-clear-progress" id="btnClearAll">🗑️ Voortgang wissen</button>
+    <p style="font-size:0.75rem; color:var(--c-text-light); margin-top:0.5rem;">Hiermee wis je al je antwoorden en begin je opnieuw.</p>
+  </div>
+
+  <div class="nav-buttons">
+    <button class="btn-reset-tab" data-tab="9">↻ Reset dit onderdeel</button>
+    <button class="btn btn-secondary" data-nav="prev">← Vorige</button>
+    <div></div>
+  </div>
+</div>
+
+<script>
+(function() {
+  'use strict';
+
+  // ============== CONFIG ==============
+  var TOTAL_TABS = 9;
+  var STORAGE_PREFIX = 'geo_les_';
+
+  // Answer keys for MC questions
+  var MC_ANSWERS = {
+    'q1-1': { correct: 'b', hints: ['Denk na: de Pyreneeën zijn een gebergte. Is dat door mensen gemaakt?', 'Een grens die een landschapskenmerk volgt, noemen we een...?'] },
+    'q1-3': { correct: 'b', hints: ['Dit specifieke getal is vastgelegd in internationaal recht.', 'Het is tussen 10 en 15 zeemijl.'] },
+    'q2-2': { correct: 'b', hints: ['Denk aan de koloniale geschiedenis van Afrika. Wie bepaalde die grenzen?', 'Waren de Afrikaanse bevolkingen betrokken bij het tekenen van deze grenzen?'] },
+    'q3-3': { correct: 'b', hints: ['Soeverein gaat over onafhankelijkheid. Wat betekent dat concreet?', 'Denk aan een land dat zelf zijn eigen regels bepaalt...'] },
+    'q4-2': { correct: 'c', hints: ['Denk aan het voorbeeld van Youssef: hij voelt zich in verschillende situaties anders.', 'Kan je identiteit veranderen als je op vakantie bent?'] },
+    'q5-1': { correct: 'b', hints: ['Het gaat niet om fysieke verhuizing, maar om verandering in gedrag.', 'Waar verandert het gedrag: in de stad of op het platteland?'] },
+    'q6-2': { correct: 'b', hints: ['Denk aan steden als Amsterdam en Rotterdam. Hoe sterk is hun "merk"?', 'Zou je zeggen "ik kom uit Noord-Holland" of "ik kom uit Amsterdam"?'] },
+    'q7-3': { correct: 'b', hints: ['Denk aan provincies met een sterke eigen cultuur en taal.', 'In het noorden en zuiden van Nederland liggen deze provincies...'] },
+    'q8-2': { correct: 'c', hints: ['Youssef voelt zich verbonden met zijn stad. Welk schaalniveau is een stad?', 'Stad = lokaal, provincie = regionaal, land = nationaal.'] }
+  };
+
+  // State
+  var state = {
+    answers: {},    // qid -> { result: 'correct'|'wrong', attempts: N }
+    activeTab: 1
+  };
+
+  // ============== STORAGE ==============
+  function saveState() {
+    try { localStorage.setItem(STORAGE_PREFIX + 'state', JSON.stringify(state)); } catch(e) {}
+  }
+
+  function loadState() {
+    try {
+      var s = localStorage.getItem(STORAGE_PREFIX + 'state');
+      if (s) {
+        var parsed = JSON.parse(s);
+        state.answers = parsed.answers || {};
+        state.activeTab = parsed.activeTab || 1;
+      }
+    } catch(e) {}
+  }
+
+  function clearAllState() {
+    state = { answers: {}, activeTab: 1 };
+    try { localStorage.removeItem(STORAGE_PREFIX + 'state'); } catch(e) {}
+    location.reload();
+  }
+
+  // ============== PROGRESS ==============
+  function getAllQuizIds() {
+    var ids = [];
+    document.querySelectorAll('.quiz-item').forEach(function(el) { ids.push(el.id); });
+    return ids;
+  }
+
+  function updateProgress() {
+    var all = getAllQuizIds();
+    var done = 0;
+    var correct = 0;
+    all.forEach(function(id) {
+      if (state.answers[id]) {
+        done++;
+        if (state.answers[id].result === 'correct') correct++;
+      }
+    });
+    var pct = all.length > 0 ? Math.round((done / all.length) * 100) : 0;
+    document.getElementById('progressBar').style.width = pct + '%';
+    document.getElementById('progressPct').textContent = pct + '%';
+
+    // Update final score
+    var scoreNum = document.getElementById('finalScoreNum');
+    var scoreDetail = document.getElementById('finalScoreDetail');
+    if (scoreNum) {
+      var scorePct = all.length > 0 ? Math.round((correct / all.length) * 100) : 0;
+      scoreNum.textContent = scorePct + '%';
+      scoreDetail.textContent = correct + ' van ' + all.length + ' opdrachten goed';
+    }
+
+    // Update tab checks
+    for (var t = 1; t <= TOTAL_TABS; t++) {
+      var tabQuizzes = document.querySelectorAll('#tab-' + t + ' .quiz-item');
+      var allDone = tabQuizzes.length > 0;
+      tabQuizzes.forEach(function(q) {
+        if (!state.answers[q.id]) allDone = false;
+      });
+      var tabBtn = document.querySelector('.tab-btn[data-tab="' + t + '"]');
+      if (tabBtn) {
+        var check = tabBtn.querySelector('.tab-check');
+        if (allDone && tabQuizzes.length > 0) {
+          if (!check) {
+            check = document.createElement('span');
+            check.className = 'tab-check';
+            check.textContent = '✓';
+            tabBtn.appendChild(check);
+          }
+        } else if (check) {
+          check.remove();
+        }
+      }
+    }
+    saveState();
+  }
+
+  function markQuestion(qid, result) {
+    state.answers[qid] = state.answers[qid] || { result: null, attempts: 0 };
+    state.answers[qid].result = result;
+    var el = document.getElementById(qid);
+    if (el) {
+      el.classList.remove('completed-correct', 'completed-wrong');
+      el.classList.add(result === 'correct' ? 'completed-correct' : 'completed-wrong');
+    }
+    updateProgress();
+  }
+
+  // ============== TABS ==============
+  function buildTabs() {
+    var bar = document.getElementById('tabBar');
+    bar.innerHTML = '';
+    for (var i = 1; i <= TOTAL_TABS; i++) {
+      var tab = document.getElementById('tab-' + i);
+      var title = tab ? tab.getAttribute('data-title') : 'Tab ' + i;
+      var btn = document.createElement('button');
+      btn.className = 'tab-btn' + (i === state.activeTab ? ' active' : '');
+      btn.setAttribute('data-tab', i);
+      btn.textContent = title;
+      bar.appendChild(btn);
+    }
+  }
+
+  function switchTab(n) {
+    if (n < 1 || n > TOTAL_TABS) return;
+    state.activeTab = n;
+    document.querySelectorAll('.tab-content').forEach(function(t) { t.classList.remove('active'); });
+    document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+    var target = document.getElementById('tab-' + n);
+    if (target) target.classList.add('active');
+    var btn = document.querySelector('.tab-btn[data-tab="' + n + '"]');
+    if (btn) {
+      btn.classList.add('active');
+      btn.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+    }
+    document.getElementById('tabCounter').textContent = 'Onderdeel ' + n + ' van ' + TOTAL_TABS;
+
+    // Fix maps
+    setTimeout(function() {
+      if (typeof map1 !== 'undefined' && map1) map1.invalidateSize();
+    }, 200);
+    saveState();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // ============== MC QUIZ ==============
+  function setupMC() {
+    document.querySelectorAll('.mc-options').forEach(function(container) {
+      var qItem = container.closest('.quiz-item');
+      var qid = qItem.id;
+      var config = MC_ANSWERS[qid];
+      if (!config) return;
+
+      var attempts = 0;
+      var maxAttempts = 3;
+      var fbEl = document.getElementById('fb-' + qid);
+
+      container.querySelectorAll('.mc-opt').forEach(function(opt) {
+        opt.addEventListener('click', function() {
+          if (state.answers[qid]) return; // already done
+
+          var answer = opt.getAttribute('data-answer');
+          attempts++;
+
+          // Clear previous selections
+          container.querySelectorAll('.mc-opt').forEach(function(o) { o.classList.remove('selected'); });
+          opt.classList.add('selected');
+
+          if (answer === config.correct) {
+            opt.classList.add('correct-reveal');
+            container.querySelectorAll('.mc-opt').forEach(function(o) { o.disabled = true; });
+            fbEl.className = 'feedback correct show';
+            fbEl.textContent = '✓ Goed! Dat klopt helemaal.';
+            markQuestion(qid, 'correct');
+          } else if (attempts >= maxAttempts) {
+            opt.classList.add('wrong-reveal');
+            container.querySelectorAll('.mc-opt').forEach(function(o) {
+              o.disabled = true;
+              if (o.getAttribute('data-answer') === config.correct) o.classList.add('correct-reveal');
+            });
+            fbEl.className = 'feedback wrong show';
+            fbEl.textContent = '✗ Helaas, na ' + maxAttempts + ' pogingen. Het juiste antwoord is hierboven groen gemarkeerd.';
+            markQuestion(qid, 'wrong');
+          } else {
+            opt.classList.add('wrong-reveal');
+            var hint = config.hints[attempts - 1] || 'Probeer het nog eens!';
+            fbEl.className = 'feedback hint show';
+            fbEl.textContent = '💡 ' + hint + ' (poging ' + attempts + '/' + maxAttempts + ')';
+          }
+        });
+      });
+    });
+  }
+
+  // ============== OPEN QUESTIONS ==============
+  function setupOpenQuestions() {
+    document.querySelectorAll('.open-textarea').forEach(function(ta) {
+      var qid = ta.getAttribute('data-qid');
+      var wcEl = document.querySelector('.word-count[data-qid="' + qid + '"]');
+      var exBtn = document.querySelector('.btn-show-example[data-qid="' + qid + '"]');
+      var exBox = document.querySelector('.example-answer[data-qid="' + qid + '"]');
+      var selfBox = document.querySelector('.self-assess[data-qid="' + qid + '"]');
+
+      ta.addEventListener('input', function() {
+        var words = ta.value.trim().split(/\s+/).filter(function(w) { return w.length > 0; }).length;
+        wcEl.textContent = words + ' woorden';
+        if (words >= 20) {
+          wcEl.classList.add('enough');
+          exBtn.style.display = 'inline-block';
+        } else {
+          wcEl.classList.remove('enough');
+          exBtn.style.display = 'none';
+        }
+      });
+
+      exBtn.addEventListener('click', function() {
+        exBox.style.display = 'block';
+        selfBox.classList.add('show');
+        exBtn.style.display = 'none';
+      });
+    });
+
+    // Self-assessment buttons
+    document.querySelectorAll('.btn-self').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var qid = btn.getAttribute('data-qid');
+        var result = btn.getAttribute('data-result');
+        markQuestion(qid, result);
+
+        // Disable both buttons
+        var selfBox = btn.closest('.self-assess');
+        selfBox.querySelectorAll('.btn-self').forEach(function(b) {
+          b.disabled = true;
+          b.style.opacity = '0.5';
+        });
+        btn.style.opacity = '1';
+        btn.style.fontWeight = '800';
+      });
+    });
+  }
+
+  // ============== DRAG & DROP ==============
+  function setupDragDrop() {
+    document.querySelectorAll('.drag-list').forEach(function(list) {
+      var draggedItem = null;
+
+      list.querySelectorAll('.drag-item').forEach(function(item) {
+        item.addEventListener('dragstart', function(e) {
+          draggedItem = item;
+          item.classList.add('dragging');
+          e.dataTransfer.effectAllowed = 'move';
+        });
+        item.addEventListener('dragend', function() {
+          item.classList.remove('dragging');
+          list.querySelectorAll('.drag-item').forEach(function(i) { i.classList.remove('drag-over'); });
+          draggedItem = null;
+        });
+        item.addEventListener('dragover', function(e) {
+          e.preventDefault();
+          e.dataTransfer.dropEffect = 'move';
+          if (item !== draggedItem) item.classList.add('drag-over');
+        });
+        item.addEventListener('dragleave', function() {
+          item.classList.remove('drag-over');
+        });
+        item.addEventListener('drop', function(e) {
+          e.preventDefault();
+          item.classList.remove('drag-over');
+          if (draggedItem && draggedItem !== item) {
+            var items = Array.from(list.children);
+            var fromIdx = items.indexOf(draggedItem);
+            var toIdx = items.indexOf(item);
+            if (fromIdx < toIdx) {
+              list.insertBefore(draggedItem, item.nextSibling);
+            } else {
+              list.insertBefore(draggedItem, item);
+            }
+          }
+        });
+      });
+    });
+
+    // Check buttons for drag lists
+    document.querySelectorAll('.btn-check[id^="check-"]').forEach(function(btn) {
+      var id = btn.id; // e.g. check-4-3 or check-7-1
+      // Determine if this is a drag or match check
+      var parts = id.replace('check-', '');
+      var dragList = document.getElementById('drag-' + parts);
+      if (!dragList) return; // handled by match setup
+
+      var fbEl = document.getElementById('fb-q' + parts);
+      var qid = 'q' + parts;
+      var attempts = 0;
+
+      btn.addEventListener('click', function() {
+        if (state.answers[qid]) return;
+        attempts++;
+
+        var items = dragList.querySelectorAll('.drag-item');
+        var allCorrect = true;
+        items.forEach(function(item, idx) {
+          var expected = parseInt(item.getAttribute('data-order'));
+          item.classList.remove('correct-pos', 'wrong-pos');
+          if (expected === idx + 1) {
+            item.classList.add('correct-pos');
+          } else {
+            item.classList.add('wrong-pos');
+            allCorrect = false;
+          }
+        });
+
+        if (allCorrect) {
+          fbEl.className = 'feedback correct show';
+          fbEl.textContent = '✓ Perfect! De volgorde klopt helemaal.';
+          markQuestion(qid, 'correct');
+          btn.disabled = true;
+          items.forEach(function(item) { item.setAttribute('draggable', 'false'); item.style.cursor = 'default'; });
+        } else if (attempts >= 3) {
+          // Show correct order
+          var sorted = Array.from(items).sort(function(a, b) {
+            return parseInt(a.getAttribute('data-order')) - parseInt(b.getAttribute('data-order'));
+          });
+          sorted.forEach(function(item) { dragList.appendChild(item); item.classList.remove('wrong-pos'); item.classList.add('correct-pos'); item.setAttribute('draggable', 'false'); });
+          fbEl.className = 'feedback wrong show';
+          fbEl.textContent = '✗ Na 3 pogingen: hierboven zie je de juiste volgorde.';
+          markQuestion(qid, 'wrong');
+          btn.disabled = true;
+        } else {
+          fbEl.className = 'feedback hint show';
+          fbEl.textContent = '💡 Nog niet helemaal goed. De groene items staan op de juiste plek, de rode niet. Probeer het opnieuw! (poging ' + attempts + '/3)';
+        }
+      });
+    });
+  }
+
+  // ============== MATCH / KOPPEL ==============
+  function setupMatch() {
+    document.querySelectorAll('.match-container').forEach(function(container) {
+      var containerId = container.id; // match-3-1 or match-5-3
+      var parts = containerId.replace('match-', '');
+      var pairsEl = document.getElementById('pairs-' + parts);
+      var checkBtn = document.getElementById('check-' + parts);
+      var fbEl = document.getElementById('fb-q' + parts);
+      var qid = 'q' + parts;
+
+      var selectedSource = null;
+      var pairs = []; // { sourceId, targetId }
+      var attempts = 0;
+
+      container.querySelectorAll('.match-source').forEach(function(src) {
+        src.addEventListener('click', function() {
+          if (state.answers[qid]) return;
+          // Check if already paired
+          var srcId = src.getAttribute('data-match-id');
+          var alreadyPaired = pairs.some(function(p) { return p.sourceId === srcId; });
+          if (alreadyPaired) return;
+
+          container.querySelectorAll('.match-source').forEach(function(s) { s.classList.remove('selected'); });
+          src.classList.add('selected');
+          selectedSource = src;
+        });
+      });
+
+      container.querySelectorAll('.match-target').forEach(function(tgt) {
+        tgt.addEventListener('click', function() {
+          if (state.answers[qid]) return;
+          if (!selectedSource) return;
+
+          var srcId = selectedSource.getAttribute('data-match-id');
+          var tgtId = tgt.getAttribute('data-match-target');
+
+          pairs.push({ sourceId: srcId, targetId: tgtId, srcText: selectedSource.textContent, tgtText: tgt.textContent });
+          selectedSource.classList.remove('selected');
+          selectedSource.classList.add('matched');
+          selectedSource.style.borderColor = getComputedStyle(tgt).borderColor;
+          selectedSource.style.background = 'rgba(122,158,126,0.1)';
+          selectedSource = null;
+
+          renderPairs();
+        });
+      });
+
+      function renderPairs() {
+        pairsEl.innerHTML = '';
+        pairs.forEach(function(p, i) {
+          var span = document.createElement('span');
+          span.className = 'match-pair';
+          span.innerHTML = p.srcText.substring(0, 25) + ' ↔ ' + p.tgtText.substring(0, 20) + ' <span class="remove-pair" data-idx="' + i + '">×</span>';
+          pairsEl.appendChild(span);
+        });
+        pairsEl.querySelectorAll('.remove-pair').forEach(function(rm) {
+          rm.addEventListener('click', function() {
+            if (state.answers[qid]) return;
+            var idx = parseInt(rm.getAttribute('data-idx'));
+            var removed = pairs.splice(idx, 1)[0];
+            // Unmark source
+            var srcEl = container.querySelector('[data-match-id="' + removed.sourceId + '"]');
+            if (srcEl) { srcEl.classList.remove('matched'); srcEl.style.borderColor = ''; srcEl.style.background = ''; }
+            renderPairs();
+          });
+        });
+      }
+
+      if (checkBtn) {
+        checkBtn.addEventListener('click', function() {
+          if (state.answers[qid]) return;
+
+          var sources = container.querySelectorAll('.match-source');
+          if (pairs.length < sources.length) {
+            fbEl.className = 'feedback hint show';
+            fbEl.textContent = '💡 Je hebt nog niet alle items gekoppeld. Koppel eerst alle voorbeelden aan een type.';
+            return;
+          }
+
+          attempts++;
+          var allCorrect = true;
+          pairs.forEach(function(p) {
+            var srcEl = container.querySelector('[data-match-id="' + p.sourceId + '"]');
+            var correctTarget = srcEl.getAttribute('data-correct');
+            if (p.targetId !== correctTarget) allCorrect = false;
+          });
+
+          if (allCorrect) {
+            fbEl.className = 'feedback correct show';
+            fbEl.textContent = '✓ Uitstekend! Alle koppelingen zijn juist.';
+            markQuestion(qid, 'correct');
+            checkBtn.disabled = true;
+          } else if (attempts >= 3) {
+            // Show correct
+            var correctText = '';
+            sources.forEach(function(s) {
+              correctText += s.textContent.trim() + ' → ' + s.getAttribute('data-correct') + '. ';
+            });
+            fbEl.className = 'feedback wrong show';
+            fbEl.innerHTML = '✗ Na 3 pogingen. De juiste koppelingen: ' + correctText;
+            markQuestion(qid, 'wrong');
+            checkBtn.disabled = true;
+          } else {
+            var wrongCount = 0;
+            pairs.forEach(function(p) {
+              var srcEl = container.querySelector('[data-match-id="' + p.sourceId + '"]');
+              if (p.targetId !== srcEl.getAttribute('data-correct')) wrongCount++;
+            });
+            fbEl.className = 'feedback hint show';
+            fbEl.textContent = '💡 ' + wrongCount + ' koppeling(en) kloppen nog niet. Verwijder de foute en probeer opnieuw! (poging ' + attempts + '/3)';
+          }
+        });
+      }
+    });
+  }
+
+  // ============== MAP ==============
+  var map1;
+  function initMap() {
+    if (typeof L === 'undefined') return;
+    map1 = L.map('map1').setView([48, 8], 4);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap',
+      maxZoom: 18
+    }).addTo(map1);
+
+    var markers = [
+      { lat: 51.5, lng: 5.5, title: '🇳🇱 Nederland-België', desc: '<strong>Zachte grens</strong><br>Schengenzone: je rijdt zo door.<br>Kunstmatige grens (geen natuurlijk kenmerk).' },
+      { lat: 51.9, lng: 6.9, title: '🇳🇱🇩🇪 Nederland-Duitsland', desc: '<strong>Zachte grens</strong><br>Schengenzone: vrij verkeer.<br>De grens volgt deels de Rijn (natuurlijk).' },
+      { lat: 42.7, lng: 1.5, title: '🇫🇷🇪🇸 Pyreneeën', desc: '<strong>Zachte grens</strong> (Schengen)<br>Maar een <strong>natuurlijke grens</strong>: het gebergte de Pyreneeën vormt de scheiding.' },
+      { lat: 35.9, lng: -5.3, title: '🇪🇸🇲🇦 Straat van Gibraltar', desc: '<strong>Harde grens</strong><br>Overgang van EU/Schengen naar Afrika.<br>Natuurlijke grens (zeestraat). Strenge controles.' },
+      { lat: 41.0, lng: 26.0, title: '🇬🇷🇹🇷 Griekenland-Turkije', desc: '<strong>Harde grens</strong><br>EU-buitengrens. Hek en bewaking.<br>Deels natuurlijk (rivier Evros).' },
+      { lat: 52.5, lng: -1.5, title: '🇬🇧 Groot-Brittannië', desc: '<strong>Eilandgrens</strong><br>Na Brexit: géén Schengen meer.<br>Natuurlijke grens (zee), maar nu ook politiek hard.' },
+      { lat: 54.7, lng: 25.3, title: '🇱🇹🇧🇾 Litouwen-Belarus', desc: '<strong>Harde grens</strong><br>EU-buitengrens met zware bewaking.<br>Kunstmatige grens door vlak landschap.' }
+    ];
+
+    markers.forEach(function(m) {
+      L.marker([m.lat, m.lng]).addTo(map1).bindPopup('<strong>' + m.title + '</strong><br>' + m.desc);
+    });
+  }
+
+  // ============== CHART ==============
+  function initChart() {
+    if (typeof Chart === 'undefined') return;
+    var ctx = document.getElementById('chart-verbondenheid');
+    if (!ctx) return;
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: ['Friesland', 'Groningen', 'Limburg', 'Overijssel', 'Brabant', 'Gelderland', 'Noord-Holland', 'Zuid-Holland', 'Utrecht'],
+        datasets: [
+          {
+            label: 'Voelt zich vooral Nederlander (%)',
+            data: [28, 35, 38, 50, 58, 60, 62, 64, 63],
+            backgroundColor: 'rgba(45,90,61,0.7)',
+            borderRadius: 4
+          },
+          {
+            label: 'Voelt zich vooral verbonden met provincie/streek/stad (%)',
+            data: [72, 65, 62, 50, 42, 40, 38, 36, 37],
+            backgroundColor: 'rgba(232,197,71,0.7)',
+            borderRadius: 4
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'bottom', labels: { font: { family: 'Nunito', size: 11 } } },
+          title: { display: true, text: 'Verbondenheid per provincie', font: { family: 'Nunito', size: 14, weight: 'bold' } }
+        },
+        scales: {
+          y: { beginAtZero: true, max: 100, ticks: { callback: function(v) { return v + '%'; } } }
+        }
+      }
+    });
+  }
+
+  // ============== NAV BUTTONS ==============
+  function setupNav() {
+    document.addEventListener('click', function(e) {
+      // Tab bar
+      if (e.target.classList.contains('tab-btn')) {
+        switchTab(parseInt(e.target.getAttribute('data-tab')));
+      }
+      // Next/Prev
+      if (e.target.getAttribute('data-nav') === 'next') {
+        switchTab(state.activeTab + 1);
+      }
+      if (e.target.getAttribute('data-nav') === 'prev') {
+        switchTab(state.activeTab - 1);
+      }
+    });
+  }
+
+  // ============== RESET TAB ==============
+  function setupResetTabs() {
+    document.querySelectorAll('.btn-reset-tab').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var tabNum = btn.getAttribute('data-tab');
+        var tabEl = document.getElementById('tab-' + tabNum);
+        if (!tabEl) return;
+
+        // Remove answers for this tab's quizzes
+        tabEl.querySelectorAll('.quiz-item').forEach(function(qi) {
+          delete state.answers[qi.id];
+          qi.classList.remove('completed-correct', 'completed-wrong');
+        });
+
+        // Reset MC options
+        tabEl.querySelectorAll('.mc-opt').forEach(function(o) {
+          o.disabled = false;
+          o.classList.remove('selected', 'correct-reveal', 'wrong-reveal');
+        });
+
+        // Reset feedback
+        tabEl.querySelectorAll('.feedback').forEach(function(f) {
+          f.className = 'feedback';
+          f.textContent = '';
+        });
+
+        // Reset textareas
+        tabEl.querySelectorAll('.open-textarea').forEach(function(ta) {
+          ta.value = '';
+          ta.disabled = false;
+        });
+        tabEl.querySelectorAll('.word-count').forEach(function(wc) {
+          wc.textContent = '0 woorden';
+          wc.classList.remove('enough');
+        });
+        tabEl.querySelectorAll('.btn-show-example').forEach(function(b) { b.style.display = 'none'; });
+        tabEl.querySelectorAll('.example-answer').forEach(function(b) { b.style.display = 'none'; });
+        tabEl.querySelectorAll('.self-assess').forEach(function(b) {
+          b.classList.remove('show');
+          b.querySelectorAll('.btn-self').forEach(function(s) { s.disabled = false; s.style.opacity = '1'; s.style.fontWeight = ''; });
+        });
+
+        // Reset drag items
+        tabEl.querySelectorAll('.drag-item').forEach(function(d) {
+          d.classList.remove('correct-pos', 'wrong-pos');
+          d.setAttribute('draggable', 'true');
+          d.style.cursor = 'grab';
+        });
+
+        // Reset match items
+        tabEl.querySelectorAll('.match-source').forEach(function(m) {
+          m.classList.remove('matched', 'selected');
+          m.style.borderColor = '';
+          m.style.background = '';
+        });
+        tabEl.querySelectorAll('.match-pairs').forEach(function(p) { p.innerHTML = ''; });
+
+        // Reset check buttons
+        tabEl.querySelectorAll('.btn-check').forEach(function(b) { b.disabled = false; });
+
+        updateProgress();
+      });
+    });
+  }
+
+  // ============== RESTORE STATE ==============
+  function restoreUI() {
+    Object.keys(state.answers).forEach(function(qid) {
+      var ans = state.answers[qid];
+      var el = document.getElementById(qid);
+      if (!el) return;
+      el.classList.add(ans.result === 'correct' ? 'completed-correct' : 'completed-wrong');
+
+      // Lock MC
+      el.querySelectorAll('.mc-opt').forEach(function(o) { o.disabled = true; });
+
+      // Lock open questions
+      var ta = el.querySelector('.open-textarea');
+      if (ta) {
+        var selfBox = el.querySelector('.self-assess');
+        if (selfBox) {
+          selfBox.querySelectorAll('.btn-self').forEach(function(b) { b.disabled = true; b.style.opacity = '0.5'; });
+        }
+      }
+
+      // Lock drag
+      el.querySelectorAll('.drag-item').forEach(function(d) { d.setAttribute('draggable', 'false'); d.style.cursor = 'default'; });
+      el.querySelectorAll('.btn-check').forEach(function(b) { b.disabled = true; });
+    });
+    updateProgress();
+  }
+
+  // ============== INIT ==============
+  window.addEventListener('DOMContentLoaded', function() {
+    loadState();
+    buildTabs();
+    setupMC();
+    setupOpenQuestions();
+    setupDragDrop();
+    setupMatch();
+    setupNav();
+    setupResetTabs();
+    initMap();
+    initChart();
+    switchTab(state.activeTab);
+    restoreUI();
+
+    document.getElementById('btnClearAll').addEventListener('click', function() {
+      if (confirm('Weet je zeker dat je al je voortgang wilt wissen? Dit kan niet ongedaan worden gemaakt.')) {
+        clearAllState();
+      }
+    });
+  });
+})();
+</script>
+</body>
+</html>
