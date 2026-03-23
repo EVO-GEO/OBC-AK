@@ -1404,6 +1404,11 @@ body {
   var PREFIX = 'geo_les_';
   var activeTab = 0;
   var questionState = {}; // { qid: { done: bool, correct: bool, attempts: int } }
+
+  function ensureQ(qid) {
+    if (!questionState[qid]) questionState[qid] = { done: false, correct: false, attempts: 0 };
+    return questionState[qid];
+  }
   var maps = {};
 
   // ===========================
@@ -1542,7 +1547,7 @@ body {
 
     opts.forEach(function(opt) {
       opt.addEventListener('click', function() {
-        if (!questionState[qid]) questionState[qid] = { done: false, correct: false, attempts: 0 };
+        ensureQ(qid);
         if (questionState[qid].done) return;
 
         questionState[qid].attempts++;
@@ -1609,7 +1614,7 @@ body {
     var selfBtns = selfAssess.querySelectorAll('.btn-self');
     selfBtns.forEach(function(btn) {
       btn.addEventListener('click', function() {
-        if (!questionState[qid]) questionState[qid] = { done: false, correct: false, attempts: 1 };
+        ensureQ(qid);
         questionState[qid].done = true;
         questionState[qid].correct = btn.getAttribute('data-result') === 'correct';
         selfAssess.innerHTML = questionState[qid].correct
@@ -1682,9 +1687,8 @@ body {
     }
     addDragListeners();
 
-    if (!questionState[qid]) questionState[qid] = { done: false, correct: false, attempts: 0 };
-
     checkBtn.addEventListener('click', function() {
+      ensureQ(qid);
       if (questionState[qid].done) return;
       questionState[qid].attempts++;
       var items = getItems();
@@ -1738,20 +1742,21 @@ body {
     var checkBtn = block.querySelector('.btn-check-match');
     var feedbackBox = block.querySelector('.feedback-box');
     var selectedSource = null;
-    var pairings = {}; // sourceId -> targetId
     var colorPalette = ['#dbeafe','#fce7f3','#d1fae5','#fef3c7','#e0e7ff'];
-    var colorIndex = 0;
+    block._matchPairings = {};
+    block._matchColorIndex = 0;
 
     if (!questionState[qid]) questionState[qid] = { done: false, correct: false, attempts: 0 };
 
     sources.forEach(function(src) {
       src.addEventListener('click', function() {
+        ensureQ(qid);
         if (questionState[qid].done) return;
         if (src.classList.contains('matched')) {
           // Unkoppel
           var srcId = src.getAttribute('data-match-id');
-          if (pairings[srcId]) {
-            delete pairings[srcId];
+          if (block._matchPairings[srcId]) {
+            delete block._matchPairings[srcId];
             src.classList.remove('matched');
             src.querySelector('.match-pair-label') && src.querySelector('.match-pair-label').remove();
             src.style.backgroundColor = '';
@@ -1766,14 +1771,15 @@ body {
 
     targets.forEach(function(tgt) {
       tgt.addEventListener('click', function() {
+        ensureQ(qid);
         if (questionState[qid].done) return;
         if (!selectedSource) return;
         var srcId = selectedSource.getAttribute('data-match-id');
         var tgtId = tgt.getAttribute('data-match-id');
-        pairings[srcId] = tgtId;
+        block._matchPairings[srcId] = tgtId;
 
-        var color = colorPalette[colorIndex % colorPalette.length];
-        colorIndex++;
+        var color = colorPalette[block._matchColorIndex % colorPalette.length];
+        block._matchColorIndex++;
         selectedSource.classList.remove('selected');
         selectedSource.classList.add('matched');
         selectedSource.style.backgroundColor = color;
@@ -1789,6 +1795,7 @@ body {
     });
 
     checkBtn.addEventListener('click', function() {
+      ensureQ(qid);
       if (questionState[qid].done) return;
       questionState[qid].attempts++;
       var allCorrect = true;
@@ -1796,10 +1803,10 @@ body {
       sources.forEach(function(src) {
         var srcId = src.getAttribute('data-match-id');
         var correctTarget = src.getAttribute('data-correct-target');
-        if (!pairings[srcId]) {
+        if (!block._matchPairings[srcId]) {
           allMatched = false;
           allCorrect = false;
-        } else if (pairings[srcId] !== correctTarget) {
+        } else if (block._matchPairings[srcId] !== correctTarget) {
           allCorrect = false;
         }
       });
@@ -1877,7 +1884,7 @@ body {
           // Re-add listeners
           sa.querySelectorAll('.btn-self').forEach(function(sbtn) {
             sbtn.addEventListener('click', function() {
-              if (!questionState[qid]) questionState[qid] = { done: false, correct: false, attempts: 1 };
+              ensureQ(qid);
               questionState[qid].done = true;
               questionState[qid].correct = sbtn.getAttribute('data-result') === 'correct';
               sa.innerHTML = questionState[qid].correct
@@ -1901,6 +1908,10 @@ body {
         if (sortBtn) sortBtn.disabled = false;
 
         // Reset match
+        if (block._matchPairings) {
+          block._matchPairings = {};
+          block._matchColorIndex = 0;
+        }
         var matchSources = block.querySelectorAll('.match-source');
         matchSources.forEach(function(ms) {
           ms.classList.remove('matched','selected','locked');
