@@ -1773,9 +1773,9 @@ document.addEventListener('DOMContentLoaded', function() {
     tabNavEl.children[idx].scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
     // Invalidate maps
     setTimeout(function() {
-      if (window.map1) window.map1.invalidateSize();
-      if (window.map2) window.map2.invalidateSize();
-    }, 200);
+      try { if (window.map1 && typeof window.map1.invalidateSize === 'function') window.map1.invalidateSize(); } catch(e) {}
+      try { if (window.map2 && typeof window.map2.invalidateSize === 'function') window.map2.invalidateSize(); } catch(e) {}
+    }, 300);
     saveState();
     window.scrollTo({ top: 0 });
   }
