@@ -1,1 +1,1955 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🌍 Aardrijkskunde — Conflict, Energie & Europa</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+:root {
+  --fire-900: #7f1d1d;
+  --fire-800: #991b1b;
+  --fire-700: #b91c1c;
+  --fire-600: #dc2626;
+  --fire-500: #ef4444;
+  --fire-400: #f87171;
+  --fire-300: #fca5a5;
+  --fire-200: #fecaca;
+  --fire-100: #fee2e2;
+  --fire-50: #fef2f2;
+  --ember: #ff6b35;
+  --gold: #f59e0b;
+  --gold-light: #fbbf24;
+  --dark: #1a1a2e;
+  --dark-card: #16213e;
+  --dark-surface: #1e2a45;
+  --text-light: #f1f5f9;
+  --text-muted: #94a3b8;
+  --success: #22c55e;
+  --success-bg: rgba(34,197,94,0.15);
+  --warning-bg: rgba(245,158,11,0.15);
+  --error-bg: rgba(239,68,68,0.15);
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-2xl: 48px;
+}
 
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Nunito', sans-serif;
+  background: var(--dark);
+  color: var(--text-light);
+  line-height: 1.7;
+  min-height: 100vh;
+}
+
+/* PROGRESS BAR */
+.progress-container {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: linear-gradient(135deg, var(--dark) 0%, var(--dark-card) 100%);
+  border-bottom: 2px solid var(--fire-800);
+  padding: 10px var(--space-lg);
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+.progress-label {
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--gold-light);
+  white-space: nowrap;
+}
+.progress-bar-track {
+  flex: 1;
+  height: 14px;
+  background: var(--dark-surface);
+  border-radius: 7px;
+  overflow: hidden;
+  position: relative;
+}
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--fire-700), var(--ember), var(--gold));
+  border-radius: 7px;
+  transition: width 0.5s ease;
+  width: 0%;
+  position: relative;
+}
+.progress-bar-fill::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.2) 50%, transparent 100%);
+  animation: shimmer 2s infinite;
+}
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+.progress-pct {
+  font-weight: 800;
+  font-size: 0.9rem;
+  color: var(--ember);
+  min-width: 40px;
+  text-align: right;
+}
+.clear-btn {
+  background: var(--fire-900);
+  border: 1px solid var(--fire-700);
+  color: var(--fire-300);
+  padding: 4px 12px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.clear-btn:hover { background: var(--fire-800); }
+
+/* TAB NAVIGATION */
+.tab-nav-wrapper {
+  background: var(--dark-card);
+  border-bottom: 2px solid var(--fire-900);
+  padding: var(--space-sm) var(--space-lg);
+}
+.tab-counter {
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-bottom: var(--space-xs);
+  font-weight: 600;
+}
+.tab-nav {
+  display: flex;
+  gap: var(--space-sm);
+  overflow-x: auto;
+  padding-bottom: var(--space-xs);
+  scrollbar-width: thin;
+  scrollbar-color: var(--fire-700) transparent;
+}
+.tab-btn {
+  background: var(--dark-surface);
+  border: 2px solid transparent;
+  color: var(--text-muted);
+  padding: 8px 18px;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 0.85rem;
+  white-space: nowrap;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.tab-btn:hover { border-color: var(--fire-600); color: var(--text-light); }
+.tab-btn.active {
+  background: linear-gradient(135deg, var(--fire-800), var(--fire-700));
+  border-color: var(--ember);
+  color: white;
+  box-shadow: 0 4px 15px rgba(220,38,38,0.3);
+}
+.tab-btn .check { color: var(--success); font-size: 1rem; }
+
+/* MAIN CONTENT */
+.main-content {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: var(--space-lg);
+}
+.tab-panel { display: none; }
+.tab-panel.active { display: block; animation: fadeIn 0.4s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+/* SECTION HEADER */
+.section-header {
+  text-align: center;
+  margin-bottom: var(--space-xl);
+}
+.section-emoji { font-size: 3.5rem; display: block; margin-bottom: var(--space-sm); }
+.section-title {
+  font-size: 1.8rem;
+  font-weight: 900;
+  background: linear-gradient(135deg, var(--fire-400), var(--gold-light));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.section-subtitle {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  margin-top: var(--space-xs);
+}
+
+/* INFO BLOCKS */
+.info-block {
+  background: linear-gradient(135deg, var(--dark-card) 0%, var(--dark-surface) 100%);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-left: 4px solid var(--fire-600);
+  border-radius: var(--radius-md);
+  padding: var(--space-lg);
+  margin-bottom: var(--space-lg);
+}
+.info-block h3 {
+  color: var(--fire-400);
+  font-size: 1.15rem;
+  font-weight: 800;
+  margin-bottom: var(--space-md);
+}
+.info-block p {
+  margin-bottom: var(--space-md);
+  color: var(--text-light);
+  font-size: 0.95rem;
+}
+.info-block p:last-child { margin-bottom: 0; }
+
+.highlight-box {
+  background: linear-gradient(135deg, rgba(220,38,38,0.1), rgba(245,158,11,0.1));
+  border: 1px solid var(--fire-700);
+  border-radius: var(--radius-md);
+  padding: var(--space-lg);
+  margin: var(--space-lg) 0;
+}
+.highlight-box .emoji-header {
+  font-size: 1.3rem;
+  font-weight: 800;
+  margin-bottom: var(--space-sm);
+  color: var(--gold-light);
+}
+
+.emoji-flow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  font-size: 1.4rem;
+  padding: var(--space-md);
+  background: rgba(0,0,0,0.2);
+  border-radius: var(--radius-md);
+  margin: var(--space-md) 0;
+}
+.emoji-flow .arrow { color: var(--fire-400); font-weight: 800; }
+
+.compare-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  margin: var(--space-md) 0;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+.compare-table th {
+  background: var(--fire-800);
+  color: white;
+  padding: 10px 14px;
+  text-align: left;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+.compare-table td {
+  background: var(--dark-surface);
+  padding: 10px 14px;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  font-size: 0.9rem;
+}
+.compare-table tr:last-child td { border-bottom: none; }
+
+.leefwereld-box {
+  background: linear-gradient(135deg, rgba(245,158,11,0.1), rgba(251,191,36,0.05));
+  border: 1px dashed var(--gold);
+  border-radius: var(--radius-md);
+  padding: var(--space-lg);
+  margin: var(--space-lg) 0;
+}
+.leefwereld-box::before {
+  content: '🤔 Herken jij dit?';
+  display: block;
+  font-weight: 800;
+  color: var(--gold-light);
+  font-size: 1rem;
+  margin-bottom: var(--space-sm);
+}
+
+/* QUIZ / OPDRACHTEN */
+.opdracht-block {
+  background: var(--dark-card);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
+  margin: var(--space-lg) 0;
+  position: relative;
+}
+.opdracht-block::before {
+  content: attr(data-type);
+  position: absolute;
+  top: -10px;
+  left: var(--space-md);
+  background: var(--fire-600);
+  color: white;
+  font-size: 0.7rem;
+  font-weight: 800;
+  padding: 2px 10px;
+  border-radius: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.opdracht-block h4 {
+  font-size: 1.05rem;
+  color: var(--text-light);
+  margin-bottom: var(--space-md);
+  font-weight: 700;
+  padding-top: var(--space-xs);
+}
+
+/* MC options */
+.mc-options { display: flex; flex-direction: column; gap: var(--space-sm); }
+.mc-option {
+  background: var(--dark-surface);
+  border: 2px solid rgba(255,255,255,0.1);
+  border-radius: var(--radius-md);
+  padding: 12px 16px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.95rem;
+  color: var(--text-light);
+  text-align: left;
+  transition: all 0.2s;
+  font-weight: 600;
+  width: 100%;
+}
+.mc-option:hover:not(.locked) { border-color: var(--fire-500); background: rgba(220,38,38,0.1); }
+.mc-option.correct { border-color: var(--success); background: var(--success-bg); }
+.mc-option.wrong { border-color: var(--fire-500); background: var(--error-bg); }
+.mc-option.locked { cursor: default; opacity: 0.7; }
+.mc-option.locked.correct { opacity: 1; }
+
+.feedback-msg {
+  margin-top: var(--space-md);
+  padding: 12px 16px;
+  border-radius: var(--radius-md);
+  font-size: 0.9rem;
+  font-weight: 600;
+  display: none;
+}
+.feedback-msg.show { display: block; animation: fadeIn 0.3s ease; }
+.feedback-msg.hint { background: var(--warning-bg); border: 1px solid var(--gold); color: var(--gold-light); }
+.feedback-msg.correct { background: var(--success-bg); border: 1px solid var(--success); color: var(--success); }
+.feedback-msg.wrong { background: var(--error-bg); border: 1px solid var(--fire-500); color: var(--fire-400); }
+
+/* OPEN QUESTION */
+.open-textarea {
+  width: 100%;
+  min-height: 100px;
+  background: var(--dark-surface);
+  border: 2px solid rgba(255,255,255,0.1);
+  border-radius: var(--radius-md);
+  padding: 12px 16px;
+  color: var(--text-light);
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.95rem;
+  resize: vertical;
+  line-height: 1.6;
+}
+.open-textarea:focus { outline: none; border-color: var(--fire-500); }
+.word-counter {
+  text-align: right;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-top: var(--space-xs);
+}
+.word-counter.enough { color: var(--success); }
+
+.show-example-btn, .self-check-btn, .check-order-btn {
+  background: linear-gradient(135deg, var(--fire-700), var(--fire-600));
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 0.9rem;
+  margin-top: var(--space-md);
+  transition: all 0.2s;
+}
+.show-example-btn:hover, .self-check-btn:hover, .check-order-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(220,38,38,0.3);
+}
+.show-example-btn:disabled, .check-order-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+  transform: none;
+  box-shadow: none;
+}
+
+.example-answer {
+  display: none;
+  background: rgba(34,197,94,0.08);
+  border: 1px solid rgba(34,197,94,0.3);
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+  margin-top: var(--space-md);
+  font-size: 0.9rem;
+}
+.example-answer.show { display: block; animation: fadeIn 0.3s; }
+.example-answer strong { color: var(--success); }
+
+.self-assess {
+  display: none;
+  gap: var(--space-sm);
+  margin-top: var(--space-md);
+}
+.self-assess.show { display: flex; }
+.self-assess button {
+  padding: 8px 20px;
+  border-radius: var(--radius-md);
+  border: none;
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.self-assess .good-btn { background: var(--success); color: white; }
+.self-assess .wrong-btn { background: var(--fire-600); color: white; }
+.self-assess .good-btn:hover { background: #16a34a; }
+.self-assess .wrong-btn:hover { background: #dc2626; }
+
+/* DRAG AND DROP */
+.drag-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  margin: var(--space-md) 0;
+}
+.drag-item {
+  background: var(--dark-surface);
+  border: 2px solid rgba(255,255,255,0.1);
+  border-radius: var(--radius-md);
+  padding: 12px 16px;
+  cursor: grab;
+  font-weight: 600;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  transition: all 0.2s;
+  user-select: none;
+}
+.drag-item:active { cursor: grabbing; }
+.drag-item .drag-handle { color: var(--text-muted); font-size: 1.2rem; }
+.drag-item.dragging { opacity: 0.5; border-color: var(--fire-500); }
+.drag-item.drag-over { border-color: var(--gold); background: rgba(245,158,11,0.1); }
+.drag-item.correct-pos { border-color: var(--success); background: var(--success-bg); }
+.drag-item.wrong-pos { border-color: var(--fire-500); background: var(--error-bg); }
+.drag-item.locked { cursor: default; opacity: 0.8; }
+
+/* MATCHING */
+.match-container { margin: var(--space-md) 0; }
+.match-columns { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-md); }
+.match-col-title {
+  font-weight: 800;
+  color: var(--fire-400);
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  margin-bottom: var(--space-sm);
+  letter-spacing: 0.5px;
+}
+.match-item {
+  background: var(--dark-surface);
+  border: 2px solid rgba(255,255,255,0.1);
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: var(--space-sm);
+  transition: all 0.2s;
+}
+.match-item:hover:not(.locked) { border-color: var(--fire-500); }
+.match-item.selected { border-color: var(--gold); background: rgba(245,158,11,0.15); box-shadow: 0 0 10px rgba(245,158,11,0.2); }
+.match-item.matched { border-color: var(--success); background: var(--success-bg); }
+.match-item.locked { cursor: default; }
+.match-pair-label {
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: var(--success);
+  margin-top: 4px;
+  display: none;
+}
+.match-item.matched .match-pair-label { display: block; }
+
+/* MAP */
+.map-container {
+  height: 400px;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  border: 2px solid var(--fire-800);
+  margin: var(--space-md) 0;
+}
+
+/* CHART */
+.chart-container {
+  background: var(--dark-surface);
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+  margin: var(--space-md) 0;
+}
+
+/* NAV BUTTONS */
+.nav-buttons {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: var(--space-2xl);
+  padding-top: var(--space-lg);
+  border-top: 1px solid rgba(255,255,255,0.08);
+}
+.nav-btn {
+  background: linear-gradient(135deg, var(--fire-700), var(--fire-600));
+  color: white;
+  border: none;
+  padding: 12px 28px;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 0.95rem;
+  transition: all 0.2s;
+}
+.nav-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(220,38,38,0.3); }
+.nav-btn:disabled { opacity: 0.3; cursor: default; transform: none; box-shadow: none; }
+.reset-section-btn {
+  background: transparent;
+  border: 1px solid var(--fire-800);
+  color: var(--fire-400);
+  padding: 8px 16px;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: 600;
+  font-size: 0.8rem;
+}
+.reset-section-btn:hover { background: rgba(220,38,38,0.1); }
+
+/* REFLECTION / SCORE */
+.score-display {
+  text-align: center;
+  padding: var(--space-xl);
+  background: linear-gradient(135deg, var(--fire-900), var(--dark-card));
+  border-radius: var(--radius-xl);
+  border: 2px solid var(--fire-700);
+  margin: var(--space-lg) 0;
+}
+.score-number {
+  font-size: 3.5rem;
+  font-weight: 900;
+  background: linear-gradient(135deg, var(--fire-400), var(--gold-light));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.score-label { color: var(--text-muted); font-size: 1rem; font-weight: 600; }
+
+.leerdoel-check {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-sm);
+  padding: var(--space-md);
+  background: var(--dark-surface);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-sm);
+  font-size: 0.95rem;
+}
+.leerdoel-icon { font-size: 1.3rem; flex-shrink: 0; }
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .main-content { padding: var(--space-md); }
+  .section-title { font-size: 1.4rem; }
+  .match-columns { grid-template-columns: 1fr; }
+  .nav-btn { padding: 10px 18px; font-size: 0.85rem; }
+  .progress-container { padding: 8px var(--space-md); }
+}
+</style>
+</head>
+<body>
+
+<!-- PROGRESS BAR -->
+<div class="progress-container">
+  <span class="progress-label">🔥 Voortgang</span>
+  <div class="progress-bar-track">
+    <div class="progress-bar-fill" id="progressFill"></div>
+  </div>
+  <span class="progress-pct" id="progressPct">0%</span>
+  <button class="clear-btn" id="clearProgress">Wissen</button>
+</div>
+
+<!-- TAB NAVIGATION -->
+<div class="tab-nav-wrapper">
+  <div class="tab-counter" id="tabCounter">Onderdeel 1 van 7</div>
+  <div class="tab-nav" id="tabNav">
+    <button class="tab-btn active" data-tab="0"><span class="check" id="check0"></span>🚀 Intro</button>
+    <button class="tab-btn" data-tab="1"><span class="check" id="check1"></span>🚀 Raketbereik</button>
+    <button class="tab-btn" data-tab="2"><span class="check" id="check2"></span>🗺️ De Kaart</button>
+    <button class="tab-btn" data-tab="3"><span class="check" id="check3"></span>⛽ Olie & Prijs</button>
+    <button class="tab-btn" data-tab="4"><span class="check" id="check4"></span>📊 Data</button>
+    <button class="tab-btn" data-tab="5"><span class="check" id="check5"></span>🌍 Wereldreacties</button>
+    <button class="tab-btn" data-tab="6"><span class="check" id="check6"></span>🏆 Afsluiting</button>
+  </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="main-content">
+
+<!-- ==================== TAB 0: INTRO ==================== -->
+<div class="tab-panel active" id="panel0">
+  <div class="section-header">
+    <span class="section-emoji">🌋</span>
+    <h2 class="section-title">Welkom, Ontdekkingsreiziger!</h2>
+    <p class="section-subtitle">Een reis door de wereld van conflict, energie en jouw portemonnee</p>
+  </div>
+
+  <div class="info-block">
+    <h3>📌 Wat ga je leren?</h3>
+    <p>Stel je voor: je zit in het vliegtuig naar je droombestemming. ✈️ Maar opeens is de benzine drie keer zo duur, vluchten worden geannuleerd en op het nieuws hoor je over raketten die Europa kunnen bereiken. Wat is er aan de hand?</p>
+    <p>In deze les ontdek je hoe een conflict ver weg in het Midden-Oosten direct invloed heeft op jouw leven hier in Nederland. Je leert over raketbereik, olieprijzen en hoe landen over de hele wereld reageren op een energiecrisis.</p>
+    <p>Na deze les kun je:</p>
+    <p>🎯 Uitleggen waarom Iraanse raketten een zorg zijn voor Europa<br>
+    🎯 Vertellen waarom een conflict in het Midden-Oosten de benzineprijs in Nederland beïnvloedt<br>
+    🎯 Voorbeelden geven van hoe landen omgaan met de energiecrisis</p>
+  </div>
+
+  <div class="leefwereld-box">
+    <p>Heb jij weleens gemerkt dat benzine duurder werd? Of dat je ouders klaagden over de energierekening? Misschien heb je zelf weleens in een file gestaan op weg naar vakantie. Al die dingen hebben te maken met wat er in de wereld gebeurt — en dat ga je vandaag ontdekken!</p>
+  </div>
+
+  <div class="highlight-box">
+    <div class="emoji-header">✈️ Reistip voor deze les</div>
+    <p>Denk tijdens deze les als een reiziger die de wereld wil begrijpen. Een goede reiziger is nieuwsgierig, kijkt verder dan zijn eigen land, en probeert te snappen hoe alles met elkaar verbonden is. Dat is precies wat aardrijkskunde is!</p>
+  </div>
+
+  <!-- Opdracht 0-1: MC -->
+  <div class="opdracht-block" data-type="Instapvraag">
+    <h4>Vraag 1: Wat denk jij? Waarom zou een conflict in het Midden-Oosten invloed hebben op Nederland?</h4>
+    <div class="mc-options" id="q0_1">
+      <button class="mc-option" data-answer="a">A. Omdat Nederland en het Midden-Oosten buurlanden zijn</button>
+      <button class="mc-option" data-answer="b" data-correct="true">B. Omdat Nederland olie en gas importeert uit die regio</button>
+      <button class="mc-option" data-answer="c">C. Omdat het Midden-Oosten het weer in Nederland bepaalt</button>
+      <button class="mc-option" data-answer="d">D. Omdat Nederlandse politici daar wonen</button>
+    </div>
+    <div class="feedback-msg" id="fb_q0_1" data-hint="Denk aan wat Nederland nodig heeft om auto's te laten rijden en huizen te verwarmen. Waar komt die energie vandaan?"></div>
+  </div>
+
+  <!-- Opdracht 0-2: Open vraag -->
+  <div class="opdracht-block" data-type="Open vraag">
+    <h4>Vraag 2: Stel je voor dat je op reis bent ✈️ en je hoort dat de brandstofprijzen verdubbeld zijn. Wat zou dat betekenen voor jouw vakantie? Schrijf minimaal 2-3 zinnen.</h4>
+    <textarea class="open-textarea" id="open_q0_2" placeholder="Schrijf hier je antwoord..."></textarea>
+    <div class="word-counter" id="wc_q0_2">0 woorden</div>
+    <button class="show-example-btn" id="exBtn_q0_2" disabled>Toon voorbeeldantwoord</button>
+    <div class="example-answer" id="ex_q0_2">
+      <strong>Voorbeeldantwoorden:</strong><br>
+      <em>1. "Als de brandstofprijzen verdubbelen, wordt mijn vliegticket veel duurder. Misschien kunnen we dan niet meer naar een ver land op vakantie, maar moeten we dichter bij huis blijven. Ook worden taxi's en excursies duurder op de vakantiebestemming."</em><br><br>
+      <em>2. "Duurdere brandstof betekent dat alles duurder wordt: het vliegtuig, de bus, en zelfs het eten in restaurants omdat dat ook vervoerd moet worden. Mijn vakantiebudget is dan sneller op."</em>
+    </div>
+    <div class="self-assess" id="sa_q0_2">
+      <button class="good-btn" data-q="q0_2" data-result="correct">Goed ✓</button>
+      <button class="wrong-btn" data-q="q0_2" data-result="wrong">Fout ✗</button>
+    </div>
+  </div>
+
+  <!-- Opdracht 0-3: MC -->
+  <div class="opdracht-block" data-type="Quiz">
+    <h4>Vraag 3: In welk werelddeel ligt het Midden-Oosten?</h4>
+    <div class="mc-options" id="q0_3">
+      <button class="mc-option" data-answer="a">A. Europa</button>
+      <button class="mc-option" data-answer="b">B. Afrika</button>
+      <button class="mc-option" data-answer="c" data-correct="true">C. Azië</button>
+      <button class="mc-option" data-answer="d">D. Zuid-Amerika</button>
+    </div>
+    <div class="feedback-msg" id="fb_q0_3" data-hint="Het Midden-Oosten ligt ten oosten van Europa en ten noorden van Afrika. Het is onderdeel van welk groot continent?"></div>
+  </div>
+
+  <div class="nav-buttons">
+    <button class="nav-btn" disabled>⬅ Vorige</button>
+    <button class="reset-section-btn" data-panel="0">🔄 Reset dit onderdeel</button>
+    <button class="nav-btn" data-next="1">Volgende ➡</button>
+  </div>
+</div>
+
+<!-- ==================== TAB 1: RAKETBEREIK ==================== -->
+<div class="tab-panel" id="panel1">
+  <div class="section-header">
+    <span class="section-emoji">🚀</span>
+    <h2 class="section-title">Raketbereik en de Veiligheid van Europa</h2>
+    <p class="section-subtitle">Hoe ver kan een raket vliegen — en waarom maakt dat uit?</p>
+  </div>
+
+  <div class="info-block">
+    <h3>🔍 Wat is er gebeurd?</h3>
+    <p>Lange tijd dachten experts dat raketten van Iran alleen doelen in hun eigen regio konden raken — denk aan landen als Irak, Saoedi-Arabië of Israël. Maar er is iets veranderd: Iran heeft raketten afgevuurd op <strong>Diego Garcia</strong>. Dit is een klein eiland in de Indische Oceaan waar een belangrijke Amerikaanse militaire basis ligt.</p>
+    <p>Dit is groot nieuws, want de afstand van Iran naar Diego Garcia is <strong>ongeveer 4.500 kilometer</strong>. En raad eens? Dat is bijna dezelfde afstand als van Iran naar steden als Amsterdam, Parijs en Brussel. Technisch gezien kan Iran nu dus ook Europa bereiken.</p>
+    <p>Experts plaatsen hier wel een belangrijke kanttekening bij: een raket die "leeg" is (zonder zware lading) komt het verst. Als er een zware bom (een <strong>warhead</strong>) op zit, wordt de raket zwaarder en komt hij minder ver. Het is een beetje zoals een vliegtuig: ✈️ hoe meer bagage je meeneemt, hoe meer brandstof je nodig hebt en hoe korter je kunt vliegen.</p>
+  </div>
+
+  <div class="highlight-box">
+    <div class="emoji-header">🧳 De koffer-vergelijking</div>
+    <div class="emoji-flow">
+      <span>🚀 Lege raket</span>
+      <span class="arrow">→</span>
+      <span>🪶 Licht = ver</span>
+      <span class="arrow">→</span>
+      <span>📍 4.500+ km</span>
+    </div>
+    <div class="emoji-flow">
+      <span>🚀 Raket + bom</span>
+      <span class="arrow">→</span>
+      <span>🏋️ Zwaar = minder ver</span>
+      <span class="arrow">→</span>
+      <span>📍 ? km</span>
+    </div>
+    <p style="margin-top: var(--space-md); font-size: 0.9rem;">Net als bij je reiskoffer: hoe meer je meeneemt, hoe zwaarder het is en hoe minder ver je kunt. ✈️</p>
+  </div>
+
+  <div class="info-block">
+    <h3>🇪🇺 Waarom maakt Europa zich zorgen?</h3>
+    <p>Europa maakt zich zorgen omdat dit laat zien dat Iran steeds betere rakettechnologie ontwikkelt. Zelfs al kan een raket met een zware bom nu misschien nog niet helemaal tot Amsterdam komen, de technologie gaat steeds vooruit. Wat vandaag net niet lukt, kan over een paar jaar misschien wel.</p>
+    <p>Europese landen praten nu over betere raketafweersystemen. Dat zijn speciale systemen die vijandelijke raketten uit de lucht kunnen halen voordat ze hun doel bereiken. Denk aan een soort "vangnetten" in de lucht. Dit kost miljarden euro's en er is veel discussie over wie dat moet betalen.</p>
+    <p>Voor Nederland is dit extra relevant: we zijn een klein, dichtbevolkt land. Een raketaanval zou hier veel meer schade aanrichten dan in een groot, dunbevolkt land. Bovendien liggen er in Nederland belangrijke havens (Rotterdam) en militaire bases die een doelwit zouden kunnen zijn.</p>
+  </div>
+
+  <div class="leefwereld-box">
+    <p>Als jij op vakantie vliegt naar Turkije of Griekenland ✈️, vlieg je al een flink stuk richting het Midden-Oosten. De afstand Amsterdam–Teheran (Iran) is maar twee keer zo ver als Amsterdam–Antalya. Het Midden-Oosten is dichter bij dan je denkt! Heb je weleens opgezocht hoe ver jouw favoriete vakantiebestemming is?</p>
+  </div>
+
+  <!-- Opdracht 1-1: MC -->
+  <div class="opdracht-block" data-type="Quiz">
+    <h4>Vraag 1: Waarom is het belangrijk dat Iran raketten heeft afgevuurd op Diego Garcia?</h4>
+    <div class="mc-options" id="q1_1">
+      <button class="mc-option" data-answer="a">A. Omdat Diego Garcia een Europees land is</button>
+      <button class="mc-option" data-answer="b" data-correct="true">B. Omdat de afstand naar Diego Garcia vergelijkbaar is met de afstand naar Europese steden</button>
+      <button class="mc-option" data-answer="c">C. Omdat Diego Garcia olie produceert</button>
+      <button class="mc-option" data-answer="d">D. Omdat Nederland een militaire basis heeft op Diego Garcia</button>
+    </div>
+    <div class="feedback-msg" id="fb_q1_1" data-hint="Denk aan afstanden. Waarom zou het zorgwekkend zijn dat een raket een plek op 4.500 km afstand kan bereiken?"></div>
+  </div>
+
+  <!-- Opdracht 1-2: MC -->
+  <div class="opdracht-block" data-type="Quiz">
+    <h4>Vraag 2: Waarom kan een raket met een warhead minder ver komen dan een lege raket?</h4>
+    <div class="mc-options" id="q1_2">
+      <button class="mc-option" data-answer="a" data-correct="true">A. Omdat een warhead zwaar is en de raket dan meer brandstof verbruikt</button>
+      <button class="mc-option" data-answer="b">B. Omdat een warhead de raket langzamer maakt</button>
+      <button class="mc-option" data-answer="c">C. Omdat er dan geen ruimte meer is voor brandstof</button>
+      <button class="mc-option" data-answer="d">D. Omdat de piloot dan niet kan sturen</button>
+    </div>
+    <div class="feedback-msg" id="fb_q1_2" data-hint="Vergelijk het met je reiskoffer: als je meer meeneemt, wat betekent dat dan voor het gewicht?"></div>
+  </div>
+
+  <!-- Opdracht 1-3: Open vraag -->
+  <div class="opdracht-block" data-type="Denkvraag">
+    <h4>Vraag 3: Leg in je eigen woorden uit waarom de ontwikkeling van Iraanse raketten een zorg is voor de veiligheid van Europa. Gebruik minimaal 3 zinnen.</h4>
+    <textarea class="open-textarea" id="open_q1_3" placeholder="Schrijf hier je antwoord..."></textarea>
+    <div class="word-counter" id="wc_q1_3">0 woorden</div>
+    <button class="show-example-btn" id="exBtn_q1_3" disabled>Toon voorbeeldantwoord</button>
+    <div class="example-answer" id="ex_q1_3">
+      <strong>Voorbeeldantwoorden:</strong><br>
+      <em>1. "Iran heeft laten zien dat hun raketten ver genoeg kunnen vliegen om Europa te bereiken. Hoewel een raket met een bom minder ver komt, wordt de technologie steeds beter. Daarom moeten Europese landen zich voorbereiden met raketafweersystemen."</em><br><br>
+      <em>2. "De afstand van Iran naar Diego Garcia is ongeveer net zo ver als naar Amsterdam. Dit betekent dat Europa in het bereik van Iraanse raketten ligt. Dat maakt het nodig dat landen als Nederland investeren in verdedigingssystemen."</em>
+    </div>
+    <div class="self-assess" id="sa_q1_3">
+      <button class="good-btn" data-q="q1_3" data-result="correct">Goed ✓</button>
+      <button class="wrong-btn" data-q="q1_3" data-result="wrong">Fout ✗</button>
+    </div>
+  </div>
+
+  <div class="nav-buttons">
+    <button class="nav-btn" data-prev="0">⬅ Vorige</button>
+    <button class="reset-section-btn" data-panel="1">🔄 Reset dit onderdeel</button>
+    <button class="nav-btn" data-next="2">Volgende ➡</button>
+  </div>
+</div>
+
+<!-- ==================== TAB 2: INTERACTIEVE KAART ==================== -->
+<div class="tab-panel" id="panel2">
+  <div class="section-header">
+    <span class="section-emoji">🗺️</span>
+    <h2 class="section-title">De Kaart: Afstanden en Locaties</h2>
+    <p class="section-subtitle">Ontdek de belangrijke plekken op de wereldkaart</p>
+  </div>
+
+  <div class="info-block">
+    <h3>🌍 Locaties op de kaart</h3>
+    <p>Op de kaart hieronder zie je de belangrijkste locaties uit deze les. Klik op de markers om meer informatie te lezen. Let op de afstanden: het Midden-Oosten is misschien verder weg dan je denkt — maar toch dichtbij genoeg om ons te beïnvloeden!</p>
+    <p>De <strong>Straat van Hormuz</strong> is de smalle waterweg tussen Iran en Oman. Hier vaart een groot deel van alle olie ter wereld doorheen. Als deze straat geblokkeerd wordt, heeft dat direct gevolgen voor de hele wereld.</p>
+    <p>Bekijk ook hoe ver <strong>Diego Garcia</strong> is van Iran — en vergelijk dat met de afstand naar Amsterdam. Je kunt zien dat deze afstanden bijna gelijk zijn!</p>
+  </div>
+
+  <div class="map-container" id="mainMap"></div>
+
+  <div class="highlight-box">
+    <div class="emoji-header">📏 Afstandsvergelijking</div>
+    <table class="compare-table">
+      <tr><th>Route</th><th>Afstand</th><th>Vergelijking</th></tr>
+      <tr><td>🇮🇷 Iran → Diego Garcia</td><td>~4.500 km</td><td>✈️ Ongeveer 5 uur vliegen</td></tr>
+      <tr><td>🇮🇷 Iran → Amsterdam</td><td>~4.200 km</td><td>✈️ Ongeveer 5 uur vliegen</td></tr>
+      <tr><td>🇮🇷 Iran → Parijs</td><td>~4.400 km</td><td>✈️ Ongeveer 5 uur vliegen</td></tr>
+      <tr><td>🇳🇱 Amsterdam → Antalya</td><td>~2.800 km</td><td>✈️ Ongeveer 3,5 uur vliegen</td></tr>
+    </table>
+  </div>
+
+  <div class="leefwereld-box">
+    <p>Ben je weleens op vakantie geweest naar Turkije, Griekenland of Egypte? ✈️ Dan ben je al een flink stuk richting het Midden-Oosten gevlogen. De afstand naar Iran is maar iets verder. Op de kaart lijkt het ver weg, maar met een vliegtuig ben je er zo!</p>
+  </div>
+
+  <!-- Opdracht 2-1: MC kaartanalyse -->
+  <div class="opdracht-block" data-type="Kaartanalyse">
+    <h4>Vraag 1: Bekijk de kaart. Door welke smalle waterweg wordt een groot deel van de wereldwijde olie vervoerd?</h4>
+    <div class="mc-options" id="q2_1">
+      <button class="mc-option" data-answer="a">A. Het Suezkanaal</button>
+      <button class="mc-option" data-answer="b" data-correct="true">B. De Straat van Hormuz</button>
+      <button class="mc-option" data-answer="c">C. De Straat van Gibraltar</button>
+      <button class="mc-option" data-answer="d">D. Het Panamakanaal</button>
+    </div>
+    <div class="feedback-msg" id="fb_q2_1" data-hint="Kijk op de kaart naar de marker bij Iran en Oman. Welke waterweg ligt daar precies?"></div>
+  </div>
+
+  <!-- Opdracht 2-2: MC -->
+  <div class="opdracht-block" data-type="Quiz">
+    <h4>Vraag 2: Welke twee afstanden zijn bijna gelijk volgens de tabel?</h4>
+    <div class="mc-options" id="q2_2">
+      <button class="mc-option" data-answer="a" data-correct="true">A. Iran → Diego Garcia en Iran → Amsterdam</button>
+      <button class="mc-option" data-answer="b">B. Iran → Amsterdam en Amsterdam → Antalya</button>
+      <button class="mc-option" data-answer="c">C. Iran → Parijs en Amsterdam → Antalya</button>
+      <button class="mc-option" data-answer="d">D. Diego Garcia → Amsterdam en Iran → Parijs</button>
+    </div>
+    <div class="feedback-msg" id="fb_q2_2" data-hint="Kijk nog eens goed naar de kilometers in de tabel. Welke twee routes zijn bijna even lang?"></div>
+  </div>
+
+  <!-- Opdracht 2-3: Open vraag -->
+  <div class="opdracht-block" data-type="Denkvraag">
+    <h4>Vraag 3: Bekijk de kaart en de tabel. Leg uit waarom de Straat van Hormuz zo belangrijk is voor de wereldwijde oliehandel. Gebruik minimaal 3 zinnen.</h4>
+    <textarea class="open-textarea" id="open_q2_3" placeholder="Schrijf hier je antwoord..."></textarea>
+    <div class="word-counter" id="wc_q2_3">0 woorden</div>
+    <button class="show-example-btn" id="exBtn_q2_3" disabled>Toon voorbeeldantwoord</button>
+    <div class="example-answer" id="ex_q2_3">
+      <strong>Voorbeeldantwoorden:</strong><br>
+      <em>1. "De Straat van Hormuz is een smalle doorgang tussen Iran en Oman. Veel olietankers moeten hier doorheen om olie van het Midden-Oosten naar de rest van de wereld te brengen. Als deze straat geblokkeerd wordt, kan er minder olie vervoerd worden en stijgen de prijzen overal."</em><br><br>
+      <em>2. "Veel landen in het Midden-Oosten produceren olie die via de Straat van Hormuz wordt verscheept. Het is een soort flessenhals: alles moet door één smalle doorgang. Als daar een conflict is, raakt dat de hele wereld."</em>
+    </div>
+    <div class="self-assess" id="sa_q2_3">
+      <button class="good-btn" data-q="q2_3" data-result="correct">Goed ✓</button>
+      <button class="wrong-btn" data-q="q2_3" data-result="wrong">Fout ✗</button>
+    </div>
+  </div>
+
+  <div class="nav-buttons">
+    <button class="nav-btn" data-prev="1">⬅ Vorige</button>
+    <button class="reset-section-btn" data-panel="2">🔄 Reset dit onderdeel</button>
+    <button class="nav-btn" data-next="3">Volgende ➡</button>
+  </div>
+</div>
+
+<!-- ==================== TAB 3: OLIE & PRIJS ==================== -->
+<div class="tab-panel" id="panel3">
+  <div class="section-header">
+    <span class="section-emoji">⛽</span>
+    <h2 class="section-title">Spanning in het Midden-Oosten en Jouw Portemonnee</h2>
+    <p class="section-subtitle">Van olietanker tot tankstation: hoe conflict jouw geld raakt</p>
+  </div>
+
+  <div class="info-block">
+    <h3>⛽ Hoe werkt de olieprijs?</h3>
+    <p>Olie is een grondstof die over de hele wereld wordt gebruikt. We hebben het nodig voor benzine, diesel, plastic, en nog veel meer. Een groot deel van de olie komt uit landen in het Midden-Oosten, zoals Saoedi-Arabië, Irak en Iran.</p>
+    <p>De prijs van olie werkt volgens de wet van <strong>vraag en aanbod</strong>. Als er veel olie beschikbaar is (groot aanbod) en de vraag normaal is, blijft de prijs stabiel. Maar als het aanbod daalt — bijvoorbeeld omdat de Straat van Hormuz geblokkeerd is — terwijl de vraag hetzelfde blijft, dan schiet de prijs omhoog.</p>
+    <p>Het werkt eigenlijk hetzelfde als met sneakers: als Nike maar 100 paar maakt van een populaire schoen, dan gaat de prijs omhoog omdat iedereen ze wil maar er te weinig zijn. Zo werkt het ook met olie!</p>
+  </div>
+
+  <div class="highlight-box">
+    <div class="emoji-header">📈 Vraag en Aanbod — Simpel uitgelegd</div>
+    <div class="emoji-flow">
+      <span>🛢️ Veel olie</span>
+      <span class="arrow">+</span>
+      <span>🙋 Normale vraag</span>
+      <span class="arrow">=</span>
+      <span>💰 Lage prijs</span>
+    </div>
+    <div class="emoji-flow">
+      <span>🛢️ Weinig olie</span>
+      <span class="arrow">+</span>
+      <span>🙋 Zelfde vraag</span>
+      <span class="arrow">=</span>
+      <span>💸 Hoge prijs!</span>
+    </div>
+  </div>
+
+  <div class="info-block">
+    <h3>🇳🇱 Gevolgen voor Nederland</h3>
+    <p>Als de olieprijzen stijgen, merken we dat in Nederland op verschillende manieren:</p>
+    <p><strong>🚗 Benzineprijs:</strong> De prijs aan de pomp stijgt richting €3 tot €4 per liter. Normaal betaal je rond de €2. Dat betekent dat een volle tank van 50 liter opeens €150 tot €200 kost in plaats van €100!</p>
+    <p><strong>🚗💨 Hamsteren bij de grens:</strong> Omdat tanken in Nederland zo duur wordt, rijden mensen massaal naar België om daar goedkoper te tanken. Dit veroorzaakt enorme files bij de grens. Zelfs vrachtwagens met kippen voor slachterijen staan vast, wat weer problemen oplevert voor de voedselindustrie.</p>
+    <p><strong>🏠 Energierekening:</strong> Niet alleen benzine wordt duurder. Ook gas en elektriciteit stijgen fors in prijs. Dat merk je thuis: de maandelijkse energierekening kan tientallen euro's hoger uitvallen. Sommige gezinnen moeten dan kiezen: verwarming een graadje lager, of minder geld voor andere dingen.</p>
+  </div>
+
+  <div class="leefwereld-box">
+    <p>Als jij naar school fietst, heb je misschien niet direct last van de benzineprijs. Maar de boodschappen die je ouders doen? Die worden wél duurder, want alles moet vervoerd worden met vrachtwagens. En als je op vakantie wilt met het vliegtuig ✈️ of de auto, merk je het zeker! Kun jij bedenken wat er in jouw huis duurder zou worden als de energieprijzen stijgen?</p>
+  </div>
+
+  <!-- Opdracht 3-1: MC -->
+  <div class="opdracht-block" data-type="Quiz">
+    <h4>Vraag 1: Wat is de wet van vraag en aanbod?</h4>
+    <div class="mc-options" id="q3_1">
+      <button class="mc-option" data-answer="a">A. Als er meer van iets is, wordt het duurder</button>
+      <button class="mc-option" data-answer="b" data-correct="true">B. Als het aanbod daalt en de vraag gelijk blijft, stijgt de prijs</button>
+      <button class="mc-option" data-answer="c">C. De prijs wordt altijd bepaald door de overheid</button>
+      <button class="mc-option" data-answer="d">D. Vraag en aanbod gaat alleen over olie</button>
+    </div>
+    <div class="feedback-msg" id="fb_q3_1" data-hint="Denk aan het sneaker-voorbeeld: als er maar weinig paren zijn en iedereen wil ze, wat gebeurt er dan met de prijs?"></div>
+  </div>
+
+  <!-- Opdracht 3-2: Sorteeropdracht (drag & drop) -->
+  <div class="opdracht-block" data-type="Sorteer">
+    <h4>Vraag 2: Zet de stappen in de juiste volgorde. Sleep de stappen naar de goede plek. Wat gebeurt er stap voor stap als de Straat van Hormuz geblokkeerd wordt?</h4>
+    <div class="drag-list" id="dragList_q3_2">
+      <div class="drag-item" draggable="true" data-order="3"><span class="drag-handle">☰</span> De olieprijzen op de wereldmarkt stijgen</div>
+      <div class="drag-item" draggable="true" data-order="1"><span class="drag-handle">☰</span> De Straat van Hormuz wordt geblokkeerd door conflict</div>
+      <div class="drag-item" draggable="true" data-order="5"><span class="drag-handle">☰</span> Mensen in Nederland hamsteren benzine bij de grens</div>
+      <div class="drag-item" draggable="true" data-order="2"><span class="drag-handle">☰</span> Olietankers kunnen niet meer door de straat varen</div>
+      <div class="drag-item" draggable="true" data-order="4"><span class="drag-handle">☰</span> De benzineprijs in Nederland stijgt naar €3-4 per liter</div>
+    </div>
+    <button class="check-order-btn" id="checkOrder_q3_2">Controleer volgorde</button>
+    <div class="feedback-msg" id="fb_drag_q3_2"></div>
+  </div>
+
+  <!-- Opdracht 3-3: Open vraag -->
+  <div class="opdracht-block" data-type="Denkvraag">
+    <h4>Vraag 3: Leg uit hoe een conflict in het Midden-Oosten ervoor kan zorgen dat boodschappen in de supermarkt duurder worden. Denk aan de hele keten van olie tot winkel. Schrijf minimaal 3 zinnen.</h4>
+    <textarea class="open-textarea" id="open_q3_3" placeholder="Schrijf hier je antwoord..."></textarea>
+    <div class="word-counter" id="wc_q3_3">0 woorden</div>
+    <button class="show-example-btn" id="exBtn_q3_3" disabled>Toon voorbeeldantwoord</button>
+    <div class="example-answer" id="ex_q3_3">
+      <strong>Voorbeeldantwoorden:</strong><br>
+      <em>1. "Als de Straat van Hormuz geblokkeerd is, kan er minder olie vervoerd worden. Daardoor stijgt de olieprijs en wordt diesel voor vrachtwagens duurder. Vrachtwagens vervoeren boodschappen naar de supermarkt, dus als het vervoer duurder is, worden de producten ook duurder."</em><br><br>
+      <em>2. "Alles in de supermarkt moet vervoerd worden. Als brandstof duurder wordt door een conflict, kost het transport meer geld. Die kosten worden doorberekend aan de klant, waardoor je meer betaalt voor je boodschappen."</em>
+    </div>
+    <div class="self-assess" id="sa_q3_3">
+      <button class="good-btn" data-q="q3_3" data-result="correct">Goed ✓</button>
+      <button class="wrong-btn" data-q="q3_3" data-result="wrong">Fout ✗</button>
+    </div>
+  </div>
+
+  <div class="nav-buttons">
+    <button class="nav-btn" data-prev="2">⬅ Vorige</button>
+    <button class="reset-section-btn" data-panel="3">🔄 Reset dit onderdeel</button>
+    <button class="nav-btn" data-next="4">Volgende ➡</button>
+  </div>
+</div>
+
+<!-- ==================== TAB 4: DATA & GRAFIEKEN ==================== -->
+<div class="tab-panel" id="panel4">
+  <div class="section-header">
+    <span class="section-emoji">📊</span>
+    <h2 class="section-title">Data en Grafieken Analyseren</h2>
+    <p class="section-subtitle">Wat vertellen de cijfers ons?</p>
+  </div>
+
+  <div class="info-block">
+    <h3>📊 Benzineprijzen in Europa</h3>
+    <p>Hieronder zie je een grafiek met benzineprijzen in verschillende Europese landen. Tijdens een energiecrisis stijgen de prijzen overal, maar niet in elk land evenveel. Dat komt doordat sommige landen extra belasting heffen op benzine (<strong>accijns</strong>) en andere landen die belasting juist verlagen om de prijs betaalbaar te houden.</p>
+    <p>In Nederland is de accijns op benzine van oudsher hoog. Dat is waarom we altijd al meer betalen dan in veel andere landen. Tijdens een crisis wordt dat verschil nog groter.</p>
+    <p>Bekijk de grafiek goed: welke landen zijn het duurst en welke het goedkoopst?</p>
+  </div>
+
+  <div class="chart-container">
+    <canvas id="benzineChart"></canvas>
+  </div>
+
+  <div class="info-block">
+    <h3>📈 Olieprijs over tijd</h3>
+    <p>De tweede grafiek toont hoe de olieprijs zich ontwikkelt. Je ziet duidelijk een stijging op het moment dat het conflict escaleert. Dit patroon hebben we eerder gezien: in 1973 (oliecrisis), in 2008 (financiële crisis) en in 2022 (oorlog in Oekraïne). Elke keer dat er grote spanningen zijn in olieproducerende regio's, stijgt de prijs.</p>
+  </div>
+
+  <div class="chart-container">
+    <canvas id="oilPriceChart"></canvas>
+  </div>
+
+  <div class="leefwereld-box">
+    <p>Stel je voor dat je met je gezin op autovakantie gaat naar Spanje ✈️🚗. In welk land zou je het slimste kunnen tanken? En zou het lonen om een kleine omweg te maken? Data lezen is een superhandige skill — ook voor je portemonnee!</p>
+  </div>
+
+  <!-- Opdracht 4-1: Grafiekanalyse MC -->
+  <div class="opdracht-block" data-type="Data-analyse">
+    <h4>Vraag 1: Bekijk de grafiek met benzineprijzen. In welk land is benzine het goedkoopst?</h4>
+    <div class="mc-options" id="q4_1">
+      <button class="mc-option" data-answer="a">A. Nederland</button>
+      <button class="mc-option" data-answer="b">B. Duitsland</button>
+      <button class="mc-option" data-answer="c" data-correct="true">C. Spanje</button>
+      <button class="mc-option" data-answer="d">D. België</button>
+    </div>
+    <div class="feedback-msg" id="fb_q4_1" data-hint="Kijk naar de staafgrafiek. Welke staaf is het kortst?"></div>
+  </div>
+
+  <!-- Opdracht 4-2: Grafiekanalyse MC -->
+  <div class="opdracht-block" data-type="Data-analyse">
+    <h4>Vraag 2: Bekijk de olieprijs-grafiek. Wanneer begon de prijs sterk te stijgen?</h4>
+    <div class="mc-options" id="q4_2">
+      <button class="mc-option" data-answer="a">A. In januari</button>
+      <button class="mc-option" data-answer="b">B. In maart</button>
+      <button class="mc-option" data-answer="c" data-correct="true">C. In mei, na het escaleren van het conflict</button>
+      <button class="mc-option" data-answer="d">D. In september</button>
+    </div>
+    <div class="feedback-msg" id="fb_q4_2" data-hint="Kijk naar de lijn in de grafiek. Op welk punt maakt de lijn een duidelijke sprong omhoog?"></div>
+  </div>
+
+  <!-- Opdracht 4-3: Open vraag -->
+  <div class="opdracht-block" data-type="Denkvraag">
+    <h4>Vraag 3: Spanje verlaagt de belasting op benzine (accijns). Leg uit waarom een land dat zou doen en wat het effect is. Schrijf minimaal 3 zinnen.</h4>
+    <textarea class="open-textarea" id="open_q4_3" placeholder="Schrijf hier je antwoord..."></textarea>
+    <div class="word-counter" id="wc_q4_3">0 woorden</div>
+    <button class="show-example-btn" id="exBtn_q4_3" disabled>Toon voorbeeldantwoord</button>
+    <div class="example-answer" id="ex_q4_3">
+      <strong>Voorbeeldantwoorden:</strong><br>
+      <em>1. "Spanje verlaagt de accijns zodat benzine betaalbaar blijft voor gewone mensen. De overheid verdient dan minder belastinggeld, maar voorkomt dat mensen niet meer naar hun werk kunnen rijden. Het effect is dat de benzineprijs in Spanje lager blijft dan in landen die de accijns niet verlagen."</em><br><br>
+      <em>2. "Door de belasting op benzine te verlagen, wordt tanken goedkoper. Dit helpt mensen die afhankelijk zijn van de auto. Het nadeel is dat de overheid minder geld binnenkrijgt en dat ergens anders moet bezuinigen."</em>
+    </div>
+    <div class="self-assess" id="sa_q4_3">
+      <button class="good-btn" data-q="q4_3" data-result="correct">Goed ✓</button>
+      <button class="wrong-btn" data-q="q4_3" data-result="wrong">Fout ✗</button>
+    </div>
+  </div>
+
+  <div class="nav-buttons">
+    <button class="nav-btn" data-prev="3">⬅ Vorige</button>
+    <button class="reset-section-btn" data-panel="4">🔄 Reset dit onderdeel</button>
+    <button class="nav-btn" data-next="5">Volgende ➡</button>
+  </div>
+</div>
+
+<!-- ==================== TAB 5: WERELDREACTIES ==================== -->
+<div class="tab-panel" id="panel5">
+  <div class="section-header">
+    <span class="section-emoji">🌍</span>
+    <h2 class="section-title">Wereldwijde Reacties op de Energiecrisis</h2>
+    <p class="section-subtitle">Elk land kiest zijn eigen weg — maar welke werkt het beste?</p>
+  </div>
+
+  <div class="info-block">
+    <h3>🌏 Azië reageert</h3>
+    <p>In Azië pakken landen de energiecrisis op creatieve maar soms ook drastische manieren aan:</p>
+    <p>🇵🇰 <strong>Pakistan:</strong> Scholen moeten sluiten omdat elektriciteit te duur is geworden. Kinderen en jongeren kunnen niet naar school — stel je voor dat jouw school opeens dicht gaat omdat de stroomrekening niet betaald kan worden!</p>
+    <p>🇵🇭 <strong>Filipijnen:</strong> Ambtenaren (mensen die voor de overheid werken) werken nog maar vier dagen per week. De vijfde dag blijven ze thuis om reiskosten te besparen. Minder woon-werkverkeer = minder brandstof nodig.</p>
+    <p>🇹🇭 <strong>Thailand:</strong> In tv-studio's wordt de airconditioning uitgezet om elektriciteit te besparen. In een tropisch land waar het 35°C is, is dat best heftig!</p>
+  </div>
+
+  <div class="info-block">
+    <h3>🇪🇺 Europa reageert</h3>
+    <p>In Europa zien we andere maatregelen:</p>
+    <p>🇪🇸 <strong>Spanje & 🇮🇹 Italië:</strong> Deze landen verlagen de accijns (belasting) op benzine. Hierdoor wordt tanken goedkoper, maar de overheid verdient minder geld.</p>
+    <p>🇸🇮 <strong>Slovenië:</strong> Hier mag je maximaal 50 liter benzine per dag tanken. Dit is bedoeld om "brandstoftoerisme" tegen te gaan — mensen uit duurdere landen komen hier goedkoop tanken, waardoor de voorraad snel op is.</p>
+    <p>🇳🇱 <strong>Nederland:</strong> De Nederlandse overheid wacht nog af en neemt nog geen directe maatregelen. Dit is vergelijkbaar met het begin van de coronacrisis, toen Nederland ook later reageerde dan andere landen.</p>
+  </div>
+
+  <div class="highlight-box">
+    <div class="emoji-header">🌐 Vergelijking: Hoe reageren landen?</div>
+    <table class="compare-table">
+      <tr><th>Land</th><th>Maatregel</th><th>Type</th></tr>
+      <tr><td>🇵🇰 Pakistan</td><td>Scholen sluiten</td><td>Besparen op publieke sector</td></tr>
+      <tr><td>🇵🇭 Filipijnen</td><td>4-daagse werkweek overheid</td><td>Reiskosten besparen</td></tr>
+      <tr><td>🇹🇭 Thailand</td><td>Airco uit in tv-studio's</td><td>Elektriciteit besparen</td></tr>
+      <tr><td>🇪🇸 Spanje</td><td>Accijns verlagen</td><td>Prijs dempen</td></tr>
+      <tr><td>🇮🇹 Italië</td><td>Accijns verlagen</td><td>Prijs dempen</td></tr>
+      <tr><td>🇸🇮 Slovenië</td><td>Max. 50 liter per dag</td><td>Rantsoenering</td></tr>
+      <tr><td>🇳🇱 Nederland</td><td>Afwachten</td><td>Geen directe maatregel</td></tr>
+    </table>
+  </div>
+
+  <div class="leefwereld-box">
+    <p>Stel je voor dat je op reis bent in Thailand ✈️ en de airco wordt uitgezet in je hotel om stroom te besparen. Of dat je in Pakistan bent en de scholen opeens dicht zijn. In Nederland merken we de crisis misschien minder snel, maar dat betekent niet dat we er geen last van hebben. Welke maatregel zou jij het eerste nemen als je minister-president was?</p>
+  </div>
+
+  <!-- Opdracht 5-1: Koppel-opdracht (matching) -->
+  <div class="opdracht-block" data-type="Koppelen">
+    <h4>Vraag 1: Koppel elk land aan de juiste maatregel. Klik eerst op een land (links), dan op de maatregel (rechts).</h4>
+    <div class="match-container" id="match_q5_1">
+      <div class="match-columns">
+        <div>
+          <div class="match-col-title">Landen</div>
+          <div class="match-item" data-match-source="pakistan" data-match-target="scholen">🇵🇰 Pakistan<div class="match-pair-label"></div></div>
+          <div class="match-item" data-match-source="filipijnen" data-match-target="vierdaagse">🇵🇭 Filipijnen<div class="match-pair-label"></div></div>
+          <div class="match-item" data-match-source="slovenie" data-match-target="limiet">🇸🇮 Slovenië<div class="match-pair-label"></div></div>
+          <div class="match-item" data-match-source="spanje" data-match-target="accijns">🇪🇸 Spanje<div class="match-pair-label"></div></div>
+        </div>
+        <div>
+          <div class="match-col-title">Maatregelen</div>
+          <div class="match-item" data-match-dest="accijns">Accijns op benzine verlagen<div class="match-pair-label"></div></div>
+          <div class="match-item" data-match-dest="scholen">Scholen sluiten<div class="match-pair-label"></div></div>
+          <div class="match-item" data-match-dest="vierdaagse">4-daagse werkweek<div class="match-pair-label"></div></div>
+          <div class="match-item" data-match-dest="limiet">Max. 50 liter per dag<div class="match-pair-label"></div></div>
+        </div>
+      </div>
+    </div>
+    <button class="check-order-btn" id="checkMatch_q5_1">Controleer koppelingen</button>
+    <div class="feedback-msg" id="fb_match_q5_1"></div>
+  </div>
+
+  <!-- Opdracht 5-2: MC -->
+  <div class="opdracht-block" data-type="Quiz">
+    <h4>Vraag 2: Waarom voert Slovenië een limiet van 50 liter per dag in?</h4>
+    <div class="mc-options" id="q5_2">
+      <button class="mc-option" data-answer="a">A. Omdat Slovenen niet zoveel rijden</button>
+      <button class="mc-option" data-answer="b" data-correct="true">B. Om te voorkomen dat buitenlanders alle brandstof opkopen (brandstoftoerisme)</button>
+      <button class="mc-option" data-answer="c">C. Omdat Slovenië geen benzine produceert</button>
+      <button class="mc-option" data-answer="d">D. Om het milieu te beschermen</button>
+    </div>
+    <div class="feedback-msg" id="fb_q5_2" data-hint="Denk aan wat er in Nederland gebeurt: mensen rijden naar België om goedkoper te tanken. Wat zou in Slovenië het probleem zijn?"></div>
+  </div>
+
+  <!-- Opdracht 5-3: Open vraag -->
+  <div class="opdracht-block" data-type="Denkvraag">
+    <h4>Vraag 3: Nederland wacht af en neemt (nog) geen maatregelen. Vind jij dat verstandig of niet? Leg uit waarom, en geef een voorbeeld van een maatregel die Nederland zou kunnen nemen. Minimaal 3 zinnen.</h4>
+    <textarea class="open-textarea" id="open_q5_3" placeholder="Schrijf hier je antwoord..."></textarea>
+    <div class="word-counter" id="wc_q5_3">0 woorden</div>
+    <button class="show-example-btn" id="exBtn_q5_3" disabled>Toon voorbeeldantwoord</button>
+    <div class="example-answer" id="ex_q5_3">
+      <strong>Voorbeeldantwoorden:</strong><br>
+      <em>1. "Ik vind het niet verstandig dat Nederland afwacht. De benzineprijs is al erg hoog en mensen rijden nu naar België om te tanken. Nederland zou ook de accijns kunnen verlagen, net als Spanje en Italië. Dat helpt gezinnen die anders niet meer kunnen rondkomen."</em><br><br>
+      <em>2. "Aan de ene kant kan ik het begrijpen: als je te snel reageert, neem je misschien de verkeerde maatregel. Maar aan de andere kant hebben mensen nu al last. Nederland zou een maximum prijs kunnen instellen of tijdelijk de belasting verlagen."</em>
+    </div>
+    <div class="self-assess" id="sa_q5_3">
+      <button class="good-btn" data-q="q5_3" data-result="correct">Goed ✓</button>
+      <button class="wrong-btn" data-q="q5_3" data-result="wrong">Fout ✗</button>
+    </div>
+  </div>
+
+  <div class="nav-buttons">
+    <button class="nav-btn" data-prev="4">⬅ Vorige</button>
+    <button class="reset-section-btn" data-panel="5">🔄 Reset dit onderdeel</button>
+    <button class="nav-btn" data-next="6">Volgende ➡</button>
+  </div>
+</div>
+
+<!-- ==================== TAB 6: AFSLUITING ==================== -->
+<div class="tab-panel" id="panel6">
+  <div class="section-header">
+    <span class="section-emoji">🏆</span>
+    <h2 class="section-title">Afsluiting & Reflectie</h2>
+    <p class="section-subtitle">Wat heb je geleerd op deze ontdekkingsreis? 🌍</p>
+  </div>
+
+  <div class="score-display">
+    <div class="score-label">Jouw eindscore</div>
+    <div class="score-number" id="finalScore">0%</div>
+    <div class="score-label" id="scoreDetail">0 van 0 opdrachten goed</div>
+  </div>
+
+  <div class="info-block">
+    <h3>🎯 Leerdoelen — Heb je ze gehaald?</h3>
+    <div class="leerdoel-check">
+      <span class="leerdoel-icon">🚀</span>
+      <span>Ik kan uitleggen waarom de afstand van Iraanse raketten nu een zorg is voor de veiligheid van Europa.</span>
+    </div>
+    <div class="leerdoel-check">
+      <span class="leerdoel-icon">⛽</span>
+      <span>Ik kan vertellen waarom een conflict in het Midden-Oosten de benzineprijs in Nederland beïnvloedt.</span>
+    </div>
+    <div class="leerdoel-check">
+      <span class="leerdoel-icon">🌍</span>
+      <span>Ik kan voorbeelden geven van hoe verschillende landen wereldwijd omgaan met de huidige energiecrisis.</span>
+    </div>
+  </div>
+
+  <!-- Reflectie 6-1 -->
+  <div class="opdracht-block" data-type="Reflectie">
+    <h4>Reflectie 1: Wat vond je het lastigst aan deze les en waarom? Schrijf minimaal 2 zinnen.</h4>
+    <textarea class="open-textarea" id="open_q6_1" placeholder="Schrijf hier je antwoord..."></textarea>
+    <div class="word-counter" id="wc_q6_1">0 woorden</div>
+    <button class="show-example-btn" id="exBtn_q6_1" disabled>Toon voorbeeldantwoord</button>
+    <div class="example-answer" id="ex_q6_1">
+      <strong>Voorbeelden:</strong><br>
+      <em>"Ik vond het lastig om te begrijpen hoe vraag en aanbod werkt, omdat ik daar nog nooit over had nagedacht. Maar het sneaker-voorbeeld hielp goed."</em>
+    </div>
+    <div class="self-assess" id="sa_q6_1">
+      <button class="good-btn" data-q="q6_1" data-result="correct">Goed ✓</button>
+      <button class="wrong-btn" data-q="q6_1" data-result="wrong">Fout ✗</button>
+    </div>
+  </div>
+
+  <!-- Reflectie 6-2 -->
+  <div class="opdracht-block" data-type="Reflectie">
+    <h4>Reflectie 2: Wat zou je een klasgenoot uitleggen over dit onderwerp? Vat de les samen in je eigen woorden (minimaal 3 zinnen).</h4>
+    <textarea class="open-textarea" id="open_q6_2" placeholder="Schrijf hier je antwoord..."></textarea>
+    <div class="word-counter" id="wc_q6_2">0 woorden</div>
+    <button class="show-example-btn" id="exBtn_q6_2" disabled>Toon voorbeeldantwoord</button>
+    <div class="example-answer" id="ex_q6_2">
+      <strong>Voorbeelden:</strong><br>
+      <em>"Deze les ging over hoe een conflict in het Midden-Oosten ons in Nederland raakt. Iran heeft raketten die ver genoeg komen om Europa te bereiken. En doordat de olieroute door de Straat van Hormuz geblokkeerd is, wordt benzine veel duurder. Elk land probeert daar op zijn eigen manier mee om te gaan."</em>
+    </div>
+    <div class="self-assess" id="sa_q6_2">
+      <button class="good-btn" data-q="q6_2" data-result="correct">Goed ✓</button>
+      <button class="wrong-btn" data-q="q6_2" data-result="wrong">Fout ✗</button>
+    </div>
+  </div>
+
+  <!-- Reflectie 6-3 -->
+  <div class="opdracht-block" data-type="Reflectie">
+    <h4>Reflectie 3: Hoe zou je dit onderwerp herkennen in je eigen omgeving? Geef een concreet voorbeeld. Minimaal 2 zinnen.</h4>
+    <textarea class="open-textarea" id="open_q6_3" placeholder="Schrijf hier je antwoord..."></textarea>
+    <div class="word-counter" id="wc_q6_3">0 woorden</div>
+    <button class="show-example-btn" id="exBtn_q6_3" disabled>Toon voorbeeldantwoord</button>
+    <div class="example-answer" id="ex_q6_3">
+      <strong>Voorbeelden:</strong><br>
+      <em>"Als ik langs het tankstation fiets en zie dat benzine €3 per liter kost, weet ik nu dat dat te maken kan hebben met conflicten in het Midden-Oosten. Ook als mijn ouders klagen over de energierekening, begrijp ik nu beter waarom dat zo is."</em>
+    </div>
+    <div class="self-assess" id="sa_q6_3">
+      <button class="good-btn" data-q="q6_3" data-result="correct">Goed ✓</button>
+      <button class="wrong-btn" data-q="q6_3" data-result="wrong">Fout ✗</button>
+    </div>
+  </div>
+
+  <div class="highlight-box" style="text-align:center;">
+    <div class="emoji-header">🌋 Goed gedaan, ontdekkingsreiziger!</div>
+    <p>Je hebt de hele les doorgewerkt. Onthoud: aardrijkskunde gaat niet alleen over kaarten en landen — het gaat over begrijpen hoe de wereld werkt en hoe alles met elkaar verbonden is. Blijf nieuwsgierig! ✈️🌍</p>
+  </div>
+
+  <div class="nav-buttons">
+    <button class="nav-btn" data-prev="5">⬅ Vorige</button>
+    <button class="reset-section-btn" data-panel="6">🔄 Reset dit onderdeel</button>
+    <button class="nav-btn" disabled>Einde 🏁</button>
+  </div>
+</div>
+
+</div><!-- /main-content -->
+
+<script>
+// ============================================================
+// STATE MANAGEMENT & LOCALSTORAGE
+// ============================================================
+const STORAGE_PREFIX = 'geo_les_';
+const TOTAL_TABS = 7;
+
+let state = {
+  answers: {},   // q_id -> { result: 'correct'|'wrong', attempts: 0 }
+  openTexts: {}, // q_id -> text
+  activeTab: 0,
+  matchStates: {},
+  dragStates: {}
+};
+
+function saveState() {
+  try { localStorage.setItem(STORAGE_PREFIX + 'state', JSON.stringify(state)); } catch(e) {}
+}
+function loadState() {
+  try {
+    const s = localStorage.getItem(STORAGE_PREFIX + 'state');
+    if (s) {
+      const loaded = JSON.parse(s);
+      state.answers = loaded.answers || {};
+      state.openTexts = loaded.openTexts || {};
+      state.activeTab = loaded.activeTab || 0;
+      state.matchStates = loaded.matchStates || {};
+      state.dragStates = loaded.dragStates || {};
+    }
+  } catch(e) {}
+}
+function clearState() {
+  try { localStorage.removeItem(STORAGE_PREFIX + 'state'); } catch(e) {}
+  state = { answers: {}, openTexts: {}, activeTab: 0, matchStates: {}, dragStates: {} };
+  location.reload();
+}
+
+// ============================================================
+// PROGRESS
+// ============================================================
+// All question IDs
+const allQuestionIds = [
+  'q0_1','q0_2','q0_3',
+  'q1_1','q1_2','q1_3',
+  'q2_1','q2_2','q2_3',
+  'q3_1','q3_2','q3_3',
+  'q4_1','q4_2','q4_3',
+  'q5_1','q5_2','q5_3',
+  'q6_1','q6_2','q6_3'
+];
+const tabQuestions = {
+  0: ['q0_1','q0_2','q0_3'],
+  1: ['q1_1','q1_2','q1_3'],
+  2: ['q2_1','q2_2','q2_3'],
+  3: ['q3_1','q3_2','q3_3'],
+  4: ['q4_1','q4_2','q4_3'],
+  5: ['q5_1','q5_2','q5_3'],
+  6: ['q6_1','q6_2','q6_3']
+};
+
+function updateProgress() {
+  const total = allQuestionIds.length;
+  let done = 0;
+  allQuestionIds.forEach(id => { if (state.answers[id]) done++; });
+  const pct = Math.round((done / total) * 100);
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressPct').textContent = pct + '%';
+
+  // Tab checks
+  for (let t = 0; t < TOTAL_TABS; t++) {
+    const qs = tabQuestions[t];
+    const allDone = qs.every(q => state.answers[q]);
+    const el = document.getElementById('check' + t);
+    if (el) el.textContent = allDone ? '✅' : '';
+  }
+
+  // Final score
+  let correct = 0;
+  allQuestionIds.forEach(id => {
+    if (state.answers[id] && state.answers[id].result === 'correct') correct++;
+  });
+  const scorePct = total > 0 ? Math.round((correct / total) * 100) : 0;
+  const scoreEl = document.getElementById('finalScore');
+  const detailEl = document.getElementById('scoreDetail');
+  if (scoreEl) scoreEl.textContent = scorePct + '%';
+  if (detailEl) detailEl.textContent = correct + ' van ' + total + ' opdrachten goed';
+}
+
+// ============================================================
+// TAB SWITCHING
+// ============================================================
+function switchTab(idx) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  const panel = document.getElementById('panel' + idx);
+  if (panel) panel.classList.add('active');
+  const btns = document.querySelectorAll('.tab-btn');
+  if (btns[idx]) btns[idx].classList.add('active');
+  document.getElementById('tabCounter').textContent = 'Onderdeel ' + (idx + 1) + ' van ' + TOTAL_TABS;
+  state.activeTab = idx;
+  saveState();
+
+  // Invalidate maps
+  setTimeout(function() {
+    if (window.mainMapObj) window.mainMapObj.invalidateSize();
+  }, 200);
+}
+
+// ============================================================
+// MULTIPLE CHOICE
+// ============================================================
+function setupMC(qId) {
+  const container = document.getElementById(qId);
+  if (!container) return;
+  const feedbackEl = document.getElementById('fb_' + qId);
+  const options = container.querySelectorAll('.mc-option');
+  let attempts = 0;
+  const maxAttempts = 2;
+
+  // Restore state
+  if (state.answers[qId]) {
+    const saved = state.answers[qId];
+    options.forEach(o => {
+      o.classList.add('locked');
+      if (o.hasAttribute('data-correct')) o.classList.add('correct');
+      if (saved.chosenAnswer === o.getAttribute('data-answer') && saved.result === 'wrong') o.classList.add('wrong');
+    });
+    if (feedbackEl) {
+      feedbackEl.className = 'feedback-msg show ' + (saved.result === 'correct' ? 'correct' : 'wrong');
+      feedbackEl.textContent = saved.result === 'correct' ? '✅ Goed zo! Dat klopt helemaal.' : '❌ Het juiste antwoord is gemarkeerd in het groen.';
+    }
+    return;
+  }
+
+  options.forEach(function(opt) {
+    opt.addEventListener('click', function() {
+      if (opt.classList.contains('locked')) return;
+      attempts++;
+
+      if (opt.hasAttribute('data-correct')) {
+        // Correct
+        opt.classList.add('correct');
+        options.forEach(o => o.classList.add('locked'));
+        if (feedbackEl) {
+          feedbackEl.className = 'feedback-msg show correct';
+          feedbackEl.textContent = '✅ Goed zo! Dat klopt helemaal.';
+        }
+        state.answers[qId] = { result: 'correct', attempts: attempts, chosenAnswer: opt.getAttribute('data-answer') };
+        saveState();
+        updateProgress();
+      } else {
+        opt.classList.add('wrong');
+        if (attempts >= maxAttempts) {
+          // Max attempts, show correct
+          options.forEach(o => {
+            o.classList.add('locked');
+            if (o.hasAttribute('data-correct')) o.classList.add('correct');
+          });
+          if (feedbackEl) {
+            feedbackEl.className = 'feedback-msg show wrong';
+            feedbackEl.textContent = '❌ Helaas, dat was niet goed. Het juiste antwoord is gemarkeerd in het groen.';
+          }
+          state.answers[qId] = { result: 'wrong', attempts: attempts, chosenAnswer: opt.getAttribute('data-answer') };
+          saveState();
+          updateProgress();
+        } else {
+          // Hint
+          if (feedbackEl) {
+            feedbackEl.className = 'feedback-msg show hint';
+            feedbackEl.textContent = '💡 ' + (feedbackEl.getAttribute('data-hint') || 'Probeer het nog eens!');
+          }
+          setTimeout(function() { opt.classList.remove('wrong'); }, 1500);
+        }
+      }
+    });
+  });
+}
+
+// ============================================================
+// OPEN QUESTIONS
+// ============================================================
+function setupOpen(qId) {
+  const textarea = document.getElementById('open_' + qId);
+  const wc = document.getElementById('wc_' + qId);
+  const exBtn = document.getElementById('exBtn_' + qId);
+  const exDiv = document.getElementById('ex_' + qId);
+  const saDiv = document.getElementById('sa_' + qId);
+  if (!textarea) return;
+
+  // Restore
+  if (state.openTexts[qId]) {
+    textarea.value = state.openTexts[qId];
+    updateWC();
+  }
+  if (state.answers[qId]) {
+    textarea.setAttribute('readonly', 'true');
+    if (exBtn) exBtn.style.display = 'none';
+    if (exDiv) { exDiv.classList.add('show'); }
+    if (saDiv) {
+      saDiv.innerHTML = '<span style="font-weight:700;color:' + (state.answers[qId].result === 'correct' ? 'var(--success)' : 'var(--fire-400)') + ';">' + (state.answers[qId].result === 'correct' ? '✅ Je hebt dit als goed beoordeeld' : '❌ Je hebt dit als fout beoordeeld') + '</span>';
+      saDiv.classList.add('show');
+    }
+    return;
+  }
+
+  function updateWC() {
+    const words = textarea.value.trim().split(/\s+/).filter(w => w.length > 0).length;
+    if (wc) {
+      wc.textContent = words + ' woorden';
+      wc.className = 'word-counter' + (words >= 20 ? ' enough' : '');
+    }
+    if (exBtn) exBtn.disabled = words < 20;
+    state.openTexts[qId] = textarea.value;
+    saveState();
+  }
+  textarea.addEventListener('input', updateWC);
+  updateWC();
+
+  if (exBtn) {
+    exBtn.addEventListener('click', function() {
+      if (exDiv) exDiv.classList.add('show');
+      if (saDiv) saDiv.classList.add('show');
+      exBtn.style.display = 'none';
+    });
+  }
+
+  if (saDiv) {
+    saDiv.querySelectorAll('button').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        const result = btn.getAttribute('data-result');
+        state.answers[qId] = { result: result, attempts: 1 };
+        textarea.setAttribute('readonly', 'true');
+        saDiv.innerHTML = '<span style="font-weight:700;color:' + (result === 'correct' ? 'var(--success)' : 'var(--fire-400)') + ';">' + (result === 'correct' ? '✅ Je hebt dit als goed beoordeeld' : '❌ Je hebt dit als fout beoordeeld') + '</span>';
+        saveState();
+        updateProgress();
+      });
+    });
+  }
+}
+
+// ============================================================
+// DRAG & DROP SORTING
+// ============================================================
+function setupDragSort(listId, qId) {
+  const list = document.getElementById(listId);
+  const checkBtn = document.getElementById('checkOrder_' + qId);
+  const feedbackEl = document.getElementById('fb_drag_' + qId);
+  if (!list || !checkBtn) return;
+
+  let dragSrcEl = null;
+
+  function addDragListeners() {
+    const items = list.querySelectorAll('.drag-item');
+    items.forEach(function(item) {
+      item.addEventListener('dragstart', function(e) {
+        if (item.classList.contains('locked')) { e.preventDefault(); return; }
+        dragSrcEl = item;
+        item.classList.add('dragging');
+        e.dataTransfer.effectAllowed = 'move';
+      });
+      item.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        if (item !== dragSrcEl && !item.classList.contains('locked')) {
+          item.classList.add('drag-over');
+        }
+      });
+      item.addEventListener('dragleave', function() {
+        item.classList.remove('drag-over');
+      });
+      item.addEventListener('drop', function(e) {
+        e.preventDefault();
+        item.classList.remove('drag-over');
+        if (dragSrcEl && dragSrcEl !== item && !item.classList.contains('locked')) {
+          // Swap positions
+          const parent = list;
+          const allItems = Array.from(parent.querySelectorAll('.drag-item'));
+          const fromIdx = allItems.indexOf(dragSrcEl);
+          const toIdx = allItems.indexOf(item);
+          if (fromIdx < toIdx) {
+            parent.insertBefore(dragSrcEl, item.nextSibling);
+          } else {
+            parent.insertBefore(dragSrcEl, item);
+          }
+        }
+      });
+      item.addEventListener('dragend', function() {
+        item.classList.remove('dragging');
+        list.querySelectorAll('.drag-item').forEach(i => i.classList.remove('drag-over'));
+      });
+    });
+  }
+
+  // Restore if answered
+  if (state.answers[qId]) {
+    const items = list.querySelectorAll('.drag-item');
+    items.forEach(i => {
+      i.classList.add('locked');
+      i.setAttribute('draggable', 'false');
+      i.classList.add('correct-pos');
+    });
+    checkBtn.disabled = true;
+    if (feedbackEl) {
+      feedbackEl.className = 'feedback-msg show ' + (state.answers[qId].result === 'correct' ? 'correct' : 'hint');
+      feedbackEl.textContent = state.answers[qId].result === 'correct' ? '✅ Perfect! Je hebt de juiste volgorde.' : '⚠️ De juiste volgorde wordt nu getoond.';
+    }
+    return;
+  }
+
+  let dragAttempts = 0;
+  addDragListeners();
+
+  checkBtn.addEventListener('click', function() {
+    dragAttempts++;
+    const items = Array.from(list.querySelectorAll('.drag-item'));
+    const currentOrder = items.map(i => parseInt(i.getAttribute('data-order')));
+    const correctOrder = currentOrder.slice().sort((a, b) => a - b);
+    const isCorrect = JSON.stringify(currentOrder) === JSON.stringify(correctOrder);
+
+    items.forEach(function(item, idx) {
+      item.classList.remove('correct-pos', 'wrong-pos');
+      if (parseInt(item.getAttribute('data-order')) === idx + 1) {
+        item.classList.add('correct-pos');
+      } else {
+        item.classList.add('wrong-pos');
+      }
+    });
+
+    if (isCorrect) {
+      items.forEach(i => { i.classList.add('locked'); i.setAttribute('draggable', 'false'); });
+      checkBtn.disabled = true;
+      if (feedbackEl) {
+        feedbackEl.className = 'feedback-msg show correct';
+        feedbackEl.textContent = '✅ Perfect! Je hebt de juiste volgorde.';
+      }
+      state.answers[qId] = { result: 'correct', attempts: dragAttempts };
+      saveState();
+      updateProgress();
+    } else if (dragAttempts >= 2) {
+      // Sort them correctly
+      const sorted = items.slice().sort((a, b) => parseInt(a.getAttribute('data-order')) - parseInt(b.getAttribute('data-order')));
+      sorted.forEach(i => list.appendChild(i));
+      items.forEach(i => {
+        i.classList.remove('wrong-pos');
+        i.classList.add('locked', 'correct-pos');
+        i.setAttribute('draggable', 'false');
+      });
+      checkBtn.disabled = true;
+      if (feedbackEl) {
+        feedbackEl.className = 'feedback-msg show hint';
+        feedbackEl.textContent = '⚠️ Niet helemaal goed. Hierboven zie je de juiste volgorde.';
+      }
+      state.answers[qId] = { result: 'wrong', attempts: dragAttempts };
+      saveState();
+      updateProgress();
+    } else {
+      if (feedbackEl) {
+        feedbackEl.className = 'feedback-msg show hint';
+        feedbackEl.textContent = '💡 Bijna! Kijk nog eens welke stappen eerst gebeuren. Wat is de allereerste stap in de keten?';
+      }
+    }
+  });
+}
+
+// ============================================================
+// MATCHING
+// ============================================================
+function setupMatch(containerId, qId) {
+  const container = document.getElementById(containerId);
+  const checkBtn = document.getElementById('checkMatch_' + qId);
+  const feedbackEl = document.getElementById('fb_match_' + qId);
+  if (!container || !checkBtn) return;
+
+  let selectedSource = null;
+  const matches = {}; // source -> dest
+  const sourceItems = container.querySelectorAll('[data-match-source]');
+  const destItems = container.querySelectorAll('[data-match-dest]');
+
+  // Restore
+  if (state.answers[qId]) {
+    sourceItems.forEach(s => { s.classList.add('locked', 'matched'); });
+    destItems.forEach(d => { d.classList.add('locked', 'matched'); });
+    checkBtn.disabled = true;
+    if (feedbackEl) {
+      feedbackEl.className = 'feedback-msg show ' + (state.answers[qId].result === 'correct' ? 'correct' : 'hint');
+      feedbackEl.textContent = state.answers[qId].result === 'correct' ? '✅ Alle koppelingen zijn goed!' : '⚠️ De juiste koppelingen worden getoond.';
+    }
+    return;
+  }
+
+  function updateMatchVisual() {
+    // Color matched pairs
+    const colors = ['#ef4444', '#f59e0b', '#22c55e', '#3b82f6', '#a855f7'];
+    let idx = 0;
+    sourceItems.forEach(function(s) {
+      const srcKey = s.getAttribute('data-match-source');
+      const label = s.querySelector('.match-pair-label');
+      if (matches[srcKey]) {
+        s.classList.add('matched');
+        s.style.borderLeftColor = colors[idx % colors.length];
+        s.style.borderLeftWidth = '4px';
+        if (label) { label.textContent = '→ ' + matches[srcKey]; label.style.display = 'block'; }
+        // Find matching dest
+        destItems.forEach(function(d) {
+          if (d.getAttribute('data-match-dest') === matches[srcKey]) {
+            d.classList.add('matched');
+            d.style.borderLeftColor = colors[idx % colors.length];
+            d.style.borderLeftWidth = '4px';
+          }
+        });
+        idx++;
+      } else {
+        s.classList.remove('matched');
+        s.style.borderLeftColor = '';
+        s.style.borderLeftWidth = '';
+        if (label) { label.style.display = 'none'; }
+      }
+    });
+  }
+
+  sourceItems.forEach(function(item) {
+    item.addEventListener('click', function() {
+      if (item.classList.contains('locked')) return;
+      sourceItems.forEach(s => s.classList.remove('selected'));
+      item.classList.add('selected');
+      selectedSource = item.getAttribute('data-match-source');
+    });
+  });
+
+  destItems.forEach(function(item) {
+    item.addEventListener('click', function() {
+      if (!selectedSource || item.classList.contains('locked')) return;
+      matches[selectedSource] = item.getAttribute('data-match-dest');
+      sourceItems.forEach(s => s.classList.remove('selected'));
+      selectedSource = null;
+      updateMatchVisual();
+    });
+  });
+
+  let matchAttempts = 0;
+  checkBtn.addEventListener('click', function() {
+    matchAttempts++;
+    const totalSources = sourceItems.length;
+    let correctCount = 0;
+    sourceItems.forEach(function(s) {
+      const src = s.getAttribute('data-match-source');
+      const expectedTarget = s.getAttribute('data-match-target');
+      if (matches[src] === expectedTarget) correctCount++;
+    });
+
+    if (correctCount === totalSources) {
+      sourceItems.forEach(s => s.classList.add('locked'));
+      destItems.forEach(d => d.classList.add('locked'));
+      checkBtn.disabled = true;
+      if (feedbackEl) {
+        feedbackEl.className = 'feedback-msg show correct';
+        feedbackEl.textContent = '✅ Alle koppelingen zijn goed!';
+      }
+      state.answers[qId] = { result: 'correct', attempts: matchAttempts };
+      saveState();
+      updateProgress();
+    } else if (matchAttempts >= 2) {
+      // Show correct
+      sourceItems.forEach(function(s) {
+        const src = s.getAttribute('data-match-source');
+        const target = s.getAttribute('data-match-target');
+        matches[src] = target;
+      });
+      updateMatchVisual();
+      sourceItems.forEach(s => s.classList.add('locked'));
+      destItems.forEach(d => d.classList.add('locked'));
+      checkBtn.disabled = true;
+      if (feedbackEl) {
+        feedbackEl.className = 'feedback-msg show hint';
+        feedbackEl.textContent = '⚠️ Niet alles was goed. De juiste koppelingen worden nu getoond.';
+      }
+      state.answers[qId] = { result: 'wrong', attempts: matchAttempts };
+      saveState();
+      updateProgress();
+    } else {
+      if (feedbackEl) {
+        feedbackEl.className = 'feedback-msg show hint';
+        feedbackEl.textContent = '💡 ' + correctCount + ' van ' + totalSources + ' koppelingen zijn goed. Kijk nog eens goed naar de tabel hierboven!';
+      }
+    }
+  });
+}
+
+// ============================================================
+// RESET SECTION
+// ============================================================
+function resetSection(panelIdx) {
+  const qs = tabQuestions[panelIdx];
+  qs.forEach(function(qId) {
+    delete state.answers[qId];
+    delete state.openTexts[qId];
+  });
+  saveState();
+  // Reload to rebuild UI
+  const currentTab = panelIdx;
+  state.activeTab = currentTab;
+  saveState();
+  location.reload();
+}
+
+// ============================================================
+// LEAFLET MAP
+// ============================================================
+function initMap() {
+  const mapEl = document.getElementById('mainMap');
+  if (!mapEl) return;
+  const map = L.map('mainMap').setView([25, 55], 3);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap',
+    maxZoom: 18
+  }).addTo(map);
+
+  const markers = [
+    { lat: 35.6892, lng: 51.3890, title: '🇮🇷 Teheran, Iran', desc: 'Hoofdstad van Iran. Vanaf hier worden raketten gelanceerd.' },
+    { lat: 52.3676, lng: 4.9041, title: '🇳🇱 Amsterdam', desc: 'Afstand vanaf Iran: ~4.200 km' },
+    { lat: 48.8566, lng: 2.3522, title: '🇫🇷 Parijs', desc: 'Afstand vanaf Iran: ~4.400 km' },
+    { lat: 50.8503, lng: 4.3517, title: '🇧🇪 Brussel', desc: 'Afstand vanaf Iran: ~4.300 km' },
+    { lat: -7.3195, lng: 72.4229, title: '🏝️ Diego Garcia', desc: 'Amerikaanse militaire basis. Afstand vanaf Iran: ~4.500 km' },
+    { lat: 26.5, lng: 56.5, title: '⛽ Straat van Hormuz', desc: 'Smalle waterweg waar een groot deel van de wereldwijde olie doorheen wordt vervoerd.' },
+    { lat: 40.4168, lng: -3.7038, title: '🇪🇸 Madrid, Spanje', desc: 'Spanje verlaagt de accijns op benzine.' },
+    { lat: 46.0569, lng: 14.5058, title: '🇸🇮 Ljubljana, Slovenië', desc: 'Max. 50 liter benzine per dag als maatregel.' },
+    { lat: 33.6844, lng: 73.0479, title: '🇵🇰 Islamabad, Pakistan', desc: 'Scholen sluiten vanwege hoge energieprijzen.' },
+    { lat: 13.7563, lng: 100.5018, title: '🇹🇭 Bangkok, Thailand', desc: 'Airco uit in tv-studio\'s om stroom te besparen.' }
+  ];
+
+  const fireIcon = L.divIcon({
+    className: 'custom-marker',
+    html: '<div style="background:var(--fire-600);width:12px;height:12px;border-radius:50%;border:2px solid white;box-shadow:0 0 6px rgba(220,38,38,0.5);"></div>',
+    iconSize: [16, 16],
+    iconAnchor: [8, 8]
+  });
+
+  markers.forEach(function(m) {
+    L.marker([m.lat, m.lng], { icon: fireIcon })
+      .addTo(map)
+      .bindPopup('<strong>' + m.title + '</strong><br>' + m.desc);
+  });
+
+  window.mainMapObj = map;
+}
+
+// ============================================================
+// CHARTS
+// ============================================================
+function initCharts() {
+  // Benzine chart
+  const benzineCtx = document.getElementById('benzineChart');
+  if (benzineCtx) {
+    new Chart(benzineCtx, {
+      type: 'bar',
+      data: {
+        labels: ['Nederland', 'Duitsland', 'België', 'Frankrijk', 'Italië', 'Spanje'],
+        datasets: [{
+          label: 'Benzineprijs (€ per liter)',
+          data: [3.45, 2.85, 2.65, 2.90, 2.50, 2.20],
+          backgroundColor: [
+            'rgba(239,68,68,0.8)',
+            'rgba(245,158,11,0.8)',
+            'rgba(251,191,36,0.8)',
+            'rgba(249,115,22,0.8)',
+            'rgba(34,197,94,0.8)',
+            'rgba(59,130,246,0.8)'
+          ],
+          borderColor: [
+            'rgb(239,68,68)',
+            'rgb(245,158,11)',
+            'rgb(251,191,36)',
+            'rgb(249,115,22)',
+            'rgb(34,197,94)',
+            'rgb(59,130,246)'
+          ],
+          borderWidth: 2,
+          borderRadius: 8
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { display: false },
+          title: {
+            display: true,
+            text: 'Benzineprijzen in Europa tijdens de crisis',
+            color: '#f1f5f9',
+            font: { family: 'Nunito', size: 16, weight: '700' }
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            max: 4,
+            ticks: { color: '#94a3b8', callback: function(v) { return '€' + v.toFixed(2); } },
+            grid: { color: 'rgba(255,255,255,0.05)' }
+          },
+          x: {
+            ticks: { color: '#94a3b8', font: { weight: '600' } },
+            grid: { display: false }
+          }
+        }
+      }
+    });
+  }
+
+  // Oil price line chart
+  const oilCtx = document.getElementById('oilPriceChart');
+  if (oilCtx) {
+    new Chart(oilCtx, {
+      type: 'line',
+      data: {
+        labels: ['Jan', 'Feb', 'Mrt', 'Apr', 'Mei', 'Jun', 'Jul', 'Aug', 'Sep'],
+        datasets: [{
+          label: 'Olieprijs ($ per vat)',
+          data: [78, 80, 82, 85, 110, 135, 148, 155, 160],
+          borderColor: 'rgb(239,68,68)',
+          backgroundColor: 'rgba(239,68,68,0.1)',
+          fill: true,
+          tension: 0.3,
+          pointBackgroundColor: 'rgb(239,68,68)',
+          pointBorderColor: 'white',
+          pointBorderWidth: 2,
+          pointRadius: 5
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { display: false },
+          title: {
+            display: true,
+            text: 'Olieprijs per vat (in dollars) — stijging na conflict',
+            color: '#f1f5f9',
+            font: { family: 'Nunito', size: 16, weight: '700' }
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: false,
+            ticks: { color: '#94a3b8', callback: function(v) { return '$' + v; } },
+            grid: { color: 'rgba(255,255,255,0.05)' }
+          },
+          x: {
+            ticks: { color: '#94a3b8', font: { weight: '600' } },
+            grid: { display: false }
+          }
+        }
+      }
+    });
+  }
+}
+
+// ============================================================
+// INIT
+// ============================================================
+window.addEventListener('DOMContentLoaded', function() {
+  loadState();
+
+  // Tab buttons
+  document.querySelectorAll('.tab-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      switchTab(parseInt(btn.getAttribute('data-tab')));
+    });
+  });
+
+  // Nav buttons
+  document.querySelectorAll('.nav-btn[data-next]').forEach(function(btn) {
+    btn.addEventListener('click', function() { switchTab(parseInt(btn.getAttribute('data-next'))); window.scrollTo(0,0); });
+  });
+  document.querySelectorAll('.nav-btn[data-prev]').forEach(function(btn) {
+    btn.addEventListener('click', function() { switchTab(parseInt(btn.getAttribute('data-prev'))); window.scrollTo(0,0); });
+  });
+
+  // Reset section buttons
+  document.querySelectorAll('.reset-section-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      if (confirm('Weet je zeker dat je dit onderdeel wilt resetten?')) {
+        resetSection(parseInt(btn.getAttribute('data-panel')));
+      }
+    });
+  });
+
+  // Clear progress
+  document.getElementById('clearProgress').addEventListener('click', function() {
+    if (confirm('Weet je zeker dat je ALLE voortgang wilt wissen?')) clearState();
+  });
+
+  // Setup MC questions
+  ['q0_1','q0_3','q1_1','q1_2','q2_1','q2_2','q3_1','q4_1','q4_2','q5_2'].forEach(setupMC);
+
+  // Setup open questions
+  ['q0_2','q1_3','q2_3','q3_3','q4_3','q5_3','q6_1','q6_2','q6_3'].forEach(setupOpen);
+
+  // Setup drag & drop
+  setupDragSort('dragList_q3_2', 'q3_2');
+
+  // Setup matching
+  setupMatch('match_q5_1', 'q5_1');
+
+  // Map
+  initMap();
+
+  // Charts
+  initCharts();
+
+  // Restore active tab
+  if (state.activeTab > 0) switchTab(state.activeTab);
+
+  updateProgress();
+});
+</script>
+</body>
+</html>
