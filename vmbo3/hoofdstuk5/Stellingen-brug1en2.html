@@ -1,0 +1,1462 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Waar sta jij? — Grenzen, Identiteit & Nationalisme</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0c0c18;
+    --bg2: #151528;
+    --bg3: #1f1f3a;
+    --bg4: #2a2a4a;
+    --accent: #ff6b35;
+    --accent2: #ff8c42;
+    --accent3: #ffb347;
+    --accent-glow: rgba(255, 107, 53, 0.25);
+    --green: #00d68f;
+    --green-dim: rgba(0, 214, 143, 0.12);
+    --red: #ff5a5a;
+    --red-dim: rgba(255, 90, 90, 0.12);
+    --yellow: #ffc53d;
+    --yellow-dim: rgba(255, 197, 61, 0.12);
+    --blue: #4da6ff;
+    --purple: #a78bfa;
+    --text: #d4d4e8;
+    --text-dim: #7878a0;
+    --text-bright: #f0f0ff;
+    --card: rgba(255,255,255,0.035);
+    --card-border: rgba(255,255,255,0.07);
+    --radius: 18px;
+    --radius-sm: 12px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100dvh;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .noise {
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 0;
+  }
+
+  .glow-orb {
+    position: fixed;
+    width: 500px; height: 500px;
+    border-radius: 50%;
+    background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
+    filter: blur(100px);
+    pointer-events: none; z-index: 0;
+    top: -150px; right: -150px;
+    animation: orbFloat 10s ease-in-out infinite;
+  }
+
+  .glow-orb-2 {
+    position: fixed;
+    width: 350px; height: 350px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(77, 166, 255, 0.1) 0%, transparent 70%);
+    filter: blur(80px);
+    pointer-events: none; z-index: 0;
+    bottom: -100px; left: -100px;
+    animation: orbFloat2 12s ease-in-out infinite;
+  }
+
+  @keyframes orbFloat {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(-50px, 50px) scale(1.1); }
+  }
+  @keyframes orbFloat2 {
+    0%, 100% { transform: translate(0, 0); }
+    50% { transform: translate(40px, -30px); }
+  }
+
+  .container {
+    position: relative; z-index: 1;
+    max-width: 540px;
+    margin: 0 auto;
+    padding: 16px 16px 48px;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* HEADER */
+  .header {
+    text-align: center;
+    padding: 20px 0 4px;
+  }
+
+  .header h1 {
+    font-family: 'Outfit', sans-serif;
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: var(--text-bright);
+    letter-spacing: -1px;
+    line-height: 1.1;
+  }
+
+  .header h1 span {
+    background: linear-gradient(135deg, var(--accent), var(--accent3));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .header .subtitle {
+    color: var(--text-dim);
+    font-size: 0.85rem;
+    margin-top: 6px;
+    letter-spacing: 0.3px;
+  }
+
+  /* PROGRESS */
+  .progress-wrap {
+    margin: 16px 0 20px;
+    display: none;
+  }
+
+  .progress-wrap.visible { display: block; }
+
+  .progress-phases {
+    display: flex; gap: 4px; margin-bottom: 10px;
+  }
+
+  .phase-pill {
+    flex: 1;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    background: var(--bg3);
+    color: var(--text-dim);
+    border: 1px solid transparent;
+    transition: all 0.3s ease;
+  }
+
+  .phase-pill.active {
+    background: rgba(255, 107, 53, 0.12);
+    color: var(--accent);
+    border-color: rgba(255, 107, 53, 0.25);
+  }
+
+  .phase-pill.done {
+    background: rgba(0, 214, 143, 0.1);
+    color: var(--green);
+    border-color: rgba(0, 214, 143, 0.2);
+  }
+
+  .progress-bar {
+    width: 100%;
+    height: 3px;
+    background: var(--bg3);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2), var(--accent3));
+    border-radius: 3px;
+    transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* SCREENS */
+  .screen { display: none; flex: 1; flex-direction: column; }
+  .screen.active { display: flex; animation: screenIn 0.4s ease-out; }
+
+  @keyframes screenIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* INTRO */
+  .intro-hero {
+    text-align: center;
+    margin-top: 20px;
+  }
+
+  .intro-hero .big-emoji {
+    font-size: 4rem;
+    display: block;
+    margin-bottom: 16px;
+    animation: float 3s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+
+  .intro-hero h2 {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.4rem;
+    color: var(--text-bright);
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+
+  .intro-hero p {
+    color: var(--text-dim);
+    font-size: 0.92rem;
+    line-height: 1.6;
+    max-width: 380px;
+    margin: 0 auto;
+  }
+
+  .intro-roadmap {
+    display: flex; gap: 8px;
+    margin: 28px 0;
+  }
+
+  .roadmap-item {
+    flex: 1;
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-sm);
+    padding: 16px 8px;
+    text-align: center;
+    transition: transform 0.2s;
+  }
+
+  .roadmap-item:hover { transform: translateY(-2px); }
+
+  .roadmap-item .ri-num {
+    display: inline-flex;
+    width: 26px; height: 26px;
+    align-items: center; justify-content: center;
+    border-radius: 50%;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 700;
+    font-size: 0.75rem;
+    margin-bottom: 8px;
+  }
+
+  .roadmap-item:nth-child(1) .ri-num { background: var(--accent); color: #fff; }
+  .roadmap-item:nth-child(2) .ri-num { background: var(--blue); color: #fff; }
+  .roadmap-item:nth-child(3) .ri-num { background: var(--green); color: #fff; }
+
+  .roadmap-item .ri-label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--text);
+    display: block;
+  }
+
+  .roadmap-item .ri-sub {
+    font-size: 0.65rem;
+    color: var(--text-dim);
+    margin-top: 2px;
+  }
+
+  .intro-note {
+    background: var(--bg3);
+    border-radius: var(--radius-sm);
+    padding: 14px 18px;
+    font-size: 0.82rem;
+    color: var(--text-dim);
+    line-height: 1.5;
+    text-align: center;
+    margin-bottom: 4px;
+  }
+
+  .intro-note strong { color: var(--text); }
+
+  /* BUTTONS */
+  .btn {
+    display: inline-flex;
+    align-items: center; justify-content: center;
+    padding: 15px 36px;
+    border: none;
+    border-radius: 50px;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    gap: 8px;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: #fff;
+    box-shadow: 0 4px 24px var(--accent-glow);
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 8px 36px var(--accent-glow);
+  }
+
+  .btn-primary:active { transform: translateY(0) scale(0.98); }
+  .btn-center { align-self: center; margin-top: 24px; }
+
+  /* STATEMENT */
+  .stmt-counter {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 10px;
+  }
+
+  .stmt-card {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius);
+    padding: 36px 24px;
+    text-align: center;
+    min-height: 150px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .stmt-card blockquote {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--text-bright);
+    line-height: 1.55;
+    font-style: normal;
+  }
+
+  .stmt-card blockquote::before { content: '\201C '; color: var(--accent); font-weight: 800; }
+  .stmt-card blockquote::after { content: ' \201D'; color: var(--accent); font-weight: 800; }
+
+  .vote-row {
+    display: flex; gap: 10px;
+    margin-top: 18px;
+  }
+
+  .vote-btn {
+    flex: 1;
+    padding: 16px 8px;
+    border: 2px solid var(--card-border);
+    border-radius: var(--radius-sm);
+    background: var(--bg2);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .vote-btn .ve { font-size: 1.3rem; }
+  .vote-btn:hover { border-color: var(--text-dim); background: var(--bg3); }
+  .vote-btn.sel-eens { border-color: var(--green); background: var(--green-dim); color: var(--green); }
+  .vote-btn.sel-twijfel { border-color: var(--yellow); background: var(--yellow-dim); color: var(--yellow); }
+  .vote-btn.sel-oneens { border-color: var(--red); background: var(--red-dim); color: var(--red); }
+
+  /* DILEMMA */
+  .dil-counter {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 10px;
+  }
+
+  .dil-box {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius);
+    padding: 22px 20px;
+    margin-bottom: 14px;
+  }
+
+  .dil-box .tag {
+    display: inline-block;
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--accent);
+    background: rgba(255,107,53,0.1);
+    padding: 3px 10px;
+    border-radius: 6px;
+    margin-bottom: 10px;
+  }
+
+  .dil-box p {
+    font-size: 0.95rem;
+    line-height: 1.65;
+    color: var(--text-bright);
+  }
+
+  .dil-choose-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-dim);
+    margin-bottom: 8px;
+  }
+
+  .dil-options { display: flex; flex-direction: column; gap: 10px; }
+
+  .dil-opt {
+    padding: 18px 20px;
+    border: 2px solid var(--card-border);
+    border-radius: 14px;
+    background: var(--bg2);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    line-height: 1.55;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: left;
+    -webkit-tap-highlight-color: transparent;
+    position: relative;
+    padding-left: 44px;
+  }
+
+  .dil-opt::before {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-family: 'Outfit', sans-serif;
+    font-weight: 700;
+    font-size: 0.8rem;
+    width: 22px; height: 22px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 6px;
+    background: var(--bg4);
+    color: var(--text-dim);
+  }
+
+  .dil-opt:first-child::before { content: 'A'; }
+  .dil-opt:last-child::before { content: 'B'; }
+
+  .dil-opt:hover { border-color: var(--accent); background: var(--bg3); }
+  .dil-opt:hover::before { background: var(--accent); color: #fff; }
+  .dil-opt.selected { border-color: var(--accent); background: rgba(255,107,53,0.08); color: var(--accent2); }
+  .dil-opt.selected::before { background: var(--accent); color: #fff; }
+
+  /* TRANSITION */
+  .screen-transition {
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .screen-transition .trans-emoji { font-size: 3rem; }
+
+  .screen-transition h2 {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.3rem;
+    color: var(--text-bright);
+    font-weight: 700;
+  }
+
+  .screen-transition p {
+    color: var(--text-dim);
+    font-size: 0.9rem;
+    max-width: 340px;
+    line-height: 1.5;
+  }
+
+  /* RESULT */
+  .result-header {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+
+  .result-header .rh-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--text-dim);
+    margin-bottom: 6px;
+  }
+
+  .result-header h2 {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: var(--text-bright);
+  }
+
+  .profile-card {
+    background: linear-gradient(135deg, rgba(255,107,53,0.06), rgba(77,166,255,0.04));
+    border: 1px solid rgba(255,107,53,0.15);
+    border-radius: var(--radius);
+    padding: 28px 22px;
+    text-align: center;
+    margin-bottom: 16px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .profile-card::before {
+    content: '';
+    position: absolute;
+    top: -40px; right: -40px;
+    width: 120px; height: 120px;
+    background: radial-gradient(circle, var(--accent-glow), transparent 70%);
+    filter: blur(30px);
+  }
+
+  .profile-card .pf-emoji { font-size: 3.2rem; margin-bottom: 10px; position: relative; }
+
+  .profile-card h3 {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 4px;
+    position: relative;
+  }
+
+  .profile-card .pf-subtitle {
+    font-size: 0.78rem;
+    color: var(--text-dim);
+    font-weight: 500;
+    margin-bottom: 12px;
+    position: relative;
+  }
+
+  .profile-card .pf-desc {
+    font-size: 0.9rem;
+    color: var(--text);
+    line-height: 1.65;
+    position: relative;
+  }
+
+  .traits-row {
+    display: flex; gap: 8px;
+    margin: 14px 0 0;
+    flex-wrap: wrap;
+    justify-content: center;
+    position: relative;
+  }
+
+  .trait-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+
+  .trait-chip.warm { background: rgba(255,107,53,0.12); color: var(--accent2); }
+  .trait-chip.cool { background: rgba(77,166,255,0.12); color: var(--blue); }
+  .trait-chip.neutral { background: rgba(255,197,61,0.12); color: var(--yellow); }
+
+  /* RADAR */
+  .radar-card {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius);
+    padding: 24px 16px;
+    display: flex;
+    justify-content: center;
+    margin-bottom: 16px;
+  }
+
+  .radar-card svg { max-width: 320px; width: 100%; }
+
+  /* AXIS BARS */
+  .axes-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .axis-card {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-sm);
+    padding: 14px 16px;
+  }
+
+  .axis-card .ac-name {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--text-dim);
+    margin-bottom: 10px;
+  }
+
+  .axis-card .ac-track {
+    height: 6px;
+    background: var(--bg3);
+    border-radius: 6px;
+    position: relative;
+    overflow: visible;
+    margin-bottom: 6px;
+  }
+
+  .axis-card .ac-fill {
+    height: 100%;
+    border-radius: 6px;
+    transition: width 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+  }
+
+  .axis-card .ac-dot {
+    position: absolute;
+    right: -5px; top: -4px;
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    border: 2.5px solid var(--bg);
+    transition: right 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .axis-card .ac-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.65rem;
+    color: var(--text-dim);
+  }
+
+  /* CHALLENGE SECTION */
+  .challenge-section {
+    margin-bottom: 16px;
+  }
+
+  .challenge-header {
+    text-align: center;
+    margin-bottom: 14px;
+  }
+
+  .challenge-header .ch-tag {
+    display: inline-block;
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--red);
+    background: var(--red-dim);
+    padding: 4px 12px;
+    border-radius: 6px;
+    margin-bottom: 8px;
+  }
+
+  .challenge-header h4 {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.05rem;
+    color: var(--text-bright);
+    font-weight: 700;
+  }
+
+  .challenge-header p {
+    font-size: 0.8rem;
+    color: var(--text-dim);
+    margin-top: 4px;
+  }
+
+  .challenge-card {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 10px;
+    transition: border-color 0.3s;
+  }
+
+  .challenge-card .ch-num {
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+  }
+
+  .challenge-card .ch-text {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-bright);
+    line-height: 1.5;
+    margin-bottom: 14px;
+  }
+
+  .challenge-card .ch-text::before { content: '\201C'; color: var(--red); font-weight: 800; }
+  .challenge-card .ch-text::after { content: '\201D'; color: var(--red); font-weight: 800; }
+
+  .ch-btns {
+    display: flex; gap: 8px;
+  }
+
+  .ch-btn {
+    flex: 1;
+    padding: 10px 8px;
+    border: 2px solid var(--card-border);
+    border-radius: 10px;
+    background: var(--bg2);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 600;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .ch-btn:hover { border-color: var(--text-dim); background: var(--bg3); }
+  .ch-btn.ch-eens { border-color: var(--green); background: var(--green-dim); color: var(--green); pointer-events: none; }
+  .ch-btn.ch-twijfel { border-color: var(--yellow); background: var(--yellow-dim); color: var(--yellow); pointer-events: none; }
+  .ch-btn.ch-oneens { border-color: var(--red); background: var(--red-dim); color: var(--red); pointer-events: none; }
+  .ch-btn.ch-faded { opacity: 0.35; pointer-events: none; }
+
+  .challenge-card.answered { border-color: rgba(255,255,255,0.1); }
+
+  .ch-reflection {
+    margin-top: 12px;
+    padding: 12px 14px;
+    background: var(--bg3);
+    border-radius: 10px;
+    font-size: 0.82rem;
+    color: var(--text-dim);
+    line-height: 1.5;
+    display: none;
+  }
+
+  .ch-reflection.visible { display: block; animation: screenIn 0.3s ease-out; }
+
+  .challenge-summary {
+    background: linear-gradient(135deg, rgba(255,90,90,0.06), rgba(255,197,61,0.06));
+    border: 1px solid rgba(255,90,90,0.12);
+    border-radius: var(--radius);
+    padding: 20px;
+    text-align: center;
+    margin-top: 6px;
+    margin-bottom: 4px;
+    display: none;
+  }
+
+  .challenge-summary.visible { display: block; animation: screenIn 0.4s ease-out; }
+
+  .challenge-summary .cs-emoji { font-size: 2rem; margin-bottom: 8px; }
+
+  .challenge-summary h4 {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1rem;
+    color: var(--text-bright);
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+
+  .challenge-summary p {
+    font-size: 0.85rem;
+    color: var(--text-dim);
+    line-height: 1.5;
+  }
+
+  .disclaimer {
+    text-align: center;
+    font-size: 0.72rem;
+    color: var(--text-dim);
+    margin-top: 8px;
+    padding: 0 16px;
+    line-height: 1.5;
+  }
+
+  .btn-row {
+    display: flex; gap: 10px;
+    justify-content: center;
+    margin-top: 20px;
+    margin-bottom: 16px;
+  }
+
+  @media (max-width: 420px) {
+    .header h1 { font-size: 1.8rem; }
+    .intro-roadmap { flex-direction: column; }
+    .axes-grid { grid-template-columns: 1fr; }
+    .stmt-card blockquote { font-size: 1.05rem; }
+    .profile-card h3 { font-size: 1.2rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="noise"></div>
+<div class="glow-orb"></div>
+<div class="glow-orb-2"></div>
+
+<div class="container">
+  <div class="header">
+    <h1>Waar sta <span>jij</span>?</h1>
+    <p class="subtitle">Grenzen · Identiteit · Nationalisme</p>
+  </div>
+
+  <div class="progress-wrap" id="progress-wrap">
+    <div class="progress-phases">
+      <div class="phase-pill" id="phase-stmt">Stellingen</div>
+      <div class="phase-pill" id="phase-dil">Dilemma's</div>
+      <div class="phase-pill" id="phase-res">Profiel</div>
+    </div>
+    <div class="progress-bar">
+      <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+    </div>
+  </div>
+
+  <!-- INTRO -->
+  <div class="screen active" id="screen-intro">
+    <div class="intro-hero">
+      <span class="big-emoji">🧭</span>
+      <h2>Hoe denk jij over grenzen en identiteit?</h2>
+      <p>Geen goed of fout. Geen cijfer. Gewoon ontdekken waar je staat — en waarom.</p>
+    </div>
+    <div class="intro-roadmap">
+      <div class="roadmap-item">
+        <div class="ri-num">1</div>
+        <span class="ri-label">12 stellingen</span>
+        <span class="ri-sub">Eens, twijfel of oneens</span>
+      </div>
+      <div class="roadmap-item">
+        <div class="ri-num">2</div>
+        <span class="ri-label">6 dilemma's</span>
+        <span class="ri-sub">Lastige keuzes</span>
+      </div>
+      <div class="roadmap-item">
+        <div class="ri-num">3</div>
+        <span class="ri-label">Jouw profiel</span>
+        <span class="ri-sub">Wie ben jij?</span>
+      </div>
+    </div>
+    <div class="intro-note">
+      <strong>Let op:</strong> dit is geen test en er staat geen cijfer op. Het gaat erom dat je eerlijk bent — pas dan leer je er iets van.
+    </div>
+    <button class="btn btn-primary btn-center" onclick="startGame()">
+      Start →
+    </button>
+  </div>
+
+  <!-- STELLINGEN -->
+  <div class="screen" id="screen-stmt">
+    <div class="stmt-counter" id="stmt-counter"></div>
+    <div class="stmt-card">
+      <blockquote id="stmt-text"></blockquote>
+    </div>
+    <div class="vote-row">
+      <button class="vote-btn" onclick="voteStmt(1)" id="btn-eens">
+        <span class="ve">👍</span> Eens
+      </button>
+      <button class="vote-btn" onclick="voteStmt(0)" id="btn-twijfel">
+        <span class="ve">🤷</span> Twijfel
+      </button>
+      <button class="vote-btn" onclick="voteStmt(-1)" id="btn-oneens">
+        <span class="ve">👎</span> Oneens
+      </button>
+    </div>
+  </div>
+
+  <!-- TRANSITION -->
+  <div class="screen screen-transition" id="screen-trans">
+    <span class="trans-emoji">🔥</span>
+    <h2>Stellingen done. Nu wordt het lastig.</h2>
+    <p>Je krijgt 6 situaties zonder makkelijk antwoord. Kies wat het dichtst bij jou ligt.</p>
+    <button class="btn btn-primary" onclick="startDilemmas()">
+      Bring it on →
+    </button>
+  </div>
+
+  <!-- DILEMMAS -->
+  <div class="screen" id="screen-dil">
+    <div class="dil-counter" id="dil-counter"></div>
+    <div class="dil-box">
+      <span class="tag">Situatie</span>
+      <p id="dil-sit"></p>
+    </div>
+    <div class="dil-choose-label">Wat kies jij?</div>
+    <div class="dil-options">
+      <button class="dil-opt" id="dil-A" onclick="voteDil('A')"></button>
+      <button class="dil-opt" id="dil-B" onclick="voteDil('B')"></button>
+    </div>
+  </div>
+
+  <!-- RESULT -->
+  <div class="screen" id="screen-result">
+    <div class="result-header">
+      <div class="rh-label">Jouw resultaat</div>
+      <h2>Dit ben jij</h2>
+    </div>
+
+    <div class="profile-card">
+      <div class="pf-emoji" id="res-emoji"></div>
+      <h3 id="res-name"></h3>
+      <div class="pf-subtitle" id="res-subtitle"></div>
+      <p class="pf-desc" id="res-desc"></p>
+      <div class="traits-row" id="res-traits"></div>
+    </div>
+
+    <div class="radar-card">
+      <svg id="radar-svg" viewBox="0 0 300 300"></svg>
+    </div>
+
+    <div class="axes-grid" id="axes-grid"></div>
+
+    <div class="challenge-section" id="challenge-section"></div>
+
+    <div class="challenge-summary" id="challenge-summary">
+      <div class="cs-emoji" id="cs-emoji"></div>
+      <h4 id="cs-title"></h4>
+      <p id="cs-text"></p>
+    </div>
+
+    <p class="disclaimer">Dit is geen wetenschappelijke test. Het is een startpunt voor een goed gesprek over waar jij staat — en waarom.</p>
+
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="resetGame()">🔄 Opnieuw</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== DATA =====
+const STMTS = [
+  { text:"Je bent pas écht Nederlands als je hier geboren bent.", axis:"identiteit", dir:1 },
+  { text:"Grenzen zijn eigenlijk onzin — de aarde is van iedereen.", axis:"grenzen", dir:-1 },
+  { text:"Als je in Nederland woont, moet je je aanpassen aan de Nederlandse cultuur.", axis:"cultuur", dir:1 },
+  { text:"Het maakt niet uit waar je vandaan komt, als je je maar thuis voelt.", axis:"identiteit", dir:-1 },
+  { text:"Nederland moet eerst voor eigen inwoners zorgen, daarna pas voor anderen.", axis:"nationaal", dir:1 },
+  { text:"Mensen met twee paspoorten zijn niet echt loyaal aan één land.", axis:"identiteit", dir:1 },
+  { text:"Zonder grenzen zou er méér oorlog zijn, niet minder.", axis:"grenzen", dir:1 },
+  { text:"Je cultuur bepaalt niet wie je bent — dat bepaal je zelf.", axis:"cultuur", dir:-1 },
+  { text:"Nederland heeft zijn welvaart te danken aan immigratie.", axis:"nationaal", dir:-1 },
+  { text:"Er is niks mis mee om trots te zijn op je land.", axis:"nationaal", dir:1 },
+  { text:"Als iedereen z'n eigen taal spreekt, valt de samenleving uit elkaar.", axis:"cultuur", dir:1 },
+  { text:"Vluchtelingen opvangen is een plicht, geen gunst.", axis:"grenzen", dir:-1 },
+];
+
+const DILS = [
+  {
+    sit:"Een gezin vlucht uit een oorlogsgebied en komt aan bij de Nederlandse grens. Het AZC in de buurt zit al vol.",
+    a:"Ze moeten worden toegelaten, ook al is het vol. Veiligheid gaat voor.",
+    b:"Er is een grens aan wat je aankunt. Doorsturen naar een ander land.",
+    ea:{ grenzen:-1, nationaal:-1 }, eb:{ grenzen:1, nationaal:1 },
+  },
+  {
+    sit:"Op jouw school wil een groep leerlingen alleen nog maar in hun eigen taal praten op het schoolplein — niet in het Nederlands.",
+    a:"Prima toch? Iedereen mag zijn eigen taal spreken waar die wil.",
+    b:"Op school spreek je Nederlands. Anders wordt het een rommeltje.",
+    ea:{ cultuur:-1, identiteit:-1 }, eb:{ cultuur:1, identiteit:1 },
+  },
+  {
+    sit:"De overheid wil Koningsdag afschaffen omdat het 'niet inclusief genoeg' zou zijn voor mensen met een andere achtergrond.",
+    a:"Goed idee. Tradities moeten meegaan met de tijd.",
+    b:"Blijf af van onze tradities. Dat hoort bij Nederland.",
+    ea:{ cultuur:-1, nationaal:-1 }, eb:{ cultuur:1, nationaal:1 },
+  },
+  {
+    sit:"Jouw beste vriend heeft ouders uit een ander land. Die zeggen: 'Jij bent geen Nederlander, vergeet dat nooit.' Maar je vriend voelt zich wél Nederlands.",
+    a:"Je bent wat je voelt. Als je je Nederlands voelt, ben je het.",
+    b:"Je roots bepalen wie je bent, ook al voel je je anders.",
+    ea:{ identiteit:-1, cultuur:-1 }, eb:{ identiteit:1, cultuur:1 },
+  },
+  {
+    sit:"Een populaire influencer zegt: 'Nationalisme is altijd gevaarlijk en leidt tot haat.' Veel mensen zijn het daarmee eens.",
+    a:"Klopt. Nationalisme heeft in de geschiedenis veel ellende veroorzaakt.",
+    b:"Onzin. Trots zijn op je land is iets heel anders dan haat.",
+    ea:{ nationaal:-1, grenzen:-1 }, eb:{ nationaal:1, grenzen:1 },
+  },
+  {
+    sit:"De EU wil dat alle landen evenveel vluchtelingen opnemen. Nederland zou er 20.000 extra bij krijgen.",
+    a:"Eerlijk is eerlijk. Als je samenwerkt in de EU, deel je ook de lasten.",
+    b:"Elk land moet zelf beslissen. Nederland gaat niet over de grens van wat het aankan.",
+    ea:{ grenzen:-1, nationaal:-1 }, eb:{ grenzen:1, nationaal:1 },
+  },
+];
+
+const AXES = [
+  { key:"grenzen",    label:"Grenzen",         low:"Open grenzen",    high:"Strikte grenzen", color:"#ff6b35" },
+  { key:"identiteit", label:"Identiteit",      low:"Zelf bepaald",    high:"Afkomst bepaalt", color:"#4da6ff" },
+  { key:"cultuur",    label:"Cultuur",          low:"Ieder z'n eigen", high:"Aanpassen is must",color:"#a78bfa" },
+  { key:"nationaal",  label:"Nationaal belang", low:"Wereld eerst",    high:"Nederland eerst", color:"#00d68f" },
+];
+
+const MAX_RAW = 5;
+
+// ===== PROFILES =====
+const PROFILES = [
+  {
+    name: "De Wereldburger",
+    emoji: "🌍",
+    subtitle: "Grenzeloos denken, globaal voelen",
+    desc: "Jij ziet de wereld als één geheel. Grenzen zijn voor jou kunstmatig en identiteit is iets dat je zelf kiest, niet iets dat bepaald wordt door waar je geboren bent. Je gelooft in samenwerking en openheid.",
+    traits: [
+      { label:"Internationaal", type:"cool" },
+      { label:"Open", type:"cool" },
+      { label:"Idealistisch", type:"neutral" },
+    ],
+    challenges: [
+      { text:"Als Nederland z'n grenzen openzet, maar andere landen niet — ben jij dan de sukkel?", eens:"Interessant. Je ziet dus dat openheid alleen werkt als het wederkerig is.", twijfel:"Je twijfelt. Misschien is puur idealisme niet genoeg zonder afspraken.", oneens:"Je houdt vast aan je principe. Maar hoe ga je om met de praktische gevolgen?" },
+      { text:"Een vluchteling die hier 20 jaar woont maar geen Nederlands spreekt — hoort die erbij?", eens:"Je vindt taal dus wél een voorwaarde. Dat past minder bij 'iedereen is welkom'.", twijfel:"Je twijfelt. Misschien is belonging ingewikkelder dan je dacht.", oneens:"Je bent consistent. Maar hoe bouw je een samenleving zonder gedeelde taal?" },
+      { text:"Stel dat open grenzen leiden tot lagere lonen voor de armste Nederlanders — is dat dan acceptabel?", eens:"Opmerkelijk. Je accepteert dat jouw ideaal een prijs heeft voor kwetsbaren.", twijfel:"Lastig hè? Idealisme botst soms met de belangen van echte mensen.", oneens:"Je zegt nee. Maar hoe rijm je dat met 'de aarde is van iedereen'?" },
+    ],
+    check: n => n.grenzen <= 4 && n.nationaal <= 4 && n.identiteit <= 4,
+  },
+  {
+    name: "De Beschermer",
+    emoji: "🛡️",
+    subtitle: "Eigen land, eigen koers",
+    desc: "Jij vindt het belangrijk dat Nederland z'n eigen karakter behoudt. Tradities, taal en cultuur — daar moet je zuinig op zijn. Je vindt dat grenzen er zijn om te beschermen wat je hebt opgebouwd.",
+    traits: [
+      { label:"Traditioneel", type:"warm" },
+      { label:"Principieel", type:"warm" },
+      { label:"Beschermend", type:"neutral" },
+    ],
+    challenges: [
+      { text:"De Nederlandse cultuur bestaat voor een groot deel uit dingen die ooit van buitenaf kwamen — koffie, specerijen, zelfs Sinterklaas. Is 'eigen cultuur' niet altijd een mix?", eens:"Interessant. Als cultuur altijd verandert, wat bescherm je dan precies?", twijfel:"Je voelt dat er iets klopt, maar wil niet alles loslaten. Dat is eerlijk.", oneens:"Je houdt vast. Maar hoe bepaal je wat 'echt' Nederlands is en wat niet?" },
+      { text:"Stel dat jij in Syrië geboren was en je gezin in gevaar was — zou je dan niet alles doen om naar een veilig land te komen?", eens:"Je herkent jezelf in die situatie. Verschuift dat je kijk op grenzen?", twijfel:"Het raakt je, maar je weet niet of dat je standpunt verandert.", oneens:"Je scheidt gevoel van beleid. Maar is empathie niet de basis van elke keuze?" },
+      { text:"Nederland is een van de rijkste landen ter wereld geworden dóór handel en immigratie. Buitensluiten is dus eigenlijk on-Nederlands.", eens:"Wow, dat is een draai. Misschien is openheid juist de Nederlandse traditie.", twijfel:"Je ziet het punt, maar je voelt dat het toch anders is nu.", oneens:"Je bent standvastig. Maar klopt het historisch dat Nederland altijd naar binnen keek?" },
+    ],
+    check: n => n.grenzen >= 6 && n.nationaal >= 6 && n.cultuur >= 6,
+  },
+  {
+    name: "De Bruggenbouwer",
+    emoji: "🌉",
+    subtitle: "Verbinden vanuit begrip",
+    desc: "Jij zit bewust in het midden. Je snapt waarom grenzen bestaan, maar vindt ook dat ze niet mogen opsluiten. Je zoekt naar verbinding en probeert beide kanten te begrijpen.",
+    traits: [
+      { label:"Diplomatiek", type:"cool" },
+      { label:"Empathisch", type:"neutral" },
+      { label:"Genuanceerd", type:"cool" },
+    ],
+    challenges: [
+      { text:"'Het midden' kiezen is soms gewoon geen keuze durven maken. Ben jij misschien bang om een kant te kiezen?", eens:"Eerlijk. Soms is het midden inderdaad een comfortabele schuilplaats.", twijfel:"Je voelt dat er iets in zit, maar wil het niet helemaal toegeven.", oneens:"Je bent overtuigd dat nuance kracht is. Maar soms vraagt de wereld om een standpunt." },
+      { text:"Als iemand zegt 'alle buitenlanders eruit' en een ander zegt 'iedereen welkom' — is het midden dan '50% eruit'? Soms is er geen midden.", eens:"Je ziet het punt. Niet elk probleem heeft een compromis.", twijfel:"Lastig. Het midden werkt niet altijd, maar het alternatief voelt ook niet goed.", oneens:"Je gelooft dat er altijd ruimte is voor nuance. Maar wat als er échte keuzes gemaakt moeten worden?" },
+      { text:"Tijdens de Tweede Wereldoorlog kon je niet 'een beetje' tegen de bezetter zijn. Soms moet je kiezen.", eens:"Een krachtig punt. In extreme situaties is het midden geen optie.", twijfel:"Je voelt het gewicht van het voorbeeld, maar vergelijkt het niet één-op-één.", oneens:"Je vindt dit een oneerlijke vergelijking. Maar wanneer is kiezen dan wél nodig?" },
+    ],
+    check: n => Math.abs(n.grenzen - 5) <= 1.5 && Math.abs(n.nationaal - 5) <= 1.5 && Math.abs(n.cultuur - 5) <= 1.5,
+  },
+  {
+    name: "De Cultuurridder",
+    emoji: "⚔️",
+    subtitle: "Tradities verdedigen, identiteit bewaken",
+    desc: "Jij bent niet per se tegen immigratie, maar vindt wel dat de Nederlandse cultuur beschermd moet worden. Taal, tradities en normen — als je hier woont, pas je je aan. Punt.",
+    traits: [
+      { label:"Cultuurvast", type:"warm" },
+      { label:"Duidelijk", type:"warm" },
+      { label:"Realistisch", type:"neutral" },
+    ],
+    challenges: [
+      { text:"De Nederlandse cultuur van 100 jaar geleden zou jij nu ook niet meer herkennen. Vrouwen mochten niet stemmen, homoseksualiteit was strafbaar. Cultuur verandert altijd.", eens:"Interessant. Als cultuur altijd beweegt, waarom dan nu vasthouden?", twijfel:"Je ziet het punt, maar vindt dat sommige dingen wél behouden moeten worden.", oneens:"Je vindt dat er een kern is die niet mag veranderen. Maar wie bepaalt die kern?" },
+      { text:"Turkse Nederlanders die thuis Turks spreken maar op werk Nederlands — passen die zich genoeg aan volgens jou?", eens:"Je bent flexibeler dan je profiel suggereert. Tweetaligheid is ook aanpassing.", twijfel:"Je twijfelt. Misschien is 'aanpassen' genuanceerder dan je dacht.", oneens:"Je vindt dat het niet genoeg is. Maar spreek jij thuis altijd 'standaard Nederlands'?" },
+      { text:"De beste voetballers van Oranje hebben roots in Suriname, Marokko, Turkije. Zonder immigratie geen WK-succes. Tel je ze dan wél mee?", eens:"Je telt ze mee. Maar waarom bij voetbal wel en bij andere dingen niet?", twijfel:"Je voelt dat het ingewikkeld is. Identiteit is niet zwart-wit.", oneens:"Je vindt dat sport er niet toe doet in deze discussie. Maar waarom niet?" },
+    ],
+    check: n => n.cultuur >= 6.5 && n.identiteit >= 6,
+  },
+  {
+    name: "De Idealist",
+    emoji: "✨",
+    subtitle: "Dromen van een betere wereld",
+    desc: "Jij gelooft dat de wereld eerlijker kan. Iedereen verdient dezelfde kansen, ongeacht afkomst. Je vindt nationale belangen vaak een excuus om niet te helpen.",
+    traits: [
+      { label:"Rechtvaardig", type:"cool" },
+      { label:"Progressief", type:"cool" },
+      { label:"Betrokken", type:"neutral" },
+    ],
+    challenges: [
+      { text:"Jij wil iedereen helpen, maar als jouw ouders hun baan verliezen door goedkope arbeidskrachten uit het buitenland — vind je dat dan nog steeds oké?", eens:"Sterk. Je houdt vast aan je ideaal, ook als het dichtbij komt.", twijfel:"Het wordt lastiger als het persoonlijk wordt, hè?", oneens:"Je trekt hier een grens. Misschien is jouw idealisme minder absoluut dan je denkt." },
+      { text:"Landen als Japan en Zwitserland hebben strenge grenzen én zijn veilig en welvarend. Misschien werken grenzen gewoon?", eens:"Dat is opvallend. Je erkent dat grenzen niet per definitie slecht zijn.", twijfel:"Je weet niet zeker of het zo simpel is. Terecht — elk land is anders.", oneens:"Je wijst het af. Maar de cijfers zijn er wel. Hoe verklaar je dat?" },
+      { text:"Als je echt vindt dat iedereen gelijke kansen verdient — geef jij dan de helft van je zakgeld weg aan iemand die minder heeft?", eens:"Respect. Je leeft je ideaal. Maar doe je dat echt?", twijfel:"Eerlijk. Het is makkelijker om idealen te hebben dan ernaar te leven.", oneens:"Je vindt dit een oneerlijke vergelijking. Maar waar begint persoonlijke verantwoordelijkheid?" },
+    ],
+    check: n => n.grenzen <= 4 && n.nationaal <= 3.5,
+  },
+  {
+    name: "De Realist",
+    emoji: "🇳🇱",
+    subtitle: "Nederland op één",
+    desc: "Jij vindt dat Nederland voor Nederlanders moet zorgen. Niet uit haat, maar uit logica: je kunt pas anderen helpen als het thuis goed gaat. Grenzen bewaken is geen schande.",
+    traits: [
+      { label:"Patriottisch", type:"warm" },
+      { label:"Nuchter", type:"neutral" },
+      { label:"Standvastig", type:"warm" },
+    ],
+    challenges: [
+      { text:"Nederland verdient miljarden aan export en internationale handel. 'Nederland eerst' betekent ook afhankelijk zijn van de rest van de wereld.", eens:"Je ziet het punt. 'Nederland eerst' kan niet zonder de wereld.", twijfel:"Je merkt dat het verhaal genuanceerder is dan 'wij tegen zij'.", oneens:"Je vindt dat handel iets anders is dan immigratie. Maar zijn die echt los te koppelen?" },
+      { text:"De meeste terroristische aanslagen in Nederland zijn gepleegd door mensen die hier geboren en getogen zijn. Het 'gevaar' komt niet altijd van buiten.", eens:"Dat geeft te denken. Misschien lost grenzen sluiten minder op dan je denkt.", twijfel:"Je ziet dat het ingewikkelder is. Veiligheid gaat niet alleen over grenzen.", oneens:"Je vindt dat dit het argument niet onderuit haalt. Maar wat is dan de oplossing?" },
+      { text:"Als je oma zorg nodig heeft en de enige beschikbare verpleegkundige is een Filipijnse immigrant — stuur je die dan weg?", eens:"Oef. Je geeft toe dat immigratie soms heel direct nodig is.", twijfel:"Het wordt persoonlijk. Principes zijn makkelijk tot je ze moet toepassen.", oneens:"Je vindt dat Nederland zelf zorgpersoneel moet opleiden. Maar wie doet het nu?" },
+    ],
+    check: n => n.nationaal >= 7,
+  },
+  {
+    name: "De Pragmaticus",
+    emoji: "🧮",
+    subtitle: "Het hangt er maar net van af",
+    desc: "Jij laat je niet vangen door grote woorden. Per situatie bekijk je wat het slimste is. Principes zijn leuk, maar de praktijk is ingewikkelder. Nuance boven alles.",
+    traits: [
+      { label:"Flexibel", type:"neutral" },
+      { label:"Nuchter", type:"neutral" },
+      { label:"Analytisch", type:"cool" },
+    ],
+    challenges: [
+      { text:"'Het hangt ervan af' is makkelijk zeggen. Maar als er een bus vol vluchtelingen voor je deur staat — wat doe je dan? Nu. Direct.", eens:"Je kiest voor actie. Misschien ben je minder neutraal dan je denkt.", twijfel:"Zelfs nu wil je nadenken. Maar soms is er geen tijd voor nuance.", oneens:"Je weigert onder druk te kiezen. Maar is uitstel niet ook een keuze?" },
+      { text:"Mensen die altijd 'genuanceerd' zijn, veranderen nooit iets. Verandering komt van mensen die ergens voor staan.", eens:"Dat raakt. Misschien is nuance soms een luxe die niet iedereen zich kan veroorloven.", twijfel:"Je voelt dat er iets in zit, maar wil je flexibiliteit niet opgeven.", oneens:"Je gelooft dat nuance juist kracht is. Maar noem één keer dat het iets veranderd heeft." },
+      { text:"Als jij in 1940 leefde, was je dan ook 'genuanceerd' geweest over de Duitse bezetting?", eens:"Heftig, maar eerlijk. Sommige situaties vragen om een kant kiezen.", twijfel:"Je vindt de vergelijking niet eerlijk, maar het punt raakt je wel.", oneens:"Je vindt dit een extreme vergelijking. Maar het laat wel zien dat 'het midden' soms niet bestaat." },
+    ],
+    check: n => {
+      const vals = [n.grenzen, n.identiteit, n.cultuur, n.nationaal];
+      const avg = vals.reduce((a,b)=>a+b,0)/4;
+      return vals.every(v => Math.abs(v - avg) <= 2);
+    },
+  },
+  {
+    name: "De Vrijdenker",
+    emoji: "💡",
+    subtitle: "Eigen koers, eigen kompas",
+    desc: "Jij past niet in een hokje — en dat is precies het punt. Je meningen zijn uitgesproken maar niet voorspelbaar. Je denkt zelf na en laat je niet meeslepen door de massa.",
+    traits: [
+      { label:"Onafhankelijk", type:"neutral" },
+      { label:"Eigenwijs", type:"warm" },
+      { label:"Creatief", type:"cool" },
+    ],
+    challenges: [
+      { text:"Jij zegt dat je zelf nadenkt, maar misschien kies je gewoon altijd de tegenovergestelde mening om interessant te doen.", eens:"Eerlijk! Soms is 'anders zijn' ook een soort conformisme.", twijfel:"Je weet niet zeker of dat klopt. Misschien zit er een kern van waarheid in.", oneens:"Je bent overtuigd van je eigen koers. Maar hoe weet je dat het niet reflexmatig is?" },
+      { text:"Zonder een duidelijk standpunt kun je nergens écht voor vechten. Vrijdenken is mooi, maar het verandert niks.", eens:"Dat doet pijn, maar je herkent het. Misschien is het tijd om ergens voor te staan.", twijfel:"Je voelt de spanning tussen vrijheid en impact.", oneens:"Je vindt dat denken op zich al waardevol is. Maar is dat genoeg?" },
+      { text:"Als je in alles 'eigen koers' vaart, waarom ben je het dan toch met sommige stellingen eens geweest? Misschien volg je meer dan je denkt.", eens:"Scherp. Misschien zijn je meningen minder uniek dan je dacht.", twijfel:"Je voelt dat je soms beïnvloed wordt, maar wil het niet helemaal toegeven.", oneens:"Je bent ervan overtuigd dat je eigen keuzes maakt. Maar iedereen denkt dat." },
+    ],
+    check: () => true,
+  },
+];
+
+// ===== STATE =====
+let scores = { grenzen:0, identiteit:0, cultuur:0, nationaal:0 };
+let sIdx = 0, dIdx = 0;
+let busy = false;
+
+const $ = id => document.getElementById(id);
+const total = STMTS.length + DILS.length;
+
+function norm(raw) {
+  return Math.max(0, Math.min(10, ((raw / MAX_RAW) * 5) + 5));
+}
+
+function updateProgress() {
+  const done = sIdx + dIdx;
+  $('progress-fill').style.width = Math.round((done / total) * 100) + '%';
+}
+
+function setPhase(phase) {
+  ['phase-stmt','phase-dil','phase-res'].forEach(id => $(id).className = 'phase-pill');
+  if (phase === 'stmt') { $('phase-stmt').classList.add('active'); }
+  if (phase === 'dil') { $('phase-stmt').classList.add('done'); $('phase-dil').classList.add('active'); }
+  if (phase === 'res') { $('phase-stmt').classList.add('done'); $('phase-dil').classList.add('done'); $('phase-res').classList.add('active'); }
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const el = $(id);
+  void el.offsetWidth;
+  el.classList.add('active');
+}
+
+function startGame() {
+  scores = { grenzen:0, identiteit:0, cultuur:0, nationaal:0 };
+  sIdx = 0; dIdx = 0;
+  $('progress-wrap').classList.add('visible');
+  setPhase('stmt');
+  showStmt();
+  showScreen('screen-stmt');
+  updateProgress();
+}
+
+function showStmt() {
+  const s = STMTS[sIdx];
+  $('stmt-counter').textContent = 'Stelling ' + (sIdx+1) + ' van ' + STMTS.length;
+  $('stmt-text').textContent = s.text;
+  ['btn-eens','btn-twijfel','btn-oneens'].forEach(id => $(id).className = 'vote-btn');
+}
+
+function voteStmt(val) {
+  if (busy) return;
+  busy = true;
+  const s = STMTS[sIdx];
+  scores[s.axis] += val * s.dir;
+
+  var btnId = val === 1 ? 'btn-eens' : val === 0 ? 'btn-twijfel' : 'btn-oneens';
+  var cls = val === 1 ? 'sel-eens' : val === 0 ? 'sel-twijfel' : 'sel-oneens';
+  $(btnId).classList.add(cls);
+
+  setTimeout(function() {
+    sIdx++;
+    updateProgress();
+    if (sIdx < STMTS.length) {
+      showStmt();
+    } else {
+      showScreen('screen-trans');
+    }
+    busy = false;
+  }, 300);
+}
+
+function startDilemmas() {
+  setPhase('dil');
+  showDil();
+  showScreen('screen-dil');
+}
+
+function showDil() {
+  var d = DILS[dIdx];
+  $('dil-counter').textContent = 'Dilemma ' + (dIdx+1) + ' van ' + DILS.length;
+  $('dil-sit').textContent = d.sit;
+  $('dil-A').textContent = d.a;
+  $('dil-B').textContent = d.b;
+  $('dil-A').className = 'dil-opt';
+  $('dil-B').className = 'dil-opt';
+}
+
+function voteDil(choice) {
+  if (busy) return;
+  busy = true;
+  var d = DILS[dIdx];
+  var fx = choice === 'A' ? d.ea : d.eb;
+  for (var k in fx) { scores[k] += fx[k]; }
+  $('dil-' + choice).classList.add('selected');
+
+  setTimeout(function() {
+    dIdx++;
+    updateProgress();
+    if (dIdx < DILS.length) {
+      showDil();
+    } else {
+      setPhase('res');
+      $('progress-fill').style.width = '100%';
+      showResult();
+      showScreen('screen-result');
+    }
+    busy = false;
+  }, 400);
+}
+
+function getProfile() {
+  var n = {
+    grenzen: norm(scores.grenzen),
+    identiteit: norm(scores.identiteit),
+    cultuur: norm(scores.cultuur),
+    nationaal: norm(scores.nationaal),
+  };
+  for (var i = 0; i < PROFILES.length; i++) {
+    if (PROFILES[i].check(n)) return PROFILES[i];
+  }
+  return PROFILES[PROFILES.length - 1];
+}
+
+function showResult() {
+  var p = getProfile();
+  currentProfile = p;
+  $('res-emoji').textContent = p.emoji;
+  $('res-name').textContent = p.name;
+  $('res-subtitle').textContent = p.subtitle;
+  $('res-desc').textContent = p.desc;
+
+  var traitsHtml = '';
+  for (var i = 0; i < p.traits.length; i++) {
+    traitsHtml += '<span class="trait-chip ' + p.traits[i].type + '">' + p.traits[i].label + '</span>';
+  }
+  $('res-traits').innerHTML = traitsHtml;
+
+  // Render challenge cards
+  var chHtml = '<div class="challenge-header">' +
+    '<span class="ch-tag">🔥 Durf jij dit aan?</span>' +
+    '<h4>3 stellingen die jouw profiel uitdagen</h4>' +
+    '<p>Ben je zo zeker van je standpunt? Kijk of je overeind blijft.</p>' +
+    '</div>';
+
+  for (var i = 0; i < p.challenges.length; i++) {
+    var c = p.challenges[i];
+    chHtml += '<div class="challenge-card" id="ch-card-' + i + '">' +
+      '<div class="ch-num">Uitdaging ' + (i+1) + ' van 3</div>' +
+      '<div class="ch-text">' + c.text + '</div>' +
+      '<div class="ch-btns" id="ch-btns-' + i + '">' +
+        '<button class="ch-btn" onclick="answerChallenge(' + i + ',\'eens\')">👍 Eens</button>' +
+        '<button class="ch-btn" onclick="answerChallenge(' + i + ',\'twijfel\')">🤔 Twijfel</button>' +
+        '<button class="ch-btn" onclick="answerChallenge(' + i + ',\'oneens\')">👎 Oneens</button>' +
+      '</div>' +
+      '<div class="ch-reflection" id="ch-ref-' + i + '"></div>' +
+    '</div>';
+  }
+  $('challenge-section').innerHTML = chHtml;
+
+  // Reset challenge tracking
+  challengeAnswers = 0;
+  $('challenge-summary').className = 'challenge-summary';
+
+  drawRadar();
+  drawAxes();
+}
+
+function drawRadar() {
+  var svg = $('radar-svg');
+  var cx=150, cy=150, maxR=105, n=4;
+  var h = '';
+
+  h += '<defs><linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#ff6b35"/><stop offset="100%" stop-color="#4da6ff"/></linearGradient></defs>';
+
+  var levels = [0.25, 0.5, 0.75, 1];
+  for (var li = 0; li < levels.length; li++) {
+    var lvl = levels[li];
+    var pts = '';
+    for (var i = 0; i < n; i++) {
+      var a = (Math.PI*2*i)/n - Math.PI/2;
+      if (i > 0) pts += ' ';
+      pts += (cx+maxR*lvl*Math.cos(a)) + ',' + (cy+maxR*lvl*Math.sin(a));
+    }
+    h += '<polygon points="'+pts+'" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="1"/>';
+  }
+
+  for (var i = 0; i < n; i++) {
+    var a = (Math.PI*2*i)/n - Math.PI/2;
+    h += '<line x1="'+cx+'" y1="'+cy+'" x2="'+(cx+maxR*Math.cos(a))+'" y2="'+(cy+maxR*Math.sin(a))+'" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>';
+    var lx = cx + (maxR+30)*Math.cos(a);
+    var ly = cy + (maxR+30)*Math.sin(a);
+    h += '<text x="'+lx+'" y="'+ly+'" text-anchor="middle" dominant-baseline="middle" fill="'+AXES[i].color+'" font-size="11" font-weight="600" font-family="DM Sans,sans-serif">'+AXES[i].label+'</text>';
+  }
+
+  var dataPts = '';
+  for (var i = 0; i < n; i++) {
+    var nv = norm(scores[AXES[i].key]) / 10;
+    var r = (0.12 + nv * 0.88) * maxR;
+    var a = (Math.PI*2*i)/n - Math.PI/2;
+    if (i > 0) dataPts += ' ';
+    dataPts += (cx+r*Math.cos(a)) + ',' + (cy+r*Math.sin(a));
+  }
+  h += '<polygon points="'+dataPts+'" fill="rgba(255,107,53,0.15)" stroke="url(#grad)" stroke-width="2.5" stroke-linejoin="round"/>';
+
+  for (var i = 0; i < n; i++) {
+    var nv = norm(scores[AXES[i].key]) / 10;
+    var r = (0.12 + nv * 0.88) * maxR;
+    var a = (Math.PI*2*i)/n - Math.PI/2;
+    var x = cx+r*Math.cos(a), y = cy+r*Math.sin(a);
+    h += '<circle cx="'+x+'" cy="'+y+'" r="5.5" fill="'+AXES[i].color+'" stroke="#0c0c18" stroke-width="2.5"/>';
+  }
+
+  svg.innerHTML = h;
+}
+
+function drawAxes() {
+  var html = '';
+  for (var i = 0; i < AXES.length; i++) {
+    var ax = AXES[i];
+    var nv = norm(scores[ax.key]);
+    var pct = nv * 10;
+    html += '<div class="axis-card">' +
+      '<div class="ac-name">' + ax.label + '</div>' +
+      '<div class="ac-track">' +
+        '<div class="ac-fill" style="width:'+pct+'%; background:'+ax.color+';">' +
+          '<div class="ac-dot" style="background:'+ax.color+';"></div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="ac-labels"><span>'+ax.low+'</span><span>'+ax.high+'</span></div>' +
+    '</div>';
+  }
+  $('axes-grid').innerHTML = html;
+}
+
+var challengeAnswers = 0;
+var currentProfile = null;
+
+function answerChallenge(idx, answer) {
+  var p = currentProfile || getProfile();
+  var c = p.challenges[idx];
+
+  // Style the buttons
+  var btns = $('ch-btns-' + idx).children;
+  for (var i = 0; i < btns.length; i++) {
+    var btnAnswer = ['eens','twijfel','oneens'][i];
+    if (btnAnswer === answer) {
+      btns[i].classList.add('ch-' + answer);
+    } else {
+      btns[i].classList.add('ch-faded');
+    }
+  }
+
+  // Show reflection
+  var ref = $('ch-ref-' + idx);
+  ref.textContent = c[answer];
+  ref.classList.add('visible');
+
+  // Mark card as answered
+  $('ch-card-' + idx).classList.add('answered');
+
+  // Track answers
+  challengeAnswers++;
+
+  if (challengeAnswers >= 3) {
+    setTimeout(showChallengeSummary, 600);
+  }
+}
+
+function showChallengeSummary() {
+  // Count how many "eens" answers (agreeing with the challenge = profile got challenged)
+  var cards = document.querySelectorAll('.challenge-card');
+  var eensCount = 0;
+  var twijfelCount = 0;
+  cards.forEach(function(card) {
+    var btns = card.querySelectorAll('.ch-btn');
+    btns.forEach(function(btn) {
+      if (btn.classList.contains('ch-eens')) eensCount++;
+      if (btn.classList.contains('ch-twijfel')) twijfelCount++;
+    });
+  });
+
+  var sum = $('challenge-summary');
+  var emoji, title, text;
+
+  if (eensCount >= 2) {
+    emoji = "🔄";
+    title = "Je bent aan het schuiven!";
+    text = "De uitdagingen raakten je. Misschien is je standpunt minder vaststaand dan je dacht — en dat is prima. Nadenken over je eigen mening is het begin van echt leren.";
+  } else if (twijfelCount >= 2) {
+    emoji = "🤔";
+    title = "Je twijfelt, en dat is sterk.";
+    text = "Je laat je niet makkelijk ompraten, maar je voelt dat het ingewikkelder is. Twijfel is geen zwakte — het is het teken dat je serieus nadenkt.";
+  } else {
+    emoji = "🪨";
+    title = "Rotsvast.";
+    text = "Je laat je niet van je stuk brengen. Je weet waar je staat en de uitdagingen hebben dat niet veranderd. De vraag is: ben je overtuigd of eigenwijs? Dat is een goed gesprek voor in de klas.";
+  }
+
+  $('cs-emoji').textContent = emoji;
+  $('cs-title').textContent = title;
+  $('cs-text').textContent = text;
+  sum.classList.add('visible');
+}
+
+function resetGame() {
+  $('progress-wrap').classList.remove('visible');
+  showScreen('screen-intro');
+}
+</script>
+
+</body>
+</html>
