@@ -1,1 +1,777 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Blauw Goud 🌊 | Interactieve Leeromgeving</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&family=Nunito:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --deep-sea: #005f73;
+            --ocean: #0a9396;
+            --wave: #94d2bd;
+            --algae: #006d77;
+            --bubble: #e9d8a6;
+            --coral: #ee9b00;
+            --foam: #f8fdfe;
+            --text: #001219;
+            --help-bg: #fff3cd;
+            --help-border: #ffc107;
+            --step-bg: #e8f5e9;
+            --step-border: #4caf50;
+        }
 
+        * { box-sizing: border-box; transition: all 0.3s ease; }
+        
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: var(--foam);
+            color: var(--text);
+            margin: 0;
+            overflow-x: hidden;
+            font-size: 17px;
+            line-height: 1.7;
+        }
+
+        header {
+            background: linear-gradient(180deg, var(--deep-sea) 0%, var(--algae) 100%);
+            color: white;
+            padding: 3rem 1rem 5rem;
+            text-align: center;
+            position: relative;
+            clip-path: polygon(0 0, 100% 0, 100% 85%, 0% 100%);
+        }
+
+        header h1 {
+            font-family: 'Fredoka', sans-serif;
+            font-size: 3.5rem;
+            margin: 0;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.3);
+        }
+
+        header p {
+            font-size: 1.2rem;
+            margin-top: 0.5rem;
+            opacity: 0.95;
+        }
+
+        .wave-decoration {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 50px;
+            background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 1440 320" xmlns="http://www.w3.org/2000/svg"><path fill="%23f8fdfe" fill-opacity="1" d="M0,160L48,176C96,192,192,224,288,213.3C384,203,480,149,576,149.3C672,149,768,203,864,218.7C960,235,1056,213,1152,186.7C1248,160,1344,128,1392,112L1440,96L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>');
+            background-size: cover;
+        }
+
+        .nav-container {
+            max-width: 1000px;
+            margin: -35px auto 2rem;
+            display: flex;
+            flex-wrap: wrap;
+            background: white;
+            border-radius: 50px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            padding: 6px;
+            position: relative;
+            z-index: 10;
+            gap: 4px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 15px 10px;
+            border: none;
+            background: none;
+            font-family: 'Fredoka', sans-serif;
+            font-weight: 600;
+            cursor: pointer;
+            color: var(--deep-sea);
+            border-radius: 40px;
+            font-size: 0.95rem;
+            min-width: 100px;
+        }
+
+        .tab-btn.active {
+            background: var(--ocean);
+            color: white;
+            box-shadow: 0 4px 15px rgba(10, 147, 150, 0.4);
+        }
+
+        main { max-width: 1000px; margin: 0 auto; padding: 0 20px 80px; }
+        .tab-content { display: none; animation: swimUp 0.6s ease-out; }
+        .tab-content.active { display: block; }
+
+        @keyframes swimUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 30px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.05);
+            margin-bottom: 2rem;
+            border-bottom: 8px solid var(--wave);
+        }
+
+        .card h2 {
+            font-family: 'Fredoka', sans-serif;
+            color: var(--deep-sea);
+            font-size: 1.8rem;
+        }
+
+        /* Stappen-blokken */
+        .stap-blok {
+            background: var(--step-bg);
+            border-left: 6px solid var(--step-border);
+            border-radius: 15px;
+            padding: 18px 20px;
+            margin: 15px 0;
+        }
+
+        .stap-blok h4 {
+            margin: 0 0 6px;
+            font-family: 'Fredoka', sans-serif;
+            color: #2e7d32;
+            font-size: 1.1rem;
+        }
+
+        .stap-blok p, .stap-blok ul {
+            margin: 4px 0;
+        }
+
+        /* Hulp-blokken */
+        .hulp-box {
+            background: var(--help-bg);
+            border-left: 6px solid var(--help-border);
+            border-radius: 15px;
+            padding: 16px 20px;
+            margin: 15px 0;
+            font-size: 0.95rem;
+        }
+
+        .hulp-box strong {
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        /* Woordenlijst */
+        .woord {
+            display: inline-block;
+            background: #e0f7fa;
+            border: 1px solid var(--ocean);
+            border-radius: 8px;
+            padding: 2px 8px;
+            font-weight: 700;
+            cursor: help;
+            position: relative;
+        }
+
+        .woord .uitleg {
+            display: none;
+            position: absolute;
+            bottom: 110%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--deep-sea);
+            color: white;
+            padding: 10px 14px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 400;
+            width: 220px;
+            text-align: center;
+            z-index: 100;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            line-height: 1.4;
+        }
+
+        .woord .uitleg::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 8px solid transparent;
+            border-top-color: var(--deep-sea);
+        }
+
+        .woord:hover .uitleg,
+        .woord:focus .uitleg {
+            display: block;
+        }
+
+        /* Case Pills */
+        .case-pills { display: flex; flex-wrap: wrap; gap: 12px; margin: 20px 0; }
+        .pill {
+            padding: 12px 24px;
+            background: white;
+            border: 2px solid var(--ocean);
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: bold;
+            color: var(--deep-sea);
+            font-family: 'Fredoka', sans-serif;
+        }
+        .pill:hover, .pill.selected { background: var(--ocean); color: white; transform: scale(1.05); }
+
+        #case-info-box {
+            background: #eef9fa;
+            border-radius: 20px;
+            padding: 25px;
+            margin-top: 15px;
+            border-left: 10px solid var(--coral);
+            display: none;
+            animation: fadeIn 0.4s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* Pillar Accordion */
+        .pillar-accordion {
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .pillar-item {
+            background: #f0f9fa;
+            border-radius: 20px;
+            overflow: hidden;
+            border: 2px solid transparent;
+        }
+
+        .pillar-header {
+            padding: 20px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'Fredoka', sans-serif;
+            font-size: 1.2rem;
+            color: var(--deep-sea);
+        }
+
+        .pillar-header:hover { background: #e0f2f3; }
+
+        .pillar-content {
+            padding: 0 20px;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease-out, padding 0.4s;
+            background: white;
+            font-size: 0.95rem;
+            line-height: 1.7;
+        }
+
+        .pillar-item.open { border-color: var(--ocean); }
+        .pillar-item.open .pillar-content { max-height: 3000px; padding: 20px; border-top: 1px solid #e0f2f3; }
+        .pillar-item.open .pillar-header { background: var(--ocean); color: white; }
+
+        .deliverable-box {
+            background: #fff;
+            border: 2px dashed var(--ocean);
+            padding: 15px;
+            border-radius: 15px;
+            margin: 15px 0;
+        }
+
+        .hint-box {
+            background: var(--bubble);
+            padding: 15px;
+            border-radius: 15px;
+            margin-top: 10px;
+            font-size: 0.9rem;
+            color: var(--text);
+            border-left: 5px solid var(--coral);
+        }
+
+        /* Checklist */
+        .check-item {
+            background: white;
+            padding: 18px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            margin-bottom: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.02);
+        }
+        .check-item input { margin-right: 15px; width: 22px; height: 22px; accent-color: var(--ocean); flex-shrink: 0; }
+        .check-item.done { background: #e6fffa; opacity: 0.7; }
+        .check-item.done span { text-decoration: line-through; }
+
+        .check-uitleg {
+            font-size: 0.85rem;
+            color: #555;
+            display: block;
+            margin-top: 2px;
+        }
+
+        /* Rubric Table */
+        .table-wrapper { overflow-x: auto; border-radius: 20px; box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
+        table { width: 100%; border-collapse: collapse; background: white; }
+        th, td { padding: 18px; text-align: left; border-bottom: 1px solid #f0f0f0; font-size: 0.95rem; }
+        th { background: var(--deep-sea); color: white; font-family: 'Fredoka', sans-serif; }
+        .score-red { background: #fff5f5; color: #c53030; font-weight: bold; }
+        .score-orange { background: #fffaf0; color: #c05621; font-weight: bold; }
+        .score-green { background: #f0fff4; color: #2f855a; font-weight: bold; }
+
+        /* Voorbeeld-zinnen blok */
+        .voorbeeld-box {
+            background: #f3e5f5;
+            border-left: 6px solid #9c27b0;
+            border-radius: 15px;
+            padding: 16px 20px;
+            margin: 12px 0;
+            font-size: 0.95rem;
+        }
+
+        .voorbeeld-box strong {
+            color: #6a1b9a;
+        }
+
+        footer { text-align: center; padding: 3rem; color: var(--algae); font-size: 0.9rem; font-weight: bold; }
+
+        @media (max-width: 600px) {
+            header h1 { font-size: 2.2rem; }
+            .card { padding: 1.5rem; }
+            .nav-container { border-radius: 20px; }
+            .tab-btn { font-size: 0.8rem; padding: 10px 6px; min-width: 60px; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Project Blauw Goud 🌊</h1>
+    <p>Duik in een waterprobleem en bedenk een oplossing!</p>
+    <div class="wave-decoration"></div>
+</header>
+
+<nav class="nav-container">
+    <button class="tab-btn active" onclick="showTab('intro')">🏠 Start</button>
+    <button class="tab-btn" onclick="showTab('cases')">📍 De Cases</button>
+    <button class="tab-btn" onclick="showTab('plan')">🛠️ Stappenplan</button>
+    <button class="tab-btn" onclick="showTab('checklist')">✅ Checklist</button>
+    <button class="tab-btn" onclick="showTab('rubric')">📊 Beoordeling</button>
+</nav>
+
+<main>
+    <!-- ==================== START ==================== -->
+    <section id="intro" class="tab-content active">
+        <div class="card">
+            <h2>Welkom! 🚢 Hier begint je missie</h2>
+            <p>Water is superbelangrijk, maar op veel plekken op de wereld is het water vies of bijna op. In dit project ga jij met <strong>2 klasgenoten</strong> uitzoeken hoe dat komt en wat eraan gedaan kan worden.</p>
+            
+            <div class="stap-blok">
+                <h4>📌 Wat ga je doen?</h4>
+                <p>Jullie kiezen samen een <strong>waterprobleem</strong> ergens op de wereld. Dat zoeken jullie uit en daarna geven jullie er een <strong>presentatie</strong> over aan de klas. Die presentatie duurt <strong>8 tot 10 minuten</strong>.</p>
+            </div>
+
+            <div class="stap-blok">
+                <h4>👥 Hoe werk je samen?</h4>
+                <p>Elk groepslid pakt een eigen stuk van het onderzoek (we noemen dat een "pijler"). Zo heeft iedereen een eigen taak, maar samen maak je er één geheel van.</p>
+            </div>
+
+            <div class="hulp-box">
+                <strong>💡 Slim zoeken op internet</strong>
+                Vind je niet genoeg? Probeer dan andere woorden! Zoek je op 'rivier'? Probeer ook eens 'stroomgebied', 'delta' of 'waterweg'. Je krijgt dan andere resultaten. Zoek ook in het <strong>Engels</strong> – daar vind je vaak nog meer.
+            </div>
+
+            <div class="hulp-box">
+                <strong>⏱️ Hoeveel tijd heb je?</strong>
+                Je docent vertelt hoeveel lessen je krijgt. Verdeel je tijd slim: eerst onderzoek doen, dan slides maken, dan oefenen. Houd de laatste les vrij om te oefenen!
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== CASES ==================== -->
+    <section id="cases" class="tab-content">
+        <div class="card">
+            <h2>Kies jullie onderwerp 🧭</h2>
+            <p>Hieronder staan 8 waterproblemen. Klik erop om te lezen waar het over gaat. Kies daarna <strong>samen met je groepje</strong> welk probleem jullie willen onderzoeken.</p>
+            
+            <div class="case-pills">
+                <button class="pill" onclick="showCase('citarum')">Citarum (Kleding)</button>
+                <button class="pill" onclick="showCase('aralmeer')">Aralmeer (Katoen)</button>
+                <button class="pill" onclick="showCase('plastic')">Plastic Soep (Afval)</button>
+                <button class="pill" onclick="showCase('niger')">Nigerdelta (Olie)</button>
+                <button class="pill" onclick="showCase('ganges')">Ganges (Fabrieken)</button>
+                <button class="pill" onclick="showCase('amazone')">Amazone (Goud)</button>
+                <button class="pill" onclick="showCase('dodezee')">Dode Zee (Grondstoffen)</button>
+                <button class="pill" onclick="showCase('nl')">Nederland (Mest)</button>
+            </div>
+
+            <div id="case-info-box">
+                <h3 id="case-title">Naam van de casus</h3>
+                <div id="case-description" style="line-height: 1.7;">Klik op een knop hierboven om meer te lezen...</div>
+            </div>
+
+            <div class="hulp-box" style="margin-top: 20px;">
+                <strong>🤔 Welke moet ik kiezen?</strong>
+                Kies een onderwerp dat je <strong>interessant</strong> vindt. Het maakt niet uit welke je kiest – ze zijn allemaal even moeilijk. Praat er even over in je groepje: waar worden jullie nieuwsgierig van?
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== STAPPENPLAN ==================== -->
+    <section id="plan" class="tab-content">
+        <div class="card">
+            <h2>Zo pak je het aan 🏗️</h2>
+            <p>Het onderzoek is verdeeld in <strong>4 delen</strong> (we noemen ze "pijlers"). Verdeel ze over je groep. Klik op een pijler om te zien wat je moet doen.</p>
+            
+            <div class="stap-blok">
+                <h4>🔑 Belangrijk: zo verdeel je de taken</h4>
+                <p>Jullie zijn met z'n drieën en er zijn 4 pijlers. Eén persoon doet dus 2 pijlers, de andere twee doen er elk 1. Spreek dit <strong>als eerste</strong> af!</p>
+            </div>
+
+            <div class="pillar-accordion">
+                <!-- PIJLER A -->
+                <div class="pillar-item" id="p1">
+                    <div class="pillar-header" onclick="togglePillar('p1')">
+                        <span>🌍 Pijler A: Waar speelt het probleem?</span>
+                        <span>▼</span>
+                    </div>
+                    <div class="pillar-content">
+                        <p><strong>Kort gezegd:</strong> Jij laat zien <em>waar</em> het waterprobleem is en <em>hoe erg</em> het is, met behulp van kaarten en cijfers.</p>
+                        
+                        <div class="deliverable-box">
+                            <strong>🎯 Dit moet op je slide komen:</strong>
+                            <ul>
+                                <li>Een <strong>kaart</strong> waarop je ziet waar het probleem is (zoom in: van de wereld naar het land naar het gebied).</li>
+                                <li>Een <strong>grafiek of diagram</strong> met cijfers over het water (bijv. hoeveel water er gebruikt wordt of hoeveel er vervuild is).</li>
+                            </ul>
+                        </div>
+
+                        <div class="stap-blok">
+                            <h4>📝 Zo doe je het – stap voor stap</h4>
+                            <p><strong>Stap 1:</strong> Zoek op Google Maps of Google Earth waar jouw gebied ligt. Maak een screenshot.</p>
+                            <p><strong>Stap 2:</strong> Zoek op internet naar cijfers over het water in dat gebied. Hoeveel water is er? Hoeveel is vervuild?</p>
+                            <p><strong>Stap 3:</strong> Maak een simpele grafiek van die cijfers (kan in Excel, Google Sheets, of gewoon tekenen).</p>
+                            <p><strong>Stap 4:</strong> Zet de kaart en de grafiek op een slide en schrijf er een paar zinnen bij.</p>
+                        </div>
+
+                        <div class="voorbeeld-box">
+                            <strong>💬 Voorbeeldzin voor je presentatie:</strong><br>
+                            "Ons onderwerp speelt in [land/gebied]. Op deze kaart zie je precies waar het is. Uit de cijfers blijkt dat..."
+                        </div>
+
+                        <p><strong>🔍 Dit kun je googelen:</strong></p>
+                        <ul>
+                            <li><em>'[jouw gebied] kaart water'</em></li>
+                            <li><em>'hoeveel water wordt er gebruikt in [land]'</em></li>
+                            <li>In het Engels: <em>'water pollution map [area]'</em> of <em>'satellite view [area]'</em></li>
+                        </ul>
+                        <div class="hint-box"><strong>💡 Tip:</strong> Op <em>Google Earth</em> kun je zien hoe een gebied er vroeger uitzag. Klik op het klokje en ga terug in de tijd. Zo kun je een 'toen en nu' vergelijking maken!</div>
+                    </div>
+                </div>
+
+                <!-- PIJLER B -->
+                <div class="pillar-item" id="p2">
+                    <div class="pillar-header" onclick="togglePillar('p2')">
+                        <span>⛓️ Pijler B: Wat heeft het met Nederland te maken?</span>
+                        <span>▼</span>
+                    </div>
+                    <div class="pillar-content">
+                        <p><strong>Kort gezegd:</strong> Jij laat zien hoe het waterprobleem ver weg toch met <em>ons</em> te maken heeft. Welke spullen die wij kopen komen daar vandaan?</p>
+                        
+                        <div class="deliverable-box">
+                            <strong>🎯 Dit moet op je slide komen:</strong>
+                            <ul>
+                                <li>Een <strong>plaatje of schema</strong> dat laat zien hoe een product van daar naar de winkel hier komt (de "route" van het product).</li>
+                                <li><strong>Logo's of namen</strong> van merken of winkels die wij kennen en die hiermee te maken hebben.</li>
+                            </ul>
+                        </div>
+
+                        <div class="stap-blok">
+                            <h4>📝 Zo doe je het – stap voor stap</h4>
+                            <p><strong>Stap 1:</strong> Bedenk welk product bij jouw casus hoort (bijv. kleding, katoen, olie, goud, plastic).</p>
+                            <p><strong>Stap 2:</strong> Zoek op welke merken of bedrijven dat product maken of verkopen.</p>
+                            <p><strong>Stap 3:</strong> Zoek uit hoe dat product van het gebied naar Nederland komt. Welke stappen zitten ertussen?</p>
+                            <p><strong>Stap 4:</strong> Maak er een simpel schema van (mag met pijltjes) en zet het op een slide.</p>
+                        </div>
+
+                        <div class="voorbeeld-box">
+                            <strong>💬 Voorbeeldzin voor je presentatie:</strong><br>
+                            "Je denkt misschien: wat heb ik hier mee te maken? Maar het [product] dat jij in de winkel koopt, komt oorspronkelijk uit dit gebied. Het gaat zo: ..."
+                        </div>
+
+                        <p><strong>🔍 Dit kun je googelen:</strong></p>
+                        <ul>
+                            <li><em>'waar komt ons [product] vandaan'</em></li>
+                            <li><em>'welke merken produceren in [land]'</em></li>
+                            <li>In het Engels: <em>'supply chain [product] [country]'</em></li>
+                        </ul>
+                        <div class="hint-box"><strong>💡 Tip:</strong> Kijk eens in je eigen kledingkast! Op het labeltje in je kleding staat waar het gemaakt is. Soms is dat precies het land van jouw casus.</div>
+                    </div>
+                </div>
+
+                <!-- PIJLER C -->
+                <div class="pillar-item" id="p3">
+                    <div class="pillar-header" onclick="togglePillar('p3')">
+                        <span>🐟 Pijler C: Wat zijn de gevolgen?</span>
+                        <span>▼</span>
+                    </div>
+                    <div class="pillar-content">
+                        <p><strong>Kort gezegd:</strong> Jij laat zien wat er allemaal misgaat door dit waterprobleem. Denk aan de natuur (dieren, planten) én aan de mensen die er wonen.</p>
+                        
+                        <div class="deliverable-box">
+                            <strong>🎯 Dit moet op je slide komen:</strong>
+                            <ul>
+                                <li><strong>Foto's</strong> die laten zien hoe erg het is (vervuild water, zieke natuur, enz.).</li>
+                                <li>Een <strong>gevolgen-web</strong>: een schema waarin je laat zien wat er allemaal misgaat. Zet in het midden het probleem en trek lijnen naar de gevolgen.</li>
+                            </ul>
+                        </div>
+
+                        <div class="stap-blok">
+                            <h4>📝 Zo doe je het – stap voor stap</h4>
+                            <p><strong>Stap 1:</strong> Zoek op wat het waterprobleem doet met de <strong>natuur</strong> (dieren, planten, het landschap).</p>
+                            <p><strong>Stap 2:</strong> Zoek op wat het doet met de <strong>mensen</strong> die er wonen (gezondheid, werk, geld).</p>
+                            <p><strong>Stap 3:</strong> Zoek goede foto's die dit laten zien (Google Afbeeldingen).</p>
+                            <p><strong>Stap 4:</strong> Maak een gevolgen-web: probleem in het midden, gevolgen eromheen met pijltjes.</p>
+                        </div>
+
+                        <div class="voorbeeld-box">
+                            <strong>💬 Voorbeeldzin voor je presentatie:</strong><br>
+                            "De gevolgen van dit probleem zijn heel groot. Voor de natuur betekent het dat... En voor de mensen die er wonen betekent het dat..."
+                        </div>
+
+                        <p><strong>🔍 Dit kun je googelen:</strong></p>
+                        <ul>
+                            <li><em>'gevolgen watervervuiling [gebied]'</em></li>
+                            <li><em>'wat gebeurt er met de natuur in [gebied]'</em></li>
+                            <li>In het Engels: <em>'impact water pollution [area]'</em> of <em>'health effects [area] water'</em></li>
+                        </ul>
+                        <div class="hint-box"><strong>💡 Tip:</strong> Gebruik Google Translate om nieuwsberichten uit dat land zelf te lezen. Zo hoor je het verhaal van de mensen die er wonen!</div>
+                    </div>
+                </div>
+
+                <!-- PIJLER D -->
+                <div class="pillar-item" id="p4">
+                    <div class="pillar-header" onclick="togglePillar('p4')">
+                        <span>♻️ Pijler D: Hoe lossen we het op?</span>
+                        <span>▼</span>
+                    </div>
+                    <div class="pillar-content">
+                        <p><strong>Kort gezegd:</strong> Jij bedenkt hoe dit probleem opgelost kan worden. Wat kan de <span class="woord" tabindex="0">overheid<span class="uitleg">De regering van een land, zij maken de regels en wetten</span></span> doen? Wat kunnen bedrijven doen? En wat kunnen wij zelf doen?</p>
+                        
+                        <div class="deliverable-box">
+                            <strong>🎯 Dit moet op je slide komen:</strong>
+                            <ul>
+                                <li>Een plaatje van jullie <strong>oplossing</strong> (bijv. een "voor en na" vergelijking).</li>
+                                <li><strong>3 concrete actiepunten</strong>: wat moet de overheid doen, wat moeten bedrijven doen, en wat kunnen wij als gewone mensen doen?</li>
+                            </ul>
+                        </div>
+
+                        <div class="stap-blok">
+                            <h4>📝 Zo doe je het – stap voor stap</h4>
+                            <p><strong>Stap 1:</strong> Zoek op of er al oplossingen bedacht zijn voor dit probleem. Zijn er projecten of organisaties die eraan werken?</p>
+                            <p><strong>Stap 2:</strong> Bedenk wat de <strong>overheid</strong> zou kunnen doen (bijv. strengere regels, geld investeren).</p>
+                            <p><strong>Stap 3:</strong> Bedenk wat <strong>bedrijven</strong> anders kunnen doen (bijv. minder vervuilen, beter recyclen).</p>
+                            <p><strong>Stap 4:</strong> Bedenk wat <strong>wij als consument</strong> kunnen doen (bijv. andere producten kopen, minder verspillen).</p>
+                        </div>
+
+                        <div class="voorbeeld-box">
+                            <strong>💬 Voorbeeldzin voor je presentatie:</strong><br>
+                            "Er zijn gelukkig ook oplossingen. De overheid zou kunnen... Bedrijven zouden moeten... En wij zelf kunnen helpen door..."
+                        </div>
+
+                        <p><strong>🔍 Dit kun je googelen:</strong></p>
+                        <ul>
+                            <li><em>'oplossing watervervuiling [gebied]'</em></li>
+                            <li><em>'duurzaam water [onderwerp]'</em></li>
+                            <li>In het Engels: <em>'solution water crisis [area]'</em> of <em>'sustainable water [topic]'</em></li>
+                        </ul>
+                        <div class="hint-box"><strong>💡 Tip:</strong> Zoek op YouTube naar filmpjes over oplossingen. Er zijn veel korte video's van bijv. universiteiten of organisaties die laten zien hoe het beter kan.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Extra hulpkaart -->
+        <div class="card">
+            <h2>Hulp bij je presentatie 🎤</h2>
+            <div class="stap-blok">
+                <h4>📊 Hoe maak je goede slides?</h4>
+                <p>• Zet <strong>niet te veel tekst</strong> op een slide – alleen de belangrijkste punten.</p>
+                <p>• Gebruik grote <strong>plaatjes, kaarten en grafieken</strong>. Die zeggen meer dan tekst.</p>
+                <p>• Maak het <strong>overzichtelijk</strong>: niet meer dan 4-5 dingen per slide.</p>
+            </div>
+            <div class="stap-blok">
+                <h4>🗣️ Hoe presenteer je goed?</h4>
+                <p>• <strong>Lees niet voor</strong> van je slides. Vertel het in je eigen woorden.</p>
+                <p>• Kijk de klas aan, niet het scherm.</p>
+                <p>• Oefen minstens <strong>2 keer</strong> met je groepje voordat je het echt doet.</p>
+                <p>• Spreek <strong>langzaam en duidelijk</strong>. Je mag best even stilstaan.</p>
+            </div>
+            <div class="hulp-box">
+                <strong>⏱️ Hoe lang is 8-10 minuten?</strong>
+                Reken op ongeveer 2-3 minuten per persoon. Gebruik de timer op je telefoon om te oefenen. Te kort? Voeg meer uitleg toe. Te lang? Schrap de minst belangrijke dingen.
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== CHECKLIST ==================== -->
+    <section id="checklist" class="tab-content">
+        <div class="card">
+            <h2>Hoe ver zijn jullie? ✅</h2>
+            <p>Vink af wat jullie al gedaan hebben. Zo zie je precies wat er nog moet gebeuren.</p>
+            <div id="checklist-items">
+                <label class="check-item"><input type="checkbox" id="step1"> <span>Groepje gemaakt (3 personen)<span class="check-uitleg">Weet je al met wie je samenwerkt?</span></span></label>
+                <label class="check-item"><input type="checkbox" id="step2"> <span>Onderwerp gekozen<span class="check-uitleg">Kijk bij "De Cases" en kies er samen eentje</span></span></label>
+                <label class="check-item"><input type="checkbox" id="step3"> <span>Taken verdeeld: wie doet welke pijler?<span class="check-uitleg">Er zijn 4 pijlers en 3 personen – verdeel ze eerlijk</span></span></label>
+                <label class="check-item"><input type="checkbox" id="step4"> <span>Pijler A klaar: kaart + grafiek gemaakt<span class="check-uitleg">Heb je een kaart van het gebied en cijfers in een grafiek?</span></span></label>
+                <label class="check-item"><input type="checkbox" id="step5"> <span>Pijler B klaar: link met Nederland uitgelegd<span class="check-uitleg">Kun je laten zien hoe het probleem met ons te maken heeft?</span></span></label>
+                <label class="check-item"><input type="checkbox" id="step6"> <span>Pijler C klaar: gevolgen onderzocht<span class="check-uitleg">Weet je wat het probleem doet met natuur en mensen?</span></span></label>
+                <label class="check-item"><input type="checkbox" id="step7"> <span>Pijler D klaar: oplossing bedacht<span class="check-uitleg">Heb je 3 actiepunten (overheid, bedrijven, consument)?</span></span></label>
+                <label class="check-item"><input type="checkbox" id="step8"> <span>Slides gemaakt in PowerPoint of Google Slides<span class="check-uitleg">Alle info van de pijlers op duidelijke slides gezet?</span></span></label>
+                <label class="check-item"><input type="checkbox" id="step9"> <span>Presentatie geoefend (minstens 2x!)<span class="check-uitleg">Is het tussen 8 en 10 minuten? Leest niemand voor?</span></span></label>
+                <label class="check-item"><input type="checkbox" id="step10"> <span>Klaar voor de presentatie! 🎉<span class="check-uitleg">Alles gecheckt? Dan zijn jullie er klaar voor!</span></span></label>
+            </div>
+
+            <div class="hulp-box" style="margin-top: 20px;">
+                <strong>💾 Let op:</strong> Je vinkjes worden opgeslagen in je browser. Als je op dezelfde computer en in dezelfde browser terugkomt, staan ze er nog.
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== BEOORDELING ==================== -->
+    <section id="rubric" class="tab-content">
+        <div class="card">
+            <h2>Hoe word je beoordeeld? 📊</h2>
+            <p>Je docent kijkt naar 4 dingen. Elk onderdeel telt voor <strong>25%</strong> van je cijfer. Hieronder zie je precies wat je moet doen voor welk cijfer.</p>
+
+            <div class="stap-blok">
+                <h4>💡 Zo lees je de tabel</h4>
+                <p>Kijk per rij wat er staat bij "onvoldoende", "voldoende" en "goed". Probeer bij elk onderdeel minstens bij "voldoende" te komen. Wil je een hoger cijfer? Kijk dan wat er bij "goed" staat en doe dat ook!</p>
+            </div>
+
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Waar kijkt je docent naar?</th>
+                            <th class="score-red">Onvoldoende (1-4)</th>
+                            <th class="score-orange">Voldoende (5,5-7)</th>
+                            <th class="score-green">Goed (8-10)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Onderzoek (25%)</strong><br><em>Hoe goed heb je gezocht?</em></td>
+                            <td>Je hebt te weinig info gevonden. Je laat niet zien wat het probleem met Nederland te maken heeft.</td>
+                            <td>Je hebt alle 4 de pijlers goed uitgewerkt met feiten en voorbeelden.</td>
+                            <td>Je hebt extra diep gezocht en legt slimme verbanden. Je weet meer dan alleen het basis-verhaal.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Plaatjes & grafieken (25%)</strong><br><em>Hoe zien je slides eruit?</em></td>
+                            <td>Er mist een kaart of grafiek. Je slides zijn rommelig of leeg.</td>
+                            <td>Er zit een duidelijke kaart en grafiek in, en je legt ze goed uit.</td>
+                            <td>Je visuals zijn sterk en overtuigend. Ze helpen echt om het probleem te begrijpen.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Presenteren (25%)</strong><br><em>Hoe goed vertel je het?</em></td>
+                            <td>Je leest voor van je slides, het is rommelig, of het is veel te kort of te lang.</td>
+                            <td>Je vertelt het in eigen woorden, je houdt je aan de tijd, en je kijkt de klas aan.</td>
+                            <td>Je presentatie is overtuigend en professioneel. De klas luistert geboeid.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Vragen beantwoorden (25%)</strong><br><em>Hoeveel weet je echt?</em></td>
+                            <td>Je kunt geen vragen beantwoorden over jullie onderwerp.</td>
+                            <td>Je kunt vragen beantwoorden over jouw eigen pijler.</td>
+                            <td>Je kunt alle vragen beantwoorden, ook over de pijlers van je groepsgenoten.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+</main>
+
+<footer>
+    Project Blauw Goud 🌊 - 2026 Onderwijsomgeving
+</footer>
+
+<script>
+    function showTab(id) {
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        event.currentTarget.classList.add('active');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function togglePillar(id) {
+        const item = document.getElementById(id);
+        const isOpen = item.classList.contains('open');
+        document.querySelectorAll('.pillar-item').forEach(p => p.classList.remove('open'));
+        if (!isOpen) item.classList.add('open');
+    }
+
+    const cases = {
+        citarum: { 
+            title: "Citarum: Vieze rivier door kledingfabrieken 👕", 
+            desc: "De Citarum is een rivier in Indonesië en het is één van de smerigste rivieren van de wereld. Langs de rivier staan meer dan 2000 fabrieken die kleding en stof maken. Die fabrieken dumpen hun giftige afvalwater gewoon in de rivier.<br><br><strong>Wat gaat er mis?</strong> Het water zit vol gif (lood, kwik). De mensen die er wonen worden er ziek van en kunnen geen vis meer vangen.<br><br><strong>Wat heeft het met ons te maken?</strong> Veel van de kleding die wij in de winkel kopen, wordt in dit soort fabrieken gemaakt.<br><br><strong>Jullie opdracht:</strong> Zoek uit welke kledingmerken hier laten produceren en bedenk hoe het anders kan." 
+        },
+        aralmeer: { 
+            title: "Het Aralmeer: Een heel meer dat verdween 🏜️", 
+            desc: "Het Aralmeer was vroeger het vierde grootste meer ter wereld. Nu is het bijna helemaal weg! Hoe kan dat? De rivieren die het meer vulden, zijn omgeleid naar katoenplantages. Al het water ging naar de katoen in plaats van naar het meer.<br><br><strong>Wat gaat er mis?</strong> Waar vroeger water was, is nu woestijn. Schepen liggen te roesten in het zand. Giftig stof waait rond en maakt mensen ziek.<br><br><strong>Wat heeft het met ons te maken?</strong> Katoen zit in heel veel van onze kleding en spullen.<br><br><strong>Jullie opdracht:</strong> Zoek uit hoe onze vraag naar goedkoop katoen dit meer heeft laten verdwijnen. Kan het nog gered worden?" 
+        },
+        plastic: { 
+            title: "Plastic Soep: Onze oceanen vol afval 🧴", 
+            desc: "In de oceanen drijven enorme eilanden van plastic afval. Dit plastic komt van over de hele wereld: verpakkingen, flesjes, tasjes – alles wat we weggooien en niet goed recyclen.<br><br><strong>Wat gaat er mis?</strong> Plastic breekt niet af, maar wordt steeds kleiner (microplastic). Vissen eten het op, en via de vis komt het op ons eigen bord.<br><br><strong>Wat heeft het met ons te maken?</strong> Wij gebruiken elke dag plastic. Veel daarvan komt uiteindelijk in zee terecht.<br><br><strong>Jullie opdracht:</strong> Breng de route van plastic in kaart. Hoe zorgen we ervoor dat er geen plastic meer in de zee komt?" 
+        },
+        niger: { 
+            title: "Nigerdelta: Olie die het water vergiftigt 🛢️", 
+            desc: "In Nigeria wordt al tientallen jaren olie opgepompt voor de hele wereld. Maar de oude pijpleidingen lekken de hele tijd. Alles zit onder een laag olie.<br><br><strong>Wat gaat er mis?</strong> Het drinkwater is vergiftigd. Vissers kunnen niet meer werken omdat de vissen doodgaan. Niemand ruimt het op.<br><br><strong>Wat heeft het met ons te maken?</strong> De olie wordt gebruikt voor benzine en plastic – spullen die wij dagelijks gebruiken.<br><br><strong>Jullie opdracht:</strong> Wie is verantwoordelijk voor deze rotzooi? Hoe kan de olie-industrie gedwongen worden om het beter te doen?" 
+        },
+        ganges: { 
+            title: "De Ganges: Heilige rivier vol gif 🕉️", 
+            desc: "De Ganges in India is voor miljoenen mensen een heilige rivier. Ze baden erin als onderdeel van hun geloof. Maar tegelijkertijd dumpen fabrieken (die bijv. leer maken voor onze schoenen) en steden al hun afvalwater in de rivier.<br><br><strong>Wat gaat er mis?</strong> Het water is extreem vies en gevaarlijk voor de gezondheid, maar mensen blijven erin baden vanwege hun geloof.<br><br><strong>Wat heeft het met ons te maken?</strong> Leer voor schoenen en tassen wordt hier gemaakt. Die producten liggen bij ons in de winkel.<br><br><strong>Jullie opdracht:</strong> Hoe kun je het geloof respecteren én de rivier schoonmaken? Zoek naar het 'Clean Ganga' project." 
+        },
+        amazone: { 
+            title: "De Amazone: Vergiftigd door goudzoekers 🏆", 
+            desc: "In het Amazone-regenwoud zoeken mensen illegaal naar goud. Ze gebruiken kwik (een zwaar gif) om gouddeeltjes uit de modder te halen. Dat kwik loopt zo de rivier in.<br><br><strong>Wat gaat er mis?</strong> Het kwik komt in de vissen terecht. De inheemse bevolking eet die vis en wordt daar ernstig ziek van (hersenschade).<br><br><strong>Wat heeft het met ons te maken?</strong> Het goud wordt verwerkt in sieraden en elektronica die wij kopen.<br><br><strong>Jullie opdracht:</strong> Waar gaat dit goud naartoe? Hoe zorgen we dat er geen gif meer gebruikt wordt bij het goudzuken?" 
+        },
+        dodezee: { 
+            title: "De Dode Zee: Een zee die verdwijnt 🧂", 
+            desc: "De Dode Zee is het laagste punt op aarde en superveel zout. Maar elk jaar wordt het water een meter lager! Dit komt doordat bedrijven er grondstoffen uithalen (voor cosmetica en mest) en doordat de landbouw veel water wegpompt.<br><br><strong>Wat gaat er mis?</strong> Er ontstaan grote gaten in de grond (zinkgaten) die wegen en gebouwen opslokken. Het unieke landschap verdwijnt.<br><br><strong>Wat heeft het met ons te maken?</strong> De mineralen worden gebruikt in producten die wij kopen (bijv. gezichtscrème).<br><br><strong>Jullie opdracht:</strong> Wie verdient er geld aan de Dode Zee? Hoe houden we dit bijzondere gebied in stand?" 
+        },
+        nl: { 
+            title: "Nederland: Onze eigen sloten stikken 🐄", 
+            desc: "Je denkt misschien: ons water is toch schoon? Niet helemaal. Door de enorme hoeveelheid koeien, kippen en varkens in Nederland komt er heel veel mest in de bodem en het water. Onze sloten zitten vol algen door al die mest.<br><br><strong>Wat gaat er mis?</strong> Dieren en planten in het water gaan dood. En het water schoonmaken voor drinkwater wordt steeds duurder.<br><br><strong>Wat heeft het met ons te maken?</strong> Dit speelt letterlijk in onze achtertuin. De mest komt van de dieren die ons eten produceren.<br><br><strong>Jullie opdracht:</strong> Hoe erg is het mestprobleem echt? Hoe zou een boerderij eruitzien die het water wel schoon houdt?" 
+        }
+    };
+
+    function showCase(id) {
+        document.getElementById('case-info-box').style.display = 'block';
+        document.getElementById('case-title').innerText = cases[id].title;
+        document.getElementById('case-description').innerHTML = cases[id].desc;
+        document.querySelectorAll('.pill').forEach(p => p.classList.remove('selected'));
+        event.currentTarget.classList.add('selected');
+    }
+
+    // Checklist met localStorage
+    const checks = document.querySelectorAll('.check-item input');
+    checks.forEach(c => {
+        try {
+            c.checked = localStorage.getItem(c.id) === 'true';
+            if(c.checked) c.parentElement.classList.add('done');
+        } catch(e) {}
+        c.addEventListener('change', () => {
+            try { localStorage.setItem(c.id, c.checked); } catch(e) {}
+            c.checked ? c.parentElement.classList.add('done') : c.parentElement.classList.remove('done');
+        });
+    });
+</script>
+
+</body>
+</html>
