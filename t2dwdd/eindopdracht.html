@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Micro-Portfolio: Wereldpolitiek</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 0 auto; padding: 20px; background-color: #f4f7f6; }
+        .container { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        h1 { color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
+        .step { display: none; }
+        .step.active { display: block; animation: fadeIn 0.5s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .timer { font-weight: bold; color: #e74c3c; background: #fadbd8; padding: 5px 10px; border-radius: 5px; display: inline-block; margin-bottom: 20px; }
+        .nav-buttons { margin-top: 30px; display: flex; justify-content: space-between; }
+        button { padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; transition: 0.3s; }
+        .btn-next { background-color: #3498db; color: white; }
+        .btn-prev { background-color: #95a5a6; color: white; }
+        button:hover { opacity: 0.8; }
+        .slide-preview { border: 2px dashed #bdc3c7; padding: 15px; margin-top: 15px; border-radius: 8px; background: #fafafa; }
+        .progress-bar { height: 10px; background: #ecf0f1; border-radius: 5px; margin-bottom: 30px; }
+        .progress-fill { height: 100%; background: #3498db; width: 0%; border-radius: 5px; transition: width 0.3s; }
+        blockquote { border-left: 5px solid #3498db; margin: 0; padding-left: 15px; font-style: italic; color: #555; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+    
+    <div id="intro" class="step active">
+        <h1>Mijn Wereldpolitiek Micro-Portfolio</h1>
+        <p>Welkom! In de komende <strong>20 minuten</strong> maak je een kort, krachtig portfolio van 4 dia's in PowerPoint. Dit is jouw persoonlijke reflectie op de lessenreeks wereldpolitiek.</p>
+        <p><strong>Wat heb je nodig?</strong></p>
+        <ul>
+            <li>PowerPoint (open alvast een nieuwe presentatie)</li>
+            <li>Je hersens en je eerlijke mening</li>
+        </ul>
+        <button class="btn-next" onclick="nextStep(1)">Start de timer & de opdracht</button>
+    </div>
+
+    <div id="step1" class="step">
+        <div class="timer">Tijd voor deze dia: 4 minuten</div>
+        <h2>Dia 1: De "Perspectief-Switch"</h2>
+        <p>Zoek een afbeelding of krantenkop over een onderwerp uit de lessenreeks waar jij nu <strong>anders</strong> naar kijkt dan voorheen.</p>
+        <div class="slide-preview">
+            <strong>Op je dia:</strong>
+            <ul>
+                <li>De afbeelding/krantenkop.</li>
+                <li>Tekst: <em>"Eerst dacht ik dat [A], maar nu begrijp ik dat [B] een grote rol speelt."</em></li>
+            </ul>
+        </div>
+        <div class="nav-buttons">
+            <button class="btn-prev" onclick="nextStep(0)">Terug</button>
+            <button class="btn-next" onclick="nextStep(2)">Volgende dia</button>
+        </div>
+    </div>
+
+    <div id="step2" class="step">
+        <div class="timer">Tijd voor deze dia: 5 minuten</div>
+        <h2>Dia 2: De Gereedschapskist</h2>
+        <p>Kies 3 begrippen uit de lessenreeks die jouw 'blik' op het nieuws hebben veranderd (bijv. <em>soevereiniteit, diplomatie, soft power, etc.</em>).</p>
+        <div class="slide-preview">
+            <strong>Op je dia:</strong>
+            <ul>
+                <li>De 3 begrippen groot in beeld.</li>
+                <li>Per begrip één korte zin: waarom is dit woord nuttig voor jou?</li>
+            </ul>
+        </div>
+        <div class="nav-buttons">
+            <button class="btn-prev" onclick="nextStep(1)">Terug</button>
+            <button class="btn-next" onclick="nextStep(3)">Volgende dia</button>
+        </div>
+    </div>
+
+    <div id="step3" class="step">
+        <div class="timer">Tijd voor deze dia: 5 minuten</div>
+        <h2>Dia 3: Het "Keerpunt-Moment"</h2>
+        <p>Welke les, discussie of video uit deze reeks bleef je het meeste bij? Waarom raakte dit je of zette dit je aan het denken?</p>
+        <div class="slide-preview">
+            <strong>Op je dia:</strong>
+            <ul>
+                <li>Een titel die de les omschrijft.</li>
+                <li>Een korte reflectie (max 50 woorden) over jouw inzicht of gevoel bij dit moment.</li>
+            </ul>
+        </div>
+        <div class="nav-buttons">
+            <button class="btn-prev" onclick="nextStep(2)">Terug</button>
+            <button class="btn-next" onclick="nextStep(4)">Volgende dia</button>
+        </div>
+    </div>
+
+    <div id="step4" class="step">
+        <div class="timer">Tijd voor deze dia: 4 minuten</div>
+        <h2>Dia 4: De "Grote Vraag"</h2>
+        <p>Wereldpolitiek is nooit af. Welke vraag heb jij nu over de toekomst van onze wereld?</p>
+        <div class="slide-preview">
+            <strong>Op je dia:</strong>
+            <p>Schrijf je vraag groot in het midden. Leg kort uit waarom je juist op deze vraag geen antwoord hebt gekregen (of waarom het nu belangrijker voor je is).</p>
+        </div>
+        <div class="nav-buttons">
+            <button class="btn-prev" onclick="nextStep(3)">Terug</button>
+            <button class="btn-next" onclick="nextStep(5)">Afronden</button>
+        </div>
+    </div>
+
+    <div id="step5" class="step">
+        <h1>Klaar!</h1>
+        <p>Goed gedaan. Je hebt nu een beknopt maar krachtig overzicht van jouw leerproces.</p>
+        <div style="background: #d4efdf; padding: 20px; border-radius: 8px;">
+            <strong>Checklist voor inleveren:</strong>
+            <ul>
+                <li>Zijn alle 4 de dia's gevuld?</li>
+                <li>Staat je naam op de eerste dia?</li>
+                <li>Sla het bestand op als: <code>Naam_Wereldpolitiek_Portfolio.pptx</code></li>
+            </ul>
+        </div>
+        <p>Lever het bestand nu in via de afgesproken weg.</p>
+        <button class="btn-prev" onclick="location.reload()">Opnieuw beginnen</button>
+    </div>
+</div>
+
+<script>
+    function nextStep(stepNumber) {
+        // Verberg alle stappen
+        const steps = document.querySelectorAll('.step');
+        steps.forEach(s => s.classList.remove('active'));
+        
+        // Toon de juiste stap
+        const targetId = stepNumber === 0 ? 'intro' : (stepNumber === 5 ? 'step5' : 'step' + stepNumber);
+        document.getElementById(targetId).classList.add('active');
+        
+        // Update progress bar
+        const progress = (stepNumber / 5) * 100;
+        document.getElementById('progressFill').style.width = progress + '%';
+        
+        // Scroll naar boven
+        window.scrollTo(0,0);
+    }
+</script>
+
+</body>
+</html>
