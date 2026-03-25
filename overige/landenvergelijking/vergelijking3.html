@@ -3,146 +3,100 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Klimaatverschillen Nederland &amp; Spanje — Aardrijkskunde HAVO 1</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<title>Klimaat Spanje & Oostenrijk — Aardrijkskunde HAVO 1</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root {
-  --sun: #F5C243;
-  --sun-light: #FFF3D0;
-  --sun-glow: #FCEABB;
-  --terracotta: #C87941;
-  --terracotta-light: #F0D5B8;
-  --olive: #6B7F3B;
-  --olive-light: #D6E4B1;
-  --sky: #5B9BD5;
-  --sky-light: #D5E8F7;
-  --earth: #8B6F47;
-  --sand: #F5ECD7;
-  --sand-deep: #EDE0C8;
-  --white: #FEFCF7;
-  --text: #3A2E1F;
-  --text-light: #6B5D4F;
-  --correct: #4CAF50;
-  --correct-bg: #E8F5E9;
-  --wrong: #E74C3C;
-  --wrong-bg: #FDEDEC;
+  --sun: #F5C842;
+  --sun-light: #FFF3CC;
+  --sun-pale: #FFFBEF;
+  --terracotta: #C4704B;
+  --terracotta-light: #F0D0B8;
+  --alpine: #5A7D5A;
+  --alpine-light: #D4E6D4;
+  --earth: #8B6F4E;
+  --earth-light: #E8DCC8;
+  --sand: #E8D5A3;
+  --cream: #FFF9F0;
+  --white: #FFFFFF;
+  --text: #3A3028;
+  --text-light: #7A6E60;
+  --correct: #4A8B5C;
+  --correct-bg: #E8F5E8;
+  --wrong: #C0544F;
+  --wrong-bg: #FDECEC;
   --hint-bg: #FFF8E1;
   --radius: 12px;
   --radius-sm: 8px;
-  --shadow: 0 2px 12px rgba(58,46,31,0.08);
-  --shadow-lg: 0 4px 24px rgba(58,46,31,0.12);
+  --shadow: 0 2px 12px rgba(58,48,40,0.08);
+  --shadow-lg: 0 4px 24px rgba(58,48,40,0.12);
 }
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 body {
   font-family: 'Nunito', sans-serif;
-  background: linear-gradient(180deg, var(--sand) 0%, var(--white) 40%);
+  background: var(--cream);
   color: var(--text);
-  min-height: 100vh;
   line-height: 1.7;
+  min-height: 100vh;
 }
 /* ── HEADER ── */
-.page-header {
+.site-header {
   background: linear-gradient(135deg, var(--sun) 0%, var(--terracotta) 100%);
-  padding: 28px 24px 20px;
+  padding: 24px 20px 16px;
   text-align: center;
   color: var(--white);
-  position: relative;
-  overflow: hidden;
 }
-.page-header::before {
-  content: '☀️';
-  position: absolute;
-  font-size: 80px;
-  top: -10px;
-  right: 20px;
-  opacity: 0.2;
-}
-.page-header h1 {
-  font-size: clamp(1.3rem, 3.5vw, 1.8rem);
-  font-weight: 800;
-  margin-bottom: 4px;
-  text-shadow: 0 2px 8px rgba(0,0,0,0.15);
-}
-.page-header p {
-  font-size: 0.95rem;
-  opacity: 0.92;
-  font-weight: 600;
-}
+.site-header h1 { font-size: 1.6rem; font-weight: 800; letter-spacing: -0.5px; }
+.site-header p { font-size: 0.85rem; opacity: 0.9; margin-top: 4px; }
 /* ── PROGRESS ── */
 .progress-wrap {
-  position: sticky;
-  top: 0;
-  z-index: 1000;
+  position: sticky; top: 0; z-index: 1000;
   background: var(--white);
-  border-bottom: 1px solid var(--sand-deep);
+  border-bottom: 1px solid var(--sand);
   padding: 10px 20px;
   box-shadow: var(--shadow);
 }
-.progress-inner {
-  max-width: 900px;
-  margin: 0 auto;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-.progress-bar-bg {
-  flex: 1;
+.progress-bar-outer {
+  background: var(--earth-light);
+  border-radius: 20px;
   height: 14px;
-  background: var(--sand-deep);
-  border-radius: 7px;
   overflow: hidden;
 }
-.progress-bar-fill {
-  height: 100%;
+.progress-bar-inner {
   background: linear-gradient(90deg, var(--sun), var(--terracotta));
-  border-radius: 7px;
+  height: 100%;
+  border-radius: 20px;
   width: 0%;
   transition: width 0.5s ease;
 }
-.progress-label {
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: var(--terracotta);
-  min-width: 42px;
-  text-align: right;
-}
-.section-counter {
-  font-size: 0.8rem;
-  color: var(--text-light);
-  font-weight: 600;
+.progress-text {
+  display: flex; justify-content: space-between; align-items: center;
+  font-size: 0.78rem; color: var(--text-light); margin-top: 4px;
 }
 /* ── TABS ── */
 .tab-bar-wrap {
-  position: sticky;
-  top: 54px;
-  z-index: 999;
+  position: sticky; top: 54px; z-index: 999;
   background: var(--white);
-  border-bottom: 2px solid var(--sand-deep);
+  border-bottom: 1px solid var(--sand);
 }
 .tab-bar {
-  display: flex;
-  overflow-x: auto;
-  max-width: 920px;
-  margin: 0 auto;
-  padding: 0 12px;
-  gap: 4px;
+  display: flex; overflow-x: auto; padding: 0 12px;
   scrollbar-width: thin;
+  -webkit-overflow-scrolling: touch;
 }
-.tab-bar::-webkit-scrollbar { height: 4px; }
-.tab-bar::-webkit-scrollbar-thumb { background: var(--sand-deep); border-radius: 4px; }
+.tab-bar::-webkit-scrollbar { height: 3px; }
+.tab-bar::-webkit-scrollbar-thumb { background: var(--sand); border-radius: 3px; }
 .tab-btn {
   flex-shrink: 0;
   padding: 10px 16px;
-  border: none;
-  background: transparent;
   font-family: 'Nunito', sans-serif;
   font-size: 0.82rem;
-  font-weight: 700;
+  font-weight: 600;
+  border: none;
+  background: none;
   color: var(--text-light);
   cursor: pointer;
   border-bottom: 3px solid transparent;
@@ -150,152 +104,99 @@ body {
   white-space: nowrap;
 }
 .tab-btn:hover { color: var(--terracotta); }
-.tab-btn.active {
-  color: var(--terracotta);
-  border-bottom-color: var(--terracotta);
-}
+.tab-btn.active { color: var(--terracotta); border-bottom-color: var(--terracotta); }
 .tab-btn .check { color: var(--correct); margin-left: 4px; }
-/* ── CONTENT ── */
-.content-area {
-  max-width: 820px;
-  margin: 0 auto;
-  padding: 24px 20px 40px;
+.tab-counter {
+  display: flex; align-items: center; padding: 10px 16px;
+  font-size: 0.78rem; color: var(--text-light); flex-shrink: 0;
+  font-weight: 600;
 }
-.tab-panel { display: none; }
-.tab-panel.active { display: block; animation: fadeIn 0.3s ease; }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-/* ── BLOCKS ── */
+/* ── SECTIONS ── */
+.section { display: none; padding: 20px; max-width: 860px; margin: 0 auto; }
+.section.active { display: block; }
+.section h2 {
+  font-size: 1.35rem; font-weight: 800; color: var(--terracotta);
+  margin-bottom: 16px; padding-bottom: 8px;
+  border-bottom: 2px solid var(--sun-light);
+}
+.section h3 {
+  font-size: 1.05rem; font-weight: 700; color: var(--earth);
+  margin: 20px 0 10px;
+}
+.section p { margin-bottom: 12px; }
+/* ── INFO BLOCKS ── */
 .info-block {
   background: var(--white);
-  border: 1px solid var(--sand-deep);
   border-radius: var(--radius);
-  padding: 24px;
-  margin-bottom: 24px;
+  padding: 20px;
+  margin: 16px 0;
   box-shadow: var(--shadow);
-}
-.info-block h2 {
-  font-size: 1.3rem;
-  font-weight: 800;
-  color: var(--terracotta);
-  margin-bottom: 12px;
-}
-.info-block h3 {
-  font-size: 1.05rem;
-  font-weight: 700;
-  color: var(--earth);
-  margin: 16px 0 8px;
-}
-.info-block p { margin-bottom: 12px; }
-.emoji-header {
-  font-size: 2rem;
-  margin-bottom: 8px;
-  display: block;
-}
-.highlight-box {
-  background: linear-gradient(135deg, var(--sun-light), var(--sun-glow));
   border-left: 4px solid var(--sun);
-  border-radius: var(--radius-sm);
-  padding: 16px 20px;
-  margin: 16px 0;
 }
-.compare-box {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-  margin: 16px 0;
+.info-block.spain { border-left-color: var(--terracotta); background: linear-gradient(135deg, var(--white) 80%, #FFF0E6); }
+.info-block.austria { border-left-color: var(--alpine); background: linear-gradient(135deg, var(--white) 80%, #EFF8EF); }
+.info-block.compare { border-left-color: var(--sun); }
+.emoji-header { font-size: 1.8rem; margin-bottom: 8px; }
+.emoji-flow {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px;
+  font-size: 1.1rem; padding: 12px 0;
 }
-.compare-card {
-  border-radius: var(--radius-sm);
-  padding: 16px;
-  text-align: center;
+.emoji-flow .arrow { color: var(--text-light); }
+/* ── COMPARE TABLE ── */
+.compare-table {
+  width: 100%; border-collapse: separate; border-spacing: 0;
+  border-radius: var(--radius); overflow: hidden;
+  margin: 16px 0; box-shadow: var(--shadow);
 }
-.compare-card.nl {
-  background: linear-gradient(135deg, var(--sky-light), #e8f0fa);
-  border: 2px solid var(--sky);
+.compare-table th {
+  background: var(--earth);
+  color: var(--white);
+  padding: 10px 14px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  text-align: left;
 }
-.compare-card.es {
-  background: linear-gradient(135deg, var(--sun-light), #fff0d0);
-  border: 2px solid var(--sun);
+.compare-table td {
+  padding: 10px 14px;
+  font-size: 0.85rem;
+  border-bottom: 1px solid var(--earth-light);
 }
-.compare-card .flag { font-size: 2rem; }
-.compare-card h4 { font-weight: 700; margin: 6px 0; }
+.compare-table tr:nth-child(even) td { background: var(--sun-pale); }
+.compare-table tr:last-child td { border-bottom: none; }
 /* ── QUESTIONS ── */
 .question-block {
   background: var(--white);
-  border: 1px solid var(--sand-deep);
   border-radius: var(--radius);
-  padding: 20px 24px;
-  margin-bottom: 20px;
+  padding: 20px;
+  margin: 20px 0;
   box-shadow: var(--shadow);
+  border: 1px solid var(--sand);
 }
-.question-block .q-label {
-  display: inline-block;
-  background: var(--sun);
-  color: var(--text);
-  font-size: 0.75rem;
-  font-weight: 800;
-  padding: 3px 10px;
-  border-radius: 20px;
-  margin-bottom: 10px;
-  text-transform: uppercase;
+.question-block h4 {
+  font-size: 0.95rem; font-weight: 700; color: var(--text);
+  margin-bottom: 12px;
 }
-.question-block p.q-text {
-  font-weight: 700;
-  font-size: 1rem;
-  margin-bottom: 14px;
+.question-block h4 .q-icon {
+  display: inline-block; width: 26px; height: 26px; line-height: 26px;
+  text-align: center; border-radius: 50%; font-size: 0.75rem;
+  background: var(--sun-light); color: var(--terracotta); margin-right: 8px;
 }
-.mc-options { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
-.mc-btn {
-  display: block;
-  width: 100%;
-  text-align: left;
-  padding: 12px 16px;
-  border: 2px solid var(--sand-deep);
+.mc-options { list-style: none; }
+.mc-options li {
+  padding: 10px 14px;
+  margin: 6px 0;
   border-radius: var(--radius-sm);
-  background: var(--white);
-  font-family: 'Nunito', sans-serif;
-  font-size: 0.92rem;
-  font-weight: 600;
+  border: 2px solid var(--earth-light);
   cursor: pointer;
   transition: all 0.2s;
+  font-size: 0.88rem;
 }
-.mc-btn:hover { border-color: var(--sun); background: var(--sun-light); }
-.mc-btn.selected { border-color: var(--sky); background: var(--sky-light); }
-.mc-btn.correct-answer { border-color: var(--correct); background: var(--correct-bg); }
-.mc-btn.wrong-answer { border-color: var(--wrong); background: var(--wrong-bg); }
-.mc-btn.locked { pointer-events: none; opacity: 0.7; }
-.feedback-box {
-  padding: 12px 16px;
-  border-radius: var(--radius-sm);
-  margin-top: 10px;
-  font-weight: 600;
-  font-size: 0.9rem;
-  display: none;
-}
-.feedback-box.show { display: block; animation: fadeIn 0.3s ease; }
-.feedback-box.correct { background: var(--correct-bg); color: #2E7D32; border-left: 4px solid var(--correct); }
-.feedback-box.wrong { background: var(--hint-bg); color: #8B6F00; border-left: 4px solid var(--sun); }
-.feedback-box.final-wrong { background: var(--wrong-bg); color: #C62828; border-left: 4px solid var(--wrong); }
-/* ── OPEN QUESTIONS ── */
-textarea.open-answer {
-  width: 100%;
-  min-height: 90px;
-  border: 2px solid var(--sand-deep);
-  border-radius: var(--radius-sm);
-  padding: 12px;
-  font-family: 'Nunito', sans-serif;
-  font-size: 0.92rem;
-  resize: vertical;
-  transition: border-color 0.2s;
-}
-textarea.open-answer:focus { outline: none; border-color: var(--sun); }
-.word-count {
-  font-size: 0.8rem;
-  color: var(--text-light);
-  margin-top: 4px;
-  font-weight: 600;
-}
-.word-count.enough { color: var(--correct); }
+.mc-options li:hover { border-color: var(--sun); background: var(--sun-pale); }
+.mc-options li.selected { border-color: var(--sun); background: var(--sun-light); font-weight: 600; }
+.mc-options li.correct-answer { border-color: var(--correct); background: var(--correct-bg); }
+.mc-options li.wrong-answer { border-color: var(--wrong); background: var(--wrong-bg); }
+.mc-options li.locked { pointer-events: none; opacity: 0.7; }
+.mc-options li.locked.correct-answer { opacity: 1; }
 .btn {
   display: inline-block;
   padding: 10px 20px;
@@ -303,1648 +204,1696 @@ textarea.open-answer:focus { outline: none; border-color: var(--sun); }
   border-radius: var(--radius-sm);
   font-family: 'Nunito', sans-serif;
   font-weight: 700;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   cursor: pointer;
   transition: all 0.2s;
 }
-.btn-primary { background: var(--sun); color: var(--text); }
-.btn-primary:hover { background: #e6b230; }
-.btn-secondary { background: var(--sand-deep); color: var(--text); }
-.btn-secondary:hover { background: #ddd0b8; }
-.btn-correct { background: var(--correct); color: white; }
-.btn-wrong { background: var(--wrong); color: white; }
-.btn-small { padding: 6px 14px; font-size: 0.82rem; }
-.btn:disabled { opacity: 0.5; cursor: not-allowed; }
-.example-answer {
-  background: var(--sky-light);
-  border: 1px solid var(--sky);
+.btn-primary { background: var(--terracotta); color: var(--white); }
+.btn-primary:hover { background: #A85E3E; }
+.btn-secondary { background: var(--earth-light); color: var(--earth); }
+.btn-secondary:hover { background: var(--sand); }
+.btn-correct { background: var(--correct); color: var(--white); }
+.btn-wrong { background: var(--wrong); color: var(--white); }
+.btn-small { padding: 6px 14px; font-size: 0.78rem; }
+.feedback {
+  margin-top: 12px; padding: 12px 16px;
   border-radius: var(--radius-sm);
-  padding: 14px;
-  margin-top: 12px;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   display: none;
 }
-.example-answer.show { display: block; animation: fadeIn 0.3s; }
-.self-assess { margin-top: 10px; display: none; gap: 8px; }
+.feedback.show { display: block; }
+.feedback.hint { background: var(--hint-bg); border-left: 3px solid var(--sun); }
+.feedback.correct { background: var(--correct-bg); border-left: 3px solid var(--correct); }
+.feedback.wrong { background: var(--wrong-bg); border-left: 3px solid var(--wrong); }
+/* ── OPEN QUESTION ── */
+.open-textarea {
+  width: 100%;
+  min-height: 80px;
+  padding: 12px;
+  border: 2px solid var(--earth-light);
+  border-radius: var(--radius-sm);
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.88rem;
+  resize: vertical;
+  line-height: 1.6;
+}
+.open-textarea:focus { outline: none; border-color: var(--sun); }
+.word-count { font-size: 0.75rem; color: var(--text-light); margin-top: 4px; }
+.example-answer {
+  background: var(--sun-pale);
+  border: 1px dashed var(--sun);
+  border-radius: var(--radius-sm);
+  padding: 14px;
+  margin-top: 10px;
+  font-size: 0.85rem;
+  display: none;
+}
+.example-answer.show { display: block; }
+.self-assess { margin-top: 8px; display: none; gap: 8px; }
 .self-assess.show { display: flex; }
 /* ── DRAG & DROP ── */
 .drag-list {
   list-style: none;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin: 12px 0;
+  counter-reset: drag-counter;
 }
 .drag-item {
   padding: 12px 16px;
+  margin: 6px 0;
   background: var(--white);
-  border: 2px solid var(--sand-deep);
+  border: 2px solid var(--earth-light);
   border-radius: var(--radius-sm);
-  font-weight: 600;
   cursor: grab;
-  transition: all 0.2s;
-  user-select: none;
-}
-.drag-item:active { cursor: grabbing; }
-.drag-item.dragging { opacity: 0.4; background: var(--sun-light); }
-.drag-item.drag-over { border-color: var(--sun); background: var(--sun-light); }
-.drag-item.pos-correct { border-color: var(--correct); background: var(--correct-bg); }
-.drag-item.pos-wrong { border-color: var(--wrong); background: var(--wrong-bg); }
-/* ── MATCH ── */
-.match-container { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 12px 0; }
-.match-col h4 { font-weight: 700; margin-bottom: 8px; text-align: center; font-size: 0.9rem; color: var(--text-light); }
-.match-item {
-  padding: 10px 14px;
-  border: 2px solid var(--sand-deep);
-  border-radius: var(--radius-sm);
-  margin-bottom: 6px;
   font-size: 0.88rem;
-  font-weight: 600;
-  cursor: pointer;
   transition: all 0.2s;
-  text-align: center;
-}
-.match-item.source-selected { border-color: var(--sky); background: var(--sky-light); }
-.match-item.matched { border-color: var(--olive); background: var(--olive-light); opacity: 0.85; }
-.match-item.target-hover { border-color: var(--sun); background: var(--sun-light); }
-.matched-list {
-  margin: 8px 0;
-  font-size: 0.85rem;
-}
-.matched-pair {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 6px 10px;
-  background: var(--olive-light);
-  border-radius: var(--radius-sm);
-  margin-bottom: 4px;
-  font-weight: 600;
+  gap: 10px;
 }
-.matched-pair .arrow { color: var(--olive); }
-.remove-match {
-  margin-left: auto;
-  background: none;
-  border: none;
-  color: var(--wrong);
+.drag-item::before {
+  counter-increment: drag-counter;
+  content: counter(drag-counter);
+  display: inline-flex;
+  width: 24px; height: 24px;
+  align-items: center; justify-content: center;
+  border-radius: 50%;
+  background: var(--sun-light);
+  color: var(--terracotta);
+  font-size: 0.75rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.drag-item:active { cursor: grabbing; }
+.drag-item.dragging { opacity: 0.4; border-style: dashed; }
+.drag-item.drag-over { border-color: var(--sun); background: var(--sun-pale); }
+.drag-item.correct-pos { border-color: var(--correct); background: var(--correct-bg); }
+.drag-item.wrong-pos { border-color: var(--wrong); background: var(--wrong-bg); }
+/* ── MATCH ── */
+.match-container { display: flex; gap: 20px; flex-wrap: wrap; margin: 12px 0; }
+.match-col { flex: 1; min-width: 200px; }
+.match-col h5 { font-size: 0.82rem; font-weight: 700; color: var(--text-light); margin-bottom: 8px; }
+.match-item {
+  padding: 10px 14px;
+  margin: 6px 0;
+  border-radius: var(--radius-sm);
+  border: 2px solid var(--earth-light);
+  font-size: 0.84rem;
   cursor: pointer;
-  font-weight: 800;
-  font-size: 1rem;
+  transition: all 0.2s;
+}
+.match-item:hover { border-color: var(--sun); }
+.match-item.selected { border-color: var(--terracotta); background: var(--sun-light); font-weight: 600; }
+.match-item.matched { opacity: 0.85; }
+.match-pair-display {
+  margin: 8px 0;
+  padding: 8px 12px;
+  background: var(--sun-pale);
+  border-radius: var(--radius-sm);
+  font-size: 0.82rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.match-pair-display .remove-pair {
+  cursor: pointer; color: var(--wrong); font-weight: 700; font-size: 1rem;
+  background: none; border: none; font-family: 'Nunito', sans-serif;
 }
 /* ── MAP ── */
 .map-container {
   height: 400px;
   border-radius: var(--radius);
   overflow: hidden;
-  border: 2px solid var(--sand-deep);
+  box-shadow: var(--shadow);
   margin: 16px 0;
+  border: 2px solid var(--earth-light);
 }
+/* ── NAV ── */
+.section-nav {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-top: 30px; padding-top: 16px;
+  border-top: 1px solid var(--sand);
+}
+.reset-section {
+  font-size: 0.75rem;
+  color: var(--text-light);
+  background: none;
+  border: 1px solid var(--earth-light);
+  padding: 4px 12px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-family: 'Nunito', sans-serif;
+}
+.reset-section:hover { background: var(--wrong-bg); color: var(--wrong); border-color: var(--wrong); }
 /* ── CHART ── */
 .chart-wrap {
   background: var(--white);
   border-radius: var(--radius);
   padding: 16px;
   margin: 16px 0;
-  border: 1px solid var(--sand-deep);
-  max-height: 380px;
+  box-shadow: var(--shadow);
+  max-width: 100%;
 }
 .chart-wrap canvas { max-height: 320px; }
-/* ── NAV ── */
-.tab-nav-bottom {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 28px;
-  padding-top: 20px;
-  border-top: 1px solid var(--sand-deep);
-}
-.reset-section-btn {
-  display: block;
-  margin: 16px auto 0;
-  background: none;
-  border: 1px solid var(--sand-deep);
-  border-radius: var(--radius-sm);
-  padding: 6px 16px;
-  font-family: 'Nunito', sans-serif;
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: var(--text-light);
-  cursor: pointer;
-}
-.reset-section-btn:hover { border-color: var(--wrong); color: var(--wrong); }
-/* ── SCORE ── */
-.score-card {
-  background: linear-gradient(135deg, var(--sun-light), var(--terracotta-light));
+/* ── SCORE PANEL ── */
+.score-panel {
+  background: linear-gradient(135deg, var(--sun-light) 0%, var(--terracotta-light) 100%);
   border-radius: var(--radius);
-  padding: 28px;
+  padding: 24px;
   text-align: center;
   margin: 20px 0;
+  box-shadow: var(--shadow-lg);
 }
-.score-card .big-score {
-  font-size: 3rem;
-  font-weight: 800;
-  color: var(--terracotta);
+.score-big { font-size: 2.8rem; font-weight: 800; color: var(--terracotta); }
+.score-label { font-size: 0.9rem; color: var(--text-light); }
+/* ── FOOTER ── */
+.site-footer {
+  text-align: center;
+  padding: 20px;
+  font-size: 0.75rem;
+  color: var(--text-light);
 }
-.clear-progress-btn {
-  display: block;
-  margin: 12px auto 0;
-  background: var(--wrong);
-  color: white;
-  border: none;
-  border-radius: var(--radius-sm);
-  padding: 8px 20px;
-  font-family: 'Nunito', sans-serif;
-  font-weight: 700;
-  cursor: pointer;
-}
-/* ── PROCESS VISUAL ── */
-.process-flow {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin: 16px 0;
-  font-size: 1.1rem;
-  font-weight: 700;
-}
-.process-flow .step {
-  background: var(--sun-light);
-  padding: 8px 14px;
-  border-radius: var(--radius-sm);
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-.process-flow .arrow-icon { font-size: 1.3rem; color: var(--terracotta); }
-/* ── TABLE ── */
-.data-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin: 12px 0;
-  font-size: 0.9rem;
-}
-.data-table th {
-  background: var(--sun-light);
-  padding: 10px 12px;
-  text-align: left;
-  font-weight: 700;
-  border-bottom: 2px solid var(--sun);
-}
-.data-table td {
-  padding: 10px 12px;
-  border-bottom: 1px solid var(--sand-deep);
-}
-.data-table tr:nth-child(even) { background: var(--sand); }
 /* ── RESPONSIVE ── */
-@media (max-width: 800px) {
-  .compare-box { grid-template-columns: 1fr; }
-  .match-container { grid-template-columns: 1fr; }
-  .content-area { padding: 16px 12px 32px; }
-  .tab-btn { padding: 8px 12px; font-size: 0.78rem; }
+@media (max-width: 768px) {
+  .site-header h1 { font-size: 1.3rem; }
+  .section { padding: 14px; }
+  .compare-table { font-size: 0.78rem; }
+  .match-container { flex-direction: column; }
+  .map-container { height: 300px; }
 }
+/* ── LEEFWERELD BLOK ── */
+.leefwereld {
+  background: linear-gradient(135deg, var(--sun-pale), var(--alpine-light));
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  margin: 16px 0;
+  border: 1px dashed var(--alpine);
+  font-size: 0.88rem;
+}
+.leefwereld::before { content: "🌍 "; font-size: 1.1rem; }
 </style>
 </head>
 <body>
 
-<header class="page-header">
-  <h1>✈️ Klimaatreis: Nederland vs. Spanje</h1>
-  <p>Aardrijkskunde · HAVO 1 · ~80 minuten</p>
+<!-- ═══════ HEADER ═══════ -->
+<header class="site-header">
+  <h1>✈️ Klimaatreis: Spanje & Oostenrijk</h1>
+  <p>Aardrijkskunde · HAVO 1 · ~60 minuten</p>
 </header>
 
+<!-- ═══════ PROGRESS ═══════ -->
 <div class="progress-wrap">
-  <div class="progress-inner">
-    <div class="progress-bar-bg"><div class="progress-bar-fill" id="progressFill"></div></div>
-    <span class="progress-label" id="progressLabel">0%</span>
-    <span class="section-counter" id="sectionCounter">Onderdeel 1 van 10</span>
+  <div class="progress-bar-outer"><div class="progress-bar-inner" id="progressBar"></div></div>
+  <div class="progress-text">
+    <span id="progressLabel">0% voltooid</span>
+    <button class="btn btn-small btn-secondary" id="clearProgressBtn">Voortgang wissen</button>
   </div>
 </div>
 
+<!-- ═══════ TAB BAR ═══════ -->
 <div class="tab-bar-wrap">
-  <div class="tab-bar" id="tabBar"></div>
+  <div class="tab-bar" id="tabBar">
+    <button class="tab-btn active" data-tab="0">1. Introductie</button>
+    <button class="tab-btn" data-tab="1">2. Klimaat Spanje</button>
+    <button class="tab-btn" data-tab="2">3. Klimaat Oostenrijk</button>
+    <button class="tab-btn" data-tab="3">4. Kaartverkenning</button>
+    <button class="tab-btn" data-tab="4">5. Data & Grafieken</button>
+    <button class="tab-btn" data-tab="5">6. Vergelijking</button>
+    <button class="tab-btn" data-tab="6">7. Reisscenario</button>
+    <button class="tab-btn" data-tab="7">8. Verdieping</button>
+    <button class="tab-btn" data-tab="8">9. Afsluiting</button>
+    <span class="tab-counter" id="tabCounter">Onderdeel 1 van 9</span>
+  </div>
 </div>
 
-<main class="content-area" id="contentArea">
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- SECTIE 0: INTRODUCTIE -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="section active" id="section-0">
+  <h2>✈️ Welkom bij de Klimaatreis!</h2>
 
-<!-- ════════════════ TAB 1: Introductie ════════════════ -->
-<div class="tab-panel" id="tab-0">
   <div class="info-block">
-    <span class="emoji-header">✈️🌍</span>
-    <h2>Welkom bij jouw klimaatreis!</h2>
-    <p>Stel je voor: je stapt op het vliegtuig van Schiphol naar Madrid. Na twee uur landen ben je in een compleet andere wereld. Het is er droger, warmer en de zon schijnt feller. Maar waarom eigenlijk? Waarom regent het in Nederland zoveel meer dan in Spanje? En waarom is het in Spanje in de zomer soms 40°C, terwijl we in Nederland al blij zijn met 25°C?</p>
-    <p>In deze les ga je op ontdekkingsreis door het klimaat van Nederland en Spanje. Je leert niet alleen <strong>wat</strong> de verschillen zijn, maar ook <strong>waardoor</strong> ze ontstaan. Je gaat werken met echte klimaatdata, kaarten en grafieken — precies zoals echte geografen dat doen.</p>
-
-    <div class="highlight-box">
-      <strong>🎯 Wat ga je leren?</strong><br>
-      1. Je kunt de belangrijkste klimaatverschillen tussen Nederland en Spanje benoemen.<br>
-      2. Je kunt uitleggen <em>waardoor</em> het klimaat verschilt (minstens twee oorzaken).<br>
-      3. Je kunt klimaatgrafieken aflezen en klimaattypen vergelijken.
-    </div>
-
-    <p>Onderweg gebruik je kaarten, grafieken en schrijf je je eigen antwoorden. Aan het eind kijk je terug op wat je hebt geleerd. Klaar voor vertrek? ✈️</p>
-
-    <h3>🤔 Even nadenken…</h3>
-    <p>Voordat we beginnen: wat weet je eigenlijk al? Denk eens aan je eigen ervaringen. Ben je weleens op vakantie geweest naar een warm land? Of heb je op het nieuws gehoord over hittegolven in Zuid-Europa?</p>
+    <div class="emoji-header">🌞🏔️</div>
+    <p>Stel je voor: je boekt twee vakanties. De ene keer vlieg je naar <strong>Spanje</strong> — zon, zee en sangría. De andere keer ga je naar <strong>Oostenrijk</strong> — bergen, sneeuw en Sachertorte. Maar waarom is het klimaat op die twee plekken eigenlijk zo anders? Dat ga je deze les ontdekken!</p>
+    <p>In deze interactieve les leer je alles over het klimaat van Spanje en Oostenrijk. Je onderzoekt kaarten, analyseert grafieken, vergelijkt data en schrijft je eigen conclusies. Aan het einde kun je precies uitleggen <em>wat</em> de klimaatverschillen zijn en <em>waarom</em> ze bestaan.</p>
+    <p>Je werkt aan drie leerdoelen:</p>
+    <ul style="margin:8px 0 8px 20px;">
+      <li>Ik kan het klimaat van Spanje en Oostenrijk beschrijven.</li>
+      <li>Ik kan verschillen en overeenkomsten noemen.</li>
+      <li>Ik kan uitleggen waardoor het klimaat anders is.</li>
+    </ul>
   </div>
 
-  <!-- Q1: open -->
-  <div class="question-block" data-tab="0" data-qid="q0_1" data-type="open">
-    <span class="q-label">Open vraag</span>
-    <p class="q-text">Schrijf in minimaal 2-3 zinnen op: wat merk je als je op een warme bestemming aankomt (denk aan temperatuur, lucht, natuur)? Hoe verschilt dat van een doorsnee dag in Nederland?</p>
-    <textarea class="open-answer" data-qid="q0_1" placeholder="Typ hier je antwoord..."></textarea>
-    <div class="word-count" data-qid="q0_1">0 woorden (minimaal 20)</div>
-    <button class="btn btn-primary btn-small" data-action="show-example" data-qid="q0_1" style="margin-top:8px" disabled>Toon voorbeeldantwoord</button>
-    <div class="example-answer" data-qid="q0_1">
-      <strong>Voorbeeldantwoord:</strong> Als je aankomt op een warme bestemming zoals Spanje merk je meteen dat de lucht veel droger en warmer aanvoelt. De zon brandt feller op je huid dan in Nederland. De natuur ziet er ook anders uit: je ziet meer bruine, droge grond en palmbomen in plaats van groen gras. In Nederland is het vaker bewolkt en vochtig, en ruik je soms de regen in de lucht.
-    </div>
-    <div class="self-assess" data-qid="q0_1">
-      <span style="font-size:0.85rem;font-weight:600;">Hoe beoordeel je je eigen antwoord?</span>
-      <button class="btn btn-correct btn-small" data-assess="correct" data-qid="q0_1">Goed ✓</button>
-      <button class="btn btn-wrong btn-small" data-assess="wrong" data-qid="q0_1">Fout ✗</button>
-    </div>
-    <div class="feedback-box" data-qid="q0_1"></div>
+  <div class="leefwereld">
+    <strong>Herken je dit?</strong> Als je 's ochtends naar school fietst, merk je het weer: regen, wind, kou of zon. Het weer verandert elke dag. Maar <em>klimaat</em> is het gemiddelde weer over een lange tijd (minstens 30 jaar). Welk weer is in Nederland het meest 'normaal' denk je? Houd dat in je achterhoofd terwijl je leert over Spanje en Oostenrijk!
   </div>
 
-  <!-- Q2: MC -->
-  <div class="question-block" data-tab="0" data-qid="q0_2" data-type="mc" data-answer="B" data-attempts="0">
-    <span class="q-label">Multiple choice</span>
-    <p class="q-text">De vlucht van Amsterdam naar Madrid duurt ongeveer 2,5 uur. In welke richting vlieg je dan?</p>
-    <div class="mc-options">
-      <button class="mc-btn" data-choice="A">A) Noord</button>
-      <button class="mc-btn" data-choice="B">B) Zuid/zuidwest</button>
-      <button class="mc-btn" data-choice="C">C) Oost</button>
-      <button class="mc-btn" data-choice="D">D) West</button>
-    </div>
-    <div class="feedback-box" data-qid="q0_2" data-hint1="Kijk eens op een kaart: waar ligt Spanje ten opzichte van Nederland?" data-hint2="Spanje ligt lager op de kaart én iets naar links. Welke windrichting is dat?" data-explain="Spanje ligt ten zuiden/zuidwesten van Nederland. Als je van Amsterdam naar Madrid vliegt, ga je dus richting het zuiden met een lichte afwijking naar het westen."></div>
+  <!-- VRAAG: MC -->
+  <div class="question-block" data-section="0" data-qid="q0_1" data-type="mc">
+    <h4><span class="q-icon">1</span> Wat is het verschil tussen weer en klimaat?</h4>
+    <ul class="mc-options">
+      <li data-value="a">Weer gaat over lange periodes, klimaat over één dag</li>
+      <li data-value="b">Weer is wat je dagelijks meemaakt, klimaat is het gemiddelde over minstens 30 jaar</li>
+      <li data-value="c">Er is geen verschil, het zijn synoniemen</li>
+      <li data-value="d">Klimaat gaat alleen over temperatuur, weer over alles</li>
+    </ul>
+    <button class="btn btn-primary check-mc-btn" data-answer="b">Controleer</button>
+    <div class="feedback" data-hints='["Denk aan tijdsduur: het ene gaat over vandaag, het andere over jaren. Welke is welke?","Klimaat = gemiddelde. Over hoeveel jaar moet je dan meten?"]'></div>
   </div>
 
-  <div class="tab-nav-bottom">
-    <span></span>
-    <button class="btn btn-primary" data-nav="next">Volgende →</button>
+  <!-- VRAAG: OPEN -->
+  <div class="question-block" data-section="0" data-qid="q0_2" data-type="open">
+    <h4><span class="q-icon">2</span> Je gaat op vakantie naar Spanje én Oostenrijk. Wat voor kleding zou je voor elk land inpakken en waarom? (Schrijf minstens 2-3 zinnen)</h4>
+    <textarea class="open-textarea" placeholder="Schrijf hier je antwoord..."></textarea>
+    <div class="word-count">0 woorden</div>
+    <button class="btn btn-primary show-example-btn" style="display:none;">Toon voorbeeldantwoord</button>
+    <div class="example-answer">
+      <strong>Voorbeeldantwoord:</strong> Voor Spanje zou ik lichte kleding inpakken zoals korte broeken en T-shirts, omdat het daar warm en zonnig is, vooral in de zomer. Voor Oostenrijk neem ik warmere kleding mee zoals een jas en lange broeken, want in de bergen kan het koud zijn, zelfs in de zomer. In de winter neem ik voor Oostenrijk zeker winterkleding en skispullen mee.
+    </div>
+    <div class="self-assess">
+      <button class="btn btn-correct btn-small self-correct">Goed ✓</button>
+      <button class="btn btn-wrong btn-small self-wrong">Fout ✗</button>
+    </div>
   </div>
-  <button class="reset-section-btn" data-reset-tab="0">🔄 Reset dit onderdeel</button>
+
+  <!-- VRAAG: MC -->
+  <div class="question-block" data-section="0" data-qid="q0_3" data-type="mc">
+    <h4><span class="q-icon">3</span> Welk land ligt zuidelijker?</h4>
+    <ul class="mc-options">
+      <li data-value="a">Oostenrijk</li>
+      <li data-value="b">Spanje</li>
+      <li data-value="c">Ze liggen op dezelfde breedte</li>
+    </ul>
+    <button class="btn btn-primary check-mc-btn" data-answer="b">Controleer</button>
+    <div class="feedback" data-hints='["Kijk in gedachten naar een kaart van Europa. Welk land ligt dichter bij Afrika?"]'></div>
+  </div>
+
+  <div class="section-nav">
+    <button class="reset-section" data-section="0">🔄 Reset dit onderdeel</button>
+    <div>
+      <button class="btn btn-primary nav-btn" data-dir="next">Volgende →</button>
+    </div>
+  </div>
 </div>
 
-<!-- ════════════════ TAB 2: De Kaart Verkennen ════════════════ -->
-<div class="tab-panel" id="tab-1">
-  <div class="info-block">
-    <span class="emoji-header">🗺️📍</span>
-    <h2>Nederland en Spanje op de kaart</h2>
-    <p>Laten we eerst kijken <strong>waar</strong> Nederland en Spanje precies liggen. Dat is belangrijk, want de ligging van een land bepaalt voor een groot deel het klimaat. Nederland ligt op ongeveer 52° noorderbreedte, terwijl Madrid op zo'n 40° noorderbreedte ligt. Dat verschil van 12 breedtegraden maakt enorm veel uit!</p>
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- SECTIE 1: KLIMAAT SPANJE -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="section" id="section-1">
+  <h2>🇪🇸 Het klimaat van Spanje</h2>
 
-    <p>Hoe dichter bij de evenaar (0° breedte), hoe directer de zonnestralen op het aardoppervlak vallen. In Spanje staan de zonnestralen steiler — daardoor wordt het oppervlak sterker verwarmd. In Nederland vallen de stralen schuin, waardoor dezelfde hoeveelheid energie over een groter oppervlak wordt verspreid. Het gevolg? Minder warmte per vierkante meter.</p>
+  <div class="info-block spain">
+    <div class="emoji-header">☀️🌊</div>
+    <h3>Mediterraan klimaat</h3>
+    <p>Het grootste deel van Spanje heeft een <strong>mediterraan klimaat</strong>. Dat betekent: hete, droge zomers en milde, nattere winters. De gemiddelde temperatuur in de zomer kan oplopen tot 35°C of meer in steden als Sevilla en Córdoba. In de winter daalt de temperatuur zelden onder de 10°C aan de kust.</p>
+    <p>Dit klimaat ontstaat doordat Spanje op een lage breedtegraad ligt (tussen ongeveer 36°N en 44°N), dicht bij de Kreeftskeerkring. In de zomer staat de zon er hoog aan de hemel en schijnt lang. Warme, droge lucht uit de Sahara kan naar Spanje trekken, wat zorgt voor hittegolven.</p>
+    <p>Langs de Middellandse Zeekust is de zee een belangrijke factor: de zee warmt langzamer op en koelt langzamer af, waardoor de kust gematigder is dan het binnenland. De regio rond Barcelona krijgt bijvoorbeeld frissere zeebries in de zomer.</p>
+  </div>
 
-    <div class="highlight-box">
-      <strong>💡 Wist je dat…</strong> het verschil in breedtegraad tussen Amsterdam en Madrid ongeveer even groot is als de afstand van Amsterdam naar de Alpen? Dat zijn zo'n 1.500 kilometer!
+  <div class="info-block spain">
+    <div class="emoji-header">🏜️🌧️</div>
+    <h3>Regionale verschillen</h3>
+    <p>Spanje is niet overal hetzelfde! In het <strong>noorden</strong> (Galicië, Baskenland) regent het veel meer — soms wel 1500 mm per jaar. Dit komt door de Atlantische Oceaan en de bergen die vochtige lucht tegenhouden. Hier is het klimaat <strong>oceaanklimaat</strong>: zachte winters, koele zomers, veel regen.</p>
+    <p>In het <strong>binnenland</strong> (de Meseta, het hoogplateau) zijn de temperatuurverschillen veel groter. Madrid kan in de winter flink koud zijn (rond het vriespunt) en in de zomer snikheet (boven 40°C). Dit noemen we een <strong>continentaal mediterraan klimaat</strong>.</p>
+    <p>In het <strong>zuidoosten</strong> (Almería) ligt de droogste plek van Europa met minder dan 200 mm regen per jaar. Hier worden zelfs films opgenomen die in een woestijn moeten spelen!</p>
+    <div class="emoji-flow">
+      <span>☀️ Zon</span><span class="arrow">→</span>
+      <span>🌡️ Opwarming</span><span class="arrow">→</span>
+      <span>💨 Droge lucht</span><span class="arrow">→</span>
+      <span>🏜️ Weinig regen</span><span class="arrow">→</span>
+      <span>🌵 Droog landschap</span>
     </div>
+  </div>
 
-    <p>Op de kaart hieronder zie je de belangrijkste steden van beide landen. Klik op de markers voor meer informatie. Let goed op de ligging: hoe ver is elke stad van de kust? En hoe zuidelijk liggen de Spaanse steden vergeleken met de Nederlandse?</p>
+  <div class="leefwereld">
+    <strong>Vergelijk het eens:</strong> In Nederland valt gemiddeld 850 mm neerslag per jaar, verspreid over het hele jaar. In Zuid-Spanje valt er maar 300 mm, vooral in de winter. Stel dat je in Spanje woont — hoe zou jouw dagelijks leven er anders uitzien? Denk aan water, tuinen, en wanneer je buiten speelt.
+  </div>
+
+  <!-- VRAAG: MC -->
+  <div class="question-block" data-section="1" data-qid="q1_1" data-type="mc">
+    <h4><span class="q-icon">1</span> Wat kenmerkt een mediterraan klimaat?</h4>
+    <ul class="mc-options">
+      <li data-value="a">Koele zomers en natte winters</li>
+      <li data-value="b">Hete, droge zomers en milde, nattere winters</li>
+      <li data-value="c">Het hele jaar door veel regen</li>
+      <li data-value="d">Extreme kou in de winter</li>
+    </ul>
+    <button class="btn btn-primary check-mc-btn" data-answer="b">Controleer</button>
+    <div class="feedback" data-hints='["Denk aan de Middellandse Zee-vakantie: wanneer gaan de meeste mensen naar Spanje? Omdat het dan...?","Het woord droog hoort bij de zomer, nat bij de winter."]'></div>
+  </div>
+
+  <!-- VRAAG: MC -->
+  <div class="question-block" data-section="1" data-qid="q1_2" data-type="mc">
+    <h4><span class="q-icon">2</span> Waar in Spanje regent het het meest?</h4>
+    <ul class="mc-options">
+      <li data-value="a">In het zuidoosten (Almería)</li>
+      <li data-value="b">In het noorden (Galicië, Baskenland)</li>
+      <li data-value="c">In het centrum (Madrid)</li>
+      <li data-value="d">Overal evenveel</li>
+    </ul>
+    <button class="btn btn-primary check-mc-btn" data-answer="b">Controleer</button>
+    <div class="feedback" data-hints='["Welke kant van Spanje ligt aan de Atlantische Oceaan? Oceaanlucht brengt vocht mee..."]'></div>
+  </div>
+
+  <!-- VRAAG: OPEN -->
+  <div class="question-block" data-section="1" data-qid="q1_3" data-type="open">
+    <h4><span class="q-icon">3</span> Leg in je eigen woorden uit waarom het in het binnenland van Spanje (Madrid) extremere temperaturen heeft dan aan de kust (Barcelona). Gebruik het begrip 'zee-invloed'.</h4>
+    <textarea class="open-textarea" placeholder="Schrijf hier je antwoord..."></textarea>
+    <div class="word-count">0 woorden</div>
+    <button class="btn btn-primary show-example-btn" style="display:none;">Toon voorbeeldantwoord</button>
+    <div class="example-answer">
+      <strong>Voorbeeldantwoord:</strong> De zee warmt langzaam op en koelt langzaam af. Daardoor houdt de zee de temperatuur aan de kust gematigd: niet te heet in de zomer en niet te koud in de winter. Dit noemen we zee-invloed. Madrid ligt ver van de zee op een hoogplateau, waardoor er geen zee-invloed is. Daarom wordt het er in de zomer veel heter en in de winter veel kouder dan in Barcelona.
+    </div>
+    <div class="self-assess">
+      <button class="btn btn-correct btn-small self-correct">Goed ✓</button>
+      <button class="btn btn-wrong btn-small self-wrong">Fout ✗</button>
+    </div>
+  </div>
+
+  <div class="section-nav">
+    <button class="reset-section" data-section="1">🔄 Reset dit onderdeel</button>
+    <div>
+      <button class="btn btn-secondary nav-btn" data-dir="prev">← Vorige</button>
+      <button class="btn btn-primary nav-btn" data-dir="next">Volgende →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- SECTIE 2: KLIMAAT OOSTENRIJK -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="section" id="section-2">
+  <h2>🇦🇹 Het klimaat van Oostenrijk</h2>
+
+  <div class="info-block austria">
+    <div class="emoji-header">🏔️❄️</div>
+    <h3>Gematigd continentaal & bergklimaat</h3>
+    <p>Oostenrijk heeft grotendeels een <strong>gematigd continentaal klimaat</strong>. Dat betekent: warme zomers (gemiddeld 20-25°C in het dal) en koude winters (vaak onder 0°C). De temperatuurverschillen tussen zomer en winter zijn groter dan in een kustland zoals Nederland.</p>
+    <p>Maar Oostenrijk heeft ook een bijzonderheid: de <strong>Alpen</strong>. Ruim 60% van het land is bergachtig. In de bergen geldt: hoe hoger je komt, hoe kouder het wordt — gemiddeld 0,6°C per 100 meter hoogte. Op 2000 meter hoogte kan het dus 12°C kouder zijn dan in het dal! Dit noemen we het <strong>bergklimaat</strong> of alpien klimaat.</p>
+    <p>In de winter valt er in de Alpen enorm veel sneeuw, soms wel 5-10 meter op de hoogste toppen. Dit maakt Oostenrijk een populair skiland. In de zomer zijn de bergen juist aantrekkelijk om te wandelen vanwege de aangename temperaturen.</p>
+  </div>
+
+  <div class="info-block austria">
+    <div class="emoji-header">🌡️🌲</div>
+    <h3>Hoogtezones en de Föhn</h3>
+    <p>In de Alpen zie je duidelijke <strong>hoogtezones</strong>: in het dal groeien loofbomen, hoger vind je naaldbomen, dan alpenweiden, en boven de sneeuwgrens (ca. 2700m) is er permanente sneeuw en ijs.</p>
+    <div class="emoji-flow">
+      <span>🏘️ Dal (500m)</span><span class="arrow">→</span>
+      <span>🌳 Loofbos (800m)</span><span class="arrow">→</span>
+      <span>🌲 Naaldbos (1500m)</span><span class="arrow">→</span>
+      <span>🌿 Alpenweide (2200m)</span><span class="arrow">→</span>
+      <span>❄️ Sneeuw (2700m+)</span>
+    </div>
+    <p>Een beroemd verschijnsel in de Alpen is de <strong>Föhn</strong>: een warme, droge wind die over de bergen waait. Wanneer vochtige lucht tegen de berg opstijgt, koelt de lucht af en regent het aan de windzijde (loefzijde). De lucht die aan de andere kant (lijzijde) weer daalt, warmt op en wordt droog. Hierdoor kan de temperatuur in de dalen plotseling 10-15°C stijgen!</p>
+    <p>Wenen, de hoofdstad, ligt in het vlakkere oosten van Oostenrijk. Hier is het klimaat meer continentaal: warmere zomers (tot 30°C) en koude winters met regelmatig vorst. De neerslag is er lager (ca. 600 mm per jaar) dan in de bergen (tot 2000 mm).</p>
+  </div>
+
+  <div class="leefwereld">
+    <strong>Denk eens na:</strong> In Nederland is het hoogste punt de Vaalserberg (322m). De Alpen zijn meer dan 10 keer zo hoog! Als je ooit hebt geskied of naar de bergen bent geweest, herken je misschien dat het bovenaan de berg veel kouder was. Hoe zou het zijn om in een Alpendalletje te wonen waar de winter 5 maanden duurt?
+  </div>
+
+  <!-- VRAAG: MC -->
+  <div class="question-block" data-section="2" data-qid="q2_1" data-type="mc">
+    <h4><span class="q-icon">1</span> Hoeveel graden koeler wordt het gemiddeld per 100 meter hoogte?</h4>
+    <ul class="mc-options">
+      <li data-value="a">0,2°C</li>
+      <li data-value="b">0,6°C</li>
+      <li data-value="c">1,5°C</li>
+      <li data-value="d">3,0°C</li>
+    </ul>
+    <button class="btn btn-primary check-mc-btn" data-answer="b">Controleer</button>
+    <div class="feedback" data-hints='["Dit getal stond in de uitleg hierboven. Het is minder dan 1 graad per 100 meter, maar meer dan een halve."]'></div>
+  </div>
+
+  <!-- VRAAG: OPEN -->
+  <div class="question-block" data-section="2" data-qid="q2_2" data-type="open">
+    <h4><span class="q-icon">2</span> Leg het Föhn-effect uit in je eigen woorden. Gebruik de begrippen 'loefzijde', 'lijzijde', 'afkoelen' en 'opwarmen'.</h4>
+    <textarea class="open-textarea" placeholder="Schrijf hier je antwoord..."></textarea>
+    <div class="word-count">0 woorden</div>
+    <button class="btn btn-primary show-example-btn" style="display:none;">Toon voorbeeldantwoord</button>
+    <div class="example-answer">
+      <strong>Voorbeeldantwoord:</strong> Vochtige lucht wordt tegen de berg aangeblazen en stijgt op aan de loefzijde. Terwijl de lucht stijgt, koelt deze af en de waterdamp condenseert: het regent. De lucht is nu droog. Aan de lijzijde (de andere kant) daalt de lucht weer. Dalende lucht warmt op, waardoor het in het dal aan de lijzijde plotseling veel warmer en droger wordt. Dit is de Föhn.
+    </div>
+    <div class="self-assess">
+      <button class="btn btn-correct btn-small self-correct">Goed ✓</button>
+      <button class="btn btn-wrong btn-small self-wrong">Fout ✗</button>
+    </div>
+  </div>
+
+  <!-- VRAAG: MC -->
+  <div class="question-block" data-section="2" data-qid="q2_3" data-type="mc">
+    <h4><span class="q-icon">3</span> Wat is GEEN kenmerk van het klimaat in de Alpen?</h4>
+    <ul class="mc-options">
+      <li data-value="a">Veel sneeuw in de winter</li>
+      <li data-value="b">Duidelijke hoogtezones in vegetatie</li>
+      <li data-value="c">Het hele jaar door droog en heet</li>
+      <li data-value="d">Temperatuur daalt met de hoogte</li>
+    </ul>
+    <button class="btn btn-primary check-mc-btn" data-answer="c">Controleer</button>
+    <div class="feedback" data-hints='["De Alpen zijn bergen met sneeuw. Kan het dan het hele jaar droog en heet zijn?"]'></div>
+  </div>
+
+  <div class="section-nav">
+    <button class="reset-section" data-section="2">🔄 Reset dit onderdeel</button>
+    <div>
+      <button class="btn btn-secondary nav-btn" data-dir="prev">← Vorige</button>
+      <button class="btn btn-primary nav-btn" data-dir="next">Volgende →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- SECTIE 3: KAARTVERKENNING -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="section" id="section-3">
+  <h2>🗺️ Kaartverkenning</h2>
+
+  <div class="info-block">
+    <p>Hieronder zie je een interactieve kaart van Europa met belangrijke klimaatlocaties in Spanje en Oostenrijk. Klik op de markers om meer informatie te zien over elke plek. Let op: de ligging (breedtegraad, hoogte, afstand tot zee) bepaalt voor een groot deel het klimaat!</p>
+    <p>Merk op hoe ver Spanje naar het zuiden reikt (bijna tot Afrika!) en hoe Oostenrijk midden in de Alpen ingeklemd zit. De breedtegraad maakt een enorm verschil: elke graad noordelijker betekent gemiddeld minder zonuren en lagere temperaturen.</p>
   </div>
 
   <div class="map-container" id="map1"></div>
 
-  <!-- Q1: MC -->
-  <div class="question-block" data-tab="1" data-qid="q1_1" data-type="mc" data-answer="C" data-attempts="0">
-    <span class="q-label">Kaartvraag</span>
-    <p class="q-text">Bekijk de kaart. Hoeveel breedtegraden liggen er ongeveer tussen Amsterdam (52°N) en Madrid (40°N)?</p>
-    <div class="mc-options">
-      <button class="mc-btn" data-choice="A">A) Ongeveer 5 graden</button>
-      <button class="mc-btn" data-choice="B">B) Ongeveer 8 graden</button>
-      <button class="mc-btn" data-choice="C">C) Ongeveer 12 graden</button>
-      <button class="mc-btn" data-choice="D">D) Ongeveer 20 graden</button>
-    </div>
-    <div class="feedback-box" data-qid="q1_1" data-hint1="Reken eens: 52 min 40, hoeveel is dat?" data-hint2="Het is een simpel sommetje. Trek de breedtegraad van Madrid af van die van Amsterdam." data-explain="52°N − 40°N = 12 graden. Dit lijkt weinig, maar elke breedtegraad is ongeveer 111 km. Het verschil is dus zo'n 1.330 km!"></div>
+  <div class="leefwereld">
+    <strong>Reistip:</strong> Stel je plant een roadtrip van Amsterdam naar Sevilla — dat is ruim 2000 km naar het zuiden. Je merkt onderweg hoe het landschap en klimaat verandert: van groene weilanden naar droge heuvels. Hoe zou een reis naar Innsbruck (ca. 900 km) anders voelen?
   </div>
 
-  <!-- Q2: open -->
-  <div class="question-block" data-tab="1" data-qid="q1_2" data-type="open">
-    <span class="q-label">Analysevraag</span>
-    <p class="q-text">Bekijk de kaart nog eens goed. Barcelona en Bilbao liggen allebei in Spanje, maar Barcelona ligt aan de Middellandse Zee en Bilbao aan de Atlantische Oceaan. Wat denk je: heeft dat invloed op het klimaat? Leg uit in minimaal 2-3 zinnen.</p>
-    <textarea class="open-answer" data-qid="q1_2" placeholder="Typ hier je antwoord..."></textarea>
-    <div class="word-count" data-qid="q1_2">0 woorden (minimaal 20)</div>
-    <button class="btn btn-primary btn-small" data-action="show-example" data-qid="q1_2" style="margin-top:8px" disabled>Toon voorbeeldantwoord</button>
-    <div class="example-answer" data-qid="q1_2">
-      <strong>Voorbeeldantwoord:</strong> Ja, de ligging aan verschillende zeeën heeft invloed op het klimaat. Barcelona aan de Middellandse Zee heeft warmere, drogere zomers omdat de Middellandse Zee minder koele zeewinden brengt. Bilbao aan de Atlantische Oceaan krijgt meer regen en heeft mildere temperaturen, omdat de oceaan veel vocht meebrengt met de westenwind.
-    </div>
-    <div class="self-assess" data-qid="q1_2">
-      <span style="font-size:0.85rem;font-weight:600;">Hoe beoordeel je je eigen antwoord?</span>
-      <button class="btn btn-correct btn-small" data-assess="correct" data-qid="q1_2">Goed ✓</button>
-      <button class="btn btn-wrong btn-small" data-assess="wrong" data-qid="q1_2">Fout ✗</button>
-    </div>
-    <div class="feedback-box" data-qid="q1_2"></div>
+  <!-- VRAAG: MC - kaart -->
+  <div class="question-block" data-section="3" data-qid="q3_1" data-type="mc">
+    <h4><span class="q-icon">1</span> Bekijk de kaart. Welke stad ligt het meest zuidelijk?</h4>
+    <ul class="mc-options">
+      <li data-value="a">Wenen (48°N)</li>
+      <li data-value="b">Barcelona (41°N)</li>
+      <li data-value="c">Sevilla (37°N)</li>
+      <li data-value="d">Innsbruck (47°N)</li>
+    </ul>
+    <button class="btn btn-primary check-mc-btn" data-answer="c">Controleer</button>
+    <div class="feedback" data-hints='["Hoe lager het getal bij °N, hoe zuidelijker. Welke stad heeft het laagste getal?"]'></div>
   </div>
 
-  <!-- Q3: MC -->
-  <div class="question-block" data-tab="1" data-qid="q1_3" data-type="mc" data-answer="A" data-attempts="0">
-    <span class="q-label">Multiple choice</span>
-    <p class="q-text">Waarom is de breedtegraad belangrijk voor het klimaat?</p>
-    <div class="mc-options">
-      <button class="mc-btn" data-choice="A">A) Hoe dichter bij de evenaar, hoe steiler de zonnestralen vallen</button>
-      <button class="mc-btn" data-choice="B">B) Hoe dichter bij de evenaar, hoe meer wind er staat</button>
-      <button class="mc-btn" data-choice="C">C) De breedtegraad bepaalt hoe hoog de bergen zijn</button>
+  <!-- VRAAG: OPEN -->
+  <div class="question-block" data-section="3" data-qid="q3_2" data-type="open">
+    <h4><span class="q-icon">2</span> Bekijk de kaart en vergelijk de ligging van Sevilla en Innsbruck. Noem minstens twee redenen waarom het klimaat daar anders is. Denk aan breedtegraad, hoogte en afstand tot zee.</h4>
+    <textarea class="open-textarea" placeholder="Schrijf hier je antwoord..."></textarea>
+    <div class="word-count">0 woorden</div>
+    <button class="btn btn-primary show-example-btn" style="display:none;">Toon voorbeeldantwoord</button>
+    <div class="example-answer">
+      <strong>Voorbeeldantwoord:</strong> Sevilla ligt veel zuidelijker (37°N) dan Innsbruck (47°N), dus krijgt Sevilla meer directe zonnestraling en is het warmer. Bovendien ligt Innsbruck in de Alpen op hoogte, waardoor het er kouder is. Sevilla ligt dicht bij de zee en laag, Innsbruck ligt ver van de zee en ingesloten door bergen. Die combinatie maakt het klimaatverschil erg groot.
     </div>
-    <div class="feedback-box" data-qid="q1_3" data-hint1="Denk aan hoe zonlicht op de aarde valt. Maakt het uit of de stralen recht naar beneden of schuin vallen?" data-hint2="Bij de evenaar staat de zon hoog aan de hemel. De stralen vallen bijna loodrecht. Wat betekent dat voor de warmte?" data-explain="Dichtbij de evenaar vallen zonnestralen steiler op het oppervlak, waardoor de energie geconcentreerder is en het oppervlak sterker opwarmt."></div>
+    <div class="self-assess">
+      <button class="btn btn-correct btn-small self-correct">Goed ✓</button>
+      <button class="btn btn-wrong btn-small self-wrong">Fout ✗</button>
+    </div>
   </div>
 
-  <div class="tab-nav-bottom">
-    <button class="btn btn-secondary" data-nav="prev">← Vorige</button>
-    <button class="btn btn-primary" data-nav="next">Volgende →</button>
+  <!-- VRAAG: MC -->
+  <div class="question-block" data-section="3" data-qid="q3_3" data-type="mc">
+    <h4><span class="q-icon">3</span> Waarom is het klimaat aan de Spaanse noordkust (bijv. Bilbao) natter dan aan de zuidkust?</h4>
+    <ul class="mc-options">
+      <li data-value="a">De noordkust ligt hoger</li>
+      <li data-value="b">De Atlantische Oceaan brengt vochtige lucht mee die tegen de bergen regent</li>
+      <li data-value="c">De zuidkust ligt dichter bij de Sahara</li>
+      <li data-value="d">B en C zijn allebei waar</li>
+    </ul>
+    <button class="btn btn-primary check-mc-btn" data-answer="d">Controleer</button>
+    <div class="feedback" data-hints='["Er zijn twee factoren: wat komt er van de oceaan, en wat komt er vanuit Afrika? Beide spelen een rol."]'></div>
   </div>
-  <button class="reset-section-btn" data-reset-tab="1">🔄 Reset dit onderdeel</button>
+
+  <div class="section-nav">
+    <button class="reset-section" data-section="3">🔄 Reset dit onderdeel</button>
+    <div>
+      <button class="btn btn-secondary nav-btn" data-dir="prev">← Vorige</button>
+      <button class="btn btn-primary nav-btn" data-dir="next">Volgende →</button>
+    </div>
+  </div>
 </div>
 
-<!-- ════════════════ TAB 3: Temperatuur ════════════════ -->
-<div class="tab-panel" id="tab-2">
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- SECTIE 4: DATA & GRAFIEKEN -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="section" id="section-4">
+  <h2>📊 Data & Grafieken</h2>
+
   <div class="info-block">
-    <span class="emoji-header">🌡️☀️</span>
-    <h2>Temperatuurverschillen: de cijfers</h2>
-    <p>Laten we nu naar de data kijken. Hieronder zie je de gemiddelde maandtemperaturen van De Bilt (Nederland) en Madrid (Spanje). Let goed op de verschillen — niet alleen in de zomer, maar ook in de winter!</p>
-
-    <div class="compare-box">
-      <div class="compare-card nl">
-        <span class="flag">🇳🇱</span>
-        <h4>De Bilt</h4>
-        <p>Gemiddeld jarig: <strong>10,5°C</strong><br>Zomer: ~17°C<br>Winter: ~3°C</p>
-      </div>
-      <div class="compare-card es">
-        <span class="flag">🇪🇸</span>
-        <h4>Madrid</h4>
-        <p>Gemiddeld jarig: <strong>15°C</strong><br>Zomer: ~25°C<br>Winter: ~6°C</p>
-      </div>
-    </div>
-
-    <p>Opvallend is dat het verschil in de <strong>zomer</strong> veel groter is dan in de winter. In juli is het in Madrid gemiddeld 25°C (met uitschieters tot 40°C!), terwijl De Bilt rond 17°C blijft. In de winter liggen de temperaturen dichter bij elkaar. Dit komt doordat de Atlantische Oceaan en de Golfstroom Nederland in de winter relatief warm houden.</p>
-
-    <h3>🌊 De Golfstroom: Nederland's warmwaterkruik</h3>
-    <p>De Golfstroom is een enorme warme zeestroming die vanuit de Golf van Mexico naar Europa stroomt. Dankzij deze stroming is het in West-Europa (en dus Nederland) veel warmer dan op dezelfde breedtegraad in Canada. Stel je voor: steden in Canada op dezelfde breedtegraad als Amsterdam hebben wintertemperaturen van -15°C of lager! In Amsterdam is dat gemiddeld zo'n 3°C. Dat verschil is grotendeels te danken aan de Golfstroom.</p>
-
-    <div class="highlight-box">
-      <strong>🏠 Herken je het?</strong> Als jij 's winters naar school fietst en het vriest een paar graden — dat voelt al koud! Maar dankzij de Golfstroom is het bij ons nog relatief mild vergeleken met landen op dezelfde breedtegraad elders op de wereld.
-    </div>
+    <p>Aardrijkskundigen gebruiken <strong>klimaatgrafieken</strong> (ook wel klimatogrammen) om het klimaat van een plek te laten zien. Je ziet dan de gemiddelde temperatuur per maand (lijn) en de gemiddelde neerslag per maand (staaf). Hieronder vergelijk je de klimaatdata van <strong>Madrid</strong> en <strong>Wenen</strong>.</p>
+    <p>Let bij het lezen van de grafiek op: wanneer is het warmst? Wanneer valt de meeste regen? Is er een droge periode?</p>
   </div>
 
   <div class="chart-wrap">
+    <h3 style="margin-bottom:10px;">🌡️ Gemiddelde temperatuur per maand (°C)</h3>
     <canvas id="chartTemp"></canvas>
   </div>
 
-  <!-- Q1: grafiek aflezen -->
-  <div class="question-block" data-tab="2" data-qid="q2_1" data-type="mc" data-answer="B" data-attempts="0">
-    <span class="q-label">Grafiekvraag</span>
-    <p class="q-text">Lees de grafiek af: in welke maand is het temperatuurverschil tussen Madrid en De Bilt het grootst?</p>
-    <div class="mc-options">
-      <button class="mc-btn" data-choice="A">A) Januari</button>
-      <button class="mc-btn" data-choice="B">B) Juli</button>
-      <button class="mc-btn" data-choice="C">C) Oktober</button>
-      <button class="mc-btn" data-choice="D">D) April</button>
-    </div>
-    <div class="feedback-box" data-qid="q2_1" data-hint1="Kijk naar de grafiek: waar is de afstand tussen de twee lijnen het grootst?" data-hint2="In de zomermaanden liggen de lijnen het verst uit elkaar. Welke maand piekt het verschil?" data-explain="In juli is het verschil het grootst: Madrid ~25°C versus De Bilt ~17°C, een verschil van zo'n 8°C."></div>
-  </div>
-
-  <!-- Q2: open -->
-  <div class="question-block" data-tab="2" data-qid="q2_2" data-type="open">
-    <span class="q-label">Denkvraag</span>
-    <p class="q-text">De Golfstroom houdt Nederland in de winter relatief warm. Stel dat de Golfstroom zou stoppen met stromen. Wat zou er dan gebeuren met het winterklimaat in Nederland? Leg uit in minimaal 3 zinnen.</p>
-    <textarea class="open-answer" data-qid="q2_2" placeholder="Typ hier je antwoord..."></textarea>
-    <div class="word-count" data-qid="q2_2">0 woorden (minimaal 20)</div>
-    <button class="btn btn-primary btn-small" data-action="show-example" data-qid="q2_2" style="margin-top:8px" disabled>Toon voorbeeldantwoord</button>
-    <div class="example-answer" data-qid="q2_2">
-      <strong>Voorbeeldantwoord:</strong> Als de Golfstroom zou stoppen, zou het in de winter in Nederland veel kouder worden. De warme zeestroming brengt nu warmte vanuit de tropen naar West-Europa, waardoor onze winters mild zijn. Zonder die warmtetoevoer zouden wintertemperaturen kunnen dalen naar -10°C of lager, vergelijkbaar met steden in Canada op dezelfde breedtegraad. Rivieren zouden vaker dichtvriezen en we zouden veel meer sneeuw krijgen.
-    </div>
-    <div class="self-assess" data-qid="q2_2">
-      <span style="font-size:0.85rem;font-weight:600;">Hoe beoordeel je je eigen antwoord?</span>
-      <button class="btn btn-correct btn-small" data-assess="correct" data-qid="q2_2">Goed ✓</button>
-      <button class="btn btn-wrong btn-small" data-assess="wrong" data-qid="q2_2">Fout ✗</button>
-    </div>
-    <div class="feedback-box" data-qid="q2_2"></div>
-  </div>
-
-  <!-- Q3: MC -->
-  <div class="question-block" data-tab="2" data-qid="q2_3" data-type="mc" data-answer="C" data-attempts="0">
-    <span class="q-label">Multiple choice</span>
-    <p class="q-text">Wat is de gemiddelde jaartemperatuur van De Bilt volgens de data?</p>
-    <div class="mc-options">
-      <button class="mc-btn" data-choice="A">A) 8°C</button>
-      <button class="mc-btn" data-choice="B">B) 12°C</button>
-      <button class="mc-btn" data-choice="C">C) 10,5°C</button>
-      <button class="mc-btn" data-choice="D">D) 15°C</button>
-    </div>
-    <div class="feedback-box" data-qid="q2_3" data-hint1="Kijk nog eens naar het vergelijkingsblok bovenaan deze pagina." data-hint2="De informatie staat letterlijk bij het Nederlandse vlaggetje." data-explain="De gemiddelde jaartemperatuur van De Bilt is 10,5°C. Madrid zit op 15°C — een verschil van 4,5°C."></div>
-  </div>
-
-  <div class="tab-nav-bottom">
-    <button class="btn btn-secondary" data-nav="prev">← Vorige</button>
-    <button class="btn btn-primary" data-nav="next">Volgende →</button>
-  </div>
-  <button class="reset-section-btn" data-reset-tab="2">🔄 Reset dit onderdeel</button>
-</div>
-
-<!-- ════════════════ TAB 4: Neerslag ════════════════ -->
-<div class="tab-panel" id="tab-3">
-  <div class="info-block">
-    <span class="emoji-header">🌧️💧</span>
-    <h2>Neerslag: droog versus nat</h2>
-    <p>Naast temperatuur is <strong>neerslag</strong> (regen, sneeuw, hagel) het tweede grote verschil. Nederland staat bekend als regenland — maar hoe nat is het écht vergeleken met Spanje?</p>
-
-    <p>In Nederland valt er gemiddeld zo'n <strong>850 mm neerslag per jaar</strong>, redelijk gelijk verdeeld over alle maanden. Er is geen echte "droge tijd". In Madrid valt er slechts <strong>~420 mm per jaar</strong> — minder dan de helft! Bovendien valt de meeste regen in Madrid in het voor- en najaar. De zomers zijn er extreem droog: in juli en augustus valt er soms nauwelijks een druppel.</p>
-
-    <div class="process-flow">
-      <div class="step">🌊 Atlantische Oceaan</div>
-      <span class="arrow-icon">→</span>
-      <div class="step">💨 Westenwind</div>
-      <span class="arrow-icon">→</span>
-      <div class="step">☁️ Wolken naar NL</div>
-      <span class="arrow-icon">→</span>
-      <div class="step">🌧️ Veel regen</div>
-    </div>
-
-    <h3>Waarom regent het in Nederland zoveel?</h3>
-    <p>Nederland ligt pal in de baan van de <strong>westenwind</strong>. Deze wind komt van de Atlantische Oceaan en neemt veel vocht mee. Dat vocht condenseert boven Nederland tot wolken en valt als regen neer. Omdat de wind het hele jaar door waait, regent het in Nederland in bijna elke maand.</p>
-
-    <p>Madrid ligt in het midden van het Spaanse binnenland, ver van de oceaan en omringd door bergen. De vochtige westenwind bereikt Madrid nauwelijks — de bergen houden een groot deel van het vocht tegen. Dit noemen we het <strong>regenschaduw-effect</strong>: de windkant van een berg is nat, de luwe kant (waar Madrid ligt) is droog.</p>
-
-    <div class="highlight-box">
-      <strong>🏠 Herken je het?</strong> Wanneer heb jij voor het laatst je regenjas aangetrokken? In Nederland is "een buitje" heel normaal. Maar stel dat je in juli in Madrid bent — dan kun je je paraplu gerust thuis laten. De kans op regen is daar bijna nul!
-    </div>
-  </div>
-
   <div class="chart-wrap">
+    <h3 style="margin-bottom:10px;">🌧️ Gemiddelde neerslag per maand (mm)</h3>
     <canvas id="chartRain"></canvas>
   </div>
 
-  <!-- Q1: grafiek -->
-  <div class="question-block" data-tab="3" data-qid="q3_1" data-type="mc" data-answer="D" data-attempts="0">
-    <span class="q-label">Grafiekvraag</span>
-    <p class="q-text">Bekijk de neerslaggrafiek. In welke maand valt er in Madrid de minste neerslag?</p>
-    <div class="mc-options">
-      <button class="mc-btn" data-choice="A">A) Januari</button>
-      <button class="mc-btn" data-choice="B">B) Maart</button>
-      <button class="mc-btn" data-choice="C">C) November</button>
-      <button class="mc-btn" data-choice="D">D) Juli</button>
-    </div>
-    <div class="feedback-box" data-qid="q3_1" data-hint1="Kijk naar de oranje staven in de grafiek. Welke is de laagste?" data-hint2="Het is een zomermaand. In de Spaanse zomer is het extreem droog." data-explain="In juli valt er in Madrid gemiddeld slechts ~10 mm neerslag — bijna niets! Dit is typerend voor het mediterrane klimaat met droge zomers."></div>
+  <div class="info-block compare">
+    <h3>Wat valt je op?</h3>
+    <p>Madrid is in de zomer gemiddeld <strong>8-10°C warmer</strong> dan Wenen. Maar in de winter is het verschil kleiner: Madrid is dan zo'n 4-5°C warmer. Dit komt doordat Madrid zuidelijker ligt en meer zon krijgt.</p>
+    <p>Bij de neerslag zie je iets opvallends: Madrid is in de zomer bijna <strong>droog</strong> (10-15 mm in juli/augustus), terwijl Wenen juist in de zomer de meeste regen krijgt (tot 70 mm). Dit is een kernverschil tussen het mediterrane klimaat (droge zomer) en het continentale klimaat (natte zomer).</p>
   </div>
 
-  <!-- Q2: open analyse -->
-  <div class="question-block" data-tab="3" data-qid="q3_2" data-type="open">
-    <span class="q-label">Analysevraag</span>
-    <p class="q-text">Vergelijk de neerslagpatronen van Nederland en Madrid in de grafiek. Noem twee opvallende verschillen en geef voor elk verschil een mogelijke verklaring. Schrijf minimaal 3 zinnen.</p>
-    <textarea class="open-answer" data-qid="q3_2" placeholder="Typ hier je antwoord..."></textarea>
-    <div class="word-count" data-qid="q3_2">0 woorden (minimaal 20)</div>
-    <button class="btn btn-primary btn-small" data-action="show-example" data-qid="q3_2" style="margin-top:8px" disabled>Toon voorbeeldantwoord</button>
-    <div class="example-answer" data-qid="q3_2">
-      <strong>Voorbeeldantwoord:</strong> Een opvallend verschil is dat Nederland het hele jaar door vrij gelijkmatig neerslag krijgt, terwijl Madrid in de zomer bijna geen regen heeft. Dit komt doordat Nederland constant onder invloed staat van vochtige westenwind van de Atlantische Oceaan. Een tweede verschil is dat de totale hoeveelheid neerslag in Nederland veel hoger is (850 mm vs. 420 mm). De bergen rondom Madrid houden vochtige lucht tegen (regenschaduw-effect), waardoor er minder regen valt.
-    </div>
-    <div class="self-assess" data-qid="q3_2">
-      <span style="font-size:0.85rem;font-weight:600;">Hoe beoordeel je je eigen antwoord?</span>
-      <button class="btn btn-correct btn-small" data-assess="correct" data-qid="q3_2">Goed ✓</button>
-      <button class="btn btn-wrong btn-small" data-assess="wrong" data-qid="q3_2">Fout ✗</button>
-    </div>
-    <div class="feedback-box" data-qid="q3_2"></div>
+  <div class="leefwereld">
+    <strong>Data in je eigen leven:</strong> Het KNMI meet ook het klimaat in jouw omgeving. De gemiddelde temperatuur in De Bilt is 10,5°C per jaar. Dat is kouder dan Madrid (14°C) maar vergelijkbaar met Wenen (11°C). Kijk je weleens naar het weerbericht? Dan lees je eigenlijk mini-klimaatdata!
   </div>
 
-  <!-- Q3: MC -->
-  <div class="question-block" data-tab="3" data-qid="q3_3" data-type="mc" data-answer="B" data-attempts="0">
-    <span class="q-label">Multiple choice</span>
-    <p class="q-text">Wat is het regenschaduw-effect?</p>
-    <div class="mc-options">
-      <button class="mc-btn" data-choice="A">A) Het effect dat wolken groter worden achter een berg</button>
-      <button class="mc-btn" data-choice="B">B) De droge kant van een bergketen, waar minder neerslag valt</button>
-      <button class="mc-btn" data-choice="C">C) De schaduw die regenwolken werpen op het landschap</button>
-    </div>
-    <div class="feedback-box" data-qid="q3_3" data-hint1="'Schaduw' slaat hier niet op licht, maar op neerslag. Eén kant van de berg krijgt meer, de andere minder..." data-hint2="Vochtige lucht stijgt langs een berg, koelt af en verliest zijn water. Wat blijft er over aan de andere kant?" data-explain="Het regenschaduw-effect betekent dat de luwe zijde (achter de berg) droog is. De lucht heeft al zijn vocht verloren aan de windzijde van de berg."></div>
-  </div>
-
-  <div class="tab-nav-bottom">
-    <button class="btn btn-secondary" data-nav="prev">← Vorige</button>
-    <button class="btn btn-primary" data-nav="next">Volgende →</button>
-  </div>
-  <button class="reset-section-btn" data-reset-tab="3">🔄 Reset dit onderdeel</button>
-</div>
-
-<!-- ════════════════ TAB 5: Oorzaken van klimaatverschillen ════════════════ -->
-<div class="tab-panel" id="tab-4">
-  <div class="info-block">
-    <span class="emoji-header">🔍🌐</span>
-    <h2>Waarom verschilt het klimaat? De oorzaken</h2>
-    <p>Je weet nu <em>dat</em> het klimaat verschilt. Maar een goede geograaf kan ook uitleggen <em>waarom</em>. Er zijn vier belangrijke factoren die het klimaatverschil tussen Nederland en Spanje verklaren:</p>
-
-    <h3>1. 🌍 Afstand tot de evenaar (breedteligging)</h3>
-    <p>Hoe dichter bij de evenaar, hoe steiler de zonnestralen vallen en hoe warmer het is. Spanje ligt op 36°–43°N, Nederland op 51°–53°N. Die 10–15 graden verschil in breedtegraad zorgen voor aanzienlijk meer zonne-energie in Spanje.</p>
-
-    <h3>2. 🌊 Invloed van de Atlantische Oceaan en Golfstroom</h3>
-    <p>Nederland grenst direct aan de Noordzee en ligt open naar de Atlantische Oceaan. Water warmt langzamer op en koelt langzamer af dan land. Daardoor houdt de zee Nederland 's winters relatief warm en 's zomers relatief koel. Dit noemen we een <strong>gematigd zeeklimaat</strong>. Madrid ligt midden in het Spaanse binnenland, ver van de zee. Daar zijn de zomers extremer warm en de winters kouder dan aan de kust.</p>
-
-    <h3>3. 💨 Overheersende windrichting</h3>
-    <p>In West-Europa waait de wind overwegend uit het westen — de <strong>westenwind</strong>. Die wind neemt vocht mee van de Atlantische Oceaan. Nederland vangt die wind direct op, waardoor het er vaker regent. In het binnenland van Spanje is de vochtige lucht al grotendeels "leeggeregend" op bergen.</p>
-
-    <h3>4. ⛰️ Hoogte en reliëf</h3>
-    <p>Nederland is vlak en laaggelegen. Spanje heeft een hoog centraal plateau (de Meseta, ~600 m) en hoge bergketens. Hoogte beïnvloedt temperatuur: per 1000 m stijging daalt de temperatuur met ~6,5°C. De bergen zorgen ook voor het regenschaduw-effect.</p>
-
-    <div class="highlight-box">
-      <strong>🏠 Herken je het?</strong> Denk eens aan de wind die je voelt als je buiten staat. In Nederland komt die wind vaak van zee — je ruikt soms zelfs de zilte lucht. Die wind brengt ook de wolken mee die zorgen voor ons typisch grijze weer!
-    </div>
-  </div>
-
-  <!-- Q1: sorteren drag & drop -->
-  <div class="question-block" data-tab="4" data-qid="q4_1" data-type="sort">
-    <span class="q-label">Sorteeropdracht — sleep in de juiste volgorde</span>
-    <p class="q-text">Zet de vier klimaatfactoren in volgorde van (volgens jou) <strong>meest bepalend</strong> naar <strong>minst bepalend</strong> voor het temperatuurverschil tussen Nederland en Spanje:</p>
-    <ul class="drag-list" id="sortList1" data-correct="breed,oceaan,wind,hoogte">
-      <li class="drag-item" draggable="true" data-val="wind">💨 Overheersende windrichting</li>
-      <li class="drag-item" draggable="true" data-val="hoogte">⛰️ Hoogte en reliëf</li>
-      <li class="drag-item" draggable="true" data-val="breed">🌍 Afstand tot de evenaar</li>
-      <li class="drag-item" draggable="true" data-val="oceaan">🌊 Invloed oceaan / Golfstroom</li>
+  <!-- VRAAG: MC - data -->
+  <div class="question-block" data-section="4" data-qid="q4_1" data-type="mc">
+    <h4><span class="q-icon">1</span> Bekijk de temperatuurgrafiek. In welke maand is het verschil tussen Madrid en Wenen het grootst?</h4>
+    <ul class="mc-options">
+      <li data-value="a">Januari</li>
+      <li data-value="b">April</li>
+      <li data-value="c">Juli</li>
+      <li data-value="d">Oktober</li>
     </ul>
-    <button class="btn btn-primary btn-small" data-action="check-sort" data-target="sortList1">Controleer volgorde</button>
-    <div class="feedback-box" data-qid="q4_1"></div>
+    <button class="btn btn-primary check-mc-btn" data-answer="c">Controleer</button>
+    <div class="feedback" data-hints='["Kijk waar de twee lijnen het verst uit elkaar liggen. Dat is in de warmste maand."]'></div>
   </div>
 
-  <!-- Q2: open -->
-  <div class="question-block" data-tab="4" data-qid="q4_2" data-type="open">
-    <span class="q-label">Uitlegvraag</span>
-    <p class="q-text">Leg in je eigen woorden uit waarom Madrid warmere zomers heeft dan Amsterdam. Noem minstens twee oorzaken. Schrijf minimaal 3 zinnen.</p>
-    <textarea class="open-answer" data-qid="q4_2" placeholder="Typ hier je antwoord..."></textarea>
-    <div class="word-count" data-qid="q4_2">0 woorden (minimaal 20)</div>
-    <button class="btn btn-primary btn-small" data-action="show-example" data-qid="q4_2" style="margin-top:8px" disabled>Toon voorbeeldantwoord</button>
-    <div class="example-answer" data-qid="q4_2">
-      <strong>Voorbeeldantwoord:</strong> Madrid heeft warmere zomers dan Amsterdam vanwege twee belangrijke oorzaken. Ten eerste ligt Madrid dichter bij de evenaar, waardoor de zonnestralen steiler invallen en het oppervlak sterker wordt verwarmd. Ten tweede ligt Madrid ver van de oceaan, midden in het binnenland. Water heeft een verkoelend effect in de zomer, maar dat mist Madrid. Amsterdam profiteert juist van de koelende werking van de Noordzee, waardoor de zomers daar gematigder zijn.
+  <!-- VRAAG: OPEN - analyse -->
+  <div class="question-block" data-section="4" data-qid="q4_2" data-type="open">
+    <h4><span class="q-icon">2</span> Bekijk de neerslaggrafiek. Beschrijf het verschil in neerslagpatroon tussen Madrid en Wenen. Wanneer valt in elke stad de meeste en de minste regen? Wat zegt dit over het type klimaat?</h4>
+    <textarea class="open-textarea" placeholder="Schrijf hier je antwoord..."></textarea>
+    <div class="word-count">0 woorden</div>
+    <button class="btn btn-primary show-example-btn" style="display:none;">Toon voorbeeldantwoord</button>
+    <div class="example-answer">
+      <strong>Voorbeeldantwoord:</strong> In Madrid valt de meeste regen in de herfst en winter (oktober-december), en in de zomer is het bijna droog (juli: ~10 mm). Dit past bij het mediterrane klimaat met droge zomers. In Wenen is de neerslag meer verspreid over het jaar, met de meeste regen in de zomer (juni-juli: ~70 mm). Dit past bij het continentale klimaat, waar warme zomerlucht juist buien veroorzaakt.
     </div>
-    <div class="self-assess" data-qid="q4_2">
-      <span style="font-size:0.85rem;font-weight:600;">Hoe beoordeel je je eigen antwoord?</span>
-      <button class="btn btn-correct btn-small" data-assess="correct" data-qid="q4_2">Goed ✓</button>
-      <button class="btn btn-wrong btn-small" data-assess="wrong" data-qid="q4_2">Fout ✗</button>
+    <div class="self-assess">
+      <button class="btn btn-correct btn-small self-correct">Goed ✓</button>
+      <button class="btn btn-wrong btn-small self-wrong">Fout ✗</button>
     </div>
-    <div class="feedback-box" data-qid="q4_2"></div>
   </div>
 
-  <!-- Q3: MC -->
-  <div class="question-block" data-tab="4" data-qid="q4_3" data-type="mc" data-answer="B" data-attempts="0">
-    <span class="q-label">Multiple choice</span>
-    <p class="q-text">Nederland heeft een gematigd zeeklimaat. Dat betekent:</p>
-    <div class="mc-options">
-      <button class="mc-btn" data-choice="A">A) Koude winters en hete zomers</button>
-      <button class="mc-btn" data-choice="B">B) Milde winters en koele zomers door invloed van de zee</button>
-      <button class="mc-btn" data-choice="C">C) Veel zon en weinig regen</button>
-    </div>
-    <div class="feedback-box" data-qid="q4_3" data-hint1="'Zeeklimaat' — wat doet de zee met temperaturen? Denk aan het verschil tussen land en water." data-hint2="Water warmt langzaam op en koelt langzaam af. Wat betekent dat voor een land naast de zee?" data-explain="Een gematigd zeeklimaat kenmerkt zich door milde winters en koele zomers. De zee tempert de extremen: het wordt niet heel koud in de winter, maar ook niet heel heet in de zomer."></div>
+  <!-- VRAAG: MC -->
+  <div class="question-block" data-section="4" data-qid="q4_3" data-type="mc">
+    <h4><span class="q-icon">3</span> Een toerist wil in augustus naar een droge plek. Wat raad je aan op basis van de data?</h4>
+    <ul class="mc-options">
+      <li data-value="a">Wenen, want het regent er minder in augustus</li>
+      <li data-value="b">Madrid, want de zomer is er droog</li>
+      <li data-value="c">Het maakt niet uit, beide zijn even droog</li>
+    </ul>
+    <button class="btn btn-primary check-mc-btn" data-answer="b">Controleer</button>
+    <div class="feedback" data-hints='["Kijk naar de neerslagstaafjes voor augustus. Welke stad heeft de laagste staaf?"]'></div>
   </div>
 
-  <div class="tab-nav-bottom">
-    <button class="btn btn-secondary" data-nav="prev">← Vorige</button>
-    <button class="btn btn-primary" data-nav="next">Volgende →</button>
+  <div class="section-nav">
+    <button class="reset-section" data-section="4">🔄 Reset dit onderdeel</button>
+    <div>
+      <button class="btn btn-secondary nav-btn" data-dir="prev">← Vorige</button>
+      <button class="btn btn-primary nav-btn" data-dir="next">Volgende →</button>
+    </div>
   </div>
-  <button class="reset-section-btn" data-reset-tab="4">🔄 Reset dit onderdeel</button>
 </div>
 
-<!-- ════════════════ TAB 6: Klimaattypen ════════════════ -->
-<div class="tab-panel" id="tab-5">
-  <div class="info-block">
-    <span class="emoji-header">🏷️🌤️</span>
-    <h2>Klimaattypen: Cfb en Csa</h2>
-    <p>Wetenschappers hebben een systeem bedacht om klimaten over de hele wereld in te delen. Dit heet de <strong>classificatie van Köppen</strong>. Elk klimaattype krijgt een lettercode. De twee belangrijkste voor onze les zijn:</p>
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- SECTIE 5: VERGELIJKING -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="section" id="section-5">
+  <h2>⚖️ Vergelijking Spanje – Oostenrijk</h2>
 
-    <div class="compare-box">
-      <div class="compare-card nl">
-        <span class="flag">🇳🇱</span>
-        <h4>Cfb — Gematigd zeeklimaat</h4>
-        <p><strong>C</strong> = gematigd (niet tropisch, niet polair)<br>
-        <strong>f</strong> = vochtig (neerslag het hele jaar)<br>
-        <strong>b</strong> = warmste maand onder 22°C</p>
-      </div>
-      <div class="compare-card es">
-        <span class="flag">🇪🇸</span>
-        <h4>Csa — Mediterraan klimaat</h4>
-        <p><strong>C</strong> = gematigd<br>
-        <strong>s</strong> = droge zomer<br>
-        <strong>a</strong> = warmste maand boven 22°C</p>
-      </div>
-    </div>
+  <div class="info-block compare">
+    <h3>Overeenkomsten</h3>
+    <p>Spanje en Oostenrijk liggen allebei in <strong>Europa</strong> en worden beïnvloed door westenwinden die over het continent waaien. Beide landen hebben <strong>seizoenen</strong> (lente, zomer, herfst, winter) doordat ze op de gematigde breedtegraden liggen. In beide landen is de zomer warmer dan de winter.</p>
+    <p>Ook heeft de <strong>hoogteligging</strong> in beide landen invloed: de Spaanse Pyreneeën en Sierra Nevada kennen net als de Oostenrijkse Alpen lagere temperaturen en meer neerslag op hoogte.</p>
+  </div>
 
-    <p>Let op: allebei beginnen met een <strong>C</strong>, want beide zijn "gematigd". Maar de tweede en derde letter vertellen het verschil: Nederland is <em>het hele jaar vochtig</em> met koele zomers, terwijl Madrid <em>droge, hete zomers</em> heeft.</p>
-
-    <p>Niet heel Spanje heeft hetzelfde klimaat! Het noorden van Spanje (Bilbao, Galicië) lijkt qua klimaat meer op Nederland: het is er natter en koeler. Maar het zuiden en de Middellandse Zeekust hebben dat typische mediterrane klimaat met bloedhete zomers en zachte, nattere winters.</p>
-
-    <table class="data-table">
-      <tr><th>Kenmerk</th><th>🇳🇱 Cfb</th><th>🇪🇸 Csa</th></tr>
-      <tr><td>Neerslag</td><td>Heel jaar door (~850 mm)</td><td>Vooral herfst/winter (~420 mm)</td></tr>
-      <tr><td>Zomertemperatuur</td><td>~17°C (koel)</td><td>~25°C (warm tot heet)</td></tr>
-      <tr><td>Wintertemperatuur</td><td>~3°C (mild)</td><td>~6°C (mild)</td></tr>
-      <tr><td>Droge periode</td><td>Geen</td><td>Ja, in de zomer</td></tr>
-      <tr><td>Typisch</td><td>Groen, bewolkt, gelijkmatig</td><td>Zonnig, droog in zomer</td></tr>
+  <div class="info-block compare">
+    <h3>Verschillen</h3>
+    <table class="compare-table">
+      <tr><th></th><th>🇪🇸 Spanje</th><th>🇦🇹 Oostenrijk</th></tr>
+      <tr><td><strong>Breedtegraad</strong></td><td>36°N – 44°N</td><td>46°N – 49°N</td></tr>
+      <tr><td><strong>Klimaattype</strong></td><td>Mediterraan / oceaan</td><td>Gematigd continentaal / alpien</td></tr>
+      <tr><td><strong>Zomer</strong></td><td>Heet en droog (30-40°C)</td><td>Warm, buien (20-28°C)</td></tr>
+      <tr><td><strong>Winter</strong></td><td>Mild (8-15°C aan kust)</td><td>Koud (−5 tot 3°C)</td></tr>
+      <tr><td><strong>Neerslag zomer</strong></td><td>Droog</td><td>Nat (meeste regen)</td></tr>
+      <tr><td><strong>Invloed zee</strong></td><td>Groot (Middellandse Zee, Atlantisch)</td><td>Gering (binnenland)</td></tr>
+      <tr><td><strong>Invloed bergen</strong></td><td>Lokaal (Pyreneeën, Sierra)</td><td>Dominant (60% Alpen)</td></tr>
     </table>
-
-    <div class="highlight-box">
-      <strong>🏠 Herken je het?</strong> Als je in de zomervakantie naar Zuid-Spanje gaat, herken je het Csa-klimaat meteen: strakblauwe lucht, geen regen, temperaturen boven de 30°C. Terwijl je thuis in Nederland (Cfb) misschien een regenachtige zomer hebt gehad!
-    </div>
   </div>
 
-  <!-- Q1: match/koppel -->
-  <div class="question-block" data-tab="5" data-qid="q5_1" data-type="match">
-    <span class="q-label">Koppelopdracht</span>
-    <p class="q-text">Koppel elk kenmerk aan het juiste klimaattype. Klik eerst op een kenmerk (links), dan op het klimaattype (rechts). Een klimaattype kan meerdere kenmerken krijgen!</p>
-    <div class="match-container" id="match1">
-      <div class="match-col" id="match1-sources">
-        <h4>Kenmerken</h4>
-        <div class="match-item source" data-match-id="m1" data-correct-target="cfb">Neerslag heel jaar door</div>
-        <div class="match-item source" data-match-id="m2" data-correct-target="csa">Droge zomers</div>
-        <div class="match-item source" data-match-id="m3" data-correct-target="csa">Warmste maand &gt; 22°C</div>
-        <div class="match-item source" data-match-id="m4" data-correct-target="cfb">Warmste maand &lt; 22°C</div>
-        <div class="match-item source" data-match-id="m5" data-correct-target="cfb">Invloed westenwind en oceaan</div>
+  <div class="info-block compare">
+    <h3>Waarom zijn ze anders?</h3>
+    <p>De drie belangrijkste klimaatfactoren die het verschil verklaren:</p>
+    <p><strong>1. Breedtegraad:</strong> Spanje ligt 8-10 graden zuidelijker. Dat betekent meer directe zonnestraling en hogere temperaturen het hele jaar door.</p>
+    <p><strong>2. Hoogteligging:</strong> Oostenrijk bestaat voor meer dan de helft uit bergen. Hoogte verlaagt de temperatuur flink (0,6°C per 100m). Spanje is gemiddeld lager, behalve op het centrale plateau.</p>
+    <p><strong>3. Afstand tot zee:</strong> Spanje wordt aan drie kanten omringd door water (Atlantische Oceaan, Middellandse Zee). Oostenrijk is een binnenland zonder kust. Zee matigt het klimaat; geen zee maakt het extremer.</p>
+  </div>
+
+  <div class="leefwereld">
+    <strong>Pas het toe:</strong> Nederland ligt op 52°N — noordelijker dan beide landen. Toch is het in Nederland minder koud dan in Oostenrijk. Hoe kan dat? Hint: denk aan de Noordzee en de Golfstroom!
+  </div>
+
+  <!-- VRAAG: DRAG & DROP - rangschik factoren -->
+  <div class="question-block" data-section="5" data-qid="q5_1" data-type="drag">
+    <h4><span class="q-icon">1</span> Zet de klimaatfactoren in volgorde van meest naar minst belangrijk voor het verschil tussen Spanje en Oostenrijk. Sleep de items naar de juiste positie.</h4>
+    <ul class="drag-list" id="dragList1" data-correct='["Breedtegraad (meest belangrijk)","Hoogteligging","Afstand tot zee","Windrichting (minst belangrijk)"]'>
+      <li class="drag-item" draggable="true">Windrichting (minst belangrijk)</li>
+      <li class="drag-item" draggable="true">Hoogteligging</li>
+      <li class="drag-item" draggable="true">Breedtegraad (meest belangrijk)</li>
+      <li class="drag-item" draggable="true">Afstand tot zee</li>
+    </ul>
+    <button class="btn btn-primary check-drag-btn">Controleer volgorde</button>
+    <div class="feedback"></div>
+  </div>
+
+  <!-- VRAAG: MATCH koppeling -->
+  <div class="question-block" data-section="5" data-qid="q5_2" data-type="match">
+    <h4><span class="q-icon">2</span> Koppel elk kenmerk aan het juiste land. Klik eerst op een kenmerk links, dan op het land rechts. Let op: sommige kenmerken kunnen bij hetzelfde land horen!</h4>
+    <div class="match-container">
+      <div class="match-col">
+        <h5>Kenmerken</h5>
+        <div class="match-item match-source" data-match-id="m1" data-correct-target="spain">Droge, hete zomers</div>
+        <div class="match-item match-source" data-match-id="m2" data-correct-target="austria">Föhn-wind</div>
+        <div class="match-item match-source" data-match-id="m3" data-correct-target="austria">Meer dan 60% bergen</div>
+        <div class="match-item match-source" data-match-id="m4" data-correct-target="spain">Mediterraan klimaat</div>
+        <div class="match-item match-source" data-match-id="m5" data-correct-target="austria">Meeste regen in zomer</div>
+        <div class="match-item match-source" data-match-id="m6" data-correct-target="spain">Invloed Sahara</div>
       </div>
-      <div class="match-col" id="match1-targets">
-        <h4>Klimaattype</h4>
-        <div class="match-item target" data-target-id="cfb">🇳🇱 Cfb — Zeeklimaat</div>
-        <div class="match-item target" data-target-id="csa">🇪🇸 Csa — Mediterraan</div>
+      <div class="match-col">
+        <h5>Landen</h5>
+        <div class="match-item match-target" data-target-id="spain">🇪🇸 Spanje</div>
+        <div class="match-item match-target" data-target-id="austria">🇦🇹 Oostenrijk</div>
       </div>
     </div>
-    <div class="matched-list" id="match1-pairs"></div>
-    <button class="btn btn-primary btn-small" data-action="check-match" data-target="match1" style="margin-top:8px">Controleer koppelingen</button>
-    <div class="feedback-box" data-qid="q5_1"></div>
+    <div id="matchPairs5_2" style="margin:8px 0;"></div>
+    <button class="btn btn-primary check-match-btn">Controleer koppelingen</button>
+    <div class="feedback"></div>
   </div>
 
-  <!-- Q2: MC -->
-  <div class="question-block" data-tab="5" data-qid="q5_2" data-type="mc" data-answer="C" data-attempts="0">
-    <span class="q-label">Multiple choice</span>
-    <p class="q-text">Beide klimaattypen beginnen met de letter 'C'. Wat betekent dat?</p>
-    <div class="mc-options">
-      <button class="mc-btn" data-choice="A">A) Het is er altijd koud</button>
-      <button class="mc-btn" data-choice="B">B) Het is een tropisch klimaat</button>
-      <button class="mc-btn" data-choice="C">C) Het is een gematigd klimaat</button>
+  <!-- VRAAG: OPEN -->
+  <div class="question-block" data-section="5" data-qid="q5_3" data-type="open">
+    <h4><span class="q-icon">3</span> Noem één overeenkomst en twee verschillen tussen het klimaat van Spanje en Oostenrijk. Leg bij elk verschil uit waardoor het komt.</h4>
+    <textarea class="open-textarea" placeholder="Schrijf hier je antwoord..."></textarea>
+    <div class="word-count">0 woorden</div>
+    <button class="btn btn-primary show-example-btn" style="display:none;">Toon voorbeeldantwoord</button>
+    <div class="example-answer">
+      <strong>Voorbeeldantwoord:</strong> Een overeenkomst is dat beide landen seizoenen hebben door hun ligging op de gematigde breedtegraden. Een verschil is dat Spanje veel warmere zomers heeft, doordat het zuidelijker ligt en meer zon krijgt. Een ander verschil is dat Spanje droge zomers heeft (mediterraan klimaat) terwijl het in Oostenrijk juist in de zomer het meest regent (continentaal klimaat). Dit komt doordat warme zomerlucht boven het Europese binnenland opstijgt en buien veroorzaakt.
     </div>
-    <div class="feedback-box" data-qid="q5_2" data-hint1="In de Köppen-classificatie staat elke letter voor iets. 'C' staat niet voor koud of tropisch..." data-hint2="Gematigd betekent 'niet extreem'. Geen tropische hitte, geen poolkou." data-explain="De letter C staat in de Köppen-classificatie voor 'gematigd klimaat'. Dat wil zeggen: niet tropisch warm (A), niet droog (B), en niet koud/polair (D/E)."></div>
+    <div class="self-assess">
+      <button class="btn btn-correct btn-small self-correct">Goed ✓</button>
+      <button class="btn btn-wrong btn-small self-wrong">Fout ✗</button>
+    </div>
   </div>
 
-  <!-- Q3: open -->
-  <div class="question-block" data-tab="5" data-qid="q5_3" data-type="open">
-    <span class="q-label">Toepassingsvraag</span>
-    <p class="q-text">Je gaat in de zomervakantie naar Barcelona. Je vriend(in) vraagt: "Wat voor weer kan ik verwachten?" Leg uit welk klimaattype Barcelona heeft en wat dat betekent voor het weer in de zomer. Schrijf minimaal 3 zinnen.</p>
-    <textarea class="open-answer" data-qid="q5_3" placeholder="Typ hier je antwoord..."></textarea>
-    <div class="word-count" data-qid="q5_3">0 woorden (minimaal 20)</div>
-    <button class="btn btn-primary btn-small" data-action="show-example" data-qid="q5_3" style="margin-top:8px" disabled>Toon voorbeeldantwoord</button>
-    <div class="example-answer" data-qid="q5_3">
-      <strong>Voorbeeldantwoord:</strong> Barcelona heeft een mediterraan klimaat (Csa). Dat betekent dat het in de zomer erg warm en droog is, met temperaturen die makkelijk boven de 30°C komen. Je hoeft eigenlijk geen regenjas mee te nemen, want het regent in de zomer bijna nooit. De lucht is droog en de zon schijnt bijna elke dag. Het is perfect strandweer, maar je moet wel oppassen voor de hitte midden op de dag!
+  <div class="section-nav">
+    <button class="reset-section" data-section="5">🔄 Reset dit onderdeel</button>
+    <div>
+      <button class="btn btn-secondary nav-btn" data-dir="prev">← Vorige</button>
+      <button class="btn btn-primary nav-btn" data-dir="next">Volgende →</button>
     </div>
-    <div class="self-assess" data-qid="q5_3">
-      <span style="font-size:0.85rem;font-weight:600;">Hoe beoordeel je je eigen antwoord?</span>
-      <button class="btn btn-correct btn-small" data-assess="correct" data-qid="q5_3">Goed ✓</button>
-      <button class="btn btn-wrong btn-small" data-assess="wrong" data-qid="q5_3">Fout ✗</button>
-    </div>
-    <div class="feedback-box" data-qid="q5_3"></div>
   </div>
-
-  <div class="tab-nav-bottom">
-    <button class="btn btn-secondary" data-nav="prev">← Vorige</button>
-    <button class="btn btn-primary" data-nav="next">Volgende →</button>
-  </div>
-  <button class="reset-section-btn" data-reset-tab="5">🔄 Reset dit onderdeel</button>
 </div>
 
-<!-- ════════════════ TAB 7: Reisscenario ════════════════ -->
-<div class="tab-panel" id="tab-6">
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- SECTIE 6: REISSCENARIO -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="section" id="section-6">
+  <h2>✈️ Reisscenario: Twee vakanties</h2>
+
+  <div class="info-block spain">
+    <div class="emoji-header">✈️🌞</div>
+    <h3>Reis 1: Zomervakantie in Málaga (Spanje)</h3>
+    <p>Het is juli en je stapt uit het vliegtuig in Málaga, aan de Spaanse zuidkust. De warmte slaat je tegemoet: het is 36°C en er staat een droge wind. De lucht is strakblauw — geen wolkje te zien. Je hotel ligt aan de kust, waar het 's avonds wat koeler wordt door de zeewind.</p>
+    <p>Tijdens je vakantie merk je dat het niet één keer regent. De rivieren in het binnenland staan droog. Boeren besproeien hun olijfbomen met irrigatiesystemen, want zonder kunstmatige bewatering zouden de gewassen verdrogen. 's Middags, als het meer dan 40°C is, houden veel Spanjaarden <strong>siësta</strong> — alles is dicht en iedereen rust.</p>
+    <p>Je bezoekt het Alhambra in Granada, op 730 meter hoogte. Het is er nog steeds warm (33°C), maar je merkt dat het iets aangenamer is dan aan de kust. Het uitgebreide watersysteem van het paleis laat zien hoe belangrijk water al eeuwenlang is in dit droge klimaat.</p>
+  </div>
+
+  <div class="info-block austria">
+    <div class="emoji-header">✈️🏔️</div>
+    <h3>Reis 2: Wintervakantie in Innsbruck (Oostenrijk)</h3>
+    <p>Het is december en je landt in Innsbruck. De temperatuur is −3°C en de bergen rondom de stad zijn bedekt met een dikke laag sneeuw. Je adem vormt wolkjes in de koude lucht. De stad ligt in een dal op 574 meter hoogte, ingesloten door de Alpen.</p>
+    <p>De volgende dag neem je de kabelbaan naar de Nordkette (2300m). Boven is het −15°C! Je begrijpt nu waarom Oostenrijk zo populair is om te skiën: de combinatie van hoogte en neerslag zorgt voor meters sneeuw. Onderweg naar boven zie je de hoogtezones: eerst bebouwde dalen, dan sparrenbossen, dan kale rotspartijen en uiteindelijk alleen maar sneeuw en ijs.</p>
+    <p>Op een ochtend merk je iets vreemds: het is ineens 12°C in het dal. De lucht voelt droog aan en de sneeuw smelt snel. De hoteleigenaar vertelt dat dit de <strong>Föhn</strong> is — een warme valwind die over de Alpen waait. Een paar uur later is de wind weg en keert de kou terug.</p>
+  </div>
+
+  <div class="leefwereld">
+    <strong>Reiservaring:</strong> Ben je weleens in een warm land geweest in de zomer, of in de bergen in de winter? Het verschil in temperatuur en landschap is enorm. Zelfs binnen Europa kun je in een paar uur vliegen van 36°C naar −3°C!
+  </div>
+
+  <!-- VRAAG: MC -->
+  <div class="question-block" data-section="6" data-qid="q6_1" data-type="mc">
+    <h4><span class="q-icon">1</span> Waarom houden Spanjaarden in de zomer siësta?</h4>
+    <ul class="mc-options">
+      <li data-value="a">Omdat het een culturele traditie is zonder klimaatreden</li>
+      <li data-value="b">Omdat het 's middags zo heet is dat werken en activiteiten niet praktisch zijn</li>
+      <li data-value="c">Omdat het 's middags altijd regent</li>
+    </ul>
+    <button class="btn btn-primary check-mc-btn" data-answer="b">Controleer</button>
+    <div class="feedback" data-hints='["Denk aan temperaturen boven 40°C. Wat zou jij doen als het zo heet is?"]'></div>
+  </div>
+
+  <!-- VRAAG: OPEN -->
+  <div class="question-block" data-section="6" data-qid="q6_2" data-type="open">
+    <h4><span class="q-icon">2</span> Stel je voor dat je een reisblog schrijft. Beschrijf in minstens 3 zinnen het klimaatverschil dat je als reiziger zou ervaren tussen Málaga in juli en Innsbruck in december. Noem concrete temperaturen en weersomstandigheden.</h4>
+    <textarea class="open-textarea" placeholder="Schrijf hier je reisblog..."></textarea>
+    <div class="word-count">0 woorden</div>
+    <button class="btn btn-primary show-example-btn" style="display:none;">Toon voorbeeldantwoord</button>
+    <div class="example-answer">
+      <strong>Voorbeeldantwoord:</strong> In Málaga in juli ervaar je als reiziger tropische hitte van 36°C of meer, met een strakblauwe lucht en nauwelijks regen. De droge wind en het felle zonlicht maken een zonnebril en veel water onmisbaar. In Innsbruck in december is het een totaal andere wereld: −3°C in het dal en dikke sneeuw op de bergen. Je hebt winterjas, handschoenen en een muts nodig. Het verschil van bijna 40 graden laat zien hoe enorm de klimaatverschillen zijn binnen Europa.
+    </div>
+    <div class="self-assess">
+      <button class="btn btn-correct btn-small self-correct">Goed ✓</button>
+      <button class="btn btn-wrong btn-small self-wrong">Fout ✗</button>
+    </div>
+  </div>
+
+  <!-- VRAAG: MC -->
+  <div class="question-block" data-section="6" data-qid="q6_3" data-type="mc">
+    <h4><span class="q-icon">3</span> Wat is de beste verklaring waarom het op de Nordkette (2300m) zoveel kouder is dan in het dal van Innsbruck (574m)?</h4>
+    <ul class="mc-options">
+      <li data-value="a">De wind waait harder op de berg</li>
+      <li data-value="b">De temperatuur daalt gemiddeld 0,6°C per 100 meter hoogte</li>
+      <li data-value="c">De berg ligt dichter bij de Noordpool</li>
+      <li data-value="d">Er ligt sneeuw, en sneeuw maakt het kouder</li>
+    </ul>
+    <button class="btn btn-primary check-mc-btn" data-answer="b">Controleer</button>
+    <div class="feedback" data-hints='["Denk aan het verband tussen hoogte en temperatuur dat je eerder hebt geleerd. Hoeveel graden per 100 meter?"]'></div>
+  </div>
+
+  <div class="section-nav">
+    <button class="reset-section" data-section="6">🔄 Reset dit onderdeel</button>
+    <div>
+      <button class="btn btn-secondary nav-btn" data-dir="prev">← Vorige</button>
+      <button class="btn btn-primary nav-btn" data-dir="next">Volgende →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- SECTIE 7: VERDIEPING -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="section" id="section-7">
+  <h2>🔬 Verdieping: Klimaatfactoren combineren</h2>
+
   <div class="info-block">
-    <span class="emoji-header">✈️🧳</span>
-    <h2>Scenario: Jouw vakantie naar Spanje</h2>
-    <p>Het is zomervakantie. Je familie heeft een reis geboekt naar Málaga, aan de zuidkust van Spanje. Je vertrekt vanuit Amsterdam op 15 juli. Laten we eens kijken wat je kunt verwachten!</p>
-
-    <h3>📅 De reis in fasen</h3>
-    <p><strong>Ochtend in Amsterdam (15 juli):</strong> Het is bewolkt, 18°C, lichte motregen. Je trekt een vest aan. Op Schiphol zie je de grijze lucht — typisch Nederlands zomerweer.</p>
-
-    <p><strong>Aankomst Málaga (dezelfde middag):</strong> Als de vliegtuigdeuren opengaan, slaat de warmte je in het gezicht. Het is 36°C, strakblauwe lucht, geen wolkje te bekennen. De lucht voelt droog aan. Je vest stop je meteen in je tas.</p>
-
-    <p><strong>Eerste avond:</strong> Om 21:00 is het nog 28°C. De zon gaat pas om 21:45 onder — veel later dan in Nederland! Mensen zitten buiten op terrassen. Het voelt als een compleet andere wereld.</p>
-
-    <div class="highlight-box">
-      <strong>💡 Waarom gaat de zon later onder in Málaga?</strong> Spanje ligt westelijker dan je denkt, maar gebruikt dezelfde tijdzone als Nederland. Daardoor lijkt de zon er "later" op en onder te gaan. Bovendien staat de zon in Zuid-Spanje hoger aan de hemel, waardoor de dagen in de zomer er extreem lang aanvoelen.
-    </div>
-
-    <h3>De volgende dagen…</h3>
-    <p>Elke dag is het weer hetzelfde: strakblauw, droog, 35–40°C. Na een week mis je bijna de Nederlandse bewolking. Je snapt nu waarom Spanjaarden een <strong>siësta</strong> houden — midden op de dag is het simpelweg te heet om veel te doen.</p>
+    <div class="emoji-header">🧩</div>
+    <h3>Alles komt samen</h3>
+    <p>Je hebt nu geleerd over breedtegraad, hoogteligging, afstand tot zee, en windpatronen. In werkelijkheid werken al deze factoren <strong>samen</strong>. Het klimaat van een plek is nooit door slechts één factor te verklaren — het is altijd een combinatie.</p>
+    <p>Neem bijvoorbeeld de Spaanse noordkust: hoewel Spanje zuidelijk ligt (warmtefactor), zorgt de Atlantische Oceaan voor veel regen en mildere temperaturen (zee-invloed). Of neem Wenen: hoewel het op een vergelijkbare breedtegraad als Parijs ligt, zijn de winters er kouder doordat het ver van de oceaan ligt (continentaal effect).</p>
+    <p>Een goede aardrijkskundige kijkt altijd naar <strong>meerdere factoren tegelijk</strong> en weegt af welke factor op een bepaalde plek het sterkst doorwerkt.</p>
   </div>
 
-  <!-- Q1: MC -->
-  <div class="question-block" data-tab="6" data-qid="q6_1" data-type="mc" data-answer="A" data-attempts="0">
-    <span class="q-label">Scenariovraag</span>
-    <p class="q-text">Je landt in Málaga en het is 36°C. In Amsterdam was het 18°C. Welke twee factoren verklaren dit verschil het best?</p>
-    <div class="mc-options">
-      <button class="mc-btn" data-choice="A">A) Breedteligging (Málaga ligt zuidelijker) en afstand tot de oceaan (Málaga ≠ binnenland, maar wel zuidelijker = meer zonnestraling)</button>
-      <button class="mc-btn" data-choice="B">B) Het seizoen en de windrichting zijn het enige verschil</button>
-      <button class="mc-btn" data-choice="C">C) Málaga ligt hoger, dus het is er warmer</button>
-    </div>
-    <div class="feedback-box" data-qid="q6_1" data-hint1="Hoogte maakt het juist kouder, niet warmer. En het seizoen is in beide landen hetzelfde (zomer). Wat blijft er over?" data-hint2="Het gaat om de ligging op de aardbol: zuidelijker = meer directe zonnestraling." data-explain="Málaga ligt veel zuidelijker dan Amsterdam (36°N vs 52°N), waardoor de zonnestralen er steiler invallen. Bovendien zorgt het mediterrane klimaat voor droge, wolkenloze zomers waardoor de zon ongehinderd schijnt."></div>
-  </div>
-
-  <!-- Q2: open scenario -->
-  <div class="question-block" data-tab="6" data-qid="q6_2" data-type="open">
-    <span class="q-label">Scenariovraag</span>
-    <p class="q-text">Je staat op het punt om naar Spanje te vliegen. Je moeder vraagt: "Wat moet ik meenemen voor het weer?" Geef haar advies op basis van wat je hebt geleerd over het Spaanse zomerklimaat. Schrijf minimaal 3 zinnen met uitleg.</p>
-    <textarea class="open-answer" data-qid="q6_2" placeholder="Typ hier je antwoord..."></textarea>
-    <div class="word-count" data-qid="q6_2">0 woorden (minimaal 20)</div>
-    <button class="btn btn-primary btn-small" data-action="show-example" data-qid="q6_2" style="margin-top:8px" disabled>Toon voorbeeldantwoord</button>
-    <div class="example-answer" data-qid="q6_2">
-      <strong>Voorbeeldantwoord:</strong> Mam, je kunt je regenjas thuis laten! In Zuid-Spanje regent het in de zomer bijna nooit, want het heeft een mediterraan klimaat met droge zomers. Neem wel zonnebrandcrème, een hoedje en luchtige kleding mee, want het wordt makkelijk 35°C of meer. Een waterfles is ook slim, want de droge warmte maakt je sneller dorstig dan je denkt. En neem iets luchtig mee voor de avonden, want die zijn nog steeds heel warm.
-    </div>
-    <div class="self-assess" data-qid="q6_2">
-      <span style="font-size:0.85rem;font-weight:600;">Hoe beoordeel je je eigen antwoord?</span>
-      <button class="btn btn-correct btn-small" data-assess="correct" data-qid="q6_2">Goed ✓</button>
-      <button class="btn btn-wrong btn-small" data-assess="wrong" data-qid="q6_2">Fout ✗</button>
-    </div>
-    <div class="feedback-box" data-qid="q6_2"></div>
-  </div>
-
-  <!-- Q3: MC -->
-  <div class="question-block" data-tab="6" data-qid="q6_3" data-type="mc" data-answer="B" data-attempts="0">
-    <span class="q-label">Multiple choice</span>
-    <p class="q-text">Waarom houden Spanjaarden een siësta (middagrust)?</p>
-    <div class="mc-options">
-      <button class="mc-btn" data-choice="A">A) Omdat ze 's ochtends vroeg beginnen met werken</button>
-      <button class="mc-btn" data-choice="B">B) Omdat het midden op de dag te heet is om actief te zijn</button>
-      <button class="mc-btn" data-choice="C">C) Omdat er geen elektriciteit is voor airconditioning</button>
-    </div>
-    <div class="feedback-box" data-qid="q6_3" data-hint1="Denk aan het klimaat. Wanneer is het het heetst op een dag?" data-hint2="Tussen 13:00 en 17:00 kan het in Spanje 40°C worden. Wat zou jij dan doen?" data-explain="De siësta is een culturele aanpassing aan het klimaat. Tussen 13:00 en 17:00 is het in de zomer extreem heet, waardoor het onprettig en zelfs ongezond is om actief buiten te zijn."></div>
-  </div>
-
-  <div class="tab-nav-bottom">
-    <button class="btn btn-secondary" data-nav="prev">← Vorige</button>
-    <button class="btn btn-primary" data-nav="next">Volgende →</button>
-  </div>
-  <button class="reset-section-btn" data-reset-tab="6">🔄 Reset dit onderdeel</button>
-</div>
-
-<!-- ════════════════ TAB 8: Klimaatgrafieken vergelijken ════════════════ -->
-<div class="tab-panel" id="tab-7">
   <div class="info-block">
-    <span class="emoji-header">📊📈</span>
-    <h2>Klimaatgrafieken lezen als een pro</h2>
-    <p>Een <strong>klimaatgrafiek</strong> (of klimatogram) laat in één oogopslag zien hoe de temperatuur en neerslag per maand verdeeld zijn. Op de echte klimaatgrafieken die je in je atlas vindt, staan temperatuur (lijn) en neerslag (staven) samen. Hieronder staan twee grafieken naast elkaar:</p>
+    <h3>Klimaatverandering</h3>
+    <p>Het klimaat van Spanje en Oostenrijk verandert ook door de opwarming van de aarde. Spanje krijgt vaker te maken met extreme hittegolven en droogte. Gletsjers in de Alpen smelten snel: de Pasterze-gletsjer, de grootste van Oostenrijk, is de afgelopen 50 jaar met meer dan 3 kilometer ingekrompen. Dit heeft gevolgen voor watervoorziening, landbouw, toerisme en natuur in beide landen.</p>
+  </div>
 
-    <p><strong>Hoe lees je zo'n grafiek?</strong></p>
-    <p>1. De <strong>x-as</strong> (horizontaal) toont de maanden van het jaar.<br>
-    2. De <strong>linker y-as</strong> toont de temperatuur in °C (de lijn).<br>
-    3. De <strong>rechter y-as</strong> toont de neerslag in mm (de staven).<br>
-    4. Je kunt zien of er een <strong>droge periode</strong> is: als de neerslagstaven erg laag zijn terwijl de temperatuur hoog is.</p>
+  <div class="leefwereld">
+    <strong>Dit raakt jou ook:</strong> Klimaatverandering maakt het weer extremer — ook in Nederland. Hittegolven in de zomer, hevigere regenbuien. Als je later naar Spanje op vakantie gaat, kan het er nog heter zijn dan nu. En misschien verdwijnen de gletsjers in Oostenrijk waar je wilt skiën. Klimaat is geen ver-van-je-bed-show!
+  </div>
 
-    <div class="highlight-box">
-      <strong>📖 Tip:</strong> Bij een mediterraan klimaat (Csa) zie je altijd dat de droogste maanden samenvallen met de warmste maanden. Bij een zeeklimaat (Cfb) zie je juist dat neerslag redelijk gelijkmatig verdeeld is.
+  <!-- VRAAG: DRAG rangschik -->
+  <div class="question-block" data-section="7" data-qid="q7_1" data-type="drag">
+    <h4><span class="q-icon">1</span> Rangschik deze plekken van warm naar koud qua gemiddelde jaartemperatuur. Sleep naar de juiste positie.</h4>
+    <ul class="drag-list" id="dragList2" data-correct='["Sevilla (warmst)","Madrid","Wenen","Innsbruck (koudst)"]'>
+      <li class="drag-item" draggable="true">Innsbruck (koudst)</li>
+      <li class="drag-item" draggable="true">Sevilla (warmst)</li>
+      <li class="drag-item" draggable="true">Wenen</li>
+      <li class="drag-item" draggable="true">Madrid</li>
+    </ul>
+    <button class="btn btn-primary check-drag-btn">Controleer volgorde</button>
+    <div class="feedback"></div>
+  </div>
+
+  <!-- VRAAG: OPEN - analyse -->
+  <div class="question-block" data-section="7" data-qid="q7_2" data-type="open">
+    <h4><span class="q-icon">2</span> Een vriend zegt: "Het is in Oostenrijk altijd koud." Leg uit waarom deze bewering niet helemaal klopt. Gebruik minstens twee klimaatfactoren in je uitleg.</h4>
+    <textarea class="open-textarea" placeholder="Schrijf hier je antwoord..."></textarea>
+    <div class="word-count">0 woorden</div>
+    <button class="btn btn-primary show-example-btn" style="display:none;">Toon voorbeeldantwoord</button>
+    <div class="example-answer">
+      <strong>Voorbeeldantwoord:</strong> Die bewering klopt niet helemaal. Hoewel het in de Alpen op grote hoogte inderdaad koud kan zijn, kan het in de dalen in de zomer best warm worden (25-30°C). Wenen, in het vlakkere oosten, heeft zomers die net zo warm zijn als in Zuid-Duitsland. Daarnaast kan de Föhnwind voor plotselinge warmte zorgen, zelfs in de winter. De hoogteligging maakt veel uit: een dal op 500m is heel anders dan een bergtop op 3000m.
+    </div>
+    <div class="self-assess">
+      <button class="btn btn-correct btn-small self-correct">Goed ✓</button>
+      <button class="btn btn-wrong btn-small self-wrong">Fout ✗</button>
     </div>
   </div>
 
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
-    <div class="chart-wrap"><canvas id="chartClimNL"></canvas></div>
-    <div class="chart-wrap"><canvas id="chartClimES"></canvas></div>
+  <!-- VRAAG: OPEN - klimaatverandering -->
+  <div class="question-block" data-section="7" data-qid="q7_3" data-type="open">
+    <h4><span class="q-icon">3</span> Bedenk twee gevolgen van klimaatverandering voor het toerisme in Spanje én Oostenrijk. Denk aan hitte, sneeuw, water en natuur.</h4>
+    <textarea class="open-textarea" placeholder="Schrijf hier je antwoord..."></textarea>
+    <div class="word-count">0 woorden</div>
+    <button class="btn btn-primary show-example-btn" style="display:none;">Toon voorbeeldantwoord</button>
+    <div class="example-answer">
+      <strong>Voorbeeldantwoord 1:</strong> In Spanje kan het door klimaatverandering zo heet worden in de zomer (boven 45°C) dat toeristen wegblijven of alleen in de herfst en lente komen. Dat is slecht voor de toerisme-industrie in de zomer. <br><strong>Voorbeeldantwoord 2:</strong> In Oostenrijk smelten de gletsjers en valt er minder sneeuw op lagere hoogte. Skipistes moeten steeds vaker kunstsneeuw gebruiken, wat duur en slecht voor het milieu is. Op termijn verdwijnen sommige skigebieden misschien helemaal.
+    </div>
+    <div class="self-assess">
+      <button class="btn btn-correct btn-small self-correct">Goed ✓</button>
+      <button class="btn btn-wrong btn-small self-wrong">Fout ✗</button>
+    </div>
   </div>
 
-  <!-- Q1: grafiek analyse -->
-  <div class="question-block" data-tab="7" data-qid="q7_1" data-type="mc" data-answer="B" data-attempts="0">
-    <span class="q-label">Grafiekvraag</span>
-    <p class="q-text">Bekijk de klimaatgrafiek van Madrid. In welke maanden is er een duidelijke droge periode?</p>
-    <div class="mc-options">
-      <button class="mc-btn" data-choice="A">A) December, januari en februari</button>
-      <button class="mc-btn" data-choice="B">B) Juni, juli en augustus</button>
-      <button class="mc-btn" data-choice="C">C) Maart, april en mei</button>
+  <div class="section-nav">
+    <button class="reset-section" data-section="7">🔄 Reset dit onderdeel</button>
+    <div>
+      <button class="btn btn-secondary nav-btn" data-dir="prev">← Vorige</button>
+      <button class="btn btn-primary nav-btn" data-dir="next">Volgende →</button>
     </div>
-    <div class="feedback-box" data-qid="q7_1" data-hint1="Kijk naar de staven (neerslag) in de grafiek van Madrid. Waar zijn ze het laagst?" data-hint2="De laagste staven zitten in de zomermaanden. Welke maanden zijn dat?" data-explain="De droge periode in Madrid valt in de zomermaanden juni, juli en augustus. In juli valt er slechts ~10 mm neerslag. Dit is het typische kenmerk van een Csa-klimaat."></div>
   </div>
-
-  <!-- Q2: open vergelijking -->
-  <div class="question-block" data-tab="7" data-qid="q7_2" data-type="open">
-    <span class="q-label">Vergelijkingsvraag</span>
-    <p class="q-text">Bekijk beide klimaatgrafieken. Noem drie concrete verschillen die je afleest en geef bij elk verschil aan bij welk klimaattype (Cfb of Csa) het hoort.</p>
-    <textarea class="open-answer" data-qid="q7_2" placeholder="Typ hier je antwoord..."></textarea>
-    <div class="word-count" data-qid="q7_2">0 woorden (minimaal 20)</div>
-    <button class="btn btn-primary btn-small" data-action="show-example" data-qid="q7_2" style="margin-top:8px" disabled>Toon voorbeeldantwoord</button>
-    <div class="example-answer" data-qid="q7_2">
-      <strong>Voorbeeldantwoord:</strong> Verschil 1: De temperatuurlijn van Madrid (Csa) piekt veel hoger in de zomer (~25°C) dan die van De Bilt (Cfb, ~17°C). Verschil 2: De neerslagstaven van De Bilt zijn vrij gelijkmatig over het jaar, wat past bij Cfb (f = vochtig heel jaar). Bij Madrid zijn de zomerstaven bijna nul, typerend voor Csa (s = droge zomer). Verschil 3: De Bilt heeft in de winter hogere neerslagstaven dan Madrid, ondanks dat de totale neerslag in Nederland veel hoger is.
-    </div>
-    <div class="self-assess" data-qid="q7_2">
-      <span style="font-size:0.85rem;font-weight:600;">Hoe beoordeel je je eigen antwoord?</span>
-      <button class="btn btn-correct btn-small" data-assess="correct" data-qid="q7_2">Goed ✓</button>
-      <button class="btn btn-wrong btn-small" data-assess="wrong" data-qid="q7_2">Fout ✗</button>
-    </div>
-    <div class="feedback-box" data-qid="q7_2"></div>
-  </div>
-
-  <!-- Q3: MC -->
-  <div class="question-block" data-tab="7" data-qid="q7_3" data-type="mc" data-answer="A" data-attempts="0">
-    <span class="q-label">Multiple choice</span>
-    <p class="q-text">Hoe kun je op een klimaatgrafiek herkennen dat het een mediterraan klimaat (Csa) is?</p>
-    <div class="mc-options">
-      <button class="mc-btn" data-choice="A">A) De droogste maanden vallen samen met de warmste maanden</button>
-      <button class="mc-btn" data-choice="B">B) De natste maanden vallen samen met de warmste maanden</button>
-      <button class="mc-btn" data-choice="C">C) De temperatuurlijn is vlak het hele jaar</button>
-    </div>
-    <div class="feedback-box" data-qid="q7_3" data-hint1="Denk aan de letter 's' in Csa — die staat voor 'droge zomer'. Kijk naar de grafiek." data-hint2="Als het zomer is (warm), regent het bijna niet. De warmte en droogte vallen samen." data-explain="Bij een Csa-klimaat vallen de droogste maanden samen met de warmste maanden. Dat is HET kenmerk van het mediterrane klimaat. Bij Cfb (zeeklimaat) is er geen droge periode."></div>
-  </div>
-
-  <div class="tab-nav-bottom">
-    <button class="btn btn-secondary" data-nav="prev">← Vorige</button>
-    <button class="btn btn-primary" data-nav="next">Volgende →</button>
-  </div>
-  <button class="reset-section-btn" data-reset-tab="7">🔄 Reset dit onderdeel</button>
 </div>
 
-<!-- ════════════════ TAB 9: Natuur en landschap ════════════════ -->
-<div class="tab-panel" id="tab-8">
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- SECTIE 8: AFSLUITING -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="section" id="section-8">
+  <h2>🏁 Afsluiting & Reflectie</h2>
+
   <div class="info-block">
-    <span class="emoji-header">🌳🌵</span>
-    <h2>Klimaat en landschap: wat je ziet op je reis</h2>
-    <p>Het klimaat bepaalt niet alleen het weer — het vormt ook het <strong>landschap</strong> en de <strong>natuur</strong>. Wanneer je op reis gaat, zie je die invloed meteen met je eigen ogen.</p>
+    <h3>Leerdoelen terugblik</h3>
+    <p>Je hebt gewerkt aan drie leerdoelen. Kijk hieronder hoe je gescoord hebt:</p>
+    <ul style="margin: 8px 0 8px 20px;">
+      <li>✅ Ik kan het klimaat van Spanje en Oostenrijk beschrijven.</li>
+      <li>✅ Ik kan verschillen en overeenkomsten noemen.</li>
+      <li>✅ Ik kan uitleggen waardoor het klimaat anders is.</li>
+    </ul>
+  </div>
 
-    <h3>🇳🇱 Nederland: groen en waterrijk</h3>
-    <p>Door de regelmatige neerslag en milde temperaturen is Nederland overwegend <strong>groen</strong>. Graslanden, loofbomen, weilanden met koeien — dat is het klassieke Nederlandse landschap. Het land is vlak en er is veel oppervlaktewater (sloten, meren, rivieren). De hoge grondwaterstand komt door de constante aanvoer van regenwater.</p>
+  <div class="score-panel">
+    <div class="score-big" id="finalScore">0%</div>
+    <div class="score-label">van de opdrachten goed beantwoord</div>
+  </div>
 
-    <h3>🇪🇸 Spanje (binnenland): droog en bruin</h3>
-    <p>De Meseta (het centrale plateau) is in de zomer een droog, bruin landschap. De vegetatie is aangepast aan droogte: <strong>kurkeiken, olijfbomen, lavendel</strong> — planten met kleine, leerachtige blaadjes die weinig water verdampen. In tegenstelling tot het groene Nederland zie je hier veel kale, steenachtige grond.</p>
-
-    <h3>🇪🇸 Spaanse kust: mediterrane begroeiing</h3>
-    <p>Aan de Middellandse Zeekust groeit de typische <strong>maquis</strong>-vegetatie: dichte, groenblijvende struiken die bestand zijn tegen droogte en hitte. Denk aan rozemarijn, tijm en citrusbomen. Het landschap ruikt heerlijk aromatisch!</p>
-
-    <div class="process-flow">
-      <div class="step">☀️ Veel zon</div>
-      <span class="arrow-icon">→</span>
-      <div class="step">💧 Weinig regen</div>
-      <span class="arrow-icon">→</span>
-      <div class="step">🌵 Droogtebestendige planten</div>
-      <span class="arrow-icon">→</span>
-      <div class="step">🏜️ Bruin landschap</div>
+  <div class="question-block" data-section="8" data-qid="q8_1" data-type="open">
+    <h4><span class="q-icon">💭</span> Reflectievraag 1: Wat vond je het lastigst aan deze les en waarom?</h4>
+    <textarea class="open-textarea" placeholder="Schrijf hier je antwoord..."></textarea>
+    <div class="word-count">0 woorden</div>
+    <button class="btn btn-primary show-example-btn" style="display:none;">Toon voorbeeldantwoord</button>
+    <div class="example-answer">
+      <strong>Voorbeeld:</strong> Ik vond het lastig om het Föhn-effect uit te leggen, omdat er veel stappen zijn (stijgen, afkoelen, regenen, dalen, opwarmen). Door het emojiplaatje werd het wel duidelijker.
     </div>
-
-    <div class="highlight-box">
-      <strong>🏠 Herken je het?</strong> Kijk eens uit je raam. Wat zie je? Waarschijnlijk veel groen — gras, bomen, misschien een sloot. Dat komt allemaal door ons klimaat. Stel dat je in midden-Spanje uit het raam kijkt: dan zie je droge aarde, olijfbomen en strakblauwe lucht.
+    <div class="self-assess">
+      <button class="btn btn-correct btn-small self-correct">Goed ✓</button>
+      <button class="btn btn-wrong btn-small self-wrong">Fout ✗</button>
     </div>
   </div>
 
-  <!-- Q1: open -->
-  <div class="question-block" data-tab="8" data-qid="q8_1" data-type="open">
-    <span class="q-label">Vergelijkingsvraag</span>
-    <p class="q-text">Stel je gaat op twee vakanties: één naar Noord-Nederland (Friesland) en één naar midden-Spanje (Castilië). Beschrijf in minimaal 4 zinnen welke verschillen je in het landschap en de natuur zou zien, en leg uit hoe het klimaat die verschillen veroorzaakt.</p>
-    <textarea class="open-answer" data-qid="q8_1" placeholder="Typ hier je antwoord..."></textarea>
-    <div class="word-count" data-qid="q8_1">0 woorden (minimaal 20)</div>
-    <button class="btn btn-primary btn-small" data-action="show-example" data-qid="q8_1" style="margin-top:8px" disabled>Toon voorbeeldantwoord</button>
-    <div class="example-answer" data-qid="q8_1">
-      <strong>Voorbeeldantwoord:</strong> In Friesland zou ik groene weilanden zien met koeien en schapen, doorsneden met sloten en kanalen. Dat komt door de constante neerslag en het zeeklimaat (Cfb). In Castilië zou het landschap veel droger en bruiner zijn, met olijfbomen en kale grond. De hete, droge zomers van het mediterrane klimaat (Csa) zorgen ervoor dat alleen planten overleven die bestand zijn tegen droogte. Het water in Friesland is overal zichtbaar, terwijl rivieren in Spanje in de zomer soms droogvallen.
+  <div class="question-block" data-section="8" data-qid="q8_2" data-type="open">
+    <h4><span class="q-icon">💭</span> Reflectievraag 2: Wat zou je een klasgenoot uitleggen over het klimaatverschil tussen Spanje en Oostenrijk?</h4>
+    <textarea class="open-textarea" placeholder="Schrijf hier je antwoord..."></textarea>
+    <div class="word-count">0 woorden</div>
+    <button class="btn btn-primary show-example-btn" style="display:none;">Toon voorbeeldantwoord</button>
+    <div class="example-answer">
+      <strong>Voorbeeld:</strong> Ik zou uitleggen dat Spanje veel warmer is omdat het zuidelijker ligt en meer zon krijgt, en dat de zomers er droog zijn. Oostenrijk is kouder door de bergen en de afstand tot de zee, en het regent er juist in de zomer.
     </div>
-    <div class="self-assess" data-qid="q8_1">
-      <span style="font-size:0.85rem;font-weight:600;">Hoe beoordeel je je eigen antwoord?</span>
-      <button class="btn btn-correct btn-small" data-assess="correct" data-qid="q8_1">Goed ✓</button>
-      <button class="btn btn-wrong btn-small" data-assess="wrong" data-qid="q8_1">Fout ✗</button>
+    <div class="self-assess">
+      <button class="btn btn-correct btn-small self-correct">Goed ✓</button>
+      <button class="btn btn-wrong btn-small self-wrong">Fout ✗</button>
     </div>
-    <div class="feedback-box" data-qid="q8_1"></div>
   </div>
 
-  <!-- Q2: MC -->
-  <div class="question-block" data-tab="8" data-qid="q8_2" data-type="mc" data-answer="C" data-attempts="0">
-    <span class="q-label">Multiple choice</span>
-    <p class="q-text">Waarom hebben planten in Spanje vaak kleine, leerachtige blaadjes?</p>
-    <div class="mc-options">
-      <button class="mc-btn" data-choice="A">A) Om meer zonlicht op te vangen</button>
-      <button class="mc-btn" data-choice="B">B) Om insecten af te weren</button>
-      <button class="mc-btn" data-choice="C">C) Om zo min mogelijk water te verdampen</button>
+  <div class="question-block" data-section="8" data-qid="q8_3" data-type="open">
+    <h4><span class="q-icon">💭</span> Reflectievraag 3: Hoe herken je klimaatverschillen in je eigen omgeving? Denk aan het weer in Nederland vergeleken met wat je geleerd hebt.</h4>
+    <textarea class="open-textarea" placeholder="Schrijf hier je antwoord..."></textarea>
+    <div class="word-count">0 woorden</div>
+    <button class="btn btn-primary show-example-btn" style="display:none;">Toon voorbeeldantwoord</button>
+    <div class="example-answer">
+      <strong>Voorbeeld:</strong> In Nederland regent het het hele jaar door en zijn de zomers niet zo heet als in Spanje. Dat komt doordat Nederland noordelijker ligt en dicht bij de zee. Als ik op vakantie naar het zuiden ga, merk ik het verschil direct: meer zon, hogere temperaturen, en drogere lucht.
     </div>
-    <div class="feedback-box" data-qid="q8_2" data-hint1="In een droog klimaat is water schaars. Hoe kunnen planten water besparen?" data-hint2="Via bladeren verdampt water. Kleinere bladeren = minder verdamping." data-explain="Kleine, leerachtige bladeren beperken de verdamping. Dit is een aanpassing aan het droge klimaat: planten die minder water verliezen, overleven beter in de droge zomers."></div>
+    <div class="self-assess">
+      <button class="btn btn-correct btn-small self-correct">Goed ✓</button>
+      <button class="btn btn-wrong btn-small self-wrong">Fout ✗</button>
+    </div>
   </div>
 
-  <!-- Q3: MC -->
-  <div class="question-block" data-tab="8" data-qid="q8_3" data-type="mc" data-answer="A" data-attempts="0">
-    <span class="q-label">Multiple choice</span>
-    <p class="q-text">Wat is 'maquis'?</p>
-    <div class="mc-options">
-      <button class="mc-btn" data-choice="A">A) Dichte, groenblijvende struikbegroeiing in het Middellandse Zeegebied</button>
-      <button class="mc-btn" data-choice="B">B) Een type woestijn in centraal Spanje</button>
-      <button class="mc-btn" data-choice="C">C) Een Nederlandse grassoort</button>
+  <div class="section-nav">
+    <button class="reset-section" data-section="8">🔄 Reset dit onderdeel</button>
+    <div>
+      <button class="btn btn-secondary nav-btn" data-dir="prev">← Vorige</button>
     </div>
-    <div class="feedback-box" data-qid="q8_3" data-hint1="Het woord stond in het stuk over de Spaanse kust. Het is een type begroeiing." data-hint2="Denk aan struiken die bestand zijn tegen droogte. Rozemarijn en tijm zijn voorbeelden." data-explain="Maquis is de dichte, aromatische struikbegroeiing die je vindt in het Middellandse Zeegebied. Planten als rozemarijn, tijm en citrusstruiken groeien er goed dankzij hun aanpassing aan droogte."></div>
   </div>
-
-  <div class="tab-nav-bottom">
-    <button class="btn btn-secondary" data-nav="prev">← Vorige</button>
-    <button class="btn btn-primary" data-nav="next">Volgende →</button>
-  </div>
-  <button class="reset-section-btn" data-reset-tab="8">🔄 Reset dit onderdeel</button>
 </div>
 
-<!-- ════════════════ TAB 10: Reflectie & Afsluiting ════════════════ -->
-<div class="tab-panel" id="tab-9">
-  <div class="info-block">
-    <span class="emoji-header">🎓✨</span>
-    <h2>Afsluiting: wat heb je geleerd?</h2>
-    <p>Je hebt een hele reis gemaakt door het klimaat van Nederland en Spanje. Laten we terugkijken op de leerdoelen.</p>
+<footer class="site-footer">
+  ✈️ Klimaatreis: Spanje & Oostenrijk — Aardrijkskunde HAVO 1
+</footer>
 
-    <div class="highlight-box">
-      <strong>🎯 Leerdoel 1:</strong> Ik kan de belangrijkste klimaatverschillen tussen Nederland en Spanje benoemen aan de hand van temperatuur en neerslag.<br><br>
-      <strong>🎯 Leerdoel 2:</strong> Ik kan uitleggen waardoor het klimaat verschilt (minstens twee oorzaken).<br><br>
-      <strong>🎯 Leerdoel 3:</strong> Ik kan op een klimaatgrafiek aflezen welk klimaattype bij Nederland en Spanje hoort.
-    </div>
-  </div>
-
-  <div class="score-card" id="scoreCard">
-    <p style="font-weight:700;margin-bottom:8px;">Jouw eindscore</p>
-    <div class="big-score" id="finalScore">—</div>
-    <p style="font-size:0.9rem;color:var(--text-light);margin-top:8px;" id="scoreDetail"></p>
-  </div>
-
-  <!-- Reflectie open vragen -->
-  <div class="question-block" data-tab="9" data-qid="q9_1" data-type="open">
-    <span class="q-label">Reflectie</span>
-    <p class="q-text">Wat vond je het lastigste onderdeel van deze les, en waarom? Schrijf minimaal 2 zinnen.</p>
-    <textarea class="open-answer" data-qid="q9_1" placeholder="Typ hier je antwoord..."></textarea>
-    <div class="word-count" data-qid="q9_1">0 woorden (minimaal 20)</div>
-    <button class="btn btn-primary btn-small" data-action="show-example" data-qid="q9_1" style="margin-top:8px" disabled>Toon voorbeeldantwoord</button>
-    <div class="example-answer" data-qid="q9_1">
-      <strong>Voorbeeldantwoord:</strong> Ik vond het lastig om de klimaatgrafieken te vergelijken, omdat ik in het begin niet goed wist waar ik op moest letten. Maar na de uitleg over de droge periode en de letters Cfb en Csa werd het duidelijker.
-    </div>
-    <div class="self-assess" data-qid="q9_1">
-      <span style="font-size:0.85rem;font-weight:600;">Hoe beoordeel je je eigen antwoord?</span>
-      <button class="btn btn-correct btn-small" data-assess="correct" data-qid="q9_1">Goed ✓</button>
-      <button class="btn btn-wrong btn-small" data-assess="wrong" data-qid="q9_1">Fout ✗</button>
-    </div>
-    <div class="feedback-box" data-qid="q9_1"></div>
-  </div>
-
-  <div class="question-block" data-tab="9" data-qid="q9_2" data-type="open">
-    <span class="q-label">Reflectie</span>
-    <p class="q-text">Stel dat een klasgenoot ziek was en deze les gemist heeft. Leg in je eigen woorden (minimaal 3 zinnen) uit wat de belangrijkste dingen zijn die hij/zij moet weten over klimaatverschillen tussen Nederland en Spanje.</p>
-    <textarea class="open-answer" data-qid="q9_2" placeholder="Typ hier je antwoord..."></textarea>
-    <div class="word-count" data-qid="q9_2">0 woorden (minimaal 20)</div>
-    <button class="btn btn-primary btn-small" data-action="show-example" data-qid="q9_2" style="margin-top:8px" disabled>Toon voorbeeldantwoord</button>
-    <div class="example-answer" data-qid="q9_2">
-      <strong>Voorbeeldantwoord:</strong> Nederland en Spanje hebben allebei een gematigd klimaat, maar de verschillen zijn groot. Nederland heeft een zeeklimaat (Cfb): het regent het hele jaar door, de zomers zijn koel en de winters mild dankzij de Golfstroom. Spanje, vooral het zuiden en midden, heeft een mediterraan klimaat (Csa) met hete, droge zomers en milde, nattere winters. De belangrijkste oorzaken zijn de breedteligging (Spanje is dichter bij de evenaar) en de invloed van de Atlantische Oceaan op Nederland.
-    </div>
-    <div class="self-assess" data-qid="q9_2">
-      <span style="font-size:0.85rem;font-weight:600;">Hoe beoordeel je je eigen antwoord?</span>
-      <button class="btn btn-correct btn-small" data-assess="correct" data-qid="q9_2">Goed ✓</button>
-      <button class="btn btn-wrong btn-small" data-assess="wrong" data-qid="q9_2">Fout ✗</button>
-    </div>
-    <div class="feedback-box" data-qid="q9_2"></div>
-  </div>
-
-  <div class="question-block" data-tab="9" data-qid="q9_3" data-type="open">
-    <span class="q-label">Reflectie</span>
-    <p class="q-text">Hoe zou je het klimaat herkennen in je eigen omgeving? Noem één ding dat je morgen anders zou bekijken nu je deze les hebt gedaan.</p>
-    <textarea class="open-answer" data-qid="q9_3" placeholder="Typ hier je antwoord..."></textarea>
-    <div class="word-count" data-qid="q9_3">0 woorden (minimaal 20)</div>
-    <button class="btn btn-primary btn-small" data-action="show-example" data-qid="q9_3" style="margin-top:8px" disabled>Toon voorbeeldantwoord</button>
-    <div class="example-answer" data-qid="q9_3">
-      <strong>Voorbeeldantwoord:</strong> Ik zou morgen naar de lucht kijken en bewust opmerken hoeveel wolken er zijn. Dat zijn er in Nederland bijna altijd veel, doordat de westenwind vocht van de Atlantische Oceaan meebrengt. Ik zou dat nu kunnen uitleggen als een kenmerk van ons zeeklimaat.
-    </div>
-    <div class="self-assess" data-qid="q9_3">
-      <span style="font-size:0.85rem;font-weight:600;">Hoe beoordeel je je eigen antwoord?</span>
-      <button class="btn btn-correct btn-small" data-assess="correct" data-qid="q9_3">Goed ✓</button>
-      <button class="btn btn-wrong btn-small" data-assess="wrong" data-qid="q9_3">Fout ✗</button>
-    </div>
-    <div class="feedback-box" data-qid="q9_3"></div>
-  </div>
-
-  <div class="tab-nav-bottom">
-    <button class="btn btn-secondary" data-nav="prev">← Vorige</button>
-    <span></span>
-  </div>
-  <button class="clear-progress-btn" id="clearProgressBtn">🗑️ Voortgang wissen</button>
-  <button class="reset-section-btn" data-reset-tab="9">🔄 Reset dit onderdeel</button>
-</div>
-
-</main>
-
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- JAVASCRIPT -->
+<!-- ═══════════════════════════════════════════════════════════ -->
 <script>
 (function() {
   'use strict';
 
-  /* ═══════════ CONSTANTS ═══════════ */
-  var TAB_COUNT = 10;
-  var TAB_NAMES = [
-    'Introductie', 'De Kaart', 'Temperatuur', 'Neerslag',
-    'Oorzaken', 'Klimaattypen', 'Reisscenario', 'Grafieken',
-    'Natuur', 'Afsluiting'
-  ];
+  var TOTAL_SECTIONS = 9;
   var PREFIX = 'geo_les_';
+  var state = {
+    answers: {},   // qid -> {status:'correct'|'wrong'|'open_done', value:..., attempts:0}
+    currentTab: 0
+  };
 
-  /* ═══════════ STORAGE HELPERS ═══════════ */
-  function storeGet(key) {
-    try { return JSON.parse(localStorage.getItem(PREFIX + key)); } catch(e) { return null; }
+  // ── STORAGE ──
+  function saveState() {
+    try { localStorage.setItem(PREFIX + 'state', JSON.stringify(state)); } catch(e) {}
   }
-  function storeSet(key, val) {
-    try { localStorage.setItem(PREFIX + key, JSON.stringify(val)); } catch(e) {}
+  function loadState() {
+    try {
+      var s = localStorage.getItem(PREFIX + 'state');
+      if (s) {
+        var parsed = JSON.parse(s);
+        if (parsed && parsed.answers) state.answers = parsed.answers;
+        if (typeof parsed.currentTab === 'number') state.currentTab = parsed.currentTab;
+      }
+    } catch(e) {}
   }
-  function storeRemove(key) {
-    try { localStorage.removeItem(PREFIX + key); } catch(e) {}
+  function clearState() {
+    try { localStorage.removeItem(PREFIX + 'state'); } catch(e) {}
+    state = { answers: {}, currentTab: 0 };
+    location.reload();
   }
 
-  /* ═══════════ STATE ═══════════ */
-  var state = storeGet('state') || {};
-  // state shape: { qid: { completed: bool, correct: bool, attempts: number, answer: string } }
-  var currentTab = 0;
+  // ── PROGRESS ──
+  function getAllQids() {
+    var blocks = document.querySelectorAll('.question-block[data-qid]');
+    var qids = [];
+    blocks.forEach(function(b) { qids.push(b.getAttribute('data-qid')); });
+    return qids;
+  }
+  function updateProgress() {
+    var qids = getAllQids();
+    var done = 0;
+    var correct = 0;
+    qids.forEach(function(qid) {
+      if (state.answers[qid]) {
+        done++;
+        if (state.answers[qid].status === 'correct' || state.answers[qid].status === 'open_done') {
+          correct++;
+        }
+      }
+    });
+    var pct = qids.length > 0 ? Math.round((done / qids.length) * 100) : 0;
+    document.getElementById('progressBar').style.width = pct + '%';
+    document.getElementById('progressLabel').textContent = pct + '% voltooid (' + done + '/' + qids.length + ' opdrachten)';
+    // Update tab checks
+    for (var s = 0; s < TOTAL_SECTIONS; s++) {
+      var secQids = [];
+      document.querySelectorAll('.question-block[data-section="' + s + '"]').forEach(function(b) {
+        secQids.push(b.getAttribute('data-qid'));
+      });
+      var allDone = secQids.length > 0 && secQids.every(function(qid) { return !!state.answers[qid]; });
+      var tabBtn = document.querySelector('.tab-btn[data-tab="' + s + '"]');
+      var existingCheck = tabBtn.querySelector('.check');
+      if (allDone) {
+        if (!existingCheck) { tabBtn.insertAdjacentHTML('beforeend', '<span class="check">✓</span>'); }
+      } else {
+        if (existingCheck) existingCheck.remove();
+      }
+    }
+    // Final score
+    var finalPct = qids.length > 0 ? Math.round((correct / qids.length) * 100) : 0;
+    var finalEl = document.getElementById('finalScore');
+    if (finalEl) finalEl.textContent = finalPct + '%';
+  }
 
-  function saveState() { storeSet('state', state); storeSet('time', Date.now()); }
-
-  /* ═══════════ TAB BAR ═══════════ */
-  var tabBar = document.getElementById('tabBar');
-  TAB_NAMES.forEach(function(name, i) {
-    var btn = document.createElement('button');
-    btn.className = 'tab-btn' + (i === 0 ? ' active' : '');
-    btn.textContent = (i + 1) + '. ' + name;
-    btn.setAttribute('data-tab-index', i);
-    var check = document.createElement('span');
-    check.className = 'check';
-    check.style.display = 'none';
-    check.textContent = ' ✓';
-    btn.appendChild(check);
-    tabBar.appendChild(btn);
-    btn.addEventListener('click', function() { switchTab(i); });
-  });
-
+  // ── TABS ──
   function switchTab(index) {
-    currentTab = index;
-    document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
-    document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
-    var panel = document.getElementById('tab-' + index);
-    if (panel) panel.classList.add('active');
-    var btns = tabBar.querySelectorAll('.tab-btn');
-    if (btns[index]) { btns[index].classList.add('active'); btns[index].scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' }); }
-    document.getElementById('sectionCounter').textContent = 'Onderdeel ' + (index + 1) + ' van ' + TAB_COUNT;
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    // Fix maps
+    if (index < 0 || index >= TOTAL_SECTIONS) return;
+    state.currentTab = index;
+    saveState();
+    document.querySelectorAll('.section').forEach(function(s, i) {
+      s.classList.toggle('active', i === index);
+    });
+    document.querySelectorAll('.tab-btn').forEach(function(b) {
+      b.classList.toggle('active', parseInt(b.getAttribute('data-tab')) === index);
+    });
+    document.getElementById('tabCounter').textContent = 'Onderdeel ' + (index + 1) + ' van ' + TOTAL_SECTIONS;
+    // Scroll tab into view
+    var activeTab = document.querySelector('.tab-btn.active');
+    if (activeTab) activeTab.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+    // Invalidate maps
     setTimeout(function() {
       if (window._maps) {
         window._maps.forEach(function(m) { m.invalidateSize(); });
       }
-    }, 300);
-    // Update final score on last tab
-    if (index === 9) updateFinalScore();
+    }, 200);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  /* ═══════════ NAV BUTTONS ═══════════ */
-  document.querySelectorAll('[data-nav]').forEach(function(btn) {
-    btn.addEventListener('click', function() {
-      var dir = btn.getAttribute('data-nav');
-      if (dir === 'next' && currentTab < TAB_COUNT - 1) switchTab(currentTab + 1);
-      if (dir === 'prev' && currentTab > 0) switchTab(currentTab - 1);
-    });
-  });
-
-  /* ═══════════ PROGRESS ═══════════ */
-  function getAllQuestionIds() {
-    var ids = [];
-    document.querySelectorAll('.question-block[data-qid]').forEach(function(q) { ids.push(q.getAttribute('data-qid')); });
-    return ids;
-  }
-
-  function updateProgress() {
-    var all = getAllQuestionIds();
-    var done = 0;
-    all.forEach(function(id) { if (state[id] && state[id].completed) done++; });
-    var pct = all.length > 0 ? Math.round((done / all.length) * 100) : 0;
-    document.getElementById('progressFill').style.width = pct + '%';
-    document.getElementById('progressLabel').textContent = pct + '%';
-    // Update tab checks
-    for (var t = 0; t < TAB_COUNT; t++) {
-      var tabQs = document.querySelectorAll('.question-block[data-tab="' + t + '"]');
-      var allDone = tabQs.length > 0;
-      tabQs.forEach(function(q) {
-        var qid = q.getAttribute('data-qid');
-        if (!state[qid] || !state[qid].completed) allDone = false;
-      });
-      var checkEl = tabBar.querySelectorAll('.tab-btn')[t].querySelector('.check');
-      if (checkEl) checkEl.style.display = allDone ? 'inline' : 'none';
-    }
-    saveState();
-  }
-
-  /* ═══════════ MC QUESTIONS ═══════════ */
-  document.querySelectorAll('.question-block[data-type="mc"]').forEach(function(block) {
-    var qid = block.getAttribute('data-qid');
-    var correct = block.getAttribute('data-answer');
-    var fb = block.querySelector('.feedback-box');
-    var hint1 = fb.getAttribute('data-hint1') || '';
-    var hint2 = fb.getAttribute('data-hint2') || '';
-    var explain = fb.getAttribute('data-explain') || '';
-
-    block.querySelectorAll('.mc-btn').forEach(function(btn) {
+  // ── MC QUESTIONS ──
+  function setupMC() {
+    document.querySelectorAll('.check-mc-btn').forEach(function(btn) {
       btn.addEventListener('click', function() {
-        if (btn.classList.contains('locked')) return;
-        if (!state[qid]) state[qid] = { completed: false, correct: false, attempts: 0, answer: '' };
-        if (state[qid].completed) return;
+        var block = btn.closest('.question-block');
+        var qid = block.getAttribute('data-qid');
+        var correctAnswer = btn.getAttribute('data-answer');
+        var feedbackEl = block.querySelector('.feedback');
+        var options = block.querySelectorAll('.mc-options li');
+        var hintsAttr = feedbackEl.getAttribute('data-hints');
+        var hints = [];
+        try { hints = JSON.parse(hintsAttr); } catch(e) {}
 
-        var choice = btn.getAttribute('data-choice');
-        state[qid].attempts++;
-        state[qid].answer = choice;
+        // Already completed?
+        if (state.answers[qid] && (state.answers[qid].status === 'correct' || state.answers[qid].status === 'wrong')) return;
 
-        // Reset previous selection styles
-        block.querySelectorAll('.mc-btn').forEach(function(b) { b.classList.remove('selected', 'wrong-answer'); });
-        btn.classList.add('selected');
-
-        if (choice === correct) {
-          state[qid].completed = true;
-          state[qid].correct = true;
-          btn.classList.remove('selected');
-          btn.classList.add('correct-answer');
-          fb.className = 'feedback-box show correct';
-          fb.textContent = '✅ Goed gedaan! ' + explain;
-          block.querySelectorAll('.mc-btn').forEach(function(b) { b.classList.add('locked'); });
-        } else {
-          btn.classList.add('wrong-answer');
-          if (state[qid].attempts >= 3) {
-            state[qid].completed = true;
-            state[qid].correct = false;
-            fb.className = 'feedback-box show final-wrong';
-            fb.textContent = '❌ Het juiste antwoord was ' + correct + '. ' + explain;
-            block.querySelectorAll('.mc-btn').forEach(function(b) {
-              b.classList.add('locked');
-              if (b.getAttribute('data-choice') === correct) b.classList.add('correct-answer');
-            });
-          } else if (state[qid].attempts === 1) {
-            fb.className = 'feedback-box show wrong';
-            fb.textContent = '💭 ' + hint1;
-          } else {
-            fb.className = 'feedback-box show wrong';
-            fb.textContent = '💭 ' + hint2;
-          }
+        // Find selected
+        var selected = null;
+        options.forEach(function(li) { if (li.classList.contains('selected')) selected = li; });
+        if (!selected) {
+          feedbackEl.className = 'feedback show hint';
+          feedbackEl.textContent = 'Kies eerst een antwoord!';
+          return;
         }
+
+        var attempts = (state.answers[qid] && state.answers[qid].attempts) || 0;
+        attempts++;
+        var value = selected.getAttribute('data-value');
+
+        if (value === correctAnswer) {
+          // Correct
+          state.answers[qid] = { status: 'correct', value: value, attempts: attempts };
+          options.forEach(function(li) {
+            li.classList.add('locked');
+            if (li.getAttribute('data-value') === correctAnswer) li.classList.add('correct-answer');
+          });
+          feedbackEl.className = 'feedback show correct';
+          feedbackEl.innerHTML = '✅ <strong>Goed zo!</strong> ' + (attempts === 1 ? 'In één keer goed!' : 'Na ' + attempts + ' pogingen.');
+          btn.style.display = 'none';
+        } else if (attempts >= 3) {
+          // Max attempts
+          state.answers[qid] = { status: 'wrong', value: value, attempts: attempts };
+          options.forEach(function(li) {
+            li.classList.add('locked');
+            if (li.getAttribute('data-value') === correctAnswer) li.classList.add('correct-answer');
+          });
+          selected.classList.add('wrong-answer');
+          feedbackEl.className = 'feedback show wrong';
+          feedbackEl.innerHTML = 'Het juiste antwoord is gemarkeerd in het groen. Geen zorgen — je leert er alsnog van!';
+          btn.style.display = 'none';
+        } else {
+          // Hint
+          state.answers[qid] = { status: 'pending', value: value, attempts: attempts };
+          selected.classList.add('wrong-answer');
+          setTimeout(function() { selected.classList.remove('wrong-answer', 'selected'); }, 800);
+          var hintText = hints[attempts - 1] || 'Probeer het nog eens!';
+          feedbackEl.className = 'feedback show hint';
+          feedbackEl.innerHTML = '💡 <strong>Bijna!</strong> ' + hintText + ' (poging ' + attempts + '/3)';
+        }
+        saveState();
         updateProgress();
       });
     });
-  });
-
-  /* ═══════════ OPEN QUESTIONS ═══════════ */
-  document.querySelectorAll('textarea.open-answer').forEach(function(ta) {
-    var qid = ta.getAttribute('data-qid');
-    var wcEl = document.querySelector('.word-count[data-qid="' + qid + '"]');
-    var exBtn = document.querySelector('[data-action="show-example"][data-qid="' + qid + '"]');
-    var exBox = document.querySelector('.example-answer[data-qid="' + qid + '"]');
-    var assessBox = document.querySelector('.self-assess[data-qid="' + qid + '"]');
-
-    ta.addEventListener('input', function() {
-      var words = ta.value.trim().split(/\s+/).filter(function(w) { return w.length > 0; }).length;
-      wcEl.textContent = words + ' woorden (minimaal 20)';
-      wcEl.className = 'word-count' + (words >= 20 ? ' enough' : '');
-      if (words >= 20) { exBtn.disabled = false; } else { exBtn.disabled = true; }
-    });
-
-    exBtn.addEventListener('click', function() {
-      exBox.classList.add('show');
-      assessBox.classList.add('show');
-      exBtn.disabled = true;
-    });
-  });
-
-  // Self-assess buttons
-  document.querySelectorAll('[data-assess]').forEach(function(btn) {
-    btn.addEventListener('click', function() {
-      var qid = btn.getAttribute('data-qid');
-      var isCorrect = btn.getAttribute('data-assess') === 'correct';
-      if (!state[qid]) state[qid] = { completed: false, correct: false, attempts: 1, answer: '' };
-      state[qid].completed = true;
-      state[qid].correct = isCorrect;
-      var fb = document.querySelector('.feedback-box[data-qid="' + qid + '"]');
-      fb.className = 'feedback-box show ' + (isCorrect ? 'correct' : 'final-wrong');
-      fb.textContent = isCorrect ? '✅ Fijn, je hebt het goed begrepen!' : '❌ Geen probleem — neem het voorbeeldantwoord nog eens goed door.';
-      var assessBox = btn.closest('.self-assess');
-      assessBox.querySelectorAll('button').forEach(function(b) { b.disabled = true; });
-      updateProgress();
-    });
-  });
-
-  /* ═══════════ DRAG & DROP SORT ═══════════ */
-  document.querySelectorAll('.drag-list').forEach(function(list) {
-    var items = list.querySelectorAll('.drag-item');
-    var dragSrc = null;
-
-    items.forEach(function(item) {
-      item.addEventListener('dragstart', function(e) {
-        dragSrc = item;
-        item.classList.add('dragging');
-        e.dataTransfer.effectAllowed = 'move';
-        e.dataTransfer.setData('text/plain', '');
-      });
-      item.addEventListener('dragend', function() {
-        item.classList.remove('dragging');
-        list.querySelectorAll('.drag-item').forEach(function(i) { i.classList.remove('drag-over'); });
-      });
-      item.addEventListener('dragover', function(e) {
-        e.preventDefault();
-        e.dataTransfer.dropEffect = 'move';
-        item.classList.add('drag-over');
-      });
-      item.addEventListener('dragleave', function() {
-        item.classList.remove('drag-over');
-      });
-      item.addEventListener('drop', function(e) {
-        e.preventDefault();
-        item.classList.remove('drag-over');
-        if (dragSrc && dragSrc !== item) {
-          var allItems = Array.from(list.querySelectorAll('.drag-item'));
-          var fromIdx = allItems.indexOf(dragSrc);
-          var toIdx = allItems.indexOf(item);
-          if (fromIdx < toIdx) {
-            list.insertBefore(dragSrc, item.nextSibling);
-          } else {
-            list.insertBefore(dragSrc, item);
-          }
-        }
+    // Click to select option
+    document.querySelectorAll('.mc-options li').forEach(function(li) {
+      li.addEventListener('click', function() {
+        if (li.classList.contains('locked')) return;
+        var siblings = li.parentElement.querySelectorAll('li');
+        siblings.forEach(function(s) { s.classList.remove('selected'); });
+        li.classList.add('selected');
       });
     });
-  });
+  }
 
-  // Check sort
-  document.querySelectorAll('[data-action="check-sort"]').forEach(function(btn) {
-    btn.addEventListener('click', function() {
-      var listId = btn.getAttribute('data-target');
-      var list = document.getElementById(listId);
-      var correctOrder = list.getAttribute('data-correct').split(',');
-      var currentOrder = Array.from(list.querySelectorAll('.drag-item')).map(function(i) { return i.getAttribute('data-val'); });
-      var block = btn.closest('.question-block');
+  // ── OPEN QUESTIONS ──
+  function setupOpen() {
+    document.querySelectorAll('.question-block[data-type="open"]').forEach(function(block) {
+      var textarea = block.querySelector('.open-textarea');
+      var wordCount = block.querySelector('.word-count');
+      var showBtn = block.querySelector('.show-example-btn');
+      var exampleEl = block.querySelector('.example-answer');
+      var selfAssess = block.querySelector('.self-assess');
       var qid = block.getAttribute('data-qid');
-      if (!state[qid]) state[qid] = { completed: false, correct: false, attempts: 0, answer: '' };
-      state[qid].attempts++;
 
-      var allCorrect = true;
-      list.querySelectorAll('.drag-item').forEach(function(item, idx) {
-        item.classList.remove('pos-correct', 'pos-wrong');
-        if (currentOrder[idx] === correctOrder[idx]) {
-          item.classList.add('pos-correct');
+      textarea.addEventListener('input', function() {
+        var words = textarea.value.trim().split(/\s+/).filter(function(w) { return w.length > 0; });
+        wordCount.textContent = words.length + ' woorden';
+        if (words.length >= 20) {
+          wordCount.style.color = 'var(--correct)';
         } else {
-          item.classList.add('pos-wrong');
-          allCorrect = false;
+          wordCount.style.color = 'var(--text-light)';
+        }
+        if (words.length >= 5) {
+          showBtn.style.display = 'inline-block';
         }
       });
 
-      var fb = block.querySelector('.feedback-box');
-      if (allCorrect) {
-        state[qid].completed = true;
-        state[qid].correct = true;
-        fb.className = 'feedback-box show correct';
-        fb.textContent = '✅ Uitstekend! De volgorde klopt. Breedteligging is de meest bepalende factor, gevolgd door de oceaan/Golfstroom, windrichting en hoogte.';
-        btn.disabled = true;
-      } else if (state[qid].attempts >= 3) {
-        state[qid].completed = true;
-        state[qid].correct = false;
-        fb.className = 'feedback-box show final-wrong';
-        fb.textContent = '❌ De juiste volgorde is: 1) Afstand tot evenaar, 2) Oceaan/Golfstroom, 3) Windrichting, 4) Hoogte. Breedteligging is het meest bepalend omdat het direct bepaalt hoeveel zonne-energie een gebied ontvangt.';
-        // Reorder to correct
-        correctOrder.forEach(function(val) {
-          var el = list.querySelector('[data-val="' + val + '"]');
-          if (el) list.appendChild(el);
-        });
-        list.querySelectorAll('.drag-item').forEach(function(item) {
-          item.classList.remove('pos-wrong');
-          item.classList.add('pos-correct');
-          item.setAttribute('draggable', 'false');
-          item.style.cursor = 'default';
-        });
-        btn.disabled = true;
-      } else {
-        fb.className = 'feedback-box show wrong';
-        fb.textContent = '💭 Sommige items staan nog niet goed (rood gemarkeerd). De factor die het meest bijdraagt aan temperatuurverschillen heeft te maken met de zon. Probeer het nog eens!';
-      }
-      updateProgress();
-    });
-  });
+      showBtn.addEventListener('click', function() {
+        exampleEl.classList.add('show');
+        selfAssess.classList.add('show');
+        showBtn.style.display = 'none';
+      });
 
-  /* ═══════════ MATCH / KOPPEL ═══════════ */
-  (function() {
-    var containers = document.querySelectorAll('.match-container');
-    containers.forEach(function(container) {
-      var id = container.id;
-      var pairsDiv = document.getElementById(id + '-pairs');
-      var selectedSource = null;
+      // Self assess buttons
+      var correctBtn = block.querySelector('.self-correct');
+      var wrongBtn = block.querySelector('.self-wrong');
+      correctBtn.addEventListener('click', function() {
+        state.answers[qid] = { status: 'open_done', value: textarea.value, attempts: 1, selfAssess: 'correct' };
+        selfAssess.innerHTML = '<span style="color:var(--correct);font-weight:700;">✓ Gemarkeerd als goed</span>';
+        textarea.setAttribute('readonly', 'true');
+        saveState();
+        updateProgress();
+      });
+      wrongBtn.addEventListener('click', function() {
+        state.answers[qid] = { status: 'wrong', value: textarea.value, attempts: 1, selfAssess: 'wrong' };
+        selfAssess.innerHTML = '<span style="color:var(--wrong);font-weight:700;">✗ Gemarkeerd als fout — geen probleem, je hebt het voorbeeldantwoord gezien!</span>';
+        textarea.setAttribute('readonly', 'true');
+        saveState();
+        updateProgress();
+      });
+    });
+  }
+
+  // ── DRAG & DROP ──
+  function setupDrag() {
+    document.querySelectorAll('.drag-list').forEach(function(list) {
+      var items = list.querySelectorAll('.drag-item');
+      var dragSrc = null;
+
+      items.forEach(function(item) {
+        item.addEventListener('dragstart', function(e) {
+          dragSrc = item;
+          item.classList.add('dragging');
+          e.dataTransfer.effectAllowed = 'move';
+        });
+        item.addEventListener('dragend', function() {
+          item.classList.remove('dragging');
+          list.querySelectorAll('.drag-item').forEach(function(i) { i.classList.remove('drag-over'); });
+        });
+        item.addEventListener('dragover', function(e) {
+          e.preventDefault();
+          e.dataTransfer.dropEffect = 'move';
+          item.classList.add('drag-over');
+        });
+        item.addEventListener('dragleave', function() {
+          item.classList.remove('drag-over');
+        });
+        item.addEventListener('drop', function(e) {
+          e.preventDefault();
+          item.classList.remove('drag-over');
+          if (dragSrc && dragSrc !== item) {
+            var allItems = Array.from(list.querySelectorAll('.drag-item'));
+            var srcIndex = allItems.indexOf(dragSrc);
+            var tgtIndex = allItems.indexOf(item);
+            if (srcIndex < tgtIndex) {
+              list.insertBefore(dragSrc, item.nextSibling);
+            } else {
+              list.insertBefore(dragSrc, item);
+            }
+          }
+        });
+      });
+    });
+
+    // Check drag buttons
+    document.querySelectorAll('.check-drag-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var block = btn.closest('.question-block');
+        var qid = block.getAttribute('data-qid');
+        var list = block.querySelector('.drag-list');
+        var correctOrder = JSON.parse(list.getAttribute('data-correct'));
+        var feedbackEl = block.querySelector('.feedback');
+        var items = list.querySelectorAll('.drag-item');
+        var currentOrder = [];
+        items.forEach(function(i) { currentOrder.push(i.textContent.trim()); });
+
+        var attempts = (state.answers[qid] && state.answers[qid].attempts) || 0;
+        attempts++;
+
+        var allCorrect = true;
+        items.forEach(function(item, idx) {
+          item.classList.remove('correct-pos', 'wrong-pos');
+          if (currentOrder[idx] === correctOrder[idx]) {
+            item.classList.add('correct-pos');
+          } else {
+            item.classList.add('wrong-pos');
+            allCorrect = false;
+          }
+        });
+
+        if (allCorrect) {
+          state.answers[qid] = { status: 'correct', value: currentOrder, attempts: attempts };
+          feedbackEl.className = 'feedback show correct';
+          feedbackEl.innerHTML = '✅ <strong>Uitstekend!</strong> De volgorde is correct!';
+          items.forEach(function(i) { i.setAttribute('draggable', 'false'); i.style.cursor = 'default'; });
+          btn.style.display = 'none';
+        } else if (attempts >= 3) {
+          state.answers[qid] = { status: 'wrong', value: currentOrder, attempts: attempts };
+          feedbackEl.className = 'feedback show wrong';
+          feedbackEl.innerHTML = 'De juiste volgorde is: ' + correctOrder.map(function(c, i) { return '<br>' + (i + 1) + '. ' + c; }).join('');
+          // Reorder to correct
+          correctOrder.forEach(function(text) {
+            items.forEach(function(item) {
+              if (item.textContent.trim() === text) list.appendChild(item);
+            });
+          });
+          items = list.querySelectorAll('.drag-item');
+          items.forEach(function(i) {
+            i.classList.remove('wrong-pos');
+            i.classList.add('correct-pos');
+            i.setAttribute('draggable', 'false');
+            i.style.cursor = 'default';
+          });
+          btn.style.display = 'none';
+        } else {
+          state.answers[qid] = { status: 'pending', value: currentOrder, attempts: attempts };
+          feedbackEl.className = 'feedback show hint';
+          feedbackEl.innerHTML = '💡 Nog niet helemaal goed. De groene items staan op de juiste plek, de rode niet. Probeer nog eens! (poging ' + attempts + '/3)';
+        }
+        saveState();
+        updateProgress();
+      });
+    });
+  }
+
+  // ── MATCH ──
+  function setupMatch() {
+    document.querySelectorAll('.question-block[data-type="match"]').forEach(function(block) {
+      var qid = block.getAttribute('data-qid');
+      var sources = block.querySelectorAll('.match-source');
+      var targets = block.querySelectorAll('.match-target');
+      var pairsContainer = block.querySelector('[id^="matchPairs"]');
       var pairs = []; // [{sourceId, targetId}]
+      var selectedSource = null;
 
       function renderPairs() {
-        pairsDiv.innerHTML = '';
-        pairs.forEach(function(p, idx) {
-          var srcEl = container.querySelector('[data-match-id="' + p.sourceId + '"]');
-          var tgtEl = container.querySelector('[data-target-id="' + p.targetId + '"]');
+        pairsContainer.innerHTML = '';
+        pairs.forEach(function(pair, idx) {
+          var srcEl = block.querySelector('[data-match-id="' + pair.sourceId + '"]');
+          var tgtEl = block.querySelector('[data-target-id="' + pair.targetId + '"]');
           var div = document.createElement('div');
-          div.className = 'matched-pair';
-          div.innerHTML = '<span>' + (srcEl ? srcEl.textContent : '') + '</span><span class="arrow">→</span><span>' + (tgtEl ? tgtEl.textContent : '') + '</span>';
-          var rmBtn = document.createElement('button');
-          rmBtn.className = 'remove-match';
-          rmBtn.textContent = '×';
-          rmBtn.addEventListener('click', function() {
+          div.className = 'match-pair-display';
+          div.innerHTML = '<span>' + srcEl.textContent + ' ↔ ' + tgtEl.textContent + '</span>';
+          var removeBtn = document.createElement('button');
+          removeBtn.className = 'remove-pair';
+          removeBtn.textContent = '✕';
+          removeBtn.addEventListener('click', function() {
             pairs.splice(idx, 1);
             srcEl.classList.remove('matched');
             renderPairs();
           });
-          div.appendChild(rmBtn);
-          pairsDiv.appendChild(div);
+          div.appendChild(removeBtn);
+          pairsContainer.appendChild(div);
         });
       }
 
-      container.querySelectorAll('.match-item.source').forEach(function(src) {
+      sources.forEach(function(src) {
         src.addEventListener('click', function() {
           if (src.classList.contains('matched')) return;
-          container.querySelectorAll('.match-item.source').forEach(function(s) { s.classList.remove('source-selected'); });
-          src.classList.add('source-selected');
+          sources.forEach(function(s) { s.classList.remove('selected'); });
+          src.classList.add('selected');
           selectedSource = src;
         });
       });
 
-      container.querySelectorAll('.match-item.target').forEach(function(tgt) {
+      targets.forEach(function(tgt) {
         tgt.addEventListener('click', function() {
           if (!selectedSource) return;
           var sourceId = selectedSource.getAttribute('data-match-id');
-          var targetId = tgt.getAttribute('data-target-id');
-          // Check not already paired
-          var exists = pairs.some(function(p) { return p.sourceId === sourceId; });
-          if (exists) return;
-          pairs.push({ sourceId: sourceId, targetId: targetId });
-          selectedSource.classList.remove('source-selected');
+          // Remove existing pair for this source
+          pairs = pairs.filter(function(p) { return p.sourceId !== sourceId; });
+          pairs.push({ sourceId: sourceId, targetId: tgt.getAttribute('data-target-id') });
+          selectedSource.classList.remove('selected');
           selectedSource.classList.add('matched');
           selectedSource = null;
           renderPairs();
         });
       });
 
-      // Check match button
-      var checkBtn = document.querySelector('[data-action="check-match"][data-target="' + id + '"]');
-      if (checkBtn) {
-        checkBtn.addEventListener('click', function() {
-          var block = checkBtn.closest('.question-block');
+      // Check match
+      var checkBtn = block.querySelector('.check-match-btn');
+      checkBtn.addEventListener('click', function() {
+        var feedbackEl = block.querySelector('.feedback');
+        var attempts = (state.answers[qid] && state.answers[qid].attempts) || 0;
+        attempts++;
+
+        if (pairs.length < sources.length) {
+          feedbackEl.className = 'feedback show hint';
+          feedbackEl.textContent = 'Koppel eerst alle items voordat je controleert!';
+          return;
+        }
+
+        var allCorrect = true;
+        var results = [];
+        pairs.forEach(function(pair) {
+          var srcEl = block.querySelector('[data-match-id="' + pair.sourceId + '"]');
+          var correct = srcEl.getAttribute('data-correct-target');
+          if (pair.targetId !== correct) allCorrect = false;
+          results.push({ source: pair.sourceId, correct: pair.targetId === correct });
+        });
+
+        if (allCorrect) {
+          state.answers[qid] = { status: 'correct', value: pairs, attempts: attempts };
+          feedbackEl.className = 'feedback show correct';
+          feedbackEl.innerHTML = '✅ <strong>Alle koppelingen zijn correct!</strong>';
+          checkBtn.style.display = 'none';
+          sources.forEach(function(s) { s.style.pointerEvents = 'none'; });
+          targets.forEach(function(t) { t.style.pointerEvents = 'none'; });
+          block.querySelectorAll('.remove-pair').forEach(function(b) { b.style.display = 'none'; });
+        } else if (attempts >= 3) {
+          state.answers[qid] = { status: 'wrong', value: pairs, attempts: attempts };
+          // Show correct answers
+          var correctHTML = '<strong>De juiste koppelingen:</strong><br>';
+          sources.forEach(function(src) {
+            var correctTarget = src.getAttribute('data-correct-target');
+            var tgtEl = block.querySelector('[data-target-id="' + correctTarget + '"]');
+            correctHTML += src.textContent + ' → ' + tgtEl.textContent + '<br>';
+          });
+          feedbackEl.className = 'feedback show wrong';
+          feedbackEl.innerHTML = correctHTML;
+          checkBtn.style.display = 'none';
+          sources.forEach(function(s) { s.style.pointerEvents = 'none'; });
+          targets.forEach(function(t) { t.style.pointerEvents = 'none'; });
+          block.querySelectorAll('.remove-pair').forEach(function(b) { b.style.display = 'none'; });
+        } else {
+          state.answers[qid] = { status: 'pending', value: pairs, attempts: attempts };
+          var wrongCount = results.filter(function(r) { return !r.correct; }).length;
+          feedbackEl.className = 'feedback show hint';
+          feedbackEl.innerHTML = '💡 ' + wrongCount + ' koppeling(en) niet correct. Klik op ✕ om een koppeling te verwijderen en opnieuw te proberen. (poging ' + attempts + '/3)';
+        }
+        saveState();
+        updateProgress();
+      });
+    });
+  }
+
+  // ── NAVIGATION ──
+  function setupNav() {
+    document.querySelectorAll('.nav-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var dir = btn.getAttribute('data-dir');
+        if (dir === 'next') switchTab(state.currentTab + 1);
+        else switchTab(state.currentTab - 1);
+      });
+    });
+    document.querySelectorAll('.tab-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        switchTab(parseInt(btn.getAttribute('data-tab')));
+      });
+    });
+  }
+
+  // ── RESET SECTION ──
+  function setupReset() {
+    document.querySelectorAll('.reset-section').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var secIndex = parseInt(btn.getAttribute('data-section'));
+        var section = document.getElementById('section-' + secIndex);
+        // Clear state for all questions in this section
+        section.querySelectorAll('.question-block').forEach(function(block) {
           var qid = block.getAttribute('data-qid');
-          if (!state[qid]) state[qid] = { completed: false, correct: false, attempts: 0, answer: '' };
-          state[qid].attempts++;
+          delete state.answers[qid];
 
-          var sources = container.querySelectorAll('.match-item.source');
-          if (pairs.length < sources.length) {
-            var fb = block.querySelector('.feedback-box');
-            fb.className = 'feedback-box show wrong';
-            fb.textContent = '💭 Je hebt nog niet alle kenmerken gekoppeld. Klik eerst op een kenmerk (links), dan op een klimaattype (rechts).';
-            return;
-          }
+          // Reset MC
+          block.querySelectorAll('.mc-options li').forEach(function(li) {
+            li.classList.remove('selected', 'correct-answer', 'wrong-answer', 'locked');
+          });
+          var mcBtn = block.querySelector('.check-mc-btn');
+          if (mcBtn) mcBtn.style.display = '';
 
-          var allCorrect = true;
-          pairs.forEach(function(p) {
-            var srcEl = container.querySelector('[data-match-id="' + p.sourceId + '"]');
-            var correctTarget = srcEl.getAttribute('data-correct-target');
-            if (p.targetId !== correctTarget) allCorrect = false;
+          // Reset feedback
+          block.querySelectorAll('.feedback').forEach(function(f) {
+            f.className = 'feedback';
+            f.innerHTML = '';
           });
 
-          var fb = block.querySelector('.feedback-box');
-          if (allCorrect) {
-            state[qid].completed = true;
-            state[qid].correct = true;
-            fb.className = 'feedback-box show correct';
-            fb.textContent = '✅ Alle koppelingen kloppen! Je kunt de kenmerken van Cfb en Csa goed uit elkaar houden.';
-            checkBtn.disabled = true;
-            pairsDiv.querySelectorAll('.remove-match').forEach(function(r) { r.style.display = 'none'; });
-          } else if (state[qid].attempts >= 3) {
-            state[qid].completed = true;
-            state[qid].correct = false;
-            fb.className = 'feedback-box show final-wrong';
-            fb.textContent = '❌ Niet alle koppelingen waren goed. Cfb (Nederland): neerslag heel jaar, warmste maand <22°C, invloed westenwind. Csa (Spanje): droge zomers, warmste maand >22°C.';
-            checkBtn.disabled = true;
-          } else {
-            fb.className = 'feedback-box show wrong';
-            fb.textContent = '💭 Er zitten nog fouten in. Denk aan de letters: "f" = vochtig heel jaar, "s" = droge zomer, "b" = koel, "a" = warm. Probeer opnieuw!';
-            // Reset pairs for retry
-            pairs = [];
-            container.querySelectorAll('.matched').forEach(function(m) { m.classList.remove('matched'); });
-            renderPairs();
+          // Reset open questions
+          var textarea = block.querySelector('.open-textarea');
+          if (textarea) {
+            textarea.value = '';
+            textarea.removeAttribute('readonly');
           }
-          updateProgress();
-        });
-      }
+          var wc = block.querySelector('.word-count');
+          if (wc) { wc.textContent = '0 woorden'; wc.style.color = ''; }
+          var showBtn = block.querySelector('.show-example-btn');
+          if (showBtn) showBtn.style.display = 'none';
+          var exampleEl = block.querySelector('.example-answer');
+          if (exampleEl) exampleEl.classList.remove('show');
+          var selfAssess = block.querySelector('.self-assess');
+          if (selfAssess) {
+            selfAssess.classList.remove('show');
+            // Rebuild buttons if they were replaced
+            var hasBtns = selfAssess.querySelector('.self-correct');
+            if (!hasBtns) {
+              selfAssess.innerHTML = '<button class="btn btn-correct btn-small self-correct">Goed ✓</button><button class="btn btn-wrong btn-small self-wrong">Fout ✗</button>';
+            }
+          }
 
-      // Store pairs ref for reset
-      container._resetMatch = function() {
-        pairs = [];
-        selectedSource = null;
-        container.querySelectorAll('.matched').forEach(function(m) { m.classList.remove('matched'); });
-        container.querySelectorAll('.source-selected').forEach(function(s) { s.classList.remove('source-selected'); });
-        renderPairs();
-        if (checkBtn) checkBtn.disabled = false;
-      };
-    });
-  })();
+          // Reset drag
+          block.querySelectorAll('.drag-item').forEach(function(item) {
+            item.classList.remove('correct-pos', 'wrong-pos');
+            item.setAttribute('draggable', 'true');
+            item.style.cursor = '';
+          });
+          var dragBtn = block.querySelector('.check-drag-btn');
+          if (dragBtn) dragBtn.style.display = '';
 
-  /* ═══════════ RESET SECTION ═══════════ */
-  document.querySelectorAll('.reset-section-btn').forEach(function(btn) {
-    btn.addEventListener('click', function() {
-      var tabIdx = btn.getAttribute('data-reset-tab');
-      var panel = document.getElementById('tab-' + tabIdx);
-      // Reset all questions in this tab
-      panel.querySelectorAll('.question-block').forEach(function(block) {
-        var qid = block.getAttribute('data-qid');
-        delete state[qid];
-        // Reset MC
-        block.querySelectorAll('.mc-btn').forEach(function(b) {
-          b.classList.remove('selected', 'correct-answer', 'wrong-answer', 'locked');
+          // Reset match
+          block.querySelectorAll('.match-source').forEach(function(s) {
+            s.classList.remove('selected', 'matched');
+            s.style.pointerEvents = '';
+          });
+          block.querySelectorAll('.match-target').forEach(function(t) {
+            t.classList.remove('selected');
+            t.style.pointerEvents = '';
+          });
+          var matchPairs = block.querySelector('[id^="matchPairs"]');
+          if (matchPairs) matchPairs.innerHTML = '';
+          var matchBtn = block.querySelector('.check-match-btn');
+          if (matchBtn) matchBtn.style.display = '';
         });
-        block.setAttribute('data-attempts', '0');
-        // Reset feedback
-        block.querySelectorAll('.feedback-box').forEach(function(fb) { fb.className = 'feedback-box'; fb.textContent = ''; });
-        // Reset open
-        block.querySelectorAll('textarea').forEach(function(ta) { ta.value = ''; ta.disabled = false; });
-        block.querySelectorAll('.word-count').forEach(function(wc) { wc.textContent = '0 woorden (minimaal 20)'; wc.className = 'word-count'; });
-        block.querySelectorAll('.example-answer').forEach(function(ea) { ea.classList.remove('show'); });
-        block.querySelectorAll('.self-assess').forEach(function(sa) {
-          sa.classList.remove('show');
-          sa.querySelectorAll('button').forEach(function(b) { b.disabled = false; });
-        });
-        block.querySelectorAll('[data-action="show-example"]').forEach(function(b) { b.disabled = true; });
-        // Reset sort
-        block.querySelectorAll('.drag-item').forEach(function(di) {
-          di.classList.remove('pos-correct', 'pos-wrong');
-          di.setAttribute('draggable', 'true');
-          di.style.cursor = 'grab';
-        });
-        block.querySelectorAll('[data-action="check-sort"]').forEach(function(b) { b.disabled = false; });
-        // Reset match
-        block.querySelectorAll('.match-container').forEach(function(mc) {
-          if (mc._resetMatch) mc._resetMatch();
-        });
-        block.querySelectorAll('[data-action="check-match"]').forEach(function(b) { b.disabled = false; });
+        saveState();
+        updateProgress();
+        // Re-setup event listeners for self-assess (since innerHTML was replaced)
+        setupOpen();
       });
-      updateProgress();
     });
-  });
+  }
 
-  /* ═══════════ CLEAR ALL PROGRESS ═══════════ */
+  // ── CLEAR PROGRESS ──
   document.getElementById('clearProgressBtn').addEventListener('click', function() {
-    if (confirm('Weet je zeker dat je alle voortgang wilt wissen? Dit kan niet ongedaan worden gemaakt.')) {
-      state = {};
-      saveState();
-      // Reset all tabs
-      for (var t = 0; t < TAB_COUNT; t++) {
-        var btn = document.querySelector('[data-reset-tab="' + t + '"]');
-        if (btn) btn.click();
-      }
-      updateProgress();
-      switchTab(0);
+    if (confirm('Weet je zeker dat je al je voortgang wilt wissen?')) {
+      clearState();
     }
   });
 
-  /* ═══════════ FINAL SCORE ═══════════ */
-  function updateFinalScore() {
-    var all = getAllQuestionIds();
-    var done = 0, correct = 0;
-    all.forEach(function(id) {
-      if (state[id] && state[id].completed) {
-        done++;
-        if (state[id].correct) correct++;
-      }
-    });
-    document.getElementById('finalScore').textContent = correct + ' / ' + all.length;
-    var pct = all.length > 0 ? Math.round((correct / all.length) * 100) : 0;
-    document.getElementById('scoreDetail').textContent = done + ' van ' + all.length + ' opdrachten voltooid · ' + pct + '% goed beantwoord';
-  }
+  // ── RESTORE STATE ──
+  function restoreUI() {
+    Object.keys(state.answers).forEach(function(qid) {
+      var data = state.answers[qid];
+      var block = document.querySelector('[data-qid="' + qid + '"]');
+      if (!block) return;
+      var type = block.getAttribute('data-type');
 
-  /* ═══════════ RESTORE STATE ═══════════ */
-  function restoreState() {
-    // Restore MC answers
-    document.querySelectorAll('.question-block[data-type="mc"]').forEach(function(block) {
-      var qid = block.getAttribute('data-qid');
-      if (state[qid] && state[qid].completed) {
-        var correct = block.getAttribute('data-answer');
-        block.querySelectorAll('.mc-btn').forEach(function(b) {
-          b.classList.add('locked');
-          if (b.getAttribute('data-choice') === correct) b.classList.add('correct-answer');
+      if (type === 'mc' && (data.status === 'correct' || data.status === 'wrong')) {
+        var options = block.querySelectorAll('.mc-options li');
+        var correctAnswer = block.querySelector('.check-mc-btn').getAttribute('data-answer');
+        options.forEach(function(li) {
+          li.classList.add('locked');
+          if (li.getAttribute('data-value') === correctAnswer) li.classList.add('correct-answer');
+          if (li.getAttribute('data-value') === data.value && data.status === 'wrong') li.classList.add('wrong-answer');
         });
-        var fb = block.querySelector('.feedback-box');
-        var explain = fb.getAttribute('data-explain') || '';
-        if (state[qid].correct) {
-          fb.className = 'feedback-box show correct';
-          fb.textContent = '✅ Goed gedaan! ' + explain;
+        var feedbackEl = block.querySelector('.feedback');
+        if (data.status === 'correct') {
+          feedbackEl.className = 'feedback show correct';
+          feedbackEl.innerHTML = '✅ <strong>Goed beantwoord!</strong>';
         } else {
-          fb.className = 'feedback-box show final-wrong';
-          fb.textContent = '❌ Het juiste antwoord was ' + correct + '. ' + explain;
+          feedbackEl.className = 'feedback show wrong';
+          feedbackEl.innerHTML = 'Het juiste antwoord is gemarkeerd in het groen.';
+        }
+        block.querySelector('.check-mc-btn').style.display = 'none';
+      }
+
+      if (type === 'open' && (data.status === 'open_done' || data.status === 'wrong')) {
+        var textarea = block.querySelector('.open-textarea');
+        if (textarea && data.value) {
+          textarea.value = data.value;
+          textarea.setAttribute('readonly', 'true');
+        }
+        var showBtn = block.querySelector('.show-example-btn');
+        if (showBtn) showBtn.style.display = 'none';
+        var exampleEl = block.querySelector('.example-answer');
+        if (exampleEl) exampleEl.classList.add('show');
+        var selfAssess = block.querySelector('.self-assess');
+        if (selfAssess) {
+          selfAssess.classList.add('show');
+          if (data.selfAssess === 'correct' || data.status === 'open_done') {
+            selfAssess.innerHTML = '<span style="color:var(--correct);font-weight:700;">✓ Gemarkeerd als goed</span>';
+          } else {
+            selfAssess.innerHTML = '<span style="color:var(--wrong);font-weight:700;">✗ Gemarkeerd als fout</span>';
+          }
+        }
+        // Update word count
+        var wc = block.querySelector('.word-count');
+        if (wc && data.value) {
+          var words = data.value.trim().split(/\s+/).filter(function(w) { return w.length > 0; });
+          wc.textContent = words.length + ' woorden';
+        }
+      }
+
+      if (type === 'drag' && (data.status === 'correct' || data.status === 'wrong')) {
+        var list = block.querySelector('.drag-list');
+        var correctOrder = JSON.parse(list.getAttribute('data-correct'));
+        if (data.status === 'correct' || data.status === 'wrong') {
+          // Reorder items to correct order for display
+          correctOrder.forEach(function(text) {
+            list.querySelectorAll('.drag-item').forEach(function(item) {
+              if (item.textContent.trim() === text) {
+                list.appendChild(item);
+                item.classList.add('correct-pos');
+                item.setAttribute('draggable', 'false');
+                item.style.cursor = 'default';
+              }
+            });
+          });
+          block.querySelector('.check-drag-btn').style.display = 'none';
+          var feedbackEl = block.querySelector('.feedback');
+          if (data.status === 'correct') {
+            feedbackEl.className = 'feedback show correct';
+            feedbackEl.innerHTML = '✅ <strong>Correct beantwoord!</strong>';
+          } else {
+            feedbackEl.className = 'feedback show wrong';
+            feedbackEl.innerHTML = 'De juiste volgorde is hierboven weergegeven.';
+          }
+        }
+      }
+
+      if (type === 'match' && (data.status === 'correct' || data.status === 'wrong')) {
+        block.querySelectorAll('.match-source').forEach(function(s) { s.style.pointerEvents = 'none'; });
+        block.querySelectorAll('.match-target').forEach(function(t) { t.style.pointerEvents = 'none'; });
+        block.querySelector('.check-match-btn').style.display = 'none';
+        var feedbackEl = block.querySelector('.feedback');
+        if (data.status === 'correct') {
+          feedbackEl.className = 'feedback show correct';
+          feedbackEl.innerHTML = '✅ <strong>Alle koppelingen correct!</strong>';
+        } else {
+          var correctHTML = '<strong>De juiste koppelingen:</strong><br>';
+          block.querySelectorAll('.match-source').forEach(function(src) {
+            var correctTarget = src.getAttribute('data-correct-target');
+            var tgtEl = block.querySelector('[data-target-id="' + correctTarget + '"]');
+            correctHTML += src.textContent + ' → ' + tgtEl.textContent + '<br>';
+          });
+          feedbackEl.className = 'feedback show wrong';
+          feedbackEl.innerHTML = correctHTML;
         }
       }
     });
-    // Restore open question completions
-    document.querySelectorAll('.question-block[data-type="open"]').forEach(function(block) {
-      var qid = block.getAttribute('data-qid');
-      if (state[qid] && state[qid].completed) {
-        var fb = block.querySelector('.feedback-box[data-qid="' + qid + '"]');
-        if (fb) {
-          fb.className = 'feedback-box show ' + (state[qid].correct ? 'correct' : 'final-wrong');
-          fb.textContent = state[qid].correct ? '✅ Fijn, je hebt het goed begrepen!' : '❌ Geen probleem — neem het voorbeeldantwoord nog eens goed door.';
-        }
-      }
-    });
-    updateProgress();
   }
 
-  /* ═══════════ INIT ═══════════ */
-  switchTab(0);
-  restoreState();
+  // ── MAP ──
+  function initMaps() {
+    window._maps = [];
+    var mapEl = document.getElementById('map1');
+    if (!mapEl) return;
+    var map = L.map('map1').setView([43, 5], 4);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap'
+    }).addTo(map);
+    window._maps.push(map);
 
-  /* ═══════════ LEAFLET MAP ═══════════ */
-  window._maps = [];
-  window.addEventListener('DOMContentLoaded', function() {
-    try {
-      var map1 = L.map('map1').setView([46, 0], 4);
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; OpenStreetMap',
-        maxZoom: 10
-      }).addTo(map1);
+    var markers = [
+      { lat: 37.39, lng: -5.98, title: 'Sevilla', desc: '🇪🇸 Breedtegraad: 37°N · Gem. temp: 18°C · Neerslag: 540 mm/jaar · Mediterraan klimaat, zeer hete zomers' },
+      { lat: 41.39, lng: 2.17, title: 'Barcelona', desc: '🇪🇸 Breedtegraad: 41°N · Gem. temp: 16°C · Neerslag: 640 mm/jaar · Mediterraan kustklimaat, zeebries' },
+      { lat: 40.42, lng: -3.70, title: 'Madrid', desc: '🇪🇸 Breedtegraad: 40°N · Hoogte: 650m · Gem. temp: 14°C · Continentaal mediterraan, extreme temperaturen' },
+      { lat: 43.26, lng: -2.93, title: 'Bilbao', desc: '🇪🇸 Breedtegraad: 43°N · Neerslag: 1200 mm/jaar · Oceaanklimaat, veel regen' },
+      { lat: 48.21, lng: 16.37, title: 'Wenen', desc: '🇦🇹 Breedtegraad: 48°N · Hoogte: 170m · Gem. temp: 11°C · Gematigd continentaal' },
+      { lat: 47.26, lng: 11.39, title: 'Innsbruck', desc: '🇦🇹 Breedtegraad: 47°N · Hoogte: 574m · Gem. temp: 9°C · Alpien klimaat, veel sneeuw, Föhn' },
+      { lat: 47.08, lng: 12.69, title: 'Grossglockner', desc: '🇦🇹 Hoogte: 3798m · Hoogste berg van Oostenrijk · Permanent sneeuw en ijs' },
+      { lat: 47.27, lng: 13.33, title: 'Salzburg', desc: '🇦🇹 Breedtegraad: 47°N · Hoogte: 424m · Neerslag: 1170 mm/jaar · Veel regen door Alpen' }
+    ];
 
-      var markers = [
-        { lat: 52.37, lng: 4.90, name: 'Amsterdam', info: '🇳🇱 Amsterdam — 52°N. Zeeklimaat (Cfb). Gemiddeld 10,5°C, ~850 mm neerslag/jaar.' },
-        { lat: 52.09, lng: 5.12, name: 'De Bilt', info: '🇳🇱 De Bilt — 52°N. KNMI-meetstation. Het "officiële" weerstation van Nederland.' },
-        { lat: 51.44, lng: 5.47, name: 'Eindhoven', info: '🇳🇱 Eindhoven — 51°N. Iets meer landinwaarts, maar nog steeds zeeklimaat.' },
-        { lat: 40.42, lng: -3.70, name: 'Madrid', info: '🇪🇸 Madrid — 40°N. Steppeklimaat/mediterraan. 660 m hoogte op de Meseta. ~420 mm neerslag.' },
-        { lat: 41.39, lng: 2.17, name: 'Barcelona', info: '🇪🇸 Barcelona — 41°N. Mediterraan klimaat (Csa). Aan de Middellandse Zee.' },
-        { lat: 36.72, lng: -4.42, name: 'Málaga', info: '🇪🇸 Málaga — 37°N. Subtropisch mediterraan. Zeer warme zomers, milde winters.' },
-        { lat: 37.39, lng: -5.98, name: 'Sevilla', info: '🇪🇸 Sevilla — 37°N. Een van de heetste steden van Europa in de zomer (tot 47°C!).' },
-        { lat: 43.26, lng: -2.93, name: 'Bilbao', info: '🇪🇸 Bilbao — 43°N. Aan de Atlantische kust. Veel natter dan Zuid-Spanje, meer vergelijkbaar met Nederland!' },
-      ];
-      markers.forEach(function(m) {
-        L.marker([m.lat, m.lng]).addTo(map1).bindPopup('<strong>' + m.name + '</strong><br>' + m.info);
-      });
+    markers.forEach(function(m) {
+      L.marker([m.lat, m.lng]).addTo(map).bindPopup('<strong>' + m.title + '</strong><br>' + m.desc);
+    });
+  }
 
-      window._maps.push(map1);
-    } catch(e) { console.error('Map error:', e); }
-  });
+  // ── CHARTS ──
+  function initCharts() {
+    var months = ['Jan', 'Feb', 'Mrt', 'Apr', 'Mei', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dec'];
+    var madridTemp = [6, 8, 11, 13, 17, 23, 27, 26, 21, 15, 9, 6];
+    var weenTemp = [0, 2, 6, 11, 16, 19, 22, 21, 16, 10, 5, 1];
+    var madridRain = [33, 35, 25, 45, 50, 22, 10, 11, 27, 55, 58, 48];
+    var weenRain = [38, 35, 45, 45, 62, 70, 68, 65, 50, 40, 48, 42];
 
-  /* ═══════════ CHARTS ═══════════ */
-  var months = ['Jan','Feb','Mrt','Apr','Mei','Jun','Jul','Aug','Sep','Okt','Nov','Dec'];
-  var tempNL = [3.1, 3.3, 6.2, 9.2, 13.1, 15.6, 17.9, 17.5, 14.5, 10.7, 6.7, 3.7];
-  var tempES = [6.3, 7.9, 11.2, 13.1, 17.3, 22.2, 25.6, 25.1, 20.9, 15.1, 9.9, 6.9];
-  var rainNL = [69, 55, 67, 42, 62, 68, 81, 72, 78, 83, 79, 76];
-  var rainES = [37, 35, 26, 45, 47, 25, 10, 12, 22, 46, 56, 56];
-
-  window.addEventListener('DOMContentLoaded', function() {
-    // Temperature chart
-    try {
-      new Chart(document.getElementById('chartTemp'), {
+    var ctxTemp = document.getElementById('chartTemp');
+    if (ctxTemp) {
+      new Chart(ctxTemp, {
         type: 'line',
         data: {
           labels: months,
           datasets: [
-            { label: '🇳🇱 De Bilt (°C)', data: tempNL, borderColor: '#5B9BD5', backgroundColor: 'rgba(91,155,213,0.1)', tension: 0.3, fill: true },
-            { label: '🇪🇸 Madrid (°C)', data: tempES, borderColor: '#C87941', backgroundColor: 'rgba(200,121,65,0.1)', tension: 0.3, fill: true }
+            {
+              label: 'Madrid (°C)',
+              data: madridTemp,
+              borderColor: '#C4704B',
+              backgroundColor: 'rgba(196,112,75,0.1)',
+              fill: true,
+              tension: 0.3,
+              pointBackgroundColor: '#C4704B',
+              borderWidth: 3
+            },
+            {
+              label: 'Wenen (°C)',
+              data: weenTemp,
+              borderColor: '#5A7D5A',
+              backgroundColor: 'rgba(90,125,90,0.1)',
+              fill: true,
+              tension: 0.3,
+              pointBackgroundColor: '#5A7D5A',
+              borderWidth: 3
+            }
           ]
         },
         options: {
-          responsive: true, maintainAspectRatio: false,
-          plugins: { title: { display: true, text: 'Gemiddelde maandtemperatuur', font: { family: 'Nunito', size: 14, weight: 'bold' } } },
-          scales: { y: { title: { display: true, text: '°C' }, beginAtZero: true } }
-        }
-      });
-    } catch(e) {}
-
-    // Rain chart
-    try {
-      new Chart(document.getElementById('chartRain'), {
-        type: 'bar',
-        data: {
-          labels: months,
-          datasets: [
-            { label: '🇳🇱 De Bilt (mm)', data: rainNL, backgroundColor: 'rgba(91,155,213,0.7)' },
-            { label: '🇪🇸 Madrid (mm)', data: rainES, backgroundColor: 'rgba(200,121,65,0.7)' }
-          ]
-        },
-        options: {
-          responsive: true, maintainAspectRatio: false,
-          plugins: { title: { display: true, text: 'Gemiddelde maandneerslag (mm)', font: { family: 'Nunito', size: 14, weight: 'bold' } } },
-          scales: { y: { title: { display: true, text: 'mm' }, beginAtZero: true } }
-        }
-      });
-    } catch(e) {}
-
-    // Climate charts (combined temp + rain)
-    try {
-      new Chart(document.getElementById('chartClimNL'), {
-        type: 'bar',
-        data: {
-          labels: months,
-          datasets: [
-            { label: 'Neerslag (mm)', data: rainNL, backgroundColor: 'rgba(91,155,213,0.6)', yAxisID: 'y1', order: 2 },
-            { label: 'Temperatuur (°C)', data: tempNL, type: 'line', borderColor: '#E74C3C', backgroundColor: 'transparent', tension: 0.3, yAxisID: 'y', order: 1, pointRadius: 3 }
-          ]
-        },
-        options: {
-          responsive: true, maintainAspectRatio: false,
-          plugins: { title: { display: true, text: '🇳🇱 De Bilt — Klimaatgrafiek', font: { family: 'Nunito', size: 13, weight: 'bold' } } },
+          responsive: true,
+          plugins: { legend: { position: 'top' } },
           scales: {
-            y: { position: 'left', title: { display: true, text: '°C' }, beginAtZero: true, max: 30 },
-            y1: { position: 'right', title: { display: true, text: 'mm' }, beginAtZero: true, max: 120, grid: { drawOnChartArea: false } }
+            y: { title: { display: true, text: '°C' }, beginAtZero: true }
           }
         }
       });
-    } catch(e) {}
+    }
 
-    try {
-      new Chart(document.getElementById('chartClimES'), {
+    var ctxRain = document.getElementById('chartRain');
+    if (ctxRain) {
+      new Chart(ctxRain, {
         type: 'bar',
         data: {
           labels: months,
           datasets: [
-            { label: 'Neerslag (mm)', data: rainES, backgroundColor: 'rgba(200,121,65,0.6)', yAxisID: 'y1', order: 2 },
-            { label: 'Temperatuur (°C)', data: tempES, type: 'line', borderColor: '#E74C3C', backgroundColor: 'transparent', tension: 0.3, yAxisID: 'y', order: 1, pointRadius: 3 }
+            {
+              label: 'Madrid (mm)',
+              data: madridRain,
+              backgroundColor: 'rgba(196,112,75,0.7)',
+              borderColor: '#C4704B',
+              borderWidth: 1
+            },
+            {
+              label: 'Wenen (mm)',
+              data: weenRain,
+              backgroundColor: 'rgba(90,125,90,0.7)',
+              borderColor: '#5A7D5A',
+              borderWidth: 1
+            }
           ]
         },
         options: {
-          responsive: true, maintainAspectRatio: false,
-          plugins: { title: { display: true, text: '🇪🇸 Madrid — Klimaatgrafiek', font: { family: 'Nunito', size: 13, weight: 'bold' } } },
+          responsive: true,
+          plugins: { legend: { position: 'top' } },
           scales: {
-            y: { position: 'left', title: { display: true, text: '°C' }, beginAtZero: true, max: 30 },
-            y1: { position: 'right', title: { display: true, text: 'mm' }, beginAtZero: true, max: 120, grid: { drawOnChartArea: false } }
+            y: { title: { display: true, text: 'mm' }, beginAtZero: true }
           }
         }
       });
-    } catch(e) {}
+    }
+  }
+
+  // ── INIT ──
+  window.addEventListener('DOMContentLoaded', function() {
+    loadState();
+    setupMC();
+    setupOpen();
+    setupDrag();
+    setupMatch();
+    setupNav();
+    setupReset();
+    initMaps();
+    initCharts();
+    switchTab(state.currentTab);
+    restoreUI();
+    updateProgress();
   });
-
 })();
 </script>
 </body>
