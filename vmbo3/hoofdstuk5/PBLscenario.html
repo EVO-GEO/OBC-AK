@@ -10,134 +10,71 @@
 :root{--agri:#7CB342;--agri-d:#4E7A27;--nat:#1B813E;--nat-d:#145A2C;--bld:#E64A19;--bld-d:#BF360C;--bg:#F5F0E8;--card:#FFFDF7;--text:#1B2631;--accent:#D84315}
 body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding:10px}
 .hdr{text-align:center;padding:12px 0 8px}.hdr h1{font-family:'Fraunces',serif;font-size:clamp(1.3rem,3.5vw,2rem);color:var(--nat-d)}.hdr p{color:#7A7265;font-size:.85rem;margin-top:2px}
-.app{max-width:1150px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
-@media(min-width:920px){.app{flex-direction:row;gap:20px}.pL{width:440px;flex-shrink:0}.pR{flex:1}}
-.pL{background:var(--card);border-radius:18px;padding:16px;box-shadow:0 2px 18px rgba(0,0,0,.06);display:flex;flex-direction:column;align-items:center}
-.pL-t{font-family:'Fraunces',serif;font-size:1.05rem;margin-bottom:10px}
-.map-wrap{width:100%;max-width:400px;background:linear-gradient(180deg,#C8E0F4,#D6ECFC);border-radius:10px;overflow:hidden;padding:3px;margin-bottom:14px}
-.mg{display:grid;gap:1px}
-.c{aspect-ratio:1;border-radius:2px;transition:background-color .45s ease,transform .25s ease}.c.out{background:transparent!important}.c:not(.out){box-shadow:inset 0 -1px 0 rgba(0,0,0,.1)}.c.pop{animation:pp .35s ease}
-@keyframes pp{0%{transform:scale(1)}35%{transform:scale(1.45)}100%{transform:scale(1)}}
-.c.ca{background:var(--agri)}.c.cn{background:var(--nat)}.c.cb{background:var(--bld)}
-.pct-bar-wrap{width:100%;height:14px;border-radius:7px;overflow:hidden;display:flex;margin-bottom:6px;box-shadow:inset 0 1px 3px rgba(0,0,0,.1)}
-.pct-seg{height:100%;transition:width .5s ease}.pct-seg.sa{background:var(--agri)}.pct-seg.sn{background:var(--nat)}.pct-seg.sb{background:var(--bld)}
-.pct-row{display:flex;gap:8px;width:100%;margin-bottom:4px}
-.pct-item{flex:1;text-align:center;padding:10px 4px;border-radius:12px;position:relative;overflow:hidden}
-.pct-item .pct-bg{position:absolute;bottom:0;left:0;right:0;transition:height .5s ease;border-radius:12px;opacity:.15}
-.pct-item .pct-val{font-family:'Fraunces',serif;font-size:1.7rem;font-weight:900;position:relative;z-index:1}
-.pct-item .pct-lbl{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.4px;position:relative;z-index:1;opacity:.7}
-.pct-item.pa{color:var(--agri-d)}.pct-item.pa .pct-bg{background:var(--agri)}
-.pct-item.pn{color:var(--nat-d)}.pct-item.pn .pct-bg{background:var(--nat)}
-.pct-item.pb{color:var(--bld-d)}.pct-item.pb .pct-bg{background:var(--bld)}
-.pct-item .pct-val.bounce{animation:cB .4s ease}
-@keyframes cB{0%{transform:scale(1)}50%{transform:scale(1.25)}100%{transform:scale(1)}}
-.pct-eq{font-size:.63rem;color:#999;text-align:center}
-.pR{background:var(--card);border-radius:18px;padding:20px;box-shadow:0 2px 18px rgba(0,0,0,.06);display:flex;flex-direction:column}
-@media(min-width:920px){.pR{padding:30px}}
+.app{max-width:1150px;margin:0 auto;display:flex;flex-direction:column;gap:12px}@media(min-width:920px){.app{flex-direction:row;gap:20px}.pL{width:440px;flex-shrink:0}.pR{flex:1}}
+.pL{background:var(--card);border-radius:18px;padding:16px;box-shadow:0 2px 18px rgba(0,0,0,.06);display:flex;flex-direction:column;align-items:center}.pL-t{font-family:'Fraunces',serif;font-size:1.05rem;margin-bottom:10px}
+.map-wrap{width:100%;max-width:400px;background:linear-gradient(180deg,#C8E0F4,#D6ECFC);border-radius:10px;overflow:hidden;padding:3px;margin-bottom:14px}.mg{display:grid;gap:1px}
+.c{aspect-ratio:1;border-radius:2px;transition:background-color .45s ease,transform .25s ease}.c.out{background:transparent!important}.c:not(.out){box-shadow:inset 0 -1px 0 rgba(0,0,0,.1)}.c.pop{animation:pp .35s ease}@keyframes pp{0%{transform:scale(1)}35%{transform:scale(1.45)}100%{transform:scale(1)}}.c.ca{background:var(--agri)}.c.cn{background:var(--nat)}.c.cb{background:var(--bld)}
+.pct-bar-wrap{width:100%;height:14px;border-radius:7px;overflow:hidden;display:flex;margin-bottom:6px;box-shadow:inset 0 1px 3px rgba(0,0,0,.1)}.pct-seg{height:100%;transition:width .5s ease}.pct-seg.sa{background:var(--agri)}.pct-seg.sn{background:var(--nat)}.pct-seg.sb{background:var(--bld)}
+.pct-row{display:flex;gap:8px;width:100%;margin-bottom:4px}.pct-item{flex:1;text-align:center;padding:10px 4px;border-radius:12px;position:relative;overflow:hidden}.pct-item .pct-bg{position:absolute;bottom:0;left:0;right:0;transition:height .5s ease;border-radius:12px;opacity:.15}.pct-item .pct-val{font-family:'Fraunces',serif;font-size:1.7rem;font-weight:900;position:relative;z-index:1}.pct-item .pct-lbl{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.4px;position:relative;z-index:1;opacity:.7}.pct-item.pa{color:var(--agri-d)}.pct-item.pa .pct-bg{background:var(--agri)}.pct-item.pn{color:var(--nat-d)}.pct-item.pn .pct-bg{background:var(--nat)}.pct-item.pb{color:var(--bld-d)}.pct-item.pb .pct-bg{background:var(--bld)}.pct-item .pct-val.bounce{animation:cB .4s ease}@keyframes cB{0%{transform:scale(1)}50%{transform:scale(1.25)}100%{transform:scale(1)}}.pct-eq{font-size:.63rem;color:#999;text-align:center}
+.pR{background:var(--card);border-radius:18px;padding:20px;box-shadow:0 2px 18px rgba(0,0,0,.06);display:flex;flex-direction:column}@media(min-width:920px){.pR{padding:30px}}
 .intro h2{font-family:'Fraunces',serif;font-size:1.35rem;margin-bottom:8px}.intro p{color:#555;line-height:1.55;margin-bottom:6px;font-size:.88rem}.intro strong{color:var(--text)}
 .btn{display:inline-block;margin-top:10px;padding:11px 28px;background:var(--accent);color:#fff;border:none;border-radius:50px;font-family:'DM Sans',sans-serif;font-size:.95rem;font-weight:700;cursor:pointer;transition:all .2s;box-shadow:0 4px 12px rgba(216,67,21,.3)}.btn:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(216,67,21,.4)}
 .ptr{width:100%;height:4px;background:#EDE8DF;border-radius:2px;margin-bottom:18px;overflow:hidden}.pfl{height:100%;width:0;background:linear-gradient(90deg,var(--accent),#FF8F00);border-radius:2px;transition:width .4s}
-.ql{font-size:.73rem;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--accent);margin-bottom:3px}
-.qt{font-family:'Fraunces',serif;font-size:clamp(1.05rem,2.2vw,1.35rem);line-height:1.3;margin-bottom:18px}
-.chs{display:grid;gap:10px}
-@media(min-width:560px){.chs{grid-template-columns:1fr 1fr}}
-.cho{padding:15px;background:#fff;border:2px solid #E0D8CC;border-radius:12px;cursor:pointer;text-align:left;font-family:'DM Sans',sans-serif;font-size:.88rem;line-height:1.4;color:#444;transition:all .2s;display:flex;flex-direction:column;gap:4px}
-.cho:hover{border-color:#B0A898;background:#FDFBF7;transform:translateY(-2px);box-shadow:0 3px 10px rgba(0,0,0,.05)}
-.cho .lt{font-family:'Fraunces',serif;font-size:1.1rem;font-weight:900;color:#C8C0B4}.cho.sel{border-color:var(--accent);background:#FFF3E0}.cho.sel .lt{color:var(--accent)}.cho.dis{pointer-events:none;opacity:.5}
+.ql{font-size:.73rem;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--accent);margin-bottom:3px}.qt{font-family:'Fraunces',serif;font-size:clamp(1.05rem,2.2vw,1.35rem);line-height:1.3;margin-bottom:18px}
+.chs{display:grid;gap:10px}@media(min-width:560px){.chs{grid-template-columns:1fr 1fr}}
+.cho{padding:15px;background:#fff;border:2px solid #E0D8CC;border-radius:12px;cursor:pointer;text-align:left;font-family:'DM Sans',sans-serif;font-size:.88rem;line-height:1.4;color:#444;transition:all .2s;display:flex;flex-direction:column;gap:4px}.cho:hover{border-color:#B0A898;background:#FDFBF7;transform:translateY(-2px);box-shadow:0 3px 10px rgba(0,0,0,.05)}.cho .lt{font-family:'Fraunces',serif;font-size:1.1rem;font-weight:900;color:#C8C0B4}.cho.sel{border-color:var(--accent);background:#FFF3E0}.cho.sel .lt{color:var(--accent)}.cho.dis{pointer-events:none;opacity:.5}
 .tst{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(70px);background:var(--text);color:#fff;padding:9px 18px;border-radius:50px;font-size:.82rem;font-weight:600;opacity:0;transition:all .35s;z-index:100;white-space:nowrap}.tst.show{opacity:1;transform:translateX(-50%) translateY(0)}
-.res{text-align:center}.res h2{font-size:.8rem;text-transform:uppercase;letter-spacing:2px;color:#A09888;margin-bottom:5px;font-weight:700}
-.r-nm{font-family:'Fraunces',serif;font-size:clamp(1.2rem,2.8vw,1.8rem);color:var(--accent);margin-bottom:10px;font-weight:900}
-.r-ds{color:#555;line-height:1.55;max-width:520px;margin:0 auto 20px;font-size:.88rem}
-.r-gr{display:flex;gap:9px;justify-content:center;flex-wrap:wrap;margin-bottom:14px}
-.r-bk{padding:12px 16px;border-radius:11px;color:#fff;text-align:center;min-width:90px}
-.r-bk .rv{font-family:'Fraunces',serif;font-size:1.5rem;font-weight:900;display:block}.r-bk .rl{font-size:.68rem;text-transform:uppercase;letter-spacing:1px;opacity:.85;font-weight:600}
-.r-a{background:var(--agri)}.r-n{background:var(--nat)}.r-b{background:var(--bld)}
-.refl{background:var(--bg);border-radius:14px;padding:18px;max-width:520px;margin:0 auto 20px;text-align:left}
-.refl-t{font-family:'Fraunces',serif;font-size:1rem;margin-bottom:8px;color:var(--text)}
-.refl p{font-size:.82rem;color:#666;line-height:1.5;margin-bottom:4px}
-.phase-label{display:inline-block;padding:3px 10px;border-radius:20px;font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px}
-.phase-dilemma{background:#FFF3E0;color:var(--accent)}
-.phase-visie{background:#E8F5E9;color:var(--nat-d)}
+.res{text-align:center}.res h2{font-size:.8rem;text-transform:uppercase;letter-spacing:2px;color:#A09888;margin-bottom:5px;font-weight:700}.r-nm{font-family:'Fraunces',serif;font-size:clamp(1.2rem,2.8vw,1.8rem);color:var(--accent);margin-bottom:10px;font-weight:900}.r-ds{color:#555;line-height:1.55;max-width:520px;margin:0 auto 20px;font-size:.88rem}
+.r-gr{display:flex;gap:9px;justify-content:center;flex-wrap:wrap;margin-bottom:14px}.r-bk{padding:12px 16px;border-radius:11px;color:#fff;text-align:center;min-width:90px}.r-bk .rv{font-family:'Fraunces',serif;font-size:1.5rem;font-weight:900;display:block}.r-bk .rl{font-size:.68rem;text-transform:uppercase;letter-spacing:1px;opacity:.85;font-weight:600}.r-a{background:var(--agri)}.r-n{background:var(--nat)}.r-b{background:var(--bld)}
+.refl{background:var(--bg);border-radius:14px;padding:18px;max-width:520px;margin:0 auto 20px;text-align:left}.refl-t{font-family:'Fraunces',serif;font-size:1rem;margin-bottom:8px;color:var(--text)}.refl p{font-size:.82rem;color:#666;line-height:1.5;margin-bottom:4px}
+.phase-label{display:inline-block;padding:3px 10px;border-radius:20px;font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px}.phase-dilemma{background:#FFF3E0;color:var(--accent)}.phase-visie{background:#E8F5E9;color:var(--nat-d)}
 .hidden{display:none!important}
 </style>
 </head>
 <body>
 <div class="hdr"><h1>🧩 Puzzel Je Nederland</h1><p>Elk procent is een puzzelstukje. Jij legt de puzzel.</p></div>
 <div class="app">
-<div class="pL">
-<div class="pL-t">Landgebruik in Nederland</div>
-<div class="map-wrap"><div class="mg" id="mg"></div></div>
+<div class="pL"><div class="pL-t">Landgebruik in Nederland</div><div class="map-wrap"><div class="mg" id="mg"></div></div>
 <div class="pct-bar-wrap"><div class="pct-seg sa" id="segA"></div><div class="pct-seg sn" id="segN"></div><div class="pct-seg sb" id="segB"></div></div>
-<div class="pct-row">
-<div class="pct-item pa"><div class="pct-bg" id="bgA"></div><div class="pct-val" id="vA">66%</div><div class="pct-lbl">🚜 Landbouw</div></div>
-<div class="pct-item pn"><div class="pct-bg" id="bgN"></div><div class="pct-val" id="vN">19%</div><div class="pct-lbl">🌳 Natuur</div></div>
-<div class="pct-item pb"><div class="pct-bg" id="bgB"></div><div class="pct-val" id="vB">15%</div><div class="pct-lbl">🏠 Bebouwing</div></div>
-</div>
-<div class="pct-eq">= 100% van het land (exclusief water)</div>
-</div>
+<div class="pct-row"><div class="pct-item pa"><div class="pct-bg" id="bgA"></div><div class="pct-val" id="vA">66%</div><div class="pct-lbl">🚜 Landbouw</div></div><div class="pct-item pn"><div class="pct-bg" id="bgN"></div><div class="pct-val" id="vN">19%</div><div class="pct-lbl">🌳 Natuur</div></div><div class="pct-item pb"><div class="pct-bg" id="bgB"></div><div class="pct-val" id="vB">15%</div><div class="pct-lbl">🏠 Bebouwing</div></div></div>
+<div class="pct-eq">= 100% van het land (exclusief water)</div></div>
 <div class="pR">
-<div id="intro" class="intro">
-<h2>Kiezen doet pijn…</h2>
-<p>Als we water niet meetellen, is het Nederlandse land verdeeld in <strong>66% landbouw</strong>, <strong>19% natuur</strong> en <strong>15% bebouwing</strong>. Elk procent staat voor een puzzelstukje.</p>
-<p>Maar we hebben meer huizen nodig, de natuur staat onder druk, en boeren voelen zich bedreigd. Elk stukje dat verschuift heeft gevolgen.</p>
-<p>Je krijgt eerst <strong>12 dilemma's</strong> die de puzzel verschuiven. Daarna <strong>2 visievragen</strong> die bepalen welk toekomstscenario het beste bij jou past.</p>
-<button class="btn" onclick="startGame()">Start de Simulator →</button>
-</div>
-<div id="game" class="hidden">
-<div class="ptr"><div class="pfl" id="pfl"></div></div>
-<span class="phase-label" id="phaseLabel"></span>
-<div class="ql"><span id="qN">1</span> van <span id="qTotal">14</span></div>
-<div class="qt" id="qT"></div>
-<div class="chs" id="chsGrid"></div>
-</div>
-<div id="result" class="res hidden">
-<h2>Jouw Toekomstscenario</h2>
-<div class="r-nm" id="rNm"></div>
-<p class="r-ds" id="rDs"></p>
-<div class="r-gr">
-<div class="r-bk r-a"><span class="rv" id="rA"></span><span class="rl">Landbouw</span></div>
-<div class="r-bk r-n"><span class="rv" id="rN"></span><span class="rl">Natuur</span></div>
-<div class="r-bk r-b"><span class="rv" id="rB"></span><span class="rl">Bebouwing</span></div>
-</div>
-<div class="refl">
-<div class="refl-t">💬 Praat erover in de klas</div>
-<p>— Ben je het eens met je uitkomst? Wat zou je achteraf anders kiezen?</p>
-<p>— Welk dilemma vond je het moeilijkst? Waarom?</p>
-<p>— Kan Nederland alle wensen tegelijk waarmaken, of moet je altijd iets opgeven?</p>
-</div>
-<button class="btn" onclick="reset()">Opnieuw Spelen</button>
-</div>
-</div>
-</div>
+<div id="intro" class="intro"><h2>Kiezen doet pijn…</h2><p>Als we water niet meetellen, is het Nederlandse land verdeeld in <strong>66% landbouw</strong>, <strong>19% natuur</strong> en <strong>15% bebouwing</strong>. Elk procent staat voor een puzzelstukje.</p><p>Maar we hebben meer huizen nodig, de natuur staat onder druk, en boeren voelen zich bedreigd. Elk stukje dat verschuift heeft gevolgen.</p><p>Je krijgt eerst <strong>12 dilemma's</strong> die de puzzel verschuiven. Daarna <strong>2 visievragen</strong> die bepalen welk toekomstscenario het beste bij jou past.</p><button class="btn" onclick="startGame()">Start de Simulator →</button></div>
+<div id="game" class="hidden"><div class="ptr"><div class="pfl" id="pfl"></div></div><span class="phase-label" id="phaseLabel"></span><div class="ql"><span id="qN">1</span> van <span id="qTotal">14</span></div><div class="qt" id="qT"></div><div class="chs" id="chsGrid"></div></div>
+<div id="result" class="res hidden"><h2>Jouw Toekomstscenario</h2><div class="r-nm" id="rNm"></div><p class="r-ds" id="rDs"></p><div class="r-gr"><div class="r-bk r-a"><span class="rv" id="rA"></span><span class="rl">Landbouw</span></div><div class="r-bk r-n"><span class="rv" id="rN"></span><span class="rl">Natuur</span></div><div class="r-bk r-b"><span class="rv" id="rB"></span><span class="rl">Bebouwing</span></div></div>
+<div class="refl"><div class="refl-t">💬 Praat erover in de klas</div><p>— Ben je het eens met je uitkomst? Wat zou je achteraf anders kiezen?</p><p>— Welk dilemma vond je het moeilijkst? Waarom?</p><p>— Kan Nederland alle wensen tegelijk waarmaken, of moet je altijd iets opgeven?</p></div>
+<button class="btn" onclick="reset()">Opnieuw Spelen</button></div>
+</div></div>
 <div class="tst" id="tst"></div>
 <script>
+// NL bitmap 44x51 — tighter northeast, clean Zeeland, narrow Limburg
 const BM=[
 "............................................",
-"........................#######.............",
+".......................##########...........",
 "............................................",
-"..........................##########........",
-".......................###############......",
-"......................#################.....",
-".....................###################....",
-"................##..#####################...",
-"................##...####################...",
-".....................#####################..",
-"......................####################..",
-".....................#####################..",
-".....................######################.",
-"...............##....######################.",
-"...............##....#####################..",
-"...............###..######################..",
-"..............####...#####################..",
-".............######..####################...",
-".............#######.###################....",
-".............###########################....",
+"...........................###########......",
+".........................##############.....",
+".......................################.....",
+"......................##################....",
+"................##...###################....",
+"................##...###################....",
+"....................#####################...",
+"....................#####################...",
+"...............#....######################..",
+"...............#.....#####################..",
+"..............##....######################..",
+"..............###...######################..",
+".............####...######################..",
+".............#####..######################..",
+".............#####..#####################...",
+"............############################....",
+"............############################....",
 "............###########################.....",
-"............##########################......",
+"...........###########################......",
 "...........##########################.......",
-"...........#########################........",
+"..........##########################........",
 "..........#########################.........",
-"..........########################..........",
+".........#########################..........",
 ".........########################...........",
 "........########################............",
 "........#######################.............",
@@ -146,11 +83,11 @@ const BM=[
 ".......#######################..............",
 "...###########################..............",
 "....####..####################..............",
-".........#####################..............",
+".....#....####################..............",
 "..##.##..#####################..............",
 "..###.....####################..............",
-"..........#####################.............",
-"..............#################.............",
+"...#####...####################.............",
+"......###.....#################.............",
 "..........................######............",
 "...........................#####............",
 "...........................#####............",
@@ -159,152 +96,60 @@ const BM=[
 "............................###.............",
 "............................##..............",
 "............................##..............",
+"............................##..............",
 "...........................##...............",
 "...........................##...............",
 "............................................",
 ];
-const ROWS=BM.length,COLS=BM[0].length;
-const land=[];const ci={};
-for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++){if(BM[r][c]==='#'){ci[r+','+c]=land.length;land.push({r,c});}}
+const ROWS=BM.length,COLS=BM[0].length,land=[],ci={};
+for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++)if(BM[r][c]==='#'){ci[r+','+c]=land.length;land.push({r,c});}
 const T=land.length;
-function g2rc(lat,lon){return{r:Math.round((53.50-lat)/(53.50-50.70)*49),c:Math.round((lon-3.25)/(7.20-3.25)*43)};}
+function g2rc(lat,lon){return{r:Math.round((53.50-lat)/(53.50-50.70)*(ROWS-1)),c:Math.round((lon-3.25)/(7.20-3.25)*(COLS-1))};}
 const CT=[[52.37,4.90,2],[52.08,4.48,2],[51.92,4.47,2],[52.09,5.12,2],[51.44,5.47,2],[53.22,6.57,1],[51.84,5.87,1],[51.98,5.91,1],[52.51,5.70,1],[53.20,5.80,1],[51.69,5.10,1],[51.69,5.30,1],[50.85,5.83,1],[52.22,6.90,1],[52.51,5.15,1],[51.69,5.29,1],[52.38,4.64,1],[52.16,4.49,1],[52.17,5.39,1],[51.58,4.78,1],[51.45,6.17,1],[51.18,5.98,1],[52.02,6.58,1],[52.22,6.15,1],[51.44,5.98,1],[51.88,4.60,1],[52.00,4.35,1],[52.35,4.85,1]];
-const cSet=new Set();CT.forEach(([la,lo,sz])=>{const{r,c}=g2rc(la,lo);for(let dr=-sz;dr<=sz;dr++)for(let dc=-sz;dc<=sz;dc++){const k=(r+dr)+','+(c+dc);if(ci[k]!==undefined)cSet.add(ci[k]);}});
+const cSet=new Set();CT.forEach(([a,o,s])=>{const{r,c}=g2rc(a,o);for(let dr=-s;dr<=s;dr++)for(let dc=-s;dc<=s;dc++){const k=(r+dr)+','+(c+dc);if(ci[k]!==undefined)cSet.add(ci[k]);}});
 const NT=[[52.25,5.85,2],[52.15,5.95,2],[52.30,5.75,2],[52.20,5.70,1],[52.85,6.55,1],[52.90,6.40,1],[52.80,6.65,1],[52.95,6.70,1],[50.85,5.90,1],[50.92,5.95,1],[51.00,5.92,1],[51.72,4.78,1],[51.75,4.82,1],[53.30,5.35,1],[53.32,5.55,1],[53.25,6.20,1],[52.38,5.18,1],[51.55,5.40,1],[51.52,5.35,1],[52.58,6.50,1],[51.35,4.40,1]];
-const nSet=new Set();NT.forEach(([la,lo,sz])=>{const{r,c}=g2rc(la,lo);for(let dr=-sz;dr<=sz;dr++)for(let dc=-sz;dc<=sz;dc++){const k=(r+dr)+','+(c+dc);if(ci[k]!==undefined)nSet.add(ci[k]);}});
+const nSet=new Set();NT.forEach(([a,o,s])=>{const{r,c}=g2rc(a,o);for(let dr=-s;dr<=s;dr++)for(let dc=-s;dc<=s;dc++){const k=(r+dr)+','+(c+dc);if(ci[k]!==undefined)nSet.add(ci[k]);}});
 function bfs(seeds){const d=new Array(T).fill(9999);const q=[];seeds.forEach(i=>{d[i]=0;q.push(i);});let h=0;while(h<q.length){const x=q[h++];const{r,c}=land[x];for(const[dr,dc]of[[-1,0],[1,0],[0,-1],[0,1],[-1,-1],[-1,1],[1,-1],[1,1]]){const k=(r+dr)+','+(c+dc);if(ci[k]!==undefined){const ni=ci[k];if(d[ni]>d[x]+1){d[ni]=d[x]+1;q.push(ni);}}}}return d;}
 const bD=bfs(cSet),nD=bfs(nSet);
 const bOrd=[...Array(T).keys()].sort((a,b)=>bD[a]-bD[b]);
 const nOrd=[...Array(T).keys()].sort((a,b)=>nD[a]-nD[b]);
-let pct={agri:66,nat:19,bld:15};let scores=[0,0,0,0];let qIdx=0,busy=false;
-function norm(){let s=pct.agri+pct.nat+pct.bld;pct.agri=Math.round(pct.agri/s*100);pct.nat=Math.round(pct.nat/s*100);pct.bld=100-pct.agri-pct.nat;if(pct.agri<2){pct.agri=2;pct.bld=100-pct.agri-pct.nat;}if(pct.nat<2){pct.nat=2;pct.bld=100-pct.agri-pct.nat;}if(pct.bld<2){pct.bld=2;pct.nat=100-pct.agri-pct.bld;}}
+let pct={agri:66,nat:19,bld:15},scores=[0,0,0,0],qIdx=0,busy=false;
+const MIN_BLD=8,MIN_NAT=5,MIN_AGRI=15;
+function norm(){if(pct.agri<MIN_AGRI)pct.agri=MIN_AGRI;if(pct.nat<MIN_NAT)pct.nat=MIN_NAT;if(pct.bld<MIN_BLD)pct.bld=MIN_BLD;let s=pct.agri+pct.nat+pct.bld;pct.agri=Math.round(pct.agri/s*100);pct.nat=Math.round(pct.nat/s*100);pct.bld=100-pct.agri-pct.nat;if(pct.bld<MIN_BLD){pct.bld=MIN_BLD;pct.agri=100-pct.nat-pct.bld;}if(pct.nat<MIN_NAT){pct.nat=MIN_NAT;pct.agri=100-pct.nat-pct.bld;}if(pct.agri<MIN_AGRI){pct.agri=MIN_AGRI;pct.nat=100-pct.agri-pct.bld;}}
 const mgEl=document.getElementById('mg');mgEl.style.gridTemplateColumns=`repeat(${COLS},1fr)`;const cE=[];
 for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++){const d=document.createElement('div');d.className='c';if(BM[r][c]!=='#')d.classList.add('out');else cE.push(d);mgEl.appendChild(d);}
 function render(anim){const nB=Math.round(T*pct.bld/100),nN=Math.round(T*pct.nat/100);const cat=new Array(T).fill('a');let bc=0;for(const i of bOrd){if(bc>=nB)break;cat[i]='b';bc++;}let nc=0;for(const i of nOrd){if(nc>=nN)break;if(cat[i]==='a'){cat[i]='n';nc++;}}cE.forEach((el,i)=>{const nw='c'+cat[i];const ow=el.dataset.cat||'';const ch=ow&&ow!==nw;el.className='c '+nw;el.dataset.cat=nw;if(anim&&ch){el.classList.add('pop');setTimeout(()=>el.classList.remove('pop'),380);}});}
 function updUI(anim){[['A','agri'],['N','nat'],['B','bld']].forEach(([k,key])=>{const el=document.getElementById('v'+k);const v=pct[key]+'%';if(el.textContent!==v){el.textContent=v;if(anim){el.classList.add('bounce');setTimeout(()=>el.classList.remove('bounce'),400);}}document.getElementById('bg'+k).style.height=pct[key]+'%';});document.getElementById('segA').style.width=pct.agri+'%';document.getElementById('segN').style.width=pct.nat+'%';document.getElementById('segB').style.width=pct.bld+'%';}
-function toast(fx){const lb={agri:'🚜',nat:'🌳',bld:'🏠'};const p=[];for(const k of['agri','nat','bld']){if(fx[k]>0)p.push(lb[k]+' +'+fx[k]+'%');else if(fx[k]<0)p.push(lb[k]+' '+fx[k]+'%');}if(p.length===0)return;const t=document.getElementById('tst');t.textContent=p.join('   ');t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1900);}
-
-// === 12 DILEMMA'S (gebalanceerd, effecten tellen op tot 0) ===
+function toast(fx){const lb={agri:'🚜',nat:'🌳',bld:'🏠'};const p=[];for(const k of['agri','nat','bld']){if(fx[k]>0)p.push(lb[k]+' +'+fx[k]+'%');else if(fx[k]<0)p.push(lb[k]+' '+fx[k]+'%');}if(!p.length)return;const t=document.getElementById('tst');t.textContent=p.join('   ');t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1900);}
 const dilemmas=[
-{q:"Woningnood! Er moeten 1 miljoen huizen bij. Hoe?",opts:[
-{t:"Rijtjeshuizen met tuinen in het groen. Mensen willen ruimte!",sc:[4,0,1,0],fx:{agri:-4,nat:0,bld:4}},
-{t:"Alleen hoge flats in bestaande steden. Geen weiland opofferen.",sc:[0,2,2,1],fx:{agri:1,nat:2,bld:-3}}]},
-{q:"Tiny houses en woonboten: alternatief wonen overal.",opts:[
-{t:"Geweldig! Creatief wonen waar maar plek is.",sc:[4,1,0,0],fx:{agri:-2,nat:-1,bld:3}},
-{t:"Chaos. Bouw via strakke planning in grote steden.",sc:[0,1,2,3],fx:{agri:0,nat:0,bld:0}}]},
-{q:"Het platteland loopt leeg. Jongeren trekken naar de stad.",opts:[
-{t:"Investeer in dorpen! Snel internet, woningen, voorzieningen.",sc:[4,0,0,1],fx:{agri:1,nat:-2,bld:1}},
-{t:"Laat het los. Concentreer alles in steden, land terug aan natuur.",sc:[0,2,2,2],fx:{agri:-2,nat:3,bld:-1}}]},
-{q:"De veestapel: we zijn de 2e voedselexporteur ter wereld.",opts:[
-{t:"Trots! Boeren zijn de ruggengraat. Houd de stallen groot.",sc:[1,0,4,0],fx:{agri:4,nat:-2,bld:-2}},
-{t:"Halveer het vee. Die grond wordt bos en huizen.",sc:[0,4,0,1],fx:{agri:-5,nat:3,bld:2}}]},
-{q:"Marker Wadden: nieuwe eilanden bouwen voor natuur.",opts:[
-{t:"Te duur. Investeer liever in woningbouw en economie.",sc:[1,0,2,1],fx:{agri:0,nat:2,bld:-2}},
-{t:"Meer! Bouw eilanden voor natuur én recreatie.",sc:[0,4,0,1],fx:{agri:-1,nat:4,bld:-3}}]},
-{q:"Snelweg A27 door bos Amelisweerd: verbreden?",opts:[
-{t:"Ja. Files kosten miljarden aan productiviteit.",sc:[0,1,2,2],fx:{agri:-1,nat:-2,bld:3}},
-{t:"Nee! Bomen zijn belangrijker dan asfalt.",sc:[2,4,0,0],fx:{agri:0,nat:3,bld:-3}}]},
-{q:"Schiphol: uitbreiden of krimpen?",opts:[
-{t:"Groter! Meer banen, betere wereldverbinding.",sc:[0,0,4,1],fx:{agri:-2,nat:-1,bld:3}},
-{t:"Krimpen. Minder herrie, minder CO₂, meer natuur.",sc:[1,3,0,1],fx:{agri:0,nat:3,bld:-3}}]},
-{q:"De zeespiegel stijgt. De Randstad overstroomt.",opts:[
-{t:"Megadijken! Bescherm alles en bouw door in het westen.",sc:[0,0,4,1],fx:{agri:-2,nat:-1,bld:3}},
-{t:"Terugtrekken! Verplaats steden naar het hogere oosten.",sc:[2,2,0,0],fx:{agri:-2,nat:2,bld:0}}]},
-{q:"De Ruimte-Wet: max 30m² woonruimte per persoon.",opts:[
-{t:"Bemoei je niet met mijn huis! Vrijheid boven alles.",sc:[1,0,4,1],fx:{agri:-2,nat:-1,bld:3}},
-{t:"Eerlijk delen. Compact wonen, meer ruimte voor groen.",sc:[1,3,0,0],fx:{agri:1,nat:2,bld:-3}}]},
-{q:"Datacenters vreten stroom en ruimte. Maar de economie draait erop.",opts:[
-{t:"Bouwen! Nederland wordt de digitale hub van Europa.",sc:[0,0,0,5],fx:{agri:-2,nat:-1,bld:3}},
-{t:"Nee. Groen weiland is meer waard dan servers.",sc:[3,1,0,0],fx:{agri:1,nat:1,bld:-2}}]},
-{q:"Zonnepanelen en windmolens: waar komen ze?",opts:[
-{t:"Overal! Zonneparken op weilanden en in natuur.",sc:[0,1,0,4],fx:{agri:-3,nat:-1,bld:4}},
-{t:"Alleen op daken en langs snelwegen. Landschap is heilig.",sc:[3,1,0,0],fx:{agri:2,nat:1,bld:-3}}]},
-{q:"Verticale landbouw: voedsel kweken in stadsgebouwen.",opts:[
-{t:"De toekomst! Platteland teruggeven aan natuur.",sc:[0,1,0,5],fx:{agri:-4,nat:2,bld:2}},
-{t:"Onzin. Echte landbouw hoort op echt land.",sc:[3,0,2,0],fx:{agri:3,nat:-2,bld:-1}}]},
+{q:"Woningnood! Er moeten 1 miljoen huizen bij. Hoe?",opts:[{t:"Rijtjeshuizen met tuinen in het groen. Mensen willen ruimte!",sc:[4,0,1,0],fx:{agri:-4,nat:0,bld:4}},{t:"Alleen hoge flats in bestaande steden. Geen weiland opofferen.",sc:[0,2,2,1],fx:{agri:1,nat:2,bld:-3}}]},
+{q:"Tiny houses en woonboten: alternatief wonen overal.",opts:[{t:"Geweldig! Creatief wonen waar maar plek is.",sc:[4,1,0,0],fx:{agri:-2,nat:-1,bld:3}},{t:"Chaos. Bouw via strakke planning in grote steden.",sc:[0,1,2,3],fx:{agri:0,nat:0,bld:0}}]},
+{q:"Het platteland loopt leeg. Jongeren trekken naar de stad.",opts:[{t:"Investeer in dorpen! Snel internet, woningen, voorzieningen.",sc:[4,0,0,1],fx:{agri:1,nat:-2,bld:1}},{t:"Laat het los. Concentreer alles in steden, land terug aan natuur.",sc:[0,2,2,2],fx:{agri:-2,nat:3,bld:-1}}]},
+{q:"De veestapel: we zijn de 2e voedselexporteur ter wereld.",opts:[{t:"Trots! Boeren zijn de ruggengraat. Houd de stallen groot.",sc:[2,0,3,0],fx:{agri:4,nat:-2,bld:-2}},{t:"Halveer het vee. Die grond wordt bos en huizen.",sc:[0,4,0,1],fx:{agri:-5,nat:3,bld:2}}]},
+{q:"Marker Wadden: nieuwe eilanden bouwen voor natuur.",opts:[{t:"Te duur. Investeer liever in woningbouw en economie.",sc:[1,0,2,1],fx:{agri:0,nat:-1,bld:1}},{t:"Meer! Bouw eilanden voor natuur én recreatie.",sc:[0,4,0,1],fx:{agri:-1,nat:4,bld:-3}}]},
+{q:"Snelweg A27 door bos Amelisweerd: verbreden?",opts:[{t:"Ja. Files kosten miljarden aan productiviteit.",sc:[0,1,2,2],fx:{agri:-1,nat:-2,bld:3}},{t:"Nee! Bomen zijn belangrijker dan asfalt.",sc:[2,4,0,0],fx:{agri:0,nat:3,bld:-3}}]},
+{q:"Schiphol: uitbreiden of krimpen?",opts:[{t:"Groter! Meer banen, betere wereldverbinding.",sc:[0,0,4,1],fx:{agri:-2,nat:-1,bld:3}},{t:"Krimpen. Minder herrie, minder CO₂, meer natuur.",sc:[1,3,0,1],fx:{agri:0,nat:3,bld:-3}}]},
+{q:"De zeespiegel stijgt. De Randstad overstroomt.",opts:[{t:"Megadijken! Bescherm alles en bouw door in het westen.",sc:[0,0,4,1],fx:{agri:-2,nat:-1,bld:3}},{t:"Terugtrekken! Verplaats steden naar het hogere oosten.",sc:[2,2,0,0],fx:{agri:-2,nat:2,bld:0}}]},
+{q:"De Ruimte-Wet: max 30m² woonruimte per persoon.",opts:[{t:"Bemoei je niet met mijn huis! Vrijheid boven alles.",sc:[1,0,4,1],fx:{agri:-2,nat:-1,bld:3}},{t:"Eerlijk delen. Compact wonen, meer ruimte voor groen.",sc:[1,3,0,0],fx:{agri:1,nat:2,bld:-3}}]},
+{q:"Datacenters vreten stroom en ruimte. Maar de economie draait erop.",opts:[{t:"Bouwen! Nederland wordt de digitale hub van Europa.",sc:[0,0,0,5],fx:{agri:-2,nat:-1,bld:3}},{t:"Nee. Groen weiland is meer waard dan servers.",sc:[3,1,0,0],fx:{agri:1,nat:1,bld:-2}}]},
+{q:"Zonnepanelen en windmolens: waar komen ze?",opts:[{t:"Overal! Zonneparken op weilanden en in natuur.",sc:[0,1,0,4],fx:{agri:-3,nat:0,bld:3}},{t:"Alleen op daken en langs snelwegen. Landschap is heilig.",sc:[3,1,0,0],fx:{agri:2,nat:1,bld:-3}}]},
+{q:"Verticale landbouw: voedsel kweken in stadsgebouwen.",opts:[{t:"De toekomst! Platteland teruggeven aan natuur.",sc:[0,1,0,5],fx:{agri:-4,nat:2,bld:2}},{t:"Onzin. Echte landbouw hoort op echt land.",sc:[3,0,2,0],fx:{agri:3,nat:-2,bld:-1}}]},
 ];
-
-// === 2 VISIEVRAGEN (4 opties, +6 score, geen kaart-effect) ===
 const visie=[
-{q:"Je bent burgemeester. Er is geld voor één groot project. Wat bouw je?",opts:[
-{t:"Een dorpshuis met moestuin en lokale markt voor de buurt.",sc:[6,0,0,0],fx:{agri:0,nat:0,bld:0}},
-{t:"Een groot stadspark met beekjes, bomen en wandelpaden.",sc:[0,6,0,0],fx:{agri:0,nat:0,bld:0}},
-{t:"Een internationaal zakencentrum met woontorens en OV-hub.",sc:[0,0,6,0],fx:{agri:0,nat:0,bld:0}},
-{t:"Een techcampus met robots, drones en een datacenter.",sc:[0,0,0,6],fx:{agri:0,nat:0,bld:0}}]},
-{q:"Het is 2050. Hoe ziet jouw ideale buurt eruit?",opts:[
-{t:"Een rustig dorp waar je de buurman kent en kinderen buiten spelen.",sc:[6,0,0,0],fx:{agri:0,nat:0,bld:0}},
-{t:"Een autovrije groene wijk waar je overal vogels hoort fluiten.",sc:[0,6,0,0],fx:{agri:0,nat:0,bld:0}},
-{t:"Een bruisende stad met metro, rooftop bars en kantoren.",sc:[0,0,6,0],fx:{agri:0,nat:0,bld:0}},
-{t:"Een slim gebouw waar je alles regelt via een app op je telefoon.",sc:[0,0,0,6],fx:{agri:0,nat:0,bld:0}}]},
+{q:"Je bent burgemeester. Er is geld voor één groot project. Wat bouw je?",opts:[{t:"Een dorpshuis met moestuin en lokale markt voor de buurt.",sc:[6,0,0,0],fx:{agri:0,nat:0,bld:0}},{t:"Een groot stadspark met beekjes, bomen en wandelpaden.",sc:[0,6,0,0],fx:{agri:0,nat:0,bld:0}},{t:"Een internationaal zakencentrum met woontorens en OV-hub.",sc:[0,0,6,0],fx:{agri:0,nat:0,bld:0}},{t:"Een techcampus met robots, drones en een datacenter.",sc:[0,0,0,6],fx:{agri:0,nat:0,bld:0}}]},
+{q:"Het is 2050. Hoe ziet jouw ideale buurt eruit?",opts:[{t:"Een rustig dorp waar je de buurman kent en kinderen buiten spelen.",sc:[6,0,0,0],fx:{agri:0,nat:0,bld:0}},{t:"Een autovrije groene wijk waar je overal vogels hoort fluiten.",sc:[0,6,0,0],fx:{agri:0,nat:0,bld:0}},{t:"Een bruisende stad met metro, rooftop bars en kantoren.",sc:[0,0,6,0],fx:{agri:0,nat:0,bld:0}},{t:"Een slim gebouw waar je alles regelt via een app op je telefoon.",sc:[0,0,0,6],fx:{agri:0,nat:0,bld:0}}]},
 ];
-
-// Combine all questions
-const ALL=[...dilemmas,...visie];
-const TQ=ALL.length;
-
+const ALL=[...dilemmas,...visie],TQ=ALL.length;
 const scenarios=[
 {name:"Regionaal Geworteld",desc:"Jij kiest voor dorpen, tuinen en lokale gemeenschappen. Ruim wonen, eten van de boer om de hoek. Het landschap is gevarieerd maar de ruimtedruk enorm — minder wilde natuur omdat iedereen z'n eigen plekje wil."},
 {name:"Groenland",desc:"Natuur is jouw nummer één. Uitgestrekte bossen, brede rivieren, bloeiende weidevogels. Compact wonen in efficiënte steden. Veestapel gehalveerd, zon op daken. Schoon en stil, maar individuele woonruimte is schaars."},
 {name:"Mondiaal Ondernemend",desc:"Een economisch powerhouse. De Randstad is één metropool vol wolkenkrabbers, Schiphol verdubbeld, megastallen voeden de wereld. Welvarend, maar het contrast tussen betonstad en industrieel platteland is hard."},
 {name:"De Snelle Wereld",desc:"Nederland draait op data en technologie. Overal datacenters en distributiehubs, VR-werk, drone-bezorging. De binnenstad is een museum. Hyperefficiënt, maar menselijk contact en traditioneel landschap zijn verdwenen."}
 ];
-
 function startGame(){document.getElementById('intro').classList.add('hidden');document.getElementById('game').classList.remove('hidden');loadQ();}
-
-function loadQ(){
-    const q=ALL[qIdx];
-    const isDilemma=qIdx<dilemmas.length;
-    const label=document.getElementById('phaseLabel');
-    label.textContent=isDilemma?'Dilemma':'Visievraag';
-    label.className='phase-label '+(isDilemma?'phase-dilemma':'phase-visie');
-    document.getElementById('qN').textContent=qIdx+1;
-    document.getElementById('qTotal').textContent=TQ;
-    document.getElementById('qT').textContent=q.q;
-    document.getElementById('pfl').style.width=(qIdx/TQ*100)+'%';
-    const grid=document.getElementById('chsGrid');
-    grid.innerHTML='';
-    const letters=['A','B','C','D'];
-    q.opts.forEach((opt,i)=>{
-        const btn=document.createElement('button');
-        btn.className='cho';
-        btn.innerHTML='<span class="lt">'+letters[i]+'</span><span>'+opt.t+'</span>';
-        btn.onclick=()=>pickOpt(i);
-        grid.appendChild(btn);
-    });
-    busy=false;
-}
-
-function pickOpt(idx){
-    if(busy)return;busy=true;
-    const q=ALL[qIdx];
-    const opt=q.opts[idx];
-    const btns=document.getElementById('chsGrid').children;
-    for(let i=0;i<btns.length;i++){btns[i].classList.add('dis');}
-    btns[idx].classList.add('sel');btns[idx].classList.remove('dis');
-    for(let i=0;i<4;i++)scores[i]+=opt.sc[i];
-    const fx=opt.fx;
-    if(fx.agri||fx.nat||fx.bld){
-        pct.agri+=fx.agri;pct.nat+=fx.nat;pct.bld+=fx.bld;
-        norm();render(true);updUI(true);
-    }
-    toast(fx);
-    setTimeout(()=>{
-        qIdx++;
-        if(qIdx<TQ)loadQ();
-        else{document.getElementById('pfl').style.width='100%';setTimeout(showRes,500);}
-    },850);
-}
-
-function showRes(){
-    document.getElementById('game').classList.add('hidden');
-    document.getElementById('result').classList.remove('hidden');
-    let mx=0;for(let i=1;i<4;i++)if(scores[i]>scores[mx])mx=i;
-    document.getElementById('rNm').textContent=scenarios[mx].name;
-    document.getElementById('rDs').textContent=scenarios[mx].desc;
-    document.getElementById('rA').textContent=pct.agri+'%';
-    document.getElementById('rN').textContent=pct.nat+'%';
-    document.getElementById('rB').textContent=pct.bld+'%';
-}
+function loadQ(){const q=ALL[qIdx],isDil=qIdx<dilemmas.length,lb=document.getElementById('phaseLabel');lb.textContent=isDil?'Dilemma':'Visievraag';lb.className='phase-label '+(isDil?'phase-dilemma':'phase-visie');document.getElementById('qN').textContent=qIdx+1;document.getElementById('qTotal').textContent=TQ;document.getElementById('qT').textContent=q.q;document.getElementById('pfl').style.width=(qIdx/TQ*100)+'%';const g=document.getElementById('chsGrid');g.innerHTML='';const lt='ABCD';q.opts.forEach((o,i)=>{const b=document.createElement('button');b.className='cho';b.innerHTML='<span class="lt">'+lt[i]+'</span><span>'+o.t+'</span>';b.onclick=()=>pickOpt(i);g.appendChild(b);});busy=false;}
+function pickOpt(idx){if(busy)return;busy=true;const q=ALL[qIdx],o=q.opts[idx],bs=document.getElementById('chsGrid').children;for(let i=0;i<bs.length;i++)bs[i].classList.add('dis');bs[idx].classList.add('sel');bs[idx].classList.remove('dis');for(let i=0;i<4;i++)scores[i]+=o.sc[i];const fx=o.fx;if(fx.agri||fx.nat||fx.bld){pct.agri+=fx.agri;pct.nat+=fx.nat;pct.bld+=fx.bld;norm();render(true);updUI(true);}toast(fx);setTimeout(()=>{qIdx++;if(qIdx<TQ)loadQ();else{document.getElementById('pfl').style.width='100%';setTimeout(showRes,500);}},850);}
+function showRes(){document.getElementById('game').classList.add('hidden');document.getElementById('result').classList.remove('hidden');let mx=0;for(let i=1;i<4;i++)if(scores[i]>scores[mx])mx=i;document.getElementById('rNm').textContent=scenarios[mx].name;document.getElementById('rDs').textContent=scenarios[mx].desc;document.getElementById('rA').textContent=pct.agri+'%';document.getElementById('rN').textContent=pct.nat+'%';document.getElementById('rB').textContent=pct.bld+'%';}
 function reset(){qIdx=0;scores=[0,0,0,0];pct={agri:66,nat:19,bld:15};busy=false;document.getElementById('result').classList.add('hidden');document.getElementById('intro').classList.remove('hidden');render(false);updUI(false);}
 render(false);updUI(false);
 </script>
