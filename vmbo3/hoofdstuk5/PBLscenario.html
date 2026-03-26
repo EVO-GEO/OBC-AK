@@ -3,15 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Puzzel Je Nederland: Ruimtelijke Dilemma's</title>
+    <title>Puzzel Je Nederland: De 100 Stukjes</title>
     <style>
         :root {
-            --green-agri: #8BC34A; /* Lichtgroen voor landbouw */
-            --green-nature: #2E7D32; /* Donkergroen voor natuur */
-            --red-build: #E53935; /* Rood voor bebouwing */
-            --bg-color: #f4f7f6;
+            --green-agri: #A5D6A7; /* Lichtgroen */
+            --green-nature: #2E7D32; /* Donkergroen */
+            --red-build: #EF5350; /* Rood */
+            --blue-water: #4FC3F7; /* Blauw */
+            --grey-traffic: #90A4AE; /* Grijs */
+            --yellow-recre: #FFF176; /* Geel */
+            --bg-color: #f0f4f8;
             --text-color: #2c3e50;
-            --btn-hover: #e0e6ed;
         }
 
         body {
@@ -19,35 +21,36 @@
             background-color: var(--bg-color);
             color: var(--text-color);
             margin: 0;
-            padding: 20px;
+            padding: 10px;
             display: flex;
             flex-direction: column;
             align-items: center;
         }
 
-        h1 { color: #1a531c; text-align: center; margin-bottom: 5px; }
-        .subtitle { text-align: center; color: #7f8c8d; margin-bottom: 30px; }
+        h1 { color: #1a531c; text-align: center; margin-bottom: 5px; font-size: 1.8em;}
+        .subtitle { text-align: center; color: #7f8c8d; margin-bottom: 20px; font-size: 0.9em;}
         
         .app-container {
             display: flex;
             flex-direction: column;
             background-color: white;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
             overflow: hidden;
             width: 100%;
-            max-width: 1000px;
+            max-width: 1100px;
         }
 
-        @media (min-width: 768px) {
+        @media (min-width: 992px) {
             .app-container { flex-direction: row; }
+            body { padding: 30px; }
         }
 
-        /* ----- LINKER KANT: VISUELE FEEDBACK (PUZZEL) ----- */
+        /* ----- LINKER KANT: VISUELE KAART & PUZZEL ----- */
         .feedback-panel {
-            flex: 1;
+            flex: 1.2;
             background-color: #e3f2fd;
-            padding: 30px 20px;
+            padding: 20px;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -58,70 +61,86 @@
             font-size: 1.3em;
             font-weight: bold;
             color: #1565C0;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             text-align: center;
         }
 
-        .puzzle-meter-container {
-            width: 120px;
-            height: 400px;
-            background-color: #bdc3c7;
-            border-radius: 12px;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column-reverse; /* Stapel van beneden naar boven */
-            box-shadow: inset 0 4px 8px rgba(0,0,0,0.2);
-            position: relative;
+        /* Nederland Kaart SVG */
+        .nl-map-svg {
+            width: 100%;
+            max-width: 400px;
+            height: auto;
+            margin-bottom: 20px;
         }
 
-        .puzzle-segment {
+        /* Het Dynamic Dashboard met stukjes */
+        .puzzle-dashboard {
             width: 100%;
-            transition: height 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            background: rgba(255,255,255,0.7);
+            padding: 15px;
+            border-radius: 15px;
+        }
+
+        .puzzle-category-block {
             display: flex;
-            justify-content: center;
-            align-items: center;
-            color: white;
-            font-weight: 800;
-            font-size: 1.1em;
-            text-shadow: 1px 1px 3px rgba(0,0,0,0.6);
-            position: relative;
             flex-direction: column;
+            align-items: center;
+            padding: 10px;
+            border-radius: 10px;
+            color: white;
+            position: relative;
+            overflow: hidden;
         }
         
-        .segment-label {
-            font-size: 0.6em;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            opacity: 0.9;
+        /* Jigsaw effect via pseudo-element */
+        .puzzle-category-block::before {
+            content: '';
+            position: absolute;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            background-color: #e3f2fd; /* Kleur van het feedback-panel */
+            top: -12.5px;
+            left: calc(50% - 12.5px);
         }
 
-        #seg-landbouw { background-color: var(--green-agri); }
-        #seg-natuur { background-color: var(--green-nature); }
-        #seg-bebouwing { background-color: var(--red-build); }
+        .piece-count {
+            font-size: 2.2em;
+            font-weight: 900;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
 
-        .meter-legend {
-            margin-top: 20px;
-            font-size: 0.85em;
-            color: #555;
-            background: rgba(255,255,255,0.6);
-            padding: 10px;
-            border-radius: 8px;
+        .piece-label {
+            font-size: 0.8em;
+            text-transform: uppercase;
+            font-weight: bold;
+            letter-spacing: 1px;
+            opacity: 0.9;
             text-align: center;
         }
 
-        /* ----- RECHTER KANT: INTERACTIE (STELLINGEN) ----- */
+        /* Categorie Kleuren */
+        #cat-agri { background-color: var(--green-agri); color: #333;}
+        #cat-nature { background-color: var(--green-nature); }
+        #cat-build { background-color: var(--red-build); }
+        #cat-water { background-color: var(--blue-water); color: #333; }
+        #cat-traffic { background-color: var(--grey-traffic); }
+        #cat-recre { background-color: var(--yellow-recre); color: #333; }
+
+        /* ----- RECHTER KANT: INTERACTIE (DILEMMA'S) ----- */
         .interaction-panel {
-            flex: 2;
-            padding: 40px;
+            flex: 1.8;
+            padding: 25px;
             display: flex;
             flex-direction: column;
-            justify-content: center;
+            justify-content: flex-start;
         }
 
-        .statement-card {
-            background-color: #fff;
-            padding: 0;
-            border-radius: 10px;
+        @media (min-width: 992px) {
+            .interaction-panel { padding: 40px; }
         }
 
         .question-header {
@@ -129,119 +148,145 @@
             color: #e67e22;
             font-weight: bold;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 10px;
+            margin-bottom: 5px;
         }
 
         .question-text {
             font-size: 1.4em;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
             font-weight: 700;
-            line-height: 1.4;
+            line-height: 1.3;
             color: #2c3e50;
         }
 
-        .choices { 
-            display: flex; 
-            flex-direction: column; 
+        .choices-grid { 
+            display: grid; 
+            grid-template-columns: 1fr; 
             gap: 15px; 
         }
 
+        @media (min-width: 768px) {
+            .choices-grid { grid-template-columns: 1fr 1fr; }
+        }
+
         .choice-btn {
-            padding: 15px 20px;
+            padding: 20px;
             border: 2px solid #bdc3c7;
-            border-radius: 10px;
+            border-radius: 12px;
             background-color: #fff;
             cursor: pointer;
-            font-size: 1.05em;
+            font-size: 1em;
             text-align: left;
             transition: all 0.2s ease;
             position: relative;
-            padding-left: 50px;
             color: #34495e;
             font-weight: 500;
-            line-height: 1.3;
+            line-height: 1.4;
+            display: flex;
+            flex-direction: column;
         }
 
-        .choice-btn::before {
-            content: 'A';
-            position: absolute;
-            left: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            font-weight: bold;
+        .choice-letter {
+            font-size: 1.3em;
+            font-weight: 900;
             color: #bdc3c7;
-            font-size: 1.2em;
+            margin-bottom: 8px;
         }
-        
-        #btn-b::before { content: 'B'; }
 
         .choice-btn:hover { 
-            background-color: var(--btn-hover); 
+            background-color: #f4f7f6; 
             border-color: #95a5a6; 
-            transform: translateX(5px);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 10px rgba(0,0,0,0.05);
         }
         
         .choice-btn.active { 
             border-color: #3498db; 
             background-color: #ebf5fb; 
-            color: #2980b9; 
-            font-weight: bold;
         }
-        .choice-btn.active::before { color: #3498db; }
+        .choice-btn.active .choice-letter { color: #3498db; }
 
         /* ----- RESULTAAT SCHERM ----- */
         #result-screen { display: none; text-align: center; }
+        #result-scenario-name { color: #e67e22; font-size: 2em; margin-bottom: 15px; font-weight: 900;}
+        #result-scenario-desc { font-size: 1em; color: #555; max-width: 600px; margin: 0 auto 20px; line-height: 1.6; }
         
-        .result-icon { font-size: 3em; margin-bottom: 10px; }
-        #result-scenario-name { color: #e67e22; font-size: 2.2em; margin-bottom: 15px; font-weight: 900;}
-        #result-scenario-desc { font-size: 1.1em; color: #555; max-width: 600px; margin: 0 auto 20px; line-height: 1.6; }
-        .result-stats { background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 25px; display: inline-block; text-align: left; border: 1px solid #ddd;}
+        .result-puzzel-result {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 25px;
+        }
 
         .primary-btn {
             background-color: #e67e22;
             color: white;
-            padding: 15px 35px;
+            padding: 15px 30px;
             border: none;
             border-radius: 30px;
-            font-size: 1.2em;
+            font-size: 1.1em;
             font-weight: bold;
             cursor: pointer;
-            transition: background-color 0.2s, transform 0.2s;
+            transition: all 0.2s;
             box-shadow: 0 4px 6px rgba(230, 126, 34, 0.3);
         }
         .primary-btn:hover { background-color: #d35400; transform: translateY(-2px); }
 
         /* Progress bar */
-        .progress-container { width: 100%; background-color: #ecf0f1; height: 8px; border-radius: 4px; margin-bottom: 25px; overflow: hidden;}
+        .progress-container { width: 100%; background-color: #ecf0f1; height: 6px; border-radius: 3px; margin-bottom: 20px; overflow: hidden;}
         .progress-bar { height: 100%; background-color: #3498db; width: 0%; transition: width 0.3s; }
     </style>
 </head>
 <body>
 
     <h1>Maak Jouw Nederland</h1>
-    <div class="subtitle">18 miljoen mensen, 1 land. Jij bent de baas over de ruimte.</div>
+    <div class="subtitle">Het spel van de 100 puzzelstukjes. Jij bepaalt de toekomst.</div>
 
     <div class="app-container">
 
         <div class="feedback-panel">
-            <div class="puzzle-title">De Ruimte-Meter</div>
-            <div class="puzzle-meter-container">
-                <div id="seg-bebouwing" class="puzzle-segment" style="height: 11%;">
-                    <span id="val-bebouwing">11%</span>
-                    <span class="segment-label">Bebouwing</span>
+            <div class="puzzle-title">De 100 Puzzelstukjes</div>
+            
+            <svg class="nl-map-svg" viewBox="0 0 350 400" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <pattern id="gridPattern" patternUnits="userSpaceOnUse" width="15" height="15">
+                        <path d="M 15 0 L 0 0 0 15" fill="none" stroke="#ccc" stroke-width="0.5"/>
+                    </pattern>
+                </defs>
+                
+                <path d="M120,30 L160,10 L190,15 L230,50 L250,90 L270,110 L260,150 L240,170 L230,210 L210,240 L190,270 L170,300 L150,340 L130,370 L90,380 L60,360 L40,320 L50,280 L70,240 L80,190 L70,140 L90,100 L100,70 L100,40 Z" fill="#fff" stroke="#999" stroke-width="1"/>
+                
+                <path d="M120,30 L160,10 L190,15 L230,50 L250,90 L270,110 L260,150 L240,170 L230,210 L210,240 L190,270 L170,300 L150,340 L130,370 L90,380 L60,360 L40,320 L50,280 L70,240 L80,190 L70,140 L90,100 L100,70 L100,40 Z" fill="url(#gridPattern)" />
+                
+                <text x="175" y="200" text-anchor="middle" fill="#ccc" font-size="24" font-weight="900" opacity="0.6">100 PIECES</text>
+            </svg>
+
+            <div class="puzzle-dashboard">
+                <div id="cat-agri" class="puzzle-category-block">
+                    <span class="piece-label">Landbouw</span>
+                    <span id="p-agri" class="piece-count">60</span>
                 </div>
-                <div id="seg-natuur" class="puzzle-segment" style="height: 13%;">
-                    <span id="val-natuur">13%</span>
-                    <span class="segment-label">Natuur</span>
+                <div id="cat-nature" class="puzzle-category-block">
+                    <span class="piece-label">Natuur</span>
+                    <span id="p-nature" class="piece-count">13</span>
                 </div>
-                <div id="seg-landbouw" class="puzzle-segment" style="height: 60%;">
-                    <span id="val-landbouw">60%</span>
-                    <span class="segment-label">Landbouw</span>
+                <div id="cat-build" class="puzzle-category-block">
+                    <span class="piece-label">Bebouwing</span>
+                    <span id="p-build" class="piece-count">11</span>
                 </div>
-            </div>
-            <div class="meter-legend">
-                Let op: de rest van NL (16%) is water, wegen en recreatie. Dit verandert niet in deze sim.
+                <div id="cat-water" class="puzzle-category-block">
+                    <span class="piece-label">Water</span>
+                    <span class="piece-count">10</span>
+                </div>
+                <div id="cat-traffic" class="puzzle-category-block">
+                    <span class="piece-label">Verkeer</span>
+                    <span class="piece-count">3</span>
+                </div>
+                <div id="cat-recre" class="puzzle-category-block">
+                    <span class="piece-label">Recreatie</span>
+                    <span class="piece-count">3</span>
+                </div>
             </div>
         </div>
 
@@ -249,37 +294,44 @@
             
             <div id="intro-text">
                 <h2 style="margin-top:0; color:#2c3e50;">Kiezen doet pijn...</h2>
-                <p>We willen allemaal een groot huis, goedkoop eten, snelle bezorging van pakketjes én mooie natuur. <strong>Maar dat past niet.</strong></p>
-                <p>Je krijgt zo 10 scherpe dilemma's. Bij elke keuze die je maakt, zie je links de ruimte-puzzel direct verschuiven. Jouw keuzes leiden uiteindelijk tot één van de vier toekomstscenario's voor Nederland (uit het Planbureau voor de Leefomgeving).</p>
-                <button onclick="startSim()" class="primary-btn" style="margin-top: 20px;">Start de Simulator</button>
+                <p>Als wetenschappers de ruimte in Nederland verdelen, zien ze het land als een grote legpuzzel van **exact 100 stukjes**. </p>
+                <p>Op dit moment zijn **60 stukjes** voor de landbouw en maar **11 stukjes** voor bebouwing. Maar we hebben meer huizen nodig. Waar halen we die stukjes vandaan? </p>
+                <p>Jij krijgt 7 scherpe dilemma's. Elke keuze die je maakt, zie je links de stukjes-puzzel direct verschuiven.</p>
+                <button onclick="startSim()" class="primary-btn" style="margin-top: 15px;">Start de Simulator</button>
             </div>
 
             <div id="simulation-screen" style="display: none;">
                 <div class="progress-container"><div id="progress-bar" class="progress-bar"></div></div>
                 <div class="statement-card">
-                    <div class="question-header">Dilemma <span id="q-number">1</span> van 10</div>
+                    <div class="question-header">Dilemma <span id="q-number">1</span> van 7</div>
                     <div class="question-text" id="q-text">[Stelling komt hier]</div>
-                    <div class="choices">
-                        <button class="choice-btn" id="btn-a" onclick="makeChoice('A')">[Optie A]</button>
-                        <button class="choice-btn" id="btn-b" onclick="makeChoice('B')">[Optie B]</button>
+                    <div class="choices-grid">
+                        <button class="choice-btn" id="btn-a" onclick="makeChoice('A')">
+                            <span class="choice-letter">A</span>
+                            <span id="text-a">[Optie A]</span>
+                        </button>
+                        <button class="choice-btn" id="btn-b" onclick="makeChoice('B')">
+                            <span class="choice-letter">B</span>
+                            <span id="text-b">[Optie B]</span>
+                        </button>
                     </div>
                 </div>
             </div>
 
             <div id="result-screen">
-                <div class="result-icon" id="result-icon">🌍</div>
-                <h2>Jouw ideale Nederland in 2050 is:</h2>
+                <h2>Jouw Toekomstscenario:</h2>
                 <div id="result-scenario-name">[Scenario Naam]</div>
                 <p id="result-scenario-desc">[Scenario Beschrijving]</p>
                 
-                <div class="result-stats">
-                    <strong>Jouw uiteindelijke verdeling:</strong><br>
-                    🏠 Bebouwing: <span id="eind-bebouwing"></span>% (was 11%)<br>
-                    🌳 Natuur: <span id="eind-natuur"></span>% (was 13%)<br>
-                    🚜 Landbouw: <span id="eind-landbouw"></span>% (was 60%)
+                <p><strong>Jouw uiteindelijke puzzel-verdeling:</strong></p>
+                <div class="result-puzzel-result">
+                    <div class="puzzle-category-block" id="cat-agri" style="flex:1;"><span id="r-agri" class="piece-count"></span> 🚜</div>
+                    <div class="puzzle-category-block" id="cat-nature" style="flex:1;"><span id="r-nature" class="piece-count"></span> 🌳</div>
+                    <div class="puzzle-category-block" id="cat-build" style="flex:1;"><span id="r-build" class="piece-count"></span> 🏠</div>
                 </div>
+                <p style="font-size:0.8em; color:#666;">Water (10), Verkeer (3) en Recreatie (3) zijn gelijk gebleven.</p>
                 <br>
-                <button onclick="restartSim()" class="primary-btn">Opnieuw Spelen</button>
+                <button onclick="restartSim()" class="primary-btn">Opnieuw Puzzelen</button>
             </div>
 
         </div>
@@ -287,79 +339,58 @@
     </div>
 
     <script>
-        // --- DATA: De Prikkelende Dilemma's ---
+        // --- DATA: De Scherpe Dilemma's (7 stuks voor VMBO) ---
         // Scores: [Regionaal Geworteld, Groenland, Mondiaal Ondernemend, Snelle Wereld]
-        // Puzzel effecten in procentpunten: {l: landbouw, n: natuur, b: bebouwing} - Moet netto op 0 uitkomen!
+        // Puzzel effecten in stukjes: {l: landbouw, n: natuur, b: bebouwing} - Moet netto op 0 uitkomen!
         const dilemmas = [
             {
-                q: "Hoe lossen we de enorme woningnood op?",
-                optA: "We bouwen huizen in weilanden en aan de rand van dorpen. Mensen willen gewoon een tuin.",
-                optB: "Geen weiland of natuur meer opofferen. We bouwen gigantische woontorens middenin de steden.",
-                scoresA: [2, 0, 0, 1], puzzleA: {l: -4, n: 0, b: +4}, // Regionaal
-                scoresB: [0, 2, 2, 0], puzzleB: {l: 0, n: +1, b: -1}  // Groenland/Mondiaal (compact)
+                q: "Woningnood! Hoe lossen we het op?",
+                textA: "Huisje-Tuintje! We bouwen nieuwe straten in weilanden bij dorpen. Mensen willen groen.",
+                textB: "Woontorens! We bouwen alleen nog hoge flats middenin de steden, niet in de natuur.",
+                scoresA: [3, 0, 0, 1], puzzleA: {l: -5, n: 0, b: +5}, // Regionaal
+                scoresB: [0, 2, 2, 0], puzzleB: {l: +1, n: +2, b: -3}  // Groenland/Mondiaal (compact)
             },
             {
-                q: "Een zeldzame vogel broedt op een veld waar 500 nieuwe woningen gebouwd moeten worden. Wat doe je?",
-                optA: "Jammer voor de vogel, maar de woningnood is te hoog. Gewoon doorbouwen!",
-                optB: "De bouw direct stoppen. We hebben al te weinig natuur in Nederland, dieren gaan voor.",
-                scoresA: [0, 0, 2, 1], puzzleA: {l: 0, n: -2, b: +2}, // Mondiaal/Snel
-                scoresB: [1, 2, 0, 0], puzzleB: {l: -1, n: +2, b: -1}  // Groenland
+                q: "Nederland exporteert veel vlees. We verdienen miljarden, maar het kost veel ruimte.",
+                textA: "Ja, de landbouw is onze motor! We behouden de grote veestallen.",
+                textB: "Nee, krimp de veestapel met 50%. We gebruiken die grond voor natuur en huizen.",
+                scoresA: [0, 0, 4, 0], puzzleA: {l: +4, n: -2, b: -2}, // Mondiaal
+                scoresB: [2, 3, 0, 0], puzzleB: {l: -7, n: +4, b: +3}  // Groenland/Regionaal
             },
             {
-                q: "Nederland is de 2e landbouwexporteur ter wereld. We verdienen er miljarden mee. Moeten we dat zo houden?",
-                optA: "Ja, boeren zijn cruciaal. Megastallen en hightech landbouw horen bij Nederland.",
-                optB: "Nee, we moeten stoppen met vleesexport. Krimp de veestapel met 50% voor meer ruimte.",
-                scoresA: [0, 0, 3, 0], puzzleA: {l: +3, n: -2, b: -1}, // Mondiaal
-                scoresB: [2, 2, 0, 0], puzzleB: {l: -5, n: +3, b: +2}  // Groenland/Regionaal
+                q: "Groene stroom! Waar zetten we alle zonnepanelen en windmolens neer?",
+                textA: "Overal waar plek is! Weilanden, meren en natuur. Het klimaat wacht niet.",
+                textB: "Alleen op daken. We mogen het mooie landschap niet lelijker maken.",
+                scoresA: [0, 3, 1, 0], puzzleA: {l: -3, n: -2, b: +5}, // Groenland (actie)
+                scoresB: [2, 0, 0, 1], puzzleB: {l: +2, n: +1, b: -3}  // Regionaal
             },
             {
-                q: "Je bestelt 's avonds een trui en wil hem morgen in huis. Hoe regelen we dat in de ruimte?",
-                optA: "We bouwen enorme grijze, blokkendozen (distributiecentra) langs alle snelwegen. Alles voor snelheid.",
-                optB: "Ik wacht liever 3 dagen of ga naar de winkelstraat. Geen blokkendozen in het landschap!",
-                scoresA: [0, 0, 1, 3], puzzleA: {l: -2, n: 0, b: +2}, // Snelle wereld
-                scoresB: [2, 1, 0, 0], puzzleB: {l: +1, n: 0, b: -1}  // Regionaal
-            },
-            {
-                q: "We moeten over op groene stroom. Waar zetten we alle zonnepanelen en windmolens neer?",
-                optA: "Overal waar plek is: op de weilanden, op meren en in natuurgebieden. Het klimaat wacht niet.",
-                optB: "Alleen op daken van huizen en fabrieken. We mogen het landschap niet nog lelijker maken.",
-                scoresA: [0, 2, 1, 0], puzzleA: {l: -3, n: -2, b: +5}, // Groenland (in dit geval actie voor klimaat)
-                scoresB: [2, 0, 0, 1], puzzleB: {l: +1, n: +1, b: -2}  // Regionaal
-            },
-            {
-                q: "De zeespiegel stijgt. Het westen van Nederland (de Randstad) ligt onder zeeniveau. Wat is je plan?",
-                optA: "We bouwen gewoon hogere dijken en pompen harder. De Randstad mag onbeperkt doorgroeien.",
-                optB: "Stop met bouwen in het westen! We moeten met z'n allen verhuizen naar het oosten (op het zand).",
+                q: "De zeespiegel stijgt. Het westen ligt onder de zeespiegel. Wat doe je?",
+                textA: "Hogere dijken! We blijven bouwen en wonen in de Randstad. Maakbaar!",
+                textB: "Omdraaien! We stoppen met bouwen in het westen en verhuizen de groei naar het oosten.",
                 scoresA: [0, 0, 3, 0], puzzleA: {l: 0, n: 0, b: +1},   // Mondiaal (maakbaarheid)
-                scoresB: [2, 1, 0, 1], puzzleB: {l: -2, n: +1, b: +1}  // Regionaal
+                scoresB: [2, 1, 0, 1], puzzleB: {l: -3, n: +1, b: +2}  // Regionaal
             },
             {
-                q: "We werken steeds meer thuis en leven online. Wat doen we met kantoorgebouwen en winkelstraten?",
-                optA: "Sloop ze of bouw ze om tot huizen. We ontmoeten elkaar wel via beeldschermen en VR.",
-                optB: "Behoud ze! Fysieke ontmoetingsplekken en een gezellig dorpscentrum zijn super belangrijk.",
-                scoresA: [0, 0, 1, 3], puzzleA: {l: 0, n: +1, b: -1},  // Snelle Wereld
-                scoresB: [3, 0, 0, 0], puzzleB: {l: 0, n: 0, b: +1}    // Regionaal
+                q: "We leven steeds meer online. Drones bezorgen je pakketjes. Fysieke winkels verdwijnen.",
+                textA: "Sloop de winkelstraten! We hebben datacenters en distributieloodsen nodig.",
+                textB: "Behoud de binnenstad! Gezellige plekken om elkaar te ontmoeten zijn belangrijker.",
+                scoresA: [0, 0, 1, 4], puzzleA: {l: -1, n: 0, b: +1},  // Snelle Wereld
+                scoresB: [4, 0, 0, 0], puzzleB: {l: 0, n: 0, b: +1}    // Regionaal
             },
             {
-                q: "Hoe ga je in de toekomst naar je werk of school?",
-                optA: "De auto de stad uit! We reizen alleen nog met treinen, deelfietsen en ov. Asfalt maken we weer groen.",
-                optB: "Iedereen een zelfrijdende auto. We hebben bredere snelwegen nodig om files te voorkomen.",
-                scoresA: [1, 3, 0, 0], puzzleA: {l: 0, n: +3, b: -3},  // Groenland
-                scoresB: [0, 0, 2, 2], puzzleB: {l: -2, n: -1, b: +3}  // Mondiaal/Snel
+                q: "Asfalt of Groen? Hoe reis je naar je werk of school?",
+                textA: "Met de auto! We hebben bredere snelwegen en meer parkeerplaatsen nodig.",
+                textB: "Fiets en OV! We maken van snelwegen weer natuurgebieden.",
+                scoresA: [0, 0, 2, 2], puzzleA: {l: -2, n: -1, b: +3}, // Mondiaal/Snel
+                scoresB: [1, 4, 0, 0], puzzleB: {l: 0, n: +4, b: -4}   // Groenland
             },
             {
-                q: "Vakantie in eigen land is populair. Projectontwikkelaars willen luxe vakantieparken aan de kust bouwen.",
-                optA: "Doen! Dat levert veel geld en banen op voor de regio.",
-                optB: "Absoluut verbieden. De kustlijn is voor de natuur en wandelaars, niet voor rijke toeristen.",
-                scoresA: [0, 0, 2, 0], puzzleA: {l: 0, n: -3, b: +3},  // Mondiaal
-                scoresB: [1, 2, 0, 0], puzzleB: {l: 0, n: +2, b: -2}   // Groenland
-            },
-            {
-                q: "Om ruimte te besparen, zegt een onderzoeker: 'Mensen mogen maximaal 30 vierkante meter p.p. aan woonruimte hebben.'",
-                optA: "Dat is te gek voor woorden. Ik bepaal zelf wel hoe groot mijn huis is als ik het kan betalen.",
-                optB: "Een harde, maar logische regel. We moeten de schaarse ruimte in Nederland eerlijk verdelen.",
-                scoresA: [0, 0, 2, 2], puzzleA: {l: -2, n: -1, b: +3}, // Mondiaal/Snel (individualisme)
-                scoresB: [1, 2, 0, 0], puzzleB: {l: +1, n: +2, b: -3}  // Groenland/Regionaal (gemeenschap/natuur)
+                q: "De Ruimte-Wet: Elke Nederlander krijgt maximaal 30m2 woonruimte.",
+                textA: "Te gek voor woorden! Ik bepaal zelf wel hoe groot mijn huis is.",
+                textB: "Harde maar logische regel. We moeten de schaarse ruimte eerlijk verdelen.",
+                scoresA: [0, 0, 3, 3], puzzleA: {l: -3, n: -1, b: +4}, // Mondiaal/Snel
+                scoresB: [2, 3, 0, 0], puzzleB: {l: +1, n: +2, b: -3}  // Groenland/Regionaal
             }
         ];
 
@@ -377,16 +408,13 @@
         const resultScreenDOM = document.getElementById('result-screen');
         const qNumberDOM = document.getElementById('q-number');
         const qTextDOM = document.getElementById('q-text');
-        const btnADOM = document.getElementById('btn-a');
-        const btnBDOM = document.getElementById('btn-b');
+        const textADOM = document.getElementById('text-a');
+        const textBDOM = document.getElementById('text-b');
         const progressBarDOM = document.getElementById('progress-bar');
 
-        const segLandbouwDOM = document.getElementById('seg-landbouw');
-        const valLandbouwDOM = document.getElementById('val-landbouw');
-        const segNatuurDOM = document.getElementById('seg-natuur');
-        const valNatuurDOM = document.getElementById('val-natuur');
-        const segBebouwingDOM = document.getElementById('seg-bebouwing');
-        const valBebouwingDOM = document.getElementById('val-bebouwing');
+        const pAgriDOM = document.getElementById('p-agri');
+        const pNatureDOM = document.getElementById('p-nature');
+        const pBuildDOM = document.getElementById('p-build');
 
         // --- Functies ---
 
@@ -402,7 +430,7 @@
             currentLandbouw = baseLandbouw;
             currentNatuur = baseNatuur;
             currentBebouwing = baseBebouwing;
-            updatePuzzleMeter();
+            updatePuzzleNumbers();
             resultScreenDOM.style.display = 'none';
             introTextDOM.style.display = 'block';
         }
@@ -411,15 +439,14 @@
             const currentQ = dilemmas[currentQIndex];
             qNumberDOM.innerText = currentQIndex + 1;
             qTextDOM.innerText = currentQ.q;
-            btnADOM.innerText = currentQ.optA;
-            btnBDOM.innerText = currentQ.optB;
+            textADOM.innerText = currentQ.textA;
+            textBDOM.innerText = currentQ.textB;
             
             // Progress bar update
             progressBarDOM.style.width = ((currentQIndex) / dilemmas.length) * 100 + "%";
 
-            // Reset knop status
-            btnADOM.classList.remove('active');
-            btnBDOM.classList.remove('active');
+            // Reset knop status (verwijder 'active' klasse)
+            document.querySelectorAll('.choice-btn').forEach(btn => btn.classList.remove('active'));
         }
 
         function makeChoice(choice) {
@@ -428,11 +455,11 @@
             let effects = {};
 
             if(choice === 'A') {
-                btnADOM.classList.add('active');
+                document.getElementById('btn-a').classList.add('active');
                 addScores(currentQ.scoresA);
                 effects = currentQ.puzzleA;
             } else {
-                btnBDOM.classList.add('active');
+                document.getElementById('btn-b').classList.add('active');
                 addScores(currentQ.scoresB);
                 effects = currentQ.puzzleB;
             }
@@ -447,7 +474,7 @@
             if(currentNatuur < 2) currentNatuur = 2;
             if(currentBebouwing < 2) currentBebouwing = 2;
 
-            updatePuzzleMeter();
+            updatePuzzleNumbers();
 
             // Korte pauze voor visueel effect, dan door
             setTimeout(() => {
@@ -467,23 +494,10 @@
             }
         }
 
-        function updatePuzzleMeter() {
-            // Bereken het totaal om percentages kloppend te maken voor de visuele container
-            let total = currentLandbouw + currentNatuur + currentBebouwing;
-            
-            // Bereken de relatieve hoogte binnen de balk
-            let hLandbouw = (currentLandbouw / total) * 100;
-            let hNatuur = (currentNatuur / total) * 100;
-            let hBebouwing = (currentBebouwing / total) * 100;
-
-            segLandbouwDOM.style.height = hLandbouw + "%";
-            valLandbouwDOM.innerText = currentLandbouw + "%";
-
-            segNatuurDOM.style.height = hNatuur + "%";
-            valNatuurDOM.innerText = currentNatuur + "%";
-
-            segBebouwingDOM.style.height = hBebouwing + "%";
-            valBebouwingDOM.innerText = currentBebouwing + "%";
+        function updatePuzzleNumbers() {
+            pAgriDOM.innerText = currentLandbouw;
+            pNatureDOM.innerText = currentNatuur;
+            pBuildDOM.innerText = currentBebouwing;
         }
 
         function showResult() {
@@ -503,33 +517,28 @@
             const scenarios = [
                 {
                     name: "1. Regionaal Geworteld",
-                    icon: "🏡",
-                    desc: "Jij kiest voor het 'ouderwetse' Nederland. Rust, ruimte en kleinschaligheid. Mensen wonen in dorpen met een eigen tuin. We halen ons eten weer bij de lokale boer in plaats van uit de megastal. Het nadeel? We hebben enorm veel extra ruimte nodig voor al die losse huizen en tuintjes, waardoor er minder echte, wilde natuur overblijft."
+                    desc: "Jij houdt van de 'ouderwetse' Nederlandse stijl: Rust, ruimte en kleinschaligheid. Mensen wonen in dorpen met een eigen tuin. We halen ons eten weer bij de lokale boer in plaats van uit de megastal. Het nadeel? We hebben enorm veel extra ruimte nodig voor al die losse huizen en tuintjes, waardoor er minder echte, wilde natuur overblijft."
                 },
                 {
                     name: "2. Groenland",
-                    icon: "🌳",
                     desc: "Voor jou staat de planeet op één. De inrichting van Nederland wordt bepaald door water en natuur, niet door asfalt en beton. Mensen wonen veel compacter in de stad, zodat we daarbuiten de natuur met rust laten. De auto verdwijnt naar de achtergrond. Het is een schoon en groen Nederland, maar je levert wel in op individuele ruimte."
                 },
                 {
                     name: "3. Mondiaal Ondernemend",
-                    icon: "🏙️",
                     desc: "Jij gelooft in economische groei en efficiëntie. De Randstad groeit uit tot één gigantische metropool vol wolkenkrabbers. Landbouw gebeurt grootschalig in megastallen met de nieuwste robots. We handelen met de hele wereld. Het is een welvarend land, maar de verschillen tussen stad (beton) en industrie (landbouw) zijn keihard."
                 },
                 {
                     name: "4. De Snelle Wereld",
-                    icon: "💻",
                     desc: "Jouw Nederland is volledig gedigitaliseerd. Waar je woont maakt eigenlijk niet meer uit, want alles gebeurt online. Je werkt via VR en drones bezorgen je boodschappen. Het land is bezaaid met enorme datacenters en distributieloodsen. Het traditionele stadscentrum met winkeltjes sterft uit; snelheid en gemak zijn het belangrijkst."
                 }
             ];
 
-            document.getElementById('result-icon').innerText = scenarios[maxIndex].icon;
             document.getElementById('result-scenario-name').innerText = scenarios[maxIndex].name;
             document.getElementById('result-scenario-desc').innerText = scenarios[maxIndex].desc;
             
-            document.getElementById('eind-bebouwing').innerText = currentBebouwing;
-            document.getElementById('eind-natuur').innerText = currentNatuur;
-            document.getElementById('eind-landbouw').innerText = currentLandbouw;
+            document.getElementById('r-agri').innerText = currentLandbouw;
+            document.getElementById('r-nature').innerText = currentNatuur;
+            document.getElementById('r-build').innerText = currentBebouwing;
         }
 
     </script>
