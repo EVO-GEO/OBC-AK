@@ -1,1 +1,611 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PO Aardrijkskunde — Rijk & Arm in Beeld</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700;800&family=Nunito:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --c-bg: #f0f4f8;
+  --c-card: #ffffff;
+  --c-primary: #2563eb;
+  --c-primary-light: #dbeafe;
+  --c-primary-dark: #1e40af;
+  --c-accent: #f59e0b;
+  --c-accent-light: #fef3c7;
+  --c-green: #10b981;
+  --c-green-light: #d1fae5;
+  --c-red: #ef4444;
+  --c-red-light: #fee2e2;
+  --c-purple: #8b5cf6;
+  --c-purple-light: #ede9fe;
+  --c-text: #1e293b;
+  --c-text-muted: #64748b;
+  --c-border: #e2e8f0;
+  --radius: 16px;
+  --shadow: 0 4px 24px rgba(0,0,0,0.06);
+  --shadow-lg: 0 8px 40px rgba(0,0,0,0.10);
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Nunito',sans-serif; background:var(--c-bg); color:var(--c-text); min-height:100vh; overflow-x:hidden; }
 
+.hero { background:linear-gradient(135deg,#1e3a5f 0%,#2563eb 50%,#7c3aed 100%); color:white; padding:2.5rem 1.5rem 3.5rem; text-align:center; position:relative; overflow:hidden; }
+.hero::before { content:''; position:absolute; top:-50%; left:-50%; width:200%; height:200%; background:radial-gradient(circle at 30% 40%,rgba(255,255,255,0.08) 0%,transparent 50%),radial-gradient(circle at 70% 60%,rgba(245,158,11,0.12) 0%,transparent 40%); animation:heroFloat 20s ease-in-out infinite; }
+@keyframes heroFloat { 0%,100%{transform:translate(0,0) rotate(0deg)} 50%{transform:translate(-2%,1%) rotate(1deg)} }
+.hero-content { position:relative; z-index:1; max-width:800px; margin:0 auto; }
+.hero-emoji { font-size:3rem; margin-bottom:0.5rem; display:block; animation:bounce 2s ease-in-out infinite; }
+@keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+.hero h1 { font-family:'Baloo 2',cursive; font-size:clamp(1.8rem,5vw,2.8rem); font-weight:800; line-height:1.15; margin-bottom:0.4rem; }
+.hero p { font-size:1.05rem; opacity:0.9; max-width:550px; margin:0 auto; line-height:1.5; }
+.hero-badge { display:inline-block; background:rgba(255,255,255,0.18); backdrop-filter:blur(8px); border:1px solid rgba(255,255,255,0.25); border-radius:999px; padding:0.35rem 1rem; font-size:0.85rem; font-weight:600; margin-top:1rem; }
+
+.tab-container { max-width:960px; margin:-1.5rem auto 2rem; padding:0 1rem; position:relative; z-index:2; }
+.tab-nav { display:flex; gap:0.35rem; background:var(--c-card); border-radius:var(--radius); padding:0.4rem; box-shadow:var(--shadow-lg); overflow-x:auto; -webkit-overflow-scrolling:touch; scrollbar-width:none; }
+.tab-nav::-webkit-scrollbar { display:none; }
+.tab-btn { flex:1; min-width:0; border:none; background:transparent; padding:0.65rem 0.4rem; border-radius:12px; cursor:pointer; font-family:'Nunito',sans-serif; font-weight:700; font-size:0.72rem; color:var(--c-text-muted); transition:all 0.25s ease; display:flex; flex-direction:column; align-items:center; gap:0.15rem; white-space:nowrap; }
+.tab-btn span.tab-icon { font-size:1.2rem; }
+.tab-btn:hover { background:var(--c-primary-light); color:var(--c-primary); }
+.tab-btn.active { background:var(--c-primary); color:white; box-shadow:0 4px 16px rgba(37,99,235,0.3); }
+
+.tab-content { display:none; animation:fadeSlideIn 0.35s ease; }
+.tab-content.active { display:block; }
+@keyframes fadeSlideIn { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+.content-area { max-width:900px; margin:0 auto 3rem; padding:0 1rem; }
+
+.card { background:var(--c-card); border-radius:var(--radius); box-shadow:var(--shadow); padding:1.8rem; margin-bottom:1.2rem; border:1px solid var(--c-border); transition:transform 0.2s ease, box-shadow 0.2s ease; }
+.card:hover { transform:translateY(-2px); box-shadow:var(--shadow-lg); }
+.card h2 { font-family:'Baloo 2',cursive; font-size:1.4rem; font-weight:700; margin-bottom:0.8rem; display:flex; align-items:center; gap:0.5rem; }
+.card h3 { font-family:'Baloo 2',cursive; font-size:1.15rem; font-weight:700; margin:1rem 0 0.5rem; color:var(--c-primary-dark); }
+.card p,.card li { line-height:1.7; color:var(--c-text); font-size:0.95rem; }
+.card ul,.card ol { padding-left:1.3rem; margin:0.5rem 0; }
+.card li { margin-bottom:0.3rem; }
+
+.tip-box { border-radius:12px; padding:1rem 1.2rem; margin:0.8rem 0; display:flex; gap:0.7rem; align-items:flex-start; font-size:0.9rem; line-height:1.6; }
+.tip-box .tip-icon { font-size:1.3rem; flex-shrink:0; margin-top:0.1rem; }
+.tip-blue { background:var(--c-primary-light); border-left:4px solid var(--c-primary); }
+.tip-yellow { background:var(--c-accent-light); border-left:4px solid var(--c-accent); }
+.tip-green { background:var(--c-green-light); border-left:4px solid var(--c-green); }
+.tip-red { background:var(--c-red-light); border-left:4px solid var(--c-red); }
+.tip-purple { background:var(--c-purple-light); border-left:4px solid var(--c-purple); }
+
+kbd { display:inline-block; background:#f1f5f9; border:1px solid #cbd5e1; border-radius:6px; padding:0.15rem 0.5rem; font-family:'Nunito',sans-serif; font-size:0.82rem; font-weight:700; color:var(--c-text); box-shadow:0 2px 0 #cbd5e1; margin:0 0.1rem; white-space:nowrap; }
+
+.timeline { position:relative; padding-left:2.5rem; margin:1rem 0; }
+.timeline::before { content:''; position:absolute; left:1rem; top:0; bottom:0; width:3px; background:linear-gradient(to bottom,var(--c-primary),var(--c-purple)); border-radius:2px; }
+.timeline-item { position:relative; margin-bottom:1.5rem; padding:1rem 1.2rem; background:var(--c-bg); border-radius:12px; border:1px solid var(--c-border); }
+.timeline-item::before { content:''; position:absolute; left:-1.85rem; top:1.2rem; width:14px; height:14px; border-radius:50%; background:var(--c-primary); border:3px solid white; box-shadow:0 0 0 2px var(--c-primary); }
+.timeline-item:last-child::before { background:var(--c-purple); box-shadow:0 0 0 2px var(--c-purple); }
+.timeline-item h3 { font-family:'Baloo 2',cursive; font-size:1.1rem; margin:0 0 0.3rem; color:var(--c-primary-dark); }
+.timeline-item p { font-size:0.9rem; line-height:1.6; }
+
+.slides-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:1rem; margin:1rem 0; }
+.slide-card { background:var(--c-bg); border:2px solid var(--c-border); border-radius:12px; padding:1.1rem; transition:border-color 0.2s,transform 0.2s; }
+.slide-card:hover { border-color:var(--c-primary); transform:translateY(-3px); }
+.slide-num { display:inline-flex; align-items:center; justify-content:center; width:30px; height:30px; border-radius:8px; background:var(--c-primary); color:white; font-weight:800; font-size:0.85rem; font-family:'Baloo 2',cursive; margin-bottom:0.5rem; }
+.slide-card h4 { font-family:'Baloo 2',cursive; font-size:1rem; margin-bottom:0.3rem; }
+.slide-card p { font-size:0.85rem; color:var(--c-text-muted); line-height:1.5; margin-bottom: 0.5rem; }
+.slide-card .notitie-tag { display:inline-block; font-size: 0.75rem; font-weight: 700; color: var(--c-purple); background: var(--c-purple-light); padding: 0.2rem 0.5rem; border-radius: 4px; }
+
+.rubric-wrap { overflow-x:auto; margin:1rem 0; }
+table.rubric { width:100%; border-collapse:separate; border-spacing:0; font-size:0.9rem; border-radius:12px; overflow:hidden; border:1px solid var(--c-border); }
+table.rubric thead th { background:var(--c-primary); color:white; padding:0.8rem 0.7rem; font-weight:700; text-align:left; font-family:'Baloo 2',cursive; font-size:1rem; }
+table.rubric tbody td { padding:1rem 0.7rem; border-bottom:1px solid var(--c-border); vertical-align:middle; line-height:1.5; }
+table.rubric tbody tr:last-child td { border-bottom:none; }
+table.rubric tbody tr:nth-child(even) { background:#f8fafc; }
+table.rubric tbody td:first-child { font-weight:700; }
+table.rubric tbody td p { font-weight: 400; font-size: 0.85rem; color: var(--c-text-muted); margin-top: 0.2rem; }
+
+.rubric-score-card { display:flex; align-items:center; gap:1.5rem; background:linear-gradient(135deg,var(--c-primary-light),var(--c-purple-light)); border-radius:16px; padding:1.5rem; margin:1.5rem 0; border:2px solid var(--c-primary); }
+.rubric-score-circle { width:100px; height:100px; border-radius:50%; background:var(--c-primary); color:white; display:flex; flex-direction:column; align-items:center; justify-content:center; font-family:'Baloo 2',cursive; flex-shrink:0; box-shadow: 0 4px 15px rgba(37,99,235,0.4); }
+.rubric-score-circle .big { font-size:2.2rem; font-weight:800; line-height:1; }
+.rubric-score-circle .small { font-size:0.8rem; opacity:0.85; margin-top: 0.2rem; }
+.rubric-score-text h3 { margin:0 0 0.3rem; font-size:1.3rem; font-family: 'Baloo 2', cursive;}
+.rubric-score-text p { font-size:0.95rem; color:var(--c-text-muted); margin:0; line-height: 1.5;}
+
+.begrip { border-radius:12px; margin-bottom:0.8rem; border:1px solid var(--c-border); overflow:hidden; transition:box-shadow 0.2s; }
+.begrip:hover { box-shadow:var(--shadow); }
+.begrip-header { display:flex; align-items:center; gap:0.6rem; padding:0.9rem 1.1rem; background:var(--c-card); cursor:pointer; font-weight:700; font-size:0.95rem; user-select:none; transition:background 0.15s; }
+.begrip-header:hover { background:var(--c-primary-light); }
+.begrip-header .arrow { margin-left:auto; transition:transform 0.3s ease; font-size:0.8rem; color:var(--c-text-muted); }
+.begrip.open .arrow { transform:rotate(180deg); }
+.begrip-body { max-height:0; overflow:hidden; transition:max-height 0.35s ease,padding 0.35s ease; background:var(--c-bg); padding:0 1.1rem; font-size:0.9rem; line-height:1.7; }
+.begrip.open .begrip-body { max-height:600px; padding:1rem 1.1rem; }
+
+.checklist { list-style:none; padding:0; margin:0.8rem 0; }
+.checklist li { display:flex; align-items:flex-start; gap:0.6rem; padding:0.6rem 0; border-bottom:1px solid var(--c-border); font-size:0.9rem; line-height:1.5; }
+.checklist li:last-child { border-bottom:none; }
+.checklist input[type="checkbox"] { flex-shrink:0; width:20px; height:20px; accent-color:var(--c-primary); margin-top:0.1rem; cursor:pointer; }
+
+.score-input { font-family:Nunito,sans-serif; font-size:1rem; font-weight:700; padding:0.4rem 0.5rem; border-radius:8px; border:2px solid #cbd5e1; background:#fff; text-align:center; width:70px; outline: none; transition: border-color 0.2s;}
+.score-input:focus { border-color: var(--c-primary); }
+
+/* ═══ WHEEL OF FORTUNE ═══ */
+.wheels-container { display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; margin:1.2rem 0; }
+@media (max-width:700px) { .wheels-container { grid-template-columns:1fr; } }
+.wheel-section { display:flex; flex-direction:column; align-items:center; }
+.wheel-section h3 { font-family:'Baloo 2',cursive; font-size:1.15rem; margin-bottom:0.6rem; text-align:center; }
+.wheel-wrapper { position:relative; width:300px; height:300px; max-width:100%; }
+.wheel-wrapper canvas { width:100%; height:100%; border-radius:50%; box-shadow:0 0 0 6px var(--c-primary),0 0 0 10px var(--c-primary-light),var(--shadow-lg); cursor:pointer; transition:filter 0.3s; }
+.wheel-wrapper canvas:hover { filter:brightness(1.04); }
+.wheel-pointer { position:absolute; top:-14px; left:50%; transform:translateX(-50%); width:0; height:0; border-left:14px solid transparent; border-right:14px solid transparent; border-top:22px solid var(--c-primary-dark); filter:drop-shadow(0 2px 4px rgba(0,0,0,0.25)); z-index:3; }
+.wheel-result-box { margin-top:1rem; min-height:56px; display:flex; flex-direction:column; align-items:center; gap:0.5rem; }
+.wheel-result { font-family:'Baloo 2',cursive; font-size:1.5rem; font-weight:800; color:var(--c-primary-dark); opacity:0; transform:scale(0.5); transition:all 0.5s cubic-bezier(0.34,1.56,0.64,1); text-align:center; }
+.wheel-result.show { opacity:1; transform:scale(1); }
+.spin-btn { display:inline-flex; align-items:center; gap:0.4rem; background:var(--c-primary); color:white; border:none; border-radius:999px; padding:0.6rem 1.6rem; font-family:'Nunito',sans-serif; font-weight:700; font-size:0.9rem; cursor:pointer; box-shadow:0 4px 16px rgba(37,99,235,0.3); transition:all 0.2s; }
+.spin-btn:hover { background:var(--c-primary-dark); transform:translateY(-1px); }
+.spin-btn:disabled { opacity:0.5; cursor:not-allowed; transform:none; }
+.spin-btn.again { background:var(--c-accent); box-shadow:0 4px 16px rgba(245,158,11,0.3); }
+.spin-btn.again:hover { background:#d97706; }
+
+#confettiCanvas { position:fixed; top:0; left:0; width:100vw; height:100vh; pointer-events:none; z-index:9999; }
+
+.footer { text-align:center; padding:1.5rem; color:var(--c-text-muted); font-size:0.8rem; }
+
+@media (max-width:640px) {
+  .hero { padding:2rem 1rem 3rem; }
+  .hero h1 { font-size:1.6rem; }
+  .tab-btn { font-size:0.65rem; padding:0.55rem 0.25rem; }
+  .tab-btn span.tab-icon { font-size:1rem; }
+  .card { padding:1.3rem; }
+  .slides-grid { grid-template-columns:1fr; }
+  table.rubric { font-size:0.78rem; }
+  .wheel-wrapper { width:240px; height:240px; }
+  .rubric-score-card { flex-direction:column; text-align:center; gap: 0.8rem; }
+}
+</style>
+</head>
+<body>
+
+<canvas id="confettiCanvas"></canvas>
+
+<header class="hero">
+  <div class="hero-content">
+    <span class="hero-emoji">🌍</span>
+    <h1>Rijk & Arm in Beeld</h1>
+    <p>Vergelijk een rijk land met een arm land en laat met kaarten uit de atlas zien wat de verschillen zijn. <strong>Geen presentatie, alles in je Notities!</strong></p>
+    <span class="hero-badge">📚 Praktische Opdracht — Aardrijkskunde klas 1</span>
+  </div>
+</header>
+
+<div class="tab-container">
+  <nav class="tab-nav" id="tabNav">
+    <button class="tab-btn active" data-tab="opdracht"><span class="tab-icon">📋</span>Opdracht</button>
+    <button class="tab-btn" data-tab="planning"><span class="tab-icon">📅</span>Planning</button>
+    <button class="tab-btn" data-tab="dias"><span class="tab-icon">🖼️</span>Dia's</button>
+    <button class="tab-btn" data-tab="kiezer"><span class="tab-icon">🎰</span>Landenkiezer</button>
+    <button class="tab-btn" data-tab="begrippen"><span class="tab-icon">📖</span>Begrippen</button>
+    <button class="tab-btn" data-tab="tips"><span class="tab-icon">💡</span>Tips</button>
+    <button class="tab-btn" data-tab="rubric"><span class="tab-icon">⭐</span>Beoordeling</button>
+  </nav>
+</div>
+
+<main class="content-area">
+
+  <div class="tab-content active" id="tab-opdracht">
+    <div class="card">
+      <h2>🎯 Wat ga je doen?</h2>
+      <p>Je vergelijkt de ontwikkeling van een <strong>rijk land</strong> met een <strong>arm land</strong>. Omdat je deze keer niet voor de klas hoeft te presenteren, lever je een speciaal PowerPoint-bestand in dat voldoet aan drie <strong>gouden regels</strong>:</p>
+      
+      <div class="tip-box tip-blue" style="margin-top: 1rem;">
+        <span class="tip-icon">🏆</span>
+        <div>
+          <strong>De 3 Gouden Regels:</strong>
+          <ol style="margin-top: 0.5rem; padding-left: 1.2rem;">
+            <li><strong>Op de dia's</strong> staan alleen afbeeldingen/kaarten, een titel en maximaal 5 steekwoorden. Geen zinnen!</li>
+            <li><strong>In de 'Notities'</strong> (het tekstvak onder je dia in PowerPoint) typ je in je eigen woorden je hele uitleg.</li>
+            <li><strong>De (digitale) Atlas is verplicht.</strong> Je gebruikt screenshots van echte kaarten (inclusief legenda!) als bewijs en noemt dit in je notities.</li>
+          </ol>
+        </div>
+      </div>
+      
+      <h3>Samenwerken</h3>
+      <p>Je werkt in <strong>duo's</strong>. Verdeel het werk slim: één persoon verzamelt de kaarten voor het rijke land, de ander voor het arme land. Schrijf wel sámen de vergelijking in de notities en controleer elkaars werk.</p>
+    </div>
+  </div>
+
+  <div class="tab-content" id="tab-planning">
+    <div class="card">
+      <h2>📅 De Planning</h2>
+      <p>De hele opdracht maak je af in <strong>twee lessen</strong>. Daarna lever je het bestand digitaal in.</p>
+      <div class="timeline">
+        <div class="timeline-item">
+          <h3>📗 Les 1 — Landen kiezen & Starten</h3>
+          <p><strong>Klassikaal:</strong> Uitleg over bnp, de VN-index en de gouden regels van deze PowerPoint.</p>
+          <p><strong>Jouw actie:</strong></p>
+          <ul>
+            <li>Kies samen jullie twee landen.</li>
+            <li>Zoek in de atlas de overzichtskaart en de cijfers over welvaart.</li>
+            <li>Maak <strong>dia 1</strong> (titel) en <strong>dia 2</strong> (wereldkaart). Typ alvast de eerste uitleg in je Notities.</li>
+          </ul>
+        </div>
+        <div class="timeline-item">
+          <h3>📘 Les 2 — Atlas & Verdieping</h3>
+          <p><strong>Klassikaal:</strong> Uitleg over de kniptool (<kbd>Win</kbd> + <kbd>Shift</kbd> + <kbd>S</kbd>) en het vinden van de Notities in PowerPoint.</p>
+          <p><strong>Jouw actie:</strong></p>
+          <ul>
+            <li>Zoek thematische kaarten (gezondheid, klimaat, etc.) in de (digitale) atlas.</li>
+            <li>Maak screenshots inclusief legenda, plak ze op de dia's.</li>
+            <li><strong>Belangrijk:</strong> Typ jullie antwoorden, verklaringen en vergelijkingen in het Notitie-vak!</li>
+          </ul>
+        </div>
+        <div class="timeline-item">
+          <h3>💾 Daarna — Nakijken & Inleveren</h3>
+          <p>Lees jullie Notities goed door. Controleer of elke legenda op de dia staat. Lever het `.pptx` bestand in via de ELO of Teams voor de afgesproken datum.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-content" id="tab-dias">
+    <div class="card">
+      <h2>🖼️ Eisen per dia</h2>
+      <p>Je PowerPoint bestaat uit precies <strong>6 dia's</strong>. Vergeet niet: max 5 steekwoorden op de dia zelf, de rest in de Notities!</p>
+      <div class="slides-grid">
+        <div class="slide-card">
+          <span class="slide-num">1</span><h4>Titeldia</h4>
+          <p><strong>Dia:</strong> Titel, jullie namen, de twee landen en een mooi plaatje.</p>
+        </div>
+        <div class="slide-card">
+          <span class="slide-num">2</span><h4>Waar liggen ze?</h4>
+          <p><strong>Dia:</strong> Screenshot overzichtskaart met legenda.</p>
+          <div class="notitie-tag">📝 Notities: Beschrijf de ligging van beide landen.</div>
+        </div>
+        <div class="slide-card">
+          <span class="slide-num">3</span><h4>Welvaart</h4>
+          <p><strong>Dia:</strong> Kaart over BNP of werksectoren (max 5 woorden).</p>
+          <div class="notitie-tag">📝 Notities: Cijfers en de vergelijking tussen land A en B.</div>
+        </div>
+        <div class="slide-card">
+          <span class="slide-num">4</span><h4>Welzijn</h4>
+          <p><strong>Dia:</strong> Kaart over gezondheid, artsen of onderwijs.</p>
+          <div class="notitie-tag">📝 Notities: Wat valt je op in de legenda? Leg het verschil uit.</div>
+        </div>
+        <div class="slide-card">
+          <span class="slide-num">5</span><h4>De Oorzaak</h4>
+          <p><strong>Dia:</strong> Kaart over klimaat of grondstoffen.</p>
+          <div class="notitie-tag">📝 Notities: Verklaar de verschillen uit dia 3 en 4 hiermee.</div>
+        </div>
+        <div class="slide-card">
+          <span class="slide-num">6</span><h4>De Conclusie</h4>
+          <p><strong>Dia:</strong> Eindplaatje + 1 krachtige zin.</p>
+          <div class="notitie-tag">📝 Notities: Wat is het allergrootste verschil en wat is jullie eigen mening?</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-content" id="tab-kiezer">
+    <div class="card">
+      <h2>🎰 Landenkiezer</h2>
+      <p>Weet je niet welk land je moet kiezen? Draai aan de twee raderen! Links krijg je een <strong>rijk land</strong>, rechts een <strong>arm land</strong>.</p>
+      <div class="tip-box tip-purple"><span class="tip-icon">🔄</span><div>Klik op het rad of op de knop om te draaien. Niet tevreden? Druk op <strong>"Opnieuw draaien"</strong>!</div></div>
+
+      <div class="wheels-container">
+        <div class="wheel-section">
+          <h3>💰 Rijke landen</h3>
+          <div class="wheel-wrapper">
+            <div class="wheel-pointer"></div>
+            <canvas id="wheelRich" width="600" height="600"></canvas>
+          </div>
+          <div class="wheel-result-box">
+            <div class="wheel-result" id="resultRich"></div>
+            <button class="spin-btn" id="btnRich" onclick="spinWheel('rich')">🎲 Draai!</button>
+          </div>
+        </div>
+        <div class="wheel-section">
+          <h3>🌍 Arme landen</h3>
+          <div class="wheel-wrapper">
+            <div class="wheel-pointer"></div>
+            <canvas id="wheelPoor" width="600" height="600"></canvas>
+          </div>
+          <div class="wheel-result-box">
+            <div class="wheel-result" id="resultPoor"></div>
+            <button class="spin-btn" id="btnPoor" onclick="spinWheel('poor')">🎲 Draai!</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-content" id="tab-begrippen">
+    <div class="card">
+      <h2>📖 Belangrijke begrippen</h2>
+      <p>Klik op een begrip om de uitleg te lezen. Gebruik deze begrippen correct in jullie PowerPoint Notities!</p>
+      <div style="margin-top:1rem;">
+        <div class="begrip"><div class="begrip-header" onclick="toggleBegrip(this)"><span>💰</span> Bruto Nationaal Product (bnp)<span class="arrow">▼</span></div><div class="begrip-body"><p>Het <strong>bnp</strong> is de totale waarde van alles wat een land in één jaar produceert.</p><p>Als je het bnp deelt door het aantal inwoners, krijg je het <strong>bnp per inwoner</strong>. Dat is een maat voor hoe rijk een land gemiddeld is.</p><p><em>Voorbeeld:</em> Nederland ≈ $57.000 per inwoner. Mali ≈ $900 per inwoner.</p></div></div>
+        <div class="begrip"><div class="begrip-header" onclick="toggleBegrip(this)"><span>📈</span> Welvaart<span class="arrow">▼</span></div><div class="begrip-body"><p><strong>Welvaart</strong> gaat over geld en bezit. Kunnen mensen genoeg eten kopen, een huis betalen?</p><p>Welvaart meet je vaak met het bnp per inwoner. Maar let op: welvaart zegt niets over geluk of gezondheid!</p></div></div>
+        <div class="begrip"><div class="begrip-header" onclick="toggleBegrip(this)"><span>❤️</span> Welzijn<span class="arrow">▼</span></div><div class="begrip-body"><p><strong>Welzijn</strong> gaat over hoe goed het leven is, los van geld. Denk aan: gezondheidszorg, onderwijs, veiligheid, schoon drinkwater.</p><p>Een land kan veel geld verdienen maar toch een laag welzijn hebben als er weinig ziekenhuizen zijn.</p></div></div>
+        <div class="begrip"><div class="begrip-header" onclick="toggleBegrip(this)"><span>🌐</span> VN-index (HDI)<span class="arrow">▼</span></div><div class="begrip-body"><p>De <strong>Human Development Index</strong> combineert drie dingen:</p><ul><li><strong>Gezondheid</strong> — hoe oud worden mensen?</li><li><strong>Onderwijs</strong> — hoeveel jaar school?</li><li><strong>Inkomen</strong> — hoeveel verdienen mensen?</li></ul><p>Score van 0 tot 1. Hoe dichter bij 1, hoe beter.</p></div></div>
+        <div class="begrip"><div class="begrip-header" onclick="toggleBegrip(this)"><span>🗺️</span> Legenda<span class="arrow">▼</span></div><div class="begrip-body"><p>Het vakje naast een kaart dat de kleuren en symbolen uitlegt. <strong>Verplicht</strong> bij elke screenshot, zodat de AI (en de docent) ziet dat je echt onderzoek hebt gedaan!</p></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-content" id="tab-tips">
+    <div class="card">
+      <h2>💡 Handige tips</h2>
+      
+      <h3>📝 Waar vind ik de Notities in PowerPoint?</h3>
+      <div class="tip-box tip-yellow"><span class="tip-icon">👀</span><div>Klik in PowerPoint onderaan je scherm op de knop <strong>'Notities'</strong> of sleep de balk onder je dia omhoog. Er verschijnt een wit tekstvak waar je onbeperkt in kunt typen!</div></div>
+
+      <h3>🔧 De Kniptool gebruiken</h3>
+      <div class="tip-box tip-blue"><span class="tip-icon">✂️</span><div>Druk op <kbd>Win</kbd> + <kbd>Shift</kbd> + <kbd>S</kbd>. Je scherm wordt grijs. Sleep over de atlas-kaart <strong>én legenda</strong>. Ga naar PowerPoint → <kbd>Ctrl</kbd> + <kbd>V</kbd>.</div></div>
+
+      <h3>✍️ Een supergoede vergelijking schrijven</h3>
+      <div class="tip-box tip-green"><span class="tip-icon">🎯</span><div><ol><li><strong>Benoem de legenda:</strong> "Op de kaart is land A rood gekleurd, wat volgens de legenda betekent dat..."</li><li><strong>Vergelijk:</strong> "Land B is daarentegen groen, het verschil is dus..."</li><li><strong>Verklaar:</strong> "Dit komt waarschijnlijk doordat..."</li></ol></div></div>
+    </div>
+  </div>
+
+  <div class="tab-content" id="tab-rubric">
+    <div class="card">
+      <h2>⭐ Beoordelingsmodel</h2>
+      <p>Je krijgt voor deze opdracht <strong>drie deelcijfers</strong> (op een schaal van 1 tot 10). Omdat de inhoud van je notities het belangrijkste is, telt dit cijfer 3x mee. Het atlasgebruik telt 2x mee en de vormgeving telt 1x mee.</p>
+
+      <div class="rubric-score-card">
+        <div class="rubric-score-circle"><span class="big" id="circleScore">—</span><span class="small">/ 10</span></div>
+        <div class="rubric-score-text">
+          <h3>Eindcijfer</h3>
+          <p>Berekend als gewogen gemiddelde van je deelcijfers.</p>
+        </div>
+      </div>
+
+      <h3 style="margin-top:1.5rem;">📝 Invulformulier voor de Docent</h3>
+      <p style="font-size:0.85rem; color:var(--c-text-muted);">Vul de cijfers (1 t/m 10) in. Het eindcijfer wordt automatisch berekend.</p>
+      
+      <div class="rubric-wrap">
+        <table class="rubric" id="rubricForm">
+          <thead>
+            <tr>
+              <th>Beoordelingsonderdeel</th>
+              <th style="width:70px;text-align:center;">Weging</th>
+              <th style="width:100px;text-align:center;">Cijfer</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>
+                <strong>1. Inhoud (Jouw Notities)</strong>
+                <p>De antwoorden en cijfers over rijkdom, gezondheid en oorzaken kloppen. Je vergelijkt de twee landen duidelijk met elkaar in je eigen woorden.</p>
+              </td>
+              <td style="text-align:center;font-weight:700;color:var(--c-primary);">3x</td>
+              <td style="text-align:center;">
+                <input type="number" class="score-input" data-weight="3" min="1" max="10" step="0.1" oninput="calcTotal()" placeholder="1-10">
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <strong>2. Atlasgebruik & Kniptool</strong>
+                <p>Je hebt goede thematische kaarten gekozen. Elke screenshot op de dia is scherp en bevat de legenda. In de Notities leg je uit wat de kaart/legenda betekent.</p>
+              </td>
+              <td style="text-align:center;font-weight:700;color:var(--c-primary);">2x</td>
+              <td style="text-align:center;">
+                <input type="number" class="score-input" data-weight="2" min="1" max="10" step="0.1" oninput="calcTotal()" placeholder="1-10">
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <strong>3. Vormgeving PowerPoint</strong>
+                <p>De dia's zien er netjes uit en je hebt de 'Gouden Regel' perfect gevolgd: maximaal 5 steekwoorden en geen hele zinnen op de dia's zelf.</p>
+              </td>
+              <td style="text-align:center;font-weight:700;color:var(--c-primary);">1x</td>
+              <td style="text-align:center;">
+                <input type="number" class="score-input" data-weight="1" min="1" max="10" step="0.1" oninput="calcTotal()" placeholder="1-10">
+              </td>
+            </tr>
+            <tr style="background:var(--c-primary-light);font-weight:700;">
+              <td colspan="2" style="font-size:1.1rem; text-align:right; padding-right:1rem;">🏆 Jouw Eindcijfer</td>
+              <td style="text-align:center;font-size:1.2rem;color:var(--c-primary-dark);" id="rubricTotal">—</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </div>
+
+</main>
+
+<footer class="footer">Aardrijkskunde klas 1 · Praktische Opdracht · Rijk & Arm in Beeld</footer>
+
+<script>
+// ═══ TABS ═══
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+});
+
+// ═══ BEGRIPPEN ═══
+function toggleBegrip(h) { h.parentElement.classList.toggle('open'); }
+
+// ═══ RUBRIC CALC ═══
+function calcTotal() {
+  const inputs = document.querySelectorAll('.score-input');
+  let totalScore = 0;
+  let totalWeight = 0;
+  let allFilled = true;
+
+  inputs.forEach(input => {
+    if (input.value && !isNaN(input.value)) {
+      let val = parseFloat(input.value);
+      // Begrens de input tussen 1 en 10
+      if (val > 10) { val = 10; input.value = 10; }
+      if (val < 1) { val = 1; input.value = 1; }
+      
+      let w = parseInt(input.dataset.weight);
+      totalScore += (val * w);
+      totalWeight += w;
+    } else {
+      allFilled = false;
+    }
+  });
+
+  if (totalWeight > 0 && allFilled) {
+    let finalGrade = (totalScore / totalWeight).toFixed(1);
+    document.getElementById('rubricTotal').textContent = finalGrade;
+    document.getElementById('circleScore').textContent = finalGrade;
+  } else {
+    document.getElementById('rubricTotal').textContent = '—';
+    document.getElementById('circleScore').textContent = '—';
+  }
+}
+
+// ═══ WHEEL OF FORTUNE ═══
+const richCountries = [
+  'Nederland','Duitsland','Japan','Verenigde Staten',
+  'Australië','Canada','Noorwegen','Zuid-Korea',
+  'Ver. Koninkrijk','Frankrijk','Zweden','Zwitserland'
+];
+const poorCountries = [
+  'Mali','Afghanistan','Ethiopië','Bangladesh',
+  'Mozambique','Niger','Tsjaad','Sierra Leone',
+  'Haïti','Myanmar','Madagascar','Burkina Faso'
+];
+
+const palRich = ['#1e40af','#2563eb','#1d4ed8','#3b82f6','#1e3a8a','#60a5fa','#1e40af','#2563eb','#1d4ed8','#3b82f6','#1e3a8a','#60a5fa'];
+const palPoor = ['#5b21b6','#7c3aed','#6d28d9','#8b5cf6','#4c1d95','#a78bfa','#5b21b6','#7c3aed','#6d28d9','#8b5cf6','#4c1d95','#a78bfa'];
+
+const W = {
+  rich:  { canvas:null, ctx:null, items:richCountries, pal:palRich, angle:0, spinning:false, vel:0, hasResult:false },
+  poor:  { canvas:null, ctx:null, items:poorCountries, pal:palPoor, angle:0, spinning:false, vel:0, hasResult:false }
+};
+
+function drawWheel(t) {
+  const w = W[t], ctx = w.ctx, cx=300, cy=300, r=290, n=w.items.length, arc=2*Math.PI/n;
+  ctx.clearRect(0,0,600,600);
+  for (let i=0; i<n; i++) {
+    const sa = w.angle + i*arc, ea = sa + arc;
+    ctx.beginPath(); ctx.moveTo(cx,cy); ctx.arc(cx,cy,r,sa,ea); ctx.closePath();
+    ctx.fillStyle = w.pal[i]; ctx.fill();
+    ctx.strokeStyle = 'rgba(255,255,255,0.35)'; ctx.lineWidth = 2; ctx.stroke();
+    ctx.save(); ctx.translate(cx,cy); ctx.rotate(sa+arc/2);
+    ctx.textAlign='right'; ctx.fillStyle='#fff';
+    ctx.font='bold 21px Nunito,sans-serif';
+    ctx.shadowColor='rgba(0,0,0,0.4)'; ctx.shadowBlur=4;
+    ctx.fillText(w.items[i], r-18, 7);
+    ctx.shadowBlur=0; ctx.restore();
+  }
+  ctx.beginPath(); ctx.arc(cx,cy,30,0,2*Math.PI);
+  ctx.fillStyle='#fff'; ctx.fill();
+  ctx.strokeStyle = t==='rich'?'#1e40af':'#5b21b6'; ctx.lineWidth=4; ctx.stroke();
+  ctx.fillStyle = t==='rich'?'#1e40af':'#5b21b6';
+  ctx.font='bold 20px sans-serif'; ctx.textAlign='center'; ctx.fillText('?',cx,cy+7);
+}
+
+function getWinner(t) {
+  const w=W[t], n=w.items.length, arc=2*Math.PI/n;
+  const ptr = 3*Math.PI/2;
+  let norm = ((ptr - w.angle) % (2*Math.PI) + 2*Math.PI) % (2*Math.PI);
+  return w.items[Math.floor(norm/arc) % n];
+}
+
+function spinWheel(t) {
+  const w = W[t];
+  if (w.spinning) return;
+  w.spinning = true;
+  w.hasResult = false;
+
+  const btn = document.getElementById(t==='rich'?'btnRich':'btnPoor');
+  btn.disabled = true;
+  const res = document.getElementById(t==='rich'?'resultRich':'resultPoor');
+  res.classList.remove('show'); res.textContent = '';
+
+  w.vel = 0.25 + Math.random()*0.2;
+  const friction = 0.985 + Math.random()*0.008;
+
+  (function anim() {
+    w.angle += w.vel;
+    w.vel *= friction;
+    drawWheel(t);
+    if (w.vel > 0.001) { requestAnimationFrame(anim); }
+    else {
+      w.spinning = false;
+      w.hasResult = true;
+      btn.disabled = false;
+      btn.textContent = '🔄 Opnieuw draaien';
+      btn.classList.add('again');
+      const winner = getWinner(t);
+      res.textContent = '🎉 ' + winner + '!';
+      res.classList.add('show');
+      launchConfetti();
+    }
+  })();
+}
+
+document.getElementById('wheelRich').addEventListener('click', () => spinWheel('rich'));
+document.getElementById('wheelPoor').addEventListener('click', () => spinWheel('poor'));
+
+function initWheels() {
+  W.rich.canvas = document.getElementById('wheelRich');
+  W.rich.ctx = W.rich.canvas.getContext('2d');
+  W.poor.canvas = document.getElementById('wheelPoor');
+  W.poor.ctx = W.poor.canvas.getContext('2d');
+  W.rich.angle = Math.random()*Math.PI*2;
+  W.poor.angle = Math.random()*Math.PI*2;
+  drawWheel('rich'); drawWheel('poor');
+}
+
+// ═══ CONFETTI ═══
+const cCanvas = document.getElementById('confettiCanvas');
+const cCtx = cCanvas.getContext('2d');
+let cParts = [], cRunning = false;
+
+function resizeC() { cCanvas.width=window.innerWidth; cCanvas.height=window.innerHeight; }
+window.addEventListener('resize', resizeC); resizeC();
+
+const cColors = ['#2563eb','#f59e0b','#10b981','#ef4444','#8b5cf6','#ec4899','#06b6d4','#f97316','#84cc16'];
+
+function launchConfetti() {
+  cParts = [];
+  for (let i=0; i<180; i++) {
+    cParts.push({
+      x: Math.random()*cCanvas.width,
+      y: -20 - Math.random()*400,
+      w: 5+Math.random()*9,
+      h: 3+Math.random()*7,
+      color: cColors[Math.floor(Math.random()*cColors.length)],
+      vx: (Math.random()-0.5)*5,
+      vy: 2+Math.random()*5,
+      rot: Math.random()*360,
+      rv: (Math.random()-0.5)*14,
+      op: 1,
+      shape: Math.random()>0.5 ? 'rect' : 'circle'
+    });
+  }
+  if (!cRunning) { cRunning=true; animC(); }
+}
+
+function animC() {
+  cCtx.clearRect(0,0,cCanvas.width,cCanvas.height);
+  let alive = false;
+  cParts.forEach(p => {
+    p.x += p.vx; p.y += p.vy; p.vy += 0.08; p.rot += p.rv;
+    if (p.y > cCanvas.height-200) p.op -= 0.018;
+    if (p.op <= 0) return;
+    alive = true;
+    cCtx.save();
+    cCtx.translate(p.x, p.y);
+    cCtx.rotate(p.rot*Math.PI/180);
+    cCtx.globalAlpha = Math.max(0, p.op);
+    cCtx.fillStyle = p.color;
+    if (p.shape === 'circle') {
+      cCtx.beginPath(); cCtx.arc(0,0,p.w/2,0,2*Math.PI); cCtx.fill();
+    } else {
+      cCtx.fillRect(-p.w/2,-p.h/2,p.w,p.h);
+    }
+    cCtx.restore();
+  });
+  if (alive) requestAnimationFrame(animC);
+  else { cRunning=false; cCtx.clearRect(0,0,cCanvas.width,cCanvas.height); }
+}
+
+// ═══ INIT ═══
+initWheels();
+</script>
+</body>
+</html>
