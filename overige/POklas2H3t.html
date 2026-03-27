@@ -15,8 +15,6 @@
             --coral: #ee9b00;
             --foam: #f8fdfe;
             --text: #001219;
-            --help-bg: #fff3cd;
-            --help-border: #ffc107;
             --step-bg: #e8f5e9;
             --step-border: #4caf50;
         }
@@ -49,53 +47,28 @@
             text-shadow: 3px 3px 6px rgba(0,0,0,0.3);
         }
 
-        header p {
-            font-size: 1.2rem;
-            margin-top: 0.5rem;
-            opacity: 0.95;
-        }
+        header p { font-size: 1.2rem; margin-top: 0.5rem; opacity: 0.95; }
 
         .wave-decoration {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 50px;
+            position: absolute; bottom: 0; left: 0; width: 100%; height: 50px;
             background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 1440 320" xmlns="http://www.w3.org/2000/svg"><path fill="%23f8fdfe" fill-opacity="1" d="M0,160L48,176C96,192,192,224,288,213.3C384,203,480,149,576,149.3C672,149,768,203,864,218.7C960,235,1056,213,1152,186.7C1248,160,1344,128,1392,112L1440,96L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>');
             background-size: cover;
         }
 
         .nav-container {
-            max-width: 1000px;
-            margin: -35px auto 2rem;
-            display: flex;
-            flex-wrap: wrap;
-            background: white;
-            border-radius: 50px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-            padding: 6px;
-            position: relative;
-            z-index: 10;
-            gap: 4px;
+            max-width: 1000px; margin: -35px auto 2rem; display: flex; flex-wrap: wrap;
+            background: white; border-radius: 50px; box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            padding: 6px; position: relative; z-index: 10; gap: 4px;
         }
 
         .tab-btn {
-            flex: 1;
-            padding: 15px 10px;
-            border: none;
-            background: none;
-            font-family: 'Fredoka', sans-serif;
-            font-weight: 600;
-            cursor: pointer;
-            color: var(--deep-sea);
-            border-radius: 40px;
-            font-size: 0.95rem;
-            min-width: 100px;
+            flex: 1; padding: 15px 10px; border: none; background: none;
+            font-family: 'Fredoka', sans-serif; font-weight: 600; cursor: pointer;
+            color: var(--deep-sea); border-radius: 40px; font-size: 0.95rem; min-width: 100px;
         }
 
         .tab-btn.active {
-            background: var(--ocean);
-            color: white;
+            background: var(--ocean); color: white;
             box-shadow: 0 4px 15px rgba(10, 147, 150, 0.4);
         }
 
@@ -109,213 +82,107 @@
         }
 
         .card {
-            background: white;
-            padding: 2.5rem;
-            border-radius: 30px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.05);
-            margin-bottom: 2rem;
+            background: white; padding: 2.5rem; border-radius: 30px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.05); margin-bottom: 2rem;
             border-bottom: 8px solid var(--wave);
         }
 
-        .card h2 {
-            font-family: 'Fredoka', sans-serif;
-            color: var(--deep-sea);
-            font-size: 1.8rem;
-        }
+        .card h2 { font-family: 'Fredoka', sans-serif; color: var(--deep-sea); font-size: 1.8rem; }
 
-        /* Stappen-blokken */
         .stap-blok {
-            background: var(--step-bg);
-            border-left: 6px solid var(--step-border);
-            border-radius: 15px;
-            padding: 18px 20px;
-            margin: 15px 0;
+            background: var(--step-bg); border-left: 6px solid var(--step-border);
+            border-radius: 15px; padding: 18px 20px; margin: 15px 0;
         }
+        .stap-blok h4 { margin: 0 0 6px; font-family: 'Fredoka', sans-serif; color: #2e7d32; font-size: 1.1rem; }
 
-        .stap-blok h4 {
-            margin: 0 0 6px;
-            font-family: 'Fredoka', sans-serif;
-            color: #2e7d32;
-            font-size: 1.1rem;
-        }
-
-        .stap-blok p, .stap-blok ul {
-            margin: 4px 0;
-        }
-
-        /* Hulp-blokken */
         .hulp-box {
-            background: var(--help-bg);
-            border-left: 6px solid var(--help-border);
-            border-radius: 15px;
-            padding: 16px 20px;
-            margin: 15px 0;
-            font-size: 0.95rem;
+            background: #fff3cd; border-left: 6px solid #ffc107;
+            border-radius: 15px; padding: 16px 20px; margin: 15px 0; font-size: 0.95rem;
         }
+        .hulp-box strong { display: block; margin-bottom: 4px; }
 
-        .hulp-box strong {
-            display: block;
-            margin-bottom: 4px;
+        .case-banner {
+            background: linear-gradient(135deg, var(--deep-sea), var(--ocean));
+            color: white; border-radius: 20px; padding: 20px 25px; margin-bottom: 25px;
+            display: flex; align-items: center; gap: 15px; flex-wrap: wrap;
         }
-
-        /* Woordenlijst */
-        .woord {
-            display: inline-block;
-            background: #e0f7fa;
-            border: 1px solid var(--ocean);
-            border-radius: 8px;
-            padding: 2px 8px;
-            font-weight: 700;
-            cursor: help;
-            position: relative;
+        .case-banner .label { font-family: 'Fredoka', sans-serif; font-size: 1.1rem; }
+        .case-banner .chosen {
+            background: rgba(255,255,255,0.2); padding: 8px 20px; border-radius: 30px;
+            font-weight: bold; font-size: 1.05rem;
         }
-
-        .woord .uitleg {
-            display: none;
-            position: absolute;
-            bottom: 110%;
-            left: 50%;
-            transform: translateX(-50%);
-            background: var(--deep-sea);
-            color: white;
-            padding: 10px 14px;
-            border-radius: 12px;
-            font-size: 0.85rem;
-            font-weight: 400;
-            width: 220px;
-            text-align: center;
-            z-index: 100;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-            line-height: 1.4;
+        .case-banner .change-btn {
+            margin-left: auto; background: var(--coral); border: none; color: white;
+            padding: 8px 18px; border-radius: 20px; cursor: pointer;
+            font-family: 'Fredoka', sans-serif; font-size: 0.9rem;
         }
-
-        .woord .uitleg::after {
-            content: '';
-            position: absolute;
-            top: 100%;
-            left: 50%;
-            transform: translateX(-50%);
-            border: 8px solid transparent;
-            border-top-color: var(--deep-sea);
+        .no-case-banner {
+            background: #fff3cd; border: 2px dashed var(--coral); border-radius: 20px;
+            padding: 25px; text-align: center; margin-bottom: 25px;
+            font-family: 'Fredoka', sans-serif; font-size: 1.1rem; color: var(--text);
         }
+        .no-case-banner a { color: var(--ocean); cursor: pointer; text-decoration: underline; font-weight: bold; }
 
-        .woord:hover .uitleg,
-        .woord:focus .uitleg {
-            display: block;
-        }
-
-        /* Case Pills */
         .case-pills { display: flex; flex-wrap: wrap; gap: 12px; margin: 20px 0; }
         .pill {
-            padding: 12px 24px;
-            background: white;
-            border: 2px solid var(--ocean);
-            border-radius: 30px;
-            cursor: pointer;
-            font-weight: bold;
-            color: var(--deep-sea);
+            padding: 12px 24px; background: white; border: 2px solid var(--ocean);
+            border-radius: 30px; cursor: pointer; font-weight: bold; color: var(--deep-sea);
             font-family: 'Fredoka', sans-serif;
         }
         .pill:hover, .pill.selected { background: var(--ocean); color: white; transform: scale(1.05); }
 
         #case-info-box {
-            background: #eef9fa;
-            border-radius: 20px;
-            padding: 25px;
-            margin-top: 15px;
-            border-left: 10px solid var(--coral);
-            display: none;
-            animation: fadeIn 0.4s;
+            background: #eef9fa; border-radius: 20px; padding: 25px; margin-top: 15px;
+            border-left: 10px solid var(--coral); display: none;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* Pillar Accordion */
-        .pillar-accordion {
-            margin-top: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
+        .pillar-accordion { margin-top: 20px; display: flex; flex-direction: column; gap: 15px; }
 
         .pillar-item {
-            background: #f0f9fa;
-            border-radius: 20px;
-            overflow: hidden;
-            border: 2px solid transparent;
+            background: #f0f9fa; border-radius: 20px; overflow: hidden; border: 2px solid transparent;
         }
-
         .pillar-header {
-            padding: 20px;
-            cursor: pointer;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-family: 'Fredoka', sans-serif;
-            font-size: 1.2rem;
-            color: var(--deep-sea);
+            padding: 20px; cursor: pointer; display: flex; justify-content: space-between;
+            align-items: center; font-family: 'Fredoka', sans-serif; font-size: 1.2rem; color: var(--deep-sea);
         }
-
         .pillar-header:hover { background: #e0f2f3; }
-
         .pillar-content {
-            padding: 0 20px;
-            max-height: 0;
-            overflow: hidden;
+            padding: 0 20px; max-height: 0; overflow: hidden;
             transition: max-height 0.4s ease-out, padding 0.4s;
-            background: white;
-            font-size: 0.95rem;
-            line-height: 1.7;
+            background: white; font-size: 0.95rem; line-height: 1.7;
         }
-
         .pillar-item.open { border-color: var(--ocean); }
-        .pillar-item.open .pillar-content { max-height: 3000px; padding: 20px; border-top: 1px solid #e0f2f3; }
+        .pillar-item.open .pillar-content { max-height: 4000px; padding: 20px; border-top: 1px solid #e0f2f3; }
         .pillar-item.open .pillar-header { background: var(--ocean); color: white; }
 
         .deliverable-box {
-            background: #fff;
-            border: 2px dashed var(--ocean);
-            padding: 15px;
-            border-radius: 15px;
-            margin: 15px 0;
+            background: #fff; border: 2px dashed var(--ocean); padding: 15px;
+            border-radius: 15px; margin: 15px 0;
         }
 
         .hint-box {
-            background: var(--bubble);
-            padding: 15px;
-            border-radius: 15px;
-            margin-top: 10px;
-            font-size: 0.9rem;
-            color: var(--text);
-            border-left: 5px solid var(--coral);
+            background: var(--bubble); padding: 15px; border-radius: 15px; margin-top: 10px;
+            font-size: 0.9rem; color: var(--text); border-left: 5px solid var(--coral);
         }
 
-        /* Checklist */
+        .voorbeeld-box {
+            background: #f3e5f5; border-left: 6px solid #9c27b0;
+            border-radius: 15px; padding: 16px 20px; margin: 12px 0; font-size: 0.95rem;
+        }
+        .voorbeeld-box strong { color: #6a1b9a; }
+
         .check-item {
-            background: white;
-            padding: 18px;
-            border-radius: 20px;
-            display: flex;
-            align-items: center;
-            cursor: pointer;
-            margin-bottom: 10px;
+            background: white; padding: 18px; border-radius: 20px; display: flex;
+            align-items: center; cursor: pointer; margin-bottom: 10px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.02);
         }
         .check-item input { margin-right: 15px; width: 22px; height: 22px; accent-color: var(--ocean); flex-shrink: 0; }
         .check-item.done { background: #e6fffa; opacity: 0.7; }
         .check-item.done span { text-decoration: line-through; }
+        .check-uitleg { font-size: 0.85rem; color: #555; display: block; margin-top: 2px; }
 
-        .check-uitleg {
-            font-size: 0.85rem;
-            color: #555;
-            display: block;
-            margin-top: 2px;
-        }
-
-        /* Rubric Table */
         .table-wrapper { overflow-x: auto; border-radius: 20px; box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
         table { width: 100%; border-collapse: collapse; background: white; }
         th, td { padding: 18px; text-align: left; border-bottom: 1px solid #f0f0f0; font-size: 0.95rem; }
@@ -324,20 +191,6 @@
         .score-orange { background: #fffaf0; color: #c05621; font-weight: bold; }
         .score-green { background: #f0fff4; color: #2f855a; font-weight: bold; }
 
-        /* Voorbeeld-zinnen blok */
-        .voorbeeld-box {
-            background: #f3e5f5;
-            border-left: 6px solid #9c27b0;
-            border-radius: 15px;
-            padding: 16px 20px;
-            margin: 12px 0;
-            font-size: 0.95rem;
-        }
-
-        .voorbeeld-box strong {
-            color: #6a1b9a;
-        }
-
         footer { text-align: center; padding: 3rem; color: var(--algae); font-size: 0.9rem; font-weight: bold; }
 
         @media (max-width: 600px) {
@@ -345,6 +198,8 @@
             .card { padding: 1.5rem; }
             .nav-container { border-radius: 20px; }
             .tab-btn { font-size: 0.8rem; padding: 10px 6px; min-width: 60px; }
+            .case-banner { flex-direction: column; text-align: center; }
+            .case-banner .change-btn { margin-left: 0; }
         }
     </style>
 </head>
@@ -365,27 +220,22 @@
 </nav>
 
 <main>
-    <!-- ==================== START ==================== -->
     <section id="intro" class="tab-content active">
         <div class="card">
             <h2>Welkom! 🚢 Hier begint je missie</h2>
             <p>Water is superbelangrijk, maar op veel plekken op de wereld is het water vies of bijna op. In dit project ga jij met <strong>2 klasgenoten</strong> uitzoeken hoe dat komt en wat eraan gedaan kan worden.</p>
-            
             <div class="stap-blok">
                 <h4>📌 Wat ga je doen?</h4>
                 <p>Jullie kiezen samen een <strong>waterprobleem</strong> ergens op de wereld. Dat zoeken jullie uit en daarna geven jullie er een <strong>presentatie</strong> over aan de klas. Die presentatie duurt <strong>8 tot 10 minuten</strong>.</p>
             </div>
-
             <div class="stap-blok">
                 <h4>👥 Hoe werk je samen?</h4>
                 <p>Elk groepslid pakt een eigen stuk van het onderzoek (we noemen dat een "pijler"). Zo heeft iedereen een eigen taak, maar samen maak je er één geheel van.</p>
             </div>
-
             <div class="hulp-box">
                 <strong>💡 Slim zoeken op internet</strong>
-                Vind je niet genoeg? Probeer dan andere woorden! Zoek je op 'rivier'? Probeer ook eens 'stroomgebied', 'delta' of 'waterweg'. Je krijgt dan andere resultaten. Zoek ook in het <strong>Engels</strong> – daar vind je vaak nog meer.
+                Vind je niet genoeg? Probeer dan andere woorden! Zoek je op 'rivier'? Probeer ook eens 'stroomgebied', 'delta' of 'waterweg'. Zoek ook in het <strong>Engels</strong> – daar vind je vaak nog meer.
             </div>
-
             <div class="hulp-box">
                 <strong>⏱️ Hoeveel tijd heb je?</strong>
                 Je docent vertelt hoeveel lessen je krijgt. Verdeel je tijd slim: eerst onderzoek doen, dan slides maken, dan oefenen. Houd de laatste les vrij om te oefenen!
@@ -393,12 +243,10 @@
         </div>
     </section>
 
-    <!-- ==================== CASES ==================== -->
     <section id="cases" class="tab-content">
         <div class="card">
             <h2>Kies jullie onderwerp 🧭</h2>
             <p>Hieronder staan 8 waterproblemen. Klik erop om te lezen waar het over gaat. Kies daarna <strong>samen met je groepje</strong> welk probleem jullie willen onderzoeken.</p>
-            
             <div class="case-pills">
                 <button class="pill" onclick="showCase('citarum')">Citarum (Kleding)</button>
                 <button class="pill" onclick="showCase('aralmeer')">Aralmeer (Katoen)</button>
@@ -409,12 +257,17 @@
                 <button class="pill" onclick="showCase('dodezee')">Dode Zee (Grondstoffen)</button>
                 <button class="pill" onclick="showCase('nl')">Nederland (Mest)</button>
             </div>
-
             <div id="case-info-box">
-                <h3 id="case-title">Naam van de casus</h3>
-                <div id="case-description" style="line-height: 1.7;">Klik op een knop hierboven om meer te lezen...</div>
+                <h3 id="case-title"></h3>
+                <div id="case-description" style="line-height: 1.7;"></div>
+                <div style="margin-top:18px; text-align:center;">
+                    <button id="choose-case-btn" onclick="confirmCase()" style="
+                        background: var(--coral); color: white; border: none; padding: 14px 35px;
+                        border-radius: 30px; font-family: 'Fredoka', sans-serif; font-size: 1.1rem;
+                        cursor: pointer; box-shadow: 0 4px 12px rgba(238,155,0,0.4);
+                    ">✅ Dit wordt onze casus!</button>
+                </div>
             </div>
-
             <div class="hulp-box" style="margin-top: 20px;">
                 <strong>🤔 Welke moet ik kiezen?</strong>
                 Kies een onderwerp dat je <strong>interessant</strong> vindt. Het maakt niet uit welke je kiest – ze zijn allemaal even moeilijk. Praat er even over in je groepje: waar worden jullie nieuwsgierig van?
@@ -422,181 +275,166 @@
         </div>
     </section>
 
-    <!-- ==================== STAPPENPLAN ==================== -->
     <section id="plan" class="tab-content">
         <div class="card">
             <h2>Zo pak je het aan 🏗️</h2>
+            <div id="no-case-msg" class="no-case-banner">
+                ⚠️ Je hebt nog geen onderwerp gekozen!<br>
+                Ga eerst naar <a onclick="showTabDirect('cases')">📍 De Cases</a> en kies jullie onderwerp. Dan worden de voorbeelden hieronder automatisch aangepast.
+            </div>
+            <div id="case-chosen-banner" class="case-banner" style="display:none;">
+                <span class="label">Jullie onderwerp:</span>
+                <span class="chosen" id="banner-case-name">—</span>
+                <button class="change-btn" onclick="showTabDirect('cases')">🔄 Ander onderwerp kiezen</button>
+            </div>
             <p>Het onderzoek is verdeeld in <strong>4 delen</strong> (we noemen ze "pijlers"). Verdeel ze over je groep. Klik op een pijler om te zien wat je moet doen.</p>
-            
             <div class="stap-blok">
                 <h4>🔑 Belangrijk: zo verdeel je de taken</h4>
                 <p>Jullie zijn met z'n drieën en er zijn 4 pijlers. Eén persoon doet dus 2 pijlers, de andere twee doen er elk 1. Spreek dit <strong>als eerste</strong> af!</p>
             </div>
-
             <div class="pillar-accordion">
-                <!-- PIJLER A -->
                 <div class="pillar-item" id="p1">
                     <div class="pillar-header" onclick="togglePillar('p1')">
                         <span>🌍 Pijler A: Waar speelt het probleem?</span>
-                        <span>▼</span>
+                        <span class="arrow">▼</span>
                     </div>
                     <div class="pillar-content">
-                        <p><strong>Kort gezegd:</strong> Jij laat zien <em>waar</em> het waterprobleem is en <em>hoe erg</em> het is, met behulp van kaarten en cijfers.</p>
-                        
+                        <p><strong>Kort gezegd:</strong> Jij laat zien <em>waar</em> het waterprobleem is en <em>hoe erg</em> het is, met kaarten en cijfers.</p>
                         <div class="deliverable-box">
                             <strong>🎯 Dit moet op je slide komen:</strong>
                             <ul>
                                 <li>Een <strong>kaart</strong> waarop je ziet waar het probleem is (zoom in: van de wereld naar het land naar het gebied).</li>
-                                <li>Een <strong>grafiek of diagram</strong> met cijfers over het water (bijv. hoeveel water er gebruikt wordt of hoeveel er vervuild is).</li>
+                                <li>Een <strong>grafiek of diagram</strong> met cijfers over het water.</li>
                             </ul>
                         </div>
-
                         <div class="stap-blok">
                             <h4>📝 Zo doe je het – stap voor stap</h4>
                             <p><strong>Stap 1:</strong> Zoek op Google Maps of Google Earth waar jouw gebied ligt. Maak een screenshot.</p>
-                            <p><strong>Stap 2:</strong> Zoek op internet naar cijfers over het water in dat gebied. Hoeveel water is er? Hoeveel is vervuild?</p>
+                            <p><strong>Stap 2:</strong> Zoek op internet naar cijfers over het water in dat gebied.</p>
                             <p><strong>Stap 3:</strong> Maak een simpele grafiek van die cijfers (kan in Excel, Google Sheets, of gewoon tekenen).</p>
                             <p><strong>Stap 4:</strong> Zet de kaart en de grafiek op een slide en schrijf er een paar zinnen bij.</p>
                         </div>
-
-                        <div class="voorbeeld-box">
+                        <div class="voorbeeld-box" id="voorbeeld-a">
                             <strong>💬 Voorbeeldzin voor je presentatie:</strong><br>
-                            "Ons onderwerp speelt in [land/gebied]. Op deze kaart zie je precies waar het is. Uit de cijfers blijkt dat..."
+                            <span class="voorbeeld-tekst">Kies eerst een casus bij "De Cases", dan verschijnen hier voorbeelden die bij jullie onderwerp passen.</span>
                         </div>
-
                         <p><strong>🔍 Dit kun je googelen:</strong></p>
-                        <ul>
+                        <ul id="zoek-a">
                             <li><em>'[jouw gebied] kaart water'</em></li>
                             <li><em>'hoeveel water wordt er gebruikt in [land]'</em></li>
-                            <li>In het Engels: <em>'water pollution map [area]'</em> of <em>'satellite view [area]'</em></li>
+                            <li><em>'water pollution map [jouw gebied]'</em></li>
                         </ul>
-                        <div class="hint-box"><strong>💡 Tip:</strong> Op <em>Google Earth</em> kun je zien hoe een gebied er vroeger uitzag. Klik op het klokje en ga terug in de tijd. Zo kun je een 'toen en nu' vergelijking maken!</div>
+                        <div class="hint-box" id="tip-a"><strong>💡 Tip:</strong> Op <em>Google Earth</em> kun je zien hoe een gebied er vroeger uitzag. Klik op het klokje en ga terug in de tijd!</div>
                     </div>
                 </div>
 
-                <!-- PIJLER B -->
                 <div class="pillar-item" id="p2">
                     <div class="pillar-header" onclick="togglePillar('p2')">
                         <span>⛓️ Pijler B: Wat heeft het met Nederland te maken?</span>
-                        <span>▼</span>
+                        <span class="arrow">▼</span>
                     </div>
                     <div class="pillar-content">
-                        <p><strong>Kort gezegd:</strong> Jij laat zien hoe het waterprobleem ver weg toch met <em>ons</em> te maken heeft. Welke spullen die wij kopen komen daar vandaan?</p>
-                        
+                        <p><strong>Kort gezegd:</strong> Jij laat zien hoe het waterprobleem ver weg toch met <em>ons</em> te maken heeft.</p>
                         <div class="deliverable-box">
                             <strong>🎯 Dit moet op je slide komen:</strong>
                             <ul>
-                                <li>Een <strong>plaatje of schema</strong> dat laat zien hoe een product van daar naar de winkel hier komt (de "route" van het product).</li>
+                                <li>Een <strong>plaatje of schema</strong> dat laat zien hoe een product van daar naar de winkel hier komt.</li>
                                 <li><strong>Logo's of namen</strong> van merken of winkels die wij kennen en die hiermee te maken hebben.</li>
                             </ul>
                         </div>
-
                         <div class="stap-blok">
                             <h4>📝 Zo doe je het – stap voor stap</h4>
-                            <p><strong>Stap 1:</strong> Bedenk welk product bij jouw casus hoort (bijv. kleding, katoen, olie, goud, plastic).</p>
+                            <p><strong>Stap 1:</strong> Bedenk welk product bij jouw casus hoort.</p>
                             <p><strong>Stap 2:</strong> Zoek op welke merken of bedrijven dat product maken of verkopen.</p>
-                            <p><strong>Stap 3:</strong> Zoek uit hoe dat product van het gebied naar Nederland komt. Welke stappen zitten ertussen?</p>
+                            <p><strong>Stap 3:</strong> Zoek uit hoe dat product van het gebied naar Nederland komt.</p>
                             <p><strong>Stap 4:</strong> Maak er een simpel schema van (mag met pijltjes) en zet het op een slide.</p>
                         </div>
-
-                        <div class="voorbeeld-box">
+                        <div class="voorbeeld-box" id="voorbeeld-b">
                             <strong>💬 Voorbeeldzin voor je presentatie:</strong><br>
-                            "Je denkt misschien: wat heb ik hier mee te maken? Maar het [product] dat jij in de winkel koopt, komt oorspronkelijk uit dit gebied. Het gaat zo: ..."
+                            <span class="voorbeeld-tekst">Kies eerst een casus bij "De Cases", dan verschijnen hier voorbeelden die bij jullie onderwerp passen.</span>
                         </div>
-
                         <p><strong>🔍 Dit kun je googelen:</strong></p>
-                        <ul>
+                        <ul id="zoek-b">
                             <li><em>'waar komt ons [product] vandaan'</em></li>
                             <li><em>'welke merken produceren in [land]'</em></li>
-                            <li>In het Engels: <em>'supply chain [product] [country]'</em></li>
+                            <li><em>'supply chain [product] [land]'</em></li>
                         </ul>
-                        <div class="hint-box"><strong>💡 Tip:</strong> Kijk eens in je eigen kledingkast! Op het labeltje in je kleding staat waar het gemaakt is. Soms is dat precies het land van jouw casus.</div>
+                        <div class="hint-box" id="tip-b"><strong>💡 Tip:</strong> Kijk eens in je eigen kledingkast! Op het labeltje staat waar het gemaakt is.</div>
                     </div>
                 </div>
 
-                <!-- PIJLER C -->
                 <div class="pillar-item" id="p3">
                     <div class="pillar-header" onclick="togglePillar('p3')">
                         <span>🐟 Pijler C: Wat zijn de gevolgen?</span>
-                        <span>▼</span>
+                        <span class="arrow">▼</span>
                     </div>
                     <div class="pillar-content">
-                        <p><strong>Kort gezegd:</strong> Jij laat zien wat er allemaal misgaat door dit waterprobleem. Denk aan de natuur (dieren, planten) én aan de mensen die er wonen.</p>
-                        
+                        <p><strong>Kort gezegd:</strong> Jij laat zien wat er allemaal misgaat. Denk aan de natuur (dieren, planten) én aan de mensen die er wonen.</p>
                         <div class="deliverable-box">
                             <strong>🎯 Dit moet op je slide komen:</strong>
                             <ul>
-                                <li><strong>Foto's</strong> die laten zien hoe erg het is (vervuild water, zieke natuur, enz.).</li>
-                                <li>Een <strong>gevolgen-web</strong>: een schema waarin je laat zien wat er allemaal misgaat. Zet in het midden het probleem en trek lijnen naar de gevolgen.</li>
+                                <li><strong>Foto's</strong> die laten zien hoe erg het is.</li>
+                                <li>Een <strong>gevolgen-web</strong>: een schema met in het midden het probleem en daaromheen de gevolgen.</li>
                             </ul>
                         </div>
-
                         <div class="stap-blok">
                             <h4>📝 Zo doe je het – stap voor stap</h4>
-                            <p><strong>Stap 1:</strong> Zoek op wat het waterprobleem doet met de <strong>natuur</strong> (dieren, planten, het landschap).</p>
-                            <p><strong>Stap 2:</strong> Zoek op wat het doet met de <strong>mensen</strong> die er wonen (gezondheid, werk, geld).</p>
+                            <p><strong>Stap 1:</strong> Zoek op wat het waterprobleem doet met de <strong>natuur</strong>.</p>
+                            <p><strong>Stap 2:</strong> Zoek op wat het doet met de <strong>mensen</strong> die er wonen.</p>
                             <p><strong>Stap 3:</strong> Zoek goede foto's die dit laten zien (Google Afbeeldingen).</p>
                             <p><strong>Stap 4:</strong> Maak een gevolgen-web: probleem in het midden, gevolgen eromheen met pijltjes.</p>
                         </div>
-
-                        <div class="voorbeeld-box">
+                        <div class="voorbeeld-box" id="voorbeeld-c">
                             <strong>💬 Voorbeeldzin voor je presentatie:</strong><br>
-                            "De gevolgen van dit probleem zijn heel groot. Voor de natuur betekent het dat... En voor de mensen die er wonen betekent het dat..."
+                            <span class="voorbeeld-tekst">Kies eerst een casus bij "De Cases", dan verschijnen hier voorbeelden die bij jullie onderwerp passen.</span>
                         </div>
-
                         <p><strong>🔍 Dit kun je googelen:</strong></p>
-                        <ul>
+                        <ul id="zoek-c">
                             <li><em>'gevolgen watervervuiling [gebied]'</em></li>
                             <li><em>'wat gebeurt er met de natuur in [gebied]'</em></li>
-                            <li>In het Engels: <em>'impact water pollution [area]'</em> of <em>'health effects [area] water'</em></li>
+                            <li><em>'impact water pollution [gebied]'</em></li>
                         </ul>
-                        <div class="hint-box"><strong>💡 Tip:</strong> Gebruik Google Translate om nieuwsberichten uit dat land zelf te lezen. Zo hoor je het verhaal van de mensen die er wonen!</div>
+                        <div class="hint-box" id="tip-c"><strong>💡 Tip:</strong> Gebruik Google Translate om nieuwsberichten uit dat land zelf te lezen!</div>
                     </div>
                 </div>
 
-                <!-- PIJLER D -->
                 <div class="pillar-item" id="p4">
                     <div class="pillar-header" onclick="togglePillar('p4')">
                         <span>♻️ Pijler D: Hoe lossen we het op?</span>
-                        <span>▼</span>
+                        <span class="arrow">▼</span>
                     </div>
                     <div class="pillar-content">
-                        <p><strong>Kort gezegd:</strong> Jij bedenkt hoe dit probleem opgelost kan worden. Wat kan de <span class="woord" tabindex="0">overheid<span class="uitleg">De regering van een land, zij maken de regels en wetten</span></span> doen? Wat kunnen bedrijven doen? En wat kunnen wij zelf doen?</p>
-                        
+                        <p><strong>Kort gezegd:</strong> Jij bedenkt hoe dit probleem opgelost kan worden. Wat kan de overheid doen? Wat kunnen bedrijven doen? En wat kunnen wij zelf doen?</p>
                         <div class="deliverable-box">
                             <strong>🎯 Dit moet op je slide komen:</strong>
                             <ul>
                                 <li>Een plaatje van jullie <strong>oplossing</strong> (bijv. een "voor en na" vergelijking).</li>
-                                <li><strong>3 concrete actiepunten</strong>: wat moet de overheid doen, wat moeten bedrijven doen, en wat kunnen wij als gewone mensen doen?</li>
+                                <li><strong>3 concrete actiepunten</strong>: overheid, bedrijven, en wij als consument.</li>
                             </ul>
                         </div>
-
                         <div class="stap-blok">
                             <h4>📝 Zo doe je het – stap voor stap</h4>
-                            <p><strong>Stap 1:</strong> Zoek op of er al oplossingen bedacht zijn voor dit probleem. Zijn er projecten of organisaties die eraan werken?</p>
-                            <p><strong>Stap 2:</strong> Bedenk wat de <strong>overheid</strong> zou kunnen doen (bijv. strengere regels, geld investeren).</p>
-                            <p><strong>Stap 3:</strong> Bedenk wat <strong>bedrijven</strong> anders kunnen doen (bijv. minder vervuilen, beter recyclen).</p>
-                            <p><strong>Stap 4:</strong> Bedenk wat <strong>wij als consument</strong> kunnen doen (bijv. andere producten kopen, minder verspillen).</p>
+                            <p><strong>Stap 1:</strong> Zoek op of er al oplossingen bedacht zijn voor dit probleem.</p>
+                            <p><strong>Stap 2:</strong> Bedenk wat de <strong>overheid</strong> zou kunnen doen.</p>
+                            <p><strong>Stap 3:</strong> Bedenk wat <strong>bedrijven</strong> anders kunnen doen.</p>
+                            <p><strong>Stap 4:</strong> Bedenk wat <strong>wij als consument</strong> kunnen doen.</p>
                         </div>
-
-                        <div class="voorbeeld-box">
+                        <div class="voorbeeld-box" id="voorbeeld-d">
                             <strong>💬 Voorbeeldzin voor je presentatie:</strong><br>
-                            "Er zijn gelukkig ook oplossingen. De overheid zou kunnen... Bedrijven zouden moeten... En wij zelf kunnen helpen door..."
+                            <span class="voorbeeld-tekst">Kies eerst een casus bij "De Cases", dan verschijnen hier voorbeelden die bij jullie onderwerp passen.</span>
                         </div>
-
                         <p><strong>🔍 Dit kun je googelen:</strong></p>
-                        <ul>
+                        <ul id="zoek-d">
                             <li><em>'oplossing watervervuiling [gebied]'</em></li>
                             <li><em>'duurzaam water [onderwerp]'</em></li>
-                            <li>In het Engels: <em>'solution water crisis [area]'</em> of <em>'sustainable water [topic]'</em></li>
+                            <li><em>'solution water crisis [gebied]'</em></li>
                         </ul>
-                        <div class="hint-box"><strong>💡 Tip:</strong> Zoek op YouTube naar filmpjes over oplossingen. Er zijn veel korte video's van bijv. universiteiten of organisaties die laten zien hoe het beter kan.</div>
+                        <div class="hint-box" id="tip-d"><strong>💡 Tip:</strong> Zoek op YouTube naar filmpjes over oplossingen!</div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Extra hulpkaart -->
         <div class="card">
             <h2>Hulp bij je presentatie 🎤</h2>
             <div class="stap-blok">
@@ -614,16 +452,15 @@
             </div>
             <div class="hulp-box">
                 <strong>⏱️ Hoe lang is 8-10 minuten?</strong>
-                Reken op ongeveer 2-3 minuten per persoon. Gebruik de timer op je telefoon om te oefenen. Te kort? Voeg meer uitleg toe. Te lang? Schrap de minst belangrijke dingen.
+                Reken op ongeveer 2-3 minuten per persoon. Gebruik de timer op je telefoon om te oefenen.
             </div>
         </div>
     </section>
 
-    <!-- ==================== CHECKLIST ==================== -->
     <section id="checklist" class="tab-content">
         <div class="card">
             <h2>Hoe ver zijn jullie? ✅</h2>
-            <p>Vink af wat jullie al gedaan hebben. Zo zie je precies wat er nog moet gebeuren.</p>
+            <p>Vink af wat jullie al gedaan hebben.</p>
             <div id="checklist-items">
                 <label class="check-item"><input type="checkbox" id="step1"> <span>Groepje gemaakt (3 personen)<span class="check-uitleg">Weet je al met wie je samenwerkt?</span></span></label>
                 <label class="check-item"><input type="checkbox" id="step2"> <span>Onderwerp gekozen<span class="check-uitleg">Kijk bij "De Cases" en kies er samen eentje</span></span></label>
@@ -636,24 +473,20 @@
                 <label class="check-item"><input type="checkbox" id="step9"> <span>Presentatie geoefend (minstens 2x!)<span class="check-uitleg">Is het tussen 8 en 10 minuten? Leest niemand voor?</span></span></label>
                 <label class="check-item"><input type="checkbox" id="step10"> <span>Klaar voor de presentatie! 🎉<span class="check-uitleg">Alles gecheckt? Dan zijn jullie er klaar voor!</span></span></label>
             </div>
-
             <div class="hulp-box" style="margin-top: 20px;">
                 <strong>💾 Let op:</strong> Je vinkjes worden opgeslagen in je browser. Als je op dezelfde computer en in dezelfde browser terugkomt, staan ze er nog.
             </div>
         </div>
     </section>
 
-    <!-- ==================== BEOORDELING ==================== -->
     <section id="rubric" class="tab-content">
         <div class="card">
             <h2>Hoe word je beoordeeld? 📊</h2>
-            <p>Je docent kijkt naar 4 dingen. Elk onderdeel telt voor <strong>25%</strong> van je cijfer. Hieronder zie je precies wat je moet doen voor welk cijfer.</p>
-
+            <p>Je docent kijkt naar 4 dingen. Elk onderdeel telt voor <strong>25%</strong> van je cijfer.</p>
             <div class="stap-blok">
                 <h4>💡 Zo lees je de tabel</h4>
-                <p>Kijk per rij wat er staat bij "onvoldoende", "voldoende" en "goed". Probeer bij elk onderdeel minstens bij "voldoende" te komen. Wil je een hoger cijfer? Kijk dan wat er bij "goed" staat en doe dat ook!</p>
+                <p>Kijk per rij wat er staat bij "onvoldoende", "voldoende" en "goed". Probeer bij elk onderdeel minstens bij "voldoende" te komen!</p>
             </div>
-
             <div class="table-wrapper">
                 <table>
                     <thead>
@@ -669,19 +502,19 @@
                             <td><strong>Onderzoek (25%)</strong><br><em>Hoe goed heb je gezocht?</em></td>
                             <td>Je hebt te weinig info gevonden. Je laat niet zien wat het probleem met Nederland te maken heeft.</td>
                             <td>Je hebt alle 4 de pijlers goed uitgewerkt met feiten en voorbeelden.</td>
-                            <td>Je hebt extra diep gezocht en legt slimme verbanden. Je weet meer dan alleen het basis-verhaal.</td>
+                            <td>Je hebt extra diep gezocht en legt slimme verbanden.</td>
                         </tr>
                         <tr>
                             <td><strong>Plaatjes & grafieken (25%)</strong><br><em>Hoe zien je slides eruit?</em></td>
                             <td>Er mist een kaart of grafiek. Je slides zijn rommelig of leeg.</td>
                             <td>Er zit een duidelijke kaart en grafiek in, en je legt ze goed uit.</td>
-                            <td>Je visuals zijn sterk en overtuigend. Ze helpen echt om het probleem te begrijpen.</td>
+                            <td>Je visuals zijn sterk en overtuigend.</td>
                         </tr>
                         <tr>
                             <td><strong>Presenteren (25%)</strong><br><em>Hoe goed vertel je het?</em></td>
-                            <td>Je leest voor van je slides, het is rommelig, of het is veel te kort of te lang.</td>
-                            <td>Je vertelt het in eigen woorden, je houdt je aan de tijd, en je kijkt de klas aan.</td>
-                            <td>Je presentatie is overtuigend en professioneel. De klas luistert geboeid.</td>
+                            <td>Je leest voor, het is rommelig, of veel te kort/lang.</td>
+                            <td>Je vertelt het in eigen woorden, houdt je aan de tijd, kijkt de klas aan.</td>
+                            <td>Je presentatie is overtuigend en professioneel.</td>
                         </tr>
                         <tr>
                             <td><strong>Vragen beantwoorden (25%)</strong><br><em>Hoeveel weet je echt?</em></td>
@@ -696,82 +529,153 @@
     </section>
 </main>
 
-<footer>
-    Project Blauw Goud 🌊 - 2026 Onderwijsomgeving
-</footer>
+<footer>Project Blauw Goud 🌊 - 2026 Onderwijsomgeving</footer>
 
 <script>
-    function showTab(id) {
-        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        document.getElementById(id).classList.add('active');
-        event.currentTarget.classList.add('active');
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+const cases = {
+    citarum: { title: "Citarum: Vieze rivier door kledingfabrieken 👕", desc: "De Citarum is een rivier in Indonesië en het is één van de smerigste rivieren van de wereld. Langs de rivier staan meer dan 2000 fabrieken die kleding en stof maken. Die fabrieken dumpen hun giftige afvalwater gewoon in de rivier.<br><br><strong>Wat gaat er mis?</strong> Het water zit vol gif (lood, kwik). De mensen die er wonen worden er ziek van en kunnen geen vis meer vangen.<br><br><strong>Wat heeft het met ons te maken?</strong> Veel van de kleding die wij in de winkel kopen, wordt in dit soort fabrieken gemaakt.<br><br><strong>Jullie opdracht:</strong> Zoek uit welke kledingmerken hier laten produceren en bedenk hoe het anders kan." },
+    aralmeer: { title: "Het Aralmeer: Een heel meer dat verdween 🏜️", desc: "Het Aralmeer was vroeger het vierde grootste meer ter wereld. Nu is het bijna helemaal weg! De rivieren die het meer vulden, zijn omgeleid naar katoenplantages. Al het water ging naar de katoen.<br><br><strong>Wat gaat er mis?</strong> Waar vroeger water was, is nu woestijn. Schepen liggen te roesten in het zand. Giftig stof waait rond en maakt mensen ziek.<br><br><strong>Wat heeft het met ons te maken?</strong> Katoen zit in heel veel van onze kleding en spullen.<br><br><strong>Jullie opdracht:</strong> Zoek uit hoe onze vraag naar goedkoop katoen dit meer heeft laten verdwijnen." },
+    plastic: { title: "Plastic Soep: Onze oceanen vol afval 🧴", desc: "In de oceanen drijven enorme eilanden van plastic afval. Dit plastic komt van over de hele wereld: verpakkingen, flesjes, tasjes – alles wat we weggooien.<br><br><strong>Wat gaat er mis?</strong> Plastic breekt niet af, maar wordt steeds kleiner (microplastic). Vissen eten het op, en via de vis komt het op ons eigen bord.<br><br><strong>Wat heeft het met ons te maken?</strong> Wij gebruiken elke dag plastic. Veel daarvan komt uiteindelijk in zee terecht.<br><br><strong>Jullie opdracht:</strong> Breng de route van plastic in kaart. Hoe stoppen we dit?" },
+    niger: { title: "Nigerdelta: Olie die het water vergiftigt 🛢️", desc: "In Nigeria wordt al tientallen jaren olie opgepompt. Maar de oude pijpleidingen lekken de hele tijd. Alles zit onder een laag olie.<br><br><strong>Wat gaat er mis?</strong> Het drinkwater is vergiftigd. Vissers kunnen niet meer werken. Niemand ruimt het op.<br><br><strong>Wat heeft het met ons te maken?</strong> De olie wordt gebruikt voor benzine en plastic – spullen die wij dagelijks gebruiken.<br><br><strong>Jullie opdracht:</strong> Wie is verantwoordelijk? Hoe kan het beter?" },
+    ganges: { title: "De Ganges: Heilige rivier vol gif 🕉️", desc: "De Ganges in India is voor miljoenen mensen een heilige rivier. Ze baden erin als onderdeel van hun geloof. Maar tegelijkertijd dumpen fabrieken en steden al hun afvalwater in de rivier.<br><br><strong>Wat gaat er mis?</strong> Het water is extreem vies en gevaarlijk, maar mensen blijven erin baden vanwege hun geloof.<br><br><strong>Wat heeft het met ons te maken?</strong> Leer voor schoenen en tassen wordt hier gemaakt.<br><br><strong>Jullie opdracht:</strong> Hoe kun je het geloof respecteren én de rivier schoonmaken?" },
+    amazone: { title: "De Amazone: Vergiftigd door goudzoekers 🏆", desc: "In het Amazone-regenwoud zoeken mensen illegaal naar goud. Ze gebruiken kwik (een zwaar gif) om gouddeeltjes uit de modder te halen. Dat kwik loopt zo de rivier in.<br><br><strong>Wat gaat er mis?</strong> Het kwik komt in de vissen terecht. De inheemse bevolking wordt er ernstig ziek van.<br><br><strong>Wat heeft het met ons te maken?</strong> Het goud wordt verwerkt in sieraden en elektronica die wij kopen.<br><br><strong>Jullie opdracht:</strong> Waar gaat dit goud naartoe? Hoe kan het zonder gif?" },
+    dodezee: { title: "De Dode Zee: Een zee die verdwijnt 🧂", desc: "De Dode Zee is het laagste punt op aarde en superveel zout. Maar elk jaar wordt het water een meter lager! Bedrijven halen er grondstoffen uit en de landbouw pompt water weg.<br><br><strong>Wat gaat er mis?</strong> Er ontstaan grote gaten in de grond die wegen en gebouwen opslokken.<br><br><strong>Wat heeft het met ons te maken?</strong> De mineralen zitten in producten die wij kopen (bijv. gezichtscrème).<br><br><strong>Jullie opdracht:</strong> Wie verdient er geld aan de Dode Zee? Hoe houden we het in stand?" },
+    nl: { title: "Nederland: Onze eigen sloten stikken 🐄", desc: "Door de enorme hoeveelheid koeien, kippen en varkens in Nederland komt er heel veel mest in de bodem en het water. Onze sloten zitten vol algen.<br><br><strong>Wat gaat er mis?</strong> Dieren en planten in het water gaan dood. Drinkwater maken wordt steeds duurder.<br><br><strong>Wat heeft het met ons te maken?</strong> Dit speelt in onze achtertuin. De mest komt van de dieren die ons eten produceren.<br><br><strong>Jullie opdracht:</strong> Hoe erg is het mestprobleem? Hoe zou een schone boerderij eruitzien?" }
+};
+
+const pillarData = {
+    citarum: {
+        a: { voorbeeld: '"De Citarum-rivier ligt op het eiland Java in Indonesië. Op deze kaart zie je dat er meer dan 2000 textielfabrieken langs de rivier staan. Uit de cijfers blijkt dat het water op sommige plekken 1000 keer meer gif bevat dan is toegestaan."', zoek: ["'Citarum rivier kaart Indonesië'","'watervervuiling Citarum cijfers'","'Citarum river pollution satellite' (Engels)"], tip: '<strong>💡 Tip:</strong> Zoek op Google Earth naar "Citarum river" en zoom in. Je ziet de fabrieken langs de oevers liggen. Vergelijk het met een schone rivier ernaast.' },
+        b: { voorbeeld: '"Wat heb jij met een rivier in Indonesië te maken? Kijk eens naar het labeltje in je T-shirt. Grote kans dat het \'Made in Indonesia\' is. De stof voor die kleding wordt hier gemaakt, met water uit de Citarum."', zoek: ["'welke kledingmerken produceren in Indonesië'","'fast fashion fabrieken Java'","'textile industry Indonesia brands' (Engels)"], tip: '<strong>💡 Tip:</strong> Kijk op de website van de <em>Schone Kleren Campagne</em>. Daar staat welke merken in welke landen produceren. Herken je merken die jij zelf draagt?' },
+        c: { voorbeeld: '"De gevolgen zijn enorm. De mensen langs de rivier krijgen huidziektes en kanker van het gif. Vissen zijn bijna verdwenen. Boeren kunnen hun land niet meer bewateren met het vieze water."', zoek: ["'Citarum rivier gevolgen gezondheid'","'vissterfte Citarum'","'Citarum river health effects' (Engels)"], tip: '<strong>💡 Tip:</strong> Zoek op YouTube naar documentaires over de Citarum (bijv. "the world\'s most polluted river"). De beelden zeggen meer dan 1000 woorden.' },
+        d: { voorbeeld: '"Er zijn ook oplossingen. De Indonesische overheid is begonnen met het Citarum Harum project om de rivier schoon te maken. Bedrijven moeten hun afvalwater zuiveren. En wij kunnen kleding kopen van merken die duurzaam produceren."', zoek: ["'Citarum Harum schoonmaakproject'","'duurzame kleding merken'","'Citarum river cleanup project' (Engels)"], tip: '<strong>💡 Tip:</strong> Zoek naar het "Citarum Harum" project. Dat is een groot schoonmaakproject van de Indonesische overheid. Wat zijn de plannen en werkt het?' }
+    },
+    aralmeer: {
+        a: { voorbeeld: '"Het Aralmeer ligt tussen Kazachstan en Oezbekistan. Op deze kaart zie je hoe groot het meer vroeger was en hoeveel er nu nog over is. In 50 jaar is het meer met meer dan 80% gekrompen."', zoek: ["'Aralmeer kaart vroeger en nu'","'Aralmeer waterpeil cijfers'","'Aral Sea before and after satellite' (Engels)"], tip: '<strong>💡 Tip:</strong> Op Google Earth kun je met het klokje teruggaan in de tijd. Vergelijk het Aralmeer in 1970 met nu. Het verschil is schokkend!' },
+        b: { voorbeeld: '"Het water van het meer ging naar katoenplantages. Katoen zit in je spijkerbroek, je T-shirt, je handdoek. Oezbekistan is een van de grootste katoenproducenten ter wereld."', zoek: ["'waar komt ons katoen vandaan'","'Oezbekistan katoen export'","'cotton production Uzbekistan' (Engels)"], tip: '<strong>💡 Tip:</strong> Zoek op hoeveel water er nodig is om één spijkerbroek te maken. Dat noemen ze de "watervoetafdruk". Het antwoord zal je verbazen!' },
+        c: { voorbeeld: '"De vissers zijn hun werk kwijt – er is geen water meer. Schepen liggen te roesten in de woestijn. Giftig stof van de droge bodem waait de dorpen in en zorgt voor longziektes."', zoek: ["'Aralmeer gevolgen bevolking'","'zandstormen Aralmeer gezondheid'","'Aral Sea ecological disaster' (Engels)"], tip: '<strong>💡 Tip:</strong> Zoek naar foto\'s van de "schepenkerkhoven" bij het Aralmeer. Grote schepen midden in de woestijn – super krachtig beeld voor je presentatie!' },
+        d: { voorbeeld: '"Kazachstan heeft een dam gebouwd waardoor het noordelijke deel weer vol loopt. Maar de echte oplossing is: minder water gebruiken voor katoen, of overstappen op duurzaam katoen."', zoek: ["'Aralmeer herstel dam Kazachstan'","'duurzaam katoen alternatieven'","'Aral Sea restoration project' (Engels)"], tip: '<strong>💡 Tip:</strong> Zoek naar de "Kok-Aral Dam" in Kazachstan. Die heeft een deel van het meer teruggebracht! Laat zien dat herstel mogelijk is.' }
+    },
+    plastic: {
+        a: { voorbeeld: '"De plastic soep zit overal in de oceanen, maar het ergst is de Great Pacific Garbage Patch in de Stille Oceaan. Op deze kaart zie je waar die ligt. Die vuilnisbelt is 3 keer zo groot als Frankrijk!"', zoek: ["'plastic soep oceaan kaart'","'Great Pacific Garbage Patch grootte'","'ocean plastic pollution map' (Engels)"], tip: '<strong>💡 Tip:</strong> Zoek naar kaarten die de oceaanstromingen laten zien. Die stromingen duwen het plastic naar bepaalde plekken – zo ontstaan de "plastic eilanden".' },
+        b: { voorbeeld: '"Wij in Nederland gebruiken gemiddeld 100 kilo plastic per persoon per jaar. Denk aan verpakkingen, flesjes, wegwerpbekers. Een groot deel komt uiteindelijk in de oceaan terecht."', zoek: ["'hoeveel plastic gebruikt Nederland per jaar'","'plastic verpakkingen supermarkt'","'Netherlands plastic waste statistics' (Engels)"], tip: '<strong>💡 Tip:</strong> Let een dag lang op hoeveel plastic je zelf weggooit. Maak er foto\'s van – dat maakt het heel concreet voor je presentatie!' },
+        c: { voorbeeld: '"Plastic breekt niet af, maar valt uiteen in microplastic. Vissen en zeevogels eten dat op en gaan eraan dood. Via de vis komt het zelfs op ons eigen bord. Er zit inmiddels plastic in ons bloed."', zoek: ["'microplastic gevolgen zeedieren'","'plastic in vis die wij eten'","'microplastic health effects humans' (Engels)"], tip: '<strong>💡 Tip:</strong> Zoek naar foto\'s van zeevogels en schildpadden die vast zitten in plastic. Krachtige beelden! Maar kijk ook naar het onzichtbare: microplastic in ons eten.' },
+        d: { voorbeeld: '"De oplossing is stoppen met wegwerpplastic. De overheid kan plastic verpakkingen verbieden. Bedrijven kunnen overstappen op herbruikbare verpakkingen. En wij kunnen onze eigen tas en fles meenemen."', zoek: ["'verbod wegwerpplastic Europa'","'The Ocean Cleanup project'","'alternatives to single use plastic' (Engels)"], tip: '<strong>💡 Tip:</strong> Zoek naar "The Ocean Cleanup" van de Nederlandse uitvinder Boyan Slat. Hij heeft een systeem bedacht om plastic uit de oceaan te vissen. Super gaaf voor je presentatie!' }
+    },
+    niger: {
+        a: { voorbeeld: '"De Nigerdelta ligt in het zuiden van Nigeria. Op deze kaart zie je dat het een groot moerasgebied is vol rivieren. In dit gebied wordt al meer dan 60 jaar olie opgepompt, en overal zie je olievlekken."', zoek: ["'Nigerdelta kaart olievelden'","'olielekkages Nigeria cijfers'","'Niger Delta oil spill satellite images' (Engels)"], tip: '<strong>💡 Tip:</strong> Zoek op Google Earth naar "Ogoniland Nigeria". Je kunt de olievervuiling zien vanuit de lucht – bruine en zwarte vlekken in het groen.' },
+        b: { voorbeeld: '"De olie uit Nigeria wordt verscheept naar de hele wereld. Shell, een Nederlands bedrijf, was jarenlang de grootste olieproducent in Nigeria. De benzine in onze auto\'s kan dus van hier komen."', zoek: ["'Shell Nigeria olie'","'waar komt onze benzine vandaan'","'oil exports Nigeria Europe' (Engels)"], tip: '<strong>💡 Tip:</strong> Zoek naar het verhaal van Shell in Nigeria. Er zijn rechtszaken geweest in Nederland! Dat maakt de link met ons heel direct.' },
+        c: { voorbeeld: '"Het drinkwater is vergiftigd door olie. Vissers kunnen niet meer werken omdat vissen doodgaan. De mangroven – bomen die in het water groeien en belangrijk zijn voor het ecosysteem – sterven af."', zoek: ["'Nigerdelta gevolgen olie bewoners'","'mangroven sterfte Nigerdelta'","'Niger Delta oil pollution health impact' (Engels)"], tip: '<strong>💡 Tip:</strong> Zoek naar verhalen van vissers uit de Nigerdelta. Er zijn documentaires waarin zij vertellen hoe hun leven is veranderd door de olie.' },
+        d: { voorbeeld: '"De oplossing begint met opruimen. De VN heeft een groot rapport gemaakt over wat er moet gebeuren. Oliebedrijven moeten verantwoordelijk worden gehouden. En wij kunnen nadenken over alternatieven voor olie."', zoek: ["'UNEP rapport Ogoniland opruimen'","'Shell rechtszaak Nigeria schoonmaak'","'Niger Delta cleanup UNEP' (Engels)"], tip: '<strong>💡 Tip:</strong> Zoek naar het UNEP-rapport over Ogoniland. Dat is het grote VN-onderzoek dat liet zien hoe erg de vervuiling is en wat er moet gebeuren.' }
+    },
+    ganges: {
+        a: { voorbeeld: '"De Ganges stroomt door het noorden van India, langs grote steden als Varanasi en Kanpur. Op deze kaart zie je dat meer dan 400 miljoen mensen langs de rivier wonen. Elke dag wordt er miljarden liters ongezuiverd afvalwater in geloosd."', zoek: ["'Ganges rivier kaart India'","'watervervuiling Ganges cijfers'","'Ganges river pollution levels' (Engels)"], tip: '<strong>💡 Tip:</strong> Zoek naar kaarten die laten zien waar de Ganges het meest vervuild is. Bij de stad Kanpur (veel leerfabrieken) is het het ergst.' },
+        b: { voorbeeld: '"Langs de Ganges zitten veel leerlooierijen – fabrieken die dierenhuid omzetten in leer. Dat leer wordt gebruikt voor schoenen en tassen die in Nederlandse winkels liggen. Het giftige afvalwater gaat recht de rivier in."', zoek: ["'leerlooierijen India Ganges'","'waar komt het leer van onze schoenen vandaan'","'leather tanneries Kanpur Ganges' (Engels)"], tip: '<strong>💡 Tip:</strong> Kijk eens naar je eigen schoenen – staat er "Made in India" in? Zoek op welke grote schoenmerken leer uit India gebruiken.' },
+        c: { voorbeeld: '"De gevolgen zijn extra pijnlijk. De Ganges is heilig voor miljoenen hindoes – ze baden erin. Maar dat water zit vol gif van fabrieken en vol bacteriën van rioolwater. Mensen worden er ernstig ziek van."', zoek: ["'Ganges heilig vervuild gevolgen gezondheid'","'waterborne diseases Ganges India' (Engels)","'leerlooierij vervuiling gevolgen India'"], tip: '<strong>💡 Tip:</strong> Het bijzondere hier is het spanningsveld tussen geloof en vervuiling. Hindoes geloven dat de Ganges zichzelf zuivert, terwijl de rivier zwaar vervuild is. Dat maakt je presentatie extra interessant.' },
+        d: { voorbeeld: '"India heeft het Namami Gange project gestart om de rivier schoon te maken. Leerfabrieken moeten hun afvalwater gaan zuiveren. En wij kunnen kiezen voor leer met een duurzaam keurmerk."', zoek: ["'Namami Gange project India'","'duurzaam leer keurmerk'","'Clean Ganga Mission progress' (Engels)"], tip: '<strong>💡 Tip:</strong> Zoek naar het "Namami Gange" project. Dat is het grote schoonmaakproject van de Indiase overheid. Wat zijn de plannen en lukt het?' }
+    },
+    amazone: {
+        a: { voorbeeld: '"Het Amazone-regenwoud ligt in Zuid-Amerika, vooral in Brazilië. Op deze kaart zie je de rivieren waar illegaal goud wordt gezocht. Het zijn kleine plekjes diep in het bos, maar samen zorgen ze voor enorme vervuiling."', zoek: ["'illegale goudmijnen Amazone kaart'","'kwik vervuiling Amazone cijfers'","'illegal gold mining Amazon map' (Engels)"], tip: '<strong>💡 Tip:</strong> Zoek op Google Earth naar "garimpo Amazon". Je kunt de goudmijnen zien als bruine vlekken in het groene regenwoud. Maak screenshots!' },
+        b: { voorbeeld: '"Het goud uit de Amazone wordt verhandeld over de hele wereld. Het komt terecht in sieraden, maar ook in onze telefoons en computers. Bijna elk elektronisch apparaat bevat een klein beetje goud."', zoek: ["'waar gaat illegaal goud Amazone naartoe'","'goud in elektronica telefoon'","'illegal Amazon gold supply chain' (Engels)"], tip: '<strong>💡 Tip:</strong> Wist je dat er goud in je telefoon zit? Zoek op hoeveel goud er in een smartphone zit. Zo maak je de link naar ons dagelijks leven.' },
+        c: { voorbeeld: '"Kwik is supergiftig. Het komt in het rivierwater en hoopt zich op in vissen. De inheemse stammen die van vis leven, worden vergiftigd. Kinderen krijgen hersenschade."', zoek: ["'kwikvergiftiging inheemse bevolking Amazone'","'gevolgen kwik goudwinning regenwoud'","'mercury poisoning indigenous Amazon' (Engels)"], tip: '<strong>💡 Tip:</strong> Zoek naar verhalen van de Yanomami en andere inheemse volken. Zij leven al duizenden jaren in het regenwoud en worden nu vergiftigd door goudzoekers.' },
+        d: { voorbeeld: '"De oplossing is: goud winnen zonder kwik. Er bestaan al technieken die dat kunnen. De overheid moet strenger optreden. En wij kunnen kiezen voor recycled goud of Fairtrade sieraden."', zoek: ["'goudwinning zonder kwik techniek'","'Fairtrade goud sieraden'","'mercury free gold mining' (Engels)"], tip: '<strong>💡 Tip:</strong> Zoek naar "Fairtrade Gold" of "recycled goud". Er zijn juweliers die alleen eerlijk goud gebruiken. Dat is een concrete oplossing die je kunt laten zien!' }
+    },
+    dodezee: {
+        a: { voorbeeld: '"De Dode Zee ligt tussen Israël, Palestina en Jordanië. Het is het laagste punt op aarde. Op deze kaart zie je hoe de zee elk jaar kleiner wordt. Het waterpeil daalt met ongeveer een meter per jaar."', zoek: ["'Dode Zee kaart waterpeil daling'","'Dode Zee grootte vroeger en nu'","'Dead Sea shrinking satellite' (Engels)"], tip: '<strong>💡 Tip:</strong> Zoek naar satellietbeelden van de Dode Zee door de jaren heen. Je ziet letterlijk hoe het water verdwijnt. Google Earth heeft hier mooie tijdreisbeelden van.' },
+        b: { voorbeeld: '"Bedrijven pompen water uit de Dode Zee om er mineralen uit te halen. Die mineralen zitten in producten die wij gebruiken: gezichtscrème, badproducten, en zelfs mest. Merken als Ahava verkopen deze producten wereldwijd."', zoek: ["'Dode Zee mineralen producten'","'Ahava cosmetica Dode Zee'","'Dead Sea minerals cosmetics export' (Engels)"], tip: '<strong>💡 Tip:</strong> Ga eens kijken in een drogisterij of online. Zoek naar producten met "Dead Sea minerals" op het etiket. Maak foto\'s voor je presentatie!' },
+        c: { voorbeeld: '"Door de daling van het waterpeil ontstaan er duizenden zinkgaten langs de kust. Dat zijn grote gaten die plotseling in de grond verschijnen en wegen en gebouwen opslokken."', zoek: ["'zinkgaten Dode Zee gevaar'","'Dode Zee ecologische gevolgen'","'Dead Sea sinkholes danger' (Engels)"], tip: '<strong>💡 Tip:</strong> Zoek naar foto\'s en video\'s van de zinkgaten. Er zijn hele wegen en stranden ingestort. Indrukwekkende beelden voor je presentatie.' },
+        d: { voorbeeld: '"Een mogelijke oplossing is een kanaal dat water van de Rode Zee naar de Dode Zee brengt. Bedrijven moeten minder water oppompen. En wij kunnen nadenken of we echt producten met Dode Zee-mineralen nodig hebben."', zoek: ["'Red Sea Dead Sea kanaal project'","'Dode Zee redden plan'","'saving the Dead Sea solutions' (Engels)"], tip: '<strong>💡 Tip:</strong> Zoek naar het "Red Sea – Dead Sea" kanaalproject. Er is veel discussie over of dit een goed idee is. Leuk om twee kanten te laten zien!' }
+    },
+    nl: {
+        a: { voorbeeld: '"Het mestprobleem speelt in heel Nederland, maar vooral in Brabant, Gelderland en Overijssel – daar zitten de meeste boerderijen. Uit de cijfers blijkt dat Nederland veel meer mest produceert dan de bodem aankan."', zoek: ["'mestoverschot Nederland kaart'","'stikstof fosfaat water Nederland cijfers'","'nitrogen pollution Netherlands map' (Engels)"], tip: '<strong>💡 Tip:</strong> Zoek naar de "Nitraatkaart" van het RIVM. Daarop zie je precies waar in Nederland het grondwater het meest vervuild is door mest.' },
+        b: { voorbeeld: '"Dit probleem speelt niet ver weg, maar gewoon hier. De mest komt van onze eigen koeien, kippen en varkens. Wij eten het vlees, drinken de melk en eten de eieren. Wij zijn direct onderdeel van het probleem."', zoek: ["'hoeveel dieren heeft Nederland veestapel'","'intensieve veehouderij Nederland'","'Netherlands livestock farming impact water' (Engels)"], tip: '<strong>💡 Tip:</strong> Zoek op hoeveel dieren er in Nederland zijn versus het aantal mensen. Nederland heeft meer dan 100 miljoen kippen! Dat getal maakt indruk.' },
+        c: { voorbeeld: '"De gevolgen zie je om je heen. Sloten zitten vol groene algen door de mest. Die algen gebruiken alle zuurstof op, waardoor vissen en andere waterdieren doodgaan. Drinkwater maken wordt steeds duurder."', zoek: ["'algenbloei sloten Nederland mest'","'vissterfte Nederlandse wateren'","'eutrophication Netherlands agricultural runoff' (Engels)"], tip: '<strong>💡 Tip:</strong> Kijk eens naar een sloot bij jou in de buurt. Is het water groen? Dan is dat waarschijnlijk algenbloei door mest. Maak een foto voor je presentatie!' },
+        d: { voorbeeld: '"De oplossing is: minder dieren, slimmer boeren. De overheid kan strengere regels maken. Boeren kunnen overstappen op kringlooplandbouw. En wij kunnen wat vaker plantaardig eten."', zoek: ["'kringlooplandbouw Nederland uitleg'","'minder vlees eten effect milieu'","'circular farming Netherlands solution' (Engels)"], tip: '<strong>💡 Tip:</strong> Zoek naar voorbeelden van "kringlooplandbouw" in Nederland. Er zijn boeren die het al anders doen. Laat zien dat het kan!' }
     }
+};
 
-    function togglePillar(id) {
-        const item = document.getElementById(id);
-        const isOpen = item.classList.contains('open');
-        document.querySelectorAll('.pillar-item').forEach(p => p.classList.remove('open'));
-        if (!isOpen) item.classList.add('open');
-    }
+let selectedCase = null;
+let previewCase = null;
 
-    const cases = {
-        citarum: { 
-            title: "Citarum: Vieze rivier door kledingfabrieken 👕", 
-            desc: "De Citarum is een rivier in Indonesië en het is één van de smerigste rivieren van de wereld. Langs de rivier staan meer dan 2000 fabrieken die kleding en stof maken. Die fabrieken dumpen hun giftige afvalwater gewoon in de rivier.<br><br><strong>Wat gaat er mis?</strong> Het water zit vol gif (lood, kwik). De mensen die er wonen worden er ziek van en kunnen geen vis meer vangen.<br><br><strong>Wat heeft het met ons te maken?</strong> Veel van de kleding die wij in de winkel kopen, wordt in dit soort fabrieken gemaakt.<br><br><strong>Jullie opdracht:</strong> Zoek uit welke kledingmerken hier laten produceren en bedenk hoe het anders kan." 
-        },
-        aralmeer: { 
-            title: "Het Aralmeer: Een heel meer dat verdween 🏜️", 
-            desc: "Het Aralmeer was vroeger het vierde grootste meer ter wereld. Nu is het bijna helemaal weg! Hoe kan dat? De rivieren die het meer vulden, zijn omgeleid naar katoenplantages. Al het water ging naar de katoen in plaats van naar het meer.<br><br><strong>Wat gaat er mis?</strong> Waar vroeger water was, is nu woestijn. Schepen liggen te roesten in het zand. Giftig stof waait rond en maakt mensen ziek.<br><br><strong>Wat heeft het met ons te maken?</strong> Katoen zit in heel veel van onze kleding en spullen.<br><br><strong>Jullie opdracht:</strong> Zoek uit hoe onze vraag naar goedkoop katoen dit meer heeft laten verdwijnen. Kan het nog gered worden?" 
-        },
-        plastic: { 
-            title: "Plastic Soep: Onze oceanen vol afval 🧴", 
-            desc: "In de oceanen drijven enorme eilanden van plastic afval. Dit plastic komt van over de hele wereld: verpakkingen, flesjes, tasjes – alles wat we weggooien en niet goed recyclen.<br><br><strong>Wat gaat er mis?</strong> Plastic breekt niet af, maar wordt steeds kleiner (microplastic). Vissen eten het op, en via de vis komt het op ons eigen bord.<br><br><strong>Wat heeft het met ons te maken?</strong> Wij gebruiken elke dag plastic. Veel daarvan komt uiteindelijk in zee terecht.<br><br><strong>Jullie opdracht:</strong> Breng de route van plastic in kaart. Hoe zorgen we ervoor dat er geen plastic meer in de zee komt?" 
-        },
-        niger: { 
-            title: "Nigerdelta: Olie die het water vergiftigt 🛢️", 
-            desc: "In Nigeria wordt al tientallen jaren olie opgepompt voor de hele wereld. Maar de oude pijpleidingen lekken de hele tijd. Alles zit onder een laag olie.<br><br><strong>Wat gaat er mis?</strong> Het drinkwater is vergiftigd. Vissers kunnen niet meer werken omdat de vissen doodgaan. Niemand ruimt het op.<br><br><strong>Wat heeft het met ons te maken?</strong> De olie wordt gebruikt voor benzine en plastic – spullen die wij dagelijks gebruiken.<br><br><strong>Jullie opdracht:</strong> Wie is verantwoordelijk voor deze rotzooi? Hoe kan de olie-industrie gedwongen worden om het beter te doen?" 
-        },
-        ganges: { 
-            title: "De Ganges: Heilige rivier vol gif 🕉️", 
-            desc: "De Ganges in India is voor miljoenen mensen een heilige rivier. Ze baden erin als onderdeel van hun geloof. Maar tegelijkertijd dumpen fabrieken (die bijv. leer maken voor onze schoenen) en steden al hun afvalwater in de rivier.<br><br><strong>Wat gaat er mis?</strong> Het water is extreem vies en gevaarlijk voor de gezondheid, maar mensen blijven erin baden vanwege hun geloof.<br><br><strong>Wat heeft het met ons te maken?</strong> Leer voor schoenen en tassen wordt hier gemaakt. Die producten liggen bij ons in de winkel.<br><br><strong>Jullie opdracht:</strong> Hoe kun je het geloof respecteren én de rivier schoonmaken? Zoek naar het 'Clean Ganga' project." 
-        },
-        amazone: { 
-            title: "De Amazone: Vergiftigd door goudzoekers 🏆", 
-            desc: "In het Amazone-regenwoud zoeken mensen illegaal naar goud. Ze gebruiken kwik (een zwaar gif) om gouddeeltjes uit de modder te halen. Dat kwik loopt zo de rivier in.<br><br><strong>Wat gaat er mis?</strong> Het kwik komt in de vissen terecht. De inheemse bevolking eet die vis en wordt daar ernstig ziek van (hersenschade).<br><br><strong>Wat heeft het met ons te maken?</strong> Het goud wordt verwerkt in sieraden en elektronica die wij kopen.<br><br><strong>Jullie opdracht:</strong> Waar gaat dit goud naartoe? Hoe zorgen we dat er geen gif meer gebruikt wordt bij het goudzuken?" 
-        },
-        dodezee: { 
-            title: "De Dode Zee: Een zee die verdwijnt 🧂", 
-            desc: "De Dode Zee is het laagste punt op aarde en superveel zout. Maar elk jaar wordt het water een meter lager! Dit komt doordat bedrijven er grondstoffen uithalen (voor cosmetica en mest) en doordat de landbouw veel water wegpompt.<br><br><strong>Wat gaat er mis?</strong> Er ontstaan grote gaten in de grond (zinkgaten) die wegen en gebouwen opslokken. Het unieke landschap verdwijnt.<br><br><strong>Wat heeft het met ons te maken?</strong> De mineralen worden gebruikt in producten die wij kopen (bijv. gezichtscrème).<br><br><strong>Jullie opdracht:</strong> Wie verdient er geld aan de Dode Zee? Hoe houden we dit bijzondere gebied in stand?" 
-        },
-        nl: { 
-            title: "Nederland: Onze eigen sloten stikken 🐄", 
-            desc: "Je denkt misschien: ons water is toch schoon? Niet helemaal. Door de enorme hoeveelheid koeien, kippen en varkens in Nederland komt er heel veel mest in de bodem en het water. Onze sloten zitten vol algen door al die mest.<br><br><strong>Wat gaat er mis?</strong> Dieren en planten in het water gaan dood. En het water schoonmaken voor drinkwater wordt steeds duurder.<br><br><strong>Wat heeft het met ons te maken?</strong> Dit speelt letterlijk in onze achtertuin. De mest komt van de dieren die ons eten produceren.<br><br><strong>Jullie opdracht:</strong> Hoe erg is het mestprobleem echt? Hoe zou een boerderij eruitzien die het water wel schoon houdt?" 
-        }
-    };
+function showTab(id) {
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    event.currentTarget.classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
 
-    function showCase(id) {
-        document.getElementById('case-info-box').style.display = 'block';
-        document.getElementById('case-title').innerText = cases[id].title;
-        document.getElementById('case-description').innerHTML = cases[id].desc;
-        document.querySelectorAll('.pill').forEach(p => p.classList.remove('selected'));
-        event.currentTarget.classList.add('selected');
-    }
+function showTabDirect(id) {
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    const tabMap = ['intro','cases','plan','checklist','rubric'];
+    const idx = tabMap.indexOf(id);
+    if (idx >= 0) document.querySelectorAll('.tab-btn')[idx].classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
 
-    // Checklist met localStorage
-    const checks = document.querySelectorAll('.check-item input');
-    checks.forEach(c => {
-        try {
-            c.checked = localStorage.getItem(c.id) === 'true';
-            if(c.checked) c.parentElement.classList.add('done');
-        } catch(e) {}
-        c.addEventListener('change', () => {
-            try { localStorage.setItem(c.id, c.checked); } catch(e) {}
-            c.checked ? c.parentElement.classList.add('done') : c.parentElement.classList.remove('done');
-        });
+function togglePillar(id) {
+    const item = document.getElementById(id);
+    const isOpen = item.classList.contains('open');
+    document.querySelectorAll('.pillar-item').forEach(p => p.classList.remove('open'));
+    if (!isOpen) item.classList.add('open');
+}
+
+function showCase(id) {
+    previewCase = id;
+    document.getElementById('case-info-box').style.display = 'block';
+    document.getElementById('case-title').innerText = cases[id].title;
+    document.getElementById('case-description').innerHTML = cases[id].desc;
+    document.querySelectorAll('.pill').forEach(p => p.classList.remove('selected'));
+    event.currentTarget.classList.add('selected');
+}
+
+function confirmCase() {
+    if (!previewCase) return;
+    selectedCase = previewCase;
+    try { localStorage.setItem('selectedCase', selectedCase); } catch(e) {}
+    updatePillars();
+    updateBanner();
+    showTabDirect('plan');
+}
+
+function updatePillars() {
+    if (!selectedCase || !pillarData[selectedCase]) return;
+    const d = pillarData[selectedCase];
+    ['a','b','c','d'].forEach(key => {
+        document.getElementById('voorbeeld-' + key).innerHTML =
+            '<strong>💬 Voorbeeldzin voor je presentatie:</strong><br><span class="voorbeeld-tekst">' + d[key].voorbeeld + '</span>';
+        document.getElementById('zoek-' + key).innerHTML =
+            d[key].zoek.map(z => '<li><em>' + z + '</em></li>').join('');
+        document.getElementById('tip-' + key).innerHTML = d[key].tip;
     });
-</script>
+}
 
+function updateBanner() {
+    if (selectedCase && cases[selectedCase]) {
+        document.getElementById('no-case-msg').style.display = 'none';
+        document.getElementById('case-chosen-banner').style.display = 'flex';
+        document.getElementById('banner-case-name').innerText = cases[selectedCase].title;
+    } else {
+        document.getElementById('no-case-msg').style.display = 'block';
+        document.getElementById('case-chosen-banner').style.display = 'none';
+    }
+}
+
+const checks = document.querySelectorAll('.check-item input');
+checks.forEach(c => {
+    try { c.checked = localStorage.getItem(c.id) === 'true'; if(c.checked) c.parentElement.classList.add('done'); } catch(e) {}
+    c.addEventListener('change', () => {
+        try { localStorage.setItem(c.id, c.checked); } catch(e) {}
+        c.checked ? c.parentElement.classList.add('done') : c.parentElement.classList.remove('done');
+    });
+});
+
+try {
+    const saved = localStorage.getItem('selectedCase');
+    if (saved && cases[saved]) { selectedCase = saved; updatePillars(); updateBanner(); }
+} catch(e) {}
+</script>
 </body>
 </html>
