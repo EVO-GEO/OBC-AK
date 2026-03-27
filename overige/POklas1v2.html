@@ -79,13 +79,20 @@ kbd { display:inline-block; background:#f1f5f9; border:1px solid #cbd5e1; border
 .timeline-item h3 { font-family:'Baloo 2',cursive; font-size:1.1rem; margin:0 0 0.3rem; color:var(--c-primary-dark); }
 .timeline-item p { font-size:0.9rem; line-height:1.6; }
 
-.slides-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:1rem; margin:1rem 0; }
-.slide-card { background:var(--c-bg); border:2px solid var(--c-border); border-radius:12px; padding:1.1rem; transition:border-color 0.2s,transform 0.2s; }
-.slide-card:hover { border-color:var(--c-primary); transform:translateY(-3px); }
-.slide-num { display:inline-flex; align-items:center; justify-content:center; width:30px; height:30px; border-radius:8px; background:var(--c-primary); color:white; font-weight:800; font-size:0.85rem; font-family:'Baloo 2',cursive; margin-bottom:0.5rem; }
-.slide-card h4 { font-family:'Baloo 2',cursive; font-size:1rem; margin-bottom:0.3rem; }
-.slide-card p { font-size:0.85rem; color:var(--c-text-muted); line-height:1.5; margin-bottom: 0.5rem; }
-.slide-card .notitie-tag { display:inline-block; font-size: 0.75rem; font-weight: 700; color: var(--c-purple); background: var(--c-purple-light); padding: 0.2rem 0.5rem; border-radius: 4px; }
+/* ═══ ACCORDIONS VOOR DIA'S EN BEGRIPPEN ═══ */
+.accordion { border-radius:12px; margin-bottom:0.8rem; border:1px solid var(--c-border); overflow:hidden; transition:box-shadow 0.2s; background:var(--c-card); }
+.accordion:hover { box-shadow:var(--shadow); }
+.accordion-header { display:flex; align-items:center; gap:0.8rem; padding:1rem 1.2rem; cursor:pointer; font-weight:700; font-size:1rem; user-select:none; transition:background 0.15s; }
+.accordion-header:hover { background:var(--c-primary-light); }
+.accordion-header .arrow { margin-left:auto; transition:transform 0.3s ease; font-size:0.8rem; color:var(--c-text-muted); }
+.accordion.open .arrow { transform:rotate(180deg); color:var(--c-primary); }
+.accordion.open .accordion-header { border-bottom: 1px solid var(--c-border); color: var(--c-primary-dark); }
+.accordion-body { max-height:0; overflow:hidden; transition:max-height 0.35s ease,padding 0.35s ease; background:var(--c-bg); padding:0 1.2rem; font-size:0.95rem; line-height:1.7; }
+.accordion.open .accordion-body { max-height:800px; padding:1.2rem; }
+.accordion-body h4 { font-family:'Baloo 2',cursive; font-size:1.05rem; color:var(--c-primary); margin: 0.8rem 0 0.3rem; }
+.accordion-body h4:first-child { margin-top: 0; }
+.accordion-body ul { padding-left: 1.2rem; margin-top: 0.3rem; }
+.slide-num { display:inline-flex; align-items:center; justify-content:center; width:30px; height:30px; border-radius:8px; background:var(--c-primary); color:white; font-weight:800; font-size:0.9rem; font-family:'Baloo 2',cursive; flex-shrink: 0;}
 
 .rubric-wrap { overflow-x:auto; margin:1rem 0; }
 table.rubric { width:100%; border-collapse:separate; border-spacing:0; font-size:0.9rem; border-radius:12px; overflow:hidden; border:1px solid var(--c-border); }
@@ -102,15 +109,6 @@ table.rubric tbody td p { font-weight: 400; font-size: 0.85rem; color: var(--c-t
 .rubric-score-circle .small { font-size:0.8rem; opacity:0.85; margin-top: 0.2rem; }
 .rubric-score-text h3 { margin:0 0 0.3rem; font-size:1.3rem; font-family: 'Baloo 2', cursive;}
 .rubric-score-text p { font-size:0.95rem; color:var(--c-text-muted); margin:0; line-height: 1.5;}
-
-.begrip { border-radius:12px; margin-bottom:0.8rem; border:1px solid var(--c-border); overflow:hidden; transition:box-shadow 0.2s; }
-.begrip:hover { box-shadow:var(--shadow); }
-.begrip-header { display:flex; align-items:center; gap:0.6rem; padding:0.9rem 1.1rem; background:var(--c-card); cursor:pointer; font-weight:700; font-size:0.95rem; user-select:none; transition:background 0.15s; }
-.begrip-header:hover { background:var(--c-primary-light); }
-.begrip-header .arrow { margin-left:auto; transition:transform 0.3s ease; font-size:0.8rem; color:var(--c-text-muted); }
-.begrip.open .arrow { transform:rotate(180deg); }
-.begrip-body { max-height:0; overflow:hidden; transition:max-height 0.35s ease,padding 0.35s ease; background:var(--c-bg); padding:0 1.1rem; font-size:0.9rem; line-height:1.7; }
-.begrip.open .begrip-body { max-height:600px; padding:1rem 1.1rem; }
 
 .checklist { list-style:none; padding:0; margin:0.8rem 0; }
 .checklist li { display:flex; align-items:flex-start; gap:0.6rem; padding:0.6rem 0; border-bottom:1px solid var(--c-border); font-size:0.9rem; line-height:1.5; }
@@ -148,7 +146,6 @@ table.rubric tbody td p { font-weight: 400; font-size: 0.85rem; color: var(--c-t
   .tab-btn { font-size:0.65rem; padding:0.55rem 0.25rem; }
   .tab-btn span.tab-icon { font-size:1rem; }
   .card { padding:1.3rem; }
-  .slides-grid { grid-template-columns:1fr; }
   table.rubric { font-size:0.78rem; }
   .wheel-wrapper { width:240px; height:240px; }
   .rubric-score-card { flex-direction:column; text-align:center; gap: 0.8rem; }
@@ -173,10 +170,10 @@ table.rubric tbody td p { font-weight: 400; font-size: 0.85rem; color: var(--c-t
     <button class="tab-btn active" data-tab="opdracht"><span class="tab-icon">📋</span>Opdracht</button>
     <button class="tab-btn" data-tab="planning"><span class="tab-icon">📅</span>Planning</button>
     <button class="tab-btn" data-tab="dias"><span class="tab-icon">🖼️</span>Dia's</button>
-    <button class="tab-btn" data-tab="kiezer"><span class="tab-icon">🎰</span>Landenkiezer</button>
+    <button class="tab-btn" data-tab="kiezer"><span class="tab-icon">🎰</span>Kiezer</button>
     <button class="tab-btn" data-tab="begrippen"><span class="tab-icon">📖</span>Begrippen</button>
     <button class="tab-btn" data-tab="tips"><span class="tab-icon">💡</span>Tips</button>
-    <button class="tab-btn" data-tab="rubric"><span class="tab-icon">⭐</span>Beoordeling</button>
+    <button class="tab-btn" data-tab="rubric"><span class="tab-icon">⭐</span>Cijfer</button>
   </nav>
 </div>
 
@@ -185,21 +182,30 @@ table.rubric tbody td p { font-weight: 400; font-size: 0.85rem; color: var(--c-t
   <div class="tab-content active" id="tab-opdracht">
     <div class="card">
       <h2>🎯 Wat ga je doen?</h2>
-      <p>Je vergelijkt de ontwikkeling van een <strong>rijk land</strong> met een <strong>arm land</strong>. Omdat je deze keer niet voor de klas hoeft te presenteren, lever je een speciaal PowerPoint-bestand in dat voldoet aan drie <strong>gouden regels</strong>:</p>
+      <p>Je vergelijkt de ontwikkeling van een <strong>rijk land</strong> met een <strong>arm land</strong>. Omdat je deze keer niet voor de klas hoeft te presenteren, lever je een speciaal PowerPoint-bestand in dat voldoet aan vier <strong>gouden regels</strong>:</p>
       
       <div class="tip-box tip-blue" style="margin-top: 1rem;">
         <span class="tip-icon">🏆</span>
         <div>
-          <strong>De 3 Gouden Regels:</strong>
+          <strong>De 4 Gouden Regels:</strong>
           <ol style="margin-top: 0.5rem; padding-left: 1.2rem;">
             <li><strong>Op de dia's</strong> staan alleen afbeeldingen/kaarten, een titel en maximaal 5 steekwoorden. Geen zinnen!</li>
             <li><strong>In de 'Notities'</strong> (het tekstvak onder je dia in PowerPoint) typ je in je eigen woorden je hele uitleg.</li>
-            <li><strong>De (digitale) Atlas is verplicht.</strong> Je gebruikt screenshots van echte kaarten (inclusief legenda!) als bewijs en noemt dit in je notities.</li>
+            <li><strong>De Atlas is verplicht.</strong> Je gebruikt screenshots van kaarten (inclusief legenda!) als bewijs en noemt dit in je notities.</li>
+            <li><strong>Begrippen gebruiken:</strong> Je moet de aardrijkskundige begrippen (zoals analfabetisme en welvaart) juist gebruiken in je teksten.</li>
           </ol>
         </div>
       </div>
+
+      <div class="tip-box tip-red" style="margin-top: 1.5rem; border-left: 5px solid var(--c-red);">
+        <span class="tip-icon">🛑</span>
+        <div>
+          <strong>Let op: AI-gebruik en eigen woorden!</strong>
+          <p style="margin-top:0.3rem;">Je moet alle antwoorden en notities typen in je <strong>eigen, begrijpelijke taal</strong>. Knippen en plakken van ingewikkelde teksten uit Google of AI (zoals ChatGPT) is absoluut verboden. Bij een vermoeden van overmatig AI-gebruik moet je een <strong>volledig nieuw product inleveren</strong> en/of hierover buiten de les een <strong>strenge mondelinge toelichting</strong> komen geven.</p>
+        </div>
+      </div>
       
-      <h3>Samenwerken</h3>
+      <h3 style="margin-top: 1.5rem;">Samenwerken</h3>
       <p>Je werkt in <strong>duo's</strong>. Verdeel het werk slim: één persoon verzamelt de kaarten voor het rijke land, de ander voor het arme land. Schrijf wel sámen de vergelijking in de notities en controleer elkaars werk.</p>
     </div>
   </div>
@@ -224,14 +230,14 @@ table.rubric tbody td p { font-weight: 400; font-size: 0.85rem; color: var(--c-t
           <p><strong>Klassikaal:</strong> Uitleg over de kniptool (<kbd>Win</kbd> + <kbd>Shift</kbd> + <kbd>S</kbd>) en het vinden van de Notities in PowerPoint.</p>
           <p><strong>Jouw actie:</strong></p>
           <ul>
-            <li>Zoek thematische kaarten (gezondheid, klimaat, etc.) in de (digitale) atlas.</li>
+            <li>Zoek thematische kaarten (gezondheid, klimaat, etc.) in de atlas.</li>
             <li>Maak screenshots inclusief legenda, plak ze op de dia's.</li>
             <li><strong>Belangrijk:</strong> Typ jullie antwoorden, verklaringen en vergelijkingen in het Notitie-vak!</li>
           </ul>
         </div>
         <div class="timeline-item">
           <h3>💾 Daarna — Nakijken & Inleveren</h3>
-          <p>Lees jullie Notities goed door. Controleer of elke legenda op de dia staat. Lever het `.pptx` bestand in via de ELO of Teams voor de afgesproken datum.</p>
+          <p>Lees jullie Notities goed door. Staan ze in jullie eigen taal? Staat elke legenda op de dia? Lever het `.pptx` bestand digitaal in vóór de deadline.</p>
         </div>
       </div>
     </div>
@@ -239,38 +245,101 @@ table.rubric tbody td p { font-weight: 400; font-size: 0.85rem; color: var(--c-t
 
   <div class="tab-content" id="tab-dias">
     <div class="card">
-      <h2>🖼️ Eisen per dia</h2>
-      <p>Je PowerPoint bestaat uit precies <strong>6 dia's</strong>. Vergeet niet: max 5 steekwoorden op de dia zelf, de rest in de Notities!</p>
-      <div class="slides-grid">
-        <div class="slide-card">
-          <span class="slide-num">1</span><h4>Titeldia</h4>
-          <p><strong>Dia:</strong> Titel, jullie namen, de twee landen en een mooi plaatje.</p>
+      <h2>🖼️ Eisen per dia (Stappenplan)</h2>
+      <p>Klik op een dia om precies te zien wat je erop moet zetten én welke vragen je in de Notities moet beantwoorden. Zorg dat je antwoorden makkelijk te begrijpen zijn!</p>
+      
+      <div style="margin-top:1.5rem;">
+        
+        <div class="accordion"><div class="accordion-header" onclick="toggleAcc(this)"><span class="slide-num">1</span> Titeldia <span class="arrow">▼</span></div>
+          <div class="accordion-body">
+            <h4>📸 Op de dia zelf:</h4>
+            <ul>
+              <li>Een duidelijke titel.</li>
+              <li>Jullie voor- en achternamen + klas.</li>
+              <li>De namen van jullie twee gekozen landen en een mooi plaatje of de vlaggen.</li>
+            </ul>
+            <h4>📝 In de Notities typ je:</h4>
+            <p>Vertel hier even kort wie wat heeft gedaan (de taakverdeling).</p>
+          </div>
         </div>
-        <div class="slide-card">
-          <span class="slide-num">2</span><h4>Waar liggen ze?</h4>
-          <p><strong>Dia:</strong> Screenshot overzichtskaart met legenda.</p>
-          <div class="notitie-tag">📝 Notities: Beschrijf de ligging van beide landen.</div>
+
+        <div class="accordion"><div class="accordion-header" onclick="toggleAcc(this)"><span class="slide-num">2</span> Waar liggen ze? <span class="arrow">▼</span></div>
+          <div class="accordion-body">
+            <h4>📸 Op de dia zelf:</h4>
+            <ul>
+              <li>Een screenshot van een wereldkaart of continentenkaart uit de atlas.</li>
+              <li>Zorg dat je kunt zien waar beide landen liggen. Zet er desnoods een pijl of cirkel bij!</li>
+            </ul>
+            <h4>📝 In de Notities beantwoord je:</h4>
+            <ul>
+              <li>Op welk continent ligt jullie rijke land? En het arme land?</li>
+              <li>Aan welke belangrijke zeeën of oceanen grenzen ze?</li>
+              <li>Liggen de landen dicht bij de evenaar, of juist ver weg? Leg uit in eigen woorden waar ze liggen op de wereldbol.</li>
+            </ul>
+          </div>
         </div>
-        <div class="slide-card">
-          <span class="slide-num">3</span><h4>Welvaart</h4>
-          <p><strong>Dia:</strong> Kaart over BNP of werksectoren (max 5 woorden).</p>
-          <div class="notitie-tag">📝 Notities: Cijfers en de vergelijking tussen land A en B.</div>
+
+        <div class="accordion"><div class="accordion-header" onclick="toggleAcc(this)"><span class="slide-num">3</span> Welvaart (Geld) <span class="arrow">▼</span></div>
+          <div class="accordion-body">
+            <h4>📸 Op de dia zelf:</h4>
+            <ul>
+              <li>Kies een kaart uit de atlas over het <strong>BNP per inwoner</strong> óf de <strong>werksectoren</strong> (landbouw, industrie, diensten).</li>
+              <li>Vergeet de legenda niet in de screenshot! Maximaal 5 steekwoorden.</li>
+            </ul>
+            <h4>📝 In de Notities beantwoord je:</h4>
+            <ul>
+              <li>Kijk in de legenda: welke kleur hebben jullie landen op de kaart en wat betekent die kleur in euro's/dollars of percentages?</li>
+              <li>Wat is precies het verschil in welvaart tussen jullie rijke en arme land? Geef de harde cijfers.</li>
+              <li>In welke sector werken de meeste mensen in jullie arme land? Waarom levert dat vaak minder geld op?</li>
+            </ul>
+          </div>
         </div>
-        <div class="slide-card">
-          <span class="slide-num">4</span><h4>Welzijn</h4>
-          <p><strong>Dia:</strong> Kaart over gezondheid, artsen of onderwijs.</p>
-          <div class="notitie-tag">📝 Notities: Wat valt je op in de legenda? Leg het verschil uit.</div>
+
+        <div class="accordion"><div class="accordion-header" onclick="toggleAcc(this)"><span class="slide-num">4</span> Welzijn (Leefomstandigheden) <span class="arrow">▼</span></div>
+          <div class="accordion-body">
+            <h4>📸 Op de dia zelf:</h4>
+            <ul>
+              <li>Kies een nieuwe atlaskaart, bijvoorbeeld over <strong>levensverwachting</strong>, <strong>analfabetisme</strong> of <strong>zuigelingensterfte</strong>.</li>
+              <li>Legenda weer duidelijk in beeld.</li>
+            </ul>
+            <h4>📝 In de Notities beantwoord je:</h4>
+            <ul>
+              <li>Lees de legenda goed af: Wat is het percentage of de leeftijd in jullie rijke land vergeleken met het arme land?</li>
+              <li>Hoe leg je dit in eigen, makkelijke woorden uit aan iemand die niets van aardrijkskunde weet? Wat vertellen deze cijfers over de kwaliteit van de ziekenhuizen en scholen?</li>
+              <li><em>Let op: Gebruik hierbij minimaal één van de nieuwe begrippen goed!</em></li>
+            </ul>
+          </div>
         </div>
-        <div class="slide-card">
-          <span class="slide-num">5</span><h4>De Oorzaak</h4>
-          <p><strong>Dia:</strong> Kaart over klimaat of grondstoffen.</p>
-          <div class="notitie-tag">📝 Notities: Verklaar de verschillen uit dia 3 en 4 hiermee.</div>
+
+        <div class="accordion"><div class="accordion-header" onclick="toggleAcc(this)"><span class="slide-num">5</span> De Oorzaken <span class="arrow">▼</span></div>
+          <div class="accordion-body">
+            <h4>📸 Op de dia zelf:</h4>
+            <ul>
+              <li>Kies een natuurkundige kaart. Bijvoorbeeld de <strong>klimaatgebieden</strong> of <strong>natuurlijke hulpbronnen (grondstoffen)</strong>.</li>
+            </ul>
+            <h4>📝 In de Notities beantwoord je:</h4>
+            <ul>
+              <li>Waarom is het arme land arm gebleven? Vergelijk het klimaat of het landschap van de twee landen.</li>
+              <li>Is het in het arme land te droog voor landbouw? Zijn er veel natuurrampen? Of hebben ze juist heel weinig grondstoffen vergeleken met het rijke land?</li>
+              <li>Koppel dit aan jullie eerdere kaarten: leg uit waarom de natuur invloed heeft op het geld of de gezondheid.</li>
+            </ul>
+          </div>
         </div>
-        <div class="slide-card">
-          <span class="slide-num">6</span><h4>De Conclusie</h4>
-          <p><strong>Dia:</strong> Eindplaatje + 1 krachtige zin.</p>
-          <div class="notitie-tag">📝 Notities: Wat is het allergrootste verschil en wat is jullie eigen mening?</div>
+
+        <div class="accordion"><div class="accordion-header" onclick="toggleAcc(this)"><span class="slide-num">6</span> De Conclusie <span class="arrow">▼</span></div>
+          <div class="accordion-body">
+            <h4>📸 Op de dia zelf:</h4>
+            <ul>
+              <li>Eén afsluitende afbeelding (bijv. een foto van hoe de landen eruitzien) en jullie belangrijkste kernzin (max 5 woorden).</li>
+            </ul>
+            <h4>📝 In de Notities beantwoord je:</h4>
+            <ul>
+              <li>Kijk terug naar jullie hele onderzoek. Wat is volgens jullie de allergrootste en belangrijkste oorzaak voor het verschil tussen deze twee landen?</li>
+              <li>Wat vonden jullie het meest schokkende of opvallende verschil dat je bent tegengekomen tijdens het maken van deze opdracht? Leg uit waarom.</li>
+            </ul>
+          </div>
         </div>
+
       </div>
     </div>
   </div>
@@ -278,9 +347,8 @@ table.rubric tbody td p { font-weight: 400; font-size: 0.85rem; color: var(--c-t
   <div class="tab-content" id="tab-kiezer">
     <div class="card">
       <h2>🎰 Landenkiezer</h2>
-      <p>Weet je niet welk land je moet kiezen? Draai aan de twee raderen! Links krijg je een <strong>rijk land</strong>, rechts een <strong>arm land</strong>.</p>
-      <div class="tip-box tip-purple"><span class="tip-icon">🔄</span><div>Klik op het rad of op de knop om te draaien. Niet tevreden? Druk op <strong>"Opnieuw draaien"</strong>!</div></div>
-
+      <p>Weet je niet welk land je moet kiezen? Draai aan de raderen! Links krijg je een <strong>rijk land</strong>, rechts een <strong>arm land</strong>.</p>
+      
       <div class="wheels-container">
         <div class="wheel-section">
           <h3>💰 Rijke landen</h3>
@@ -311,13 +379,24 @@ table.rubric tbody td p { font-weight: 400; font-size: 0.85rem; color: var(--c-t
   <div class="tab-content" id="tab-begrippen">
     <div class="card">
       <h2>📖 Belangrijke begrippen</h2>
-      <p>Klik op een begrip om de uitleg te lezen. Gebruik deze begrippen correct in jullie PowerPoint Notities!</p>
-      <div style="margin-top:1rem;">
-        <div class="begrip"><div class="begrip-header" onclick="toggleBegrip(this)"><span>💰</span> Bruto Nationaal Product (bnp)<span class="arrow">▼</span></div><div class="begrip-body"><p>Het <strong>bnp</strong> is de totale waarde van alles wat een land in één jaar produceert.</p><p>Als je het bnp deelt door het aantal inwoners, krijg je het <strong>bnp per inwoner</strong>. Dat is een maat voor hoe rijk een land gemiddeld is.</p><p><em>Voorbeeld:</em> Nederland ≈ $57.000 per inwoner. Mali ≈ $900 per inwoner.</p></div></div>
-        <div class="begrip"><div class="begrip-header" onclick="toggleBegrip(this)"><span>📈</span> Welvaart<span class="arrow">▼</span></div><div class="begrip-body"><p><strong>Welvaart</strong> gaat over geld en bezit. Kunnen mensen genoeg eten kopen, een huis betalen?</p><p>Welvaart meet je vaak met het bnp per inwoner. Maar let op: welvaart zegt niets over geluk of gezondheid!</p></div></div>
-        <div class="begrip"><div class="begrip-header" onclick="toggleBegrip(this)"><span>❤️</span> Welzijn<span class="arrow">▼</span></div><div class="begrip-body"><p><strong>Welzijn</strong> gaat over hoe goed het leven is, los van geld. Denk aan: gezondheidszorg, onderwijs, veiligheid, schoon drinkwater.</p><p>Een land kan veel geld verdienen maar toch een laag welzijn hebben als er weinig ziekenhuizen zijn.</p></div></div>
-        <div class="begrip"><div class="begrip-header" onclick="toggleBegrip(this)"><span>🌐</span> VN-index (HDI)<span class="arrow">▼</span></div><div class="begrip-body"><p>De <strong>Human Development Index</strong> combineert drie dingen:</p><ul><li><strong>Gezondheid</strong> — hoe oud worden mensen?</li><li><strong>Onderwijs</strong> — hoeveel jaar school?</li><li><strong>Inkomen</strong> — hoeveel verdienen mensen?</li></ul><p>Score van 0 tot 1. Hoe dichter bij 1, hoe beter.</p></div></div>
-        <div class="begrip"><div class="begrip-header" onclick="toggleBegrip(this)"><span>🗺️</span> Legenda<span class="arrow">▼</span></div><div class="begrip-body"><p>Het vakje naast een kaart dat de kleuren en symbolen uitlegt. <strong>Verplicht</strong> bij elke screenshot, zodat de AI (en de docent) ziet dat je echt onderzoek hebt gedaan!</p></div></div>
+      <p>Klik op een begrip om de uitleg te lezen. <strong>Je bent verplicht</strong> om deze begrippen correct in jullie PowerPoint Notities te gebruiken!</p>
+      <div style="margin-top:1.5rem;">
+        
+        <div class="accordion"><div class="accordion-header" onclick="toggleAcc(this)"><span>📊</span> Analfabetisme<span class="arrow">▼</span></div><div class="accordion-body"><p>Het percentage van de bevolking (ouder dan 15 jaar) dat <strong>niet kan lezen en schrijven</strong>. Dit zie je veel in arme landen omdat kinderen moeten werken in plaats van naar school gaan.</p></div></div>
+        
+        <div class="accordion"><div class="accordion-header" onclick="toggleAcc(this)"><span>🎂</span> Levensverwachting<span class="arrow">▼</span></div><div class="accordion-body"><p>Hoe oud de mensen in een bepaald land <strong>gemiddeld worden</strong> vanaf hun geboorte. In rijke landen is de levensverwachting veel hoger door beter voedsel, veiligheid en goede ziekenhuizen.</p></div></div>
+        
+        <div class="accordion"><div class="accordion-header" onclick="toggleAcc(this)"><span>👶</span> Zuigelingensterfte<span class="arrow">▼</span></div><div class="accordion-body"><p>Een treurig maar belangrijk begrip: het aantal baby's (per 1000 levendgeborenen) dat <strong>overlijdt voordat ze één jaar oud zijn</strong>. Een hoge zuigelingensterfte wijst op erg slechte gezondheidszorg, vies drinkwater of ziektes.</p></div></div>
+
+        <div class="accordion"><div class="accordion-header" onclick="toggleAcc(this)"><span>💰</span> Bruto Nationaal Product (bnp)<span class="arrow">▼</span></div><div class="accordion-body"><p>Het <strong>bnp</strong> is de totale waarde van alles wat een land in één jaar produceert en verdient.</p><p>Als je dit deelt door het aantal inwoners, krijg je het <strong>bnp per inwoner</strong>. Dit is een makkelijke manier om te meten hoe rijk een land gemiddeld is.</p></div></div>
+        
+        <div class="accordion"><div class="accordion-header" onclick="toggleAcc(this)"><span>📈</span> Welvaart<span class="arrow">▼</span></div><div class="accordion-body"><p><strong>Welvaart</strong> gaat alleen maar over geld en bezit. Hebben de mensen veel spullen, een stevig huis en genoeg geld om eten te kopen?</p></div></div>
+        
+        <div class="accordion"><div class="accordion-header" onclick="toggleAcc(this)"><span>❤️</span> Welzijn<span class="arrow">▼</span></div><div class="accordion-body"><p><strong>Welzijn</strong> gaat over hoe <em>goed</em> het leven is, los van hoeveel geld je op de bank hebt. Denk aan de kwaliteit van scholen, ziekenhuizen, veiligheid op straat, en schoon drinkwater.</p></div></div>
+        
+        <div class="accordion"><div class="accordion-header" onclick="toggleAcc(this)"><span>🌐</span> VN-index (HDI)<span class="arrow">▼</span></div><div class="accordion-body"><p>Een slim rapportcijfer van de Verenigde Naties om landen te vergelijken. Het kijkt niet alleen naar geld, maar naar drie dingen tegelijk:</p><ul><li><strong>Gezondheid</strong> (levensverwachting)</li><li><strong>Onderwijs</strong> (hoe lang gaan kinderen naar school?)</li><li><strong>Inkomen</strong> (het bnp per inwoner)</li></ul></div></div>
+        
+        <div class="accordion"><div class="accordion-header" onclick="toggleAcc(this)"><span>🗺️</span> Legenda<span class="arrow">▼</span></div><div class="accordion-body"><p>Het belangrijke vakje naast een kaart dat de kleuren en symbolen uitlegt. <strong>Altijd verplicht</strong> om mee te knippen als je een screenshot maakt!</p></div></div>
       </div>
     </div>
   </div>
@@ -327,31 +406,28 @@ table.rubric tbody td p { font-weight: 400; font-size: 0.85rem; color: var(--c-t
       <h2>💡 Handige tips</h2>
       
       <h3>📝 Waar vind ik de Notities in PowerPoint?</h3>
-      <div class="tip-box tip-yellow"><span class="tip-icon">👀</span><div>Klik in PowerPoint onderaan je scherm op de knop <strong>'Notities'</strong> of sleep de balk onder je dia omhoog. Er verschijnt een wit tekstvak waar je onbeperkt in kunt typen!</div></div>
+      <div class="tip-box tip-yellow"><span class="tip-icon">👀</span><div>Klik in PowerPoint helemaal onderaan je scherm op de knop <strong>'Notities'</strong>. Er verschijnt dan onder je dia een extra wit tekstvak waar je onbeperkt jullie eigen uitleg in kunt typen!</div></div>
 
-      <h3>🔧 De Kniptool gebruiken</h3>
-      <div class="tip-box tip-blue"><span class="tip-icon">✂️</span><div>Druk op <kbd>Win</kbd> + <kbd>Shift</kbd> + <kbd>S</kbd>. Je scherm wordt grijs. Sleep over de atlas-kaart <strong>én legenda</strong>. Ga naar PowerPoint → <kbd>Ctrl</kbd> + <kbd>V</kbd>.</div></div>
-
-      <h3>✍️ Een supergoede vergelijking schrijven</h3>
-      <div class="tip-box tip-green"><span class="tip-icon">🎯</span><div><ol><li><strong>Benoem de legenda:</strong> "Op de kaart is land A rood gekleurd, wat volgens de legenda betekent dat..."</li><li><strong>Vergelijk:</strong> "Land B is daarentegen groen, het verschil is dus..."</li><li><strong>Verklaar:</strong> "Dit komt waarschijnlijk doordat..."</li></ol></div></div>
+      <h3>🔧 Snel de Kniptool gebruiken</h3>
+      <div class="tip-box tip-blue"><span class="tip-icon">✂️</span><div>Druk op je toetsenbord op <kbd>Win</kbd> + <kbd>Shift</kbd> + <kbd>S</kbd>. Je scherm wordt grijs. Sleep een rechthoek over de atlas-kaart <strong>én legenda</strong>. Ga terug naar je PowerPoint en toets <kbd>Ctrl</kbd> + <kbd>V</kbd> (plakken).</div></div>
     </div>
   </div>
 
   <div class="tab-content" id="tab-rubric">
     <div class="card">
       <h2>⭐ Beoordelingsmodel</h2>
-      <p>Je krijgt voor deze opdracht <strong>drie deelcijfers</strong> (op een schaal van 1 tot 10). Omdat de inhoud van je notities het belangrijkste is, telt dit cijfer 3x mee. Het atlasgebruik telt 2x mee en de vormgeving telt 1x mee.</p>
+      <p>Jullie presentatie wordt beoordeeld met <strong>drie deelcijfers</strong> (op een schaal van 1 tot 10). Niet alles is even belangrijk! Omdat de inhoud van je teksten én het gebruik van de atlas de kern van het vak vormen, wegen deze dubbel. Vormgeving weegt één keer mee.</p>
 
       <div class="rubric-score-card">
         <div class="rubric-score-circle"><span class="big" id="circleScore">—</span><span class="small">/ 10</span></div>
         <div class="rubric-score-text">
-          <h3>Eindcijfer</h3>
-          <p>Berekend als gewogen gemiddelde van je deelcijfers.</p>
+          <h3>Jullie Eindcijfer</h3>
+          <p>Dit is een gewogen gemiddelde. Zorg dus vooral dat je teksten kloppen en de kaarten goed gekozen zijn!</p>
         </div>
       </div>
 
       <h3 style="margin-top:1.5rem;">📝 Invulformulier voor de Docent</h3>
-      <p style="font-size:0.85rem; color:var(--c-text-muted);">Vul de cijfers (1 t/m 10) in. Het eindcijfer wordt automatisch berekend.</p>
+      <p style="font-size:0.85rem; color:var(--c-text-muted);">Vul hieronder de drie cijfers (1 t/m 10) in. Het eindcijfer rolt er automatisch uit.</p>
       
       <div class="rubric-wrap">
         <table class="rubric" id="rubricForm">
@@ -365,20 +441,20 @@ table.rubric tbody td p { font-weight: 400; font-size: 0.85rem; color: var(--c-t
           <tbody>
             <tr>
               <td>
-                <strong>1. Inhoud (Jouw Notities)</strong>
-                <p>De antwoorden en cijfers over rijkdom, gezondheid en oorzaken kloppen. Je vergelijkt de twee landen duidelijk met elkaar in je eigen woorden.</p>
+                <strong>1. Inhoud (Jullie Notities)</strong>
+                <p>De antwoorden op de onderzoeksvragen kloppen en zijn uitgebreid genoeg. De tekst staat in compleet eigen woorden (geen AI copy-paste) en de aardrijkskundige begrippen zijn correct gebruikt.</p>
               </td>
-              <td style="text-align:center;font-weight:700;color:var(--c-primary);">3x</td>
+              <td style="text-align:center;font-weight:700;color:var(--c-primary);font-size:1.1rem;">2x</td>
               <td style="text-align:center;">
-                <input type="number" class="score-input" data-weight="3" min="1" max="10" step="0.1" oninput="calcTotal()" placeholder="1-10">
+                <input type="number" class="score-input" data-weight="2" min="1" max="10" step="0.1" oninput="calcTotal()" placeholder="1-10">
               </td>
             </tr>
             <tr>
               <td>
-                <strong>2. Atlasgebruik & Kniptool</strong>
-                <p>Je hebt goede thematische kaarten gekozen. Elke screenshot op de dia is scherp en bevat de legenda. In de Notities leg je uit wat de kaart/legenda betekent.</p>
+                <strong>2. Atlasgebruik & Kaarten</strong>
+                <p>Jullie hebben slimme en duidelijke thematische kaarten uit de atlas gekozen. Elke screenshot is scherp, bevat de volledige legenda en de legenda is correct uitgelezen in jullie uitleg.</p>
               </td>
-              <td style="text-align:center;font-weight:700;color:var(--c-primary);">2x</td>
+              <td style="text-align:center;font-weight:700;color:var(--c-primary);font-size:1.1rem;">2x</td>
               <td style="text-align:center;">
                 <input type="number" class="score-input" data-weight="2" min="1" max="10" step="0.1" oninput="calcTotal()" placeholder="1-10">
               </td>
@@ -386,16 +462,16 @@ table.rubric tbody td p { font-weight: 400; font-size: 0.85rem; color: var(--c-t
             <tr>
               <td>
                 <strong>3. Vormgeving PowerPoint</strong>
-                <p>De dia's zien er netjes uit en je hebt de 'Gouden Regel' perfect gevolgd: maximaal 5 steekwoorden en geen hele zinnen op de dia's zelf.</p>
+                <p>De dia's zien er netjes, rustig en verzorgd uit. Jullie hebben de 'Gouden Regel' perfect gevolgd: maximaal 5 steekwoorden en géén hele zinnen op de dia's zelf.</p>
               </td>
-              <td style="text-align:center;font-weight:700;color:var(--c-primary);">1x</td>
+              <td style="text-align:center;font-weight:700;color:var(--c-primary);font-size:1.1rem;">1x</td>
               <td style="text-align:center;">
                 <input type="number" class="score-input" data-weight="1" min="1" max="10" step="0.1" oninput="calcTotal()" placeholder="1-10">
               </td>
             </tr>
             <tr style="background:var(--c-primary-light);font-weight:700;">
-              <td colspan="2" style="font-size:1.1rem; text-align:right; padding-right:1rem;">🏆 Jouw Eindcijfer</td>
-              <td style="text-align:center;font-size:1.2rem;color:var(--c-primary-dark);" id="rubricTotal">—</td>
+              <td colspan="2" style="font-size:1.1rem; text-align:right; padding-right:1rem;">🏆 Definitief Eindcijfer</td>
+              <td style="text-align:center;font-size:1.3rem;color:var(--c-primary-dark);" id="rubricTotal">—</td>
             </tr>
           </tbody>
         </table>
@@ -420,10 +496,13 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
   });
 });
 
-// ═══ BEGRIPPEN ═══
-function toggleBegrip(h) { h.parentElement.classList.toggle('open'); }
+// ═══ ACCORDIONS (VOOR DIA'S EN BEGRIPPEN) ═══
+function toggleAcc(headerEl) { 
+  const accordionEl = headerEl.parentElement;
+  accordionEl.classList.toggle('open'); 
+}
 
-// ═══ RUBRIC CALC ═══
+// ═══ RUBRIC CALC (2-2-1) ═══
 function calcTotal() {
   const inputs = document.querySelectorAll('.score-input');
   let totalScore = 0;
@@ -433,7 +512,6 @@ function calcTotal() {
   inputs.forEach(input => {
     if (input.value && !isNaN(input.value)) {
       let val = parseFloat(input.value);
-      // Begrens de input tussen 1 en 10
       if (val > 10) { val = 10; input.value = 10; }
       if (val < 1) { val = 1; input.value = 1; }
       
@@ -455,7 +533,7 @@ function calcTotal() {
   }
 }
 
-// ═══ WHEEL OF FORTUNE ═══
+// ═══ WHEEL OF FORTUNE (VERZSNELD) ═══
 const richCountries = [
   'Nederland','Duitsland','Japan','Verenigde Staten',
   'Australië','Canada','Noorwegen','Zuid-Korea',
@@ -515,8 +593,9 @@ function spinWheel(t) {
   const res = document.getElementById(t==='rich'?'resultRich':'resultPoor');
   res.classList.remove('show'); res.textContent = '';
 
-  w.vel = 0.25 + Math.random()*0.2;
-  const friction = 0.985 + Math.random()*0.008;
+  // Start velocity (faster) and friction (slows down quicker)
+  w.vel = 0.5 + Math.random()*0.2;
+  const friction = 0.945 + Math.random()*0.01;
 
   (function anim() {
     w.angle += w.vel;
