@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PAPIEREN, ALSTUBLIEFT</title>
+<title>GRENSCONTROLE 2026</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap');
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -143,7 +143,7 @@
 
 <div id="title-screen" class="screen active">
   <div>
-    <h1>🇳🇱 PAPIEREN, ALSTUBLIEFT 🇳🇱</h1>
+    <h1>🇳🇱 GRENSCONTROLE 🇳🇱</h1>
     <p style="font-size:24px; color:var(--green);">Nederland, 2026</p>
   </div>
   <p style="font-size:20px; color:var(--muted); max-width:500px; text-align:center; line-height:1.6;">
@@ -164,9 +164,11 @@
     <div class="rule allow">Niet-Schengen burgers: <b>geldig paspoort + visum</b> nodig.</div>
     <div class="rule">Niet-Schengen zonder visum of paspoort → WEIGEREN.</div>
     <div class="rule allow">Nederlandse burgers mogen ALTIJD Nederland in.</div>
-    <p style="margin-top:14px; color:var(--green); font-size:16px;">Schengenlanden: Nederland, België, Duitsland, Frankrijk, Italië, Spanje, Polen, Griekenland, Denemarken, Roemenië, en meer</p>
-    <p style="color:var(--accent); font-size:16px;">Niet-Schengen: Verenigd Koninkrijk, Turkije, Syrië, Ierland*</p>
-    <p style="color:var(--muted); font-size:14px;">*Ierland is wél EU-lid maar geen Schengenland!</p>
+    <p style="margin-top:14px; color:var(--green); font-size:16px;">Schengenlanden (o.a.): Nederland, België, Duitsland, Frankrijk, Italië, Spanje, Polen, Griekenland, Denemarken, Roemenië, Kroatië, Noorwegen, Zwitserland</p>
+    <p style="color:var(--accent); font-size:16px;">Niet-Schengen (o.a.): Verenigd Koninkrijk, Turkije, Syrië, Suriname, Ierland*, Cyprus*</p>
+    <p style="color:var(--muted); font-size:14px;">*Ierland en Cyprus zijn wél EU-lid maar géén Schengenland!</p>
+    <p style="color:var(--muted); font-size:14px;">*Noorwegen en Zwitserland zijn géén EU-lid maar wél Schengenland!</p>
+    <p style="color:var(--muted); font-size:14px;">EU-burgers (ook uit niet-Schengen EU-landen) mogen vrij reizen met geldig paspoort of ID-kaart.</p>
   </div>
   <button class="btn btn-start" onclick="startGame()">BEGREPEN → AAN HET WERK</button>
 </div>
@@ -176,7 +178,7 @@
     <span id="score-label">Score: 0/0</span>
     <div class="streak-display" id="streak-display"></div>
   </div>
-  <div class="era-banner">SCHENGEN 2026 — BUITENGRENS NEDERLAND</div>
+  <div class="era-banner">SCHENGEN 2026 — BUITENGRENS NEDERLAND &nbsp;|&nbsp; VANDAAG: 31 MAART 2026</div>
   <div class="passport-area">
     <div class="passport" id="passport"></div>
     <div class="rules-panel" id="rules-panel"></div>
@@ -219,25 +221,71 @@ const NAMES = {
   GR: ["Nikolaos Papadopoulos","Eleni Georgiou","Dimitrios Konstantinou","Maria Alexiou","Kostas Athanasiou","Sofia Nikolaou","Katerina Vlachou","Ioannis Pappas","Alexandros Christou","Stavros Hatzis","Despina Kosta"],
   DK: ["Lars Andersen","Sofie Jensen","Mikkel Nielsen","Freja Pedersen","Rasmus Christensen","Ida Hansen","Emil Larsen","Astrid Sørensen","Oliver Rasmussen","Maja Thomsen","Frederik Mortensen"],
   RO: ["Andrei Popescu","Elena Ionescu","Alexandru Popa","Maria Stan","Mihai Dumitrescu","Ana Stoica","Ioana Matei","Adrian Ciobanu","Raluca Tudor","Bogdan Moldovan","Diana Munteanu"],
-  IE: ["Liam Murphy","Siobhán O'Brien","Cian Kelly","Aoife Walsh","Seán Byrne","Niamh Ryan","Conor O'Connor","Patrick Fitzgerald","Ciara McCarthy","Oisín Gallagher","Saoirse Brennan"]
+  IE: ["Liam Murphy","Siobhán O'Brien","Cian Kelly","Aoife Walsh","Seán Byrne","Niamh Ryan","Conor O'Connor","Patrick Fitzgerald","Ciara McCarthy","Oisín Gallagher","Saoirse Brennan"],
+  NO: ["Erik Johansen","Ingrid Hansen","Lars Olsen","Astrid Berg","Håkon Nilsen","Sigrid Bakken","Magnus Dahl","Frida Larsen","Sondre Haugen","Nora Moen","Henrik Strand"],
+  CH: ["Lukas Meier","Sophie Brunner","Noah Keller","Lea Gerber","Tim Huber","Anna Wyss","Luca Steiner","Elena Bühler","Jan Frei","Nina Baumann","David Schmid"],
+  HR: ["Ivan Horvat","Ana Kovačević","Marko Babić","Petra Jurić","Luka Novak","Maja Knežević","Tomislav Šimić","Ivana Pavlović","Ante Matić","Lucija Perić","Filip Radić"],
+  CY: ["Andreas Georgiou","Elena Christodoulou","Michalis Nicolaou","Maria Ioannou","Nikos Papadopoulos","Sofia Constantinou","Giorgos Antoniou","Katerina Loizou","Stavros Kyriacou","Despina Demetriou","Panayiotis Savva"],
+  SR: ["Radjesh Ramdat","Sharda Kanhai","Donovan Brewster","Miriam Jozefzoon","Ashwin Parmessar","Naomi Vrede","Ryan Tjin-A-Tsoi","Farida Kalidien","Kevin Redan","Priya Soekhlal","Jermaine Lieveld"]
 };
 
-const FLAGS = { NL:"🇳🇱",BE:"🇧🇪",DE:"🇩🇪",FR:"🇫🇷",UK:"🇬🇧",PL:"🇵🇱",SY:"🇸🇾",TR:"🇹🇷",IT:"🇮🇹",ES:"🇪🇸",GR:"🇬🇷",DK:"🇩🇰",RO:"🇷🇴",IE:"🇮🇪" };
-const COUNTRY_NAMES = { NL:"Nederland",BE:"België",DE:"Duitsland",FR:"Frankrijk",UK:"Verenigd Koninkrijk",PL:"Polen",SY:"Syrië",TR:"Turkije",IT:"Italië",ES:"Spanje",GR:"Griekenland",DK:"Denemarken",RO:"Roemenië",IE:"Ierland" };
-const SCHENGEN = ["NL","BE","DE","FR","PL","IT","ES","GR","DK","RO"];
+const FLAGS = { NL:"🇳🇱",BE:"🇧🇪",DE:"🇩🇪",FR:"🇫🇷",UK:"🇬🇧",PL:"🇵🇱",SY:"🇸🇾",TR:"🇹🇷",IT:"🇮🇹",ES:"🇪🇸",GR:"🇬🇷",DK:"🇩🇰",RO:"🇷🇴",IE:"🇮🇪",NO:"🇳🇴",CH:"🇨🇭",HR:"🇭🇷",CY:"🇨🇾",SR:"🇸🇷" };
+const COUNTRY_NAMES = { NL:"Nederland",BE:"België",DE:"Duitsland",FR:"Frankrijk",UK:"Verenigd Koninkrijk",PL:"Polen",SY:"Syrië",TR:"Turkije",IT:"Italië",ES:"Spanje",GR:"Griekenland",DK:"Denemarken",RO:"Roemenië",IE:"Ierland",NO:"Noorwegen",CH:"Zwitserland",HR:"Kroatië",CY:"Cyprus",SR:"Suriname" };
+// Noorwegen & Zwitserland: NIET EU maar WEL Schengen!
+// Kroatië: EU + Schengen (sinds 2023)
+// Cyprus: EU maar NIET Schengen!
+// Ierland: EU maar NIET Schengen!
+const SCHENGEN = ["NL","BE","DE","FR","PL","IT","ES","GR","DK","RO","NO","CH","HR"];
 
 const RULES = [
   "Schengenburgers + geldig ID of paspoort → DOORLATEN",
-  "Schengen + geen enig ID → WEIGEREN",
-  "Verlopen document → WEIGEREN",
+  "Schengen + geen geldig ID → WEIGEREN",
+  "Verlopen document → WEIGEREN (check de datum!)",
   "Niet-Schengen + paspoort + visum → DOORLATEN",
   "Niet-Schengen zonder visum → WEIGEREN",
+  "Niet-Schengen + verblijfsvergunning → DOORLATEN",
+  "EU-burgers (ook uit niet-Schengen EU-landen!) → vrij verkeer",
   "Nederlandse burgers → ALTIJD doorlaten",
-  "Ierland = EU maar NIET Schengen!"
+  "Noorwegen & Zwitserland = NIET EU maar WEL Schengen",
+  "Ierland & Cyprus = WEL EU maar NIET Schengen",
+  "Vandaag is het 31 maart 2026"
 ];
 
 function pick(a) { return a[Math.floor(Math.random()*a.length)]; }
 function pickName(c) { return pick(NAMES[c]||NAMES.NL); }
+
+// Generate realistic expiry dates — today is 31 march 2026
+// Valid dates: future dates, some just barely valid
+function genExpiryDate() {
+  return pick([
+    "12 augustus 2028","5 januari 2030","28 juni 2027","14 december 2029",
+    "3 september 2031","19 februari 2027","7 november 2028","22 april 2026",
+    "1 april 2026","15 april 2026","31 maart 2036","9 juli 2032",
+    "30 oktober 2027","6 mei 2026","17 maart 2033","25 augustus 2029"
+  ]);
+}
+// Expired dates: past dates, some just barely expired (tricky!)
+function genExpiredDate() {
+  return pick([
+    "14 november 2024","28 februari 2026","30 maart 2026","15 maart 2026",
+    "1 maart 2026","22 januari 2026","7 december 2025","19 september 2025",
+    "3 augustus 2024","11 juni 2023","29 maart 2026","25 februari 2026",
+    "31 december 2025","14 oktober 2025","1 januari 2026","28 maart 2026"
+  ]);
+}
+// Visa future dates
+function genVisaDate() {
+  return pick([
+    "15 juni 2026","3 september 2026","28 april 2026","12 augustus 2026",
+    "1 april 2026","22 december 2026","7 mei 2027","30 november 2026"
+  ]);
+}
+function genExpiredVisaDate() {
+  return pick([
+    "3 januari 2026","28 februari 2026","15 maart 2026","30 maart 2026",
+    "1 december 2025","22 september 2025","14 november 2024"
+  ]);
+}
 
 // ══════════════════════════════════════
 //  SCENARIOS
@@ -1031,6 +1079,486 @@ function buildScenarios() {
     fb_no: "Het visum is nog geldig. Zolang het niet verlopen is op de dag van grensoverschrijding: doorlaten."
   });
 
+  // ═══ RONDE 3: ECHT LASTIGE CASES ═══
+
+  // Belg met geldig paspoort, maar hij zegt dat hij Marokkaan is
+  s.push({
+    country: "BE",
+    reason: "Ik ben Marokkaan, maar ik heb een Belgisch paspoort. Hier.",
+    hasPassport: true, hasID: false, hasVisa: false, expired: false,
+    allow: true,
+    dialogue: null,
+    fb_ok: "Correct! Het document telt, niet wat iemand zegt. Een geldig Belgisch paspoort = Schengenburger. Doorlaten.",
+    fb_no: "Het maakt niet uit welke achtergrond iemand heeft. Een geldig Belgisch paspoort = Schengenland = doorlaten."
+  });
+
+  // Brit met geldig paspoort en visum, maar zegt openlijk dat hij niet meer teruggaat
+  s.push({
+    country: "UK",
+    reason: "Ik heb een toeristenvisum voor 90 dagen, maar eerlijk gezegd ga ik proberen te blijven.",
+    hasPassport: true, hasID: false, hasVisa: true, expired: false,
+    allow: true, type: "moral",
+    dialogue: "De reiziger is opvallend eerlijk.",
+    moralHint: "De documenten zijn geldig, maar hij zegt dat hij zijn visum gaat overschrijden...",
+    fb_ok: "Correct! De documenten zijn geldig op het moment van grensoverschrijding. Wat iemand van plan is na binnenkomst is niet jouw beoordeling als grenswachter — dat is een zaak voor de vreemdelingenpolitie.",
+    fb_no: "Je beoordeelt documenten, niet intenties. De papieren zijn geldig: doorlaten. Zijn verblijfsduur is een zaak voor andere instanties."
+  });
+
+  // Duitser met geldig paspoort die zegt dat hij drugs gaat kopen in Amsterdam
+  s.push({
+    country: "DE",
+    reason: "Ik ga naar Amsterdam om te blowen. Dat mag daar toch?",
+    hasPassport: true, hasID: false, hasVisa: false, expired: false,
+    allow: true,
+    dialogue: null,
+    fb_ok: "Correct! Jij controleert identiteitsdocumenten, niet het doel van het bezoek. Duitsland is Schengen, paspoort geldig: doorlaten.",
+    fb_no: "Als grenswachter controleer je documenten, niet iemands plannen. Duitsland = Schengen, geldig paspoort = doorlaten."
+  });
+
+  // Ier met Ierse ID-kaart (geen paspoort) — Ierland is EU maar NIET Schengen
+  s.push({
+    country: "IE",
+    reason: "Hier is mijn Ierse identiteitskaart. Ierland is toch EU?",
+    hasPassport: false, hasID: true, hasVisa: false, expired: false,
+    allow: true,
+    dialogue: "De reiziger toont een Ierse nationale ID-kaart.",
+    fb_ok: "Correct! Ierland is EU-lid. EU-burgers mogen vrij reizen met een geldig paspoort of nationale ID-kaart. Ook al is Ierland geen Schengenland, het EU-burgerschap geeft recht op vrij verkeer.",
+    fb_no: "Ierland is geen Schengenland, maar wél EU-lid. EU-burgers mogen vrij reizen met een geldige ID-kaart. Doorlaten!"
+  });
+
+  // Syrische man met geldig paspoort maar ZONDER visum, zegt 'ik vraag asiel aan'
+  s.push({
+    country: "SY",
+    reason: "Ik wil asiel aanvragen in Nederland. Ik heb mijn paspoort maar geen visum.",
+    hasPassport: true, hasID: false, hasVisa: false, expired: false,
+    allow: false, type: "moral",
+    dialogue: "De man kijkt je vastberaden aan.",
+    moralHint: "Hij wil asiel aanvragen, maar heeft geen visum...",
+    fb_ok: "Correct volgens de regels: zonder visum geen toegang via de reguliere grenscontrole. In de praktijk wordt een asielzoeker doorverwezen naar de asielprocedure bij de IND, maar als grenswachter laat je iemand zonder visum niet zomaar door.",
+    fb_no: "Zonder visum mag je iemand niet doorlaten, ook niet als diegene asiel wil aanvragen. In de praktijk wordt deze persoon doorverwezen naar de IND voor de asielprocedure."
+  });
+
+  // Pool met geldig paspoort maar hij spreekt geen Pools en lijkt niet op de foto
+  s.push({
+    country: "PL",
+    reason: "Hier is mijn paspoort.",
+    hasPassport: true, hasID: false, hasVisa: false, expired: false, wrongPerson: true,
+    allow: false,
+    dialogue: "Je spreekt hem aan in het Pools, maar hij verstaat je niet. De foto op het paspoort lijkt niet op hem.",
+    fb_ok: "Correct! Als de foto niet overeenkomt met de persoon, mag je het document niet accepteren. Dit kan identiteitsfraude zijn.",
+    fb_no: "De foto komt niet overeen met de persoon. Een paspoort dat niet van jou is, is geen geldig bewijs — mogelijk fraude."
+  });
+
+  // Deen met geldig paspoort die heel boos is dat hij überhaupt gecontroleerd wordt
+  s.push({
+    country: "DK",
+    reason: "Waarom word ik gecontroleerd?! Dit is Schengen! Er hoort geen controle te zijn!",
+    hasPassport: true, hasID: false, hasVisa: false, expired: false,
+    allow: true,
+    dialogue: "De Deen is verontwaardigd en wijst naar een bord over vrij verkeer.",
+    fb_ok: "Correct! Hij heeft gelijk dat Schengen normaal geen grenscontrole heeft, maar landen mogen tijdelijke controles invoeren. Zijn paspoort is geldig: doorlaten. Zijn klacht is begrijpelijk maar verandert de regels niet.",
+    fb_no: "De Deen is Schengenburger met geldig paspoort: doorlaten. Zijn frustratie over de controle is begrijpelijk — normaal is er geen grenscontrole binnen Schengen."
+  });
+
+  // Turks meisje (17) alleen, met geldig paspoort en visum — mag dat?
+  s.push({
+    country: "TR",
+    reason: "Ik ben 17 en reis alleen naar mijn tante in Den Haag. Hier zijn mijn papieren.",
+    hasPassport: true, hasID: false, hasVisa: true, expired: false,
+    allow: true,
+    dialogue: "Een tienermeisje met een klein koffertje.",
+    fb_ok: "Correct! Met een eigen geldig paspoort en visum mag ook een minderjarige reizen. Er is geen wettelijke verplichting voor begeleiding.",
+    fb_no: "De documenten zijn in orde. Minderjarigen met eigen geldig paspoort en visum mogen reizen, ook zonder begeleiding."
+  });
+
+  // Belg die zegt dat hij Nederlander is (spreekt perfect Nederlands) maar Belgisch paspoort toont
+  s.push({
+    country: "BE",
+    reason: "Ik ben Nederlander hoor! Ik ben alleen in België geboren. Hier is mijn paspoort.",
+    hasPassport: true, hasID: false, hasVisa: false, expired: false,
+    allow: true,
+    dialogue: "Hij spreekt accentloos Nederlands, maar zijn paspoort is Belgisch.",
+    fb_ok: "Correct! Het document telt. Belgisch paspoort = Schengenland = doorlaten. Wat iemand voelt of zegt is irrelevant voor de grenscontrole.",
+    fb_no: "Het maakt niet uit wat iemand zegt te zijn. Het Belgische paspoort is geldig, België is Schengenland: doorlaten."
+  });
+
+  // Groep van 4 Fransen, 3 hebben geldig ID, 1 heeft niks
+  s.push({
+    country: "FR",
+    reason: "We zijn met z'n vieren op stap! Drie van ons hebben onze ID, maar Marie is de hare vergeten...",
+    hasPassport: false, hasID: false, hasVisa: false, expired: false,
+    allow: false,
+    dialogue: "Drie vrienden zwaaien met hun ID-kaarten. De vierde haalt haar schouders op.",
+    fb_ok: "Correct! Elke persoon wordt individueel beoordeeld. De drie met geldige ID mogen door, maar Marie zonder document niet.",
+    fb_no: "Iedereen wordt apart beoordeeld. De drie met ID mogen door, maar zonder document mag Marie niet mee."
+  });
+
+  // Italiaanse man met een ID-kaart waarvan de plastic laag loslaat
+  s.push({
+    country: "IT",
+    reason: "Mijn ID-kaart is een beetje kapot, de plastic laag laat los. Maar je kunt alles nog lezen!",
+    hasPassport: false, hasID: true, hasVisa: false, expired: false,
+    allow: true,
+    dialogue: "De ID-kaart is licht beschadigd maar alle gegevens en de foto zijn duidelijk leesbaar.",
+    fb_ok: "Correct! Lichte beschadiging waarbij alle gegevens en de foto nog duidelijk leesbaar zijn, maakt het document niet ongeldig. Doorlaten.",
+    fb_no: "De ID-kaart is licht beschadigd maar nog leesbaar. Zolang de foto en gegevens duidelijk zijn, is het document geldig. Doorlaten."
+  });
+
+  // Britse man met twee paspoorten: Brits (verlopen) en Australisch (geldig, geen visum)
+  s.push({
+    country: "UK",
+    reason: "Mijn Britse paspoort is verlopen. Maar ik heb ook een Australisch paspoort — geldig! Geen visum wel.",
+    hasPassport: true, hasID: false, hasVisa: false, expired: false,
+    allow: false,
+    dialogue: "De man toont twee paspoorten: een verlopen Brits en een geldig Australisch.",
+    fb_ok: "Correct! Australië is geen Schengenland. Met een geldig Australisch paspoort maar zonder visum: weigeren. Het verlopen Britse paspoort helpt ook niet.",
+    fb_no: "Geen van beide paspoorten helpt hier. Het Britse is verlopen, en het Australische heeft geen visum. Australië is geen Schengenland."
+  });
+
+  // Spaans gezin, vader heeft geldig paspoort, moeder heeft geldige ID, kinderen hebben niks
+  s.push({
+    country: "ES",
+    reason: "Wij gaan op vakantie! Mijn vrouw en ik hebben onze documenten, maar voor de kinderen hebben we niks geregeld...",
+    hasPassport: true, hasID: false, hasVisa: false, expired: false,
+    allow: false, type: "moral",
+    dialogue: "Twee opgewonden kinderen springen rond hun ouders.",
+    moralHint: "De ouders hebben geldige documenten, maar de kinderen niet...",
+    fb_ok: "Correct. Elk gezinslid — ook kinderen — moet een eigen geldig reisdocument hebben. Zonder documenten voor de kinderen: weigeren.",
+    fb_no: "Ook kinderen moeten een eigen paspoort of ID-kaart hebben. Zonder documenten voor de kinderen mag het gezin niet door."
+  });
+
+  // Griek die zegt dat Schengen is opgeschort vanwege een terroristische dreiging
+  s.push({
+    country: "GR",
+    reason: "Ik hoorde dat er extra controles zijn vanwege een terroristische dreiging. Klopt dat? Hier is mijn paspoort in elk geval.",
+    hasPassport: true, hasID: false, hasVisa: false, expired: false,
+    allow: true,
+    dialogue: null,
+    fb_ok: "Correct! Tijdelijke grenscontroles veranderen niets aan de Schengenregels zelf. Griekenland blijft Schengenland, paspoort is geldig: doorlaten. De controle zelf mag bestaan, maar de toelating verandert niet.",
+    fb_no: "Tijdelijke controles worden soms ingevoerd, maar de regels veranderen niet. Griekenland = Schengen, geldig paspoort = doorlaten."
+  });
+
+  // ═══ RONDE 4: SCHENGEN-VERRASSINGEN ═══
+
+  // Noor met paspoort → door (NIET EU maar WEL Schengen!)
+  s.push({
+    country: "NO", reason: "Ik ga naar een conferentie in Den Haag.",
+    hasPassport: true, hasID: false, hasVisa: false, expired: false,
+    allow: true,
+    fb_ok: "Correct! Noorwegen is géén EU-lid maar wél Schengenland. Met geldig paspoort: doorlaten. Dit verrast veel mensen!",
+    fb_no: "Noorwegen is geen EU-lid, maar hoort wél bij het Schengengebied. Schengenburgers mogen vrij reizen."
+  });
+
+  // Noor zonder document
+  s.push({
+    country: "NO", reason: "Noorwegen is toch Schengen? Dan heb ik niks nodig.",
+    hasPassport: false, hasID: false, hasVisa: false, expired: false,
+    allow: false,
+    fb_ok: "Correct! Noorwegen is inderdaad Schengen, maar de identificatieplicht geldt nog steeds. Zonder geldig ID: weigeren.",
+    fb_no: "Noorwegen is Schengenland, maar je moet altijd een geldig identiteitsbewijs bij je hebben."
+  });
+
+  // Zwitser met ID-kaart → door (NIET EU maar WEL Schengen!)
+  s.push({
+    country: "CH", reason: "Hier is mijn Zwitserse identiteitskaart.",
+    hasPassport: false, hasID: true, hasVisa: false, expired: false,
+    allow: true,
+    dialogue: "De reiziger toont een Zwitserse ID-kaart.",
+    fb_ok: "Correct! Zwitserland is géén EU-lid maar wél Schengenland. Met een geldige ID-kaart: doorlaten.",
+    fb_no: "Zwitserland hoort niet bij de EU, maar wél bij Schengen. Een geldige ID-kaart is voldoende."
+  });
+
+  // Zwitser met verlopen paspoort
+  s.push({
+    country: "CH", reason: "Hier is mijn paspoort.",
+    hasPassport: true, hasID: false, hasVisa: false, expired: true,
+    allow: false,
+    fb_ok: "Goed gezien! Zwitserland is Schengenland, maar het paspoort is verlopen. Verlopen = niet geldig.",
+    fb_no: "Het paspoort is verlopen! Ook voor Schengenlanden geldt: document moet geldig zijn."
+  });
+
+  // Kroaat met paspoort → door (EU + Schengen sinds 2023)
+  s.push({
+    country: "HR", reason: "Kroatië is toch Schengen sinds 2023? Hier is mijn paspoort.",
+    hasPassport: true, hasID: false, hasVisa: false, expired: false,
+    allow: true,
+    fb_ok: "Correct! Kroatië is sinds 1 januari 2023 lid van het Schengengebied. Met geldig paspoort: doorlaten.",
+    fb_no: "Kroatië is sinds 2023 Schengenland. Met een geldig paspoort mag deze persoon gewoon door."
+  });
+
+  // Cyprioot met paspoort → door (EU maar NIET Schengen — maar EU-vrij-verkeer!)
+  s.push({
+    country: "CY", reason: "Ik kom uit Cyprus. Hier is mijn paspoort.",
+    hasPassport: true, hasID: false, hasVisa: false, expired: false,
+    allow: true,
+    dialogue: null,
+    fb_ok: "Correct! Cyprus is net als Ierland wél EU-lid maar géén Schengenland. Maar als EU-burger heeft deze persoon recht op vrij verkeer. Doorlaten.",
+    fb_no: "Cyprus is geen Schengenland, maar wél EU-lid. EU-burgers mogen vrij reizen met een geldig paspoort. Doorlaten!"
+  });
+
+  // Cyprioot zonder document
+  s.push({
+    country: "CY", reason: "Ik ben EU-burger, ik heb toch geen paspoort nodig?",
+    hasPassport: false, hasID: false, hasVisa: false, expired: false,
+    allow: false,
+    fb_ok: "Correct! Cyprus is EU-lid, maar zonder geldig identiteitsbewijs mag je niet door. EU-recht op vrij verkeer vereist een geldig document.",
+    fb_no: "Klopt dat Cyprus EU is, maar ook EU-burgers moeten een geldig paspoort of ID-kaart bij zich hebben."
+  });
+
+  // Surinamer met visum → door
+  s.push({
+    country: "SR", reason: "Ik ga mijn familie in Den Haag bezoeken. Hier is mijn visum.",
+    hasPassport: true, hasID: false, hasVisa: true, expired: false,
+    allow: true,
+    fb_ok: "Correct! Suriname is geen Schengenland en geen EU-lid. Met geldig paspoort en visum: doorlaten.",
+    fb_no: "Suriname hoort niet bij de EU of Schengen. Maar met geldig paspoort en visum mag deze reiziger door."
+  });
+
+  // Surinamer zonder visum, zegt 'maar we zijn toch oud-kolonie?'
+  s.push({
+    country: "SR", reason: "Suriname was toch van Nederland? Ik heb toch geen visum nodig?",
+    hasPassport: true, hasID: false, hasVisa: false, expired: false,
+    allow: false,
+    dialogue: "De reiziger kijkt je vragend aan.",
+    fb_ok: "Correct! Suriname is sinds 1975 onafhankelijk en geen EU- of Schengenland. Het koloniale verleden verandert niets aan de huidige regels. Zonder visum: weigeren.",
+    fb_no: "Suriname is al sinds 1975 een onafhankelijk land, geen EU- of Schengenland. Historische banden veranderen de regels niet. Zonder visum: weigeren."
+  });
+
+  // Surinamer met verlopen visum
+  s.push({
+    country: "SR", reason: "Ik heb mijn visum en paspoort. Alles moet in orde zijn.",
+    hasPassport: true, hasID: false, hasVisa: true, expired: false, visaExpired: true,
+    allow: false,
+    dialogue: "De reiziger overhandigt de documenten met een glimlach.",
+    fb_ok: "Scherp! Het paspoort is geldig, maar het visum is verlopen. Check altijd beide datums!",
+    fb_no: "Het visum is verlopen! Het paspoort alleen is niet voldoende voor niet-Schengen burgers."
+  });
+
+  // ═══ RONDE 5: SOCIALE DRUK & MANIPULATIE ═══
+
+  // Journalist die dreigt
+  s.push({
+    country: "UK", reason: "Ik ben journalist van de BBC. Als je me tegenhoudt schrijf ik hier een artikel over. Hier is mijn paspoort.",
+    hasPassport: true, hasID: false, hasVisa: false, expired: false,
+    allow: false,
+    dialogue: "De journalist houdt dreigend zijn telefoon omhoog.",
+    fb_ok: "Correct! Dreigementen of publiciteit veranderen de regels niet. Geen visum = weigeren, ook voor journalisten.",
+    fb_no: "Een journalist wordt niet anders behandeld dan andere reizigers. Zonder visum (VK = niet Schengen): weigeren."
+  });
+
+  // 'Brief van de burgemeester'
+  s.push({
+    country: "TR", reason: "De burgemeester van Rotterdam heeft me uitgenodigd! Hier is zijn brief. Een visum heb ik niet.",
+    hasPassport: true, hasID: false, hasVisa: false, expired: false,
+    allow: false,
+    dialogue: "De reiziger toont een brief met een gemeentelogo.",
+    fb_ok: "Correct! Een uitnodigingsbrief is geen visum. Zonder officieel visum: weigeren. De brief kan wel helpen bij een visumaanvraag, maar vervangt het niet.",
+    fb_no: "Een brief van een burgemeester is geen visum. Alleen officiële reisdocumenten en visa tellen bij de grenscontrole."
+  });
+
+  // 'De vorige grenswachter liet me door'
+  s.push({
+    country: "DE", reason: "Vorige week liet je collega me gewoon door zonder ID! Waarom nu wel controleren?",
+    hasPassport: false, hasID: false, hasVisa: false, expired: false,
+    allow: false,
+    dialogue: "De man wijst verontwaardigd naar de grenspost.",
+    fb_ok: "Correct! Wat een collega eerder deed verandert de regels niet. Zonder geldig ID: weigeren. Elke controle is onafhankelijk.",
+    fb_no: "Eerdere ervaringen aan de grens veranderen de regels niet. Zonder ID: weigeren."
+  });
+
+  // Voetballer die zegt te moeten spelen
+  s.push({
+    country: "BE", reason: "Ik speel vanavond bij PSV! De wedstrijd begint over twee uur! Mijn ID ligt in de kleedkamer!",
+    hasPassport: false, hasID: false, hasVisa: false, expired: false,
+    allow: false,
+    dialogue: "De man draagt een trainingspak en is duidelijk gehaast.",
+    fb_ok: "Correct! Beroep of bekendheid verandert de regels niet. Zonder ID: weigeren. Zijn club kan misschien een document brengen.",
+    fb_no: "Of iemand voetballer is of niet — zonder geldig identiteitsbewijs: weigeren."
+  });
+
+  // YouTuber die dreigt te filmen
+  s.push({
+    country: "SY", reason: "Ik heb 2 miljoen volgers op YouTube. Als je me weigert film ik alles en gaat dit viral!",
+    hasPassport: true, hasID: false, hasVisa: false, expired: false,
+    allow: false, type: "moral",
+    dialogue: "De reiziger richt zijn camera op je.",
+    moralHint: "Sociale druk, maar de documenten missen een visum...",
+    fb_ok: "Correct! Sociale media-druk verandert de regels niet. Geen visum = weigeren. Laat je niet intimideren.",
+    fb_no: "Het maakt niet uit hoeveel volgers iemand heeft. Zonder visum (Syrië = niet Schengen): weigeren."
+  });
+
+  // CEO in duur pak
+  s.push({
+    country: "TR", reason: "Ik ben CEO van een internationaal bedrijf. Ik heb geen visum nodig — bel mijn advocaat maar!",
+    hasPassport: true, hasID: false, hasVisa: false, expired: false,
+    allow: false,
+    dialogue: "De man draagt een pak van minstens €5000 en een duur horloge.",
+    fb_ok: "Correct! Rijkdom of status verandert de regels niet. Turkije is geen Schengenland, zonder visum: weigeren.",
+    fb_no: "Of iemand CEO is of niet — de regels zijn voor iedereen gelijk. Zonder visum: weigeren."
+  });
+
+  // ═══ RONDE 6: VREEMDE DOCUMENTEN ═══
+
+  // Europese zorgverzekeringskaart als 'bewijs'
+  s.push({
+    country: "PL", reason: "Hier is mijn Europese zorgverzekeringskaart! Die bewijst dat ik EU-burger ben.",
+    hasPassport: false, hasID: false, hasVisa: false, expired: false,
+    allow: false,
+    dialogue: "De reiziger toont een blauwe EHIC-kaart.",
+    fb_ok: "Correct! Een zorgverzekeringskaart (EHIC) is geen identiteitsbewijs of reisdocument. Alleen paspoort of ID-kaart geldt.",
+    fb_no: "De EHIC-kaart bewijst zorgverzekering, niet identiteit. Het is geen reisdocument."
+  });
+
+  // Boardingpass als bewijs
+  s.push({
+    country: "IT", reason: "Ik heb mijn paspoort niet, maar wel mijn boardingpass! Daar staat mijn naam op.",
+    hasPassport: false, hasID: false, hasVisa: false, expired: false,
+    allow: false,
+    dialogue: "De reiziger zwaait met een uitgeprinte boardingpass.",
+    fb_ok: "Correct! Een boardingpass is geen identiteitsbewijs. Het is een vervoersdocument van een luchtvaartmaatschappij, geen officieel reisdocument.",
+    fb_no: "Een boardingpass is geen paspoort of ID-kaart. Het is geen geldig identiteitsbewijs."
+  });
+
+  // Geboortecertificaat
+  s.push({
+    country: "GR", reason: "Ik heb mijn geboortecertificaat! Dat bewijst toch dat ik Grieks ben?",
+    hasPassport: false, hasID: false, hasVisa: false, expired: false,
+    allow: false,
+    dialogue: "De reiziger toont een officieel Grieks geboortecertificaat.",
+    fb_ok: "Correct! Een geboortecertificaat bewijst nationaliteit maar is geen reisdocument. Je hebt een paspoort of ID-kaart nodig om de grens over te steken.",
+    fb_no: "Een geboortecertificaat is geen reisdocument. Het bewijst waar je geboren bent, maar vervangt geen paspoort of ID-kaart."
+  });
+
+  // Digitale ID-app op telefoon
+  s.push({
+    country: "NL", reason: "Ik heb de DigiD-app! Kijk, hier staat mijn identiteit digitaal.",
+    hasPassport: false, hasID: false, hasVisa: false, expired: false,
+    allow: true,
+    dialogue: "De reiziger toont een app op zijn telefoon.",
+    fb_ok: "Correct! Dit is een Nederlander — eigen burgers mogen altijd hun land in, ook zonder fysiek document. Maar let op: een digitale ID geldt voor buitenlanders NIET als reisdocument!",
+    fb_no: "Dit is een Nederlander. Eigen burgers mogen altijd Nederland in, ongeacht welke documenten ze bij zich hebben."
+  });
+
+  // Verblijfsvergunning (niet-Schengen burger die in NL woont)
+  s.push({
+    country: "TR", reason: "Ik woon in Nederland. Hier is mijn verblijfsvergunning en Turks paspoort.",
+    hasPassport: true, hasID: false, hasVisa: false, expired: false, hasResidencePermit: true,
+    allow: true,
+    dialogue: "De reiziger toont een Nederlandse verblijfsvergunning.",
+    fb_ok: "Correct! Een geldige verblijfsvergunning vervangt het visum. Met geldig paspoort en verblijfsvergunning: doorlaten.",
+    fb_no: "Een verblijfsvergunning is een geldig document voor grensoverschrijding. Met geldig paspoort en verblijfsvergunning mag deze persoon door."
+  });
+
+  // Verblijfsvergunning verlopen
+  s.push({
+    country: "SY", reason: "Ik woon al 3 jaar in Nederland. Hier is mijn verblijfsvergunning... oh, die is verlopen.",
+    hasPassport: true, hasID: false, hasVisa: false, expired: false, hasResidencePermit: true, permitExpired: true,
+    allow: false,
+    dialogue: "De reiziger schrikt als hij de datum ziet.",
+    fb_ok: "Correct! Een verlopen verblijfsvergunning is niet geldig. Zonder geldig visum of geldige verblijfsvergunning: weigeren.",
+    fb_no: "De verblijfsvergunning is verlopen. Net als bij een visum: verlopen = niet geldig."
+  });
+
+  // ═══ RONDE 7: GEOGRAFISCHE TRUCS ═══
+
+  // Baarle-Nassau/Baarle-Hertog argument
+  s.push({
+    country: "BE", reason: "Ik was in Baarle-Hertog, dat is praktisch hetzelfde dorp als Baarle-Nassau! Ik ben niet echt de grens over!",
+    hasPassport: false, hasID: false, hasVisa: false, expired: false,
+    allow: false,
+    dialogue: "De Belg wijst naar de ingewikkelde grens van Baarle.",
+    fb_ok: "Correct! Baarle is inderdaad een bijzonder grensdorp met enclaves, maar de landsgrenzen gelden nog steeds. Zonder ID: weigeren.",
+    fb_no: "Baarle is uniek met zijn enclaves, maar de identificatieplicht geldt overal. Zonder geldig document: weigeren."
+  });
+
+  // Westerschelde-argument
+  s.push({
+    country: "BE", reason: "Ik ben via de Westerschelde gevaren, niet over land! Dan gelden er toch andere regels?",
+    hasPassport: false, hasID: false, hasVisa: false, expired: false,
+    allow: false,
+    dialogue: "De reiziger wijst naar de rivier.",
+    fb_ok: "Correct! De Westerschelde hoort bij de territoriale wateren van Nederland. Of je over land, water of lucht reist — de regels zijn hetzelfde.",
+    fb_no: "De manier waarop je reist (land, water, lucht) verandert niets aan de grensregels. Zonder ID: weigeren."
+  });
+
+  // ═══ RONDE 8: EMOTIONELE COMPLEXITEIT ═══
+
+  // Begrafenis — verlopen paspoort
+  s.push({
+    country: "TR", reason: "Mijn broer is gisteren overleden in Rotterdam. Ik moet naar zijn begrafenis. Mijn paspoort is verlopen, ik had geen tijd...",
+    hasPassport: true, hasID: false, hasVisa: false, expired: true,
+    allow: false, type: "moral",
+    dialogue: "De man heeft rode ogen van het huilen.",
+    moralHint: "Een tragische situatie, maar het paspoort is verlopen en er is geen visum...",
+    fb_ok: "Verschrikkelijk moeilijk. Maar een verlopen paspoort is niet geldig, en zonder visum ook niet. In de praktijk zou je doorverwijzen naar het consulaat voor een nooddocument.",
+    fb_no: "Een begrijpelijke situatie, maar de regels gelden voor iedereen. Doorverwijzen naar het consulaat voor noodhulp."
+  });
+
+  // Zwangere vrouw wil in NL bevallen
+  s.push({
+    country: "TR", reason: "Ik ben 8 maanden zwanger en wil in Nederland bevallen. Mijn man woont daar. Ik heb geen visum.",
+    hasPassport: true, hasID: false, hasVisa: false, expired: false,
+    allow: false, type: "moral",
+    dialogue: "De vrouw is zichtbaar hoogzwanger.",
+    moralHint: "Ze is zwanger en haar man woont in NL, maar ze heeft geen visum...",
+    fb_ok: "Moeilijk maar correct. Zonder visum: weigeren. Zwangerschap is geen grond voor uitzonderingen op de visumplicht.",
+    fb_no: "Hoe schrijnend ook — zonder visum geen toegang. Ze moet via het consulaat een visum aanvragen."
+  });
+
+  // Kind alleen, geen documenten, huilt
+  s.push({
+    country: "SY", reason: "...",
+    hasPassport: false, hasID: false, hasVisa: false, expired: false,
+    allow: false, type: "moral",
+    dialogue: "Een kind van ongeveer 10 jaar staat alleen. Het huilt en spreekt geen Nederlands. Het heeft geen documenten bij zich.",
+    moralHint: "Een alleen reizend kind zonder documenten... de regels zeggen weigeren, maar dit kind heeft hulp nodig...",
+    fb_ok: "Correct volgens de regels: zonder documenten mag je niet doorlaten. Maar dit is een situatie waarin je onmiddellijk de politie en kinderbescherming inschakelt. Weigeren betekent hier niet wegsturen — het betekent hulp inschakelen.",
+    fb_no: "Begrijpelijk dat je wilt helpen. Maar zonder documenten kun je niet doorlaten. Schakel onmiddellijk de politie en kinderbescherming in."
+  });
+
+  // ═══ RONDE 9: GROEPSDYNAMIEK ═══
+
+  // Schoolklas uit Duitsland
+  s.push({
+    country: "DE", reason: "Wij zijn een schoolklas uit Keulen op excursie! De leraar heeft een lijst met alle namen, maar niet elk kind heeft een eigen ID.",
+    hasPassport: false, hasID: false, hasVisa: false, expired: false,
+    allow: false,
+    dialogue: "Een groep van 25 tieners staat te wachten. De leraar zwaait met een papieren lijst.",
+    fb_ok: "Correct! Een deelnemerslijst is geen identiteitsbewijs. Elk kind moet een eigen geldig reisdocument hebben. De kinderen zonder ID mogen niet door.",
+    fb_no: "Een schoollijst vervangt geen individueel identiteitsbewijs. Elk kind heeft een eigen paspoort of ID-kaart nodig."
+  });
+
+  // Touringcar met Belgen
+  s.push({
+    country: "BE", reason: "We zijn met 40 man in een touringcar! We worden altijd doorgewuifd, dit is toch Schengen?",
+    hasPassport: false, hasID: false, hasVisa: false, expired: false,
+    allow: false,
+    dialogue: "De buschauffeur kijkt je ongeduldig aan vanuit de bus.",
+    fb_ok: "Correct! Elke persoon wordt individueel beoordeeld. 'We worden altijd doorgewuifd' is geen argument. Wie geen ID heeft, mag niet door.",
+    fb_no: "Gewoontes veranderen de regels niet. Iedereen moet individueel een geldig identiteitsbewijs kunnen tonen."
+  });
+
+  // Vrachtwagenchauffeur met verse vis
+  s.push({
+    country: "PL", reason: "Mijn lading verse vis bederft als ik hier lang sta! Mijn paspoort is verlopen maar laat me alsjeblieft door!",
+    hasPassport: true, hasID: false, hasVisa: false, expired: true,
+    allow: false,
+    dialogue: "Je ruikt inderdaad iets.",
+    fb_ok: "Correct! Bederfelijke lading verandert de regels niet. Verlopen paspoort = niet geldig. De vis is niet jouw probleem.",
+    fb_no: "Hoe vervelend ook voor de vis — een verlopen paspoort is niet geldig."
+  });
+
+  // Vrouw die zegt insuline nodig te hebben
+  s.push({
+    country: "DE", reason: "Ik heb mijn insuline thuis in Nijmegen laten liggen! Ik moet snel terug! Mijn ID ben ik ook vergeten...",
+    hasPassport: false, hasID: false, hasVisa: false, expired: false,
+    allow: false, type: "moral",
+    dialogue: "De vrouw ziet er bezorgd en een beetje zweterig uit.",
+    moralHint: "Een medische urgentie, maar geen document...",
+    fb_ok: "Moeilijk. Zonder ID: weigeren. Maar schakel hulpdiensten in — medische nood is serieus. Weigeren betekent niet dat je iemand zonder hulp achterlaat.",
+    fb_no: "Begrijpelijk, maar zonder ID: weigeren. Bel wel een ambulance of arts als de situatie urgent is."
+  });
+
   return s;
 }
 
@@ -1078,24 +1606,28 @@ function nextTraveler() {
   if (hasDoc) {
     h += `<div class="passport-field"><span class="label">Naam</span><br><span class="value">${name}</span></div>`;
     h += `<div class="passport-field"><span class="label">Nationaliteit</span><br><span class="value">${COUNTRY_NAMES[c]}</span></div>`;
-    h += `<div class="passport-field"><span class="label">Document</span><br><span class="value">${current.hasPassport ? '📘 Paspoort' : '💳 ID-kaart'}</span></div>`;
-    h += `<div class="passport-field"><span class="label">Status</span><br><span class="value" style="color:${current.expired ? '#c0392b' : '#27ae60'};">${current.expired ? '⚠ VERLOPEN' : '✓ GELDIG'}</span></div>`;
+    h += `<div class="passport-field"><span class="label">Document</span><br><span class="value">${current.hasPassport ? 'Paspoort' : 'ID-kaart'}</span></div>`;
+    h += `<div class="passport-field"><span class="label">Geldig tot</span><br><span class="value">${current.expired ? genExpiredDate() : genExpiryDate()}</span></div>`;
     if (current.damaged) {
-      h += `<div class="passport-field"><span class="label">Conditie</span><br><span class="value" style="color:#c0392b;">⚠ ZWAAR BESCHADIGD — FOTO ONLEESBAAR</span></div>`;
+      h += `<div class="passport-field"><span class="label">Conditie</span><br><span class="value">Document is beschadigd, foto moeilijk leesbaar</span></div>`;
     }
     if (current.wrongPerson) {
-      h += `<div class="passport-field"><span class="label">Foto</span><br><span class="value" style="color:#c0392b;">⚠ FOTO KOMT NIET OVEREEN</span></div>`;
+      h += `<div class="passport-field"><span class="label">Opmerking</span><br><span class="value">Naam en foto lijken niet overeen te komen met de persoon</span></div>`;
     }
     if (current.hasVisa) {
       const visaExpired = current.visaExpired || false;
-      h += `<div class="passport-field"><span class="label">Visum</span><br><span class="value" style="color:${visaExpired ? '#c0392b' : '#27ae60'};">${visaExpired ? '⚠ VISUM VERLOPEN' : '✓ GELDIG VISUM'}</span></div>`;
-    } else if (!SCHENGEN.includes(c) && c !== "NL") {
-      h += `<div class="passport-field"><span class="label">Visum</span><br><span class="value" style="color:#c0392b;">✗ GEEN VISUM</span></div>`;
+      h += `<div class="passport-field"><span class="label">Visum geldig tot</span><br><span class="value">${visaExpired ? genExpiredVisaDate() : genVisaDate()}</span></div>`;
+    } else if (!SCHENGEN.includes(c) && c !== "NL" && !["IE","CY"].includes(c)) {
+      h += `<div class="passport-field"><span class="label">Visum</span><br><span class="value">Geen visum aanwezig</span></div>`;
+    }
+    if (current.hasResidencePermit) {
+      const permitExpired = current.permitExpired || false;
+      h += `<div class="passport-field"><span class="label">Verblijfsvergunning geldig tot</span><br><span class="value">${permitExpired ? genExpiredDate() : genExpiryDate()}</span></div>`;
     }
   } else {
     h += `<div class="passport-field"><span class="label">Naam</span><br><span class="value">${name}</span></div>`;
     h += `<div class="passport-field"><span class="label">Nationaliteit</span><br><span class="value">${COUNTRY_NAMES[c]}</span></div>`;
-    h += `<div class="passport-field" style="margin-top:16px;text-align:center;color:#c0392b;font-size:22px;">⚠ GEEN DOCUMENT GETOOND</div>`;
+    h += `<div class="passport-field" style="margin-top:16px;text-align:center;font-size:20px;">Geen document getoond</div>`;
   }
   h += `<div class="stamp-overlay" id="stamp">—</div>`;
   document.getElementById('passport').innerHTML = h;
