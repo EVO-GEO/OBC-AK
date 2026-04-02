@@ -1,0 +1,2033 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aardrijkskunde — Bergen &amp; Laagvlaktes in Europa</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --green-900: #1a3a2a;
+  --green-800: #234d38;
+  --green-700: #2d6147;
+  --green-600: #377556;
+  --green-500: #418a65;
+  --green-400: #5aa57e;
+  --green-300: #7dbf9a;
+  --green-200: #a8d8ba;
+  --green-100: #d4eede;
+  --green-50: #eef7f1;
+  --earth-900: #3e2c1c;
+  --earth-700: #6b4c33;
+  --earth-500: #9a7b5a;
+  --earth-300: #c4a882;
+  --earth-100: #f0e6d8;
+  --earth-50: #faf6f0;
+  --sand: #f5f0e8;
+  --cream: #fefcf8;
+  --text: #2c3e2d;
+  --text-light: #5a6e5b;
+  --accent: #c9693c;
+  --accent-light: #e8a87c;
+  --correct: #2d8a4e;
+  --correct-bg: #e6f5eb;
+  --wrong: #c0392b;
+  --wrong-bg: #fde8e6;
+  --hint-bg: #fff8e1;
+  --hint-border: #f5c842;
+  --radius: 12px;
+  --radius-sm: 8px;
+  --shadow: 0 2px 12px rgba(26,58,42,0.08);
+  --shadow-lg: 0 8px 32px rgba(26,58,42,0.12);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Nunito', sans-serif;
+  background: var(--cream);
+  color: var(--text);
+  line-height: 1.7;
+  min-height: 100vh;
+}
+/* ─── HEADER ─── */
+.site-header {
+  background: linear-gradient(135deg, var(--green-800), var(--green-700));
+  color: white;
+  padding: 24px 24px 16px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.site-header::before {
+  content: '🏔️ 🌿 🗺️ 🌍 🏞️';
+  position: absolute;
+  top: 8px; right: 20px;
+  font-size: 1.3rem;
+  opacity: 0.4;
+  letter-spacing: 8px;
+}
+.site-header h1 {
+  font-size: 1.6rem;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  margin-bottom: 4px;
+}
+.site-header p {
+  font-size: 0.85rem;
+  opacity: 0.85;
+  font-weight: 400;
+}
+/* ─── PROGRESS BAR ─── */
+.progress-wrapper {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: white;
+  border-bottom: 1px solid var(--green-100);
+  padding: 10px 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+.progress-bar-outer {
+  background: var(--green-100);
+  border-radius: 20px;
+  height: 14px;
+  overflow: hidden;
+  position: relative;
+}
+.progress-bar-inner {
+  background: linear-gradient(90deg, var(--green-500), var(--green-400));
+  height: 100%;
+  border-radius: 20px;
+  transition: width 0.5s ease;
+  width: 0%;
+}
+.progress-text {
+  font-size: 0.75rem;
+  color: var(--text-light);
+  margin-top: 4px;
+  text-align: center;
+  font-weight: 600;
+}
+/* ─── TAB NAV ─── */
+.tab-nav-wrapper {
+  background: var(--earth-50);
+  border-bottom: 2px solid var(--green-100);
+  padding: 0 12px;
+}
+.tab-counter {
+  text-align: center;
+  font-size: 0.78rem;
+  color: var(--text-light);
+  padding: 8px 0 0;
+  font-weight: 600;
+}
+.tab-nav {
+  display: flex;
+  overflow-x: auto;
+  gap: 4px;
+  padding: 8px 0 0;
+  scrollbar-width: thin;
+}
+.tab-nav::-webkit-scrollbar { height: 4px; }
+.tab-nav::-webkit-scrollbar-thumb { background: var(--green-300); border-radius: 4px; }
+.tab-btn {
+  flex-shrink: 0;
+  padding: 10px 16px;
+  border: none;
+  background: transparent;
+  color: var(--text-light);
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.tab-btn:hover { background: var(--green-50); color: var(--green-700); }
+.tab-btn.active {
+  color: var(--green-700);
+  border-bottom-color: var(--green-500);
+  background: white;
+}
+.tab-btn .tab-check { color: var(--correct); margin-left: 4px; }
+/* ─── CONTENT ─── */
+.content-area {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 24px 20px 40px;
+}
+.tab-panel { display: none; }
+.tab-panel.active { display: block; animation: fadeIn 0.3s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+/* ─── SECTIONS ─── */
+.section-title {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--green-800);
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.section-title .emoji { font-size: 1.6rem; }
+.info-block {
+  background: white;
+  border-radius: var(--radius);
+  padding: 24px;
+  margin-bottom: 20px;
+  box-shadow: var(--shadow);
+  border-left: 4px solid var(--green-400);
+}
+.info-block h3 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--green-700);
+  margin-bottom: 10px;
+}
+.info-block p { margin-bottom: 12px; color: var(--text); font-size: 0.95rem; }
+.info-block p:last-child { margin-bottom: 0; }
+
+.emoji-process {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: var(--green-50);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin: 16px 0;
+  font-size: 1.1rem;
+}
+.emoji-process .step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+.emoji-process .step .icon { font-size: 2rem; }
+.emoji-process .step .label { font-size: 0.75rem; font-weight: 700; color: var(--green-700); }
+.emoji-process .arrow { font-size: 1.4rem; color: var(--green-400); }
+
+.comparison-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin: 16px 0;
+  box-shadow: var(--shadow);
+}
+.comparison-table th {
+  background: var(--green-700);
+  color: white;
+  padding: 12px 16px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  text-align: left;
+}
+.comparison-table td {
+  padding: 10px 16px;
+  font-size: 0.88rem;
+  border-bottom: 1px solid var(--green-100);
+  background: white;
+}
+.comparison-table tr:last-child td { border-bottom: none; }
+.comparison-table tr:nth-child(even) td { background: var(--green-50); }
+
+.highlight-box {
+  background: linear-gradient(135deg, var(--earth-50), var(--green-50));
+  border-radius: var(--radius);
+  padding: 20px;
+  margin: 16px 0;
+  border: 1px solid var(--green-200);
+}
+.highlight-box .hb-title {
+  font-weight: 800;
+  font-size: 1rem;
+  color: var(--green-800);
+  margin-bottom: 8px;
+}
+
+/* ─── EXERCISES ─── */
+.exercise {
+  background: white;
+  border-radius: var(--radius);
+  padding: 24px;
+  margin-bottom: 20px;
+  box-shadow: var(--shadow);
+  border-left: 4px solid var(--accent);
+}
+.exercise-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--accent);
+  margin-bottom: 8px;
+}
+.exercise h4 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 14px;
+  line-height: 1.5;
+}
+/* MC */
+.mc-options { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+.mc-option {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 12px 16px;
+  border: 2px solid var(--green-200);
+  border-radius: var(--radius-sm);
+  background: white;
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.92rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-weight: 600;
+  color: var(--text);
+}
+.mc-option:hover { border-color: var(--green-400); background: var(--green-50); }
+.mc-option.selected { border-color: var(--green-500); background: var(--green-100); }
+.mc-option.correct-answer { border-color: var(--correct); background: var(--correct-bg); }
+.mc-option.wrong-answer { border-color: var(--wrong); background: var(--wrong-bg); }
+.mc-option:disabled { cursor: default; opacity: 0.85; }
+
+.check-btn {
+  display: inline-block;
+  padding: 10px 24px;
+  background: var(--green-600);
+  color: white;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.check-btn:hover { background: var(--green-700); transform: translateY(-1px); }
+.check-btn:disabled { background: #ccc; cursor: default; transform: none; }
+
+.feedback {
+  margin-top: 12px;
+  padding: 14px 18px;
+  border-radius: var(--radius-sm);
+  font-size: 0.9rem;
+  font-weight: 600;
+  display: none;
+  line-height: 1.5;
+}
+.feedback.show { display: block; animation: fadeIn 0.3s ease; }
+.feedback.correct { background: var(--correct-bg); color: var(--correct); border-left: 4px solid var(--correct); }
+.feedback.wrong { background: var(--wrong-bg); color: var(--wrong); border-left: 4px solid var(--wrong); }
+.feedback.hint { background: var(--hint-bg); color: #8a6d10; border-left: 4px solid var(--hint-border); }
+.feedback.neutral { background: var(--green-50); color: var(--green-800); border-left: 4px solid var(--green-400); }
+
+/* Open questions */
+.open-textarea {
+  width: 100%;
+  min-height: 100px;
+  padding: 14px;
+  border: 2px solid var(--green-200);
+  border-radius: var(--radius-sm);
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.92rem;
+  resize: vertical;
+  line-height: 1.6;
+  color: var(--text);
+  transition: border-color 0.2s;
+}
+.open-textarea:focus { outline: none; border-color: var(--green-500); }
+.word-counter { font-size: 0.75rem; color: var(--text-light); margin-top: 4px; text-align: right; }
+.word-counter.enough { color: var(--correct); }
+
+.show-example-btn {
+  display: none;
+  padding: 8px 18px;
+  background: var(--earth-100);
+  color: var(--earth-700);
+  border: 2px solid var(--earth-300);
+  border-radius: var(--radius-sm);
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: all 0.2s;
+}
+.show-example-btn:hover { background: var(--earth-300); color: white; }
+.show-example-btn.visible { display: inline-block; }
+
+.self-assess { display: none; margin-top: 10px; gap: 8px; }
+.self-assess.show { display: flex; }
+.self-assess button {
+  padding: 8px 20px;
+  border: 2px solid;
+  border-radius: var(--radius-sm);
+  font-family: 'Nunito', sans-serif;
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.self-assess .btn-good { border-color: var(--correct); color: var(--correct); background: white; }
+.self-assess .btn-good:hover { background: var(--correct-bg); }
+.self-assess .btn-wrong { border-color: var(--wrong); color: var(--wrong); background: white; }
+.self-assess .btn-wrong:hover { background: var(--wrong-bg); }
+
+/* Drag and drop */
+.drag-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+.drag-item {
+  padding: 12px 16px;
+  background: white;
+  border: 2px solid var(--green-200);
+  border-radius: var(--radius-sm);
+  cursor: grab;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: all 0.15s;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.drag-item:active { cursor: grabbing; }
+.drag-item .drag-handle { color: var(--green-400); font-size: 1.1rem; }
+.drag-item.dragging { opacity: 0.4; border-style: dashed; }
+.drag-item.drag-over { border-color: var(--green-500); background: var(--green-50); transform: scale(1.01); }
+.drag-item.correct-pos { border-color: var(--correct); background: var(--correct-bg); }
+.drag-item.wrong-pos { border-color: var(--wrong); background: var(--wrong-bg); }
+
+/* Match exercise */
+.match-container { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 14px; }
+.match-column { flex: 1; min-width: 200px; display: flex; flex-direction: column; gap: 6px; }
+.match-column-title { font-size: 0.78rem; font-weight: 700; color: var(--green-700); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+.match-item {
+  padding: 10px 14px;
+  border: 2px solid var(--green-200);
+  border-radius: var(--radius-sm);
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: white;
+}
+.match-item:hover { border-color: var(--green-400); }
+.match-item.selected { border-color: var(--accent); background: #fef3eb; }
+.match-item.matched { opacity: 0.7; border-style: dashed; }
+
+.matched-pairs { margin: 12px 0; display: flex; flex-direction: column; gap: 6px; }
+.matched-pair {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: var(--green-50);
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+.matched-pair .pair-arrow { color: var(--green-500); }
+.matched-pair .remove-pair {
+  margin-left: auto;
+  background: none;
+  border: none;
+  color: var(--wrong);
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+/* Map */
+.map-container {
+  height: 400px;
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin: 16px 0;
+  border: 2px solid var(--green-200);
+}
+
+/* Chart */
+.chart-container {
+  background: white;
+  border-radius: var(--radius);
+  padding: 16px;
+  margin: 16px 0;
+  max-height: 350px;
+}
+
+/* Nav buttons */
+.nav-buttons {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 1px solid var(--green-100);
+}
+.nav-btn {
+  padding: 12px 28px;
+  border: 2px solid var(--green-500);
+  border-radius: var(--radius-sm);
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.nav-btn.primary { background: var(--green-600); color: white; border-color: var(--green-600); }
+.nav-btn.primary:hover { background: var(--green-700); }
+.nav-btn.secondary { background: white; color: var(--green-600); }
+.nav-btn.secondary:hover { background: var(--green-50); }
+
+.reset-section-btn {
+  display: block;
+  margin: 16px auto 0;
+  padding: 8px 16px;
+  background: transparent;
+  border: 1px solid var(--earth-300);
+  border-radius: var(--radius-sm);
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.78rem;
+  color: var(--text-light);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.reset-section-btn:hover { background: var(--wrong-bg); border-color: var(--wrong); color: var(--wrong); }
+
+/* Footer */
+.site-footer {
+  text-align: center;
+  padding: 20px;
+  font-size: 0.78rem;
+  color: var(--text-light);
+  border-top: 1px solid var(--green-100);
+  margin-top: 20px;
+}
+.clear-progress-btn {
+  padding: 6px 14px;
+  background: transparent;
+  border: 1px solid var(--wrong);
+  color: var(--wrong);
+  border-radius: var(--radius-sm);
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.75rem;
+  cursor: pointer;
+  margin-top: 8px;
+}
+
+/* Reflection */
+.score-display {
+  text-align: center;
+  padding: 30px;
+  background: linear-gradient(135deg, var(--green-700), var(--green-500));
+  border-radius: var(--radius);
+  color: white;
+  margin-bottom: 20px;
+}
+.score-display .score-number { font-size: 3rem; font-weight: 800; }
+.score-display .score-label { font-size: 0.9rem; opacity: 0.85; }
+
+.goal-list { display: flex; flex-direction: column; gap: 10px; margin: 16px 0; }
+.goal-item {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 14px; background: white; border-radius: var(--radius-sm); box-shadow: var(--shadow);
+  font-size: 0.9rem;
+}
+.goal-check { font-size: 1.2rem; flex-shrink: 0; }
+
+@media (max-width: 768px) {
+  .site-header h1 { font-size: 1.3rem; }
+  .content-area { padding: 16px 14px 30px; }
+  .match-container { flex-direction: column; }
+  .map-container { height: 300px; }
+}
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <h1>🏔️ Bergen &amp; Laagvlaktes in Europa</h1>
+  <p>HAVO 1 — Aardrijkskunde — ±60 minuten</p>
+</header>
+
+<div class="progress-wrapper">
+  <div class="progress-bar-outer">
+    <div class="progress-bar-inner" id="progressBar"></div>
+  </div>
+  <div class="progress-text" id="progressText">0% voltooid — 0 van 0 opdrachten</div>
+</div>
+
+<div class="tab-nav-wrapper">
+  <div class="tab-counter" id="tabCounter">Onderdeel 1 van 9</div>
+  <div class="tab-nav" id="tabNav"></div>
+</div>
+
+<main class="content-area">
+
+<!-- ════════════ TAB 1: Introductie ════════════ -->
+<div class="tab-panel" id="tab-0">
+  <div class="section-title"><span class="emoji">✈️</span> Welkom — Europa ontdekken</div>
+
+  <div class="info-block">
+    <h3>Stel je voor…</h3>
+    <p>Je stapt in het vliegtuig voor een reis door Europa. Als je uit het raam kijkt, zie je enorme bergtoppen met sneeuw in het zuiden, groene heuvels in het midden, en eindeloze vlakke velden in het noorden. Hoe kan het dat één werelddeel er zo verschillend uitziet? Dat ga je in deze les ontdekken!</p>
+    <p>Europa is een klein werelddeel, maar heeft een ongelooflijk divers landschap. Op een paar uur vliegen ga je van de besneeuwde Alpen naar de vlakke polders van Nederland. Die verschillen zijn niet toevallig — ze zijn het resultaat van miljoenen jaren aan natuurlijke processen. In deze les leer je welke processen dat zijn en hoe ze het landschap hebben gevormd dat jij kent van vakanties, schoolreisjes en zelfs je eigen straat.</p>
+    <p>In deze les werk je met kaarten, grafieken, quizvragen en schrijfopdrachten. Neem de tijd om alles goed door te lezen — er is genoeg stof om de komende 60 minuten mee bezig te zijn. Veel succes! 🌍</p>
+  </div>
+
+  <div class="highlight-box">
+    <div class="hb-title">📌 Leerdoelen van deze les</div>
+    <p>Na deze les kun je:</p>
+    <p>1. Uitleggen hoe bergen ontstaan door botsende aardplaten.</p>
+    <p>2. Beschrijven hoe water, ijs en wind bergen afbreken.</p>
+    <p>3. Uitleggen hoe laagvlaktes ontstaan door afzetting van materiaal.</p>
+    <p>4. Op een kaart aanwijzen waar de belangrijkste bergen en laagvlaktes liggen.</p>
+    <p>5. Uitleggen waarom Europa zulke verschillende landschappen heeft en wat dat betekent voor hoe mensen wonen.</p>
+  </div>
+
+  <!-- Opdracht 1.1 MC -->
+  <div class="exercise" id="ex-0-1">
+    <div class="exercise-label">Opdracht 1 — Instapvraag</div>
+    <h4>Welk landschap hoort NIET bij Europa?</h4>
+    <div class="mc-options">
+      <button class="mc-option" data-value="a">Besneeuwde bergtoppen in de Alpen</button>
+      <button class="mc-option" data-value="b">Tropisch regenwoud met papegaaien</button>
+      <button class="mc-option" data-value="c">Vlakke polders in Nederland</button>
+      <button class="mc-option" data-value="d">Fjorden in Noorwegen</button>
+    </div>
+    <button class="check-btn" data-exercise="ex-0-1" data-answer="b" data-hint="Denk na: welk klimaat heeft Europa? Zijn er tropische regenwouden in Europa?" data-explain="Tropisch regenwoud met papegaaien vind je in Zuid-Amerika, Afrika en Azië — niet in Europa. Europa heeft een gematigd klimaat.">Controleer</button>
+    <div class="feedback" id="fb-ex-0-1"></div>
+  </div>
+
+  <!-- Opdracht 1.2 Open -->
+  <div class="exercise" id="ex-0-2">
+    <div class="exercise-label">Opdracht 2 — Schrijfopdracht</div>
+    <h4>Beschrijf in je eigen woorden: welke verschillende landschappen heb jij al eens gezien op vakantie, op school of in je eigen omgeving? Noem minstens twee voorbeelden.</h4>
+    <textarea class="open-textarea" data-exercise="ex-0-2" placeholder="Schrijf hier je antwoord (minstens 20 woorden)..."></textarea>
+    <div class="word-counter" data-for="ex-0-2">0 woorden</div>
+    <button class="show-example-btn" data-exercise="ex-0-2" data-example="Voorbeeldantwoord 1: Op vakantie in Oostenrijk heb ik hoge bergen gezien met sneeuw erop, terwijl het bij ons thuis in Nederland helemaal vlak is met weilanden en sloten. Dat verschil vond ik opvallend.\n\nVoorbeeldantwoord 2: Bij ons in de buurt is het landschap heel vlak met veel landbouw. Maar toen we naar de Ardennen gingen, waren er opeens heuvels en bossen. Het voelde als een heel ander land.">Toon voorbeeldantwoord</button>
+    <div class="feedback" id="fb-ex-0-2"></div>
+    <div class="self-assess" id="sa-ex-0-2">
+      <button class="btn-good" data-exercise="ex-0-2" data-result="correct">Goed ✓</button>
+      <button class="btn-wrong" data-exercise="ex-0-2" data-result="wrong">Fout ✗</button>
+    </div>
+  </div>
+
+  <div class="nav-buttons">
+    <span></span>
+    <button class="nav-btn primary" data-goto="1">Volgende →</button>
+  </div>
+  <button class="reset-section-btn" data-tab="0">🔄 Reset dit onderdeel</button>
+</div>
+
+<!-- ════════════ TAB 2: Plaattektoniek ════════════ -->
+<div class="tab-panel" id="tab-1">
+  <div class="section-title"><span class="emoji">🌍</span> De aarde beweegt — Plaattektoniek</div>
+
+  <div class="info-block">
+    <h3>Wat zijn aardplaten?</h3>
+    <p>De buitenkant van de aarde is niet één geheel — het is als een puzzel van enorme stukken rots. Deze stukken noemen we <strong>aardplaten</strong> (of tektonische platen). Er zijn zo'n vijftien grote platen en nog een paar kleinere. Samen bedekken ze de hele aardoppervlakte.</p>
+    <p>Deze platen liggen niet stil. Ze bewegen heel langzaam — slechts een paar centimeter per jaar, ongeveer even snel als je nagels groeien. Je merkt er dus niets van in je dagelijks leven. Maar over miljoenen jaren leggen die platen enorme afstanden af. Dit hele proces heet <strong>plaattektoniek</strong>.</p>
+    <p>Waarom bewegen die platen? Diep onder de aardkorst, in de aardmantel, is het zo heet dat gesteente daar langzaam kan stromen — een beetje zoals dikke stroop. Die stromingen duwen de platen aan het oppervlak in verschillende richtingen. Stel je voor dat je een paar crackers op een bord soep legt: als de soep beweegt, schuiven de crackers ook mee. Zo werkt het (heel simpel gezegd) ook met aardplaten.</p>
+  </div>
+
+  <div class="emoji-process">
+    <div class="step"><span class="icon">🌋</span><span class="label">Hete kern</span></div>
+    <span class="arrow">→</span>
+    <div class="step"><span class="icon">🔥</span><span class="label">Stromingen</span></div>
+    <span class="arrow">→</span>
+    <div class="step"><span class="icon">🧩</span><span class="label">Platen bewegen</span></div>
+    <span class="arrow">→</span>
+    <div class="step"><span class="icon">💥</span><span class="label">Botsing!</span></div>
+    <span class="arrow">→</span>
+    <div class="step"><span class="icon">🏔️</span><span class="label">Gebergte</span></div>
+  </div>
+
+  <div class="info-block">
+    <h3>Hoe ontstaan bergen?</h3>
+    <p>Wanneer twee aardplaten naar elkaar toe bewegen en botsen, wordt het gesteente tussen die platen samengeperst en omhooggeduwd. Dit proces heet <strong>gebergtevorming</strong> (of orogenese). Het duurt miljoenen jaren, maar het resultaat is enorm: complete bergketens!</p>
+    <p>Het bekendste voorbeeld in Europa zijn de <strong>Alpen</strong>. Die zijn ontstaan doordat de Afrikaanse plaat al tientallen miljoenen jaren tegen de Europese plaat duwt. De grond daartussen werd als het ware opgekreukeld — stel je voor dat je twee stukken papier naar elkaar toe schuift op tafel: het papier in het midden gaat omhoog vouwen. Precies zo werkt het ook met gesteente, alleen duurt het veel langer en zijn de krachten onvoorstelbaar groot.</p>
+    <p>Als jij ooit langs de Alpen bent gereden op weg naar Italië, dan heb je het resultaat van die botsing gezien: bergtoppen van meer dan 4.000 meter hoog! De Mont Blanc, de hoogste berg van de Alpen, is zelfs 4.808 meter.</p>
+    <p>Ook de <strong>Pyreneeën</strong> (het gebergte tussen Frankrijk en Spanje) zijn op dezelfde manier ontstaan. En de <strong>Kaukasus</strong> in het oosten van Europa, waar de berg Elbrus (5.642 m) staat — de hoogste berg van Europa.</p>
+  </div>
+
+  <div class="highlight-box">
+    <div class="hb-title">🏠 Herken je het?</div>
+    <p>Ben je wel eens in een land geweest waar de grond trilde? In landen als Griekenland, Turkije en Italië komen regelmatig aardbevingen voor. Dat komt doordat de aardplaten daar nog steeds tegen elkaar duwen. De aarde is daar dus nog "in beweging"!</p>
+  </div>
+
+  <!-- Opdracht 2.1 MC -->
+  <div class="exercise" id="ex-1-1">
+    <div class="exercise-label">Opdracht 1 — Kennisvraag</div>
+    <h4>Hoe snel bewegen aardplaten gemiddeld?</h4>
+    <div class="mc-options">
+      <button class="mc-option" data-value="a">Een paar meter per jaar</button>
+      <button class="mc-option" data-value="b">Een paar centimeter per jaar</button>
+      <button class="mc-option" data-value="c">Een paar kilometer per jaar</button>
+      <button class="mc-option" data-value="d">Ze bewegen niet</button>
+    </div>
+    <button class="check-btn" data-exercise="ex-1-1" data-answer="b" data-hint="Vergelijk het met iets uit je dagelijks leven: hoe snel groeien je nagels? Dat is ongeveer dezelfde snelheid." data-explain="Aardplaten bewegen gemiddeld een paar centimeter per jaar — ongeveer zo snel als je nagels groeien.">Controleer</button>
+    <div class="feedback" id="fb-ex-1-1"></div>
+  </div>
+
+  <!-- Opdracht 2.2 MC -->
+  <div class="exercise" id="ex-1-2">
+    <div class="exercise-label">Opdracht 2 — Begripsvraag</div>
+    <h4>De Alpen zijn ontstaan doordat…</h4>
+    <div class="mc-options">
+      <button class="mc-option" data-value="a">Een meteoriet insloeg in Zwitserland</button>
+      <button class="mc-option" data-value="b">De Afrikaanse plaat tegen de Europese plaat botst</button>
+      <button class="mc-option" data-value="c">Rivieren zoveel materiaal afzetten</button>
+      <button class="mc-option" data-value="d">Gletsjers de grond omhoog duwden</button>
+    </div>
+    <button class="check-btn" data-exercise="ex-1-2" data-answer="b" data-hint="Kijk nog eens naar het stuk over gebergtevorming. Welke twee platen worden daar genoemed?" data-explain="De Alpen zijn ontstaan doordat de Afrikaanse plaat al miljoenen jaren tegen de Europese plaat botst. Het gesteente wordt daardoor omhooggeduwd.">Controleer</button>
+    <div class="feedback" id="fb-ex-1-2"></div>
+  </div>
+
+  <!-- Opdracht 2.3 Open -->
+  <div class="exercise" id="ex-1-3">
+    <div class="exercise-label">Opdracht 3 — Denkvraag</div>
+    <h4>Leg in je eigen woorden uit waarom er in Griekenland en Turkije vaak aardbevingen zijn. Gebruik het begrip 'aardplaten' in je antwoord.</h4>
+    <textarea class="open-textarea" data-exercise="ex-1-3" placeholder="Schrijf hier je antwoord (minstens 20 woorden)..."></textarea>
+    <div class="word-counter" data-for="ex-1-3">0 woorden</div>
+    <button class="show-example-btn" data-exercise="ex-1-3" data-example="Voorbeeldantwoord: In Griekenland en Turkije komen veel aardbevingen voor omdat daar verschillende aardplaten tegen elkaar botsen. De Afrikaanse plaat duwt tegen de Europese plaat. Die botsing gaat nog steeds door, waardoor de grond soms trilt. Zo'n trilling noemen we een aardbeving.">Toon voorbeeldantwoord</button>
+    <div class="feedback" id="fb-ex-1-3"></div>
+    <div class="self-assess" id="sa-ex-1-3">
+      <button class="btn-good" data-exercise="ex-1-3" data-result="correct">Goed ✓</button>
+      <button class="btn-wrong" data-exercise="ex-1-3" data-result="wrong">Fout ✗</button>
+    </div>
+  </div>
+
+  <div class="nav-buttons">
+    <button class="nav-btn secondary" data-goto="0">← Vorige</button>
+    <button class="nav-btn primary" data-goto="2">Volgende →</button>
+  </div>
+  <button class="reset-section-btn" data-tab="1">🔄 Reset dit onderdeel</button>
+</div>
+
+<!-- ════════════ TAB 3: Verwering & Erosie ════════════ -->
+<div class="tab-panel" id="tab-2">
+  <div class="section-title"><span class="emoji">💧</span> Bergen worden afgebroken — Verwering &amp; Erosie</div>
+
+  <div class="info-block">
+    <h3>Verwering: rotsen gaan kapot</h3>
+    <p>Zodra een berg is ontstaan, begint de natuur hem ook weer af te breken. Dit noemen we <strong>verwering</strong>. Verwering betekent dat rotsen langzaam in kleinere stukken uiteenvallen. Dit gaat heel langzaam, maar over duizenden en miljoenen jaren maakt het een enorm verschil.</p>
+    <p>Eén van de krachtigste vormen van verwering is <strong>vorstVerwering</strong>. Dit werkt zo: overdag regent het en water sijpelt in kleine scheurtjes in de rots. 's Nachts vriest het en het water verandert in ijs. Ijs neemt méér ruimte in dan water (daarom knapt een flesje ook als je het in de vriezer legt). Het ijs duwt de scheur een beetje verder open. Dit herhaalt zich keer op keer: water erin, bevriezen, scheurtje groter, smelten, water erin, bevriezen… Tot de rots uiteindelijk in stukken breekt.</p>
+    <p>In de <strong>Ardennen</strong>, waar veel Nederlanders gaan mountainbiken of wandelen, zie je overal losse rotsblokken langs de hellingen. Dat is verwering in actie! Die blokken zijn ooit onderdeel geweest van een groter rotsstuk, maar zijn er door vorst, regen en plantenwortels afgebroken.</p>
+  </div>
+
+  <div class="emoji-process">
+    <div class="step"><span class="icon">🌧️</span><span class="label">Water</span></div>
+    <span class="arrow">→</span>
+    <div class="step"><span class="icon">🥶</span><span class="label">Bevriest</span></div>
+    <span class="arrow">→</span>
+    <div class="step"><span class="icon">🧊</span><span class="label">Ijs zet uit</span></div>
+    <span class="arrow">→</span>
+    <div class="step"><span class="icon">💥</span><span class="label">Rots breekt</span></div>
+    <span class="arrow">→</span>
+    <div class="step"><span class="icon">🪨</span><span class="label">Losse stukken</span></div>
+  </div>
+
+  <div class="info-block">
+    <h3>Erosie: materiaal wordt meegenomen</h3>
+    <p><strong>Erosie</strong> is de volgende stap: het losse materiaal (rotsblokken, grind, zand) wordt meegenomen naar lager gelegen gebieden. Dit doen drie belangrijke "transporteurs":</p>
+    <p><strong>🌊 Rivieren</strong> — stromend water neemt zand, klei en steentjes mee stroomafwaarts. Hoe sneller de rivier stroomt, hoe meer en hoe groter de stukken die hij meeneemt. In de bergen stromen rivieren snel, dus daar slijten ze diepe dalen uit.</p>
+    <p><strong>🧊 Gletsjers</strong> — gletsjers zijn enorme ijsmassa's die heel langzaam een berg afglijden. Ze schuren als een soort gigantische schuurmachine over het gesteente en nemen alles mee wat los zit. De diepe dalen en fjorden in de Alpen en Noorwegen zijn door gletsjers uitgesleten tijdens de ijstijden.</p>
+    <p><strong>💨 Wind</strong> — in droge gebieden kan wind zandkorrels meevoeren. Dit schuurt het gesteente als een soort natuurlijk schuurpapier. Wind is minder krachtig dan water of ijs, maar over duizenden jaren slijt hij toch bijzondere vormen in het landschap.</p>
+  </div>
+
+  <div class="highlight-box">
+    <div class="hb-title">🏠 Herken je het?</div>
+    <p>Loop je weleens over een pad met losse steentjes in een heuvelachtig gebied? Die steentjes zijn daar terechtgekomen door verwering en erosie. En als je bij een rivier staat en troebel water ziet: dat is zand en klei dat de rivier meevoert van hogerop. Erosie in actie!</p>
+  </div>
+
+  <!-- Opdracht 3.1 MC -->
+  <div class="exercise" id="ex-2-1">
+    <div class="exercise-label">Opdracht 1 — Kennisvraag</div>
+    <h4>Wat is het verschil tussen verwering en erosie?</h4>
+    <div class="mc-options">
+      <button class="mc-option" data-value="a">Verwering = rotsen breken af, erosie = materiaal wordt meegenomen</button>
+      <button class="mc-option" data-value="b">Verwering = materiaal wordt meegenomen, erosie = rotsen breken af</button>
+      <button class="mc-option" data-value="c">Het is hetzelfde, alleen een ander woord</button>
+      <button class="mc-option" data-value="d">Verwering gebeurt door wind, erosie door water</button>
+    </div>
+    <button class="check-btn" data-exercise="ex-2-1" data-answer="a" data-hint="Denk aan twee stappen: eerst gaat iets kapot, dan wordt het meegenomen. Welk woord hoort bij welke stap?" data-explain="Verwering is het kapotgaan van rotsen (afbreken). Erosie is het meenemen van dat losse materiaal door water, ijs of wind. Eerst verwering, dan erosie.">Controleer</button>
+    <div class="feedback" id="fb-ex-2-1"></div>
+  </div>
+
+  <!-- Opdracht 3.2 Drag sort -->
+  <div class="exercise" id="ex-2-2">
+    <div class="exercise-label">Opdracht 2 — Sorteeropdracht (sleep in de juiste volgorde)</div>
+    <h4>Zet de stappen van vorstverwering in de juiste volgorde (van boven naar beneden):</h4>
+    <div class="drag-list" id="drag-ex-2-2">
+      <div class="drag-item" draggable="true" data-order="3"><span class="drag-handle">⠿</span> Het ijs zet uit en duwt de scheur open</div>
+      <div class="drag-item" draggable="true" data-order="1"><span class="drag-handle">⠿</span> Water sijpelt in een scheur in de rots</div>
+      <div class="drag-item" draggable="true" data-order="5"><span class="drag-handle">⠿</span> De rots breekt in stukken</div>
+      <div class="drag-item" draggable="true" data-order="4"><span class="drag-handle">⠿</span> Dit proces herhaalt zich keer op keer</div>
+      <div class="drag-item" draggable="true" data-order="2"><span class="drag-handle">⠿</span> Het water bevriest tot ijs</div>
+    </div>
+    <button class="check-btn" data-exercise="ex-2-2" data-type="drag">Controleer volgorde</button>
+    <div class="feedback" id="fb-ex-2-2"></div>
+  </div>
+
+  <!-- Opdracht 3.3 Open -->
+  <div class="exercise" id="ex-2-3">
+    <div class="exercise-label">Opdracht 3 — Reisscenario</div>
+    <h4>✈️ Stel je voor: je bent op vakantie in Noorwegen en je vaart door een fjord — een smal, diep dal met steile wanden aan beide kanten, gevuld met zeewater. Leg uit hoe dit fjord is ontstaan. Gebruik de begrippen 'gletsjer' en 'erosie'.</h4>
+    <textarea class="open-textarea" data-exercise="ex-2-3" placeholder="Schrijf hier je antwoord (minstens 20 woorden)..."></textarea>
+    <div class="word-counter" data-for="ex-2-3">0 woorden</div>
+    <button class="show-example-btn" data-exercise="ex-2-3" data-example="Voorbeeldantwoord: Een fjord in Noorwegen is ontstaan doordat tijdens de ijstijden een enorme gletsjer (een grote ijsmassa) langzaam over het land schoof. De gletsjer schuurde als een soort gigantische schuurmachine over de rots en sleet een diep, smal dal uit. Dit noemen we erosie: het meenemen van materiaal. Toen het ijs smolt, stroomde er zeewater het dal in. Zo ontstond het fjord dat je nu ziet.">Toon voorbeeldantwoord</button>
+    <div class="feedback" id="fb-ex-2-3"></div>
+    <div class="self-assess" id="sa-ex-2-3">
+      <button class="btn-good" data-exercise="ex-2-3" data-result="correct">Goed ✓</button>
+      <button class="btn-wrong" data-exercise="ex-2-3" data-result="wrong">Fout ✗</button>
+    </div>
+  </div>
+
+  <div class="nav-buttons">
+    <button class="nav-btn secondary" data-goto="1">← Vorige</button>
+    <button class="nav-btn primary" data-goto="3">Volgende →</button>
+  </div>
+  <button class="reset-section-btn" data-tab="2">🔄 Reset dit onderdeel</button>
+</div>
+
+<!-- ════════════ TAB 4: Sedimentatie & Laagvlaktes ════════════ -->
+<div class="tab-panel" id="tab-3">
+  <div class="section-title"><span class="emoji">🏞️</span> Laagvlaktes — Waar het materiaal neerdaalt</div>
+
+  <div class="info-block">
+    <h3>Wat is sedimentatie?</h3>
+    <p>Al het materiaal dat rivieren, gletsjers en wind van de bergen meenemen, komt uiteindelijk ergens tot rust. Dit noemen we <strong>sedimentatie</strong>: het afzetten van materiaal zoals zand, klei en grind. Sedimentatie is eigenlijk het tegenovergestelde van erosie: bij erosie wordt materiaal meegenomen, bij sedimentatie wordt het neergelegd.</p>
+    <p>Sedimentatie gebeurt vooral op plekken waar rivieren langzamer gaan stromen. In de bergen stroomt een rivier snel, maar als hij de vlakte bereikt, wordt hij breder en langzamer. Het water heeft dan niet meer genoeg kracht om al het materiaal mee te dragen, dus laat het zand, klei en grind "vallen". Laag na laag, eeuw na eeuw, bouwt zich zo een vlak gebied op.</p>
+    <p>Dit proces heeft over miljoenen jaren de grote <strong>laagvlaktes</strong> van Europa gevormd. Een laagvlakte is een groot, vlak gebied dat laag ligt — meestal minder dan 200 meter boven zeeniveau.</p>
+  </div>
+
+  <div class="emoji-process">
+    <div class="step"><span class="icon">🏔️</span><span class="label">Bergen</span></div>
+    <span class="arrow">→</span>
+    <div class="step"><span class="icon">🌊</span><span class="label">Rivier snel</span></div>
+    <span class="arrow">→</span>
+    <div class="step"><span class="icon">🌾</span><span class="label">Vlakte bereikt</span></div>
+    <span class="arrow">→</span>
+    <div class="step"><span class="icon">🐢</span><span class="label">Rivier langzaam</span></div>
+    <span class="arrow">→</span>
+    <div class="step"><span class="icon">🏖️</span><span class="label">Afzetting!</span></div>
+  </div>
+
+  <div class="info-block">
+    <h3>De Noord-Europese Laagvlakte</h3>
+    <p>De belangrijkste laagvlakte van Europa is de <strong>Noord-Europese Laagvlakte</strong>. Dit is een enorm vlak gebied dat zich uitstrekt van Nederland en België in het westen tot in Rusland in het oosten. Het loopt door Noord-Duitsland, Denemarken, Polen en de Baltische staten.</p>
+    <p>Nederland is een perfect voorbeeld van zo'n laagvlakte. Ons land is voor een groot deel opgebouwd uit materiaal dat rivieren als de Rijn en de Maas hebben afgezet. De grond waar jouw school op staat, is waarschijnlijk ooit als zand of klei vanuit de Alpen of het Duitse middelgebergte hierheen gespoeld!</p>
+    <p>Maar niet alleen rivieren hebben de laagvlaktes gevormd. Tijdens de <strong>ijstijden</strong> (de laatste eindigde zo'n 10.000 jaar geleden) schoven enorme gletsjers vanuit Scandinavië naar het zuiden. Die gletsjers namen bergen materiaal mee en lieten dat achter toen ze smolten. De grote <strong>zwerfkeien</strong> die je soms in het landschap van Drenthe of Noord-Duitsland ziet, zijn meegekomen op die gletsjers — helemaal vanuit Noorwegen!</p>
+  </div>
+
+  <div class="highlight-box">
+    <div class="hb-title">🏠 Herken je het?</div>
+    <p>Als jij in Nederland woont, woon je op een laagvlakte. Kijk eens om je heen: zie je bergen? Waarschijnlijk niet (tenzij je in Limburg woont). Die vlakheid is geen toeval — het is het resultaat van miljoenen jaren sedimentatie. Het zand in je tuin, de klei in een sloot, de grind op een pad: het komt allemaal van hoger gelegen gebieden.</p>
+  </div>
+
+  <!-- Opdracht 4.1 MC -->
+  <div class="exercise" id="ex-3-1">
+    <div class="exercise-label">Opdracht 1 — Kennisvraag</div>
+    <h4>Wat is sedimentatie?</h4>
+    <div class="mc-options">
+      <button class="mc-option" data-value="a">Het afbreken van rotsen door vorst</button>
+      <button class="mc-option" data-value="b">Het meevoeren van materiaal door water</button>
+      <button class="mc-option" data-value="c">Het afzetten (neerleggen) van materiaal zoals zand en klei</button>
+      <button class="mc-option" data-value="d">Het botsen van aardplaten</button>
+    </div>
+    <button class="check-btn" data-exercise="ex-3-1" data-answer="c" data-hint="Sedimentatie gaat over het einde van de reis: het materiaal is meegenomen en komt ergens tot rust. Wat gebeurt er dan?" data-explain="Sedimentatie is het afzetten van materiaal (zand, klei, grind) dat door rivieren, gletsjers of wind is meegenomen. Het materiaal wordt neergelegd op de plek waar de rivier langzamer stroomt.">Controleer</button>
+    <div class="feedback" id="fb-ex-3-1"></div>
+  </div>
+
+  <!-- Opdracht 4.2 MC -->
+  <div class="exercise" id="ex-3-2">
+    <div class="exercise-label">Opdracht 2 — Toepassingsvraag</div>
+    <h4>Waarom is Nederland zo vlak?</h4>
+    <div class="mc-options">
+      <button class="mc-option" data-value="a">Omdat de Nederlanders het land zelf vlak hebben gemaakt</button>
+      <button class="mc-option" data-value="b">Omdat rivieren en gletsjers hier materiaal hebben afgezet (sedimentatie)</button>
+      <button class="mc-option" data-value="c">Omdat er nooit bergen zijn geweest in Nederland</button>
+      <button class="mc-option" data-value="d">Omdat de wind alles vlak heeft geblazen</button>
+    </div>
+    <button class="check-btn" data-exercise="ex-3-2" data-answer="b" data-hint="Denk aan de rivieren die door Nederland stromen. Waar komt al dat zand en klei vandaan?" data-explain="Nederland is vlak doordat rivieren als de Rijn en de Maas over miljoenen jaren zand, klei en grind hebben afgezet. Ook gletsjers uit de ijstijden hebben materiaal achtergelaten.">Controleer</button>
+    <div class="feedback" id="fb-ex-3-2"></div>
+  </div>
+
+  <!-- Opdracht 4.3 Open -->
+  <div class="exercise" id="ex-3-3">
+    <div class="exercise-label">Opdracht 3 — Schrijfopdracht</div>
+    <h4>✈️ Stel: je vliegt over Noord-Europa en kijkt naar beneden. Je ziet een eindeloos vlak landschap. Leg aan een medepassagier uit hoe dat vlakke landschap is ontstaan. Gebruik de begrippen 'sedimentatie', 'rivieren' en 'ijstijden'.</h4>
+    <textarea class="open-textarea" data-exercise="ex-3-3" placeholder="Schrijf hier je antwoord (minstens 20 woorden)..."></textarea>
+    <div class="word-counter" data-for="ex-3-3">0 woorden</div>
+    <button class="show-example-btn" data-exercise="ex-3-3" data-example="Voorbeeldantwoord: Het vlakke landschap dat je hieronder ziet, is de Noord-Europese Laagvlakte. Die is ontstaan door sedimentatie: rivieren hebben over miljoenen jaren zand, klei en grind afgezet op deze plek. Daarnaast hebben gletsjers tijdens de ijstijden ook enorme hoeveelheden materiaal vanuit Scandinavië hierheen geschoven. Toen het ijs smolt, bleef al dat materiaal als een dikke, vlakke laag achter. Daardoor is het hier zo plat.">Toon voorbeeldantwoord</button>
+    <div class="feedback" id="fb-ex-3-3"></div>
+    <div class="self-assess" id="sa-ex-3-3">
+      <button class="btn-good" data-exercise="ex-3-3" data-result="correct">Goed ✓</button>
+      <button class="btn-wrong" data-exercise="ex-3-3" data-result="wrong">Fout ✗</button>
+    </div>
+  </div>
+
+  <div class="nav-buttons">
+    <button class="nav-btn secondary" data-goto="2">← Vorige</button>
+    <button class="nav-btn primary" data-goto="4">Volgende →</button>
+  </div>
+  <button class="reset-section-btn" data-tab="3">🔄 Reset dit onderdeel</button>
+</div>
+
+<!-- ════════════ TAB 5: Kaart van Europa ════════════ -->
+<div class="tab-panel" id="tab-4">
+  <div class="section-title"><span class="emoji">🗺️</span> Europa op de kaart</div>
+
+  <div class="info-block">
+    <h3>Bergen en laagvlaktes herkennen</h3>
+    <p>Op een <strong>fysische kaart</strong> (een kaart die hoogteverschillen laat zien) kun je precies zien waar de bergen en laagvlaktes in Europa liggen. De kleuren vertellen je de hoogte: <strong>donkerbruin</strong> = hoge bergen, <strong>lichtbruin</strong> = heuvels en middelgebergten, <strong>groen en geel</strong> = laagvlaktes.</p>
+    <p>Een duidelijk patroon op de kaart: het <strong>zuiden</strong> van Europa is bergachtig (Alpen, Pyreneeën, Apennijnen, Karpaten), terwijl het <strong>noorden</strong> en <strong>westen</strong> vooral laagvlaktes zijn (Nederland, Noord-Duitsland, Polen, Rusland).</p>
+    <p>Daartussenin liggen de <strong>middelgebergten</strong>: lagere berggebieden die ooit veel hoger waren, maar door miljoenen jaren verwering en erosie zijn afgesleten. Voorbeelden zijn de Ardennen, het Zwarte Woud, de Vogezen en de Eifel.</p>
+  </div>
+
+  <div id="map-europa" class="map-container"></div>
+
+  <div class="info-block">
+    <h3>Belangrijke gebieden om te kennen</h3>
+    <table class="comparison-table">
+      <tr><th>Gebergte / Laagvlakte</th><th>Waar?</th><th>Type</th></tr>
+      <tr><td>🏔️ Alpen</td><td>Zwitserland, Oostenrijk, Italië, Frankrijk</td><td>Hooggebergte</td></tr>
+      <tr><td>🏔️ Pyreneeën</td><td>Tussen Frankrijk en Spanje</td><td>Hooggebergte</td></tr>
+      <tr><td>⛰️ Scandinavische bergen</td><td>Noorwegen, Zweden</td><td>Gebergte</td></tr>
+      <tr><td>⛰️ Karpaten</td><td>Roemenië, Slowakije, Polen</td><td>Gebergte</td></tr>
+      <tr><td>🏕️ Ardennen</td><td>België, Luxemburg</td><td>Middelgebergte</td></tr>
+      <tr><td>🏕️ Zwarte Woud</td><td>Zuidwest-Duitsland</td><td>Middelgebergte</td></tr>
+      <tr><td>🌾 Noord-Europese Laagvlakte</td><td>Nederland → Rusland</td><td>Laagvlakte</td></tr>
+      <tr><td>🌾 Hongaarse Laagvlakte</td><td>Hongarije</td><td>Laagvlakte</td></tr>
+    </table>
+  </div>
+
+  <!-- Opdracht 5.1 MC kaart -->
+  <div class="exercise" id="ex-4-1">
+    <div class="exercise-label">Opdracht 1 — Kaartvraag</div>
+    <h4>Bekijk de kaart hierboven. De Pyreneeën liggen tussen welke twee landen?</h4>
+    <div class="mc-options">
+      <button class="mc-option" data-value="a">Italië en Zwitserland</button>
+      <button class="mc-option" data-value="b">Frankrijk en Spanje</button>
+      <button class="mc-option" data-value="c">Duitsland en Polen</button>
+      <button class="mc-option" data-value="d">Noorwegen en Zweden</button>
+    </div>
+    <button class="check-btn" data-exercise="ex-4-1" data-answer="b" data-hint="Kijk op de kaart naar het zuidwesten van Europa. Welke twee grote landen worden daar gescheiden door een bergketen?" data-explain="De Pyreneeën liggen op de grens tussen Frankrijk en Spanje, in het zuidwesten van Europa.">Controleer</button>
+    <div class="feedback" id="fb-ex-4-1"></div>
+  </div>
+
+  <!-- Opdracht 5.2 MC -->
+  <div class="exercise" id="ex-4-2">
+    <div class="exercise-label">Opdracht 2 — Kaartvraag</div>
+    <h4>Waar ligt de Noord-Europese Laagvlakte?</h4>
+    <div class="mc-options">
+      <button class="mc-option" data-value="a">In het zuiden van Europa, rond de Middellandse Zee</button>
+      <button class="mc-option" data-value="b">Alleen in Nederland en België</button>
+      <button class="mc-option" data-value="c">Van Nederland in het westen tot Rusland in het oosten</button>
+      <button class="mc-option" data-value="d">In Scandinavië (Noorwegen en Zweden)</button>
+    </div>
+    <button class="check-btn" data-exercise="ex-4-2" data-answer="c" data-hint="De naam zegt het al: NOORD-Europese Laagvlakte. Het is een heel groot gebied. Hoe groot?" data-explain="De Noord-Europese Laagvlakte is een enorm vlak gebied dat loopt van Nederland en België in het westen, door Noord-Duitsland, Denemarken, Polen, tot in Rusland.">Controleer</button>
+    <div class="feedback" id="fb-ex-4-2"></div>
+  </div>
+
+  <!-- Opdracht 5.3 Match -->
+  <div class="exercise" id="ex-4-3">
+    <div class="exercise-label">Opdracht 3 — Koppelopdracht</div>
+    <h4>Koppel elk gebied aan het juiste type. Klik eerst op een gebied (links), dan op het type (rechts).</h4>
+    <div class="match-container">
+      <div class="match-column">
+        <div class="match-column-title">Gebieden</div>
+        <div class="match-item match-source" data-match-id="alpen" data-correct="hoog">Alpen</div>
+        <div class="match-item match-source" data-match-id="ardennen" data-correct="middel">Ardennen</div>
+        <div class="match-item match-source" data-match-id="nederland" data-correct="laag">Nederland</div>
+        <div class="match-item match-source" data-match-id="pyren" data-correct="hoog">Pyreneeën</div>
+        <div class="match-item match-source" data-match-id="zwartewoud" data-correct="middel">Zwarte Woud</div>
+      </div>
+      <div class="match-column">
+        <div class="match-column-title">Type landschap</div>
+        <div class="match-item match-target" data-match-id="hoog">Hooggebergte</div>
+        <div class="match-item match-target" data-match-id="middel">Middelgebergte</div>
+        <div class="match-item match-target" data-match-id="laag">Laagvlakte</div>
+      </div>
+    </div>
+    <div class="matched-pairs" id="pairs-ex-4-3"></div>
+    <button class="check-btn" data-exercise="ex-4-3" data-type="match">Controleer koppelingen</button>
+    <div class="feedback" id="fb-ex-4-3"></div>
+  </div>
+
+  <div class="nav-buttons">
+    <button class="nav-btn secondary" data-goto="3">← Vorige</button>
+    <button class="nav-btn primary" data-goto="5">Volgende →</button>
+  </div>
+  <button class="reset-section-btn" data-tab="4">🔄 Reset dit onderdeel</button>
+</div>
+
+<!-- ════════════ TAB 6: Data & Grafieken ════════════ -->
+<div class="tab-panel" id="tab-5">
+  <div class="section-title"><span class="emoji">📊</span> Hoogtes vergelijken — Data &amp; Grafieken</div>
+
+  <div class="info-block">
+    <h3>Bergen in cijfers</h3>
+    <p>Om goed te begrijpen hoe divers Europa's landschap is, helpt het om naar de <strong>cijfers</strong> te kijken. Het hoogste punt van Europa is de <strong>Mont Blanc</strong> in de Alpen (4.808 m), terwijl het laagste punt de <strong>Kaspische Laagte</strong> in Rusland is (-28 m, dus onder zeeniveau!). In Nederland is het hoogste punt de Vaalserberg: slechts 322 meter.</p>
+    <p>Die verschillen worden pas echt duidelijk als je ze in een grafiek zet. Hieronder zie je de hoogste punten van verschillende Europese gebergten vergeleken.</p>
+  </div>
+
+  <div class="chart-container">
+    <canvas id="chartBergen"></canvas>
+  </div>
+
+  <div class="info-block">
+    <h3>Wat vertellen de getallen ons?</h3>
+    <p>De grafiek laat duidelijk zien dat er enorme verschillen zijn. De Alpen en de Kaukasus zijn echte <strong>hooggebergten</strong> (boven de 3.000 m). De Scandinavische bergen, Pyreneeën en Karpaten zitten daar net onder. Maar kijk eens naar de Ardennen en het Zwarte Woud: die zijn veel lager. Dat zijn <strong>middelgebergten</strong> — ooit hoger, maar door miljoenen jaren verwering en erosie afgesleten.</p>
+    <p>En Nederland? Op 322 meter hoogte (de Vaalserberg) is dat niet eens zichtbaar vergeleken met de Mont Blanc. Dat laat precies zien waarom we Nederland een laagvlakte noemen!</p>
+  </div>
+
+  <!-- Opdracht 6.1 grafiek -->
+  <div class="exercise" id="ex-5-1">
+    <div class="exercise-label">Opdracht 1 — Grafiekanalyse</div>
+    <h4>Bekijk de grafiek. Hoeveel meter hoger is de hoogste Alpentop dan het hoogste punt van de Ardennen?</h4>
+    <div class="mc-options">
+      <button class="mc-option" data-value="a">Ongeveer 2.000 meter</button>
+      <button class="mc-option" data-value="b">Ongeveer 3.500 meter</button>
+      <button class="mc-option" data-value="c">Ongeveer 4.100 meter</button>
+      <button class="mc-option" data-value="d">Ongeveer 1.000 meter</button>
+    </div>
+    <button class="check-btn" data-exercise="ex-5-1" data-answer="c" data-hint="Lees de hoogte van de Alpen af (rond 4.808 m) en de Ardennen (rond 694 m). Hoeveel verschil is dat?" data-explain="Mont Blanc (Alpen) is 4.808 m, de Signal de Botrange (Ardennen) is 694 m. Het verschil is 4.808 - 694 = 4.114 meter, dus ongeveer 4.100 meter.">Controleer</button>
+    <div class="feedback" id="fb-ex-5-1"></div>
+  </div>
+
+  <!-- Opdracht 6.2 MC -->
+  <div class="exercise" id="ex-5-2">
+    <div class="exercise-label">Opdracht 2 — Denkvraag</div>
+    <h4>De Ardennen zijn veel lager dan de Alpen. Wat is daarvan de meest waarschijnlijke verklaring?</h4>
+    <div class="mc-options">
+      <button class="mc-option" data-value="a">De Ardennen zijn nooit hoog geweest</button>
+      <button class="mc-option" data-value="b">De Ardennen zijn ouder en door verwering en erosie afgesleten</button>
+      <button class="mc-option" data-value="c">De Alpen groeien sneller dan de Ardennen</button>
+      <button class="mc-option" data-value="d">Mensen hebben de Ardennen afgegraven</button>
+    </div>
+    <button class="check-btn" data-exercise="ex-5-2" data-answer="b" data-hint="De Ardennen zijn veel ouder dan de Alpen. Wat gebeurt er met bergen als ze miljoenen jaren worden blootgesteld aan water, ijs en wind?" data-explain="De Ardennen zijn veel ouder dan de Alpen (zo'n 300 miljoen jaar oud). In al die tijd heeft verwering en erosie ze veel lager gemaakt. De Alpen zijn 'pas' zo'n 65 miljoen jaar oud en nog in opbouw.">Controleer</button>
+    <div class="feedback" id="fb-ex-5-2"></div>
+  </div>
+
+  <!-- Opdracht 6.3 Open -->
+  <div class="exercise" id="ex-5-3">
+    <div class="exercise-label">Opdracht 3 — Analyseopdracht</div>
+    <h4>Bekijk de grafiek en beantwoord: waarom is het nuttig voor reizigers om te weten hoe hoog een gebergte is? Noem minstens twee redenen.</h4>
+    <textarea class="open-textarea" data-exercise="ex-5-3" placeholder="Schrijf hier je antwoord (minstens 20 woorden)..."></textarea>
+    <div class="word-counter" data-for="ex-5-3">0 woorden</div>
+    <button class="show-example-btn" data-exercise="ex-5-3" data-example="Voorbeeldantwoord: Het is nuttig voor reizigers om te weten hoe hoog een gebergte is, omdat de hoogte invloed heeft op het weer en de temperatuur. Hoe hoger je gaat, hoe kouder het wordt, dus moet je warmere kleding meenemen. Daarnaast kan hoogte invloed hebben op je gezondheid: op grote hoogte is er minder zuurstof, wat je kortademig kan maken. Ook bepaalt de hoogte welke activiteiten mogelijk zijn, zoals skiën (alleen bij genoeg sneeuw op grote hoogte).">Toon voorbeeldantwoord</button>
+    <div class="feedback" id="fb-ex-5-3"></div>
+    <div class="self-assess" id="sa-ex-5-3">
+      <button class="btn-good" data-exercise="ex-5-3" data-result="correct">Goed ✓</button>
+      <button class="btn-wrong" data-exercise="ex-5-3" data-result="wrong">Fout ✗</button>
+    </div>
+  </div>
+
+  <div class="nav-buttons">
+    <button class="nav-btn secondary" data-goto="4">← Vorige</button>
+    <button class="nav-btn primary" data-goto="6">Volgende →</button>
+  </div>
+  <button class="reset-section-btn" data-tab="5">🔄 Reset dit onderdeel</button>
+</div>
+
+<!-- ════════════ TAB 7: Samenhang der processen ════════════ -->
+<div class="tab-panel" id="tab-6">
+  <div class="section-title"><span class="emoji">🔄</span> De kringloop — Van berg tot vlakte</div>
+
+  <div class="info-block">
+    <h3>Alles hangt samen</h3>
+    <p>Je hebt nu geleerd over plaattektoniek, verwering, erosie en sedimentatie. Maar het belangrijkste inzicht is dat deze processen <strong>samen</strong> werken in een soort kringloop. Het ene proces volgt op het andere:</p>
+  </div>
+
+  <div class="emoji-process">
+    <div class="step"><span class="icon">💥</span><span class="label">1. Platen botsen</span></div>
+    <span class="arrow">→</span>
+    <div class="step"><span class="icon">🏔️</span><span class="label">2. Bergen ontstaan</span></div>
+    <span class="arrow">→</span>
+    <div class="step"><span class="icon">🌧️</span><span class="label">3. Verwering</span></div>
+    <span class="arrow">→</span>
+    <div class="step"><span class="icon">🌊</span><span class="label">4. Erosie</span></div>
+    <span class="arrow">→</span>
+    <div class="step"><span class="icon">🏖️</span><span class="label">5. Sedimentatie</span></div>
+  </div>
+
+  <div class="info-block">
+    <h3>Een verhaal in vijf stappen</h3>
+    <p><strong>Stap 1 — Platen botsen:</strong> Diep onder de grond duwen aardplaten tegen elkaar. Dit is de motor van alles.</p>
+    <p><strong>Stap 2 — Bergen ontstaan:</strong> Door de botsing wordt gesteente omhoog geperst. Er ontstaan gebergten zoals de Alpen en Pyreneeën.</p>
+    <p><strong>Stap 3 — Verwering:</strong> Zodra bergen er zijn, begint regen, vorst en wind ze af te breken. Rotsen vallen in kleine stukken uit elkaar.</p>
+    <p><strong>Stap 4 — Erosie:</strong> Rivieren, gletsjers en wind nemen het losse materiaal mee, stroomafwaarts naar de laagte.</p>
+    <p><strong>Stap 5 — Sedimentatie:</strong> Waar de rivier langzamer stroomt, legt hij het materiaal neer. Zo bouwt zich laag na laag een vlakte op.</p>
+    <p>Dit verhaal speelt zich af over miljoenen jaren. En het is nog steeds bezig! De Alpen worden op dit moment nog steeds iets hoger (door plaattektoniek) én tegelijk iets lager (door verwering en erosie). Maar de opbouw gaat nu sneller dan de afbraak, dus de Alpen groeien nog een beetje per jaar.</p>
+  </div>
+
+  <div class="highlight-box">
+    <div class="hb-title">✈️ Reisverhaal</div>
+    <p>Stel je voor dat je met de trein van de Alpen in Zwitserland naar Amsterdam reist. Je begint hoog in de besneeuwde bergen (stap 2). Onderweg zie je rivieren die snel stromen door smalle dalen (stap 4: erosie). Naarmate je naar het noorden reist, wordt het landschap vlakker. Bij de Rijn in Duitsland zie je brede uiterwaarden vol zand en klei (stap 5: sedimentatie). En als je in Nederland aankomt, ben je in de laagvlakte die is opgebouwd uit al dat meegevoerde materiaal. De hele reis is eigenlijk een reis door de kringloop!</p>
+  </div>
+
+  <!-- Opdracht 7.1 Drag sort -->
+  <div class="exercise" id="ex-6-1">
+    <div class="exercise-label">Opdracht 1 — Sorteeropdracht</div>
+    <h4>Zet de vijf stappen van de kringloop in de juiste volgorde:</h4>
+    <div class="drag-list" id="drag-ex-6-1">
+      <div class="drag-item" draggable="true" data-order="4"><span class="drag-handle">⠿</span> Erosie: materiaal wordt meegenomen</div>
+      <div class="drag-item" draggable="true" data-order="2"><span class="drag-handle">⠿</span> Bergen ontstaan door de botsing</div>
+      <div class="drag-item" draggable="true" data-order="5"><span class="drag-handle">⠿</span> Sedimentatie: materiaal wordt afgezet</div>
+      <div class="drag-item" draggable="true" data-order="1"><span class="drag-handle">⠿</span> Aardplaten botsen tegen elkaar</div>
+      <div class="drag-item" draggable="true" data-order="3"><span class="drag-handle">⠿</span> Verwering: rotsen breken af</div>
+    </div>
+    <button class="check-btn" data-exercise="ex-6-1" data-type="drag">Controleer volgorde</button>
+    <div class="feedback" id="fb-ex-6-1"></div>
+  </div>
+
+  <!-- Opdracht 7.2 MC -->
+  <div class="exercise" id="ex-6-2">
+    <div class="exercise-label">Opdracht 2 — Begripsvraag</div>
+    <h4>De Alpen worden op dit moment tegelijk hoger EN lager. Hoe kan dat?</h4>
+    <div class="mc-options">
+      <button class="mc-option" data-value="a">Plaattektoniek duwt ze omhoog, verwering en erosie slijten ze af</button>
+      <button class="mc-option" data-value="b">De ene kant groeit, de andere krimpt</button>
+      <button class="mc-option" data-value="c">Dat kan niet, het is een truc-vraag</button>
+      <button class="mc-option" data-value="d">Sedimentatie bouwt ze op, wind breekt ze af</button>
+    </div>
+    <button class="check-btn" data-exercise="ex-6-2" data-answer="a" data-hint="Twee processen werken tegelijk. Eén bouwt op, de ander breekt af. Welke zijn dat?" data-explain="De Alpen worden hoger doordat de aardplaten nog steeds tegen elkaar duwen (plaattektoniek). Tegelijk worden ze lager door verwering en erosie. Momenteel wint de opbouw het van de afbraak, dus de Alpen groeien nog net.">Controleer</button>
+    <div class="feedback" id="fb-ex-6-2"></div>
+  </div>
+
+  <!-- Opdracht 7.3 Open -->
+  <div class="exercise" id="ex-6-3">
+    <div class="exercise-label">Opdracht 3 — Verhaalopdracht</div>
+    <h4>✈️ Schrijf een kort reisverhaal (minstens 3 zinnen) waarin je de treinreis maakt van de Alpen naar Nederland. Beschrijf wat je ziet en gebruik minstens drie van deze begrippen: plaattektoniek, verwering, erosie, sedimentatie, laagvlakte.</h4>
+    <textarea class="open-textarea" data-exercise="ex-6-3" placeholder="Schrijf hier je reisverhaal (minstens 20 woorden)..."></textarea>
+    <div class="word-counter" data-for="ex-6-3">0 woorden</div>
+    <button class="show-example-btn" data-exercise="ex-6-3" data-example="Voorbeeldantwoord: Ik vertrek met de trein vanuit het Zwitserse Interlaken, omringd door de besneeuwde Alpen. Deze bergen zijn miljoenen jaren geleden ontstaan door plaattektoniek: de Afrikaanse plaat botste tegen de Europese plaat. Onderweg naar het noorden zie ik diepe dalen waar rivieren door stromen. Deze dalen zijn het werk van erosie — het water heeft het gesteente uitgesleten. Langs de rivieroevers zie ik zand en grind liggen: dat is materiaal dat door verwering van de bergen is losgeraakt. Als ik eindelijk in Nederland aankom, is het landschap helemaal vlak. Dit is de laagvlakte, opgebouwd door sedimentatie van al dat materiaal uit de bergen.">Toon voorbeeldantwoord</button>
+    <div class="feedback" id="fb-ex-6-3"></div>
+    <div class="self-assess" id="sa-ex-6-3">
+      <button class="btn-good" data-exercise="ex-6-3" data-result="correct">Goed ✓</button>
+      <button class="btn-wrong" data-exercise="ex-6-3" data-result="wrong">Fout ✗</button>
+    </div>
+  </div>
+
+  <div class="nav-buttons">
+    <button class="nav-btn secondary" data-goto="5">← Vorige</button>
+    <button class="nav-btn primary" data-goto="7">Volgende →</button>
+  </div>
+  <button class="reset-section-btn" data-tab="6">🔄 Reset dit onderdeel</button>
+</div>
+
+<!-- ════════════ TAB 8: Mens & Landschap ════════════ -->
+<div class="tab-panel" id="tab-7">
+  <div class="section-title"><span class="emoji">🏘️</span> Mens en landschap — Hoe wij leven met de aarde</div>
+
+  <div class="info-block">
+    <h3>Het landschap bepaalt hoe mensen leven</h3>
+    <p>Europa's diverse landschap heeft niet alleen invloed op hoe het er uitziet, maar ook op hoe mensen er <strong>wonen, werken en leven</strong>. Dit noemen we de <strong>relatie tussen mens en landschap</strong>.</p>
+    <p>In <strong>berggebieden</strong> zoals de Alpen is het moeilijk om grote steden te bouwen. De grond is steil, er is weinig vlakke ruimte, en de winters zijn koud en sneeuwrijk. Daarom wonen mensen er in kleine dorpjes in de dalen. Ze leven vaak van <strong>toerisme</strong> (skiën, wandelen) en <strong>veeteelt</strong> (koeien op de bergweiden). De beroemde Zwitserse kaas en chocolade komen van die bergboerderijen!</p>
+    <p>In de <strong>laagvlaktes</strong> is het precies omgekeerd. De vlakke, vruchtbare grond is ideaal voor <strong>landbouw</strong>: grote akkers met graan, aardappelen of suikerbieten. Omdat het makkelijk is om wegen en spoorlijnen aan te leggen, zijn hier ook de <strong>grote steden</strong> ontstaan: Amsterdam, Berlijn, Warschau, Moskou. Denk er maar eens over na: bijna alle grote steden in Noord-Europa liggen in een laagvlakte!</p>
+    <p>En in de <strong>middelgebergten</strong>? Die zijn populair voor recreatie (wandelen, mountainbiken, kamperen), maar er zijn ook dorpen met mijnbouw (vroeger) en bosbouw. De Ardennen en de Eifel zijn daar goede voorbeelden van.</p>
+  </div>
+
+  <div class="chart-container">
+    <canvas id="chartBevolking"></canvas>
+  </div>
+
+  <div class="highlight-box">
+    <div class="hb-title">🏠 Herken je het?</div>
+    <p>Kijk eens naar je eigen omgeving. Is het vlak of heuvelachtig? Zijn er veel boerderijen of juist fabrieken? Is er toerisme? Al die dingen hangen samen met het landschap. Als je in een laagvlakte woont, zie je waarschijnlijk veel landbouw en een goede infrastructuur (wegen, treinen). Woon je in een meer heuvelachtig gebied (zoals Zuid-Limburg), dan merk je dat de dorpen kleiner zijn en het landschap groener.</p>
+  </div>
+
+  <!-- Opdracht 8.1 MC -->
+  <div class="exercise" id="ex-7-1">
+    <div class="exercise-label">Opdracht 1 — Kennisvraag</div>
+    <h4>Waarom wonen er in de Alpen vooral kleine dorpjes in de dalen?</h4>
+    <div class="mc-options">
+      <button class="mc-option" data-value="a">Omdat de mensen daar niet van grote steden houden</button>
+      <button class="mc-option" data-value="b">Omdat de steile bergen weinig vlakke ruimte bieden voor steden</button>
+      <button class="mc-option" data-value="c">Omdat er geen wegen zijn in de Alpen</button>
+      <button class="mc-option" data-value="d">Omdat het er te warm is voor steden</button>
+    </div>
+    <button class="check-btn" data-exercise="ex-7-1" data-answer="b" data-hint="Stel je voor dat je een stad wilt bouwen. Heb je daar vlakke grond voor nodig of kan het op een steile berghelling?" data-explain="In de Alpen is de grond steil en er is weinig vlakke ruimte. Grote steden hebben veel vlakke grond nodig voor huizen, wegen en bedrijven. Daarom wonen mensen in de Alpen vooral in kleine dorpjes in de dalen.">Controleer</button>
+    <div class="feedback" id="fb-ex-7-1"></div>
+  </div>
+
+  <!-- Opdracht 8.2 Match -->
+  <div class="exercise" id="ex-7-2">
+    <div class="exercise-label">Opdracht 2 — Koppelopdracht</div>
+    <h4>Koppel elke activiteit aan het juiste landschapstype. Klik eerst links, dan rechts.</h4>
+    <div class="match-container">
+      <div class="match-column">
+        <div class="match-column-title">Activiteit</div>
+        <div class="match-item match-source" data-match-id="skien" data-correct="berg">Skiën in de winter</div>
+        <div class="match-item match-source" data-match-id="graan" data-correct="laag">Graan verbouwen</div>
+        <div class="match-item match-source" data-match-id="koeien" data-correct="berg">Koeien op bergweiden</div>
+        <div class="match-item match-source" data-match-id="haven" data-correct="laag">Grote haven met schepen</div>
+        <div class="match-item match-source" data-match-id="wandelen" data-correct="middel">Wandelen door bossen</div>
+      </div>
+      <div class="match-column">
+        <div class="match-column-title">Landschapstype</div>
+        <div class="match-item match-target" data-match-id="berg">Hooggebergte</div>
+        <div class="match-item match-target" data-match-id="middel">Middelgebergte</div>
+        <div class="match-item match-target" data-match-id="laag">Laagvlakte</div>
+      </div>
+    </div>
+    <div class="matched-pairs" id="pairs-ex-7-2"></div>
+    <button class="check-btn" data-exercise="ex-7-2" data-type="match">Controleer koppelingen</button>
+    <div class="feedback" id="fb-ex-7-2"></div>
+  </div>
+
+  <!-- Opdracht 8.3 Open -->
+  <div class="exercise" id="ex-7-3">
+    <div class="exercise-label">Opdracht 3 — Eigen omgeving</div>
+    <h4>Beschrijf het landschap van je eigen omgeving. Is het vlak of heuvelachtig? Wat voor soort bebouwing zie je (steden, dorpen, boerderijen)? Leg uit hoe het landschap invloed heeft op hoe mensen in jouw omgeving wonen en werken.</h4>
+    <textarea class="open-textarea" data-exercise="ex-7-3" placeholder="Schrijf hier je antwoord (minstens 20 woorden)..."></textarea>
+    <div class="word-counter" data-for="ex-7-3">0 woorden</div>
+    <button class="show-example-btn" data-exercise="ex-7-3" data-example="Voorbeeldantwoord: Ik woon in een vlak gebied in Nederland. Om me heen zie ik veel weilanden, sloten en akkers. Dat komt doordat de vlakke, vruchtbare grond goed is voor landbouw. Er staan veel boerderijen en er is een goede infrastructuur met wegen en fietspaden. De stad in de buurt is ook gebouwd op deze vlakke grond — er was genoeg ruimte voor huizen en bedrijven. Het landschap is dus een laagvlakte, gevormd door sedimentatie, en dat merk je aan alles: de landbouw, de steden, en hoe makkelijk je overal kunt komen.">Toon voorbeeldantwoord</button>
+    <div class="feedback" id="fb-ex-7-3"></div>
+    <div class="self-assess" id="sa-ex-7-3">
+      <button class="btn-good" data-exercise="ex-7-3" data-result="correct">Goed ✓</button>
+      <button class="btn-wrong" data-exercise="ex-7-3" data-result="wrong">Fout ✗</button>
+    </div>
+  </div>
+
+  <div class="nav-buttons">
+    <button class="nav-btn secondary" data-goto="6">← Vorige</button>
+    <button class="nav-btn primary" data-goto="8">Volgende →</button>
+  </div>
+  <button class="reset-section-btn" data-tab="7">🔄 Reset dit onderdeel</button>
+</div>
+
+<!-- ════════════ TAB 9: Afsluiting & Reflectie ════════════ -->
+<div class="tab-panel" id="tab-8">
+  <div class="section-title"><span class="emoji">🎓</span> Afsluiting — Wat heb je geleerd?</div>
+
+  <div class="score-display" id="scoreDisplay">
+    <div class="score-label">Jouw eindscore</div>
+    <div class="score-number" id="finalScore">—</div>
+    <div class="score-label" id="finalScoreDetail">Maak eerst alle opdrachten</div>
+  </div>
+
+  <div class="info-block">
+    <h3>📌 Leerdoelen — Check!</h3>
+    <div class="goal-list" id="goalList">
+      <div class="goal-item"><span class="goal-check">🔲</span> Ik kan uitleggen dat bergen in Europa zijn ontstaan doordat stukken van de aardkorst tegen elkaar botsen.</div>
+      <div class="goal-item"><span class="goal-check">🔲</span> Ik kan beschrijven hoe water, ijs en wind bergen langzaam afbreken en het losse materiaal meenemen naar lagere gebieden.</div>
+      <div class="goal-item"><span class="goal-check">🔲</span> Ik kan uitleggen hoe laagvlaktes zijn ontstaan doordat rivieren zand, klei en grind hebben afgezet.</div>
+      <div class="goal-item"><span class="goal-check">🔲</span> Ik kan op een kaart van Europa aanwijzen waar de belangrijkste bergen en laagvlaktes liggen.</div>
+      <div class="goal-item"><span class="goal-check">🔲</span> Ik kan uitleggen waarom Europa zulke verschillende landschappen heeft en hoe dat invloed heeft op hoe mensen er wonen en leven.</div>
+    </div>
+  </div>
+
+  <!-- Reflectie 1 -->
+  <div class="exercise" id="ex-8-1">
+    <div class="exercise-label">Reflectie 1</div>
+    <h4>Wat vond je het lastigst aan deze les en waarom?</h4>
+    <textarea class="open-textarea" data-exercise="ex-8-1" placeholder="Schrijf hier je antwoord (minstens 20 woorden)..."></textarea>
+    <div class="word-counter" data-for="ex-8-1">0 woorden</div>
+    <button class="show-example-btn" data-exercise="ex-8-1" data-example="Voorbeeldantwoord: Ik vond de kringloop van processen het lastigst, omdat je moet onthouden welke stap na welke komt en hoe ze met elkaar samenhangen. Het helpt om er een verhaal van te maken, zoals de treinreis door Europa.">Toon voorbeeldantwoord</button>
+    <div class="feedback" id="fb-ex-8-1"></div>
+    <div class="self-assess" id="sa-ex-8-1">
+      <button class="btn-good" data-exercise="ex-8-1" data-result="correct">Goed ✓</button>
+      <button class="btn-wrong" data-exercise="ex-8-1" data-result="wrong">Fout ✗</button>
+    </div>
+  </div>
+
+  <!-- Reflectie 2 -->
+  <div class="exercise" id="ex-8-2">
+    <div class="exercise-label">Reflectie 2</div>
+    <h4>Wat zou je een klasgenoot uitleggen over dit onderwerp als die de les heeft gemist?</h4>
+    <textarea class="open-textarea" data-exercise="ex-8-2" placeholder="Schrijf hier je antwoord (minstens 20 woorden)..."></textarea>
+    <div class="word-counter" data-for="ex-8-2">0 woorden</div>
+    <button class="show-example-btn" data-exercise="ex-8-2" data-example="Voorbeeldantwoord: Ik zou uitleggen dat het landschap van Europa is gevormd door vier processen: aardplaten die botsen (waardoor bergen ontstaan), verwering (waardoor rotsen kapotgaan), erosie (waardoor materiaal wordt meegenomen) en sedimentatie (waardoor laagvlaktes ontstaan). En dat dit ook bepaalt hoe mensen wonen: in bergen zijn kleine dorpen, in laagvlaktes grote steden.">Toon voorbeeldantwoord</button>
+    <div class="feedback" id="fb-ex-8-2"></div>
+    <div class="self-assess" id="sa-ex-8-2">
+      <button class="btn-good" data-exercise="ex-8-2" data-result="correct">Goed ✓</button>
+      <button class="btn-wrong" data-exercise="ex-8-2" data-result="wrong">Fout ✗</button>
+    </div>
+  </div>
+
+  <!-- Reflectie 3 -->
+  <div class="exercise" id="ex-8-3">
+    <div class="exercise-label">Reflectie 3</div>
+    <h4>Hoe zou je de stof van deze les herkennen in je eigen omgeving? Geef een concreet voorbeeld.</h4>
+    <textarea class="open-textarea" data-exercise="ex-8-3" placeholder="Schrijf hier je antwoord (minstens 20 woorden)..."></textarea>
+    <div class="word-counter" data-for="ex-8-3">0 woorden</div>
+    <button class="show-example-btn" data-exercise="ex-8-3" data-example="Voorbeeldantwoord: Als ik bij een rivier in mijn omgeving ga kijken, zie ik misschien troebel water met zand erin. Dat is erosie en sedimentatie in actie — de rivier neemt materiaal mee van hogerop en legt het hier af. Of ik kijk naar het vlakke landschap om me heen en besef dat die vlakheid is ontstaan doordat rivieren jarenlang zand en klei hebben afgezet.">Toon voorbeeldantwoord</button>
+    <div class="feedback" id="fb-ex-8-3"></div>
+    <div class="self-assess" id="sa-ex-8-3">
+      <button class="btn-good" data-exercise="ex-8-3" data-result="correct">Goed ✓</button>
+      <button class="btn-wrong" data-exercise="ex-8-3" data-result="wrong">Fout ✗</button>
+    </div>
+  </div>
+
+  <div class="nav-buttons">
+    <button class="nav-btn secondary" data-goto="7">← Vorige</button>
+    <span></span>
+  </div>
+  <button class="reset-section-btn" data-tab="8">🔄 Reset dit onderdeel</button>
+</div>
+
+</main>
+
+<footer class="site-footer">
+  <p>🌍 Aardrijkskunde HAVO 1 — Bergen &amp; Laagvlaktes in Europa</p>
+  <button class="clear-progress-btn" id="clearProgressBtn">🗑️ Alle voortgang wissen</button>
+</footer>
+
+<script>
+(function() {
+  'use strict';
+
+  // ─── CONFIG ───
+  var TABS = [
+    {id: 0, label: '✈️ Welkom', exercises: ['ex-0-1','ex-0-2']},
+    {id: 1, label: '🌍 Plaattektoniek', exercises: ['ex-1-1','ex-1-2','ex-1-3']},
+    {id: 2, label: '💧 Verwering', exercises: ['ex-2-1','ex-2-2','ex-2-3']},
+    {id: 3, label: '🏞️ Laagvlaktes', exercises: ['ex-3-1','ex-3-2','ex-3-3']},
+    {id: 4, label: '🗺️ Kaart', exercises: ['ex-4-1','ex-4-2','ex-4-3']},
+    {id: 5, label: '📊 Data', exercises: ['ex-5-1','ex-5-2','ex-5-3']},
+    {id: 6, label: '🔄 Kringloop', exercises: ['ex-6-1','ex-6-2','ex-6-3']},
+    {id: 7, label: '🏘️ Mens', exercises: ['ex-7-1','ex-7-2','ex-7-3']},
+    {id: 8, label: '🎓 Afsluiting', exercises: ['ex-8-1','ex-8-2','ex-8-3']}
+  ];
+  var TOTAL_EXERCISES = 0;
+  TABS.forEach(function(t){ TOTAL_EXERCISES += t.exercises.length; });
+
+  var currentTab = 0;
+  var state = {}; // {exerciseId: {done: bool, correct: bool, attempts: int, answer: string}}
+  var maps = {};
+
+  // ─── STORAGE ───
+  function saveState() {
+    try { localStorage.setItem('geo_les_state', JSON.stringify(state)); }
+    catch(e) {}
+    try { localStorage.setItem('geo_les_tab', currentTab.toString()); }
+    catch(e) {}
+    try { localStorage.setItem('geo_les_time', new Date().toISOString()); }
+    catch(e) {}
+  }
+  function loadState() {
+    try {
+      var s = localStorage.getItem('geo_les_state');
+      if (s) state = JSON.parse(s);
+    } catch(e) { state = {}; }
+    try {
+      var t = localStorage.getItem('geo_les_tab');
+      if (t !== null) currentTab = parseInt(t);
+    } catch(e) {}
+  }
+  function clearAllState() {
+    state = {};
+    currentTab = 0;
+    try { localStorage.removeItem('geo_les_state'); } catch(e) {}
+    try { localStorage.removeItem('geo_les_tab'); } catch(e) {}
+    try { localStorage.removeItem('geo_les_time'); } catch(e) {}
+    location.reload();
+  }
+
+  function getExState(id) {
+    if (!state[id]) state[id] = {done: false, correct: false, attempts: 0, answer: ''};
+    return state[id];
+  }
+
+  // ─── PROGRESS ───
+  function updateProgress() {
+    var done = 0;
+    var correct = 0;
+    for (var key in state) {
+      if (state[key].done) { done++; if (state[key].correct) correct++; }
+    }
+    var pct = TOTAL_EXERCISES > 0 ? Math.round((done / TOTAL_EXERCISES) * 100) : 0;
+    document.getElementById('progressBar').style.width = pct + '%';
+    document.getElementById('progressText').textContent = pct + '% voltooid — ' + done + ' van ' + TOTAL_EXERCISES + ' opdrachten';
+
+    // Update tab checks
+    TABS.forEach(function(tab) {
+      var allDone = tab.exercises.length > 0 && tab.exercises.every(function(ex) {
+        return state[ex] && state[ex].done;
+      });
+      var btn = document.querySelector('.tab-btn[data-tab="' + tab.id + '"]');
+      if (btn) {
+        var check = btn.querySelector('.tab-check');
+        if (allDone) {
+          if (!check) {
+            check = document.createElement('span');
+            check.className = 'tab-check';
+            check.textContent = ' ✓';
+            btn.appendChild(check);
+          }
+        } else {
+          if (check) check.remove();
+        }
+      }
+    });
+
+    // Final score
+    var scoreEl = document.getElementById('finalScore');
+    var detailEl = document.getElementById('finalScoreDetail');
+    if (scoreEl) {
+      scoreEl.textContent = correct + ' / ' + TOTAL_EXERCISES;
+      detailEl.textContent = done + ' opdrachten gemaakt, ' + correct + ' goed';
+    }
+
+    // Goal list
+    var goalChecks = document.querySelectorAll('#goalList .goal-check');
+    var tabGoalMap = [
+      [1],    // goal 1 -> tab 1
+      [2],    // goal 2 -> tab 2
+      [3],    // goal 3 -> tab 3
+      [4],    // goal 4 -> tab 4
+      [6, 7]  // goal 5 -> tabs 6,7
+    ];
+    goalChecks.forEach(function(gc, i) {
+      if (tabGoalMap[i]) {
+        var goalDone = tabGoalMap[i].every(function(ti) {
+          return TABS[ti].exercises.every(function(ex) { return state[ex] && state[ex].done; });
+        });
+        gc.textContent = goalDone ? '✅' : '🔲';
+      }
+    });
+  }
+
+  // ─── TABS ───
+  function buildTabs() {
+    var nav = document.getElementById('tabNav');
+    nav.innerHTML = '';
+    TABS.forEach(function(tab) {
+      var btn = document.createElement('button');
+      btn.className = 'tab-btn';
+      btn.setAttribute('data-tab', tab.id);
+      btn.textContent = tab.label;
+      btn.addEventListener('click', function() { switchTab(tab.id); });
+      nav.appendChild(btn);
+    });
+  }
+
+  function switchTab(idx) {
+    currentTab = idx;
+    document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
+    document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+    var panel = document.getElementById('tab-' + idx);
+    if (panel) panel.classList.add('active');
+    var btn = document.querySelector('.tab-btn[data-tab="' + idx + '"]');
+    if (btn) {
+      btn.classList.add('active');
+      btn.scrollIntoView({behavior: 'smooth', block: 'nearest', inline: 'center'});
+    }
+    document.getElementById('tabCounter').textContent = 'Onderdeel ' + (idx + 1) + ' van ' + TABS.length;
+
+    // Map fix
+    setTimeout(function() {
+      for (var key in maps) { maps[key].invalidateSize(); }
+    }, 200);
+
+    saveState();
+    window.scrollTo({top: 0, behavior: 'smooth'});
+  }
+
+  // ─── MC EXERCISES ───
+  function setupMCExercises() {
+    document.querySelectorAll('.exercise').forEach(function(ex) {
+      var id = ex.id;
+      var options = ex.querySelectorAll('.mc-option');
+      if (options.length === 0) return;
+
+      // Only setup MC (not drag/match)
+      var checkBtn = ex.querySelector('.check-btn');
+      if (!checkBtn || checkBtn.getAttribute('data-type')) return;
+
+      var selected = null;
+
+      options.forEach(function(opt) {
+        opt.addEventListener('click', function() {
+          var es = getExState(id);
+          if (es.done) return;
+          options.forEach(function(o) { o.classList.remove('selected'); });
+          opt.classList.add('selected');
+          selected = opt.getAttribute('data-value');
+        });
+      });
+
+      checkBtn.addEventListener('click', function() {
+        var es = getExState(id);
+        if (es.done || !selected) return;
+
+        es.attempts++;
+        var answer = checkBtn.getAttribute('data-answer');
+        var hint = checkBtn.getAttribute('data-hint');
+        var explain = checkBtn.getAttribute('data-explain');
+        var fb = document.getElementById('fb-' + id);
+
+        if (selected === answer) {
+          es.done = true;
+          es.correct = true;
+          es.answer = selected;
+          options.forEach(function(o) {
+            o.disabled = true;
+            if (o.getAttribute('data-value') === answer) o.classList.add('correct-answer');
+          });
+          fb.className = 'feedback show correct';
+          fb.textContent = '✅ Goed zo! ' + explain;
+          checkBtn.disabled = true;
+        } else if (es.attempts >= 2) {
+          es.done = true;
+          es.correct = false;
+          es.answer = selected;
+          options.forEach(function(o) {
+            o.disabled = true;
+            if (o.getAttribute('data-value') === answer) o.classList.add('correct-answer');
+            if (o.classList.contains('selected')) o.classList.add('wrong-answer');
+          });
+          fb.className = 'feedback show neutral';
+          fb.textContent = 'Het juiste antwoord is: ' + explain;
+          checkBtn.disabled = true;
+        } else {
+          var selectedOpt = ex.querySelector('.mc-option.selected');
+          if (selectedOpt) { selectedOpt.classList.add('wrong-answer'); selectedOpt.classList.remove('selected'); }
+          selected = null;
+          fb.className = 'feedback show hint';
+          fb.textContent = '💡 ' + hint;
+        }
+
+        saveState();
+        updateProgress();
+      });
+
+      // Restore state
+      var es = getExState(id);
+      if (es.done) {
+        var answer = checkBtn.getAttribute('data-answer');
+        var explain = checkBtn.getAttribute('data-explain');
+        options.forEach(function(o) {
+          o.disabled = true;
+          if (o.getAttribute('data-value') === answer) o.classList.add('correct-answer');
+          if (o.getAttribute('data-value') === es.answer && !es.correct) o.classList.add('wrong-answer');
+        });
+        var fb = document.getElementById('fb-' + id);
+        if (es.correct) {
+          fb.className = 'feedback show correct';
+          fb.textContent = '✅ Goed zo! ' + explain;
+        } else {
+          fb.className = 'feedback show neutral';
+          fb.textContent = 'Het juiste antwoord is: ' + explain;
+        }
+        checkBtn.disabled = true;
+      }
+    });
+  }
+
+  // ─── OPEN QUESTIONS ───
+  function setupOpenQuestions() {
+    document.querySelectorAll('.open-textarea').forEach(function(ta) {
+      var exId = ta.getAttribute('data-exercise');
+      var counter = document.querySelector('.word-counter[data-for="' + exId + '"]');
+      var showBtn = document.querySelector('.show-example-btn[data-exercise="' + exId + '"]');
+      var saDiv = document.getElementById('sa-' + exId);
+      var fb = document.getElementById('fb-' + exId);
+
+      ta.addEventListener('input', function() {
+        var words = ta.value.trim().split(/\s+/).filter(function(w){return w.length > 0;}).length;
+        counter.textContent = words + ' woorden';
+        counter.classList.toggle('enough', words >= 20);
+
+        if (words >= 20 && showBtn) {
+          showBtn.classList.add('visible');
+        }
+
+        // Save text
+        var es = getExState(exId);
+        es.answer = ta.value;
+        saveState();
+      });
+
+      if (showBtn) {
+        showBtn.addEventListener('click', function() {
+          var example = showBtn.getAttribute('data-example');
+          fb.className = 'feedback show neutral';
+          fb.textContent = example;
+          if (saDiv) saDiv.classList.add('show');
+          showBtn.style.display = 'none';
+        });
+      }
+
+      // Self assess
+      if (saDiv) {
+        saDiv.querySelectorAll('button').forEach(function(btn) {
+          btn.addEventListener('click', function() {
+            var es = getExState(exId);
+            es.done = true;
+            es.correct = btn.getAttribute('data-result') === 'correct';
+            ta.disabled = true;
+            saDiv.classList.remove('show');
+            saDiv.style.display = 'none';
+            var extraFb = es.correct ? ' — ✅ Goed gedaan!' : ' — Dat geeft niet, je leert ervan!';
+            fb.textContent = fb.textContent + extraFb;
+            saveState();
+            updateProgress();
+          });
+        });
+      }
+
+      // Restore state
+      var es = getExState(exId);
+      if (es.answer) ta.value = es.answer;
+      if (es.done) {
+        ta.disabled = true;
+        if (showBtn) showBtn.style.display = 'none';
+        if (saDiv) { saDiv.classList.remove('show'); saDiv.style.display = 'none'; }
+        fb.className = 'feedback show neutral';
+        fb.textContent = es.correct ? '✅ Afgerond — goed gedaan!' : 'Afgerond — je leert ervan!';
+      } else {
+        // Trigger word count display
+        var words = ta.value.trim().split(/\s+/).filter(function(w){return w.length > 0;}).length;
+        counter.textContent = words + ' woorden';
+        counter.classList.toggle('enough', words >= 20);
+        if (words >= 20 && showBtn) showBtn.classList.add('visible');
+      }
+    });
+  }
+
+  // ─── DRAG & DROP ───
+  function setupDragDrop() {
+    document.querySelectorAll('.drag-list').forEach(function(list) {
+      var exId = list.id.replace('drag-', '');
+      var items = list.querySelectorAll('.drag-item');
+      var draggedItem = null;
+
+      items.forEach(function(item) {
+        item.addEventListener('dragstart', function(e) {
+          var es = getExState(exId);
+          if (es.done) { e.preventDefault(); return; }
+          draggedItem = item;
+          item.classList.add('dragging');
+          e.dataTransfer.effectAllowed = 'move';
+        });
+        item.addEventListener('dragend', function() {
+          item.classList.remove('dragging');
+          list.querySelectorAll('.drag-item').forEach(function(i) { i.classList.remove('drag-over'); });
+          draggedItem = null;
+        });
+        item.addEventListener('dragover', function(e) {
+          e.preventDefault();
+          e.dataTransfer.dropEffect = 'move';
+          if (item !== draggedItem) item.classList.add('drag-over');
+        });
+        item.addEventListener('dragleave', function() {
+          item.classList.remove('drag-over');
+        });
+        item.addEventListener('drop', function(e) {
+          e.preventDefault();
+          item.classList.remove('drag-over');
+          if (draggedItem && draggedItem !== item) {
+            var allItems = Array.from(list.querySelectorAll('.drag-item'));
+            var dragIdx = allItems.indexOf(draggedItem);
+            var dropIdx = allItems.indexOf(item);
+            if (dragIdx < dropIdx) {
+              list.insertBefore(draggedItem, item.nextSibling);
+            } else {
+              list.insertBefore(draggedItem, item);
+            }
+          }
+        });
+      });
+
+      // Check button
+      var checkBtn = document.querySelector('.check-btn[data-exercise="' + exId + '"]');
+      if (checkBtn) {
+        checkBtn.addEventListener('click', function() {
+          var es = getExState(exId);
+          if (es.done) return;
+          es.attempts++;
+
+          var currentItems = list.querySelectorAll('.drag-item');
+          var allCorrect = true;
+          currentItems.forEach(function(item, idx) {
+            var correctOrder = parseInt(item.getAttribute('data-order'));
+            item.classList.remove('correct-pos', 'wrong-pos');
+            if (correctOrder === idx + 1) {
+              item.classList.add('correct-pos');
+            } else {
+              item.classList.add('wrong-pos');
+              allCorrect = false;
+            }
+          });
+
+          var fb = document.getElementById('fb-' + exId);
+          if (allCorrect) {
+            es.done = true;
+            es.correct = true;
+            fb.className = 'feedback show correct';
+            fb.textContent = '✅ Perfect! De volgorde klopt helemaal!';
+            checkBtn.disabled = true;
+            currentItems.forEach(function(i) { i.setAttribute('draggable', 'false'); i.style.cursor = 'default'; });
+          } else if (es.attempts >= 2) {
+            es.done = true;
+            es.correct = false;
+            fb.className = 'feedback show neutral';
+            fb.textContent = 'De juiste volgorde is nu zichtbaar. Lees de uitleg nog eens terug om het te begrijpen.';
+            // Sort correctly
+            var arr = Array.from(currentItems);
+            arr.sort(function(a,b) { return parseInt(a.getAttribute('data-order')) - parseInt(b.getAttribute('data-order')); });
+            arr.forEach(function(item) { list.appendChild(item); item.classList.remove('wrong-pos'); item.classList.add('correct-pos'); item.setAttribute('draggable','false'); item.style.cursor = 'default'; });
+            checkBtn.disabled = true;
+          } else {
+            fb.className = 'feedback show hint';
+            var correctCount = 0;
+            currentItems.forEach(function(item, idx) { if (parseInt(item.getAttribute('data-order')) === idx + 1) correctCount++; });
+            fb.textContent = '💡 ' + correctCount + ' van de ' + currentItems.length + ' staan goed. Probeer de rest te verschuiven!';
+          }
+
+          saveState();
+          updateProgress();
+        });
+      }
+
+      // Restore
+      var es = getExState(exId);
+      if (es.done) {
+        var currentItems = list.querySelectorAll('.drag-item');
+        var arr = Array.from(currentItems);
+        arr.sort(function(a,b) { return parseInt(a.getAttribute('data-order')) - parseInt(b.getAttribute('data-order')); });
+        arr.forEach(function(item) { list.appendChild(item); item.classList.add('correct-pos'); item.setAttribute('draggable','false'); item.style.cursor = 'default'; });
+        var fb = document.getElementById('fb-' + exId);
+        fb.className = 'feedback show ' + (es.correct ? 'correct' : 'neutral');
+        fb.textContent = es.correct ? '✅ Perfect! De volgorde klopt helemaal!' : 'De juiste volgorde is hierboven zichtbaar.';
+        if (checkBtn) checkBtn.disabled = true;
+      }
+    });
+  }
+
+  // ─── MATCH EXERCISES ───
+  function setupMatchExercises() {
+    document.querySelectorAll('.exercise').forEach(function(ex) {
+      var checkBtn = ex.querySelector('.check-btn[data-type="match"]');
+      if (!checkBtn) return;
+
+      var exId = checkBtn.getAttribute('data-exercise');
+      var sources = ex.querySelectorAll('.match-source');
+      var targets = ex.querySelectorAll('.match-target');
+      var pairsContainer = document.getElementById('pairs-' + exId);
+      var selectedSource = null;
+      var pairs = []; // [{sourceId, targetId}]
+
+      function renderPairs() {
+        pairsContainer.innerHTML = '';
+        pairs.forEach(function(pair, idx) {
+          var sourceEl = ex.querySelector('.match-source[data-match-id="' + pair.sourceId + '"]');
+          var targetEl = ex.querySelector('.match-target[data-match-id="' + pair.targetId + '"]');
+          var div = document.createElement('div');
+          div.className = 'matched-pair';
+          div.innerHTML = '<span>' + sourceEl.textContent + '</span><span class="pair-arrow">↔</span><span>' + targetEl.textContent + '</span>';
+          var removeBtn = document.createElement('button');
+          removeBtn.className = 'remove-pair';
+          removeBtn.textContent = '✕';
+          removeBtn.addEventListener('click', function() {
+            var es = getExState(exId);
+            if (es.done) return;
+            pairs.splice(idx, 1);
+            sourceEl.classList.remove('matched');
+            renderPairs();
+          });
+          div.appendChild(removeBtn);
+          pairsContainer.appendChild(div);
+        });
+      }
+
+      sources.forEach(function(src) {
+        src.addEventListener('click', function() {
+          var es = getExState(exId);
+          if (es.done) return;
+          // Check if already paired
+          var alreadyPaired = pairs.some(function(p) { return p.sourceId === src.getAttribute('data-match-id'); });
+          if (alreadyPaired) return;
+          sources.forEach(function(s) { s.classList.remove('selected'); });
+          targets.forEach(function(t) { t.classList.remove('selected'); });
+          src.classList.add('selected');
+          selectedSource = src;
+        });
+      });
+
+      targets.forEach(function(tgt) {
+        tgt.addEventListener('click', function() {
+          var es = getExState(exId);
+          if (es.done) return;
+          if (!selectedSource) return;
+          pairs.push({
+            sourceId: selectedSource.getAttribute('data-match-id'),
+            targetId: tgt.getAttribute('data-match-id')
+          });
+          selectedSource.classList.remove('selected');
+          selectedSource.classList.add('matched');
+          tgt.classList.remove('selected');
+          selectedSource = null;
+          renderPairs();
+        });
+      });
+
+      checkBtn.addEventListener('click', function() {
+        var es = getExState(exId);
+        if (es.done) return;
+        if (pairs.length < sources.length) {
+          var fb = document.getElementById('fb-' + exId);
+          fb.className = 'feedback show hint';
+          fb.textContent = '💡 Koppel eerst alle items aan de linkerkant voordat je controleert.';
+          return;
+        }
+        es.attempts++;
+
+        var correctCount = 0;
+        pairs.forEach(function(pair) {
+          var sourceEl = ex.querySelector('.match-source[data-match-id="' + pair.sourceId + '"]');
+          var correctTarget = sourceEl.getAttribute('data-correct');
+          if (pair.targetId === correctTarget) correctCount++;
+        });
+
+        var fb = document.getElementById('fb-' + exId);
+        if (correctCount === pairs.length) {
+          es.done = true;
+          es.correct = true;
+          fb.className = 'feedback show correct';
+          fb.textContent = '✅ Alle koppelingen zijn juist!';
+          checkBtn.disabled = true;
+          ex.querySelectorAll('.remove-pair').forEach(function(b) { b.style.display = 'none'; });
+        } else if (es.attempts >= 2) {
+          es.done = true;
+          es.correct = false;
+          // Show correct pairs
+          pairs = [];
+          sources.forEach(function(src) {
+            pairs.push({sourceId: src.getAttribute('data-match-id'), targetId: src.getAttribute('data-correct')});
+          });
+          renderPairs();
+          fb.className = 'feedback show neutral';
+          fb.textContent = 'De juiste koppelingen staan nu hierboven. ' + correctCount + ' van de ' + sources.length + ' waren goed.';
+          checkBtn.disabled = true;
+          ex.querySelectorAll('.remove-pair').forEach(function(b) { b.style.display = 'none'; });
+        } else {
+          fb.className = 'feedback show hint';
+          fb.textContent = '💡 ' + correctCount + ' van de ' + pairs.length + ' koppelingen zijn juist. Verwijder de foute en probeer opnieuw!';
+        }
+
+        saveState();
+        updateProgress();
+      });
+
+      // Restore
+      var es = getExState(exId);
+      if (es.done) {
+        pairs = [];
+        sources.forEach(function(src) {
+          pairs.push({sourceId: src.getAttribute('data-match-id'), targetId: src.getAttribute('data-correct')});
+          src.classList.add('matched');
+        });
+        renderPairs();
+        ex.querySelectorAll('.remove-pair').forEach(function(b) { b.style.display = 'none'; });
+        var fb = document.getElementById('fb-' + exId);
+        fb.className = 'feedback show ' + (es.correct ? 'correct' : 'neutral');
+        fb.textContent = es.correct ? '✅ Alle koppelingen zijn juist!' : 'De juiste koppelingen staan hierboven.';
+        checkBtn.disabled = true;
+      }
+    });
+  }
+
+  // ─── NAV BUTTONS ───
+  function setupNavButtons() {
+    document.querySelectorAll('.nav-btn[data-goto]').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        switchTab(parseInt(btn.getAttribute('data-goto')));
+      });
+    });
+  }
+
+  // ─── RESET SECTION ───
+  function setupResetButtons() {
+    document.querySelectorAll('.reset-section-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var tabIdx = parseInt(btn.getAttribute('data-tab'));
+        var tab = TABS[tabIdx];
+        if (!confirm('Weet je zeker dat je dit onderdeel wilt resetten?')) return;
+
+        tab.exercises.forEach(function(exId) {
+          delete state[exId];
+          var ex = document.getElementById(exId);
+          if (!ex) return;
+
+          // Reset MC
+          ex.querySelectorAll('.mc-option').forEach(function(o) {
+            o.classList.remove('selected','correct-answer','wrong-answer');
+            o.disabled = false;
+          });
+
+          // Reset check buttons
+          ex.querySelectorAll('.check-btn').forEach(function(b) { b.disabled = false; });
+
+          // Reset feedback
+          ex.querySelectorAll('.feedback').forEach(function(f) { f.className = 'feedback'; f.textContent = ''; });
+
+          // Reset textareas
+          ex.querySelectorAll('.open-textarea').forEach(function(ta) {
+            ta.value = '';
+            ta.disabled = false;
+          });
+          ex.querySelectorAll('.word-counter').forEach(function(wc) { wc.textContent = '0 woorden'; wc.classList.remove('enough'); });
+          ex.querySelectorAll('.show-example-btn').forEach(function(b) { b.classList.remove('visible'); b.style.display = ''; });
+          ex.querySelectorAll('.self-assess').forEach(function(sa) { sa.classList.remove('show'); sa.style.display = ''; });
+
+          // Reset drag items
+          var dragList = document.getElementById('drag-' + exId);
+          if (dragList) {
+            dragList.querySelectorAll('.drag-item').forEach(function(item) {
+              item.classList.remove('correct-pos','wrong-pos','dragging','drag-over');
+              item.setAttribute('draggable', 'true');
+              item.style.cursor = 'grab';
+            });
+          }
+
+          // Reset match items
+          ex.querySelectorAll('.match-source, .match-target').forEach(function(m) {
+            m.classList.remove('selected','matched');
+          });
+          var pairsC = document.getElementById('pairs-' + exId);
+          if (pairsC) pairsC.innerHTML = '';
+        });
+
+        saveState();
+        updateProgress();
+      });
+    });
+  }
+
+  // ─── LEAFLET MAP ───
+  function initMap() {
+    var mapDiv = document.getElementById('map-europa');
+    if (!mapDiv) return;
+
+    var map = L.map('map-europa').setView([50, 10], 4);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap',
+      maxZoom: 8
+    }).addTo(map);
+
+    var greenIcon = L.icon({
+      iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+      iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+      shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+      iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41]
+    });
+
+    var markers = [
+      {lat: 45.83, lng: 6.86, title: '🏔️ Alpen (Mont Blanc, 4.808 m)', desc: 'Hooggebergte — ontstaan door botsing Afrikaanse en Europese plaat'},
+      {lat: 42.65, lng: 0.33, title: '🏔️ Pyreneeën (Pico de Aneto, 3.404 m)', desc: 'Hooggebergte — grens tussen Frankrijk en Spanje'},
+      {lat: 61.5, lng: 8.5, title: '⛰️ Scandinavische bergen', desc: 'Gebergte in Noorwegen en Zweden'},
+      {lat: 45.5, lng: 25, title: '⛰️ Karpaten', desc: 'Gebergte door Oost-Europa'},
+      {lat: 50.27, lng: 5.76, title: '🏕️ Ardennen (Signal de Botrange, 694 m)', desc: 'Middelgebergte — oud, afgesleten door verwering'},
+      {lat: 48.1, lng: 8.15, title: '🏕️ Zwarte Woud (Feldberg, 1.493 m)', desc: 'Middelgebergte in Zuidwest-Duitsland'},
+      {lat: 52.37, lng: 4.9, title: '🌾 Amsterdam — Laagvlakte', desc: 'Noord-Europese Laagvlakte — opgebouwd door sedimentatie'},
+      {lat: 52.52, lng: 13.4, title: '🌾 Berlijn — Laagvlakte', desc: 'Noord-Europese Laagvlakte'},
+      {lat: 52.23, lng: 21.01, title: '🌾 Warschau — Laagvlakte', desc: 'Noord-Europese Laagvlakte'},
+      {lat: 47.5, lng: 19.04, title: '🌾 Hongaarse Laagvlakte', desc: 'Grote laagvlakte in Midden-Europa'}
+    ];
+
+    markers.forEach(function(m) {
+      L.marker([m.lat, m.lng], {icon: greenIcon}).addTo(map)
+        .bindPopup('<strong>' + m.title + '</strong><br>' + m.desc);
+    });
+
+    maps['europa'] = map;
+  }
+
+  // ─── CHART.JS ───
+  function initCharts() {
+    // Bergen chart
+    var ctx1 = document.getElementById('chartBergen');
+    if (ctx1) {
+      new Chart(ctx1.getContext('2d'), {
+        type: 'bar',
+        data: {
+          labels: ['Alpen\n(Mont Blanc)', 'Kaukasus\n(Elbrus)', 'Pyreneeën\n(Aneto)', 'Scand. bergen\n(Galdhøpiggen)', 'Karpaten\n(Gerlach)', 'Zwarte Woud\n(Feldberg)', 'Ardennen\n(Botrange)', 'Nederland\n(Vaalserberg)'],
+          datasets: [{
+            label: 'Hoogte (meter)',
+            data: [4808, 5642, 3404, 2469, 2655, 1493, 694, 322],
+            backgroundColor: ['#2d6147','#234d38','#377556','#418a65','#5aa57e','#7dbf9a','#a8d8ba','#d4eede'],
+            borderColor: '#1a3a2a',
+            borderWidth: 1,
+            borderRadius: 6
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: true,
+          plugins: { legend: { display: false }, title: { display: true, text: 'Hoogste punten van Europese gebergten (in meters)', font: {family: 'Nunito', size: 14, weight: 'bold'}, color: '#2c3e2d' } },
+          scales: { y: { beginAtZero: true, title: { display: true, text: 'Hoogte (m)', font: {family:'Nunito'} }, grid: {color: '#eef7f1'} }, x: { ticks: { font: {family:'Nunito', size: 10} }, grid: {display: false} } }
+        }
+      });
+    }
+
+    // Bevolking chart
+    var ctx2 = document.getElementById('chartBevolking');
+    if (ctx2) {
+      new Chart(ctx2.getContext('2d'), {
+        type: 'doughnut',
+        data: {
+          labels: ['Landbouw', 'Toerisme', 'Industrie & diensten', 'Veeteelt', 'Overig'],
+          datasets: [{
+            label: 'Typische werkgelegenheid berggebied',
+            data: [10, 40, 20, 20, 10],
+            backgroundColor: ['#418a65','#c9693c','#5aa57e','#e8a87c','#d4eede'],
+            borderWidth: 2,
+            borderColor: '#fefcf8'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: true,
+          plugins: { title: { display: true, text: 'Werkgelegenheid in een typisch Alpen-dorp (%)', font: {family: 'Nunito', size: 14, weight: 'bold'}, color: '#2c3e2d' }, legend: { position: 'bottom', labels: {font: {family: 'Nunito'}} } }
+        }
+      });
+    }
+  }
+
+  // ─── CLEAR PROGRESS ───
+  document.getElementById('clearProgressBtn').addEventListener('click', function() {
+    if (confirm('Weet je zeker dat je ALLE voortgang wilt wissen? Dit kan niet ongedaan worden.')) {
+      clearAllState();
+    }
+  });
+
+  // ─── INIT ───
+  window.addEventListener('DOMContentLoaded', function() {
+    loadState();
+    buildTabs();
+    setupMCExercises();
+    setupOpenQuestions();
+    setupDragDrop();
+    setupMatchExercises();
+    setupNavButtons();
+    setupResetButtons();
+    initMap();
+    initCharts();
+    switchTab(currentTab);
+    updateProgress();
+  });
+
+})();
+</script>
+</body>
+</html>
