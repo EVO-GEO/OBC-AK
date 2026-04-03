@@ -1,0 +1,2083 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Geografische Dimensies — HAVO 2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Source+Serif+4:ital,wght@0,300;0,400;0,600;1,300&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+  :root {
+    --ocean-deep: #0d2b45;
+    --ocean-mid: #1a4a6e;
+    --ocean-light: #2d6a9f;
+    --ocean-pale: #4a8fc4;
+    --seafoam: #7bbfcc;
+    --foam: #b8dde8;
+    --sand: #e8dcc8;
+    --sand-light: #f5f0e8;
+    --parchment: #faf7f2;
+    --earth: #8b6914;
+    --moss: #5a7a4a;
+    --terracotta: #c4634a;
+    --accent-gold: #d4a843;
+    --text-dark: #1a2535;
+    --text-mid: #3d5166;
+    --text-light: #6b8299;
+    --white: #ffffff;
+    --radius-sm: 6px;
+    --radius-md: 12px;
+    --radius-lg: 20px;
+    --shadow-soft: 0 4px 20px rgba(13,43,69,0.08);
+    --shadow-mid: 0 8px 32px rgba(13,43,69,0.14);
+    --transition: 0.25s ease;
+    --space-xs: 6px;
+    --space-sm: 12px;
+    --space-md: 20px;
+    --space-lg: 32px;
+    --space-xl: 48px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Source Serif 4', Georgia, serif;
+    background: var(--parchment);
+    color: var(--text-dark);
+    min-height: 100vh;
+    font-size: 16px;
+    line-height: 1.7;
+  }
+
+  /* ── PROGRESS BAR ── */
+  #progress-bar-wrapper {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--ocean-deep);
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+  }
+  #progress-bar-wrapper .prog-label {
+    color: var(--foam);
+    font-size: 13px;
+    white-space: nowrap;
+    font-family: 'Source Serif 4', serif;
+    font-weight: 300;
+    letter-spacing: 0.03em;
+  }
+  #progress-track {
+    flex: 1;
+    height: 6px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  #progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--seafoam), var(--accent-gold));
+    border-radius: 3px;
+    transition: width 0.4s ease;
+    width: 0%;
+  }
+  #progress-pct {
+    color: var(--accent-gold);
+    font-size: 13px;
+    font-weight: 600;
+    min-width: 36px;
+    text-align: right;
+  }
+  #btn-wis-voortgang {
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.2);
+    color: rgba(255,255,255,0.5);
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: var(--transition);
+    font-family: 'Source Serif 4', serif;
+  }
+  #btn-wis-voortgang:hover { color: white; border-color: rgba(255,255,255,0.5); }
+
+  /* ── HEADER ── */
+  #app-header {
+    background: linear-gradient(160deg, var(--ocean-deep) 0%, var(--ocean-mid) 60%, var(--ocean-light) 100%);
+    padding: 40px 24px 32px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  #app-header::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  }
+  #app-header .subtitle {
+    color: var(--seafoam);
+    font-size: 12px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    font-weight: 300;
+    margin-bottom: 10px;
+  }
+  #app-header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(22px, 4vw, 36px);
+    color: white;
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 8px;
+  }
+  #app-header .tagline {
+    color: rgba(255,255,255,0.65);
+    font-size: 14px;
+    font-weight: 300;
+    font-style: italic;
+  }
+  .header-badge {
+    display: inline-flex;
+    gap: 16px;
+    margin-top: 16px;
+  }
+  .header-badge span {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: rgba(255,255,255,0.8);
+    font-size: 12px;
+    padding: 4px 14px;
+    border-radius: 20px;
+    font-weight: 300;
+    letter-spacing: 0.05em;
+  }
+
+  /* ── TABS ── */
+  #tabs-wrapper {
+    background: var(--ocean-deep);
+    padding: 0 16px;
+    overflow-x: auto;
+    white-space: nowrap;
+    border-bottom: 2px solid rgba(255,255,255,0.06);
+    scrollbar-width: thin;
+    scrollbar-color: var(--ocean-pale) transparent;
+  }
+  #tabs-wrapper::-webkit-scrollbar { height: 3px; }
+  #tabs-wrapper::-webkit-scrollbar-track { background: transparent; }
+  #tabs-wrapper::-webkit-scrollbar-thumb { background: var(--ocean-pale); border-radius: 2px; }
+
+  .tab-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 12px 18px;
+    background: transparent;
+    border: none;
+    color: rgba(255,255,255,0.45);
+    font-family: 'Source Serif 4', serif;
+    font-size: 13px;
+    font-weight: 300;
+    cursor: pointer;
+    transition: var(--transition);
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+  }
+  .tab-btn:hover { color: rgba(255,255,255,0.8); }
+  .tab-btn.active {
+    color: white;
+    border-bottom-color: var(--accent-gold);
+    font-weight: 400;
+  }
+  .tab-check { font-size: 11px; color: var(--accent-gold); }
+  #tab-counter {
+    float: right;
+    color: rgba(255,255,255,0.3);
+    font-size: 12px;
+    padding: 14px 6px;
+    font-family: 'Source Serif 4', serif;
+    font-style: italic;
+  }
+
+  /* ── SECTIONS ── */
+  .section { display: none; padding: 28px 16px 80px; max-width: 860px; margin: 0 auto; }
+  .section.active { display: block; }
+
+  /* ── SECTION HEADER ── */
+  .section-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: var(--space-lg);
+    padding: 24px;
+    background: white;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-soft);
+    border-left: 4px solid var(--ocean-light);
+  }
+  .section-icon {
+    font-size: 36px;
+    line-height: 1;
+    flex-shrink: 0;
+  }
+  .section-header h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    color: var(--ocean-deep);
+    margin-bottom: 4px;
+  }
+  .section-header .section-meta {
+    font-size: 13px;
+    color: var(--text-light);
+    font-style: italic;
+  }
+
+  /* ── THEORIE BLOKKEN ── */
+  .theorie-blok {
+    background: white;
+    border-radius: var(--radius-md);
+    padding: var(--space-lg);
+    margin-bottom: var(--space-md);
+    box-shadow: var(--shadow-soft);
+  }
+  .theorie-blok h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    color: var(--ocean-mid);
+    margin-bottom: var(--space-sm);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .theorie-blok p {
+    margin-bottom: 12px;
+    color: var(--text-mid);
+  }
+  .theorie-blok p:last-child { margin-bottom: 0; }
+
+  .info-kader {
+    background: linear-gradient(135deg, var(--sand-light) 0%, var(--foam) 100%);
+    border-radius: var(--radius-md);
+    padding: var(--space-md);
+    margin: var(--space-md) 0;
+    border: 1px solid var(--foam);
+  }
+  .info-kader .kader-titel {
+    font-weight: 600;
+    color: var(--ocean-mid);
+    margin-bottom: 8px;
+    font-size: 14px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  /* Dimensie kaarten */
+  .dimensie-kaart {
+    background: white;
+    border-radius: var(--radius-md);
+    padding: 20px;
+    margin-bottom: 12px;
+    box-shadow: var(--shadow-soft);
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    border-left: 4px solid var(--ocean-pale);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .dimensie-kaart:hover { transform: translateY(-2px); box-shadow: var(--shadow-mid); }
+  .dimensie-kaart.fysisch { border-left-color: #4a8fc4; }
+  .dimensie-kaart.economisch { border-left-color: var(--accent-gold); }
+  .dimensie-kaart.politiek { border-left-color: var(--terracotta); }
+  .dimensie-kaart.sociaal { border-left-color: var(--moss); }
+  .dimensie-kaart.demografisch { border-left-color: #9b59b6; }
+  .dimensie-kaart .dim-icon { font-size: 28px; flex-shrink: 0; line-height: 1; margin-top: 2px; }
+  .dimensie-kaart h4 { font-family: 'Playfair Display', serif; font-size: 16px; color: var(--ocean-deep); margin-bottom: 4px; }
+  .dimensie-kaart p { font-size: 14px; color: var(--text-mid); line-height: 1.6; }
+  .dimensie-kaart .dim-voorbeeld { 
+    font-size: 12px; 
+    color: var(--ocean-light); 
+    margin-top: 6px; 
+    font-style: italic;
+    background: var(--sand-light);
+    padding: 4px 8px;
+    border-radius: var(--radius-sm);
+    display: inline-block;
+  }
+
+  /* ── OPDRACHT BLOKKEN ── */
+  .opdracht-blok {
+    background: white;
+    border-radius: var(--radius-md);
+    padding: var(--space-lg);
+    margin-bottom: var(--space-md);
+    box-shadow: var(--shadow-soft);
+    border-top: 3px solid var(--ocean-pale);
+  }
+  .opdracht-blok h4 {
+    font-family: 'Playfair Display', serif;
+    font-size: 16px;
+    color: var(--ocean-deep);
+    margin-bottom: var(--space-sm);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .opdracht-nr {
+    background: var(--ocean-mid);
+    color: white;
+    font-size: 12px;
+    font-weight: 600;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Source Serif 4', serif;
+    flex-shrink: 0;
+  }
+  .opdracht-vraag { color: var(--text-mid); margin-bottom: var(--space-sm); font-size: 15px; }
+
+  /* multiple choice */
+  .mc-opties { display: flex; flex-direction: column; gap: 8px; }
+  .mc-optie {
+    padding: 10px 14px;
+    border: 2px solid var(--foam);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: 14px;
+    color: var(--text-mid);
+    background: var(--parchment);
+    transition: var(--transition);
+    font-family: 'Source Serif 4', serif;
+    text-align: left;
+  }
+  .mc-optie:hover:not(:disabled) { border-color: var(--ocean-pale); background: var(--sand-light); }
+  .mc-optie.correct { border-color: var(--moss); background: #e8f4e8; color: var(--moss); }
+  .mc-optie.fout { border-color: var(--terracotta); background: #fdf0ed; color: var(--terracotta); }
+  .mc-optie:disabled { cursor: not-allowed; opacity: 0.7; }
+
+  /* feedback */
+  .feedback-box {
+    margin-top: var(--space-sm);
+    padding: 12px 16px;
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    display: none;
+    line-height: 1.5;
+  }
+  .feedback-box.hint { background: #fff8e6; border: 1px solid var(--accent-gold); color: var(--earth); }
+  .feedback-box.fout { background: #fdf0ed; border: 1px solid var(--terracotta); color: var(--terracotta); }
+  .feedback-box.goed { background: #e8f4e8; border: 1px solid var(--moss); color: var(--moss); }
+  .feedback-box.info { background: var(--sand-light); border: 1px solid var(--foam); color: var(--text-mid); }
+
+  /* open vragen */
+  textarea {
+    width: 100%;
+    min-height: 100px;
+    padding: 12px;
+    border: 2px solid var(--foam);
+    border-radius: var(--radius-sm);
+    font-family: 'Source Serif 4', serif;
+    font-size: 14px;
+    color: var(--text-dark);
+    background: var(--parchment);
+    resize: vertical;
+    transition: var(--transition);
+    line-height: 1.6;
+  }
+  textarea:focus { outline: none; border-color: var(--ocean-pale); background: white; }
+
+  .woorden-teller {
+    font-size: 12px;
+    color: var(--text-light);
+    text-align: right;
+    margin-top: 4px;
+  }
+  .woorden-teller.genoeg { color: var(--moss); }
+
+  /* knoppen */
+  .btn {
+    padding: 10px 20px;
+    border-radius: var(--radius-sm);
+    font-family: 'Source Serif 4', serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    border: none;
+    letter-spacing: 0.02em;
+  }
+  .btn-primary {
+    background: var(--ocean-mid);
+    color: white;
+  }
+  .btn-primary:hover:not(:disabled) { background: var(--ocean-deep); }
+  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn-secondary {
+    background: var(--sand-light);
+    color: var(--text-mid);
+    border: 1px solid var(--foam);
+  }
+  .btn-secondary:hover:not(:disabled) { background: var(--foam); }
+  .btn-secondary:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn-success { background: var(--moss); color: white; }
+  .btn-success:hover { background: #4a6a3a; }
+  .btn-danger { background: var(--terracotta); color: white; }
+  .btn-danger:hover { background: #b0523a; }
+  .btn-small { padding: 6px 14px; font-size: 13px; }
+
+  .btn-rij { display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; align-items: center; }
+
+  /* ── DRAG & DROP ── */
+  .drag-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: var(--space-sm) 0;
+  }
+  .drag-item {
+    padding: 12px 16px;
+    background: var(--sand-light);
+    border: 2px solid var(--foam);
+    border-radius: var(--radius-sm);
+    cursor: grab;
+    font-size: 14px;
+    color: var(--text-mid);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: var(--transition);
+    user-select: none;
+  }
+  .drag-item:hover { border-color: var(--ocean-pale); background: white; }
+  .drag-item.dragging { opacity: 0.4; cursor: grabbing; }
+  .drag-item.drag-over { border-color: var(--ocean-mid); background: var(--foam); }
+  .drag-item .drag-handle { color: var(--text-light); font-size: 18px; }
+  .drag-item.correct-item { border-color: var(--moss); background: #e8f4e8; }
+  .drag-item.fout-item { border-color: var(--terracotta); background: #fdf0ed; }
+
+  /* ── KOPPEL OPDRACHT ── */
+  .koppel-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin: var(--space-sm) 0;
+  }
+  @media (max-width: 600px) { .koppel-container { grid-template-columns: 1fr; } }
+  .koppel-col h5 {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-light);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .koppel-bron, .koppel-doel {
+    padding: 10px 14px;
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: var(--transition);
+    border: 2px solid transparent;
+  }
+  .koppel-bron {
+    background: var(--parchment);
+    border-color: var(--foam);
+    color: var(--text-mid);
+  }
+  .koppel-bron:hover:not(.gekoppeld):not(:disabled) { border-color: var(--ocean-pale); }
+  .koppel-bron.geselecteerd { border-color: var(--ocean-mid); background: var(--foam); }
+  .koppel-bron.gekoppeld { opacity: 0.5; cursor: default; }
+  .koppel-doel {
+    background: var(--sand-light);
+    border-color: var(--foam);
+    color: var(--text-mid);
+    min-height: 44px;
+  }
+  .koppel-doel:hover { border-color: var(--ocean-pale); background: white; }
+  .koppel-doel.heeft-koppeling {
+    border-color: var(--ocean-pale);
+    background: #e8f4f8;
+  }
+  .koppel-doel .koppeling-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-top: 4px;
+  }
+  .koppeling-tag {
+    background: var(--ocean-pale);
+    color: white;
+    font-size: 12px;
+    padding: 2px 8px;
+    border-radius: 20px;
+    cursor: pointer;
+  }
+  .koppeling-tag:hover { background: var(--terracotta); }
+  .koppel-doel.correct-doel { border-color: var(--moss) !important; background: #e8f4e8 !important; }
+  .koppel-doel.fout-doel { border-color: var(--terracotta) !important; background: #fdf0ed !important; }
+
+  /* ── KAART ── */
+  #kaart-europe { height: 380px; border-radius: var(--radius-md); overflow: hidden; }
+  #kaart-landen { height: 380px; border-radius: var(--radius-md); overflow: hidden; }
+
+  /* ── VERGELIJK TABEL ── */
+  .vergelijk-tabel { width: 100%; border-collapse: separate; border-spacing: 0; border-radius: var(--radius-md); overflow: hidden; box-shadow: var(--shadow-soft); }
+  .vergelijk-tabel th { background: var(--ocean-mid); color: white; padding: 12px 16px; font-family: 'Source Serif 4', serif; font-weight: 600; font-size: 14px; text-align: left; }
+  .vergelijk-tabel td { padding: 10px 16px; font-size: 14px; color: var(--text-mid); border-bottom: 1px solid var(--foam); background: white; }
+  .vergelijk-tabel tr:last-child td { border-bottom: none; }
+  .vergelijk-tabel tr:hover td { background: var(--sand-light); }
+  .vergelijk-tabel input[type="text"] {
+    width: 100%;
+    padding: 6px 8px;
+    border: 1px solid var(--foam);
+    border-radius: 4px;
+    font-family: 'Source Serif 4', serif;
+    font-size: 14px;
+    background: var(--parchment);
+  }
+  .vergelijk-tabel input:focus { outline: none; border-color: var(--ocean-pale); }
+
+  /* ── SCORE BADGE ── */
+  .score-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--ocean-mid);
+    color: white;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  /* ── NAVIGATIE ── */
+  .nav-balk {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 0;
+    margin-top: var(--space-lg);
+    border-top: 1px solid var(--foam);
+  }
+  .nav-balk .btn-reset {
+    font-size: 12px;
+    color: var(--text-light);
+    background: none;
+    border: 1px solid var(--foam);
+    padding: 6px 12px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-family: 'Source Serif 4', serif;
+  }
+  .nav-balk .btn-reset:hover { color: var(--terracotta); border-color: var(--terracotta); }
+
+  /* ── AFSLUITING ── */
+  .leerdoel-item {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--foam);
+    font-size: 15px;
+  }
+  .leerdoel-item:last-child { border-bottom: none; }
+  .leerdoel-check { font-size: 20px; flex-shrink: 0; }
+
+  .eindscore-blok {
+    background: linear-gradient(135deg, var(--ocean-deep), var(--ocean-mid));
+    color: white;
+    border-radius: var(--radius-lg);
+    padding: var(--space-xl) var(--space-lg);
+    text-align: center;
+    margin-bottom: var(--space-lg);
+  }
+  .eindscore-blok .score-getal {
+    font-family: 'Playfair Display', serif;
+    font-size: 64px;
+    font-weight: 700;
+    color: var(--accent-gold);
+    line-height: 1;
+  }
+  .eindscore-blok .score-label {
+    font-size: 16px;
+    color: var(--foam);
+    margin-top: 8px;
+  }
+
+  /* ── CHART ── */
+  .chart-wrapper { position: relative; height: 280px; margin: var(--space-md) 0; }
+
+  /* ── SCENARIO ── */
+  .scenario-blok {
+    background: linear-gradient(135deg, var(--sand-light), white);
+    border: 1px solid var(--foam);
+    border-radius: var(--radius-md);
+    padding: var(--space-lg);
+    margin: var(--space-md) 0;
+  }
+  .scenario-blok .scenario-titel {
+    font-family: 'Playfair Display', serif;
+    font-size: 17px;
+    color: var(--ocean-deep);
+    margin-bottom: var(--space-sm);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  /* ── EMOJI VISUALISATIE ── */
+  .emoji-rij {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    font-size: 20px;
+    margin: var(--space-sm) 0;
+  }
+  .emoji-rij .pijl { font-size: 14px; color: var(--text-light); }
+  .emoji-label { font-size: 12px; color: var(--text-light); display: block; text-align: center; line-height: 1.3; }
+
+  /* overlay hint na 3 pogingen */
+  .antwoord-reveal {
+    background: #fff8e6;
+    border: 1px solid var(--accent-gold);
+    border-radius: var(--radius-sm);
+    padding: 12px 16px;
+    margin-top: var(--space-sm);
+    font-size: 14px;
+    color: var(--earth);
+    display: none;
+  }
+
+  /* self-assess knoppen */
+  .self-assess { display: none; gap: 8px; margin-top: 10px; flex-wrap: wrap; align-items: center; }
+  .self-assess span { font-size: 13px; color: var(--text-light); }
+
+  /* ── POPUP custom ── */
+  .leaflet-popup-content { font-family: 'Source Serif 4', serif; font-size: 14px; line-height: 1.5; }
+  .leaflet-popup-content strong { font-family: 'Playfair Display', serif; }
+</style>
+</head>
+<body>
+
+<!-- ── PROGRESS BAR ── -->
+<div id="progress-bar-wrapper">
+  <span class="prog-label">Voortgang</span>
+  <div id="progress-track"><div id="progress-fill"></div></div>
+  <span id="progress-pct">0%</span>
+  <button id="btn-wis-voortgang">Wis alles</button>
+</div>
+
+<!-- ── HEADER ── -->
+<div id="app-header">
+  <div class="subtitle">✈️ Aardrijkskunde · HAVO 2</div>
+  <h1>Geografische Dimensies</h1>
+  <div class="tagline">Hoe kijk je naar een land? Vijf brillen voor de wereld.</div>
+  <div class="header-badge">
+    <span>🕐 ± 40 minuten</span>
+    <span>📚 6 onderdelen</span>
+    <span>🌍 Europa</span>
+  </div>
+</div>
+
+<!-- ── TABS ── -->
+<div id="tabs-wrapper">
+  <span id="tab-counter"></span>
+  <button class="tab-btn active" data-tab="0">🌍 Intro<span class="tab-check" data-tabcheck="0"></span></button>
+  <button class="tab-btn" data-tab="1">🔭 De 5 Dimensies<span class="tab-check" data-tabcheck="1"></span></button>
+  <button class="tab-btn" data-tab="2">🗺️ Kaart & Locaties<span class="tab-check" data-tabcheck="2"></span></button>
+  <button class="tab-btn" data-tab="3">📊 Data & Grafieken<span class="tab-check" data-tabcheck="3"></span></button>
+  <button class="tab-btn" data-tab="4">✈️ Reisscenario<span class="tab-check" data-tabcheck="4"></span></button>
+  <button class="tab-btn" data-tab="5">🎓 Afsluiting<span class="tab-check" data-tabcheck="5"></span></button>
+</div>
+
+<!-- ════════════════════════════════════════
+     SECTIE 0: INTRO
+     ════════════════════════════════════════ -->
+<div class="section active" id="section-0">
+  <div class="section-header">
+    <div class="section-icon">🌍</div>
+    <div>
+      <h2>Hoe kijk je naar een land?</h2>
+      <div class="section-meta">Onderdeel 1 van 6 · Introductie</div>
+    </div>
+  </div>
+
+  <div class="theorie-blok">
+    <h3>🔭 Aardrijkskunde is meer dan kaarten lezen</h3>
+    <p>Stel je voor: je staat op een vliegveld in Noorwegen. Buiten zie je fjorden en besneeuwde bergen. Binnen zie je berichtgeving over de olieprijs op een nieuwsscherm. De mensen om je heen spreken Noors. Een gezin bladert door een reisgids naar warmere bestemmingen. In de krant een artikel over Noorwegen's bijdrage aan de NAVO.</p>
+    <p>Op dat moment raken vijf <em>geografische dimensies</em> elkaar: de natuur, de economie, de cultuur, de politiek en de bevolking. Aardrijkskundigen gebruiken die vijf dimensies als een soort brillen: elke bril toont je een ander aspect van hetzelfde land. Wil je een land echt begrijpen — of goed vergelijken met een ander land — dan zet je ze allemaal op.</p>
+    <p>In deze les ontdek je welke vijf dimensies dat zijn, hoe ze werken, en hoe jij ze straks gebruikt bij je eigen vergelijking van twee Europese landen. Onderweg nemen we regelmatig een vlucht ✈️ langs een Europees voorbeeld.</p>
+  </div>
+
+  <div class="info-kader">
+    <div class="kader-titel">📌 Vijf brillen, één land</div>
+    <div class="emoji-rij">
+      <div><span>🏔️</span><span class="emoji-label">Fysisch</span></div>
+      <div class="pijl">+</div>
+      <div><span>💶</span><span class="emoji-label">Economisch</span></div>
+      <div class="pijl">+</div>
+      <div><span>🏛️</span><span class="emoji-label">Politiek</span></div>
+      <div class="pijl">+</div>
+      <div><span>🎭</span><span class="emoji-label">Sociaal-cultureel</span></div>
+      <div class="pijl">+</div>
+      <div><span>👥</span><span class="emoji-label">Demografisch</span></div>
+      <div class="pijl">=</div>
+      <div><span>🌍</span><span class="emoji-label">Volledig beeld</span></div>
+    </div>
+  </div>
+
+  <div class="theorie-blok">
+    <h3>💡 Waarom is dit handig bij reizen?</h3>
+    <p>Als je ooit een vakantiebestemming kiest — of er al eens over hebt nagedacht — dan gebruik je onbewust al dimensies. "Het is er warm" (fysisch), "het is er goedkoop" (economisch), "het is er veilig" (politiek), "de eten-cultuur is heerlijk" (sociaal-cultureel), "er zijn veel toeristen" (demografisch). Geografische dimensies zijn dus niet abstract — ze zitten al in de manier waarop jij over de wereld denkt.</p>
+    <p>Een aardrijkskundige kijkt alleen iets systematischer: hij of zij gaat bewust langs alle vijf dimensies, zodat er niets wordt gemist. Dat is precies wat jij in deze les gaat oefenen.</p>
+  </div>
+
+  <!-- OPDRACHT 1: MC -->
+  <div class="opdracht-blok">
+    <h4><span class="opdracht-nr">1</span> Eerste verkenning</h4>
+    <p class="opdracht-vraag">Een reiziger zegt: <em>"Ik kies Portugal omdat het een stabiel democratisch land is."</em> Welke geografische dimensie gebruikt hij hier?</p>
+    <div class="mc-opties" id="mc-intro-1">
+      <button class="mc-optie" data-answer="0" data-correct="false" data-hint="Democratie gaat over hoe een land bestuurd wordt, niet over natuur of bevolking. Kijk nog eens naar welke dimensie over bestuur gaat.">🏔️ De fysische dimensie</button>
+      <button class="mc-optie" data-answer="1" data-correct="false" data-hint="Economisch gaat over geld en werk, niet over bestuursvorm. Welke dimensie gaat over hoe een land geleid wordt?">💶 De economische dimensie</button>
+      <button class="mc-optie" data-answer="2" data-correct="true">🏛️ De politieke dimensie</button>
+      <button class="mc-optie" data-answer="3" data-correct="false" data-hint="Sociaal-cultureel gaat over taal, religie en gewoonten. Democratie valt daar niet onder.">🎭 De sociaal-culturele dimensie</button>
+    </div>
+    <div class="feedback-box" id="fb-intro-1"></div>
+    <div class="antwoord-reveal" id="reveal-intro-1">✅ Juiste antwoord: <strong>De politieke dimensie</strong>. Deze dimensie gaat over hoe een land bestuurd wordt — democratie, vrijheid van burgers, en politieke stabiliteit zijn typische politieke kenmerken.</div>
+  </div>
+
+  <!-- OPDRACHT 2: open vraag -->
+  <div class="opdracht-blok">
+    <h4><span class="opdracht-nr">2</span> Koppel aan je eigen leven ✏️</h4>
+    <p class="opdracht-vraag">Denk aan het land waar je dit jaar (of ooit) op vakantie bent geweest, of een land dat je graag wilt bezoeken. Welke <em>twee</em> geografische dimensies spelen een rol in waarom jij dat land interessant vindt? Leg per dimensie in een zin uit waarom.</p>
+    <textarea id="open-intro-2" placeholder="Schrijf hier je antwoord... (minimaal 20 woorden)"></textarea>
+    <div class="woorden-teller" id="wt-intro-2">0 woorden</div>
+    <div class="btn-rij">
+      <button class="btn btn-primary" id="btn-check-intro-2" disabled>Controleer</button>
+    </div>
+    <div class="feedback-box" id="fb-intro-2"></div>
+    <div class="antwoord-reveal" id="reveal-intro-2">
+      <strong>Voorbeeldantwoorden:</strong><br>
+      <em>"Ik wil naar Spanje omdat het er warm is (fysische dimensie: klimaat en ligging aan de Middellandse Zee) en omdat er veel lekker eten is, zoals tapas (sociaal-culturele dimensie: culinaire tradities)."</em><br><br>
+      <em>"Portugal spreekt me aan vanwege de rijke geschiedenis en muziek (sociaal-cultureel) en omdat het relatief betaalbaar is voor toeristen (economisch)."</em>
+    </div>
+    <div class="self-assess" id="sa-intro-2">
+      <span>Hoe goed is jouw antwoord?</span>
+      <button class="btn btn-success btn-small" data-sa="intro-2" data-val="1">Goed ✓</button>
+      <button class="btn btn-danger btn-small" data-sa="intro-2" data-val="0">Nog oefenen ✗</button>
+    </div>
+  </div>
+
+  <div class="nav-balk">
+    <button class="btn btn-secondary" onclick="gaNaarTab(0)">← Vorige</button>
+    <button class="btn-reset" onclick="resetTab(0)">🔄 Reset dit onderdeel</button>
+    <button class="btn btn-primary" onclick="gaNaarTab(1)">Volgende →</button>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     SECTIE 1: DE 5 DIMENSIES
+     ════════════════════════════════════════ -->
+<div class="section" id="section-1">
+  <div class="section-header">
+    <div class="section-icon">🔭</div>
+    <div>
+      <h2>De vijf geografische dimensies</h2>
+      <div class="section-meta">Onderdeel 2 van 6 · Kerntheorie</div>
+    </div>
+  </div>
+
+  <div class="theorie-blok">
+    <h3>📖 Vijf perspectieven op één land</h3>
+    <p>Elke geografische dimensie is als een andere camera-instelling: je fotografeert hetzelfde land, maar elke foto toont iets anders. Samen geven ze je een volledig beeld. Hieronder lees je alle vijf dimensies uitgebreid, met voorbeelden uit Europa.</p>
+  </div>
+
+  <div class="dimensie-kaart fysisch">
+    <div class="dim-icon">🏔️</div>
+    <div>
+      <h4>1. Fysische dimensie</h4>
+      <p>De fysische dimensie gaat over de <em>natuur</em> van een land: landschappen, hoogteverschillen, rivieren, klimaat en de geografische ligging. Een land aan zee heeft heel andere mogelijkheden dan een land midden op een continent. Bergen, vlakten, woestijnen, fjorden — ze bepalen mede hoe mensen er leven en werken.</p>
+      <p>Noorwegen heeft ruim 25.000 kilometer kustlijn met diepe fjorden — gevolg van de ijstijden. Dat heeft de Noren groot gemaakt in visserij en scheepvaart. Italië grenst aan de Middellandse Zee, heeft een mediterraan klimaat en profiteert van wijngaarden en toerisme. Dezelfde breedtegraad, totaal andere natuur.</p>
+      <span class="dim-voorbeeld">✈️ Waarom zijn Scandinavische landen zo populair voor natuur-reizen? Denk aan de fjorden, midnachtszon en poollichamen.</span>
+    </div>
+  </div>
+
+  <div class="dimensie-kaart economisch">
+    <div class="dim-icon">💶</div>
+    <div>
+      <h4>2. Economische dimensie</h4>
+      <p>De economische dimensie gaat over hoe mensen in een land hun geld verdienen, hoe welvarend een land is, en hoe de economie is opgebouwd. Werken mensen vooral in <em>landbouw</em> (primaire sector), <em>industrie</em> (secundaire sector) of <em>dienstverlening</em> (tertiaire sector)? Hoe hoog is het bruto nationaal product (BNP) per inwoner?</p>
+      <p>Zwitserland heeft een van de hoogste inkomens per hoofd van de bevolking ter wereld, gedreven door bankwezen, horlogeindustrie en farmaceutica. Bulgarije, EU-lid maar arm volgens Europese maatstaven, heeft een lagere loonstandaard en een grotere landbouwsector. Tussen die twee landen bestaat een enorme economische kloof — en dat voel je als reiziger meteen in je portemonnee.</p>
+      <span class="dim-voorbeeld">✈️ Hoe duurder een land, hoe rijker de economische dimensie: vergelijk een kop koffie in Zürich (€ 5,50) met een in Boekarest (€ 1,20).</span>
+    </div>
+  </div>
+
+  <div class="dimensie-kaart politiek">
+    <div class="dim-icon">🏛️</div>
+    <div>
+      <h4>3. Politieke dimensie</h4>
+      <p>De politieke dimensie gaat over hoe een land bestuurd wordt: is het een democratie of autocratisch? Hoe vrij zijn burgers? Welke rol speelt het land op het wereldtoneel? Is er politieke stabiliteit? De politieke situatie bepaalt mede de veiligheid, de rechtsstaat, en de vrijheden van inwoners én bezoekers.</p>
+      <p>Landen als Nederland, Denemarken en Zweden scoren al jaren hoog op democratie-indexen. Ze hebben sterke rechtsstaten, persvrijheid en transparante overheden. In Belarus of Rusland is de situatie fundamenteel anders: er is weinig politieke vrijheid, de media worden beperkt en de rechterlijke macht is niet onafhankelijk. Dit heeft directe gevolgen voor het dagelijks leven van mensen.</p>
+      <span class="dim-voorbeeld">✈️ Wanneer jij reist naar een ander land, checkt je ouders of de overheid reisadviezen — die zijn gebaseerd op de politieke dimensie.</span>
+    </div>
+  </div>
+
+  <div class="dimensie-kaart sociaal">
+    <div class="dim-icon">🎭</div>
+    <div>
+      <h4>4. Sociaal-culturele dimensie</h4>
+      <p>De sociaal-culturele dimensie gaat over de mensen zelf: hun taal, religie, gewoonten, tradities, onderwijs en gezondheidszorg. Cultuur maakt elk land uniek en zorgt voor de meest verrassende ontdekkingen als je reist. Ook de kwaliteit van scholen en ziekenhuizen valt hieronder.</p>
+      <p>In Griekenland speelt de Grieks-orthodoxe kerk een grote rol in het dagelijks leven: vakanties zijn afgestemd op religieuze feestdagen, en kerken domineren het stadsbeeld. In Nederland is religie veel minder aanwezig in de publieke ruimte. In Finland scoort het onderwijs al jarenlang bij de beste ter wereld (PISA-onderzoek), terwijl andere Europese landen moeite hebben met basisgeletterdheid.</p>
+      <span class="dim-voorbeeld">✈️ De taal die mensen spreken, het eten dat ze eten, de manier waarop ze groeten — allemaal sociaal-cultureel. Voelt jouw reisbestemming vertrouwd of exotisch?</span>
+    </div>
+  </div>
+
+  <div class="dimensie-kaart demografisch">
+    <div class="dim-icon">👥</div>
+    <div>
+      <h4>5. Demografische dimensie</h4>
+      <p>De demografische dimensie gaat over de bevolking: hoeveel mensen? Groeien of krimpen? Veel jongeren of veel ouderen? Stedelijk of landelijk? Immigratie of emigratie? In Europa zien we grote demografische tegenstellingen: sommige landen vergrijzen snel, andere groeien door immigratie juist sterk.</p>
+      <p>Duitsland heeft een sterk vergrijzende bevolking: het geboortecijfer is laag en er zijn relatief veel mensen boven de 65. Zonder immigratie zou de bevolking krimpen. Kosovo heeft juist een van de jongste bevolkingen van Europa. Malta is qua bevolkingsdichtheid extreem: meer dan 1.400 mensen per km², terwijl IJsland er minder dan 4 per km² heeft. Die dichtheid bepaalt de sfeer van een bestemming totaal.</p>
+      <span class="dim-voorbeeld">✈️ Wanneer je ergens op vakantie bent en merkt "hier zijn veel oude mensen" of "hier is het heel druk" — dat is de demografische dimensie in actie.</span>
+    </div>
+  </div>
+
+  <!-- OPDRACHT 3: DRAG AND DROP -->
+  <div class="opdracht-blok">
+    <h4><span class="opdracht-nr">3</span> Zet de omschrijvingen in de goede volgorde</h4>
+    <p class="opdracht-vraag">Hieronder staan vijf omschrijvingen door elkaar — één voor elke geografische dimensie. Sleep ze zo dat ze van boven naar beneden in deze vaste volgorde staan:<br><br>
+    <strong>1. Fysisch &nbsp; 2. Economisch &nbsp; 3. Politiek &nbsp; 4. Sociaal-cultureel &nbsp; 5. Demografisch</strong><br><br>
+    Klik daarna op "Controleer volgorde".</p>
+    <div class="drag-list" id="draglist-dimensies">
+      <div class="drag-item" draggable="true" data-id="sociaal"><span class="drag-handle">⠿</span> 🎭 Gaat over taal, religie, gewoonten en onderwijs van de bevolking.</div>
+      <div class="drag-item" draggable="true" data-id="demografisch"><span class="drag-handle">⠿</span> 👥 Gaat over hoeveel mensen er wonen, hun leeftijdsopbouw en of de bevolking groeit of krimpt.</div>
+      <div class="drag-item" draggable="true" data-id="fysisch"><span class="drag-handle">⠿</span> 🏔️ Gaat over het landschap, het klimaat en de ligging van een land.</div>
+      <div class="drag-item" draggable="true" data-id="politiek"><span class="drag-handle">⠿</span> 🏛️ Gaat over hoe een land bestuurd wordt en hoeveel vrijheid burgers hebben.</div>
+      <div class="drag-item" draggable="true" data-id="economisch"><span class="drag-handle">⠿</span> 💶 Gaat over hoe mensen hun geld verdienen en hoe welvarend een land is.</div>
+    </div>
+    <div class="btn-rij">
+      <button class="btn btn-primary" id="btn-check-drag">Controleer volgorde</button>
+    </div>
+    <div class="feedback-box" id="fb-drag"></div>
+    <div class="antwoord-reveal" id="reveal-drag">
+      <strong>Juiste volgorde:</strong><br>
+      1. 🏔️ Fysisch — landschap, klimaat, ligging<br>
+      2. 💶 Economisch — welvaart, werk, sectoren<br>
+      3. 🏛️ Politiek — bestuur, vrijheid, stabiliteit<br>
+      4. 🎭 Sociaal-cultureel — taal, religie, gewoonten, onderwijs<br>
+      5. 👥 Demografisch — bevolkingsaantal, leeftijd, groei/krimp
+    </div>
+  </div>
+
+  <!-- OPDRACHT 4: KOPPEL -->
+  <div class="opdracht-blok">
+    <h4><span class="opdracht-nr">4</span> Koppel uitspraken aan dimensies</h4>
+    <p class="opdracht-vraag">Klik eerst op een uitspraak (links), dan op de bijbehorende dimensie (rechts). Je kunt meerdere uitspraken aan dezelfde dimensie koppelen. Klik op een blauwe tag om een koppeling te verwijderen.</p>
+    <div class="koppel-container">
+      <div class="koppel-col">
+        <h5>Uitspraken</h5>
+        <div class="koppel-bron" data-bron="b1" data-correct="fysisch">"Duitsland heeft grote steenkoolreserves in het Ruhrgebied."</div>
+        <div class="koppel-bron" data-bron="b2" data-correct="economisch">"Luxemburg heeft het hoogste inkomen per hoofd in de EU."</div>
+        <div class="koppel-bron" data-bron="b3" data-correct="politiek">"In Nederland is er vrijheid van meningsuiting."</div>
+        <div class="koppel-bron" data-bron="b4" data-correct="sociaal">"In Italië spreekt men regionaal heel andere dialecten."</div>
+        <div class="koppel-bron" data-bron="b5" data-correct="demografisch">"Ierland heeft een van de jongste bevolkingen van West-Europa."</div>
+        <div class="koppel-bron" data-bron="b6" data-correct="fysisch">"De Alpen vormen een natuurlijke grens tussen landen."</div>
+      </div>
+      <div class="koppel-col">
+        <h5>Dimensies</h5>
+        <div class="koppel-doel" data-doel="fysisch">🏔️ Fysisch<div class="koppeling-tags" id="tags-fysisch"></div></div>
+        <div class="koppel-doel" data-doel="economisch">💶 Economisch<div class="koppeling-tags" id="tags-economisch"></div></div>
+        <div class="koppel-doel" data-doel="politiek">🏛️ Politiek<div class="koppeling-tags" id="tags-politiek"></div></div>
+        <div class="koppel-doel" data-doel="sociaal">🎭 Sociaal-cultureel<div class="koppeling-tags" id="tags-sociaal"></div></div>
+        <div class="koppel-doel" data-doel="demografisch">👥 Demografisch<div class="koppeling-tags" id="tags-demografisch"></div></div>
+      </div>
+    </div>
+    <div class="btn-rij">
+      <button class="btn btn-primary" id="btn-check-koppel">Controleer koppelingen</button>
+    </div>
+    <div class="feedback-box" id="fb-koppel"></div>
+    <div class="antwoord-reveal" id="reveal-koppel">
+      <strong>Juiste koppelingen:</strong><br>
+      🏔️ Fysisch: b1 (steenkoolreserves) + b6 (Alpen als grens)<br>
+      💶 Economisch: b2 (hoogste inkomen Luxemburg)<br>
+      🏛️ Politiek: b3 (vrijheid van meningsuiting)<br>
+      🎭 Sociaal-cultureel: b4 (dialecten in Italië)<br>
+      👥 Demografisch: b5 (jonge bevolking Ierland)
+    </div>
+  </div>
+
+  <!-- OPDRACHT 5: open -->
+  <div class="opdracht-blok">
+    <h4><span class="opdracht-nr">5</span> Verbinden met eigen omgeving ✏️</h4>
+    <p class="opdracht-vraag">Bekijk jouw eigen stad of regio door de lens van de vijf dimensies. Noem voor <strong>drie dimensies</strong> een concreet voorbeeld dat jij in jouw omgeving herkent. Gebruik volledige zinnen en geef voor elke dimensie aan welke het is.</p>
+    <textarea id="open-dim-5" placeholder="Bijvoorbeeld: 'De fysische dimensie zie ik terug in... De economische dimensie: in mijn stad zijn veel... De demografische dimensie: ik merk dat...' (minimaal 20 woorden)"></textarea>
+    <div class="woorden-teller" id="wt-dim-5">0 woorden</div>
+    <div class="btn-rij">
+      <button class="btn btn-primary" id="btn-check-dim-5" disabled>Controleer</button>
+    </div>
+    <div class="feedback-box" id="fb-dim-5"></div>
+    <div class="antwoord-reveal" id="reveal-dim-5">
+      <strong>Voorbeeldantwoorden (Arnhem als voorbeeld):</strong><br>
+      <em>"De fysische dimensie zie ik terug in de Rijn en de Veluwe vlakbij de stad. De economische dimensie: er zijn veel distributiecentra en logistieke bedrijven actief door de strategische ligging. De demografische dimensie: Arnhem heeft een relatief jonge bevolking door de aanwezigheid van de hogeschool."</em>
+    </div>
+    <div class="self-assess" id="sa-dim-5">
+      <span>Hoe goed is jouw antwoord?</span>
+      <button class="btn btn-success btn-small" data-sa="dim-5" data-val="1">Goed ✓</button>
+      <button class="btn btn-danger btn-small" data-sa="dim-5" data-val="0">Nog oefenen ✗</button>
+    </div>
+  </div>
+
+  <div class="nav-balk">
+    <button class="btn btn-secondary" onclick="gaNaarTab(0)">← Vorige</button>
+    <button class="btn-reset" onclick="resetTab(1)">🔄 Reset dit onderdeel</button>
+    <button class="btn btn-primary" onclick="gaNaarTab(2)">Volgende →</button>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     SECTIE 2: KAART & LOCATIES
+     ════════════════════════════════════════ -->
+<div class="section" id="section-2">
+  <div class="section-header">
+    <div class="section-icon">🗺️</div>
+    <div>
+      <h2>Europa in kaart — locaties verkennen</h2>
+      <div class="section-meta">Onderdeel 3 van 6 · Interactieve kaart</div>
+    </div>
+  </div>
+
+  <div class="theorie-blok">
+    <h3>🌐 Geografische ligging bepaalt veel</h3>
+    <p>De ligging van een land — aan zee, in de bergen, in het noorden of het zuiden — heeft grote invloed op het klimaat, de economie en de cultuur. Een land aan zee heeft andere mogelijkheden dan een land zonder toegang tot de kust (landlocked country). Scandinavische landen hebben koude, lange winters met veel sneeuw; dat bepaalt mede de bouwstijl, de kleding, de sport en zelfs de mentaliteit van mensen.</p>
+    <p>Op de kaart hieronder staan locaties in Europa die elk iets typisch illustreren van een geografische dimensie. Klik op de markers om te ontdekken welke dimensie bij welke locatie past.</p>
+    <p>Let ook op de ligging van landen ten opzichte van de zee, de gebergtes en de grote rivieren. Die topografie — de fysische dimensie! — vertelt al veel over hoe landen zich hebben ontwikkeld.</p>
+  </div>
+
+  <div class="theorie-blok">
+    <div id="kaart-europe"></div>
+    <p style="font-size:12px;color:var(--text-light);margin-top:8px;">🗺️ Klik op de markers om meer te weten te komen over elk voorbeeld.</p>
+  </div>
+
+  <!-- OPDRACHT 6: kaart vraag 1 -->
+  <div class="opdracht-blok">
+    <h4><span class="opdracht-nr">6</span> De Alpen als grens</h4>
+    <p class="opdracht-vraag">Je hebt op de kaart gezien dat de Alpen een grote bergketen vormen die door meerdere landen loopt. Welke geografische dimensie beschrijft primair de invloed van de Alpen op de ligging en het klimaat van landen als Zwitserland en Oostenrijk?</p>
+    <div class="mc-opties" id="mc-kaart-1">
+      <button class="mc-optie" data-answer="0" data-correct="true">🏔️ De fysische dimensie</button>
+      <button class="mc-optie" data-answer="1" data-correct="false" data-hint="Economisch gaat over hoe mensen geld verdienen. Gebergten zijn onderdeel van de natuur — welke dimensie gaat over de natuur?">💶 De economische dimensie</button>
+      <button class="mc-optie" data-answer="2" data-correct="false" data-hint="De demografische dimensie gaat over bevolkingsaantallen en -opbouw. Denk goed na: welke dimensie gaat over het landschap zelf?">👥 De demografische dimensie</button>
+      <button class="mc-optie" data-answer="3" data-correct="false" data-hint="Sociaal-cultureel gaat over taal en cultuur. Een bergketen is onderdeel van de natuur.">🎭 De sociaal-culturele dimensie</button>
+    </div>
+    <div class="feedback-box" id="fb-kaart-1"></div>
+    <div class="antwoord-reveal" id="reveal-kaart-1">✅ Juiste antwoord: <strong>De fysische dimensie</strong>. Gebergten, rivieren en kustlijnen zijn typische onderdelen van de fysische dimensie.</div>
+  </div>
+
+  <!-- OPDRACHT 7: open kaart -->
+  <div class="opdracht-blok">
+    <h4><span class="opdracht-nr">7</span> Analyseer een ligging ✏️</h4>
+    <p class="opdracht-vraag">Bekijk op de kaart de ligging van Noorwegen (ver in het noorden, aan zee, met fjordenkust) en vergelijk die met de ligging van Griekenland (ver in het zuiden, ook aan zee, maar met een mediterraan klimaat). Leg uit hoe de <strong>fysische dimensie</strong> van elk land verschilt, en geef per land één concreet gevolg voor het toerisme. Schrijf minimaal 25 woorden.</p>
+    <textarea id="open-kaart-7" placeholder="Noorwegen... Griekenland... Gevolg toerisme Noorwegen... Gevolg toerisme Griekenland..."></textarea>
+    <div class="woorden-teller" id="wt-kaart-7">0 woorden</div>
+    <div class="btn-rij">
+      <button class="btn btn-primary" id="btn-check-kaart-7" disabled>Controleer</button>
+    </div>
+    <div class="feedback-box" id="fb-kaart-7"></div>
+    <div class="antwoord-reveal" id="reveal-kaart-7">
+      <strong>Voorbeeldantwoord:</strong><br>
+      <em>"Noorwegen heeft een subarctisch klimaat met lange winters, diepe fjorden en besneeuwde bergen. Dit trekt toeristen die willen wandelen, skiën of het poollichaam zien. Griekenland heeft een mediterraan klimaat: droge, hete zomers en een ruige kust met honderden eilanden. Dit trekt zonnekloppers en mensen die willen zwemmen en de Griekse cultuur en resten van oude beschavingen verkennen."</em>
+    </div>
+    <div class="self-assess" id="sa-kaart-7">
+      <span>Hoe goed is jouw antwoord?</span>
+      <button class="btn btn-success btn-small" data-sa="kaart-7" data-val="1">Goed ✓</button>
+      <button class="btn btn-danger btn-small" data-sa="kaart-7" data-val="0">Nog oefenen ✗</button>
+    </div>
+  </div>
+
+  <!-- OPDRACHT 8: MC -->
+  <div class="opdracht-blok">
+    <h4><span class="opdracht-nr">8</span> Landlocked landen</h4>
+    <p class="opdracht-vraag">Welk Europees land heeft <em>geen</em> toegang tot de zee (een zogeheten "landlocked country"), wat grote invloed heeft op zijn economie en handel?</p>
+    <div class="mc-opties" id="mc-kaart-2">
+      <button class="mc-optie" data-answer="0" data-correct="false" data-hint="Portugal heeft een lange Atlantische kust. Je zoekt een land zonder kusttoegang.">🇵🇹 Portugal</button>
+      <button class="mc-optie" data-answer="1" data-correct="true">🇨🇭 Zwitserland</button>
+      <button class="mc-optie" data-answer="2" data-correct="false" data-hint="Denemarken heeft een enorme kustlijn aan de Noordzee en de Oostzee.">🇩🇰 Denemarken</button>
+      <button class="mc-optie" data-answer="3" data-correct="false" data-hint="Griekenland heeft duizenden kilometers kust en meer dan 200 bewoonde eilanden.">🇬🇷 Griekenland</button>
+    </div>
+    <div class="feedback-box" id="fb-kaart-2"></div>
+    <div class="antwoord-reveal" id="reveal-kaart-2">✅ Juiste antwoord: <strong>Zwitserland</strong>. Zwitserland grenst aan Duitsland, Oostenrijk, Liechtenstein, Italië en Frankrijk, maar heeft geen toegang tot zee. Toch is het een van de rijkste landen ter wereld — bewijs dat economische dimensie en fysische dimensie niet altijd samenhangen!</div>
+  </div>
+
+  <div class="nav-balk">
+    <button class="btn btn-secondary" onclick="gaNaarTab(1)">← Vorige</button>
+    <button class="btn-reset" onclick="resetTab(2)">🔄 Reset dit onderdeel</button>
+    <button class="btn btn-primary" onclick="gaNaarTab(3)">Volgende →</button>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     SECTIE 3: DATA & GRAFIEKEN
+     ════════════════════════════════════════ -->
+<div class="section" id="section-3">
+  <div class="section-header">
+    <div class="section-icon">📊</div>
+    <div>
+      <h2>Data lezen en interpreteren</h2>
+      <div class="section-meta">Onderdeel 4 van 6 · Grafieken analyseren</div>
+    </div>
+  </div>
+
+  <div class="theorie-blok">
+    <h3>📈 Geografische dimensies in cijfers</h3>
+    <p>Aardrijkskunde is niet alleen beschrijvend — het is ook analytisch. Elke dimensie heeft bijbehorende kengetallen waarmee landen gemeten en vergeleken worden. De economische dimensie: BNP per hoofd. De demografische dimensie: bevolkingsgroei, leeftijdsopbouw, bevolkingsdichtheid. De sociale dimensie: levensverwachting, alfabetiseringsgraad.</p>
+    <p>Hieronder zie je twee grafieken met echte Europese data. Leer om deze data te lezen én te interpreteren. Lezen is: "wat staat er?" Interpreteren is: "wat betekent dit, en hoe komt dit?"</p>
+    <p>Een goed aardrijkskundige stopt niet bij het aflezen van een getal, maar vraagt altijd: <em>waarom</em> is dit zo? Welke dimensies spelen een rol? Hoe hangen ze samen?</p>
+  </div>
+
+  <div class="theorie-blok">
+    <h3>💰 BNP per inwoner in Europa (selectie)</h3>
+    <p>Het <strong>Bruto Nationaal Product (BNP) per hoofd</strong> is een maatstaf voor de gemiddelde welvaart. Hoe hoger het getal, hoe welvarender het land gemiddeld is. Dit getal zegt iets over de economische dimensie, maar hangt ook samen met andere dimensies: een politiek stabiel land trekt meer investeringen; een land met goed onderwijs (sociaal-cultureel) heeft een productievere bevolking.</p>
+    <div class="chart-wrapper">
+      <canvas id="chart-bnp"></canvas>
+    </div>
+  </div>
+
+  <div class="theorie-blok">
+    <h3>👥 Bevolkingsgroei in Europa 2000–2023 (%)</h3>
+    <p>Sommige Europese landen groeien sterk in bevolking, andere krimpen. Groei kan komen door <em>natuurlijke aanwas</em> (meer geboorten dan sterftes) of door <em>migratie</em> (meer mensen die komen dan vertrekken). Een krimppende bevolking heeft gevolgen voor de arbeidsmarkt, pensioenstelsels en woningmarkt — allemaal aspecten van de economische en demografische dimensie.</p>
+    <div class="chart-wrapper">
+      <canvas id="chart-bevolking"></canvas>
+    </div>
+  </div>
+
+  <!-- OPDRACHT 9: MC data -->
+  <div class="opdracht-blok">
+    <h4><span class="opdracht-nr">9</span> Grafiek lezen: BNP</h4>
+    <p class="opdracht-vraag">Kijk naar de BNP-grafiek. Welk land heeft het laagste BNP per inwoner van de weergegeven landen?</p>
+    <div class="mc-opties" id="mc-data-1">
+      <button class="mc-optie" data-answer="0" data-correct="false" data-hint="Kijk nog eens naar de laagste balk in de grafiek. Welk land heeft de kortste balk?">🇧🇪 België</button>
+      <button class="mc-optie" data-answer="1" data-correct="false" data-hint="Zweden staat inderdaad laag vergeleken met Noorwegen en Zwitserland, maar er is een land met een lagere balk.">🇸🇪 Zweden</button>
+      <button class="mc-optie" data-answer="2" data-correct="true">🇵🇱 Polen</button>
+      <button class="mc-optie" data-answer="3" data-correct="false" data-hint="Portugal staat niet bij de laagste waarde. Let op de Oost-Europese landen in de grafiek.">🇵🇹 Portugal</button>
+    </div>
+    <div class="feedback-box" id="fb-data-1"></div>
+    <div class="antwoord-reveal" id="reveal-data-1">✅ Juiste antwoord: <strong>Polen</strong>. Met een BNP per hoofd van ca. €17.000 staat Polen het laagst van de weergegeven landen. Dit weerspiegelt de historisch andere economische ontwikkeling van Oost-Europese landen na de val van het communisme (1989).</div>
+  </div>
+
+  <!-- OPDRACHT 10: analyse open -->
+  <div class="opdracht-blok">
+    <h4><span class="opdracht-nr">10</span> Diep interpreteren ✏️</h4>
+    <p class="opdracht-vraag">Noorwegen heeft een opvallend hoog BNP per inwoner. Welke dimensies spelen hierbij een rol? Geef minstens <strong>twee dimensies</strong> en leg per dimensie in een zin uit hoe die bijdraagt aan de welvaart van Noorwegen. Schrijf minimaal 30 woorden.</p>
+    <textarea id="open-data-10" placeholder="Dimensie 1... Dimensie 2... (vermeld de naam van elke dimensie expliciet)"></textarea>
+    <div class="woorden-teller" id="wt-data-10">0 woorden</div>
+    <div class="btn-rij">
+      <button class="btn btn-primary" id="btn-check-data-10" disabled>Controleer</button>
+    </div>
+    <div class="feedback-box" id="fb-data-10"></div>
+    <div class="antwoord-reveal" id="reveal-data-10">
+      <strong>Voorbeeldantwoord:</strong><br>
+      <em>"De fysische dimensie: Noorwegen heeft enorme olie- en gasreserves in de Noordzee, ontdekt in de jaren '60. Die grondstoffen zijn de basis van de rijkdom. De politieke dimensie: de Noorse overheid heeft die olie-inkomsten verstandig beheerd via een staatsfonds (het Oljefondet), waardoor de welvaart eerlijk verdeeld is en niet verspild. Ook de sociaal-culturele dimensie speelt mee: een hoog opleidingsniveau zorgt voor een productieve beroepsbevolking."</em>
+    </div>
+    <div class="self-assess" id="sa-data-10">
+      <span>Hoe goed is jouw antwoord?</span>
+      <button class="btn btn-success btn-small" data-sa="data-10" data-val="1">Goed ✓</button>
+      <button class="btn btn-danger btn-small" data-sa="data-10" data-val="0">Nog oefenen ✗</button>
+    </div>
+  </div>
+
+  <!-- OPDRACHT 11: MC bevolking -->
+  <div class="opdracht-blok">
+    <h4><span class="opdracht-nr">11</span> Bevolkingsgrafiek interpreteren</h4>
+    <p class="opdracht-vraag">Welk type demografische verandering verklaart waarschijnlijk de sterke bevolkingsgroei van Malta en Ierland de afgelopen twee decennia?</p>
+    <div class="mc-opties" id="mc-data-2">
+      <button class="mc-optie" data-answer="0" data-correct="false" data-hint="Een plotselinge stijging in geboortecijfers is onwaarschijnlijk en kan zo'n snelle bevolkingsgroei niet verklaren. Denk aan mensen die naar deze landen toe komen.">Een plotseling hoog geboortecijfer</button>
+      <button class="mc-optie" data-answer="1" data-correct="true">Immigratie (mensen van buiten komen naar het land)</button>
+      <button class="mc-optie" data-answer="2" data-correct="false" data-hint="Een dalend sterftecijfer leidt tot lichte groei, maar kan geen snelle procentuele stijging veroorzaken. Denk aan de instroom van mensen van buiten.">Een sterk dalend sterftecijfer</button>
+      <button class="mc-optie" data-answer="3" data-correct="false" data-hint="Emigratie betekent dat mensen het land verlaten — dat zou juist leiden tot bevolkingsdaling.">Emigratie naar andere landen</button>
+    </div>
+    <div class="feedback-box" id="fb-data-2"></div>
+    <div class="antwoord-reveal" id="reveal-data-2">✅ Juiste antwoord: <strong>Immigratie</strong>. Ierland en Malta zijn populaire bestemmingen voor arbeidsmigranten (Ierland als Engelstalig land met een sterke economie) en voor EU-burgers uit andere landen. Dit is de demografische dimensie in actie: migratie als motor van bevolkingsgroei.</div>
+  </div>
+
+  <!-- OPDRACHT 12: vergelijkingstabel -->
+  <div class="opdracht-blok">
+    <h4><span class="opdracht-nr">12</span> Vergelijkingstabel invullen ✏️</h4>
+    <p class="opdracht-vraag">Vul de tabel in met kenmerken van <strong>Noorwegen</strong> en <strong>Polen</strong> per dimensie. Gebruik de informatie die je in deze les hebt geleerd en wat je weet vanuit de grafieken. Je mag ook logische gevolgtrekkingen maken.</p>
+    <table class="vergelijk-tabel" id="vergelijk-tabel">
+      <thead>
+        <tr><th>Dimensie</th><th>🇳🇴 Noorwegen</th><th>🇵🇱 Polen</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>🏔️ Fysisch</td><td><input type="text" id="tabel-1a" placeholder="klimaat, ligging..."></td><td><input type="text" id="tabel-1b" placeholder="klimaat, ligging..."></td></tr>
+        <tr><td>💶 Economisch</td><td><input type="text" id="tabel-2a" placeholder="welvaart, sectoren..."></td><td><input type="text" id="tabel-2b" placeholder="welvaart, sectoren..."></td></tr>
+        <tr><td>🏛️ Politiek</td><td><input type="text" id="tabel-3a" placeholder="bestuursvorm..."></td><td><input type="text" id="tabel-3b" placeholder="bestuursvorm..."></td></tr>
+      </tbody>
+    </table>
+    <div class="btn-rij">
+      <button class="btn btn-primary" id="btn-check-tabel">Controleer tabel</button>
+    </div>
+    <div class="feedback-box" id="fb-tabel"></div>
+    <div class="antwoord-reveal" id="reveal-tabel">
+      <strong>Voorbeeldantwoorden:</strong><br>
+      Noorwegen Fysisch: subarctisch klimaat, fjordenkust, oliereserves Noordzee<br>
+      Polen Fysisch: gematigd klimaat, vlak tot heuvelachtig, Oostzee in het noorden<br>
+      Noorwegen Economisch: zeer hoog BNP, olie & gas, visserij, dienstverlening<br>
+      Polen Economisch: lager BNP, groeiende industrie, landbouw nog significant<br>
+      Noorwegen Politiek: stabiele democratie, sterke rechtsstaat, hoge perssvrijheid<br>
+      Polen Politiek: democratie (soms spanningen rond rechtsstaat), EU-lid
+    </div>
+    <div class="self-assess" id="sa-tabel">
+      <span>Hoe goed is jouw tabel?</span>
+      <button class="btn btn-success btn-small" data-sa="tabel" data-val="1">Goed ✓</button>
+      <button class="btn btn-danger btn-small" data-sa="tabel" data-val="0">Nog oefenen ✗</button>
+    </div>
+  </div>
+
+  <div class="nav-balk">
+    <button class="btn btn-secondary" onclick="gaNaarTab(2)">← Vorige</button>
+    <button class="btn-reset" onclick="resetTab(3)">🔄 Reset dit onderdeel</button>
+    <button class="btn btn-primary" onclick="gaNaarTab(4)">Volgende →</button>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     SECTIE 4: REISSCENARIO
+     ════════════════════════════════════════ -->
+<div class="section" id="section-4">
+  <div class="section-header">
+    <div class="section-icon">✈️</div>
+    <div>
+      <h2>Reisscenario: Twee landen ontdekken</h2>
+      <div class="section-meta">Onderdeel 5 van 6 · Verhalende case</div>
+    </div>
+  </div>
+
+  <div class="scenario-blok">
+    <div class="scenario-titel">✈️ Scenario: Familie De Vries vergelijkt bestemmingen</div>
+    <p>Familie De Vries plant hun zomervakantie en twijfelt tussen twee landen: <strong>Zweden</strong> en <strong>Portugal</strong>. De vader is geïnteresseerd in natuur, de moeder in cultuur, de oudste dochter (17) in muziek en eten, en de jongste zoon (13) in sport en avontuur. Ze willen een weloverwogen keuze maken en beslissen om elk land door de geografische dimensies te bekijken.</p>
+  </div>
+
+  <div class="theorie-blok">
+    <h3>🇸🇪 Zweden door de geografische brillen</h3>
+    <p><strong>Fysisch:</strong> Zweden is een groot land — bijna 450.000 km², groter dan Nederland × 10. Het noorden is subarctisch met toendra en eindeloze wouden; het zuiden is gematigder. In de zomer is er in het noorden middernachtzon: de zon gaat niet onder. Er zijn duizenden meren en een lange kust aan de Oostzee. Zweden heeft schaarse bevolking in het noorden maar uitgestrekte ongerepte natuur.</p>
+    <p><strong>Economisch:</strong> Zweden heeft een van de hoogste leefstandaarden in Europa. Bekende Zweedse bedrijven zijn IKEA, Volvo, H&M, Spotify en ABBA (muziekindustrie!). Het land is sterk in technologie en duurzame energie. Reizen in Zweden is relatief duur voor toeristen.</p>
+    <p><strong>Sociaal-cultureel:</strong> De Zweedse cultuur staat bekend om "lagom" — het ideaal van matigheid en evenwicht. Friluftsliv (het leven in de buitenlucht) is een kernwaarde. Zweeds eten is eenvoudig: veel vis, aardappelen, kanelbullar (kaneelbroodjes). Religie speelt nauwelijks een rol meer in het dagelijks leven.</p>
+    <p><strong>Demografisch:</strong> Zweden heeft ca. 10 miljoen inwoners, relatief gelijkmatig verspreid, met een grote concentratie rond Stockholm, Göteborg en Malmö. De bevolking groeit door immigratie. Er wonen grote groepen migranten uit o.a. Syrië, Somalië en voormalig Joegoslavië.</p>
+  </div>
+
+  <div class="theorie-blok">
+    <h3>🇵🇹 Portugal door de geografische brillen</h3>
+    <p><strong>Fysisch:</strong> Portugal ligt op het Iberisch Schiereiland, aan de Atlantische Oceaan. Het klimaat is mediterraan tot subtropisch: droge, hete zomers en zachte winters. In het zuiden (Algarve) zijn spectaculaire kliffen en goudgele stranden. Het binnenland heeft hoge plateaus (de Meseta) met kurkeikenbossen. Portugal heeft ook de Azoren en Madeira als eilandgebieden midden in de Atlantische Oceaan.</p>
+    <p><strong>Economisch:</strong> Portugal is een van de armere West-Europese landen. Toerisme is een enorm belangrijke industrie — het land ontvangt jaarlijks meer dan 27 miljoen toeristen (voor een land van 10 miljoen inwoners een enorme stroom). Daarnaast zijn wijn, kurk en visserij belangrijke sectoren. Lisbona is sterk in opkomst als tech- en startup-hub.</p>
+    <p><strong>Sociaal-cultureel:</strong> Portugal heeft een rijke cultuur: fado-muziek (UNESCO-erfgoed!), de ontdekkingstijdvaktraditie, azulejo-tegels als kunstuiting, pastéis de nata als nationaal gebak. Het is een van de weinige landen in Europa waar religie (katholicisme) nog relatief sterk aanwezig is in het publieke leven. De Portugese taal wordt door meer dan 260 miljoen mensen wereldwijd gesproken, door de koloniale geschiedenis.</p>
+    <p><strong>Demografisch:</strong> Portugal heeft ca. 10 miljoen inwoners, maar de bevolking krimpt licht: veel jonge Portugezen emigreren naar andere EU-landen voor werk. Tegelijkertijd trekt de lage huizenprijzen (of trokken, want die stijgen snel) buitenlandse gepensioneerden aan. De bevolking vergrijst.</p>
+  </div>
+
+  <!-- OPDRACHT 13: MC -->
+  <div class="opdracht-blok">
+    <h4><span class="opdracht-nr">13</span> Familie De Vries redeneert</h4>
+    <p class="opdracht-vraag">De moeder van de familie zegt: "In Portugal is fado-muziek op de UNESCO-lijst voor immaterieel erfgoed gezet, dat spreekt mij erg aan." Welke dimensie gebruikt ze bij haar keuze?</p>
+    <div class="mc-opties" id="mc-scenario-1">
+      <button class="mc-optie" data-answer="0" data-correct="false" data-hint="Muziek en erfgoed zijn geen onderdeel van de natuur. Kijk bij welke dimensie cultuur, muziek en tradities thuishoren.">🏔️ Fysische dimensie</button>
+      <button class="mc-optie" data-answer="1" data-correct="false" data-hint="Economisch gaat over geld en werk, niet over muziek of cultureel erfgoed.">💶 Economische dimensie</button>
+      <button class="mc-optie" data-answer="2" data-correct="true">🎭 Sociaal-culturele dimensie</button>
+      <button class="mc-optie" data-answer="3" data-correct="false" data-hint="Demografisch gaat over bevolkingsaantallen en -groei. Muziek valt daar niet onder.">👥 Demografische dimensie</button>
+    </div>
+    <div class="feedback-box" id="fb-scenario-1"></div>
+    <div class="antwoord-reveal" id="reveal-scenario-1">✅ Juiste antwoord: <strong>Sociaal-culturele dimensie</strong>. Muziek, tradities, UNESCO-erfgoed — dit zijn allemaal onderdelen van de sociaal-culturele dimensie die de unieke cultuur van een land beschrijft.</div>
+  </div>
+
+  <!-- OPDRACHT 14: MC scenario -->
+  <div class="opdracht-blok">
+    <h4><span class="opdracht-nr">14</span> Meerdere dimensies tegelijk</h4>
+    <p class="opdracht-vraag">De vader zegt: "Zweden is duurder dan Portugal, maar heeft ook meer ongerepte natuur." Hij noemt in één zin twee argumenten. Welke twee dimensies gebruikt hij?</p>
+    <div class="mc-opties" id="mc-scenario-2">
+      <button class="mc-optie" data-answer="0" data-correct="false" data-hint="Denk goed na: 'duurder' is iets economisch. 'Ongerepte natuur' gaat over het landschap. Welke twee dimensies passen daarbijhet best?">Politiek en demografisch</button>
+      <button class="mc-optie" data-answer="1" data-correct="true">Economisch en fysisch</button>
+      <button class="mc-optie" data-answer="2" data-correct="false" data-hint="Sociaal-cultureel gaat over cultuur, taal, godsdienst — niet over prijs of natuur in dit geval.">Sociaal-cultureel en demografisch</button>
+      <button class="mc-optie" data-answer="3" data-correct="false" data-hint="Demografisch gaat over bevolking, niet over prijs of natuur. Probeer het nog eens.">Fysisch en demografisch</button>
+    </div>
+    <div class="feedback-box" id="fb-scenario-2"></div>
+    <div class="antwoord-reveal" id="reveal-scenario-2">✅ Juiste antwoord: <strong>Economisch en fysisch</strong>. "Duurder" = economische dimensie (prijsniveau, welvaart). "Ongerepte natuur" = fysische dimensie (landschap, klimaat). Een goed aarrijkskundige kan snel herkennen welke dimensie schuilt achter een uitspraak.</div>
+  </div>
+
+  <!-- OPDRACHT 15: open vergelijking -->
+  <div class="opdracht-blok">
+    <h4><span class="opdracht-nr">15</span> Jij maakt de keuze ✏️</h4>
+    <p class="opdracht-vraag">Jij speelt de rol van adviseur voor familie De Vries. Kies één van de twee landen (Zweden of Portugal) en motiveer je keuze door voor <strong>drie verschillende dimensies</strong> een argument te geven. Schrijf je advies in alineavorm (geen losse bullets). Minimaal 35 woorden.</p>
+    <textarea id="open-scenario-15" placeholder="'Ik adviseer familie De Vries om naar [land] te gaan, omdat... (dimensie 1)... bovendien... (dimensie 2)... ten slotte... (dimensie 3)...'"></textarea>
+    <div class="woorden-teller" id="wt-scenario-15">0 woorden</div>
+    <div class="btn-rij">
+      <button class="btn btn-primary" id="btn-check-scenario-15" disabled>Controleer</button>
+    </div>
+    <div class="feedback-box" id="fb-scenario-15"></div>
+    <div class="antwoord-reveal" id="reveal-scenario-15">
+      <strong>Voorbeeldantwoord (Portugal):</strong><br>
+      <em>"Ik adviseer familie De Vries om naar Portugal te gaan. Vanuit de fysische dimensie biedt Portugal een mediterraan klimaat met prachtige stranden aan de Atlantische Oceaan — ideaal voor de jongste die van avontuur en sport houdt. Economisch gezien is Portugal betaalbaarder dan Zweden, waardoor het gezin meer kan doen voor hetzelfde budget. Tot slot biedt de sociaal-culturele dimensie van Portugal enorm veel: fado-muziek, azulejo-kunst en de rijke eetcultuur — perfect voor de moeder en oudste dochter."</em>
+    </div>
+    <div class="self-assess" id="sa-scenario-15">
+      <span>Hoe goed is jouw antwoord?</span>
+      <button class="btn btn-success btn-small" data-sa="scenario-15" data-val="1">Goed ✓</button>
+      <button class="btn btn-danger btn-small" data-sa="scenario-15" data-val="0">Nog oefenen ✗</button>
+    </div>
+  </div>
+
+  <!-- OPDRACHT 16: open diepte -->
+  <div class="opdracht-blok">
+    <h4><span class="opdracht-nr">16</span> Dimensies die overlappen ✏️</h4>
+    <p class="opdracht-vraag">Portugal heeft veel jonge Portugezen die emigreren naar andere Europese landen voor werk. Dit is nieuws voor de demografische dimensie. Maar welke <strong>andere dimensie</strong> hangt hiermee samen, en hoe? Leg je redenering duidelijk uit. Minimaal 20 woorden.</p>
+    <textarea id="open-scenario-16" placeholder="De [dimensie]-dimensie hangt hiermee samen omdat..."></textarea>
+    <div class="woorden-teller" id="wt-scenario-16">0 woorden</div>
+    <div class="btn-rij">
+      <button class="btn btn-primary" id="btn-check-scenario-16" disabled>Controleer</button>
+    </div>
+    <div class="feedback-box" id="fb-scenario-16"></div>
+    <div class="antwoord-reveal" id="reveal-scenario-16">
+      <strong>Voorbeeldantwoorden (meerdere zijn mogelijk):</strong><br>
+      <em>"De economische dimensie hangt hiermee samen: jonge Portugezen emigreren omdat er in Portugal te weinig goedbetaalde banen zijn. De werkloosheid onder jongeren is relatief hoog. Dat is een economisch probleem dat leidt tot een demografisch gevolg (bevolkingsdaling en vergrijzing)."</em><br><br>
+      <em>"De politieke dimensie speelt ook een rol: door het EU-lidmaatschap hebben Portugezen het recht vrij te reizen en te werken in andere lidstaten. Zonder die politieke constructie zou de emigratie niet zo makkelijk verlopen."</em>
+    </div>
+    <div class="self-assess" id="sa-scenario-16">
+      <span>Hoe goed is jouw antwoord?</span>
+      <button class="btn btn-success btn-small" data-sa="scenario-16" data-val="1">Goed ✓</button>
+      <button class="btn btn-danger btn-small" data-sa="scenario-16" data-val="0">Nog oefenen ✗</button>
+    </div>
+  </div>
+
+  <div class="nav-balk">
+    <button class="btn btn-secondary" onclick="gaNaarTab(3)">← Vorige</button>
+    <button class="btn-reset" onclick="resetTab(4)">🔄 Reset dit onderdeel</button>
+    <button class="btn btn-primary" onclick="gaNaarTab(5)">Naar de afsluiting →</button>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     SECTIE 5: AFSLUITING
+     ════════════════════════════════════════ -->
+<div class="section" id="section-5">
+  <div class="section-header">
+    <div class="section-icon">🎓</div>
+    <div>
+      <h2>Terugblikken & reflecteren</h2>
+      <div class="section-meta">Onderdeel 6 van 6 · Afsluiting</div>
+    </div>
+  </div>
+
+  <div class="eindscore-blok">
+    <div class="score-getal" id="eindscore-getal">—</div>
+    <div class="score-label">van de <span id="eindscore-totaal">0</span> opdrachten afgerond</div>
+    <div style="margin-top:16px;font-size:14px;color:var(--foam);" id="eindscore-label"></div>
+  </div>
+
+  <div class="theorie-blok">
+    <h3>✅ Leerdoelen: beheers jij ze?</h3>
+    <p>Vink voor jezelf af welke leerdoelen je nu beheerst. Wees eerlijk — het gaat niet om het rapport, maar om je eigen begrip.</p>
+    <div class="leerdoel-item"><span class="leerdoel-check">🎯</span> Ik kan de vijf geografische dimensies benoemen.</div>
+    <div class="leerdoel-item"><span class="leerdoel-check">🎯</span> Ik kan uitleggen wat elke dimensie bestudeert.</div>
+    <div class="leerdoel-item"><span class="leerdoel-check">🎯</span> Ik kan bij elke dimensie een concreet voorbeeld geven.</div>
+    <div class="leerdoel-item"><span class="leerdoel-check">🎯</span> Ik begrijp dat een land vanuit meerdere dimensies tegelijk bekeken kan worden.</div>
+    <div class="leerdoel-item"><span class="leerdoel-check">🎯</span> Ik weet welke dimensies ik gebruik bij het vergelijken van mijn twee Europese landen.</div>
+  </div>
+
+  <!-- REFLECTIE 1 -->
+  <div class="opdracht-blok">
+    <h4><span class="opdracht-nr">R1</span> Reflectievraag: het lastigste deel ✏️</h4>
+    <p class="opdracht-vraag">Welk onderdeel van deze les vond je het lastigst en waarom? Probeer zo concreet mogelijk te zijn: welke dimensie, welk begrip of welk type opdracht kostte je de meeste moeite?</p>
+    <textarea id="open-reflectie-1" placeholder="Het lastigste vond ik... omdat... (minimaal 20 woorden)"></textarea>
+    <div class="woorden-teller" id="wt-reflectie-1">0 woorden</div>
+    <div class="btn-rij">
+      <button class="btn btn-primary" id="btn-check-reflectie-1" disabled>Sla op</button>
+    </div>
+    <div class="feedback-box" id="fb-reflectie-1"></div>
+    <div class="antwoord-reveal" id="reveal-reflectie-1">
+      <strong>Dit is jouw persoonlijke reflectie — geen goed of fout antwoord.</strong><br>
+      Maar hier zijn dingen die anderen vaak lastig vinden:<br>
+      • Het verschil tussen sociaal-cultureel en demografisch (cultuur vs. bevolkingsopbouw)<br>
+      • Begrijpen dat dimensies overlappen en elkaar beïnvloeden<br>
+      • Concrete voorbeelden verzinnen voor de politieke dimensie
+    </div>
+    <div class="self-assess" id="sa-reflectie-1">
+      <span>Heb je dit eerlijk ingevuld?</span>
+      <button class="btn btn-success btn-small" data-sa="reflectie-1" data-val="1">Ja, eerlijk ✓</button>
+      <button class="btn btn-danger btn-small" data-sa="reflectie-1" data-val="0">Nee, ik pas het aan ✗</button>
+    </div>
+  </div>
+
+  <!-- REFLECTIE 2 -->
+  <div class="opdracht-blok">
+    <h4><span class="opdracht-nr">R2</span> Uitleggen aan een klasgenoot ✏️</h4>
+    <p class="opdracht-vraag">Stel je bent leraar voor één dag. Hoe zou je in 3-4 zinnen aan een klasgenoot uitleggen wat geografische dimensies zijn en waarom ze nuttig zijn? Schrijf je uitleg alsof je het echt zegt.</p>
+    <textarea id="open-reflectie-2" placeholder="'Kijk, geografische dimensies zijn eigenlijk... Ze zijn handig omdat... Als ik je een voorbeeld geef...'"></textarea>
+    <div class="woorden-teller" id="wt-reflectie-2">0 woorden</div>
+    <div class="btn-rij">
+      <button class="btn btn-primary" id="btn-check-reflectie-2" disabled>Sla op</button>
+    </div>
+    <div class="feedback-box" id="fb-reflectie-2"></div>
+    <div class="antwoord-reveal" id="reveal-reflectie-2">
+      <strong>Voorbeelduitleg:</strong><br>
+      <em>"Geografische dimensies zijn vijf manieren om naar een land te kijken. Denk het als vijf brillen: met de fysische bril zie je het landschap, met de economische bril zie je de welvaart, met de politieke bril het bestuur, met de sociaal-culturele bril de cultuur en met de demografische bril de bevolking. Die brillen zijn nuttig omdat je zonder ze gemakkelijk iets mist — zoals een reiziger die alleen let op het weer en vergeet te vragen of het land veilig is."</em>
+    </div>
+    <div class="self-assess" id="sa-reflectie-2">
+      <span>Hoe goed is jouw uitleg?</span>
+      <button class="btn btn-success btn-small" data-sa="reflectie-2" data-val="1">Goed ✓</button>
+      <button class="btn btn-danger btn-small" data-sa="reflectie-2" data-val="0">Nog oefenen ✗</button>
+    </div>
+  </div>
+
+  <!-- REFLECTIE 3 -->
+  <div class="opdracht-blok">
+    <h4><span class="opdracht-nr">R3</span> Herkennen in de eigen omgeving ✏️</h4>
+    <p class="opdracht-vraag">Je hebt vandaag geleerd over vijf geografische dimensies. Welke dimensie zie jij het meest terug in het nieuws van de afgelopen week (denk aan wat je op het journaal hebt gezien of online hebt gelezen)? Geef een concreet voorbeeld van een nieuwsbericht en benoem welke dimensie dat illustreert.</p>
+    <textarea id="open-reflectie-3" placeholder="In het nieuws hoorde ik... Dit illustreert de [dimensie] dimensie omdat... (minimaal 20 woorden)"></textarea>
+    <div class="woorden-teller" id="wt-reflectie-3">0 woorden</div>
+    <div class="btn-rij">
+      <button class="btn btn-primary" id="btn-check-reflectie-3" disabled>Sla op</button>
+    </div>
+    <div class="feedback-box" id="fb-reflectie-3"></div>
+    <div class="antwoord-reveal" id="reveal-reflectie-3">
+      <strong>Voorbeelden van koppeling nieuws → dimensie:</strong><br>
+      • Bericht over EU-verkiezingen → politieke dimensie<br>
+      • Bericht over inflatie of werkloosheid → economische dimensie<br>
+      • Bericht over een vluchtelingenstroom → demografische dimensie<br>
+      • Bericht over een aardbeving of overstroming → fysische dimensie<br>
+      • Bericht over culturele festivals of religie → sociaal-culturele dimensie
+    </div>
+    <div class="self-assess" id="sa-reflectie-3">
+      <span>Hoe goed is jouw koppeling?</span>
+      <button class="btn btn-success btn-small" data-sa="reflectie-3" data-val="1">Goed ✓</button>
+      <button class="btn btn-danger btn-small" data-sa="reflectie-3" data-val="0">Nog oefenen ✗</button>
+    </div>
+  </div>
+
+  <div class="theorie-blok" style="text-align:center;padding: 32px;">
+    <div style="font-size:48px;margin-bottom:16px;">🌍</div>
+    <h3 style="font-family:'Playfair Display',serif;font-size:22px;color:var(--ocean-deep);margin-bottom:12px;">Goed gedaan!</h3>
+    <p style="color:var(--text-mid);">Je hebt de les over geografische dimensies doorgewerkt. De vijf brillen die je vandaag hebt geslepen, helpen je niet alleen in aardrijkskunde — ze helpen je om de wereld om je heen beter te begrijpen. De volgende keer dat je het nieuws kijkt of een reis plant, weet jij welke vragen je moet stellen.</p>
+  </div>
+
+  <div class="nav-balk">
+    <button class="btn btn-secondary" onclick="gaNaarTab(4)">← Vorige</button>
+    <button class="btn-reset" onclick="resetTab(5)">🔄 Reset dit onderdeel</button>
+    <span></span>
+  </div>
+</div>
+
+<!-- ════════════════════════════════
+     JAVASCRIPT
+     ════════════════════════════════ -->
+<script>
+// ── STATE ──────────────────────────────────────────
+const STORAGE_PREFIX = 'geo_les_';
+let totalOpdrachten = 0;
+let afgerondOpdrachten = new Set();
+let pogingen = {};
+let antwoorden = {};
+
+// ── STORAGE HELPERS ────────────────────────────────
+function opslaan(key, val) {
+  try { localStorage.setItem(STORAGE_PREFIX + key, JSON.stringify(val)); } catch(e) {}
+}
+function laden(key, fallback) {
+  try { const v = localStorage.getItem(STORAGE_PREFIX + key); return v !== null ? JSON.parse(v) : fallback; } catch(e) { return fallback; }
+}
+function wisVoortgang() {
+  try {
+    const keys = Object.keys(localStorage).filter(k => k.startsWith(STORAGE_PREFIX));
+    keys.forEach(k => localStorage.removeItem(k));
+  } catch(e) {}
+}
+
+// ── PROGRESS ───────────────────────────────────────
+function updateProgress() {
+  const pct = totalOpdrachten > 0 ? Math.round((afgerondOpdrachten.size / totalOpdrachten) * 100) : 0;
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-pct').textContent = pct + '%';
+  updateTabChecks();
+  opslaan('afgerond', Array.from(afgerondOpdrachten));
+  updateEindscore();
+}
+
+function markeerAfgerond(id) {
+  afgerondOpdrachten.add(id);
+  updateProgress();
+}
+
+function updateTabChecks() {
+  for (let i = 0; i < 6; i++) {
+    const sectionOpdrachten = document.querySelectorAll('#section-' + i + ' [data-opd-id]');
+    const ids = Array.from(sectionOpdrachten).map(el => el.dataset.opdId);
+    const allDone = ids.length > 0 && ids.every(id => afgerondOpdrachten.has(id));
+    const el = document.querySelector('[data-tabcheck="' + i + '"]');
+    if (el) el.textContent = allDone ? ' ✓' : '';
+  }
+}
+
+function updateEindscore() {
+  const el = document.getElementById('eindscore-getal');
+  const totEl = document.getElementById('eindscore-totaal');
+  const labelEl = document.getElementById('eindscore-label');
+  if (!el) return;
+  el.textContent = afgerondOpdrachten.size;
+  if (totEl) totEl.textContent = totalOpdrachten;
+  const pct = totalOpdrachten > 0 ? (afgerondOpdrachten.size / totalOpdrachten) * 100 : 0;
+  if (labelEl) {
+    if (pct < 40) labelEl.textContent = 'Je bent goed op weg — werk alle onderdelen door!';
+    else if (pct < 70) labelEl.textContent = 'Goed bezig! Bijna daar.';
+    else if (pct < 100) labelEl.textContent = 'Indrukwekkend! Nog een paar opdrachten te gaan.';
+    else labelEl.textContent = '🎉 Alle opdrachten afgerond — geweldig!';
+  }
+}
+
+// ── TABS ───────────────────────────────────────────
+let huidigTab = 0;
+
+function gaNaarTab(n) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('section-' + n).classList.add('active');
+  document.querySelector('[data-tab="' + n + '"]').classList.add('active');
+  huidigTab = n;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  updateTabCounter(n);
+  setTimeout(() => {
+    if (n === 2 && window.kaartEurope) { window.kaartEurope.invalidateSize(); }
+  }, 200);
+  opslaan('huidigTab', n);
+}
+
+function updateTabCounter(n) {
+  document.getElementById('tab-counter').textContent = 'Onderdeel ' + (n + 1) + ' van 6';
+}
+
+// ── MULTIPLE CHOICE ────────────────────────────────
+function initMC(containerId, feedbackId, revealId, opdrachtId) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  totalOpdrachten++;
+
+  const opties = container.querySelectorAll('.mc-optie');
+  const fb = document.getElementById(feedbackId);
+  const reveal = document.getElementById(revealId);
+
+  let pogingenTeller = laden('pog_' + opdrachtId, 0);
+  let afgerond = afgerondOpdrachten.has(opdrachtId);
+
+  if (afgerond) {
+    opties.forEach(o => { o.disabled = true; });
+    if (reveal) reveal.style.display = 'block';
+    fb.style.display = 'block';
+    fb.className = 'feedback-box goed';
+    fb.textContent = '✅ Je hebt deze vraag al beantwoord.';
+    return;
+  }
+
+  opties.forEach(optie => {
+    optie.addEventListener('click', function() {
+      if (optie.disabled) return;
+      pogingenTeller++;
+      opslaan('pog_' + opdrachtId, pogingenTeller);
+
+      const isCorrect = optie.dataset.correct === 'true';
+      const hint = optie.dataset.hint || '';
+
+      if (isCorrect) {
+        optie.classList.add('correct');
+        fb.style.display = 'block';
+        fb.className = 'feedback-box goed';
+        fb.textContent = '✅ Correct! Goed gedaan.';
+        opties.forEach(o => o.disabled = true);
+        markeerAfgerond(opdrachtId);
+        opslaan('ant_' + opdrachtId, 'correct');
+      } else {
+        optie.classList.add('fout');
+        optie.disabled = true;
+        if (pogingenTeller >= 3) {
+          fb.style.display = 'block';
+          fb.className = 'feedback-box fout';
+          fb.textContent = '❌ Helaas, dit was niet het juiste antwoord. Zie hieronder het juiste antwoord.';
+          opties.forEach(o => o.disabled = true);
+          if (reveal) reveal.style.display = 'block';
+          markeerAfgerond(opdrachtId);
+          opslaan('ant_' + opdrachtId, 'max_pogingen');
+        } else {
+          fb.style.display = 'block';
+          fb.className = 'feedback-box hint';
+          const resterende = 3 - pogingenTeller;
+          fb.innerHTML = '💡 Niet helemaal goed. ' + (hint ? hint : '') + ' (Nog ' + resterende + ' poging' + (resterende !== 1 ? 'en' : '') + ' over.)';
+        }
+      }
+    });
+  });
+}
+
+// ── OPEN VRAGEN ────────────────────────────────────
+function initOpenVraag(textareaId, telId, btnId, fbId, revealId, saId, opdrachtId, minWoorden) {
+  const ta = document.getElementById(textareaId);
+  const tel = document.getElementById(telId);
+  const btn = document.getElementById(btnId);
+  const fb = document.getElementById(fbId);
+  const reveal = document.getElementById(revealId);
+  const sa = document.getElementById(saId);
+  if (!ta || !btn) return;
+  totalOpdrachten++;
+  minWoorden = minWoorden || 20;
+
+  // herstel opgeslagen antwoord
+  const opgeslagen = laden('ant_' + opdrachtId, '');
+  if (opgeslagen) ta.value = opgeslagen;
+
+  function telWoorden(t) {
+    const w = t.trim().split(/\s+/).filter(w => w.length > 0);
+    return w.length;
+  }
+
+  function updateTeller() {
+    const n = telWoorden(ta.value);
+    tel.textContent = n + ' woorden';
+    tel.className = 'woorden-teller' + (n >= minWoorden ? ' genoeg' : '');
+    btn.disabled = n < minWoorden;
+  }
+  updateTeller();
+  ta.addEventListener('input', function() {
+    updateTeller();
+    opslaan('ant_' + opdrachtId, ta.value);
+  });
+
+  if (afgerondOpdrachten.has(opdrachtId)) {
+    if (reveal) reveal.style.display = 'block';
+    if (sa) sa.style.display = 'flex';
+    fb.style.display = 'block';
+    fb.className = 'feedback-box goed';
+    fb.textContent = '✅ Je hebt dit al ingevuld.';
+  }
+
+  btn.addEventListener('click', function() {
+    if (btn.disabled) return;
+    fb.style.display = 'block';
+    fb.className = 'feedback-box info';
+    fb.textContent = '📖 Goed gedaan! Bekijk hieronder een voorbeeldantwoord om jouw antwoord mee te vergelijken.';
+    if (reveal) reveal.style.display = 'block';
+    if (sa) sa.style.display = 'flex';
+    btn.disabled = true;
+  });
+
+  if (sa) {
+    sa.querySelectorAll('button[data-sa]').forEach(saBtn => {
+      saBtn.addEventListener('click', function() {
+        const val = parseInt(saBtn.dataset.val);
+        markeerAfgerond(opdrachtId);
+        opslaan('ant_' + opdrachtId + '_sa', val);
+        sa.querySelectorAll('button').forEach(b => b.disabled = true);
+        fb.className = 'feedback-box goed';
+        fb.textContent = val === 1 ? '✅ Geweldig — je hebt dit goed begrepen!' : '📝 Geen probleem. Lees het voorbeeldantwoord nog eens door en probeer te zien wat je anders had kunnen schrijven.';
+      });
+    });
+  }
+}
+
+// ── DRAG & DROP ────────────────────────────────────
+function initDrag(listId, fbId, revealId, correctVolgorde, opdrachtId) {
+  const list = document.getElementById(listId);
+  const fb = document.getElementById(fbId);
+  const reveal = document.getElementById(revealId);
+  const btn = document.getElementById('btn-check-drag');
+  if (!list || !btn) return;
+  totalOpdrachten++;
+
+  let dragSrc = null;
+
+  list.querySelectorAll('.drag-item').forEach(item => {
+    item.addEventListener('dragstart', function(e) {
+      dragSrc = this;
+      this.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+    });
+    item.addEventListener('dragend', function() {
+      this.classList.remove('dragging');
+      list.querySelectorAll('.drag-item').forEach(i => i.classList.remove('drag-over'));
+    });
+    item.addEventListener('dragover', function(e) {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      if (this !== dragSrc) {
+        list.querySelectorAll('.drag-item').forEach(i => i.classList.remove('drag-over'));
+        this.classList.add('drag-over');
+      }
+    });
+    item.addEventListener('drop', function(e) {
+      e.preventDefault();
+      if (this !== dragSrc) {
+        const allItems = Array.from(list.querySelectorAll('.drag-item'));
+        const srcIdx = allItems.indexOf(dragSrc);
+        const dstIdx = allItems.indexOf(this);
+        if (srcIdx < dstIdx) {
+          list.insertBefore(dragSrc, this.nextSibling);
+        } else {
+          list.insertBefore(dragSrc, this);
+        }
+      }
+      this.classList.remove('drag-over');
+    });
+  });
+
+  btn.addEventListener('click', function() {
+    if (btn.disabled) return;
+    const huidige = Array.from(list.querySelectorAll('.drag-item')).map(i => i.dataset.id);
+    let correct = 0;
+    const items = list.querySelectorAll('.drag-item');
+    huidige.forEach((id, idx) => {
+      const item = items[idx];
+      if (id === correctVolgorde[idx]) {
+        correct++;
+        item.classList.add('correct-item');
+        item.classList.remove('fout-item');
+      } else {
+        item.classList.add('fout-item');
+        item.classList.remove('correct-item');
+      }
+    });
+    fb.style.display = 'block';
+    if (correct === correctVolgorde.length) {
+      fb.className = 'feedback-box goed';
+      fb.textContent = '✅ Alle omschrijvingen staan op de juiste plek! Je kent de vijf dimensies goed.';
+      btn.disabled = true;
+      if (reveal) reveal.style.display = 'block';
+      markeerAfgerond(opdrachtId);
+    } else {
+      fb.className = 'feedback-box hint';
+      fb.innerHTML = '💡 ' + correct + ' van de ' + correctVolgorde.length + ' omschrijvingen staan op de juiste plek (groen). Versleep de rode items en probeer het opnieuw.';
+    }
+    opslaan('ant_drag_' + opdrachtId, huidige);
+  });
+
+  if (afgerondOpdrachten.has(opdrachtId)) {
+    btn.disabled = true;
+    if (reveal) reveal.style.display = 'block';
+    fb.style.display = 'block';
+    fb.className = 'feedback-box goed';
+    fb.textContent = '✅ Je hebt deze opdracht al afgerond.';
+  }
+}
+
+// ── KOPPEL OPDRACHT ────────────────────────────────
+function initKoppel(fbId, revealId, opdrachtId) {
+  const fb = document.getElementById(fbId);
+  const reveal = document.getElementById(revealId);
+  const btn = document.getElementById('btn-check-koppel');
+  if (!btn) return;
+  totalOpdrachten++;
+
+  let geselecteerdeBron = null;
+  // koppelingen: { bronId: doelId }
+  let koppelingen = laden('koppel_' + opdrachtId, {});
+
+  function renderKoppelingen() {
+    // reset alle tags
+    document.querySelectorAll('.koppeling-tags').forEach(el => el.innerHTML = '');
+    document.querySelectorAll('.koppel-doel').forEach(el => el.classList.remove('heeft-koppeling'));
+    document.querySelectorAll('.koppel-bron').forEach(el => el.classList.remove('gekoppeld'));
+
+    Object.keys(koppelingen).forEach(bronId => {
+      const doelId = koppelingen[bronId];
+      const tagsEl = document.getElementById('tags-' + doelId);
+      if (!tagsEl) return;
+      const bronEl = document.querySelector('[data-bron="' + bronId + '"]');
+      if (!bronEl) return;
+      const tag = document.createElement('span');
+      tag.className = 'koppeling-tag';
+      tag.textContent = bronEl.textContent.substring(0, 30) + (bronEl.textContent.length > 30 ? '…' : '');
+      tag.dataset.bron = bronId;
+      tag.title = 'Klik om koppeling te verwijderen';
+      tag.addEventListener('click', function() {
+        delete koppelingen[bronId];
+        opslaan('koppel_' + opdrachtId, koppelingen);
+        renderKoppelingen();
+      });
+      tagsEl.appendChild(tag);
+      tagsEl.parentElement.classList.add('heeft-koppeling');
+      bronEl.classList.add('gekoppeld');
+    });
+  }
+
+  // herstel
+  renderKoppelingen();
+  if (afgerondOpdrachten.has(opdrachtId)) {
+    btn.disabled = true;
+    fb.style.display = 'block';
+    fb.className = 'feedback-box goed';
+    fb.textContent = '✅ Je hebt deze opdracht al afgerond.';
+    return;
+  }
+
+  document.querySelectorAll('.koppel-bron').forEach(bron => {
+    bron.addEventListener('click', function() {
+      if (bron.classList.contains('gekoppeld')) return;
+      document.querySelectorAll('.koppel-bron').forEach(b => b.classList.remove('geselecteerd'));
+      geselecteerdeBron = bron.dataset.bron;
+      bron.classList.add('geselecteerd');
+    });
+  });
+
+  document.querySelectorAll('.koppel-doel').forEach(doel => {
+    doel.addEventListener('click', function() {
+      if (!geselecteerdeBron) return;
+      koppelingen[geselecteerdeBron] = doel.dataset.doel;
+      opslaan('koppel_' + opdrachtId, koppelingen);
+      geselecteerdeBron = null;
+      document.querySelectorAll('.koppel-bron').forEach(b => b.classList.remove('geselecteerd'));
+      renderKoppelingen();
+    });
+  });
+
+  btn.addEventListener('click', function() {
+    const bronEls = document.querySelectorAll('.koppel-bron');
+    let correct = 0;
+    let totaal = bronEls.length;
+    bronEls.forEach(bron => {
+      const bronId = bron.dataset.bron;
+      const correcteDoel = bron.dataset.correct;
+      const gekozenDoel = koppelingen[bronId];
+      if (gekozenDoel === correcteDoel) correct++;
+    });
+
+    fb.style.display = 'block';
+    if (correct === totaal) {
+      fb.className = 'feedback-box goed';
+      fb.textContent = '✅ Alle koppelingen zijn correct! Uitstekend.';
+      btn.disabled = true;
+      markeerAfgerond(opdrachtId);
+    } else {
+      fb.className = 'feedback-box hint';
+      fb.innerHTML = '💡 ' + correct + ' van de ' + totaal + ' koppelingen zijn correct. Klik op een blauwe tag om een koppeling te verwijderen en opnieuw te proberen.';
+      if (reveal) reveal.style.display = 'block';
+      markeerAfgerond(opdrachtId);
+      btn.disabled = true;
+    }
+  });
+}
+
+// ── VERGELIJKINGSTABEL ─────────────────────────────
+function initVergelijkTabel(fbId, revealId, saId, opdrachtId) {
+  const fb = document.getElementById(fbId);
+  const reveal = document.getElementById(revealId);
+  const sa = document.getElementById(saId);
+  const btn = document.getElementById('btn-check-tabel');
+  if (!btn) return;
+  totalOpdrachten++;
+
+  const velden = ['tabel-1a','tabel-1b','tabel-2a','tabel-2b','tabel-3a','tabel-3b'];
+  velden.forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const opgeslagen = laden('ant_' + id, '');
+    if (opgeslagen) el.value = opgeslagen;
+    el.addEventListener('input', () => opslaan('ant_' + id, el.value));
+  });
+
+  if (afgerondOpdrachten.has(opdrachtId)) {
+    if (reveal) reveal.style.display = 'block';
+    if (sa) sa.style.display = 'flex';
+    fb.style.display = 'block';
+    fb.className = 'feedback-box goed';
+    fb.textContent = '✅ Je hebt de tabel al ingevuld.';
+    return;
+  }
+
+  btn.addEventListener('click', function() {
+    const ingevuld = velden.filter(id => {
+      const el = document.getElementById(id);
+      return el && el.value.trim().length > 3;
+    }).length;
+    if (ingevuld < 4) {
+      fb.style.display = 'block';
+      fb.className = 'feedback-box hint';
+      fb.textContent = '💡 Vul eerst minimaal 4 van de 6 vakjes in voordat je controleert.';
+      return;
+    }
+    fb.style.display = 'block';
+    fb.className = 'feedback-box info';
+    fb.textContent = '📖 Goed bezig! Vergelijk jouw antwoorden met de voorbeelden hieronder.';
+    if (reveal) reveal.style.display = 'block';
+    if (sa) sa.style.display = 'flex';
+    btn.disabled = true;
+  });
+
+  if (sa) {
+    sa.querySelectorAll('button[data-sa]').forEach(saBtn => {
+      saBtn.addEventListener('click', function() {
+        markeerAfgerond(opdrachtId);
+        opslaan('ant_' + opdrachtId + '_sa', saBtn.dataset.val);
+        sa.querySelectorAll('button').forEach(b => b.disabled = true);
+        fb.className = 'feedback-box goed';
+        fb.textContent = parseInt(saBtn.dataset.val) === 1 ? '✅ Goed gedaan!' : '📝 Lees de voorbeelden nog eens goed door.';
+      });
+    });
+  }
+}
+
+// ── RESET TAB ──────────────────────────────────────
+function resetTab(tabNr) {
+  const section = document.getElementById('section-' + tabNr);
+  if (!section) return;
+
+  // Reset MC opties
+  section.querySelectorAll('.mc-opties').forEach(container => {
+    container.querySelectorAll('.mc-optie').forEach(o => {
+      o.disabled = false;
+      o.classList.remove('correct', 'fout');
+    });
+  });
+
+  // Reset feedback boxes
+  section.querySelectorAll('.feedback-box').forEach(fb => {
+    fb.style.display = 'none';
+    fb.textContent = '';
+  });
+
+  // Reset reveals
+  section.querySelectorAll('.antwoord-reveal').forEach(r => r.style.display = 'none');
+
+  // Reset self-assess
+  section.querySelectorAll('.self-assess').forEach(sa => {
+    sa.style.display = 'none';
+    sa.querySelectorAll('button').forEach(b => b.disabled = false);
+  });
+
+  // Reset drag items
+  section.querySelectorAll('.drag-item').forEach(item => {
+    item.classList.remove('correct-item', 'fout-item');
+  });
+
+  // Reset koppel
+  section.querySelectorAll('.koppel-doel').forEach(el => {
+    el.classList.remove('heeft-koppeling','correct-doel','fout-doel');
+  });
+  section.querySelectorAll('.koppeling-tags').forEach(el => el.innerHTML = '');
+  section.querySelectorAll('.koppel-bron').forEach(el => {
+    el.classList.remove('geselecteerd','gekoppeld');
+  });
+
+  // Reset check knoppen
+  section.querySelectorAll('.btn[id^="btn-check"]').forEach(btn => {
+    btn.disabled = false;
+  });
+
+  // Reset tekstgebieden en tellers
+  section.querySelectorAll('textarea').forEach(ta => {
+    ta.value = '';
+  });
+  section.querySelectorAll('.woorden-teller').forEach(tel => {
+    tel.textContent = '0 woorden';
+    tel.className = 'woorden-teller';
+  });
+
+  // Re-disable open vraag knoppen (need ≥ minwoorden)
+  section.querySelectorAll('.btn[id^="btn-check"]').forEach(btn => {
+    if (btn.closest('.opdracht-blok') && btn.closest('.opdracht-blok').querySelector('textarea')) {
+      btn.disabled = true;
+    }
+  });
+
+  // Verwijder uit afgerond
+  const sectionOpdrachten = section.querySelectorAll('[data-opd-id]');
+  sectionOpdrachten.forEach(el => {
+    const id = el.dataset.opdId;
+    afgerondOpdrachten.delete(id);
+    try { localStorage.removeItem(STORAGE_PREFIX + 'ant_' + id); } catch(e) {}
+    try { localStorage.removeItem(STORAGE_PREFIX + 'pog_' + id); } catch(e) {}
+  });
+
+  // Reset drag-knop voor sectie 1
+  const dragBtn = document.getElementById('btn-check-drag');
+  if (dragBtn && tabNr === 1) { dragBtn.disabled = false; }
+
+  const koppelBtn = document.getElementById('btn-check-koppel');
+  if (koppelBtn && tabNr === 1) { koppelBtn.disabled = false; }
+
+  try { localStorage.removeItem(STORAGE_PREFIX + 'koppel_koppel1'); } catch(e) {}
+
+  updateProgress();
+}
+
+// ── KAART ──────────────────────────────────────────
+function initKaart() {
+  const mapEl = document.getElementById('kaart-europe');
+  if (!mapEl) return;
+  window.kaartEurope = L.map('kaart-europe').setView([52, 13], 4);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap',
+    maxZoom: 12
+  }).addTo(window.kaartEurope);
+
+  const markers = [
+    { lat: 60.5, lng: 6.5, naam: '🇳🇴 Noorwegen — Fjorden', tekst: '<strong>Fysische dimensie</strong><br>De Noorse fjorden zijn diepe zeearms die door gletsjers zijn uitgesleten. Ze maken Noorwegen uniek en zijn een topbestemming voor natuur-reizigers. 📍 Bergenskust.' },
+    { lat: 47.4, lng: 8.5, naam: '🇨🇭 Zwitserland — Zonder kust', tekst: '<strong>Fysische + Economische dimensie</strong><br>Zwitserland heeft geen zeekust (landlocked), maar is toch een van de rijkste landen ter wereld. Bewijs dat ligging niet alles bepaalt!' },
+    { lat: 48.2, lng: 16.4, naam: '🇦🇹 Wenen — Hoofdstad Europa', tekst: '<strong>Politieke + Sociaal-culturele dimensie</strong><br>Wenen is zetel van meerdere internationale organisaties (VN, OPEC). Cultureel is het de stad van Mozart, Beethoven en de Weense opera.' },
+    { lat: 37.9, lng: 23.7, naam: '🇬🇷 Athene — Democratie', tekst: '<strong>Politieke + Culturele dimensie</strong><br>Athene is de bakermat van de democratie. De Akropolis staat symbool voor de Griekse beschaving die het fundament legde van de Europese cultuur.' },
+    { lat: 51.9, lng: 4.5, naam: '🇳🇱 Rotterdam — Haven', tekst: '<strong>Economische + Fysische dimensie</strong><br>De haven van Rotterdam is de grootste van Europa. Dankzij de ligging aan de Rijnmonding is het een logistisch knooppunt voor de hele EU.' },
+    { lat: 55.7, lng: 12.6, naam: '🇩🇰 Kopenhagen — Welzijn', tekst: '<strong>Demografische + Sociaal-culturele dimensie</strong><br>Kopenhagen scoort jaar na jaar als een van de gelukkigste steden. Lage ongelijkheid, goede gezondheidszorg en een fietscultuur kenmerken de sociaal-culturele dimensie.' },
+    { lat: 38.7, lng: -9.1, naam: '🇵🇹 Lissabon — Fado & Zee', tekst: '<strong>Sociaal-culturele + Fysische dimensie</strong><br>Lissabon ligt aan de monding van de Taag, de zee was altijd dichtbij. De fado-muziek druppelt van nostalgie naar het zeevaarder-verleden. UNESCO-erfgoed!' },
+    { lat: 52.5, lng: 13.4, naam: '🇩🇪 Berlijn — Demografie', tekst: '<strong>Demografische + Politieke dimensie</strong><br>Berlijn is sterk gegroeid door immigratie. Ca. 35% van de inwoners heeft een migratieachtergrond. De muur viel in 1989 — en bepaalt tot op heden de politieke identiteit.' },
+  ];
+
+  markers.forEach(m => {
+    L.marker([m.lat, m.lng])
+      .addTo(window.kaartEurope)
+      .bindPopup('<strong>' + m.naam + '</strong><br><br>' + m.tekst, { maxWidth: 260 });
+  });
+}
+
+// ── CHARTS ─────────────────────────────────────────
+function initCharts() {
+  const bnpEl = document.getElementById('chart-bnp');
+  if (bnpEl) {
+    new Chart(bnpEl, {
+      type: 'bar',
+      data: {
+        labels: ['🇳🇴 Noorwegen', '🇨🇭 Zwitserland', '🇩🇰 Denemarken', '🇸🇪 Zweden', '🇳🇱 Nederland', '🇧🇪 België', '🇫🇷 Frankrijk', '🇵🇹 Portugal', '🇵🇱 Polen'],
+        datasets: [{
+          label: 'BNP per hoofd (x €1.000, 2023)',
+          data: [82, 78, 61, 54, 52, 47, 40, 24, 17],
+          backgroundColor: [
+            '#2d6a9f','#2d6a9f','#4a8fc4','#4a8fc4','#7bbfcc',
+            '#7bbfcc','#b8dde8','#d4a843','#e88a4a'
+          ],
+          borderRadius: 6,
+          borderWidth: 0
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          y: { beginAtZero: true, ticks: { callback: v => '€' + v + 'k', font: { family: 'Source Serif 4' } }, grid: { color: '#f0ebe0' } },
+          x: { ticks: { font: { family: 'Source Serif 4', size: 11 } }, grid: { display: false } }
+        }
+      }
+    });
+  }
+
+  const bevEl = document.getElementById('chart-bevolking');
+  if (bevEl) {
+    new Chart(bevEl, {
+      type: 'bar',
+      data: {
+        labels: ['🇲🇹 Malta', '🇮🇪 Ierland', '🇸🇪 Zweden', '🇳🇱 Nederland', '🇫🇷 Frankrijk', '🇩🇪 Duitsland', '🇮🇹 Italië', '🇵🇹 Portugal', '🇧🇬 Bulgarije'],
+        datasets: [{
+          label: 'Bevolkingsgroei 2000–2023 (%)',
+          data: [38, 34, 16, 12, 9, 3, -3, -4, -15],
+          backgroundColor: (ctx) => ctx.raw >= 0 ? '#4a8fc4' : '#c4634a',
+          borderRadius: 6,
+          borderWidth: 0
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          y: { ticks: { callback: v => v + '%', font: { family: 'Source Serif 4' } }, grid: { color: '#f0ebe0' } },
+          x: { ticks: { font: { family: 'Source Serif 4', size: 11 } }, grid: { display: false } }
+        }
+      }
+    });
+  }
+}
+
+// ── VOORTGANG LADEN ────────────────────────────────
+function laadVoortgang() {
+  const opgeslagenAfgerond = laden('afgerond', []);
+  opgeslagenAfgerond.forEach(id => afgerondOpdrachten.add(id));
+  const tabNr = laden('huidigTab', 0);
+  if (tabNr > 0 && tabNr < 6) gaNaarTab(tabNr);
+  else updateTabCounter(0);
+}
+
+// ── INIT ───────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', function() {
+  initKaart();
+  initCharts();
+
+  // Tabs
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      gaNaarTab(parseInt(btn.dataset.tab));
+    });
+  });
+
+  // Wis voortgang knop
+  document.getElementById('btn-wis-voortgang').addEventListener('click', function() {
+    if (confirm('Weet je zeker dat je alle voortgang wilt wissen? Dit kan niet ongedaan worden gemaakt.')) {
+      wisVoortgang();
+      afgerondOpdrachten.clear();
+      pogingen = {};
+      antwoorden = {};
+      location.reload();
+    }
+  });
+
+  // MC opdrachten
+  initMC('mc-intro-1', 'fb-intro-1', 'reveal-intro-1', 'mc1');
+  initMC('mc-kaart-1', 'fb-kaart-1', 'reveal-kaart-1', 'mc2');
+  initMC('mc-kaart-2', 'fb-kaart-2', 'reveal-kaart-2', 'mc3');
+  initMC('mc-data-1', 'fb-data-1', 'reveal-data-1', 'mc4');
+  initMC('mc-data-2', 'fb-data-2', 'reveal-data-2', 'mc5');
+  initMC('mc-scenario-1', 'fb-scenario-1', 'reveal-scenario-1', 'mc6');
+  initMC('mc-scenario-2', 'fb-scenario-2', 'reveal-scenario-2', 'mc7');
+
+  // Open vragen
+  initOpenVraag('open-intro-2', 'wt-intro-2', 'btn-check-intro-2', 'fb-intro-2', 'reveal-intro-2', 'sa-intro-2', 'open1', 20);
+  initOpenVraag('open-dim-5', 'wt-dim-5', 'btn-check-dim-5', 'fb-dim-5', 'reveal-dim-5', 'sa-dim-5', 'open2', 20);
+  initOpenVraag('open-kaart-7', 'wt-kaart-7', 'btn-check-kaart-7', 'fb-kaart-7', 'reveal-kaart-7', 'sa-kaart-7', 'open3', 25);
+  initOpenVraag('open-data-10', 'wt-data-10', 'btn-check-data-10', 'fb-data-10', 'reveal-data-10', 'sa-data-10', 'open4', 30);
+  initOpenVraag('open-scenario-15', 'wt-scenario-15', 'btn-check-scenario-15', 'fb-scenario-15', 'reveal-scenario-15', 'sa-scenario-15', 'open5', 35);
+  initOpenVraag('open-scenario-16', 'wt-scenario-16', 'btn-check-scenario-16', 'fb-scenario-16', 'reveal-scenario-16', 'sa-scenario-16', 'open6', 20);
+  initOpenVraag('open-reflectie-1', 'wt-reflectie-1', 'btn-check-reflectie-1', 'fb-reflectie-1', 'reveal-reflectie-1', 'sa-reflectie-1', 'open7', 20);
+  initOpenVraag('open-reflectie-2', 'wt-reflectie-2', 'btn-check-reflectie-2', 'fb-reflectie-2', 'reveal-reflectie-2', 'sa-reflectie-2', 'open8', 20);
+  initOpenVraag('open-reflectie-3', 'wt-reflectie-3', 'btn-check-reflectie-3', 'fb-reflectie-3', 'reveal-reflectie-3', 'sa-reflectie-3', 'open9', 20);
+
+  // Drag & drop
+  const correctVolgordeDrag = ['fysisch', 'economisch', 'politiek', 'sociaal', 'demografisch'];
+  initDrag('draglist-dimensies', 'fb-drag', 'reveal-drag', correctVolgordeDrag, 'drag1');
+
+  // Koppel
+  initKoppel('fb-koppel', 'reveal-koppel', 'koppel1');
+
+  // Vergelijkingstabel
+  initVergelijkTabel('fb-tabel', 'reveal-tabel', 'sa-tabel', 'tabel1');
+
+  // Markeer data-opd-id elementen voor reset
+  // (We koppelen de opdrachtId's aan wrapper-elementen voor de reset-functie)
+  const opdrachtMap = {
+    'section-0': ['mc1', 'open1'],
+    'section-1': ['open2', 'drag1', 'koppel1'],
+    'section-2': ['mc2', 'open3', 'mc3'],
+    'section-3': ['mc4', 'open4', 'mc5', 'tabel1'],
+    'section-4': ['mc6', 'mc7', 'open5', 'open6'],
+    'section-5': ['open7', 'open8', 'open9']
+  };
+  Object.entries(opdrachtMap).forEach(([sectionId, ids]) => {
+    const section = document.getElementById(sectionId);
+    if (!section) return;
+    const opdrachten = section.querySelectorAll('.opdracht-blok');
+    opdrachten.forEach((blok, idx) => {
+      if (ids[idx]) blok.setAttribute('data-opd-id', ids[idx]);
+    });
+  });
+
+  laadVoortgang();
+  updateProgress();
+  updateTabCounter(huidigTab);
+});
+</script>
+</body>
+</html>
