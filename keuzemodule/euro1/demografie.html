@@ -1,0 +1,1575 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Demografie van Europa — HAVO 1</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+:root{
+  --bg:#fdf8ec;
+  --bg-soft:#f7eed3;
+  --cream:#fffdf6;
+  --sun:#e8b94a;
+  --sun-deep:#c8901f;
+  --sun-light:#f3d57a;
+  --earth:#7a5a2e;
+  --earth-soft:#a07a44;
+  --olive:#8a8a3a;
+  --sage:#b7b87a;
+  --ink:#3b2d1a;
+  --ink-soft:#6b5a3e;
+  --ok:#6a8a3a;
+  --ok-bg:#e8efce;
+  --err:#b4632b;
+  --err-bg:#f6e3cf;
+  --line:#e2d4a8;
+  --shadow:0 2px 12px rgba(120,90,30,0.08);
+  --radius:14px;
+  --radius-sm:8px;
+  --pad:18px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font-family:'Nunito',sans-serif;line-height:1.6;font-size:16px}
+h1,h2,h3,h4{font-family:'Nunito',sans-serif;color:var(--earth);margin:0 0 12px}
+h1{font-size:1.8rem;font-weight:800}
+h2{font-size:1.5rem;font-weight:800}
+h3{font-size:1.2rem;font-weight:700;color:var(--sun-deep)}
+h4{font-size:1.05rem;font-weight:700;color:var(--earth)}
+p{margin:0 0 12px}
+
+/* Header */
+.header{
+  background:linear-gradient(135deg,var(--sun-light) 0%,var(--sun) 100%);
+  padding:28px 24px 22px;
+  border-bottom:3px solid var(--sun-deep);
+}
+.header-inner{max-width:1100px;margin:0 auto}
+.header h1{color:#fff;text-shadow:1px 1px 2px rgba(120,80,10,0.3);margin-bottom:4px}
+.header .sub{color:#fff;opacity:0.95;font-weight:600}
+.header .meta{margin-top:8px;font-size:0.9rem;color:#fff;opacity:0.85}
+
+/* Sticky bar */
+.sticky{
+  position:sticky;top:0;z-index:1000;
+  background:var(--cream);
+  border-bottom:2px solid var(--line);
+  box-shadow:var(--shadow);
+}
+.progress-wrap{max-width:1100px;margin:0 auto;padding:12px 24px}
+.progress-row{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.progress-label{font-weight:700;color:var(--earth);font-size:0.95rem;min-width:140px}
+.progress-bar{flex:1;min-width:200px;height:14px;background:var(--bg-soft);border-radius:99px;overflow:hidden;border:1px solid var(--line)}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--sun) 0%,var(--sun-deep) 100%);width:0%;transition:width 0.4s ease;border-radius:99px}
+.progress-pct{font-weight:800;color:var(--sun-deep);min-width:50px;text-align:right}
+.btn-clear{background:transparent;border:1.5px solid var(--earth-soft);color:var(--earth);padding:6px 12px;border-radius:99px;cursor:pointer;font-family:inherit;font-weight:600;font-size:0.85rem}
+.btn-clear:hover{background:var(--bg-soft)}
+
+/* Tabs */
+.tabs-container{max-width:1100px;margin:0 auto;padding:0 24px 8px}
+.tabs-counter{font-size:0.85rem;color:var(--ink-soft);font-weight:600;margin-bottom:6px}
+.tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:6px;scrollbar-width:thin}
+.tab{
+  flex-shrink:0;
+  padding:10px 16px;
+  background:var(--bg-soft);
+  border:2px solid transparent;
+  border-radius:99px;
+  cursor:pointer;
+  font-family:inherit;
+  font-weight:700;
+  font-size:0.88rem;
+  color:var(--ink-soft);
+  white-space:nowrap;
+  transition:all 0.2s;
+}
+.tab:hover{background:var(--sun-light)}
+.tab.active{background:var(--sun);color:#fff;border-color:var(--sun-deep)}
+.tab.done::before{content:"✓ ";color:var(--ok)}
+.tab.active.done::before{color:#fff}
+
+/* Main */
+main{max-width:1100px;margin:0 auto;padding:24px}
+.section{display:none;animation:fade 0.3s ease}
+.section.active{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+.card{
+  background:var(--cream);
+  border:1.5px solid var(--line);
+  border-radius:var(--radius);
+  padding:24px;
+  margin-bottom:20px;
+  box-shadow:var(--shadow);
+}
+.card.explain{border-left:5px solid var(--sun)}
+.card.task{border-left:5px solid var(--olive)}
+.card.realworld{border-left:5px solid var(--earth-soft);background:linear-gradient(135deg,#fffdf6 0%,#f7eed3 100%)}
+
+.intro-emoji{font-size:2.2rem;margin-bottom:6px;display:block}
+
+/* Visual flows */
+.flow{
+  display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:8px;
+  background:var(--bg-soft);border-radius:var(--radius);padding:18px;margin:14px 0;
+  border:1.5px dashed var(--sun);
+}
+.flow-item{
+  background:var(--cream);padding:10px 14px;border-radius:var(--radius-sm);
+  font-weight:700;color:var(--earth);border:1.5px solid var(--line);
+}
+.flow-arrow{font-size:1.4rem;color:var(--sun-deep);font-weight:800}
+
+/* Info grid */
+.info-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin:14px 0}
+.info-block{
+  background:linear-gradient(135deg,var(--cream) 0%,var(--bg-soft) 100%);
+  border:1.5px solid var(--line);
+  border-radius:var(--radius);
+  padding:16px;
+}
+.info-block .ico{font-size:1.8rem;display:block;margin-bottom:6px}
+.info-block h4{margin-bottom:6px;color:var(--sun-deep)}
+.info-block p{font-size:0.92rem;margin:0}
+
+/* Compare table */
+.compare-table{
+  width:100%;border-collapse:separate;border-spacing:0;
+  background:var(--cream);border-radius:var(--radius);overflow:hidden;
+  border:1.5px solid var(--line);margin:14px 0;
+}
+.compare-table th,.compare-table td{padding:12px 14px;text-align:left;border-bottom:1px solid var(--line)}
+.compare-table th{background:var(--sun-light);color:var(--earth);font-weight:800}
+.compare-table tr:last-child td{border-bottom:none}
+.compare-table tr:nth-child(even) td{background:var(--bg-soft)}
+
+/* Map */
+.map{height:420px;border-radius:var(--radius);border:2px solid var(--line);margin:12px 0}
+
+/* Chart */
+.chart-wrap{background:var(--cream);border-radius:var(--radius);padding:16px;border:1.5px solid var(--line);margin:12px 0}
+
+/* Quiz */
+.q{margin-bottom:18px}
+.q-title{font-weight:700;color:var(--ink);margin-bottom:10px}
+.options{display:flex;flex-direction:column;gap:8px}
+.opt{
+  background:var(--bg-soft);
+  border:2px solid var(--line);
+  padding:12px 14px;
+  border-radius:var(--radius-sm);
+  cursor:pointer;
+  font-family:inherit;
+  font-size:0.95rem;
+  text-align:left;
+  color:var(--ink);
+  transition:all 0.2s;
+}
+.opt:hover:not(:disabled){background:var(--sun-light);border-color:var(--sun)}
+.opt.correct{background:var(--ok-bg);border-color:var(--ok);color:var(--ink)}
+.opt.wrong{background:var(--err-bg);border-color:var(--err)}
+.opt:disabled{cursor:not-allowed;opacity:0.85}
+.feedback{margin-top:10px;padding:10px 14px;border-radius:var(--radius-sm);font-size:0.92rem;display:none}
+.feedback.show{display:block}
+.feedback.hint{background:var(--sun-light);border-left:4px solid var(--sun-deep);color:var(--earth)}
+.feedback.ok{background:var(--ok-bg);border-left:4px solid var(--ok);color:#3a4a1a}
+.feedback.err{background:var(--err-bg);border-left:4px solid var(--err);color:#5a2a0a}
+
+/* Open question */
+textarea{
+  width:100%;min-height:90px;padding:12px;border:2px solid var(--line);
+  border-radius:var(--radius-sm);font-family:inherit;font-size:0.95rem;
+  background:var(--cream);resize:vertical;color:var(--ink);
+}
+textarea:focus{outline:none;border-color:var(--sun)}
+.word-count{font-size:0.82rem;color:var(--ink-soft);margin-top:4px}
+.word-count.ok{color:var(--ok);font-weight:700}
+.btn{
+  background:var(--sun);color:#fff;border:none;padding:9px 16px;
+  border-radius:99px;cursor:pointer;font-family:inherit;font-weight:700;
+  font-size:0.9rem;margin-top:8px;margin-right:6px;transition:all 0.2s;
+}
+.btn:hover:not(:disabled){background:var(--sun-deep)}
+.btn:disabled{opacity:0.5;cursor:not-allowed}
+.btn.secondary{background:var(--bg-soft);color:var(--earth);border:1.5px solid var(--earth-soft)}
+.btn.secondary:hover:not(:disabled){background:var(--sun-light)}
+.btn.ok{background:var(--ok)}
+.btn.err{background:var(--err)}
+.example-answer{
+  margin-top:10px;padding:12px 14px;background:var(--bg-soft);
+  border-left:4px solid var(--olive);border-radius:var(--radius-sm);
+  font-size:0.92rem;display:none;
+}
+.example-answer.show{display:block}
+.example-answer .lbl{font-weight:800;color:var(--olive);font-size:0.82rem;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px}
+.self-grade{margin-top:8px;display:none}
+.self-grade.show{display:flex;gap:8px;align-items:center}
+
+/* Drag & drop */
+.drag-list{
+  list-style:none;padding:0;margin:10px 0;
+  background:var(--bg-soft);border-radius:var(--radius);padding:10px;
+  border:1.5px dashed var(--sun);
+}
+.drag-item{
+  background:var(--cream);padding:12px 14px;margin:6px 0;border-radius:var(--radius-sm);
+  border:2px solid var(--line);cursor:grab;font-weight:600;
+  display:flex;align-items:center;gap:10px;
+}
+.drag-item:active{cursor:grabbing}
+.drag-item.dragging{opacity:0.4}
+.drag-item.over{border-color:var(--sun);background:var(--sun-light)}
+.drag-item.correct{background:var(--ok-bg);border-color:var(--ok)}
+.drag-item.incorrect{background:var(--err-bg);border-color:var(--err)}
+.drag-handle{color:var(--earth-soft);font-size:1.2rem}
+
+/* Match */
+.match-wrap{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:12px 0}
+@media (max-width:680px){.match-wrap{grid-template-columns:1fr}}
+.match-col h4{font-size:0.9rem;text-transform:uppercase;letter-spacing:0.5px;color:var(--ink-soft)}
+.match-item{
+  background:var(--bg-soft);padding:11px 14px;margin-bottom:8px;border-radius:var(--radius-sm);
+  border:2px solid var(--line);cursor:pointer;font-size:0.92rem;
+  transition:all 0.2s;
+}
+.match-item:hover{border-color:var(--sun)}
+.match-item.selected{background:var(--sun);color:#fff;border-color:var(--sun-deep)}
+.match-item[data-paired]{border-style:dashed}
+.match-item.correct{background:var(--ok-bg);border-color:var(--ok)}
+.match-item.wrong{background:var(--err-bg);border-color:var(--err)}
+.pair-tag{display:inline-block;font-size:0.7rem;background:var(--earth);color:#fff;padding:2px 7px;border-radius:99px;margin-left:6px;font-weight:800}
+
+/* Nav buttons */
+.nav-buttons{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:24px;padding-top:16px;border-top:1.5px dashed var(--line)}
+.nav-buttons .btn{margin:0}
+.btn-reset-section{background:transparent;color:var(--ink-soft);border:1.5px solid var(--line);font-size:0.82rem;padding:7px 12px}
+.btn-reset-section:hover{background:var(--bg-soft)}
+
+/* Reflection */
+.goals-list{list-style:none;padding:0;margin:14px 0}
+.goals-list li{padding:10px 14px;background:var(--bg-soft);margin-bottom:8px;border-radius:var(--radius-sm);border-left:4px solid var(--sun);font-weight:600}
+.goals-list li::before{content:"🎯 ";margin-right:6px}
+.score-big{
+  font-size:3rem;font-weight:800;color:var(--sun-deep);text-align:center;
+  background:linear-gradient(135deg,var(--sun-light) 0%,var(--sun) 100%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  margin:10px 0;
+}
+
+/* Real-world */
+.realworld .ico{font-size:1.6rem;margin-right:6px}
+.realworld em{font-style:normal;background:var(--sun-light);padding:2px 6px;border-radius:4px;font-weight:700}
+
+/* Misc */
+.tag{display:inline-block;background:var(--sun-light);color:var(--earth);padding:3px 10px;border-radius:99px;font-size:0.78rem;font-weight:700;margin-right:4px}
+.locked-msg{font-size:0.85rem;color:var(--ink-soft);font-style:italic;margin-top:6px}
+.attempts{font-size:0.8rem;color:var(--ink-soft);margin-top:4px}
+
+@media(max-width:768px){
+  .header h1{font-size:1.4rem}
+  main{padding:16px}
+  .card{padding:18px}
+  .progress-label{min-width:auto;font-size:0.85rem}
+}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-inner">
+    <h1>🌍 Demografie van Europa</h1>
+    <div class="sub">Bevolking, vergrijzing en migratie in een werelddeel in beweging</div>
+    <div class="meta">HAVO 1 · Aardrijkskunde · ±60 minuten</div>
+  </div>
+</header>
+
+<div class="sticky">
+  <div class="progress-wrap">
+    <div class="progress-row">
+      <span class="progress-label">📊 Jouw voortgang</span>
+      <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+      <span class="progress-pct" id="progressPct">0%</span>
+      <button class="btn-clear" id="btnClearAll">Voortgang wissen</button>
+    </div>
+  </div>
+  <div class="tabs-container">
+    <div class="tabs-counter" id="tabsCounter">Onderdeel 1 van 9</div>
+    <div class="tabs" id="tabs"></div>
+  </div>
+</div>
+
+<main>
+
+<!-- ============ SECTIE 1: WAT IS DEMOGRAFIE ============ -->
+<section class="section" data-section="0">
+  <div class="card explain">
+    <span class="intro-emoji">🌍</span>
+    <h2>1. Wat is demografie?</h2>
+    <p><strong>Demografie</strong> is de wetenschappelijke studie van de bevolking. Demografen — de mensen die dit onderzoeken — willen antwoord op vragen als: hoeveel mensen wonen er ergens? Groeit of krimpt de bevolking? Hoe oud worden mensen gemiddeld? En verhuizen er veel mensen van het ene land naar het andere? Door deze vragen te beantwoorden krijgen we een beeld van hoe een land of werelddeel zich in de toekomst zal ontwikkelen.</p>
+    <p>Europa telt ongeveer <strong>750 miljoen inwoners</strong>. Dat lijkt veel, maar in vergelijking met andere werelddelen groeit Europa juist héél langzaam. In sommige Europese landen krimpt de bevolking zelfs: er overlijden meer mensen dan er geboren worden. In Afrika daarentegen verdubbelt de bevolking soms binnen enkele tientallen jaren. En Azië, met landen als India en China, telt al meer dan vier miljard inwoners. Europa is dus een werelddeel met een heel eigen, kalme bevolkingsontwikkeling.</p>
+    <p>Demografen kijken naar drie grote krachten die samen bepalen hoe een bevolking verandert: het <strong>geboortecijfer</strong> (hoeveel kinderen er worden geboren), het <strong>sterftecijfer</strong> (hoeveel mensen overlijden) en de <strong>migratie</strong> (hoeveel mensen het land in en uit bewegen). Door deze drie cijfers samen te bekijken, kunnen ze voorspellen of een land in de toekomst meer of minder inwoners zal hebben.</p>
+
+    <div class="flow">
+      <div class="flow-item">👶 Geboorten</div>
+      <div class="flow-arrow">+</div>
+      <div class="flow-item">✈️ Immigratie</div>
+      <div class="flow-arrow">−</div>
+      <div class="flow-item">⚰️ Sterfte</div>
+      <div class="flow-arrow">−</div>
+      <div class="flow-item">🛫 Emigratie</div>
+      <div class="flow-arrow">=</div>
+      <div class="flow-item">📈 Bevolkingsgroei</div>
+    </div>
+
+    <div class="info-grid">
+      <div class="info-block"><span class="ico">🌍</span><h4>Europa</h4><p>±750 miljoen inwoners. Groeit nauwelijks, in sommige landen krimpt de bevolking.</p></div>
+      <div class="info-block"><span class="ico">🌍</span><h4>Afrika</h4><p>±1,4 miljard inwoners. Bevolking verdubbelt in enkele decennia, jongste werelddeel.</p></div>
+      <div class="info-block"><span class="ico">🌏</span><h4>Azië</h4><p>±4,7 miljard inwoners. Het grootste werelddeel, groeit nog steeds maar steeds langzamer.</p></div>
+    </div>
+  </div>
+
+  <div class="card realworld">
+    <h3>🧭 In jouw eigen wereld</h3>
+    <p>Stel je voor: jij bent op vakantie in <em>Spanje</em>. Op het terras zie je vooral oudere mensen, weinig kinderen. Maar als je een paar weken later in <em>Marokko</em> rondloopt, zijn er overal kleuters en tieners op straat. <strong>Dat verschil is demografie in het echt.</strong> Het is geen toeval — het zijn cijfers die je kunt zien in het straatbeeld.</p>
+    <p><strong>Vraag:</strong> Denk eens aan jouw eigen wijk of dorp. Zie je daar meer kinderen, jongeren, volwassenen of ouderen op straat? Wat zegt dat over de bevolking waar jij woont?</p>
+  </div>
+
+  <div class="card task">
+    <h3>📝 Opdrachten</h3>
+
+    <div class="q" data-q="s0q1" data-type="mc" data-correct="b" data-hint="Denk aan: waar groeit de bevolking heel snel en waar nauwelijks?">
+      <div class="q-title">1. Wat is het belangrijkste verschil tussen de bevolkingsontwikkeling van Europa en Afrika?</div>
+      <div class="options">
+        <button class="opt" data-val="a">Europa heeft veel meer inwoners dan Afrika.</button>
+        <button class="opt" data-val="b">Afrika groeit heel snel, terwijl Europa nauwelijks groeit of zelfs krimpt.</button>
+        <button class="opt" data-val="c">In Afrika wonen vooral ouderen, in Europa vooral jongeren.</button>
+        <button class="opt" data-val="d">Europa en Afrika hebben precies dezelfde bevolkingsontwikkeling.</button>
+      </div>
+      <div class="feedback"></div>
+      <div class="attempts"></div>
+    </div>
+
+    <div class="q" data-q="s0q2" data-type="mc" data-correct="c" data-hint="Demografen kijken niet alleen naar wie er nu zijn, maar ook naar bewegingen.">
+      <div class="q-title">2. Welke drie krachten bepalen samen hoe een bevolking verandert?</div>
+      <div class="options">
+        <button class="opt" data-val="a">Klimaat, economie en cultuur</button>
+        <button class="opt" data-val="b">Werkgelegenheid, onderwijs en gezondheid</button>
+        <button class="opt" data-val="c">Geboorten, sterfte en migratie</button>
+        <button class="opt" data-val="d">Geld, ruimte en politiek</button>
+      </div>
+      <div class="feedback"></div>
+      <div class="attempts"></div>
+    </div>
+
+    <div class="q" data-q="s0q3" data-type="open" data-min="20">
+      <div class="q-title">3. <strong>Schrijfopdracht:</strong> Leg in je eigen woorden uit wat demografie is en noem twee verschillen tussen de bevolkingsontwikkeling van Europa en die van Afrika of Azië. (minstens 20 woorden)</div>
+      <textarea placeholder="Schrijf hier jouw antwoord..."></textarea>
+      <div class="word-count">0 woorden</div>
+      <button class="btn show-example" disabled>Toon voorbeeldantwoord</button>
+      <div class="example-answer">
+        <div class="lbl">Voorbeeldantwoord</div>
+        <p>Demografie is de studie van de bevolking. Demografen onderzoeken hoeveel mensen ergens wonen, of de bevolking groeit of krimpt en hoeveel mensen verhuizen. Een verschil tussen Europa en Afrika is dat Europa nauwelijks groeit of zelfs krimpt, terwijl de bevolking in Afrika juist heel snel groeit. Een tweede verschil is dat in Europa de bevolking gemiddeld veel ouder is dan in Afrika, waar juist veel kinderen en jongeren wonen.</p>
+      </div>
+      <div class="self-grade">
+        <span style="font-size:0.88rem;color:var(--ink-soft)">Vergelijk en beoordeel zelf:</span>
+        <button class="btn ok grade" data-grade="ok">Goed ✓</button>
+        <button class="btn err grade" data-grade="err">Fout ✗</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="nav-buttons">
+    <button class="btn secondary nav-prev" disabled>← Vorige</button>
+    <button class="btn-reset-section">↻ Reset dit onderdeel</button>
+    <button class="btn nav-next">Volgende →</button>
+  </div>
+</section>
+
+<!-- ============ SECTIE 2: BEVOLKINGSDICHTHEID ============ -->
+<section class="section" data-section="1">
+  <div class="card explain">
+    <span class="intro-emoji">🏘️</span>
+    <h2>2. Bevolkingsdichtheid: vol en leeg</h2>
+    <p>De <strong>bevolkingsdichtheid</strong> is het aantal mensen dat gemiddeld op één vierkante kilometer woont. Reken het maar uit: een vierkante kilometer is 1000 bij 1000 meter — ongeveer zo groot als een flink stadspark of een kleine wijk. Als daar 500 mensen wonen, is het al best druk. In Europa verschilt de bevolkingsdichtheid enorm van land tot land.</p>
+    <p><strong>Nederland</strong> is een van de dichtstbevolkte landen ter wereld: meer dan 500 mensen per km². In <strong>Finland of Noorwegen</strong> wonen er minder dan 20 mensen per km². Dat verschil is enorm. Het komt door verschillende oorzaken: het klimaat (in Noord-Scandinavië is het koud en het groeiseizoen is kort), de geschiedenis (waar lang handel werd gedreven, ontstonden grote steden), en de economie (waar werk is, trekken mensen naartoe).</p>
+    <p>In Europa loopt een brede zone met heel veel inwoners van Londen, via België en Nederland, het Ruhrgebied in Duitsland, naar Noord-Italië. Geografen noemen dit gebied de <strong>"blauwe banaan"</strong>. Hier wonen de meeste Europeanen dicht bij elkaar omdat er veel industrie is, veel werk, goede wegen, snelle treinen en grote luchthavens. In dunbevolkte gebieden zoals delen van Oost-Europa en Scandinavië trekken jongeren juist weg, omdat er weinig werk is en voorzieningen zoals scholen en ziekenhuizen ver weg liggen.</p>
+
+    <div class="info-grid">
+      <div class="info-block"><span class="ico">🇳🇱</span><h4>Nederland</h4><p>±520 mensen per km² · zeer dichtbevolkt</p></div>
+      <div class="info-block"><span class="ico">🇧🇪</span><h4>België</h4><p>±380 mensen per km² · dichtbevolkt</p></div>
+      <div class="info-block"><span class="ico">🇩🇪</span><h4>Duitsland</h4><p>±235 mensen per km² · gemiddeld</p></div>
+      <div class="info-block"><span class="ico">🇫🇷</span><h4>Frankrijk</h4><p>±120 mensen per km² · ruim</p></div>
+      <div class="info-block"><span class="ico">🇫🇮</span><h4>Finland</h4><p>±18 mensen per km² · zeer dunbevolkt</p></div>
+      <div class="info-block"><span class="ico">🇳🇴</span><h4>Noorwegen</h4><p>±15 mensen per km² · zeer dunbevolkt</p></div>
+    </div>
+
+    <h3>🗺️ De blauwe banaan op de kaart</h3>
+    <p>Op de kaart hieronder zie je belangrijke steden in de "blauwe banaan" — de drukst bewoonde zone van Europa. Klik op de markers voor meer informatie.</p>
+    <div id="map1" class="map"></div>
+
+    <h3>📊 Bevolkingsdichtheid vergelijken</h3>
+    <div class="chart-wrap"><canvas id="chart1" height="200"></canvas></div>
+  </div>
+
+  <div class="card realworld">
+    <h3>🧭 In jouw eigen wereld</h3>
+    <p>Als jij vanochtend naar school fietste, fietste je waarschijnlijk door een land met een héél hoge bevolkingsdichtheid. Stel je voor dat je dezelfde fietstocht zou maken in <em>Lapland</em> in Noord-Finland: dan zou je urenlang door dennenbossen kunnen fietsen zonder ook maar één huis tegen te komen.</p>
+    <p><strong>Vraag:</strong> Hoe merk je in jouw eigen omgeving dat Nederland een dichtbevolkt land is? Denk bijvoorbeeld aan files, drukke schoolpleinen, of weinig open ruimte.</p>
+  </div>
+
+  <div class="card task">
+    <h3>📝 Opdrachten</h3>
+
+    <div class="q" data-q="s1q1" data-type="mc" data-correct="b" data-hint="Wat betekent bevolkingsdichtheid letterlijk? Hoeveel mensen op hoeveel ruimte?">
+      <div class="q-title">1. Wat is bevolkingsdichtheid?</div>
+      <div class="options">
+        <button class="opt" data-val="a">Het totale aantal mensen in een land</button>
+        <button class="opt" data-val="b">Het aantal mensen per vierkante kilometer</button>
+        <button class="opt" data-val="c">Het aantal kinderen per vrouw</button>
+        <button class="opt" data-val="d">Hoeveel mensen jaarlijks verhuizen</button>
+      </div>
+      <div class="feedback"></div>
+      <div class="attempts"></div>
+    </div>
+
+    <div class="q" data-q="s1q2" data-type="mc" data-correct="c" data-hint="Lees nog eens over klimaat en groeiseizoen in het Noorden.">
+      <div class="q-title">2. Waarom is Finland zoveel dunbevolkter dan Nederland?</div>
+      <div class="options">
+        <button class="opt" data-val="a">Omdat Finlanders graag alleen wonen</button>
+        <button class="opt" data-val="b">Omdat Nederland kunstmatig groter is gemaakt</button>
+        <button class="opt" data-val="c">Door het koude klimaat, lange winters en weinig industrie in grote delen van Finland</button>
+        <button class="opt" data-val="d">Omdat in Finland geen kinderen worden geboren</button>
+      </div>
+      <div class="feedback"></div>
+      <div class="attempts"></div>
+    </div>
+
+    <div class="q" data-q="s1q3" data-type="open" data-min="20">
+      <div class="q-title">3. <strong>Verklaaropdracht:</strong> Leg uit waarom Nederland en Finland zo verschillen in bevolkingsdichtheid. Gebruik in je antwoord minstens twee redenen (denk aan klimaat, economie, geschiedenis). (minstens 20 woorden)</div>
+      <textarea placeholder="Jouw verklaring..."></textarea>
+      <div class="word-count">0 woorden</div>
+      <button class="btn show-example" disabled>Toon voorbeeldantwoord</button>
+      <div class="example-answer">
+        <div class="lbl">Voorbeeldantwoord</div>
+        <p>Nederland is veel dichter bevolkt dan Finland omdat het klimaat hier zachter is en er meer landbouwgrond beschikbaar is. Daarnaast ligt Nederland centraal in West-Europa, waardoor er door de eeuwen heen veel handel ontstond en grote steden konden groeien. Finland heeft lange, koude winters en grote bossen waar weinig mensen kunnen wonen of werken. Bovendien is er minder industrie, dus minder banen om mensen aan te trekken.</p>
+      </div>
+      <div class="self-grade">
+        <span style="font-size:0.88rem;color:var(--ink-soft)">Vergelijk en beoordeel zelf:</span>
+        <button class="btn ok grade" data-grade="ok">Goed ✓</button>
+        <button class="btn err grade" data-grade="err">Fout ✗</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="nav-buttons">
+    <button class="btn secondary nav-prev">← Vorige</button>
+    <button class="btn-reset-section">↻ Reset dit onderdeel</button>
+    <button class="btn nav-next">Volgende →</button>
+  </div>
+</section>
+
+<!-- ============ SECTIE 3: VERGRIJZING ============ -->
+<section class="section" data-section="2">
+  <div class="card explain">
+    <span class="intro-emoji">👵</span>
+    <h2>3. Vergrijzing: een ouder wordende bevolking</h2>
+    <p>Als je naar een gemiddelde Europese stad kijkt, valt iets op: er zijn steeds méér oudere mensen en steeds minder kinderen. Mensen worden ouder dan vroeger (dankzij betere zorg, gezonder eten en veiligere banen) én er worden minder baby's geboren. Daardoor stijgt het aandeel ouderen in de bevolking. Dit verschijnsel noemen we <strong>vergrijzing</strong>.</p>
+    <p><strong>Italië, Spanje en Portugal</strong> hebben op dit moment de oudste bevolkingen van Europa. In deze Zuid-Europese landen blijven jongeren langer thuis bij hun ouders wonen — soms tot ver in de twintig — en stellen ze het krijgen van kinderen lang uit. Vaak komt dat doordat het moeilijk is om vast werk te vinden of een betaalbare woning. Wie geen baan en geen huis heeft, begint immers niet snel een gezin.</p>
+    <p>Vergrijzing heeft grote gevolgen voor de hele samenleving. Er zijn meer verpleeghuizen en zorgplekken nodig. De pensioenen worden duurder omdat meer mensen langer pensioen ontvangen. En tegelijk zijn er steeds minder werkende mensen om belasting te betalen en de zorg en pensioenen te financieren. Sommige scholen sluiten omdat er te weinig kinderen zijn, terwijl er juist extra dokters en verpleegkundigen worden gezocht.</p>
+
+    <div class="flow">
+      <div class="flow-item">👶 Minder geboorten</div>
+      <div class="flow-arrow">+</div>
+      <div class="flow-item">💊 Mensen leven langer</div>
+      <div class="flow-arrow">=</div>
+      <div class="flow-item">👵 Vergrijzing</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-item">🏥 Meer zorg</div>
+      <div class="flow-arrow">+</div>
+      <div class="flow-item">💰 Duurdere pensioenen</div>
+    </div>
+
+    <h3>📊 Aandeel 65-plussers in Europese landen</h3>
+    <div class="chart-wrap"><canvas id="chart2" height="200"></canvas></div>
+  </div>
+
+  <div class="card realworld">
+    <h3>🧭 In jouw eigen wereld</h3>
+    <p>Als jij later naar een populaire reisbestemming als <em>Toscane</em> of de <em>Algarve</em> reist, zul je merken dat veel kleine dorpjes opvallend stil zijn. De jongeren zijn naar de steden vertrokken en alleen de ouderen bleven achter. Sommige dorpjes proberen toeristen aan te trekken door huizen voor 1 euro te verkopen — alles om jonge mensen terug te krijgen.</p>
+    <p><strong>Vraag:</strong> Ken jij oudere mensen in je familie of buurt die langer zelfstandig thuis wonen dan vroeger gebruikelijk was? Wat zou er voor hen anders moeten worden in de toekomst?</p>
+  </div>
+
+  <div class="card task">
+    <h3>📝 Opdrachten</h3>
+
+    <div class="q" data-q="s2q1" data-type="mc" data-correct="b" data-hint="Vergrijzing heeft te maken met de leeftijd van de mensen in een land.">
+      <div class="q-title">1. Wat is vergrijzing?</div>
+      <div class="options">
+        <button class="opt" data-val="a">Het verschijnsel dat de bevolking krimpt</button>
+        <button class="opt" data-val="b">Het verschijnsel dat het aandeel ouderen in de bevolking groter wordt</button>
+        <button class="opt" data-val="c">Het verschijnsel dat mensen verhuizen naar andere landen</button>
+        <button class="opt" data-val="d">Het verschijnsel dat er meer kinderen geboren worden</button>
+      </div>
+      <div class="feedback"></div>
+      <div class="attempts"></div>
+    </div>
+
+    <div class="q" data-q="s2q2" data-type="drag" data-correct="b,a,c,d" data-hint="Wat begint, en wat is daarvan een gevolg en weer een gevolg?">
+      <div class="q-title">2. <strong>Sleepopdracht:</strong> Sleep deze gebeurtenissen in de juiste volgorde — van oorzaak naar gevolg.</div>
+      <ul class="drag-list">
+        <li class="drag-item" draggable="true" data-id="a"><span class="drag-handle">⋮⋮</span> Het aandeel ouderen in de bevolking neemt toe</li>
+        <li class="drag-item" draggable="true" data-id="b"><span class="drag-handle">⋮⋮</span> Er worden minder kinderen geboren en mensen leven langer</li>
+        <li class="drag-item" draggable="true" data-id="c"><span class="drag-handle">⋮⋮</span> Er zijn meer verpleeghuizen en zorgplekken nodig</li>
+        <li class="drag-item" draggable="true" data-id="d"><span class="drag-handle">⋮⋮</span> Pensioenen worden duurder en werkenden moeten meer belasting betalen</li>
+      </ul>
+      <button class="btn check-drag">Controleer volgorde</button>
+      <div class="feedback"></div>
+      <div class="attempts"></div>
+    </div>
+
+    <div class="q" data-q="s2q3" data-type="open" data-min="20">
+      <div class="q-title">3. <strong>Schrijfopdracht:</strong> Leg uit wat vergrijzing is en noem twee gevolgen ervan voor de samenleving. (minstens 20 woorden)</div>
+      <textarea placeholder="Jouw uitleg..."></textarea>
+      <div class="word-count">0 woorden</div>
+      <button class="btn show-example" disabled>Toon voorbeeldantwoord</button>
+      <div class="example-answer">
+        <div class="lbl">Voorbeeldantwoord</div>
+        <p>Vergrijzing betekent dat het aandeel ouderen in de bevolking steeds groter wordt. Dat komt doordat mensen langer leven en er minder kinderen worden geboren. Een eerste gevolg is dat er meer zorg nodig is: meer verpleeghuizen, dokters en verpleegkundigen. Een tweede gevolg is dat de pensioenen duurder worden, terwijl er minder werkende mensen zijn om dat te betalen. Daardoor moeten werkenden vaak meer belasting betalen.</p>
+      </div>
+      <div class="self-grade">
+        <span style="font-size:0.88rem;color:var(--ink-soft)">Vergelijk en beoordeel zelf:</span>
+        <button class="btn ok grade" data-grade="ok">Goed ✓</button>
+        <button class="btn err grade" data-grade="err">Fout ✗</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="nav-buttons">
+    <button class="btn secondary nav-prev">← Vorige</button>
+    <button class="btn-reset-section">↻ Reset dit onderdeel</button>
+    <button class="btn nav-next">Volgende →</button>
+  </div>
+</section>
+
+<!-- ============ SECTIE 4: GEBOORTECIJFERS ============ -->
+<section class="section" data-section="3">
+  <div class="card explain">
+    <span class="intro-emoji">👶</span>
+    <h2>4. Geboortecijfers: waarom hier meer kinderen dan daar?</h2>
+    <p>Het <strong>geboortecijfer</strong> wordt vaak uitgedrukt als het gemiddelde aantal kinderen per vrouw. In Europa verschilt dat cijfer flink tussen landen. Voor een stabiele bevolking (zonder krimp) is een geboortecijfer van ongeveer 2,1 kinderen per vrouw nodig. Bijna geen enkel Europees land haalt dat nog.</p>
+    <p>In <strong>Frankrijk en Ierland</strong> worden relatief de meeste kinderen geboren — rond de 1,8. Frankrijk doet al decennialang veel om gezinnen te steunen: ruime kinderopvang, kinderbijslag, betaald ouderschapsverlof. In <strong>Italië, Griekenland, Spanje en Portugal</strong> liggen de geboortecijfers juist heel laag, soms onder de 1,3. Dat komt door een combinatie van weinig betaalbare woningen, onzekere banen voor jongeren, en cultuur waarin het soms moeilijk is werk en gezin te combineren.</p>
+    <p>Maar geld alleen verklaart het niet. <strong>Zweden en Frankrijk</strong> zijn welvarende landen mét hogere geboortecijfers, terwijl het even welvarende <strong>Duitsland</strong> juist een laag geboortecijfer heeft. Het is dus een mix van overheidsbeleid (kinderopvang en kinderbijslag), cultuur (hoe gemakkelijk vinden mensen het om jong een gezin te beginnen?) en economie (is er werk en een huis?) die samen bepalen hoeveel kinderen er worden geboren.</p>
+
+    <h3>📊 Geboortecijfers in Europese landen</h3>
+    <div class="chart-wrap"><canvas id="chart3" height="220"></canvas></div>
+
+    <table class="compare-table">
+      <thead><tr><th>Land</th><th>Geboortecijfer</th><th>Belangrijkste oorzaak</th></tr></thead>
+      <tbody>
+        <tr><td>🇫🇷 Frankrijk</td><td>±1,8</td><td>Sterk overheidsbeleid: kinderopvang, kinderbijslag</td></tr>
+        <tr><td>🇸🇪 Zweden</td><td>±1,7</td><td>Goede balans werk-gezin, betaald ouderschapsverlof</td></tr>
+        <tr><td>🇩🇪 Duitsland</td><td>±1,4</td><td>Cultuur: lange tijd geen kinderopvang, traditioneel rolpatroon</td></tr>
+        <tr><td>🇮🇹 Italië</td><td>±1,2</td><td>Onzeker werk, dure woningen, jongeren wonen lang thuis</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card realworld">
+    <h3>🧭 In jouw eigen wereld</h3>
+    <p>Als je op vakantie bent in <em>Parijs</em>, valt op hoeveel speeltuinen er in de stad zijn en hoeveel buggy's je op straat ziet. In <em>Rome</em> daarentegen zie je soms hele straten zonder één kind. Het verschil dat je daar in het straatbeeld ziet, is precies wat de cijfers zeggen.</p>
+    <p><strong>Vraag:</strong> Kijk eens naar jouw eigen klas: hoeveel kinderen zitten er ongeveer in? Heeft jouw broertje of zusje of nichtje een grotere of kleinere klas dan jij? Wat zou dat betekenen voor de bevolking?</p>
+  </div>
+
+  <div class="card task">
+    <h3>📝 Opdrachten</h3>
+
+    <div class="q" data-q="s3q1" data-type="mc" data-correct="a" data-hint="Een land waar veel beleid is om gezinnen te steunen.">
+      <div class="q-title">1. In welk land worden in Europa relatief veel kinderen geboren?</div>
+      <div class="options">
+        <button class="opt" data-val="a">Frankrijk</button>
+        <button class="opt" data-val="b">Italië</button>
+        <button class="opt" data-val="c">Hongarije</button>
+        <button class="opt" data-val="d">Griekenland</button>
+      </div>
+      <div class="feedback"></div>
+      <div class="attempts"></div>
+    </div>
+
+    <div class="q" data-q="s3q2" data-type="mc" data-correct="d" data-hint="Het is geen kwestie van rijkdom alleen — denk aan beleid, cultuur en economie.">
+      <div class="q-title">2. Waarom is het geboortecijfer in Italië veel lager dan in Frankrijk, terwijl beide landen welvarend zijn?</div>
+      <div class="options">
+        <button class="opt" data-val="a">Omdat Italianen geen kinderen willen</button>
+        <button class="opt" data-val="b">Omdat Frankrijk meer ruimte heeft</button>
+        <button class="opt" data-val="c">Omdat er in Italië meer ouderen wonen</button>
+        <button class="opt" data-val="d">Omdat in Italië werk onzeker en woningen duur zijn, en de overheid minder ondersteunt</button>
+      </div>
+      <div class="feedback"></div>
+      <div class="attempts"></div>
+    </div>
+
+    <div class="q" data-q="s3q3" data-type="open" data-min="20">
+      <div class="q-title">3. <strong>Verklaaropdracht:</strong> Leg uit waarom het geboortecijfer in het ene Europese land hoger is dan in het andere. Gebruik in je antwoord de begrippen overheidsbeleid, cultuur en economie. (minstens 20 woorden)</div>
+      <textarea placeholder="Jouw verklaring..."></textarea>
+      <div class="word-count">0 woorden</div>
+      <button class="btn show-example" disabled>Toon voorbeeldantwoord</button>
+      <div class="example-answer">
+        <div class="lbl">Voorbeeldantwoord</div>
+        <p>Het geboortecijfer verschilt per land door een combinatie van overheidsbeleid, cultuur en economie. In Frankrijk steunt de overheid gezinnen al lang met kinderopvang en kinderbijslag, waardoor mensen makkelijker kinderen krijgen. In Italië is werk vaak onzeker en zijn woningen duur (economie), waardoor jongeren langer wachten met kinderen. Ook de cultuur speelt mee: in sommige landen is het normaler om jong een gezin te beginnen, in andere landen niet.</p>
+      </div>
+      <div class="self-grade">
+        <span style="font-size:0.88rem;color:var(--ink-soft)">Vergelijk en beoordeel zelf:</span>
+        <button class="btn ok grade" data-grade="ok">Goed ✓</button>
+        <button class="btn err grade" data-grade="err">Fout ✗</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="nav-buttons">
+    <button class="btn secondary nav-prev">← Vorige</button>
+    <button class="btn-reset-section">↻ Reset dit onderdeel</button>
+    <button class="btn nav-next">Volgende →</button>
+  </div>
+</section>
+
+<!-- ============ SECTIE 5: IMMIGRATIE EN EMIGRATIE ============ -->
+<section class="section" data-section="4">
+  <div class="card explain">
+    <span class="intro-emoji">✈️</span>
+    <h2>5. Immigratie en emigratie: tegengestelde stromen</h2>
+    <p>Mensen blijven niet altijd op één plek wonen. Vooral binnen Europa bewegen ze voortdurend. Twee belangrijke begrippen om dit te beschrijven zijn:</p>
+
+    <div class="info-grid">
+      <div class="info-block"><span class="ico">🛬</span><h4>Immigratie</h4><p>Mensen die <strong>naar</strong> een land toe komen om er te wonen. "Im-" = "naar binnen".</p></div>
+      <div class="info-block"><span class="ico">🛫</span><h4>Emigratie</h4><p>Mensen die hun land <strong>verlaten</strong> om ergens anders te gaan wonen. "E-" = "naar buiten".</p></div>
+    </div>
+
+    <p>Veel jongeren uit <strong>Roemenië, Bulgarije en Polen</strong> vertrekken naar West-Europese landen voor werk en een hoger inkomen. Voor hen is dat emigratie. Voor de landen die zij verlaten is dit een groot probleem: de bevolking krimpt en juist de jongste, best opgeleide mensen vertrekken. Hele dorpen lopen leeg en scholen moeten sluiten.</p>
+    <p>West-Europese landen als <strong>Duitsland, Nederland en Zweden</strong> ontvangen die mensen vaak graag, omdat er hard werknemers nodig zijn — bijvoorbeeld in de bouw, de zorg en de landbouw. Daarnaast krijgen Europese landen ook te maken met vluchtelingen van buiten Europa. <strong>Griekenland en Italië</strong> zijn door hun ligging aan de Middellandse Zee vaak het eerste aankomstpunt voor mensen die vanuit Afrika of het Midden-Oosten Europa proberen te bereiken.</p>
+
+    <h3>🗺️ Migratiestromen in Europa</h3>
+    <p>Op de kaart hieronder zie je belangrijke landen van vertrek (rood) en aankomst (groen) binnen en naar Europa.</p>
+    <div id="map2" class="map"></div>
+  </div>
+
+  <div class="card realworld">
+    <h3>🧭 In jouw eigen wereld</h3>
+    <p>Als jij vakantie viert op de <em>Griekse eilanden</em>, geniet je van het strand en de zon. Maar diezelfde eilanden — zoals Lesbos en Lampedusa — zijn voor veel mensen ook het aankomstpunt na een lange, gevaarlijke reis. Twee werelden op één plek.</p>
+    <p><strong>Vraag:</strong> Ken jij in jouw eigen klas of buurt mensen die zelf zijn geïmmigreerd, of wiens ouders dat hebben gedaan? Uit welke landen komen ze meestal?</p>
+  </div>
+
+  <div class="card task">
+    <h3>📝 Opdrachten</h3>
+
+    <div class="q" data-q="s4q1" data-type="match" data-correct='{"i1":"d1","i2":"d2","i3":"d3","i4":"d4"}'>
+      <div class="q-title">1. <strong>Koppelopdracht:</strong> Klik eerst op een begrip links en daarna op de juiste beschrijving rechts.</div>
+      <div class="match-wrap">
+        <div class="match-col">
+          <h4>Begrip</h4>
+          <div class="match-item" data-side="left" data-id="i1">Immigratie</div>
+          <div class="match-item" data-side="left" data-id="i2">Emigratie</div>
+          <div class="match-item" data-side="left" data-id="i3">Vergrijzing</div>
+          <div class="match-item" data-side="left" data-id="i4">Bevolkingsdichtheid</div>
+        </div>
+        <div class="match-col">
+          <h4>Beschrijving</h4>
+          <div class="match-item" data-side="right" data-id="d1">Mensen komen een land in om er te wonen</div>
+          <div class="match-item" data-side="right" data-id="d2">Mensen verlaten hun land om ergens anders te wonen</div>
+          <div class="match-item" data-side="right" data-id="d3">Het aandeel ouderen in de bevolking neemt toe</div>
+          <div class="match-item" data-side="right" data-id="d4">Het aantal mensen per vierkante kilometer</div>
+        </div>
+      </div>
+      <button class="btn check-match">Controleer koppelingen</button>
+      <div class="feedback"></div>
+      <div class="attempts"></div>
+    </div>
+
+    <div class="q" data-q="s4q2" data-type="mc" data-correct="c" data-hint="Welke landen liggen aan de Middellandse Zee en zijn dichtbij Afrika of het Midden-Oosten?">
+      <div class="q-title">2. Waarom zijn Italië en Griekenland vaak het eerste aankomstpunt voor vluchtelingen van buiten Europa?</div>
+      <div class="options">
+        <button class="opt" data-val="a">Omdat ze veel zorg bieden</button>
+        <button class="opt" data-val="b">Omdat ze de hoogste lonen betalen</button>
+        <button class="opt" data-val="c">Door hun ligging dicht bij Afrika en het Midden-Oosten</button>
+        <button class="opt" data-val="d">Omdat ze de meeste industrie hebben</button>
+      </div>
+      <div class="feedback"></div>
+      <div class="attempts"></div>
+    </div>
+
+    <div class="q" data-q="s4q3" data-type="open" data-min="20">
+      <div class="q-title">3. <strong>Schrijfopdracht:</strong> Leg in eigen woorden uit wat immigratie en emigratie zijn. Geef bij allebei een voorbeeld uit Europa. (minstens 20 woorden)</div>
+      <textarea placeholder="Jouw uitleg..."></textarea>
+      <div class="word-count">0 woorden</div>
+      <button class="btn show-example" disabled>Toon voorbeeldantwoord</button>
+      <div class="example-answer">
+        <div class="lbl">Voorbeeldantwoord</div>
+        <p>Immigratie is wanneer mensen een land binnenkomen om daar te wonen. Een voorbeeld is een Poolse jongere die naar Nederland verhuist om in de bouw te werken — voor Nederland is dat immigratie. Emigratie is het tegenovergestelde: mensen verlaten hun eigen land. Voor Polen is diezelfde verhuizing emigratie. Roemenië en Bulgarije zijn ook landen waar veel jongeren wegtrekken naar West-Europa.</p>
+      </div>
+      <div class="self-grade">
+        <span style="font-size:0.88rem;color:var(--ink-soft)">Vergelijk en beoordeel zelf:</span>
+        <button class="btn ok grade" data-grade="ok">Goed ✓</button>
+        <button class="btn err grade" data-grade="err">Fout ✗</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="nav-buttons">
+    <button class="btn secondary nav-prev">← Vorige</button>
+    <button class="btn-reset-section">↻ Reset dit onderdeel</button>
+    <button class="btn nav-next">Volgende →</button>
+  </div>
+</section>
+
+<!-- ============ SECTIE 6: SPANNINGEN DOOR MIGRATIE ============ -->
+<section class="section" data-section="5">
+  <div class="card explain">
+    <span class="intro-emoji">⚖️</span>
+    <h2>6. Spanningen door migratie</h2>
+    <p>Migratie brengt veel voordelen — extra werknemers, nieuwe ideeën, een levendiger samenleving — maar zorgt tegelijkertijd voor spanningen. In landen die veel migranten opvangen ontstaat soms druk op woningen, scholen en ziekenhuizen. De wachtlijsten voor huurwoningen worden langer en klassen worden voller. Mensen met verschillende achtergronden, talen en gewoonten wonen ineens naast elkaar. Dat vraagt aanpassing van zowel nieuwkomers als van mensen die er al wonen, en dat gaat niet altijd zonder problemen.</p>
+    <p>Ook politiek is migratie een gevoelig onderwerp. In veel Europese landen zijn politieke partijen gegroeid die vinden dat er te veel mensen binnenkomen. Anderen benadrukken juist dat migranten hard nodig zijn om de vergrijzing op te vangen en de economie draaiende te houden — zonder migranten zouden veel ziekenhuizen, fabrieken en supermarkten in West-Europa geen personeel meer hebben.</p>
+    <p>Landen zijn het bovendien onderling niet eens over hoe de opvang eerlijk verdeeld moet worden. Sommige Oost-Europese landen, zoals <strong>Polen en Hongarije</strong>, weigeren vluchtelingen op te nemen die door zuidelijke landen zijn opgevangen. Dat leidt tot conflicten binnen de Europese Unie. Migratie is daarmee niet alleen een demografisch onderwerp, maar ook een politiek debat dat heel Europa bezighoudt.</p>
+
+    <table class="compare-table">
+      <thead><tr><th>👍 Voordelen van migratie</th><th>👎 Spanningen door migratie</th></tr></thead>
+      <tbody>
+        <tr><td>Extra werknemers in zorg, bouw, landbouw</td><td>Druk op woningen en wachtlijsten</td></tr>
+        <tr><td>Helpt vergrijzing op te vangen</td><td>Drukke scholen en ziekenhuizen</td></tr>
+        <tr><td>Nieuwe culturen, ideeën en eten</td><td>Verschillen in taal en gewoonten</td></tr>
+        <tr><td>Belastinginkomsten voor de overheid</td><td>Politieke ruzie binnen de EU over verdeling</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card realworld">
+    <h3>🧭 In jouw eigen wereld</h3>
+    <p>Heb je weleens in een grote stad als <em>Berlijn</em>, <em>Brussel</em> of <em>Amsterdam</em> rondgelopen? Dan heb je gemerkt hoeveel verschillende talen en restaurants er zijn. Dat is migratie in actie. Maar als je het nieuws kijkt, zie je ook discussies over wachtlijsten voor huurwoningen, of over vluchtelingen die in tentenkampen verblijven. Beide kanten zijn waar.</p>
+    <p><strong>Vraag:</strong> Welke voordelen van migratie zie jij in jouw eigen omgeving? Denk aan eten, taal, sport, of mensen die je kent.</p>
+  </div>
+
+  <div class="card task">
+    <h3>📝 Opdrachten</h3>
+
+    <div class="q" data-q="s5q1" data-type="mc" data-correct="b" data-hint="Welke landen weigeren vluchtelingen op te nemen?">
+      <div class="q-title">1. Welke landen zorgen vaak voor conflict in de EU door geen vluchtelingen te willen opvangen?</div>
+      <div class="options">
+        <button class="opt" data-val="a">Frankrijk en Duitsland</button>
+        <button class="opt" data-val="b">Polen en Hongarije</button>
+        <button class="opt" data-val="c">Spanje en Portugal</button>
+        <button class="opt" data-val="d">Nederland en België</button>
+      </div>
+      <div class="feedback"></div>
+      <div class="attempts"></div>
+    </div>
+
+    <div class="q" data-q="s5q2" data-type="mc" data-correct="c" data-hint="Wat heeft te maken met vergrijzing en lege banen?">
+      <div class="q-title">2. Wat is een belangrijk argument vóór migratie in West-Europa?</div>
+      <div class="options">
+        <button class="opt" data-val="a">Migranten brengen extra geld mee</button>
+        <button class="opt" data-val="b">Migranten drukken de huurprijzen</button>
+        <button class="opt" data-val="c">Migranten zijn hard nodig om de vergrijzing op te vangen en banen te vullen</button>
+        <button class="opt" data-val="d">Migranten zorgen voor minder politiek conflict</button>
+      </div>
+      <div class="feedback"></div>
+      <div class="attempts"></div>
+    </div>
+
+    <div class="q" data-q="s5q3" data-type="open" data-min="20">
+      <div class="q-title">3. <strong>Schrijfopdracht:</strong> Noem twee spanningen die migratie in Europa veroorzaakt. Leg bij allebei kort uit waarom het tot spanning leidt. (minstens 20 woorden)</div>
+      <textarea placeholder="Jouw antwoord..."></textarea>
+      <div class="word-count">0 woorden</div>
+      <button class="btn show-example" disabled>Toon voorbeeldantwoord</button>
+      <div class="example-answer">
+        <div class="lbl">Voorbeeldantwoord</div>
+        <p>Een eerste spanning is de druk op woningen en voorzieningen: er zijn niet genoeg betaalbare huizen en de wachtlijsten worden langer, wat tot frustratie leidt bij mensen die al lang wachten. Een tweede spanning is politiek: landen in de EU zijn het oneens over de verdeling van vluchtelingen. Polen en Hongarije weigeren mee te doen, terwijl Italië en Griekenland juist heel veel mensen opvangen. Dat zorgt voor ruzie binnen Europa.</p>
+      </div>
+      <div class="self-grade">
+        <span style="font-size:0.88rem;color:var(--ink-soft)">Vergelijk en beoordeel zelf:</span>
+        <button class="btn ok grade" data-grade="ok">Goed ✓</button>
+        <button class="btn err grade" data-grade="err">Fout ✗</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="nav-buttons">
+    <button class="btn secondary nav-prev">← Vorige</button>
+    <button class="btn-reset-section">↻ Reset dit onderdeel</button>
+    <button class="btn nav-next">Volgende →</button>
+  </div>
+</section>
+
+<!-- ============ SECTIE 7: KAART VAN EUROPA ============ -->
+<section class="section" data-section="6">
+  <div class="card explain">
+    <span class="intro-emoji">🗺️</span>
+    <h2>7. Interactieve kaart: ken jij Europa?</h2>
+    <p>Op de kaart hieronder zie je een aantal Europese landen die in deze les belangrijk zijn. Klik op de markers om te lezen waarom dat land bijzonder is. Sommige landen vergrijzen sterk, andere ontvangen veel migranten, en weer andere zijn juist heel dunbevolkt.</p>
+    <p>Probeer terwijl je de kaart bekijkt drie groepen te onderscheiden: <strong>landen waar de bevolking krimpt</strong>, <strong>landen waar veel mensen vandaan vertrekken (emigratie)</strong>, en <strong>landen die juist veel mensen ontvangen (immigratie)</strong>. Niet alle landen passen netjes in één groep — sommige doen meerdere dingen tegelijk.</p>
+    <p>Aardrijkskunde wordt pas leuk als je begrippen kunt koppelen aan plekken op een kaart. Een land is niet zomaar een vlek — het heeft een ligging, een klimaat, een geschiedenis en buurlanden die allemaal samen bepalen hoe het zich ontwikkelt.</p>
+
+    <div id="map3" class="map"></div>
+  </div>
+
+  <div class="card realworld">
+    <h3>🧭 In jouw eigen wereld</h3>
+    <p>Heb jij weleens een rondreis door Europa gemaakt of zou je dat willen doen? Een treinreis van Nederland naar Italië laat in één week zien hoe landen verschillen: het ene land druk en jong, het andere stil en oud.</p>
+    <p><strong>Vraag:</strong> Naar welk Europees land zou jij willen reizen, en wat denk je over de bevolking daar? Druk of rustig? Jong of oud?</p>
+  </div>
+
+  <div class="card task">
+    <h3>📝 Opdrachten</h3>
+
+    <div class="q" data-q="s6q1" data-type="mc" data-correct="b" data-hint="Welk land staat bekend als zeer dunbevolkt en koud?">
+      <div class="q-title">1. In welk van deze landen is de bevolkingsdichtheid het laagst?</div>
+      <div class="options">
+        <button class="opt" data-val="a">Nederland</button>
+        <button class="opt" data-val="b">Noorwegen</button>
+        <button class="opt" data-val="c">België</button>
+        <button class="opt" data-val="d">Duitsland</button>
+      </div>
+      <div class="feedback"></div>
+      <div class="attempts"></div>
+    </div>
+
+    <div class="q" data-q="s6q2" data-type="mc" data-correct="c" data-hint="Het oudste werelddeel van Europa op dit moment ligt in het zuiden.">
+      <div class="q-title">2. Welk land heeft één van de oudste bevolkingen van Europa?</div>
+      <div class="options">
+        <button class="opt" data-val="a">Polen</button>
+        <button class="opt" data-val="b">Ierland</button>
+        <button class="opt" data-val="c">Italië</button>
+        <button class="opt" data-val="d">Zweden</button>
+      </div>
+      <div class="feedback"></div>
+      <div class="attempts"></div>
+    </div>
+
+    <div class="q" data-q="s6q3" data-type="open" data-min="20">
+      <div class="q-title">3. <strong>Reisplanner-opdracht:</strong> Stel je plant een Europese rondreis langs drie landen die elk een ander demografisch verhaal vertellen. Welke drie landen kies je en waarom? (minstens 20 woorden)</div>
+      <textarea placeholder="Mijn rondreis..."></textarea>
+      <div class="word-count">0 woorden</div>
+      <button class="btn show-example" disabled>Toon voorbeeldantwoord</button>
+      <div class="example-answer">
+        <div class="lbl">Voorbeeldantwoord</div>
+        <p>Ik zou Italië, Frankrijk en Polen kiezen. Italië heeft een sterk vergrijzende bevolking en lage geboortecijfers, dus daar zie ik vooral oudere mensen in kleine dorpjes. Frankrijk heeft juist een hoger geboortecijfer dankzij overheidsbeleid voor gezinnen, dus daar verwacht ik veel kinderen. Polen is een land waar veel jongeren juist weggaan naar West-Europa, dus daar zie ik krimp en lege gebieden.</p>
+      </div>
+      <div class="self-grade">
+        <span style="font-size:0.88rem;color:var(--ink-soft)">Vergelijk en beoordeel zelf:</span>
+        <button class="btn ok grade" data-grade="ok">Goed ✓</button>
+        <button class="btn err grade" data-grade="err">Fout ✗</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="nav-buttons">
+    <button class="btn secondary nav-prev">← Vorige</button>
+    <button class="btn-reset-section">↻ Reset dit onderdeel</button>
+    <button class="btn nav-next">Volgende →</button>
+  </div>
+</section>
+
+<!-- ============ SECTIE 8: CASE - ROEMENIE ============ -->
+<section class="section" data-section="7">
+  <div class="card explain">
+    <span class="intro-emoji">📖</span>
+    <h2>8. Case: Maria uit Roemenië</h2>
+    <p>Tijd voor een verhaal dat alle begrippen samenbrengt. Lees rustig en denk na over welke demografische verschijnselen je in dit verhaal herkent.</p>
+
+    <div style="background:var(--bg-soft);padding:18px;border-radius:var(--radius);border-left:4px solid var(--earth-soft);font-style:italic">
+      <p>Maria is 24 jaar en woont in een klein dorp in het noorden van <strong>Roemenië</strong>. Toen ze opgroeide had het dorp twee scholen, een dokter, een postkantoor en een levendig plein vol kinderen. Maar de afgelopen tien jaar is bijna iedereen van haar leeftijd vertrokken. Eerst haar oudere broer naar Duitsland, daarna haar beste vriendin naar Nederland, en vorig jaar haar neef naar Italië. Ze werken er in de bouw, in de zorg en in restaurants.</p>
+      <p>De ene school is gesloten omdat er te weinig kinderen waren. De dokter komt nog maar twee dagen per week. Op het plein zitten vooral ouderen op bankjes. Maria's oma vraagt elke week: "Wanneer kom je terug uit Boekarest?" — want ook Maria zelf studeert nu in de hoofdstad en denkt erover om daarna naar Duitsland te gaan voor een betere baan. Maar haar oma wordt ouder en heeft steeds meer hulp nodig.</p>
+      <p>Ondertussen, in <strong>Duitsland</strong>, zoekt een ziekenhuis al maanden naar verpleegkundigen. Het personeel is grotendeels boven de 55 en gaat binnenkort met pensioen. Het ziekenhuis adverteert in heel Oost-Europa en biedt hoge salarissen. Maria heeft de advertentie gezien op haar telefoon.</p>
+    </div>
+
+    <h3>🧩 De begrippen in dit verhaal</h3>
+    <div class="info-grid">
+      <div class="info-block"><span class="ico">🛫</span><h4>Emigratie</h4><p>Maria's broer, vriendin en neef verlaten Roemenië voor werk.</p></div>
+      <div class="info-block"><span class="ico">🛬</span><h4>Immigratie</h4><p>Voor Duitsland, Nederland en Italië zijn diezelfde mensen immigranten.</p></div>
+      <div class="info-block"><span class="ico">📉</span><h4>Krimp</h4><p>Maria's dorp loopt leeg, scholen sluiten, voorzieningen verdwijnen.</p></div>
+      <div class="info-block"><span class="ico">👵</span><h4>Vergrijzing</h4><p>Op het plein zitten alleen nog ouderen. Het Duitse ziekenhuispersoneel gaat met pensioen.</p></div>
+    </div>
+  </div>
+
+  <div class="card realworld">
+    <h3>🧭 In jouw eigen wereld</h3>
+    <p>Misschien heb jij in de zorg, op de bouwplaats of in een restaurant ooit iemand ontmoet die uit Polen, Roemenië of Bulgarije komt. Het verhaal van Maria is geen uitzondering — duizenden jongeren maken precies deze keuze.</p>
+    <p><strong>Vraag:</strong> Wat zou jij doen in de plaats van Maria — gaan of blijven? En waarom?</p>
+  </div>
+
+  <div class="card task">
+    <h3>📝 Opdrachten</h3>
+
+    <div class="q" data-q="s7q1" data-type="mc" data-correct="c" data-hint="Roemenië verliest mensen, dus voor Roemenië is dit...?">
+      <div class="q-title">1. Maria's broer is naar Duitsland vertrokken. Wat is dit voor Roemenië?</div>
+      <div class="options">
+        <button class="opt" data-val="a">Immigratie</button>
+        <button class="opt" data-val="b">Vergrijzing</button>
+        <button class="opt" data-val="c">Emigratie</button>
+        <button class="opt" data-val="d">Bevolkingsdichtheid</button>
+      </div>
+      <div class="feedback"></div>
+      <div class="attempts"></div>
+    </div>
+
+    <div class="q" data-q="s7q2" data-type="mc" data-correct="b" data-hint="Welk verschijnsel maakt dat het Duitse ziekenhuis personeel zoekt?">
+      <div class="q-title">2. Het Duitse ziekenhuis zoekt verpleegkundigen omdat het personeel binnenkort met pensioen gaat. Welk verschijnsel zie je hier?</div>
+      <div class="options">
+        <button class="opt" data-val="a">Krimp</button>
+        <button class="opt" data-val="b">Vergrijzing</button>
+        <button class="opt" data-val="c">Een lage bevolkingsdichtheid</button>
+        <button class="opt" data-val="d">Een hoog geboortecijfer</button>
+      </div>
+      <div class="feedback"></div>
+      <div class="attempts"></div>
+    </div>
+
+    <div class="q" data-q="s7q3" data-type="open" data-min="30">
+      <div class="q-title">3. <strong>Mening en redenering:</strong> Wat zou jij Maria adviseren — naar Duitsland gaan voor de baan, of in Roemenië blijven om voor haar oma te zorgen? Geef minstens twee argumenten voor jouw keuze. (minstens 30 woorden)</div>
+      <textarea placeholder="Mijn advies aan Maria..."></textarea>
+      <div class="word-count">0 woorden</div>
+      <button class="btn show-example" disabled>Toon voorbeeldantwoord</button>
+      <div class="example-answer">
+        <div class="lbl">Voorbeeldantwoord 1 (gaan)</div>
+        <p>Ik zou Maria adviseren om naar Duitsland te gaan. Ten eerste verdient ze daar veel meer geld, waarmee ze haar oma kan steunen of zelfs een verzorgster kan betalen. Ten tweede krijgt ze in Duitsland werkervaring waar ze haar hele leven iets aan heeft. Het is moeilijk, maar de toekomst van haar dorp is onzeker.</p>
+        <div class="lbl" style="margin-top:10px">Voorbeeldantwoord 2 (blijven)</div>
+        <p>Ik zou Maria adviseren om in Roemenië te blijven. Haar oma heeft haar nodig en familie is belangrijk. Daarnaast: als alle jongeren weggaan, sterft het dorp helemaal uit. Misschien kan ze juist in Boekarest werk vinden en zo ook helpen om Roemenië sterker te maken.</p>
+      </div>
+      <div class="self-grade">
+        <span style="font-size:0.88rem;color:var(--ink-soft)">Vergelijk en beoordeel zelf:</span>
+        <button class="btn ok grade" data-grade="ok">Goed ✓</button>
+        <button class="btn err grade" data-grade="err">Fout ✗</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="nav-buttons">
+    <button class="btn secondary nav-prev">← Vorige</button>
+    <button class="btn-reset-section">↻ Reset dit onderdeel</button>
+    <button class="btn nav-next">Volgende →</button>
+  </div>
+</section>
+
+<!-- ============ SECTIE 9: REFLECTIE ============ -->
+<section class="section" data-section="8">
+  <div class="card explain">
+    <span class="intro-emoji">🎓</span>
+    <h2>9. Reflectie en afronding</h2>
+    <p>Goed gedaan! Je hebt alle onderdelen van deze les doorgewerkt. Tijd om terug te kijken op wat je hebt geleerd én op hoe je hebt geleerd. Reflecteren is belangrijk: het helpt je om de stof beter te onthouden en om te ontdekken wat voor jou werkt.</p>
+
+    <h3>🎯 De leerdoelen van deze les</h3>
+    <ul class="goals-list">
+      <li>Ik kan uitleggen wat demografie betekent en twee verschillen noemen tussen Europa en Afrika of Azië.</li>
+      <li>Ik kan het begrip bevolkingsdichtheid uitleggen en een verschil tussen twee Europese landen verklaren.</li>
+      <li>Ik kan uitleggen wat vergrijzing is en twee gevolgen ervan noemen.</li>
+      <li>Ik kan uitleggen waarom het geboortecijfer per Europees land verschilt.</li>
+      <li>Ik kan uitleggen wat immigratie en emigratie zijn en twee spanningen door migratie noemen.</li>
+    </ul>
+
+    <h3>🏆 Jouw score</h3>
+    <div class="score-big" id="finalScore">0%</div>
+    <p style="text-align:center;color:var(--ink-soft);font-size:0.92rem" id="scoreText">Maak alle opdrachten om je eindscore te zien.</p>
+  </div>
+
+  <div class="card task">
+    <h3>💭 Reflectievragen</h3>
+
+    <div class="q" data-q="s8q1" data-type="open" data-min="20">
+      <div class="q-title">1. Wat vond je in deze les het lastigst om te begrijpen, en waarom denk je dat dat zo was? (minstens 20 woorden)</div>
+      <textarea placeholder="Het lastigste was..."></textarea>
+      <div class="word-count">0 woorden</div>
+      <button class="btn show-example" disabled>Toon voorbeeldantwoord</button>
+      <div class="example-answer">
+        <div class="lbl">Voorbeeld</div>
+        <p>Ik vond het lastig om te onthouden wat het verschil is tussen immigratie en emigratie, omdat de woorden zo op elkaar lijken. Door te denken aan "in" en "uit" werd het duidelijker. Ook vond ik het moeilijk om te begrijpen waarom rijkere landen niet automatisch meer kinderen hebben.</p>
+      </div>
+      <div class="self-grade">
+        <span style="font-size:0.88rem;color:var(--ink-soft)">Vergelijk en beoordeel zelf:</span>
+        <button class="btn ok grade" data-grade="ok">Goed ✓</button>
+        <button class="btn err grade" data-grade="err">Fout ✗</button>
+      </div>
+    </div>
+
+    <div class="q" data-q="s8q2" data-type="open" data-min="20">
+      <div class="q-title">2. Stel je legt deze les uit aan een klasgenoot die afwezig was. Welke drie dingen zou je in elk geval vertellen? (minstens 20 woorden)</div>
+      <textarea placeholder="Ik zou vertellen dat..."></textarea>
+      <div class="word-count">0 woorden</div>
+      <button class="btn show-example" disabled>Toon voorbeeldantwoord</button>
+      <div class="example-answer">
+        <div class="lbl">Voorbeeld</div>
+        <p>Ik zou eerst uitleggen dat demografie de studie van de bevolking is en dat Europa nauwelijks groeit. Dan zou ik vertellen dat veel Europese landen vergrijzen, vooral Italië en Spanje, en dat dat veel zorg en geld kost. En tot slot dat veel jongeren uit Oost-Europa naar West-Europa verhuizen, wat voordelen én spanningen oplevert.</p>
+      </div>
+      <div class="self-grade">
+        <span style="font-size:0.88rem;color:var(--ink-soft)">Vergelijk en beoordeel zelf:</span>
+        <button class="btn ok grade" data-grade="ok">Goed ✓</button>
+        <button class="btn err grade" data-grade="err">Fout ✗</button>
+      </div>
+    </div>
+
+    <div class="q" data-q="s8q3" data-type="open" data-min="20">
+      <div class="q-title">3. Hoe zou je de begrippen uit deze les herkennen in je eigen omgeving of op een vakantiebestemming waar je nog naartoe wilt? (minstens 20 woorden)</div>
+      <textarea placeholder="In mijn omgeving zou ik..."></textarea>
+      <div class="word-count">0 woorden</div>
+      <button class="btn show-example" disabled>Toon voorbeeldantwoord</button>
+      <div class="example-answer">
+        <div class="lbl">Voorbeeld</div>
+        <p>In mijn omgeving zie ik vergrijzing terug in het bejaardentehuis bij ons in de buurt en in het feit dat veel ouderen op de fiets of in scootmobielen zitten. Op vakantie in Italië zag ik veel kleine dorpjes waar het stil was — dat is dezelfde vergrijzing. Migratie zie ik in mijn klas, waar veel klasgenoten ouders hebben uit andere landen.</p>
+      </div>
+      <div class="self-grade">
+        <span style="font-size:0.88rem;color:var(--ink-soft)">Vergelijk en beoordeel zelf:</span>
+        <button class="btn ok grade" data-grade="ok">Goed ✓</button>
+        <button class="btn err grade" data-grade="err">Fout ✗</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="nav-buttons">
+    <button class="btn secondary nav-prev">← Vorige</button>
+    <button class="btn-reset-section">↻ Reset dit onderdeel</button>
+    <button class="btn nav-next" disabled>Einde</button>
+  </div>
+</section>
+
+</main>
+
+<script>
+// ===== STORAGE =====
+const STORAGE_KEY = 'geo_les_demografie_v1';
+let state = {answers:{},attempts:{},graded:{},completed:{},currentTab:0,ts:Date.now()};
+
+function safeGet(){
+  try{const r=localStorage.getItem(STORAGE_KEY);if(r)return JSON.parse(r);}catch(e){}
+  return null;
+}
+function safeSet(){
+  try{state.ts=Date.now();localStorage.setItem(STORAGE_KEY,JSON.stringify(state));}catch(e){}
+}
+function safeClear(){
+  try{localStorage.removeItem(STORAGE_KEY);}catch(e){}
+}
+
+const loaded = safeGet();
+if(loaded) state = Object.assign(state,loaded);
+
+// ===== TAB NAVIGATION =====
+const sections = document.querySelectorAll('.section');
+const tabTitles = ['1. Demografie','2. Bevolkingsdichtheid','3. Vergrijzing','4. Geboortecijfers','5. Migratie','6. Spanningen','7. Kaart','8. Case Maria','9. Reflectie'];
+const tabsEl = document.getElementById('tabs');
+const tabsCounter = document.getElementById('tabsCounter');
+
+tabTitles.forEach((t,i)=>{
+  const b = document.createElement('button');
+  b.className='tab';
+  b.textContent=t;
+  b.addEventListener('click',()=>showTab(i));
+  tabsEl.appendChild(b);
+});
+
+function showTab(i){
+  state.currentTab = i;
+  sections.forEach((s,j)=>s.classList.toggle('active',j===i));
+  document.querySelectorAll('.tab').forEach((t,j)=>t.classList.toggle('active',j===i));
+  tabsCounter.textContent = `Onderdeel ${i+1} van ${sections.length}`;
+  // invalidate maps
+  setTimeout(()=>{Object.values(maps).forEach(m=>{if(m)m.invalidateSize();});},100);
+  window.scrollTo({top:0,behavior:'smooth'});
+  safeSet();
+}
+
+// Prev/Next
+document.querySelectorAll('.nav-prev').forEach(b=>{
+  b.addEventListener('click',()=>{if(state.currentTab>0)showTab(state.currentTab-1);});
+});
+document.querySelectorAll('.nav-next').forEach(b=>{
+  b.addEventListener('click',()=>{if(state.currentTab<sections.length-1)showTab(state.currentTab+1);});
+});
+
+// ===== PROGRESS =====
+function getAllQuestions(){return document.querySelectorAll('.q');}
+function totalQuestions(){return getAllQuestions().length;}
+function completedCount(){
+  let c=0;
+  getAllQuestions().forEach(q=>{
+    const id=q.dataset.q;
+    if(state.completed[id])c++;
+  });
+  return c;
+}
+function updateProgress(){
+  const total=totalQuestions();
+  const done=completedCount();
+  const pct=total?Math.round(done/total*100):0;
+  document.getElementById('progressFill').style.width=pct+'%';
+  document.getElementById('progressPct').textContent=pct+'%';
+  // update tab done states
+  sections.forEach((sec,i)=>{
+    const qs=sec.querySelectorAll('.q');
+    let allDone=qs.length>0;
+    qs.forEach(q=>{if(!state.completed[q.dataset.q])allDone=false;});
+    document.querySelectorAll('.tab')[i].classList.toggle('done',allDone);
+  });
+  // final score
+  const fs=document.getElementById('finalScore');
+  if(fs){
+    let correct=0,answered=0;
+    getAllQuestions().forEach(q=>{
+      const id=q.dataset.q;
+      if(state.completed[id]){
+        answered++;
+        if(state.graded[id]==='ok')correct++;
+      }
+    });
+    if(answered>0){
+      const sp=Math.round(correct/answered*100);
+      fs.textContent=sp+'%';
+      document.getElementById('scoreText').textContent=`${correct} van ${answered} opdrachten correct (${done}/${total} gemaakt)`;
+    }
+  }
+}
+
+// ===== MULTIPLE CHOICE =====
+function setupMC(q){
+  const opts=q.querySelectorAll('.opt');
+  const fb=q.querySelector('.feedback');
+  const att=q.querySelector('.attempts');
+  const correct=q.dataset.correct;
+  const hint=q.dataset.hint||'Probeer het nog eens.';
+  const id=q.dataset.q;
+
+  // Restore
+  if(state.completed[id]){
+    opts.forEach(o=>{
+      o.disabled=true;
+      if(o.dataset.val===correct)o.classList.add('correct');
+      if(state.answers[id]===o.dataset.val&&o.dataset.val!==correct)o.classList.add('wrong');
+    });
+    fb.classList.add('show');
+    if(state.graded[id]==='ok'){fb.classList.add('ok');fb.textContent='✓ Goed gedaan!';}
+    else{fb.classList.add('err');fb.textContent='Het juiste antwoord is gemarkeerd in groen.';}
+  }
+
+  opts.forEach(opt=>{
+    opt.addEventListener('click',()=>{
+      if(state.completed[id])return;
+      const val=opt.dataset.val;
+      state.attempts[id]=(state.attempts[id]||0)+1;
+      state.answers[id]=val;
+
+      if(val===correct){
+        opt.classList.add('correct');
+        opts.forEach(o=>o.disabled=true);
+        fb.className='feedback show ok';
+        fb.textContent='✓ Goed gedaan!';
+        state.completed[id]=true;
+        state.graded[id]='ok';
+        att.textContent='';
+      }else{
+        opt.classList.add('wrong');
+        opt.disabled=true;
+        if(state.attempts[id]>=3){
+          opts.forEach(o=>{o.disabled=true;if(o.dataset.val===correct)o.classList.add('correct');});
+          fb.className='feedback show err';
+          fb.textContent='Het juiste antwoord is nu groen gemarkeerd. Lees de uitleg hierboven nog eens rustig door.';
+          state.completed[id]=true;
+          state.graded[id]='err';
+          att.textContent='';
+        }else{
+          fb.className='feedback show hint';
+          fb.textContent='💭 '+hint;
+          att.textContent=`Poging ${state.attempts[id]} van 3`;
+        }
+      }
+      safeSet();updateProgress();
+    });
+  });
+}
+
+// ===== OPEN QUESTIONS =====
+function setupOpen(q){
+  const ta=q.querySelector('textarea');
+  const wc=q.querySelector('.word-count');
+  const btn=q.querySelector('.show-example');
+  const ex=q.querySelector('.example-answer');
+  const sg=q.querySelector('.self-grade');
+  const min=parseInt(q.dataset.min)||20;
+  const id=q.dataset.q;
+
+  function count(){
+    const w=ta.value.trim().split(/\s+/).filter(Boolean).length;
+    wc.textContent=w+' woorden';
+    if(w>=min){wc.classList.add('ok');btn.disabled=false;}
+    else{wc.classList.remove('ok');btn.disabled=true;}
+    state.answers[id]=ta.value;
+    safeSet();
+  }
+  ta.addEventListener('input',count);
+
+  // Restore
+  if(state.answers[id]){ta.value=state.answers[id];count();}
+  if(state.completed[id]){
+    ex.classList.add('show');
+    sg.classList.add('show');
+    btn.style.display='none';
+    if(state.graded[id]==='ok'){
+      const okBtn=sg.querySelector('[data-grade="ok"]');
+      okBtn.style.outline='3px solid var(--ok)';
+    }else if(state.graded[id]==='err'){
+      const errBtn=sg.querySelector('[data-grade="err"]');
+      errBtn.style.outline='3px solid var(--err)';
+    }
+  }
+
+  btn.addEventListener('click',()=>{
+    ex.classList.add('show');
+    sg.classList.add('show');
+    btn.style.display='none';
+  });
+
+  sg.querySelectorAll('.grade').forEach(gb=>{
+    gb.addEventListener('click',()=>{
+      state.completed[id]=true;
+      state.graded[id]=gb.dataset.grade;
+      sg.querySelectorAll('.grade').forEach(x=>x.style.outline='none');
+      gb.style.outline='3px solid '+(gb.dataset.grade==='ok'?'var(--ok)':'var(--err)');
+      safeSet();updateProgress();
+    });
+  });
+}
+
+// ===== DRAG AND DROP =====
+function setupDrag(q){
+  const list=q.querySelector('.drag-list');
+  const items=()=>Array.from(list.querySelectorAll('.drag-item'));
+  const btn=q.querySelector('.check-drag');
+  const fb=q.querySelector('.feedback');
+  const att=q.querySelector('.attempts');
+  const correct=q.dataset.correct.split(',');
+  const id=q.dataset.q;
+  let dragged=null;
+
+  function attach(){
+    items().forEach(it=>{
+      it.addEventListener('dragstart',e=>{dragged=it;it.classList.add('dragging');e.dataTransfer.effectAllowed='move';});
+      it.addEventListener('dragend',()=>{it.classList.remove('dragging');items().forEach(i=>i.classList.remove('over'));});
+      it.addEventListener('dragover',e=>{e.preventDefault();if(it!==dragged)it.classList.add('over');});
+      it.addEventListener('dragleave',()=>it.classList.remove('over'));
+      it.addEventListener('drop',e=>{
+        e.preventDefault();
+        if(dragged&&it!==dragged){
+          const all=items();
+          const di=all.indexOf(dragged);
+          const ti=all.indexOf(it);
+          if(di<ti)it.after(dragged);
+          else it.before(dragged);
+        }
+      });
+    });
+  }
+  attach();
+
+  // Restore order
+  if(state.answers[id]){
+    try{
+      const order=state.answers[id];
+      order.forEach(idv=>{
+        const el=list.querySelector(`[data-id="${idv}"]`);
+        if(el)list.appendChild(el);
+      });
+    }catch(e){}
+  }
+  if(state.completed[id]){
+    items().forEach(it=>{
+      it.draggable=false;
+      const idx=items().indexOf(it);
+      if(it.dataset.id===correct[idx])it.classList.add('correct');
+      else it.classList.add('incorrect');
+    });
+    btn.disabled=true;
+    fb.classList.add('show');
+    if(state.graded[id]==='ok'){fb.classList.add('ok');fb.textContent='✓ Helemaal goed!';}
+    else{fb.classList.add('err');fb.textContent='Niet helemaal goed. De juiste volgorde was: '+correct.map(c=>list.querySelector(`[data-id="${c}"]`)?.textContent.replace('⋮⋮','').trim()).join(' → ');}
+  }
+
+  btn.addEventListener('click',()=>{
+    if(state.completed[id])return;
+    state.attempts[id]=(state.attempts[id]||0)+1;
+    const order=items().map(i=>i.dataset.id);
+    state.answers[id]=order;
+    let allOk=true;
+    items().forEach((it,idx)=>{
+      it.classList.remove('correct','incorrect');
+      if(it.dataset.id===correct[idx])it.classList.add('correct');
+      else{it.classList.add('incorrect');allOk=false;}
+    });
+    if(allOk){
+      fb.className='feedback show ok';
+      fb.textContent='✓ Helemaal goed!';
+      state.completed[id]=true;state.graded[id]='ok';
+      items().forEach(it=>it.draggable=false);
+      btn.disabled=true;att.textContent='';
+    }else if(state.attempts[id]>=3){
+      fb.className='feedback show err';
+      fb.textContent='Maximum pogingen bereikt. De goede volgorde wordt nu getoond.';
+      // Show correct order
+      correct.forEach(cid=>{const el=list.querySelector(`[data-id="${cid}"]`);if(el)list.appendChild(el);});
+      items().forEach((it,idx)=>{it.classList.remove('incorrect');it.classList.add('correct');it.draggable=false;});
+      state.completed[id]=true;state.graded[id]='err';
+      btn.disabled=true;att.textContent='';
+    }else{
+      fb.className='feedback show hint';
+      fb.textContent='💭 Bijna! Sommige items staan nog op de verkeerde plek. Denk: wat gebeurt eerst, en wat is daar weer een gevolg van?';
+      att.textContent=`Poging ${state.attempts[id]} van 3`;
+    }
+    safeSet();updateProgress();
+  });
+}
+
+// ===== MATCH =====
+function setupMatch(q){
+  const items=q.querySelectorAll('.match-item');
+  const btn=q.querySelector('.check-match');
+  const fb=q.querySelector('.feedback');
+  const att=q.querySelector('.attempts');
+  const correct=JSON.parse(q.dataset.correct);
+  const id=q.dataset.q;
+  let selectedLeft=null;
+  let pairs=state.answers[id]||{};
+
+  function refresh(){
+    items.forEach(it=>{
+      delete it.dataset.paired;
+      const tag=it.querySelector('.pair-tag');
+      if(tag)tag.remove();
+    });
+    let n=1;
+    Object.keys(pairs).forEach(L=>{
+      const R=pairs[L];
+      const lEl=q.querySelector(`[data-side="left"][data-id="${L}"]`);
+      const rEl=q.querySelector(`[data-side="right"][data-id="${R}"]`);
+      if(lEl&&rEl){
+        lEl.dataset.paired='1';
+        rEl.dataset.paired='1';
+        const t=document.createElement('span');t.className='pair-tag';t.textContent=n;
+        lEl.appendChild(t.cloneNode(true));
+        rEl.appendChild(t);
+        n++;
+      }
+    });
+  }
+
+  items.forEach(it=>{
+    it.addEventListener('click',()=>{
+      if(state.completed[id])return;
+      if(it.dataset.side==='left'){
+        items.forEach(x=>{if(x.dataset.side==='left')x.classList.remove('selected');});
+        selectedLeft=it.dataset.id;
+        it.classList.add('selected');
+      }else if(selectedLeft){
+        // pair
+        // remove existing pair using this right
+        Object.keys(pairs).forEach(k=>{if(pairs[k]===it.dataset.id)delete pairs[k];});
+        pairs[selectedLeft]=it.dataset.id;
+        items.forEach(x=>x.classList.remove('selected'));
+        selectedLeft=null;
+        state.answers[id]=pairs;
+        safeSet();
+        refresh();
+      }
+    });
+  });
+
+  refresh();
+
+  if(state.completed[id]){
+    items.forEach(it=>it.style.pointerEvents='none');
+    btn.disabled=true;
+    Object.keys(correct).forEach(L=>{
+      const lEl=q.querySelector(`[data-side="left"][data-id="${L}"]`);
+      const rEl=q.querySelector(`[data-side="right"][data-id="${correct[L]}"]`);
+      if(pairs[L]===correct[L]){lEl.classList.add('correct');rEl.classList.add('correct');}
+      else{lEl?.classList.add('wrong');if(pairs[L])q.querySelector(`[data-side="right"][data-id="${pairs[L]}"]`)?.classList.add('wrong');}
+    });
+    fb.classList.add('show');
+    if(state.graded[id]==='ok'){fb.classList.add('ok');fb.textContent='✓ Alle koppelingen kloppen!';}
+    else{fb.classList.add('err');fb.textContent='Niet alle koppelingen waren goed. De juiste koppelingen zijn nu groen.';}
+  }
+
+  btn.addEventListener('click',()=>{
+    if(state.completed[id])return;
+    if(Object.keys(pairs).length<Object.keys(correct).length){
+      fb.className='feedback show hint';fb.textContent='💭 Maak eerst alle koppelingen.';return;
+    }
+    state.attempts[id]=(state.attempts[id]||0)+1;
+    let ok=true;
+    Object.keys(correct).forEach(L=>{if(pairs[L]!==correct[L])ok=false;});
+    if(ok){
+      fb.className='feedback show ok';fb.textContent='✓ Alle koppelingen kloppen!';
+      items.forEach(it=>{it.style.pointerEvents='none';it.classList.add('correct');});
+      state.completed[id]=true;state.graded[id]='ok';
+      btn.disabled=true;att.textContent='';
+    }else if(state.attempts[id]>=3){
+      // show correct
+      items.forEach(it=>{it.classList.remove('correct','wrong');it.style.pointerEvents='none';});
+      Object.keys(correct).forEach(L=>{
+        const lEl=q.querySelector(`[data-side="left"][data-id="${L}"]`);
+        const rEl=q.querySelector(`[data-side="right"][data-id="${correct[L]}"]`);
+        lEl.classList.add('correct');rEl.classList.add('correct');
+      });
+      fb.className='feedback show err';fb.textContent='Maximum pogingen bereikt. De juiste koppelingen zijn nu groen.';
+      state.completed[id]=true;state.graded[id]='err';
+      btn.disabled=true;att.textContent='';
+    }else{
+      fb.className='feedback show hint';fb.textContent='💭 Sommige koppelingen kloppen nog niet. Lees de uitleg en denk aan de letterlijke betekenis van de begrippen.';
+      att.textContent=`Poging ${state.attempts[id]} van 3`;
+    }
+    safeSet();updateProgress();
+  });
+}
+
+// ===== INIT QUESTIONS =====
+function initAllQuestions(){
+  document.querySelectorAll('.q').forEach(q=>{
+    const t=q.dataset.type;
+    if(t==='mc')setupMC(q);
+    else if(t==='open')setupOpen(q);
+    else if(t==='drag')setupDrag(q);
+    else if(t==='match')setupMatch(q);
+  });
+}
+
+// ===== RESET SECTION =====
+function resetSection(sectionEl){
+  const qs=sectionEl.querySelectorAll('.q');
+  qs.forEach(q=>{
+    const id=q.dataset.q;
+    delete state.answers[id];
+    delete state.attempts[id];
+    delete state.completed[id];
+    delete state.graded[id];
+  });
+  safeSet();
+  // Rebuild this section by re-cloning HTML... easier: full reload
+  location.reload();
+}
+document.querySelectorAll('.btn-reset-section').forEach(b=>{
+  b.addEventListener('click',()=>{
+    if(confirm('Weet je zeker dat je dit onderdeel wilt resetten?')){
+      resetSection(b.closest('.section'));
+    }
+  });
+});
+
+// ===== CLEAR ALL =====
+document.getElementById('btnClearAll').addEventListener('click',()=>{
+  if(confirm('Weet je zeker dat je alle voortgang wilt wissen?')){
+    safeClear();location.reload();
+  }
+});
+
+// ===== MAPS =====
+const maps={};
+window.addEventListener('DOMContentLoaded',()=>{
+  // Map 1: Blue banana
+  if(document.getElementById('map1')){
+    const m1=L.map('map1').setView([50,6],4);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap',maxZoom:10}).addTo(m1);
+    const cities=[
+      {n:'Londen',c:[51.5,-0.12],p:'Hoofdstad VK · ±9 mln · Begin van de blauwe banaan'},
+      {n:'Brussel',c:[50.85,4.35],p:'Hoofdstad België · Politiek hart van de EU'},
+      {n:'Amsterdam',c:[52.37,4.89],p:'Hoofdstad NL · Zeer dichtbevolkt land'},
+      {n:'Ruhrgebied',c:[51.45,7.0],p:'Duitsland · Oude industriezone met miljoenen inwoners'},
+      {n:'Frankfurt',c:[50.11,8.68],p:'Financieel centrum Duitsland'},
+      {n:'Milaan',c:[45.46,9.19],p:'Noord-Italië · Eindpunt blauwe banaan, industrieel hart'}
+    ];
+    cities.forEach(c=>L.marker(c.c).addTo(m1).bindPopup(`<b>${c.n}</b><br>${c.p}`));
+    maps.m1=m1;
+  }
+
+  // Map 2: Migration
+  if(document.getElementById('map2')){
+    const m2=L.map('map2').setView([50,15],4);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap',maxZoom:10}).addTo(m2);
+    const redIcon=new L.Icon({iconUrl:'data:image/svg+xml;base64,'+btoa('<svg xmlns="http://www.w3.org/2000/svg" width="25" height="41" viewBox="0 0 25 41"><path d="M12.5 0C5.6 0 0 5.6 0 12.5c0 9.4 12.5 28.5 12.5 28.5S25 21.9 25 12.5C25 5.6 19.4 0 12.5 0z" fill="#b4632b"/><circle cx="12.5" cy="12.5" r="5" fill="#fff"/></svg>'),iconSize:[25,41],iconAnchor:[12,41]});
+    const greenIcon=new L.Icon({iconUrl:'data:image/svg+xml;base64,'+btoa('<svg xmlns="http://www.w3.org/2000/svg" width="25" height="41" viewBox="0 0 25 41"><path d="M12.5 0C5.6 0 0 5.6 0 12.5c0 9.4 12.5 28.5 12.5 28.5S25 21.9 25 12.5C25 5.6 19.4 0 12.5 0z" fill="#6a8a3a"/><circle cx="12.5" cy="12.5" r="5" fill="#fff"/></svg>'),iconSize:[25,41],iconAnchor:[12,41]});
+    const data=[
+      {n:'Polen',c:[52.2,21.0],t:'red',p:'Veel jongeren vertrekken (emigratie)'},
+      {n:'Roemenië',c:[44.4,26.1],t:'red',p:'Grote emigratie naar West-Europa'},
+      {n:'Bulgarije',c:[42.7,23.3],t:'red',p:'Bevolking krimpt door emigratie'},
+      {n:'Duitsland',c:[52.5,13.4],t:'green',p:'Ontvangt veel arbeidsmigranten'},
+      {n:'Nederland',c:[52.37,4.89],t:'green',p:'Immigratie uit OE en daarbuiten'},
+      {n:'Zweden',c:[59.33,18.07],t:'green',p:'Verwelkomt veel migranten'},
+      {n:'Italië',c:[41.9,12.5],t:'green',p:'Eerste aankomstpunt vanuit Afrika'},
+      {n:'Griekenland',c:[37.98,23.73],t:'green',p:'Eerste aankomstpunt vanuit Midden-Oosten'}
+    ];
+    data.forEach(d=>L.marker(d.c,{icon:d.t==='red'?redIcon:greenIcon}).addTo(m2).bindPopup(`<b>${d.n}</b><br>${d.p}`));
+    maps.m2=m2;
+  }
+
+  // Map 3: Europe overview
+  if(document.getElementById('map3')){
+    const m3=L.map('map3').setView([54,15],4);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap',maxZoom:10}).addTo(m3);
+    const all=[
+      {n:'Nederland',c:[52.13,5.29],p:'Zeer dichtbevolkt: ±520/km²'},
+      {n:'Noorwegen',c:[60.47,8.47],p:'Zeer dunbevolkt: ±15/km²'},
+      {n:'Frankrijk',c:[46.6,2.2],p:'Hoog geboortecijfer (±1,8) door overheidsbeleid'},
+      {n:'Italië',c:[41.87,12.57],p:'Sterk vergrijsd, laag geboortecijfer (±1,2)'},
+      {n:'Spanje',c:[40.46,-3.75],p:'Zeer vergrijsd, jongeren stellen kinderen uit'},
+      {n:'Polen',c:[51.92,19.15],p:'Veel jongeren vertrekken naar West-Europa'},
+      {n:'Roemenië',c:[45.94,24.97],p:'Bevolking krimpt sterk door emigratie'},
+      {n:'Hongarije',c:[47.16,19.5],p:'Weigert vluchtelingen op te vangen'},
+      {n:'Duitsland',c:[51.17,10.45],p:'Ontvangt veel migranten, laag geboortecijfer'},
+      {n:'Zweden',c:[60.13,18.64],p:'Hoog geboortecijfer dankzij beleid'},
+      {n:'Ierland',c:[53.41,-8.24],p:'Hoogste geboortecijfer in West-Europa'}
+    ];
+    all.forEach(c=>L.marker(c.c).addTo(m3).bindPopup(`<b>${c.n}</b><br>${c.p}`));
+    maps.m3=m3;
+  }
+});
+
+// ===== CHARTS =====
+window.addEventListener('DOMContentLoaded',()=>{
+  const chartFont={family:'Nunito',size:12};
+  Chart.defaults.font=chartFont;
+  Chart.defaults.color='#6b5a3e';
+
+  if(document.getElementById('chart1')){
+    new Chart(document.getElementById('chart1'),{
+      type:'bar',
+      data:{
+        labels:['Nederland','België','Duitsland','Frankrijk','Spanje','Finland','Noorwegen'],
+        datasets:[{label:'Inwoners per km²',data:[520,380,235,120,94,18,15],backgroundColor:'#e8b94a',borderColor:'#c8901f',borderWidth:2}]
+      },
+      options:{responsive:true,plugins:{legend:{display:false},title:{display:true,text:'Bevolkingsdichtheid (mensen per km²)'}},scales:{y:{beginAtZero:true}}}
+    });
+  }
+
+  if(document.getElementById('chart2')){
+    new Chart(document.getElementById('chart2'),{
+      type:'bar',
+      data:{
+        labels:['Italië','Portugal','Duitsland','Frankrijk','Nederland','Polen','Ierland'],
+        datasets:[{label:'% 65+',data:[24,23,22,21,20,19,15],backgroundColor:'#a07a44',borderColor:'#7a5a2e',borderWidth:2}]
+      },
+      options:{responsive:true,plugins:{legend:{display:false},title:{display:true,text:'Percentage 65-plussers in de bevolking'}},scales:{y:{beginAtZero:true,max:30,ticks:{callback:v=>v+'%'}}}}
+    });
+  }
+
+  if(document.getElementById('chart3')){
+    new Chart(document.getElementById('chart3'),{
+      type:'bar',
+      data:{
+        labels:['Frankrijk','Ierland','Zweden','Nederland','Duitsland','Spanje','Italië'],
+        datasets:[{label:'Kinderen per vrouw',data:[1.8,1.75,1.7,1.55,1.4,1.25,1.2],backgroundColor:'#8a8a3a',borderColor:'#6a6a2a',borderWidth:2}]
+      },
+      options:{responsive:true,plugins:{legend:{display:false},title:{display:true,text:'Gemiddeld aantal kinderen per vrouw'}},scales:{y:{beginAtZero:true,max:2.5}}}
+    });
+  }
+});
+
+// ===== START =====
+initAllQuestions();
+showTab(state.currentTab||0);
+updateProgress();
+</script>
+</body>
+</html>
