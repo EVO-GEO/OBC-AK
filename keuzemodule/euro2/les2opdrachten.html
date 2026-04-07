@@ -1,0 +1,1541 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>De Fysische Dimensie — HAVO 2 Aardrijkskunde</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --emerald-deep: #064e3b;
+  --emerald: #047857;
+  --emerald-light: #10b981;
+  --emerald-pale: #d1fae5;
+  --emerald-mist: #ecfdf5;
+  --sand: #faf8f3;
+  --stone: #78716c;
+  --stone-light: #e7e5e4;
+  --cream: #fefcf7;
+  --ink: #1c1917;
+  --warm-gray: #57534e;
+  --terracotta: #c2410c;
+  --sky: #0369a1;
+  --gold: #b45309;
+  --radius: 14px;
+  --radius-sm: 8px;
+  --shadow: 0 2px 14px rgba(6, 78, 59, 0.07);
+  --shadow-lg: 0 6px 28px rgba(6, 78, 59, 0.12);
+  --space: 1rem;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { font-family: 'Nunito', system-ui, sans-serif; background: var(--sand); color: var(--ink); line-height: 1.65; font-size: 16px; }
+body { min-height: 100vh; padding-bottom: 3rem; }
+
+/* HEADER */
+.page-header {
+  background: linear-gradient(135deg, var(--emerald-deep) 0%, var(--emerald) 100%);
+  color: var(--cream);
+  padding: 2.5rem 2rem 2rem;
+  text-align: center;
+}
+.page-header h1 { font-size: 2rem; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 0.4rem; }
+.page-header p { opacity: 0.9; font-size: 1.05rem; font-weight: 300; }
+.page-header .meta { margin-top: 0.8rem; font-size: 0.85rem; opacity: 0.75; }
+
+/* PROGRESS BAR */
+.progress-wrap {
+  position: sticky; top: 0; z-index: 100;
+  background: var(--cream);
+  border-bottom: 1px solid var(--stone-light);
+  box-shadow: var(--shadow);
+}
+.progress-inner { max-width: 1100px; margin: 0 auto; padding: 0.9rem 1.5rem; }
+.progress-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; font-size: 0.85rem; color: var(--warm-gray); font-weight: 600; }
+.progress-info .count { color: var(--emerald-deep); font-weight: 700; }
+.progress-bar { height: 8px; background: var(--stone-light); border-radius: 99px; overflow: hidden; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, var(--emerald-light), var(--emerald)); width: 0%; transition: width 0.5s ease; border-radius: 99px; }
+
+/* TABS */
+.tabs-bar {
+  background: var(--cream);
+  border-bottom: 1px solid var(--stone-light);
+  position: sticky; top: 56px; z-index: 99;
+}
+.tabs-inner {
+  max-width: 1100px; margin: 0 auto;
+  display: flex; gap: 0.4rem;
+  overflow-x: auto;
+  padding: 0.6rem 1.5rem;
+  scrollbar-width: thin;
+}
+.tab-btn {
+  flex-shrink: 0;
+  background: transparent;
+  border: 1.5px solid var(--stone-light);
+  padding: 0.5rem 1rem;
+  border-radius: 99px;
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--warm-gray);
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.tab-btn:hover { border-color: var(--emerald-light); color: var(--emerald-deep); }
+.tab-btn.active { background: var(--emerald-deep); color: var(--cream); border-color: var(--emerald-deep); }
+.tab-btn.completed::before { content: "✓ "; color: var(--emerald-light); font-weight: 800; }
+.tab-btn.active.completed::before { color: var(--emerald-pale); }
+
+/* MAIN */
+main { max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem; }
+.tab-section { display: none; animation: fadeIn 0.4s ease; }
+.tab-section.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+.section-header {
+  margin-bottom: 1.8rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid var(--emerald-pale);
+}
+.section-header .label { font-size: 0.8rem; color: var(--emerald); font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.3rem; }
+.section-header h2 { font-size: 1.7rem; color: var(--emerald-deep); font-weight: 800; letter-spacing: -0.01em; }
+
+/* CONTENT BLOCKS */
+.explainer {
+  background: var(--cream);
+  border-radius: var(--radius);
+  padding: 1.6rem 1.8rem;
+  margin-bottom: 1.5rem;
+  box-shadow: var(--shadow);
+  border-left: 4px solid var(--emerald);
+}
+.explainer h3 { color: var(--emerald-deep); font-size: 1.2rem; margin-bottom: 0.7rem; font-weight: 700; }
+.explainer h4 { color: var(--emerald); font-size: 1.05rem; margin-top: 1.1rem; margin-bottom: 0.4rem; font-weight: 700; }
+.explainer p { margin-bottom: 0.8rem; color: var(--ink); }
+.explainer ul { margin: 0.5rem 0 0.8rem 1.4rem; }
+.explainer li { margin-bottom: 0.3rem; }
+
+.visual-flow {
+  background: linear-gradient(135deg, var(--emerald-mist), var(--cream));
+  border: 1.5px dashed var(--emerald-light);
+  border-radius: var(--radius);
+  padding: 1.4rem 1rem;
+  margin: 1.2rem 0;
+  text-align: center;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--emerald-deep);
+  line-height: 2;
+}
+
+.callout {
+  background: linear-gradient(135deg, #fef9e7, #fefcf7);
+  border-left: 4px solid var(--gold);
+  padding: 1rem 1.2rem;
+  border-radius: var(--radius-sm);
+  margin: 1rem 0;
+}
+.callout strong { color: var(--gold); }
+
+.real-world {
+  background: linear-gradient(135deg, var(--emerald-mist), #fff);
+  border: 1px solid var(--emerald-pale);
+  border-radius: var(--radius-sm);
+  padding: 1rem 1.2rem;
+  margin: 1rem 0;
+}
+.real-world .icon { font-size: 1.4rem; margin-right: 0.4rem; }
+.real-world strong { color: var(--emerald-deep); }
+
+/* COMPARISON TABLE */
+.compare-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  margin: 1rem 0;
+  background: var(--cream);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+.compare-table th, .compare-table td { padding: 0.8rem 1rem; text-align: left; border-bottom: 1px solid var(--stone-light); }
+.compare-table th { background: var(--emerald-deep); color: var(--cream); font-weight: 700; font-size: 0.9rem; }
+.compare-table tr:last-child td { border-bottom: none; }
+.compare-table tr:nth-child(even) td { background: var(--emerald-mist); }
+
+/* QUESTIONS */
+.question {
+  background: var(--cream);
+  border-radius: var(--radius);
+  padding: 1.4rem 1.6rem;
+  margin-bottom: 1.2rem;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--stone-light);
+}
+.question.locked { opacity: 0.85; }
+.q-label { display: inline-block; background: var(--emerald-pale); color: var(--emerald-deep); font-size: 0.72rem; font-weight: 800; padding: 0.2rem 0.6rem; border-radius: 99px; letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 0.5rem; }
+.q-text { font-weight: 600; color: var(--ink); margin-bottom: 0.9rem; font-size: 1rem; }
+.options { display: flex; flex-direction: column; gap: 0.5rem; }
+.option-btn {
+  background: var(--sand);
+  border: 1.5px solid var(--stone-light);
+  padding: 0.7rem 1rem;
+  border-radius: var(--radius-sm);
+  font-family: inherit;
+  font-size: 0.95rem;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: var(--ink);
+}
+.option-btn:hover:not(:disabled) { border-color: var(--emerald-light); background: var(--emerald-mist); }
+.option-btn.correct { background: var(--emerald-pale); border-color: var(--emerald); color: var(--emerald-deep); font-weight: 700; }
+.option-btn.wrong { background: #fee2e2; border-color: #dc2626; color: #991b1b; }
+.option-btn:disabled { cursor: not-allowed; }
+
+.feedback {
+  margin-top: 0.8rem;
+  padding: 0.8rem 1rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.9rem;
+  display: none;
+}
+.feedback.show { display: block; }
+.feedback.hint { background: #fef3c7; border-left: 3px solid var(--gold); color: #78350f; }
+.feedback.success { background: var(--emerald-pale); border-left: 3px solid var(--emerald); color: var(--emerald-deep); }
+.feedback.reveal { background: #e0f2fe; border-left: 3px solid var(--sky); color: #0c4a6e; }
+
+textarea.open-answer {
+  width: 100%;
+  min-height: 90px;
+  padding: 0.8rem 1rem;
+  border: 1.5px solid var(--stone-light);
+  border-radius: var(--radius-sm);
+  font-family: inherit;
+  font-size: 0.95rem;
+  resize: vertical;
+  background: var(--sand);
+  color: var(--ink);
+}
+textarea.open-answer:focus { outline: none; border-color: var(--emerald-light); background: var(--cream); }
+.word-count { font-size: 0.8rem; color: var(--warm-gray); margin-top: 0.4rem; }
+.word-count.ok { color: var(--emerald); font-weight: 700; }
+
+button.action {
+  background: var(--emerald-deep);
+  color: var(--cream);
+  border: none;
+  padding: 0.55rem 1.1rem;
+  border-radius: var(--radius-sm);
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-top: 0.6rem;
+  margin-right: 0.4rem;
+}
+button.action:hover { background: var(--emerald); transform: translateY(-1px); }
+button.action:disabled { background: var(--stone); cursor: not-allowed; transform: none; }
+button.action.secondary { background: var(--cream); color: var(--emerald-deep); border: 1.5px solid var(--emerald-deep); }
+button.action.secondary:hover { background: var(--emerald-mist); }
+button.action.good { background: var(--emerald); }
+button.action.bad { background: var(--terracotta); }
+
+.self-assess { display: none; margin-top: 0.6rem; }
+.self-assess.show { display: block; }
+.self-assess p { font-size: 0.85rem; color: var(--warm-gray); margin-bottom: 0.3rem; }
+
+.example-answer {
+  display: none;
+  background: var(--emerald-mist);
+  border-left: 3px solid var(--emerald);
+  padding: 0.9rem 1.1rem;
+  border-radius: var(--radius-sm);
+  margin-top: 0.7rem;
+  font-size: 0.92rem;
+}
+.example-answer.show { display: block; }
+.example-answer strong { color: var(--emerald-deep); }
+
+/* DRAG & DROP */
+.drag-list {
+  list-style: none;
+  padding: 0;
+  margin: 0.8rem 0;
+}
+.drag-item {
+  background: var(--cream);
+  border: 1.5px solid var(--stone-light);
+  border-left: 4px solid var(--emerald-light);
+  padding: 0.7rem 1rem;
+  margin-bottom: 0.5rem;
+  border-radius: var(--radius-sm);
+  cursor: grab;
+  font-weight: 600;
+  user-select: none;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+.drag-item::before { content: "⋮⋮"; color: var(--stone); font-size: 1.2rem; }
+.drag-item:hover { background: var(--emerald-mist); }
+.drag-item.dragging { opacity: 0.4; }
+.drag-item.drag-over { border-top: 3px solid var(--emerald); }
+.drag-item.correct-pos { border-left-color: var(--emerald); background: var(--emerald-pale); }
+.drag-item.wrong-pos { border-left-color: var(--terracotta); background: #fee2e2; }
+
+/* MATCH */
+.match-wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 0.8rem; }
+.match-col h4 { font-size: 0.85rem; color: var(--emerald); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem; font-weight: 700; }
+.match-item {
+  background: var(--cream);
+  border: 1.5px solid var(--stone-light);
+  padding: 0.7rem 0.9rem;
+  margin-bottom: 0.5rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: 0.92rem;
+  transition: all 0.2s;
+}
+.match-item:hover:not(.locked) { border-color: var(--emerald-light); }
+.match-item.selected { background: var(--emerald-deep); color: var(--cream); border-color: var(--emerald-deep); }
+.match-item.matched-1 { background: #fef3c7; border-color: var(--gold); }
+.match-item.matched-2 { background: #dbeafe; border-color: var(--sky); }
+.match-item.matched-3 { background: var(--emerald-pale); border-color: var(--emerald); }
+.match-item.matched-4 { background: #fce7f3; border-color: #be185d; }
+.match-item.locked { cursor: default; }
+
+/* MAP */
+.map-container {
+  height: 420px;
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin: 1rem 0;
+  box-shadow: var(--shadow);
+  border: 2px solid var(--emerald-pale);
+}
+.chart-container { background: var(--cream); padding: 1.2rem; border-radius: var(--radius); box-shadow: var(--shadow); margin: 1rem 0; }
+
+/* NAV */
+.nav-buttons {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--stone-light);
+}
+.nav-btn {
+  background: var(--emerald-deep);
+  color: var(--cream);
+  border: none;
+  padding: 0.8rem 1.6rem;
+  border-radius: var(--radius-sm);
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.nav-btn:hover:not(:disabled) { background: var(--emerald); }
+.nav-btn:disabled { background: var(--stone-light); color: var(--stone); cursor: not-allowed; }
+.reset-section-btn {
+  background: transparent;
+  color: var(--terracotta);
+  border: 1px solid var(--terracotta);
+  padding: 0.4rem 0.9rem;
+  border-radius: var(--radius-sm);
+  font-family: inherit;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 1rem;
+}
+.reset-section-btn:hover { background: var(--terracotta); color: var(--cream); }
+
+/* INTRO TAB */
+.learning-goals { background: var(--cream); padding: 1.4rem 1.6rem; border-radius: var(--radius); box-shadow: var(--shadow); margin-bottom: 1.5rem; }
+.learning-goals h3 { color: var(--emerald-deep); margin-bottom: 0.7rem; }
+.learning-goals ul { list-style: none; padding: 0; }
+.learning-goals li { padding: 0.5rem 0 0.5rem 1.8rem; position: relative; border-bottom: 1px dashed var(--stone-light); }
+.learning-goals li:last-child { border-bottom: none; }
+.learning-goals li::before { content: "🎯"; position: absolute; left: 0; }
+
+/* FINAL */
+.final-score {
+  background: linear-gradient(135deg, var(--emerald-deep), var(--emerald));
+  color: var(--cream);
+  padding: 2rem;
+  border-radius: var(--radius);
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+.final-score .pct { font-size: 3.5rem; font-weight: 800; line-height: 1; }
+.final-score .label { font-size: 1rem; opacity: 0.9; margin-top: 0.4rem; }
+
+.global-reset {
+  background: transparent;
+  color: var(--cream);
+  border: 1px solid rgba(255,255,255,0.5);
+  padding: 0.4rem 0.9rem;
+  border-radius: var(--radius-sm);
+  font-family: inherit;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 0.8rem;
+}
+
+@media (max-width: 768px) {
+  main { padding: 1.2rem 1rem; }
+  .match-wrap { grid-template-columns: 1fr; }
+  .page-header h1 { font-size: 1.5rem; }
+  .section-header h2 { font-size: 1.4rem; }
+  .explainer { padding: 1.2rem; }
+}
+</style>
+</head>
+<body>
+
+<header class="page-header">
+  <h1>🌍 De Fysische Dimensie</h1>
+  <p>HAVO 2 · Aardrijkskunde · Les 2</p>
+  <div class="meta">~60 minuten · 8 onderdelen · interactief</div>
+  <button class="global-reset" id="globalReset">Voortgang wissen</button>
+</header>
+
+<div class="progress-wrap">
+  <div class="progress-inner">
+    <div class="progress-info">
+      <span>Jouw voortgang</span>
+      <span class="count"><span id="progressPct">0</span>% voltooid · Onderdeel <span id="currentTab">1</span> van <span id="totalTabs">8</span></span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+  </div>
+</div>
+
+<nav class="tabs-bar">
+  <div class="tabs-inner" id="tabsInner"></div>
+</nav>
+
+<main>
+
+<!-- ============ TAB 1: INTRO ============ -->
+<section class="tab-section active" data-tab="0">
+  <div class="section-header">
+    <div class="label">Onderdeel 1 · Introductie</div>
+    <h2>Waarom kijken we naar de natuur van een land?</h2>
+  </div>
+
+  <div class="explainer">
+    <h3>De wereld zoals ze eruitziet</h3>
+    <p>Waarom woont bijna iedereen in Nederland in het westen van het land? Waarom heeft Noorwegen zo weinig landbouw? Waarom trekt Spanje elk jaar miljoenen toeristen? Veel van die antwoorden begin je te begrijpen als je kijkt naar de <strong>fysische dimensie</strong> — de natuur van een land.</p>
+    <p>De fysische dimensie gaat over alles wat er is voordat mensen iets bouwen of besluiten: het landschap, de hoogteverschillen, het klimaat, de rivieren en de ligging op de kaart. Die natuurlijke omgeving is niet alleen mooi om naar te kijken — ze bepaalt ook waar mensen gaan wonen, wat ze verbouwen, hoe ze reizen en welke risico's ze lopen.</p>
+    <p>In deze les leer je de vier belangrijkste onderdelen van de fysische dimensie kennen: <strong>ligging, reliëf, klimaat en watersystemen</strong>. Je past ze toe op echte landen en je vergelijkt ze. Aan het eind van de les kun je uitleggen waarom een land eruitziet zoals het eruitziet — en waarom mensen er leven zoals ze leven.</p>
+
+    <div class="visual-flow">
+      🌍 Ligging &nbsp;→&nbsp; ⛰️ Reliëf &nbsp;→&nbsp; ☀️ Klimaat &nbsp;→&nbsp; 🌊 Water &nbsp;→&nbsp; 👥 Hoe mensen leven
+    </div>
+
+    <div class="real-world">
+      <span class="icon">✈️</span><strong>Reizen-tip:</strong> Heb je ooit op vakantie gedacht "waarom zien de huizen hier zo anders uit?" of "waarom eten ze hier ineens zoveel olijven"? Dat is bijna altijd de fysische dimensie aan het werk. Een wit huis met luiken in Spanje? Dat is een antwoord op de hete zon. Een steil dak in de Alpen? Dat is een antwoord op meters sneeuw.
+    </div>
+  </div>
+
+  <div class="learning-goals">
+    <h3>Wat ga je leren?</h3>
+    <ul>
+      <li>Ik kan uitleggen wat de fysische dimensie inhoudt.</li>
+      <li>Ik kan de fysisch-geografische kenmerken benoemen: ligging, reliëf, klimaat en watersystemen.</li>
+      <li>Ik kan uitleggen hoe fysische kenmerken invloed hebben op hoe mensen in een land leven.</li>
+      <li>Ik kan de fysische dimensie toepassen op twee landen.</li>
+      <li>Ik kan de fysische kenmerken van twee landen met elkaar vergelijken.</li>
+    </ul>
+  </div>
+
+  <div class="question" data-q="intro1" data-type="mc">
+    <span class="q-label">Vraag 1 · Multiple choice</span>
+    <p class="q-text">Welke van de volgende dingen hoort bij de fysische dimensie van een land?</p>
+    <div class="options">
+      <button class="option-btn" data-correct="false">De grondwet en wetten van het land</button>
+      <button class="option-btn" data-correct="false">Het aantal inwoners en hun talen</button>
+      <button class="option-btn" data-correct="true">De rivieren, bergen en het klimaat</button>
+      <button class="option-btn" data-correct="false">De economie en de bedrijven</button>
+    </div>
+    <div class="feedback"></div>
+  </div>
+
+  <div class="question" data-q="intro2" data-type="open">
+    <span class="q-label">Vraag 2 · Open vraag</span>
+    <p class="q-text">Bedenk twee plekken in jouw omgeving die er duidelijk anders uitzien (bijv. een oud centrum vs. een nieuwe wijk, of een dorp vs. een stad). Verklaar het verschil tussen die twee plekken vanuit minstens één fysisch kenmerk (water, reliëf, ligging of klimaat). Waarom is de natuur hier dus niet de enige verklaring?</p>
+    <textarea class="open-answer" placeholder="Bijvoorbeeld: bij mij in de buurt..."></textarea>
+    <div class="word-count">0 woorden (minimaal 35)</div>
+    <button class="action show-example" disabled>Toon voorbeeldantwoord</button>
+    <div class="example-answer">
+      <strong>Voorbeeldantwoord:</strong> Bij mij in Arnhem zie je een groot verschil tussen het oude centrum (laag, dicht bij de Rijn) en de wijken op de Veluwezoom (hoger, op de heuvels). De stad ontstond aan de rivier omdat dat handig was voor handel en drinkwater — een fysische verklaring. Maar dat de wijken op de heuvels pas veel later zijn gebouwd, heeft te maken met menselijke keuzes: pas met betere wegen en auto's werd het aantrekkelijk om hoger te gaan wonen. De natuur biedt dus de basis, maar mensen bepalen wat ze ermee doen.
+    </div>
+    <div class="self-assess">
+      <p>Vergelijk jouw antwoord met het voorbeeld. Hoe deed je het?</p>
+      <button class="action good" data-mark="good">Goed ✓</button>
+      <button class="action bad" data-mark="bad">Kan beter ✗</button>
+    </div>
+  </div>
+
+  <div class="nav-buttons">
+    <button class="nav-btn prev-btn" disabled>← Vorige</button>
+    <button class="nav-btn next-btn">Volgende →</button>
+  </div>
+  <button class="reset-section-btn">↻ Reset dit onderdeel</button>
+</section>
+
+<!-- ============ TAB 2: LIGGING ============ -->
+<section class="tab-section" data-tab="1">
+  <div class="section-header">
+    <div class="label">Onderdeel 2 · Ligging</div>
+    <h2>Waar ligt een land — en waarom maakt dat uit?</h2>
+  </div>
+
+  <div class="explainer">
+    <h3>Absolute en relatieve ligging</h3>
+    <p>De <strong>ligging</strong> van een land is misschien wel het belangrijkste startpunt van de fysische dimensie. Geografen kijken naar twee soorten ligging. De <strong>absolute ligging</strong> is de exacte positie op de kaart, uitgedrukt in breedtegraden (noord-zuid) en lengtegraden (oost-west). Amsterdam ligt bijvoorbeeld op ongeveer 52° noorderbreedte. Hoe verder je van de evenaar afligt, hoe kouder het over het algemeen is.</p>
+    <p>De <strong>relatieve ligging</strong> beschrijft hoe een land ligt ten opzichte van andere dingen: andere landen, zeeën, gebergten, handelsroutes. Nederland ligt aan de Noordzee, vlak naast Duitsland en België, en aan de monding van grote rivieren. Die relatieve ligging heeft Nederland eeuwenlang tot een belangrijk handelsland gemaakt. Een land als Tsjechië ligt daarentegen midden in Europa, zonder kust — dat noemen we een <em>binnenland</em>, en het heeft heel andere mogelijkheden.</p>
+    <p>De ligging bepaalt voor een groot deel het klimaat, de toegang tot zee, de natuurlijke grenzen en zelfs de cultuur van een land. Een eiland zoals IJsland ontwikkelt zich anders dan een land midden in Europa. Een land op de evenaar ervaart elke dag bijna hetzelfde weer; een land op 60° noorderbreedte heeft korte zomers en lange, donkere winters.</p>
+
+    <div class="visual-flow">
+      📍 Absolute ligging (graden) &nbsp;+&nbsp; 🧭 Relatieve ligging (buren, zee, bergen) &nbsp;=&nbsp; 🌍 Karakter van het land
+    </div>
+
+    <div class="real-world">
+      <span class="icon">✈️</span><strong>Reisvoorbeeld:</strong> Als je in juli naar Noord-Noorwegen vliegt, gaat de zon daar 's nachts niet onder. Als je in december naar Zuid-Spanje vliegt, kun je in een t-shirt aan het strand zitten. Beide landen liggen in Europa — maar hun absolute ligging maakt het verschil enorm.
+    </div>
+  </div>
+
+  <div class="map-container" id="map-ligging"></div>
+
+  <div class="question" data-q="lig1" data-type="mc">
+    <span class="q-label">Vraag 1 · Multiple choice</span>
+    <p class="q-text">Wat is een voorbeeld van de <em>relatieve</em> ligging van Nederland?</p>
+    <div class="options">
+      <button class="option-btn" data-correct="false">Nederland ligt op 52° noorderbreedte.</button>
+      <button class="option-btn" data-correct="true">Nederland ligt aan de Noordzee, naast Duitsland en België.</button>
+      <button class="option-btn" data-correct="false">Nederland heeft 17 miljoen inwoners.</button>
+      <button class="option-btn" data-correct="false">Nederland is lid van de Europese Unie.</button>
+    </div>
+    <div class="feedback"></div>
+  </div>
+
+  <div class="question" data-q="lig2" data-type="open">
+    <span class="q-label">Vraag 2 · Klopt deze redenering?</span>
+    <p class="q-text"><em>Een leerling beweert:</em> "Omdat IJsland en Italië allebei eilanden of schiereilanden in Europa zijn, hebben ze ongeveer dezelfde fysische kenmerken." Klopt deze redenering? Verklaar wat er goed of fout is, en gebruik daarbij het verschil tussen absolute en relatieve ligging.</p>
+    <textarea class="open-answer" placeholder="Schrijf je analyse..."></textarea>
+    <div class="word-count">0 woorden (minimaal 35)</div>
+    <button class="action show-example" disabled>Toon voorbeeldantwoord</button>
+    <div class="example-answer">
+      <strong>Voorbeeldantwoord:</strong> De redenering klopt niet. De leerling kijkt alleen naar één deel van de relatieve ligging — beide hebben veel kustlijn — maar negeert de absolute ligging volledig. IJsland ligt rond de 65° noorderbreedte, vlak onder de poolcirkel, terwijl Italië rond de 42° ligt, in het mediterrane gebied. Dat verschil in breedtegraad zorgt voor een totaal ander klimaat: IJsland is koud, vulkanisch en grotendeels onbewoond, terwijl Italië warm is, met olijfgaarden en wijnbouw. Eiland of schiereiland zijn alleen zegt dus weinig — je moet altijd kijken naar zowel absolute als relatieve ligging.
+    </div>
+    <div class="self-assess">
+      <p>Hoe deed je het?</p>
+      <button class="action good" data-mark="good">Goed ✓</button>
+      <button class="action bad" data-mark="bad">Kan beter ✗</button>
+    </div>
+  </div>
+
+  <div class="question" data-q="lig3" data-type="open">
+    <span class="q-label">Vraag 3 · Open vraag</span>
+    <p class="q-text">Verklaar in een 'waarom-keten' waarom Nederland historisch een handelsland is geworden, en Tsjechië niet. Gebruik in je antwoord minstens twee fysische kenmerken (denk aan ligging én water) en leg uit hoe die elkaar versterken.</p>
+    <textarea class="open-answer" placeholder="Schrijf hier je antwoord..."></textarea>
+    <div class="word-count">0 woorden (minimaal 35)</div>
+    <button class="action show-example" disabled>Toon voorbeeldantwoord</button>
+    <div class="example-answer">
+      <strong>Voorbeeldantwoord:</strong> Nederland heeft twee fysische voordelen die elkaar versterken. Ten eerste de relatieve ligging: het ligt aan de Noordzee, met directe toegang tot Engeland, Scandinavië en de Atlantische Oceaan. Ten tweede de monding van grote rivieren als de Rijn en de Maas, waardoor goederen vanuit Nederland diep Europa in vervoerd kunnen worden. Die combinatie — kust én rivierdelta — maakte Rotterdam uiteindelijk de grootste haven van Europa. Tsjechië mist beide: het is een binnenland zonder kust, en heeft alleen kleinere rivieren. Goederen moeten daar altijd over land of via buurlanden vervoerd worden, wat duurder en trager is. Daarom werd Nederland een handelsnatie en Tsjechië niet.
+    </div>
+    <div class="self-assess">
+      <p>Hoe deed je het?</p>
+      <button class="action good" data-mark="good">Goed ✓</button>
+      <button class="action bad" data-mark="bad">Kan beter ✗</button>
+    </div>
+  </div>
+
+  <div class="nav-buttons">
+    <button class="nav-btn prev-btn">← Vorige</button>
+    <button class="nav-btn next-btn">Volgende →</button>
+  </div>
+  <button class="reset-section-btn">↻ Reset dit onderdeel</button>
+</section>
+
+<!-- ============ TAB 3: RELIEF ============ -->
+<section class="tab-section" data-tab="2">
+  <div class="section-header">
+    <div class="label">Onderdeel 3 · Reliëf</div>
+    <h2>Bergen, vlakten en alles ertussenin</h2>
+  </div>
+
+  <div class="explainer">
+    <h3>Wat is reliëf?</h3>
+    <p><strong>Reliëf</strong> is het woord voor de hoogteverschillen in een landschap. Een land kan helemaal vlak zijn — zoals Nederland, waar het hoogste punt slechts 322 meter is — of juist enorm bergachtig, zoals Zwitserland, waar de Mont Blanc 4.808 meter hoog is. Tussen deze extremen ligt een wereld aan landschappen: heuvelland, plateaus, valleien en kustvlakten.</p>
+    <p>Reliëf ontstaat door <strong>geologische processen</strong>: gebergten worden gevormd doordat aardplaten tegen elkaar botsen (de Alpen zijn zo ontstaan), erosie door rivieren slijt landschap weer af, en gletsjers schaven valleien uit in de bergen. Vulkanen kunnen in korte tijd hele bergen opwerpen. Deze processen duren miljoenen jaren — wat jij vandaag ziet, is het resultaat van een ongelooflijk lange geschiedenis.</p>
+    <p>Het reliëf heeft enorme gevolgen voor hoe mensen leven. In bergachtige gebieden is landbouw moeilijk: hellingen zijn lastig te bewerken en de grond spoelt makkelijk weg. Maar bergen trekken wel toeristen, en ze zijn vaak rijk aan delfstoffen. Vlakke gebieden zijn makkelijker te bebouwen, te bewerken voor akkerbouw en geschikt voor wegen, treinen en steden. Daarom liggen de meeste grote Europese steden in vlakke of licht heuvelachtige gebieden — denk aan Parijs, Berlijn, Warschau.</p>
+
+    <div class="visual-flow">
+      🌋 Aardplaten botsen → ⛰️ Bergen ontstaan → 🏔️ Gletsjers slijten → 🏞️ Valleien → 🏘️ Mensen vestigen zich
+    </div>
+
+    <table class="compare-table">
+      <thead><tr><th>Type reliëf</th><th>🌾 Landbouw</th><th>🏘️ Wonen</th><th>🎿 Toerisme</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Vlak land</strong></td><td>Heel goed</td><td>Heel goed</td><td>Matig</td></tr>
+        <tr><td><strong>Heuvelland</strong></td><td>Goed</td><td>Goed</td><td>Goed</td></tr>
+        <tr><td><strong>Hooggebergte</strong></td><td>Moeilijk</td><td>Moeilijk</td><td>Uitstekend</td></tr>
+      </tbody>
+    </table>
+
+    <div class="real-world">
+      <span class="icon">✈️</span><strong>Reisvoorbeeld:</strong> Heb jij wel eens in Zwitserland geskied of wandeltochten in de Pyreneeën gemaakt? Dan heb je gezien dat er hele dorpen leven van toerisme — kabelbanen, hotels, restaurants. In vlakke landbouwgebieden zoals Polen of het noorden van Duitsland zie je dat veel minder; daar is het land letterlijk de bron van inkomsten via boerderijen.
+    </div>
+  </div>
+
+  <div class="question" data-q="rel1" data-type="drag">
+    <span class="q-label">Vraag 1 · Sleep in volgorde</span>
+    <p class="q-text">Sleep deze landen op volgorde van <strong>vlakste</strong> (boven) naar <strong>meest bergachtig</strong> (onder).</p>
+    <ul class="drag-list" data-correct-order="Nederland,Polen,Frankrijk,Zwitserland">
+      <li class="drag-item" draggable="true" data-value="Frankrijk">🇫🇷 Frankrijk</li>
+      <li class="drag-item" draggable="true" data-value="Nederland">🇳🇱 Nederland</li>
+      <li class="drag-item" draggable="true" data-value="Zwitserland">🇨🇭 Zwitserland</li>
+      <li class="drag-item" draggable="true" data-value="Polen">🇵🇱 Polen</li>
+    </ul>
+    <button class="action check-order">Controleer volgorde</button>
+    <div class="feedback"></div>
+  </div>
+
+  <div class="question" data-q="rel2" data-type="mc">
+    <span class="q-label">Vraag 2 · Multiple choice</span>
+    <p class="q-text">Welke verklaring voor moeizame landbouw in bergachtige gebieden is het meest compleet?</p>
+    <div class="options">
+      <button class="option-btn" data-correct="false">Het is er te koud voor de meeste gewassen.</button>
+      <button class="option-btn" data-correct="false">Hellingen zijn moeilijk te bewerken met machines.</button>
+      <button class="option-btn" data-correct="false">De vruchtbare bovenlaag spoelt makkelijk weg door regen.</button>
+      <button class="option-btn" data-correct="true">Een combinatie: steile hellingen, dunne bodems én een korter groeiseizoen op hoogte.</button>
+    </div>
+    <div class="feedback"></div>
+  </div>
+
+  <div class="question" data-q="rel3" data-type="open">
+    <span class="q-label">Vraag 3 · Open vraag</span>
+    <p class="q-text">Voorspel: stel dat een vlak land als Nederland binnen een paar duizend jaar door tektoniek 1500 meter omhoog zou komen en heuvelachtig wordt. Noem minimaal drie concrete gevolgen voor hoe Nederlanders zouden leven, en leg per gevolg uit waarom dat zou veranderen.</p>
+    <textarea class="open-answer" placeholder="Schrijf hier je observaties..."></textarea>
+    <div class="word-count">0 woorden (minimaal 35)</div>
+    <button class="action show-example" disabled>Toon voorbeeldantwoord</button>
+    <div class="example-answer">
+      <strong>Voorbeeldantwoord:</strong> Ten eerste zou de fietscultuur grotendeels verdwijnen: heuvels van honderden meters maken dagelijks fietsen voor de meeste mensen te zwaar, dus auto's en openbaar vervoer zouden dominanter worden. Ten tweede zou de landbouw veranderen: grote akkerbouwgebieden zoals in Flevoland zouden plaatsmaken voor veeteelt en mogelijk wijnbouw op de hellingen, omdat akkerbouw op steile grond niet rendabel is. Ten derde zou het overstromingsrisico van de zee verdwijnen, maar er ontstaan nieuwe risico's: aardverschuivingen, erosie en plaatselijke wateroverlast in valleien. Steden zoals Amsterdam zouden waarschijnlijk niet meer op dezelfde plek liggen, omdat de geografische logica (laagste punt, riviermondingen) totaal verandert.
+    </div>
+    <div class="self-assess">
+      <p>Hoe deed je het?</p>
+      <button class="action good" data-mark="good">Goed ✓</button>
+      <button class="action bad" data-mark="bad">Kan beter ✗</button>
+    </div>
+  </div>
+
+  <div class="nav-buttons">
+    <button class="nav-btn prev-btn">← Vorige</button>
+    <button class="nav-btn next-btn">Volgende →</button>
+  </div>
+  <button class="reset-section-btn">↻ Reset dit onderdeel</button>
+</section>
+
+<!-- ============ TAB 4: KLIMAAT ============ -->
+<section class="tab-section" data-tab="3">
+  <div class="section-header">
+    <div class="label">Onderdeel 4 · Klimaat</div>
+    <h2>Het weer dat een land typeert</h2>
+  </div>
+
+  <div class="explainer">
+    <h3>Wat is klimaat — en welke types zijn er in Europa?</h3>
+    <p>Het verschil tussen <strong>weer</strong> en <strong>klimaat</strong> is belangrijk. Weer is wat er vandaag of morgen gebeurt: regen, zon, wind. Klimaat is het gemiddelde weer over een lange periode — meestal 30 jaar of meer. In Europa onderscheiden we ruwweg drie grote klimaattypen, en elk vertelt een eigen verhaal over hoe mensen er leven.</p>
+    <p>Het <strong>zeeklimaat</strong> vind je aan de westkust van Europa, in landen als Nederland, België, Ierland en het westen van Frankrijk. De zee houdt de temperatuur het hele jaar gematigd: zachte winters, koele zomers en regelmatig neerslag verspreid over het hele jaar. Daarom is Nederland zo groen, maar ook zo grijs in november. Het <strong>landklimaat</strong> komt voor in Oost-Europa en Rusland, ver van de zee. Daar zijn de winters strenger (-20°C is geen uitzondering) en de zomers warmer en droger. Het <strong>mediterrane klimaat</strong> rond de Middellandse Zee — in Spanje, Italië, Griekenland en Zuid-Frankrijk — heeft hete, droge zomers en milde, natte winters. Olijfbomen, citrusvruchten en wijnranken doen het hier uitstekend.</p>
+    <p>Het klimaat bepaalt heel veel: welke gewassen kunnen groeien, hoe huizen worden gebouwd (witte muren in het zuiden om hitte te weerkaatsen, dikke isolatie in het noorden om warmte vast te houden), hoe mensen zich kleden en zelfs wanneer ze hun zomervakantie nemen. Toerisme is in heel Europa nauw verbonden met het klimaat — de meeste mensen reizen 's zomers naar het zuiden voor de zon, en 's winters naar de bergen voor de sneeuw.</p>
+
+    <div class="visual-flow">
+      ☀️ Mediterraan: hete droge zomer, milde natte winter<br>
+      🌧️ Zeeklimaat: mild jaar door, regen verdeeld<br>
+      ❄️ Landklimaat: koude winter, warme zomer, weinig regen
+    </div>
+
+    <div class="real-world">
+      <span class="icon">✈️</span><strong>Reisvoorbeeld:</strong> Wanneer jij in juli naar Athene vliegt, kan het 38°C zijn met geen wolkje. Kom je in januari? Dan regent het er stevig. Dat is geen toeval — dat is het mediterrane klimaat in actie. En in jouw eigen Nederland? Een mild zeeklimaat: zelden extreem koud, zelden extreem warm, maar wel vaak grijs.
+    </div>
+  </div>
+
+  <div class="chart-container">
+    <canvas id="klimaatChart" height="120"></canvas>
+  </div>
+
+  <div class="question" data-q="kli1" data-type="open">
+    <span class="q-label">Vraag 1 · Grafiek interpreteren</span>
+    <p class="q-text">Bekijk de neerslaggrafiek hierboven. Koppel elke lijn aan het juiste klimaattype (zee / land / mediterraan) en leg uit waaraan je dat ziet. Wat is het meest opvallende verschil tussen Athene en de andere twee steden, en hoe past dat bij wat je over het mediterraan klimaat hebt geleerd?</p>
+    <textarea class="open-answer" placeholder="Schrijf je analyse van de grafiek..."></textarea>
+    <div class="word-count">0 woorden (minimaal 35)</div>
+    <button class="action show-example" disabled>Toon voorbeeldantwoord</button>
+    <div class="example-answer">
+      <strong>Voorbeeldantwoord:</strong> Amsterdam past bij het zeeklimaat: de neerslag is het hele jaar redelijk gelijk verdeeld, tussen ongeveer 45 en 85 mm per maand, zonder echte droge of natte periode. Moskou past bij het landklimaat: er valt over het hele jaar minder regen dan in Amsterdam, met een duidelijke piek in de zomer (juli) door onweersbuien. Athene past bij het mediterraan klimaat — en dat is meteen het meest opvallend: in juli en augustus valt er bijna geen regen (5 mm), terwijl het in de winter juist het natst is (60-70 mm). Dit is precies het patroon dat hoort bij een mediterraan klimaat: hete droge zomers en milde natte winters. Het is bijna een spiegelbeeld van wat je zou verwachten op vakantie.
+    </div>
+    <div class="self-assess">
+      <p>Hoe deed je het?</p>
+      <button class="action good" data-mark="good">Goed ✓</button>
+      <button class="action bad" data-mark="bad">Kan beter ✗</button>
+    </div>
+  </div>
+
+  <div class="question" data-q="kli2" data-type="match">
+    <span class="q-label">Vraag 2 · Koppel klimaat aan land</span>
+    <p class="q-text">Koppel elk klimaattype aan het juiste land. Klik eerst links, dan rechts. <em>Tip: meerdere landen kunnen bij hetzelfde klimaat horen!</em></p>
+    <div class="match-wrap">
+      <div class="match-col">
+        <h4>Klimaat</h4>
+        <div class="match-item match-target" data-id="zee">🌧️ Zeeklimaat</div>
+        <div class="match-item match-target" data-id="land">❄️ Landklimaat</div>
+        <div class="match-item match-target" data-id="med">☀️ Mediterraan klimaat</div>
+      </div>
+      <div class="match-col">
+        <h4>Land</h4>
+        <div class="match-item match-source" data-target="zee">🇮🇪 Ierland</div>
+        <div class="match-item match-source" data-target="med">🇮🇹 Italië</div>
+        <div class="match-item match-source" data-target="land">🇷🇺 Rusland</div>
+        <div class="match-item match-source" data-target="med">🇬🇷 Griekenland</div>
+        <div class="match-item match-source" data-target="zee">🇳🇱 Nederland</div>
+      </div>
+    </div>
+    <button class="action check-match">Controleer koppelingen</button>
+    <div class="feedback"></div>
+  </div>
+
+  <div class="question" data-q="kli3" data-type="open">
+    <span class="q-label">Vraag 3 · Open vraag</span>
+    <p class="q-text">Leg in eigen woorden uit waarom huizen in Zuid-Spanje vaak wit zijn met kleine ramen, en huizen in Noorwegen juist veel hout en isolatie hebben. Wat heeft het klimaat ermee te maken?</p>
+    <textarea class="open-answer" placeholder="Schrijf hier je uitleg..."></textarea>
+    <div class="word-count">0 woorden (minimaal 35)</div>
+    <button class="action show-example" disabled>Toon voorbeeldantwoord</button>
+    <div class="example-answer">
+      <strong>Voorbeeldantwoord:</strong> In Zuid-Spanje is het 's zomers heel heet. Witte muren weerkaatsen het zonlicht en blijven koeler, en kleine ramen houden de zon buiten. In Noorwegen is het juist lang koud. Huizen worden daar gebouwd om de warmte binnen te houden: dikke isolatie, hout dat goed isoleert, en soms zelfs een grasdak. Het klimaat dwingt mensen om slim te bouwen voor hun eigen omstandigheden.
+    </div>
+    <div class="self-assess">
+      <p>Hoe deed je het?</p>
+      <button class="action good" data-mark="good">Goed ✓</button>
+      <button class="action bad" data-mark="bad">Kan beter ✗</button>
+    </div>
+  </div>
+
+  <div class="nav-buttons">
+    <button class="nav-btn prev-btn">← Vorige</button>
+    <button class="nav-btn next-btn">Volgende →</button>
+  </div>
+  <button class="reset-section-btn">↻ Reset dit onderdeel</button>
+</section>
+
+<!-- ============ TAB 5: WATER ============ -->
+<section class="tab-section" data-tab="4">
+  <div class="section-header">
+    <div class="label">Onderdeel 5 · Watersystemen</div>
+    <h2>Rivieren, meren en zeeën</h2>
+  </div>
+
+  <div class="explainer">
+    <h3>Water als motor van een land</h3>
+    <p><strong>Watersystemen</strong> — rivieren, meren, zeeën en kustlijnen — spelen een gigantische rol in de ontwikkeling van landen. Grote rivieren zoals de <strong>Rijn, Donau, Theems en Rhône</strong> waren al eeuwen voordat er auto's bestonden de belangrijkste transportroutes. Goederen, mensen en ideeën reisden via het water. Daarom zijn veel oude steden — Londen, Parijs, Wenen, Boedapest, Keulen — letterlijk aan een rivier gebouwd.</p>
+    <p>Rivieren leveren <strong>drinkwater, energie</strong> (waterkrachtcentrales) en zetten in hun mondingen vruchtbare grond af. De delta's van de Rijn, de Donau en de Po zijn al duizenden jaren plekken waar mensen graag wonen en werken, omdat de bodem er enorm vruchtbaar is. Rivieren vormen ook vaak <strong>natuurlijke grenzen</strong> tussen landen: de Rijn scheidt op sommige plekken Frankrijk en Duitsland, de Donau loopt door tien Europese landen.</p>
+    <p>Landen met een lange <strong>kustlijn</strong> — zoals Noorwegen, Griekenland, Italië en het Verenigd Koninkrijk — hebben van oudsher een sterke band met de zee. Visserij, scheepvaart, handel en marine zijn er belangrijk geweest. Een land zonder kust moet zijn handel via buurlanden organiseren, wat altijd ingewikkelder is. Het is geen toeval dat veel grote handelsnaties van Europa kustlanden zijn.</p>
+
+    <div class="visual-flow">
+      ❄️ Smeltend ijs in bergen → 🏞️ Rivier door valleien → 🏙️ Stad aan de rivier → 🌊 Delta met vruchtbare grond → 🌍 Zee
+    </div>
+
+    <div class="real-world">
+      <span class="icon">✈️</span><strong>Reisvoorbeeld:</strong> Maak je ooit een rivierreis op de Rijn of de Donau? Dan vaar je door precies de plekken waar Europa is opgebouwd. Elke stad die je passeert — Straatsburg, Mainz, Wenen, Bratislava — bestaat juist omdat die rivier er is. Zonder dat water waren die steden er nooit geweest.
+    </div>
+  </div>
+
+  <div class="map-container" id="map-water"></div>
+
+  <div class="question" data-q="wat1" data-type="mc">
+    <span class="q-label">Vraag 1 · Multiple choice</span>
+    <p class="q-text">Waarom liggen veel oude Europese steden aan een rivier?</p>
+    <div class="options">
+      <button class="option-btn" data-correct="false">Omdat rivieren altijd warmer water hebben.</button>
+      <button class="option-btn" data-correct="true">Omdat rivieren transport, drinkwater en vruchtbare grond bieden.</button>
+      <button class="option-btn" data-correct="false">Omdat rivieren een mooi uitzicht geven aan toeristen.</button>
+      <button class="option-btn" data-correct="false">Omdat het verboden is om steden ver van rivieren te bouwen.</button>
+    </div>
+    <div class="feedback"></div>
+  </div>
+
+  <div class="question" data-q="wat2" data-type="mc">
+    <span class="q-label">Vraag 2 · Multiple choice</span>
+    <p class="q-text">Welke rivier loopt door de meeste Europese landen?</p>
+    <div class="options">
+      <button class="option-btn" data-correct="false">De Rijn</button>
+      <button class="option-btn" data-correct="true">De Donau</button>
+      <button class="option-btn" data-correct="false">De Theems</button>
+      <button class="option-btn" data-correct="false">De Rhône</button>
+    </div>
+    <div class="feedback"></div>
+  </div>
+
+  <div class="question" data-q="wat3" data-type="open">
+    <span class="q-label">Vraag 3 · Open vraag</span>
+    <p class="q-text">Stel je voor dat Nederland geen rivieren en geen zeekust zou hebben. Hoe zou het land er dan anders uitzien? Noem minstens twee dingen die zouden veranderen.</p>
+    <textarea class="open-answer" placeholder="Schrijf hier je gedachten..."></textarea>
+    <div class="word-count">0 woorden (minimaal 35)</div>
+    <button class="action show-example" disabled>Toon voorbeeldantwoord</button>
+    <div class="example-answer">
+      <strong>Voorbeeldantwoord:</strong> Zonder rivieren en zee zou Nederland waarschijnlijk veel armer zijn geweest. We zouden geen grote havens hebben zoals Rotterdam, dus veel minder internationale handel. Steden als Amsterdam en Rotterdam zouden misschien helemaal niet bestaan, want die zijn ontstaan door water en handel. Ook zouden we geen polders hebben, want zonder rivieren en zee was er niets om in te polderen. Het land zou meer op een binnenland lijken, zoals delen van Duitsland.
+    </div>
+    <div class="self-assess">
+      <p>Hoe deed je het?</p>
+      <button class="action good" data-mark="good">Goed ✓</button>
+      <button class="action bad" data-mark="bad">Kan beter ✗</button>
+    </div>
+  </div>
+
+  <div class="nav-buttons">
+    <button class="nav-btn prev-btn">← Vorige</button>
+    <button class="nav-btn next-btn">Volgende →</button>
+  </div>
+  <button class="reset-section-btn">↻ Reset dit onderdeel</button>
+</section>
+
+<!-- ============ TAB 6: NATUUR EN MENS ============ -->
+<section class="tab-section" data-tab="5">
+  <div class="section-header">
+    <div class="label">Onderdeel 6 · Natuur & Mens</div>
+    <h2>Hoe natuur het leven van mensen vormt</h2>
+  </div>
+
+  <div class="explainer">
+    <h3>De fysische dimensie staat nooit op zichzelf</h3>
+    <p>De natuur stelt grenzen, maar biedt ook kansen. Mensen reageren op die natuur — soms door zich aan te passen, soms door in te grijpen. Dit is misschien wel het belangrijkste idee van de hele les: <strong>fysisch en menselijk zijn onlosmakelijk met elkaar verbonden</strong>. Wie de natuur van een land begrijpt, begrijpt ook beter waarom het land economisch, demografisch en cultureel is geworden zoals het is.</p>
+    <p>Een paar voorbeelden. <strong>Nederland</strong> heeft grote delen van zijn grondgebied letterlijk uit het water gehaald — denk aan de Flevopolders. Zonder dijken en gemalen zou een derde van het land onder water staan. <strong>Zwitserland</strong> heeft van zijn moeilijke berglandschap een troef gemaakt: skigebieden, kabelbanen en bergtoerisme leveren miljarden op. <strong>Spanje</strong> irrigeert droge gebieden in het zuiden om er groente, citrusvruchten en olijven te kunnen verbouwen — zonder die irrigatie zou de landbouw daar onmogelijk zijn.</p>
+    <p>Maar het werkt ook andersom: de natuur kan mensen <strong>tegenhouden of zelfs verdrijven</strong>. Aardbevingen in Italië, overstromingen in Duitsland, droogte in Spanje — het zijn allemaal voorbeelden waarbij de fysische dimensie mensen dwingt tot actie. En met klimaatverandering wordt deze wisselwerking alleen maar belangrijker. Hoe een land omgaat met zijn natuurlijke omgeving zegt veel over hoe het denkt over de toekomst.</p>
+
+    <div class="visual-flow">
+      🌍 Natuur biedt kansen &amp; grenzen → 🧠 Mensen denken na → 🛠️ Mensen passen aan / grijpen in → 🏘️ Land verandert
+    </div>
+
+    <div class="callout">
+      <strong>💡 Belangrijk inzicht:</strong> Aardrijkskunde gaat niet alleen over hoe de wereld eruitziet, maar over <em>waarom</em> die er zo uitziet. En dat "waarom" is vrijwel altijd een mix van natuur én menselijke keuzes.
+    </div>
+  </div>
+
+  <div class="question" data-q="nm1" data-type="mc">
+    <span class="q-label">Vraag 1 · Multiple choice</span>
+    <p class="q-text">Welk voorbeeld is het sterkste bewijs dat mensen de fysische dimensie kunnen veranderen, in plaats van zich er alleen aan aanpassen?</p>
+    <div class="options">
+      <button class="option-btn" data-correct="false">Zwitsers bouwen skihotels in bestaande bergen.</button>
+      <button class="option-btn" data-correct="false">Spanjaarden eten 's middags warm en houden siësta vanwege de hitte.</button>
+      <button class="option-btn" data-correct="true">Nederlanders polderen complete stukken zee in tot nieuw land (Flevoland).</button>
+      <button class="option-btn" data-correct="false">Noren vissen in de fjorden voor hun voedsel.</button>
+    </div>
+    <div class="feedback"></div>
+  </div>
+
+  <div class="question" data-q="nm2" data-type="open">
+    <span class="q-label">Vraag 2 · Verhalend scenario</span>
+    <p class="q-text"><strong>Scenario:</strong> Je woont in een klein bergdorp in de Italiaanse Alpen. Het dorp heeft 200 inwoners, één weg naar beneden, en is in de winter vaak afgesloten door sneeuw. Beschrijf in je eigen woorden: welke kansen biedt de natuur jullie, en welke uitdagingen levert ze op? Noem minimaal één kans en één uitdaging.</p>
+    <textarea class="open-answer" placeholder="Verplaats je in het dorp en beschrijf..."></textarea>
+    <div class="word-count">0 woorden (minimaal 35)</div>
+    <button class="action show-example" disabled>Toon voorbeeldantwoord</button>
+    <div class="example-answer">
+      <strong>Voorbeeldantwoord:</strong> De bergen leveren ons natuurlijk skitoeristen op in de winter — daar verdienen we ons geld mee, met hotels en skischolen. Ook is het ongelooflijk mooi en stil, dus zomerse wandelaars komen ook graag. Maar de natuur is ook lastig: in december en januari raken we soms dagenlang afgesloten door sneeuw, dan kan de dokter niet komen en moet alles van tevoren ingeslagen worden. Lawines zijn ook een echt risico voor het dorp.
+    </div>
+    <div class="self-assess">
+      <p>Hoe deed je het?</p>
+      <button class="action good" data-mark="good">Goed ✓</button>
+      <button class="action bad" data-mark="bad">Kan beter ✗</button>
+    </div>
+  </div>
+
+  <div class="question" data-q="nm3" data-type="open">
+    <span class="q-label">Vraag 3 · Toepassing op jezelf</span>
+    <p class="q-text">Hoe heeft de natuur jouw eigen leven vandaag al beïnvloed? Denk aan: het weer, hoe je naar school ging, wat je aan hebt, wat je eet. Geef minimaal twee voorbeelden.</p>
+    <textarea class="open-answer" placeholder="Denk aan vandaag..."></textarea>
+    <div class="word-count">0 woorden (minimaal 35)</div>
+    <button class="action show-example" disabled>Toon voorbeeldantwoord</button>
+    <div class="example-answer">
+      <strong>Voorbeeldantwoord:</strong> Vanochtend regende het, dus ik heb mijn regenjas aangedaan en ben langzamer gefietst. Ook at ik bij het ontbijt brood met aardbeien — die aardbeien komen uit Spanje, want hier groeien ze in maart nog niet. En ik had niet veel zin om naar buiten te gaan omdat het zo grijs en koud was, dus ook m'n humeur werd door het klimaat beïnvloed!
+    </div>
+    <div class="self-assess">
+      <p>Hoe deed je het?</p>
+      <button class="action good" data-mark="good">Goed ✓</button>
+      <button class="action bad" data-mark="bad">Kan beter ✗</button>
+    </div>
+  </div>
+
+  <div class="nav-buttons">
+    <button class="nav-btn prev-btn">← Vorige</button>
+    <button class="nav-btn next-btn">Volgende →</button>
+  </div>
+  <button class="reset-section-btn">↻ Reset dit onderdeel</button>
+</section>
+
+<!-- ============ TAB 7: TWEE LANDEN ============ -->
+<section class="tab-section" data-tab="6">
+  <div class="section-header">
+    <div class="label">Onderdeel 7 · Toepassing</div>
+    <h2>Twee landen onder de loep: Noorwegen vs. Spanje</h2>
+  </div>
+
+  <div class="explainer">
+    <h3>De fysische dimensie toepassen</h3>
+    <p>Nu wordt het serieus: je gaat de fysische dimensie toepassen op twee echte landen. We kiezen <strong>Noorwegen</strong> en <strong>Spanje</strong>, omdat ze op bijna elk fysisch punt verschillend zijn. Beide landen zijn geliefd bij vakantiegangers — maar om totaal verschillende redenen.</p>
+    <p><strong>Noorwegen</strong> ligt in het verre noorden van Europa, op breedtegraden tussen 58° en 71° noord. Het land heeft een gigantisch lange, ingewikkelde kustlijn met fjorden — diepe inhammen die door gletsjers zijn uitgesleten. Het reliëf is zeer bergachtig: bijna het hele land bestaat uit hoogvlakten en bergen. Het klimaat is in het zuiden gematigd (maritiem) maar in het noorden subarctisch — koude winters, korte zomers. Slechts 3% van het land is geschikt voor landbouw. Het meeste geld komt uit visserij, olie/gas en toerisme.</p>
+    <p><strong>Spanje</strong> ligt in het zuidwesten van Europa, op breedtegraden tussen 36° en 44° noord. Het land grenst aan de Atlantische Oceaan én de Middellandse Zee. Het reliëf is gemengd: kustvlakten, een groot binnenplateau (de Meseta), en de Pyreneeën in het noorden. Het klimaat is overwegend mediterraan — droge hete zomers, milde winters — al is het noorden natter en het zuiden droger. Spanje is een van Europa's grote landbouwlanden (olijven, citrus, wijn) en het ontvangt jaarlijks meer dan 80 miljoen toeristen.</p>
+
+    <table class="compare-table">
+      <thead><tr><th>Kenmerk</th><th>🇳🇴 Noorwegen</th><th>🇪🇸 Spanje</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Ligging</strong></td><td>58°–71° N, kustland</td><td>36°–44° N, kustland</td></tr>
+        <tr><td><strong>Reliëf</strong></td><td>Zeer bergachtig, fjorden</td><td>Gemengd, plateau + bergen</td></tr>
+        <tr><td><strong>Klimaat</strong></td><td>Maritiem tot subarctisch</td><td>Overwegend mediterraan</td></tr>
+        <tr><td><strong>Water</strong></td><td>Lange kust, fjorden, meren</td><td>Twee zeeën, korte rivieren</td></tr>
+        <tr><td><strong>Belangrijkste sectoren</strong></td><td>Olie, vis, toerisme</td><td>Landbouw, toerisme, dienst</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="map-container" id="map-landen"></div>
+
+  <div class="question" data-q="lan1" data-type="mc">
+    <span class="q-label">Vraag 1 · Multiple choice</span>
+    <p class="q-text">Waarom is slechts 3% van Noorwegen geschikt voor landbouw?</p>
+    <div class="options">
+      <button class="option-btn" data-correct="false">Omdat Noren liever vis eten dan groenten.</button>
+      <button class="option-btn" data-correct="true">Omdat het land bergachtig is en het klimaat in grote delen te koud is.</button>
+      <button class="option-btn" data-correct="false">Omdat de Noorse regering landbouw verbiedt.</button>
+      <button class="option-btn" data-correct="false">Omdat er te weinig water is in Noorwegen.</button>
+    </div>
+    <div class="feedback"></div>
+  </div>
+
+  <div class="question" data-q="lan2" data-type="mc">
+    <span class="q-label">Vraag 2 · Multiple choice</span>
+    <p class="q-text">Welke combinatie van fysische kenmerken verklaart het beste waarom Spanje aantrekkelijk is voor noord-Europese strandtoeristen?</p>
+    <div class="options">
+      <button class="option-btn" data-correct="false">Lange kustlijn en bergachtig binnenland.</button>
+      <button class="option-btn" data-correct="false">Mediterraan klimaat en grote rivieren.</button>
+      <button class="option-btn" data-correct="true">Lage breedteligging, mediterraan klimaat én lange warme kustlijn.</button>
+      <button class="option-btn" data-correct="false">Vlak reliëf en milde zomers.</button>
+    </div>
+    <div class="feedback"></div>
+  </div>
+
+  <div class="question" data-q="lan3" data-type="open">
+    <span class="q-label">Vraag 3 · Open vraag · toepassing</span>
+    <p class="q-text">Vergelijk Noorwegen en Spanje op alle vier fysische dimensies (ligging, reliëf, klimaat, water). Verklaar daarna: welke twee economische sectoren zijn in Noorwegen logisch — en waarom zouden die in Spanje juist veel minder werken? Gebruik vakwoorden uit deze les.</p>
+    <textarea class="open-answer" placeholder="Kies een land en beschrijf..."></textarea>
+    <div class="word-count">0 woorden (minimaal 35)</div>
+    <button class="action show-example" disabled>Toon voorbeeldantwoord</button>
+    <div class="example-answer">
+      <strong>Voorbeeldantwoord:</strong> <em>Ligging:</em> Noorwegen ligt op hoge breedte (58°-71° N), Spanje veel zuidelijker (36°-44° N). Beide zijn kustlanden, maar Noorwegen heeft een lange fjordenkust en Spanje grenst aan twee zeeën. <em>Reliëf:</em> Noorwegen is overwegend bergachtig met door gletsjers gevormde fjorden; Spanje heeft een gemengd reliëf met de hoge Meseta en de Pyreneeën. <em>Klimaat:</em> Noorwegen is maritiem tot subarctisch, Spanje grotendeels mediterraan. <em>Water:</em> Noorwegen heeft veel meren en korte snelle bergrivieren; Spanje heeft drogere, langere rivieren. <em>Sectoren:</em> Visserij is logisch in Noorwegen door de lange koude kust met visrijke wateren — in het warmere Spanje zijn de visgronden minder rijk. Waterkracht werkt in Noorwegen door snelle bergrivieren en veel neerslag — in het droge Spanje is er te weinig stromend water voor grootschalige hydro-elektriciteit.
+    </div>
+    <div class="self-assess">
+      <p>Hoe deed je het?</p>
+      <button class="action good" data-mark="good">Goed ✓</button>
+      <button class="action bad" data-mark="bad">Kan beter ✗</button>
+    </div>
+  </div>
+
+  <div class="nav-buttons">
+    <button class="nav-btn prev-btn">← Vorige</button>
+    <button class="nav-btn next-btn">Volgende →</button>
+  </div>
+  <button class="reset-section-btn">↻ Reset dit onderdeel</button>
+</section>
+
+<!-- ============ TAB 8: REFLECTIE ============ -->
+<section class="tab-section" data-tab="7">
+  <div class="section-header">
+    <div class="label">Onderdeel 8 · Afsluiting</div>
+    <h2>Terugblik en reflectie</h2>
+  </div>
+
+  <div class="final-score">
+    <div class="pct"><span id="finalPct">0</span>%</div>
+    <div class="label">van alle opdrachten voltooid</div>
+  </div>
+
+  <div class="explainer">
+    <h3>Wat heb je geleerd?</h3>
+    <p>Je hebt nu een complete tour gemaakt door de fysische dimensie. Je weet wat ligging, reliëf, klimaat en watersystemen inhouden. Je hebt gezien hoe deze elementen samen bepalen waar mensen wonen, wat ze doen en hoe een land zich ontwikkelt. En je hebt het toegepast op echte landen — Noorwegen en Spanje — om te zien hoe verschillend twee Europese buren kunnen zijn.</p>
+    <p>De grootste les van deze les is misschien wel: de wereld is geen toeval. Achter elke stad, elke akker, elke vakantiebestemming zit een verhaal van natuur en menselijke keuzes. Aardrijkskunde leert je dat verhaal lezen.</p>
+  </div>
+
+  <div class="learning-goals">
+    <h3>Leerdoelen check</h3>
+    <ul>
+      <li>Ik kan uitleggen wat de fysische dimensie inhoudt.</li>
+      <li>Ik kan ligging, reliëf, klimaat en watersystemen benoemen.</li>
+      <li>Ik kan uitleggen hoe fysische kenmerken het leven van mensen beïnvloeden.</li>
+      <li>Ik kan de fysische dimensie toepassen op twee landen.</li>
+      <li>Ik kan twee landen op fysische kenmerken vergelijken.</li>
+    </ul>
+  </div>
+
+  <div class="question" data-q="ref1" data-type="open">
+    <span class="q-label">Reflectie 1 · Leerproces</span>
+    <p class="q-text">Wat vond jij in deze les het lastigst om te begrijpen, en waarom? Wees eerlijk — er is geen fout antwoord.</p>
+    <textarea class="open-answer" placeholder="Schrijf hier je reflectie..."></textarea>
+    <div class="word-count">0 woorden (minimaal 35)</div>
+    <button class="action show-example" disabled>Toon voorbeeldantwoord</button>
+    <div class="example-answer">
+      <strong>Voorbeeldantwoord:</strong> Ik vond het verschil tussen absolute en relatieve ligging best lastig. Ze klinken hetzelfde, maar het was even doordenken voordat ik snapte dat absolute ligging echt over de coördinaten gaat (graden noord/zuid) en relatieve ligging over wat er om je heen ligt. Toen ik er voorbeelden bij bedacht — Nederland naast Duitsland is relatief — ging het beter zitten.
+    </div>
+    <div class="self-assess">
+      <p>Hoe deed je het?</p>
+      <button class="action good" data-mark="good">Goed ✓</button>
+      <button class="action bad" data-mark="bad">Kan beter ✗</button>
+    </div>
+  </div>
+
+  <div class="question" data-q="ref2" data-type="open">
+    <span class="q-label">Reflectie 2 · Uitleg aan een ander</span>
+    <p class="q-text">Stel je moet een klasgenoot in 4-5 zinnen uitleggen wat de fysische dimensie is en waarom die belangrijk is. Hoe zou je dat doen?</p>
+    <textarea class="open-answer" placeholder="Doe alsof je het uitlegt..."></textarea>
+    <div class="word-count">0 woorden (minimaal 35)</div>
+    <button class="action show-example" disabled>Toon voorbeeldantwoord</button>
+    <div class="example-answer">
+      <strong>Voorbeeldantwoord:</strong> De fysische dimensie is alles wat de natuur van een land bepaalt: waar het ligt, hoe hoog of vlak het is, wat voor klimaat het heeft, en welke rivieren of zeeën erbij horen. Dit is belangrijk omdat het bijna alles verklaart over hoe mensen er leven. Of je nu kijkt naar wat boeren verbouwen of waar steden liggen — bijna altijd komt het terug op de natuur. Dus als je een land wilt begrijpen, kijk je eerst naar de natuur ervan.
+    </div>
+    <div class="self-assess">
+      <p>Hoe deed je het?</p>
+      <button class="action good" data-mark="good">Goed ✓</button>
+      <button class="action bad" data-mark="bad">Kan beter ✗</button>
+    </div>
+  </div>
+
+  <div class="question" data-q="ref3" data-type="open">
+    <span class="q-label">Reflectie 3 · In je eigen wereld</span>
+    <p class="q-text">Hoe ga je voortaan anders kijken naar landen waar je naartoe reist of die je in het nieuws ziet? Wat zou je nu sneller opmerken dan voor deze les?</p>
+    <textarea class="open-answer" placeholder="Denk aan je nieuwe blik..."></textarea>
+    <div class="word-count">0 woorden (minimaal 35)</div>
+    <button class="action show-example" disabled>Toon voorbeeldantwoord</button>
+    <div class="example-answer">
+      <strong>Voorbeeldantwoord:</strong> Ik denk dat ik bij een vakantieland nu sneller ga kijken waarom het er zo uitziet als het eruitziet. Bijvoorbeeld: waarom liggen bepaalde dorpen aan de zee en niet in het binnenland? Waarom zijn de huizen wit of juist donker? Ook als ik een nieuwsbericht zie over overstromingen of droogte, ga ik sneller denken aan de fysische dimensie — wat is daar het klimaat, het reliëf, en hoe werkt dat op de mensen die er leven?
+    </div>
+    <div class="self-assess">
+      <p>Hoe deed je het?</p>
+      <button class="action good" data-mark="good">Goed ✓</button>
+      <button class="action bad" data-mark="bad">Kan beter ✗</button>
+    </div>
+  </div>
+
+  <div class="nav-buttons">
+    <button class="nav-btn prev-btn">← Vorige</button>
+    <button class="nav-btn next-btn" disabled>Einde 🎉</button>
+  </div>
+  <button class="reset-section-btn">↻ Reset dit onderdeel</button>
+</section>
+
+</main>
+
+<script>
+// ============ STORAGE HELPERS ============
+const KEY = 'geo_les_v1';
+function loadState() {
+  try {
+    const raw = localStorage.getItem(KEY);
+    return raw ? JSON.parse(raw) : {};
+  } catch(e) { return {}; }
+}
+function saveState(s) {
+  try { localStorage.setItem(KEY, JSON.stringify(s)); } catch(e) {}
+}
+let state = loadState();
+if (!state.questions) state.questions = {};
+if (!state.currentTab) state.currentTab = 0;
+
+// ============ TABS ============
+const sections = document.querySelectorAll('.tab-section');
+const tabsInner = document.getElementById('tabsInner');
+const tabNames = ['Intro', 'Ligging', 'Reliëf', 'Klimaat', 'Water', 'Natuur & Mens', 'Twee Landen', 'Reflectie'];
+
+tabNames.forEach((name, i) => {
+  const btn = document.createElement('button');
+  btn.className = 'tab-btn';
+  btn.textContent = (i+1) + '. ' + name;
+  btn.dataset.idx = i;
+  btn.addEventListener('click', () => switchTab(i));
+  tabsInner.appendChild(btn);
+});
+
+document.getElementById('totalTabs').textContent = sections.length;
+
+function switchTab(idx) {
+  sections.forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  sections[idx].classList.add('active');
+  document.querySelectorAll('.tab-btn')[idx].classList.add('active');
+  document.getElementById('currentTab').textContent = idx + 1;
+  state.currentTab = idx;
+  saveState(state);
+  window.scrollTo({top: 0, behavior: 'smooth'});
+  // Invalidate any maps in this tab
+  setTimeout(() => {
+    Object.values(maps).forEach(m => { try { m.invalidateSize(); } catch(e) {} });
+  }, 200);
+  updateTabCompletionUI();
+}
+
+document.querySelectorAll('.next-btn').forEach((b, i) => {
+  b.addEventListener('click', () => { if (i < sections.length - 1) switchTab(i + 1); });
+});
+document.querySelectorAll('.prev-btn').forEach((b, i) => {
+  b.addEventListener('click', () => { if (i > 0) switchTab(i - 1); });
+});
+
+// ============ PROGRESS ============
+function getAllQuestions() { return document.querySelectorAll('.question'); }
+function getCompletedCount() {
+  let c = 0;
+  getAllQuestions().forEach(q => {
+    const id = q.dataset.q;
+    if (state.questions[id] && state.questions[id].completed) c++;
+  });
+  return c;
+}
+function updateProgress() {
+  const total = getAllQuestions().length;
+  const done = getCompletedCount();
+  const pct = Math.round((done / total) * 100);
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressPct').textContent = pct;
+  document.getElementById('finalPct').textContent = pct;
+  updateTabCompletionUI();
+}
+
+function updateTabCompletionUI() {
+  sections.forEach((sec, idx) => {
+    const qs = sec.querySelectorAll('.question');
+    let allDone = qs.length > 0;
+    qs.forEach(q => {
+      if (!state.questions[q.dataset.q] || !state.questions[q.dataset.q].completed) allDone = false;
+    });
+    const tabBtn = document.querySelectorAll('.tab-btn')[idx];
+    if (allDone) tabBtn.classList.add('completed'); else tabBtn.classList.remove('completed');
+  });
+}
+
+function markCompleted(qid, correct) {
+  state.questions[qid] = { completed: true, correct: correct, ts: Date.now() };
+  saveState(state);
+  updateProgress();
+}
+
+// ============ MULTIPLE CHOICE ============
+document.querySelectorAll('.question[data-type="mc"]').forEach(q => {
+  const qid = q.dataset.q;
+  const buttons = q.querySelectorAll('.option-btn');
+  const feedback = q.querySelector('.feedback');
+  let attempts = 0;
+
+  buttons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (q.classList.contains('locked')) return;
+      const isCorrect = btn.dataset.correct === 'true';
+      attempts++;
+      if (isCorrect) {
+        btn.classList.add('correct');
+        buttons.forEach(b => b.disabled = true);
+        feedback.className = 'feedback success show';
+        feedback.textContent = '✓ Goed gedaan! Dat klopt.';
+        q.classList.add('locked');
+        markCompleted(qid, true);
+      } else {
+        btn.classList.add('wrong');
+        btn.disabled = true;
+        if (attempts < 3) {
+          feedback.className = 'feedback hint show';
+          feedback.textContent = '💭 Niet helemaal — denk nog eens na. Welk antwoord past het beste bij wat je in de tekst hierboven hebt gelezen? Probeer het nog een keer.';
+        } else {
+          buttons.forEach(b => {
+            b.disabled = true;
+            if (b.dataset.correct === 'true') b.classList.add('correct');
+          });
+          feedback.className = 'feedback reveal show';
+          feedback.textContent = 'Het juiste antwoord is nu groen gemarkeerd. Lees het nog eens rustig door — zo onthoud je het beter voor de volgende keer.';
+          q.classList.add('locked');
+          markCompleted(qid, false);
+        }
+      }
+    });
+  });
+});
+
+// ============ OPEN QUESTIONS ============
+document.querySelectorAll('.question[data-type="open"]').forEach(q => {
+  const qid = q.dataset.q;
+  const ta = q.querySelector('.open-answer');
+  const wc = q.querySelector('.word-count');
+  const showBtn = q.querySelector('.show-example');
+  const example = q.querySelector('.example-answer');
+  const selfAssess = q.querySelector('.self-assess');
+
+  ta.addEventListener('input', () => {
+    const words = ta.value.trim().split(/\s+/).filter(w => w.length > 0).length;
+    wc.textContent = words + ' woorden (minimaal 35)';
+    if (words >= 35) {
+      wc.classList.add('ok');
+      showBtn.disabled = false;
+    } else {
+      wc.classList.remove('ok');
+      showBtn.disabled = true;
+    }
+    // save draft
+    if (!state.questions[qid]) state.questions[qid] = {};
+    state.questions[qid].draft = ta.value;
+    saveState(state);
+  });
+
+  showBtn.addEventListener('click', () => {
+    example.classList.add('show');
+    selfAssess.classList.add('show');
+    showBtn.disabled = true;
+  });
+
+  selfAssess.querySelectorAll('button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const mark = btn.dataset.mark;
+      markCompleted(qid, mark === 'good');
+      q.classList.add('locked');
+      ta.disabled = true;
+      selfAssess.querySelectorAll('button').forEach(b => b.disabled = true);
+      const note = document.createElement('div');
+      note.className = 'feedback success show';
+      note.textContent = mark === 'good' ? '✓ Mooi! Opgenomen in je voortgang.' : '👍 Oké, je weet nu wat je nog kan oefenen. Telt mee als gemaakt.';
+      selfAssess.appendChild(note);
+    });
+  });
+
+  // restore draft
+  if (state.questions[qid] && state.questions[qid].draft) {
+    ta.value = state.questions[qid].draft;
+    ta.dispatchEvent(new Event('input'));
+  }
+});
+
+// ============ DRAG & DROP ============
+document.querySelectorAll('.question[data-type="drag"]').forEach(q => {
+  const qid = q.dataset.q;
+  const list = q.querySelector('.drag-list');
+  const items = list.querySelectorAll('.drag-item');
+  const checkBtn = q.querySelector('.check-order');
+  const feedback = q.querySelector('.feedback');
+  const correctOrder = list.dataset.correctOrder.split(',');
+  let attempts = 0;
+  let dragging = null;
+
+  items.forEach(item => {
+    item.addEventListener('dragstart', (e) => {
+      if (q.classList.contains('locked')) { e.preventDefault(); return; }
+      dragging = item;
+      item.classList.add('dragging');
+    });
+    item.addEventListener('dragend', () => {
+      if (dragging) dragging.classList.remove('dragging');
+      items.forEach(i => i.classList.remove('drag-over'));
+      dragging = null;
+    });
+    item.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      if (item !== dragging) item.classList.add('drag-over');
+    });
+    item.addEventListener('dragleave', () => item.classList.remove('drag-over'));
+    item.addEventListener('drop', (e) => {
+      e.preventDefault();
+      if (item !== dragging && dragging) {
+        const all = Array.from(list.children);
+        const draggedIdx = all.indexOf(dragging);
+        const targetIdx = all.indexOf(item);
+        if (draggedIdx < targetIdx) {
+          item.parentNode.insertBefore(dragging, item.nextSibling);
+        } else {
+          item.parentNode.insertBefore(dragging, item);
+        }
+      }
+      item.classList.remove('drag-over');
+    });
+  });
+
+  checkBtn.addEventListener('click', () => {
+    if (q.classList.contains('locked')) return;
+    attempts++;
+    const current = Array.from(list.querySelectorAll('.drag-item')).map(i => i.dataset.value);
+    const allCorrect = current.every((v, i) => v === correctOrder[i]);
+    list.querySelectorAll('.drag-item').forEach((it, i) => {
+      it.classList.remove('correct-pos', 'wrong-pos');
+      if (it.dataset.value === correctOrder[i]) it.classList.add('correct-pos');
+      else it.classList.add('wrong-pos');
+    });
+    if (allCorrect) {
+      feedback.className = 'feedback success show';
+      feedback.textContent = '✓ Helemaal goed! Perfecte volgorde.';
+      q.classList.add('locked');
+      checkBtn.disabled = true;
+      items.forEach(i => i.draggable = false);
+      markCompleted(qid, true);
+    } else if (attempts < 3) {
+      feedback.className = 'feedback hint show';
+      feedback.textContent = '💭 Nog niet helemaal. Groen = juiste plek, rood = nog niet. Welke kun je nog verschuiven? Denk aan: hoe vlak of hoe bergachtig is elk land?';
+    } else {
+      // Reorder to correct
+      correctOrder.forEach(val => {
+        const el = list.querySelector('[data-value="'+val+'"]');
+        list.appendChild(el);
+        el.classList.remove('wrong-pos');
+        el.classList.add('correct-pos');
+      });
+      feedback.className = 'feedback reveal show';
+      feedback.textContent = 'De juiste volgorde is nu zichtbaar. Nederland is het vlakst, daarna Polen, dan Frankrijk (met de Alpen en Pyreneeën), en Zwitserland is het meest bergachtig.';
+      q.classList.add('locked');
+      checkBtn.disabled = true;
+      items.forEach(i => i.draggable = false);
+      markCompleted(qid, false);
+    }
+  });
+});
+
+// ============ MATCH ============
+document.querySelectorAll('.question[data-type="match"]').forEach(q => {
+  const qid = q.dataset.q;
+  const targets = q.querySelectorAll('.match-target');
+  const sources = q.querySelectorAll('.match-source');
+  const checkBtn = q.querySelector('.check-match');
+  const feedback = q.querySelector('.feedback');
+  let selectedTarget = null;
+  let attempts = 0;
+  const colorMap = {};
+  let colorIdx = 0;
+
+  targets.forEach(t => {
+    t.addEventListener('click', () => {
+      if (q.classList.contains('locked')) return;
+      targets.forEach(x => x.classList.remove('selected'));
+      t.classList.add('selected');
+      selectedTarget = t;
+    });
+  });
+
+  sources.forEach(s => {
+    s.addEventListener('click', () => {
+      if (q.classList.contains('locked')) return;
+      if (!selectedTarget) {
+        feedback.className = 'feedback hint show';
+        feedback.textContent = '👈 Klik eerst op een klimaat aan de linkerkant.';
+        return;
+      }
+      const tid = selectedTarget.dataset.id;
+      if (!(tid in colorMap)) {
+        colorIdx++;
+        colorMap[tid] = colorIdx;
+      }
+      // remove existing match classes
+      s.className = 'match-item match-source';
+      s.classList.add('matched-' + colorMap[tid]);
+      selectedTarget.className = 'match-item match-target matched-' + colorMap[tid];
+      s.dataset.userMatch = tid;
+      feedback.classList.remove('show');
+    });
+  });
+
+  checkBtn.addEventListener('click', () => {
+    if (q.classList.contains('locked')) return;
+    attempts++;
+    let allMatched = true;
+    let allCorrect = true;
+    sources.forEach(s => {
+      if (!s.dataset.userMatch) allMatched = false;
+      else if (s.dataset.userMatch !== s.dataset.target) allCorrect = false;
+    });
+    if (!allMatched) {
+      feedback.className = 'feedback hint show';
+      feedback.textContent = '💭 Je hebt nog niet alle landen gekoppeld. Klik op een klimaat (links), dan op een land (rechts).';
+      return;
+    }
+    if (allCorrect) {
+      feedback.className = 'feedback success show';
+      feedback.textContent = '✓ Helemaal goed! Alle koppelingen kloppen.';
+      q.classList.add('locked');
+      checkBtn.disabled = true;
+      sources.forEach(s => s.classList.add('locked'));
+      targets.forEach(t => t.classList.add('locked'));
+      markCompleted(qid, true);
+    } else if (attempts < 3) {
+      feedback.className = 'feedback hint show';
+      feedback.textContent = '💭 Nog niet alles klopt. Denk: Ierland en Nederland liggen aan de zee in het westen — welk klimaat past daarbij? Italië en Griekenland liggen aan de Middellandse Zee. Probeer het opnieuw.';
+    } else {
+      sources.forEach(s => {
+        const correct = s.dataset.target;
+        if (!(correct in colorMap)) { colorIdx++; colorMap[correct] = colorIdx; }
+        s.className = 'match-item match-source matched-' + colorMap[correct];
+        s.dataset.userMatch = correct;
+      });
+      targets.forEach(t => {
+        t.className = 'match-item match-target matched-' + (colorMap[t.dataset.id] || 1);
+      });
+      feedback.className = 'feedback reveal show';
+      feedback.textContent = 'De juiste koppelingen zijn nu zichtbaar. Ierland en Nederland → zeeklimaat, Rusland → landklimaat, Italië en Griekenland → mediterraan.';
+      q.classList.add('locked');
+      checkBtn.disabled = true;
+      sources.forEach(s => s.classList.add('locked'));
+      targets.forEach(t => t.classList.add('locked'));
+      markCompleted(qid, false);
+    }
+  });
+});
+
+// ============ MAPS ============
+const maps = {};
+window.addEventListener('DOMContentLoaded', function() {
+  // Map 1: Ligging
+  maps.ligging = L.map('map-ligging').setView([54, 15], 4);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap', maxZoom: 10
+  }).addTo(maps.ligging);
+  const liggingMarkers = [
+    {lat: 52.37, lng: 4.90, name: 'Amsterdam (NL)', info: '52° N — gematigd zeeklimaat, kustland.'},
+    {lat: 60.39, lng: 5.32, name: 'Bergen (NO)', info: '60° N — koel, lange winters, fjorden.'},
+    {lat: 37.98, lng: 23.73, name: 'Athene (GR)', info: '38° N — mediterraan, hete droge zomers.'},
+    {lat: 55.75, lng: 37.62, name: 'Moskou (RU)', info: '56° N — landklimaat, ver van zee.'},
+    {lat: 50.07, lng: 14.43, name: 'Praag (CZ)', info: 'Binnenland — geen kustlijn.'},
+  ];
+  liggingMarkers.forEach(m => {
+    L.marker([m.lat, m.lng]).addTo(maps.ligging).bindPopup('<b>'+m.name+'</b><br>'+m.info);
+  });
+
+  // Map 2: Water
+  maps.water = L.map('map-water').setView([50, 12], 4);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap', maxZoom: 10
+  }).addTo(maps.water);
+  const waterMarkers = [
+    {lat: 50.94, lng: 6.96, name: 'Keulen aan de Rijn', info: 'Stad ontstaan aan een belangrijke handelsrivier.'},
+    {lat: 48.21, lng: 16.37, name: 'Wenen aan de Donau', info: 'Hoofdstad aan Europa\'s langste rivier.'},
+    {lat: 51.51, lng: -0.13, name: 'Londen aan de Theems', info: 'Wereldhaven door rivier en zee.'},
+    {lat: 45.76, lng: 4.84, name: 'Lyon aan de Rhône', info: 'Knooppunt van twee rivieren.'},
+    {lat: 51.92, lng: 4.48, name: 'Rotterdam', info: 'Grootste haven van Europa, in de Rijndelta.'},
+  ];
+  waterMarkers.forEach(m => {
+    L.marker([m.lat, m.lng]).addTo(maps.water).bindPopup('<b>'+m.name+'</b><br>'+m.info);
+  });
+
+  // Map 3: Landen
+  maps.landen = L.map('map-landen').setView([52, 5], 3);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap', maxZoom: 10
+  }).addTo(maps.landen);
+  const landenMarkers = [
+    {lat: 59.91, lng: 10.75, name: 'Oslo (NO)', info: 'Hoofdstad van Noorwegen — fjordland.'},
+    {lat: 69.65, lng: 18.96, name: 'Tromsø (NO)', info: '69° N — poolnachten in de winter.'},
+    {lat: 40.42, lng: -3.70, name: 'Madrid (ES)', info: 'Hoofdstad op de Meseta (700m hoog).'},
+    {lat: 36.72, lng: -4.42, name: 'Málaga (ES)', info: 'Mediterrane kust — toerisme, citrus.'},
+    {lat: 43.26, lng: -2.93, name: 'Bilbao (ES)', info: 'Noord-Spanje — natter, groener.'},
+  ];
+  landenMarkers.forEach(m => {
+    L.marker([m.lat, m.lng]).addTo(maps.landen).bindPopup('<b>'+m.name+'</b><br>'+m.info);
+  });
+
+  // CHART
+  const ctx = document.getElementById('klimaatChart').getContext('2d');
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: ['jan', 'feb', 'mrt', 'apr', 'mei', 'jun', 'jul', 'aug', 'sep', 'okt', 'nov', 'dec'],
+      datasets: [
+        { label: 'Amsterdam (zee)', data: [70, 55, 60, 45, 55, 65, 75, 80, 75, 80, 85, 80], borderColor: '#047857', backgroundColor: 'rgba(4,120,87,0.1)', tension: 0.3 },
+        { label: 'Athene (mediterraan)', data: [55, 50, 40, 30, 20, 10, 5, 5, 15, 50, 60, 70], borderColor: '#b45309', backgroundColor: 'rgba(180,83,9,0.1)', tension: 0.3 },
+        { label: 'Moskou (land)', data: [40, 35, 35, 40, 50, 70, 85, 75, 60, 60, 50, 45], borderColor: '#0369a1', backgroundColor: 'rgba(3,105,161,0.1)', tension: 0.3 },
+      ]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        title: { display: true, text: 'Gemiddelde neerslag per maand (mm)', font: { size: 14, weight: '700' }, color: '#064e3b' },
+        legend: { position: 'bottom' }
+      },
+      scales: { y: { beginAtZero: true, title: { display: true, text: 'mm regen' } } }
+    }
+  });
+
+  // restore tab
+  switchTab(state.currentTab || 0);
+  // restore completed UI
+  restoreUI();
+  updateProgress();
+});
+
+function restoreUI() {
+  Object.keys(state.questions || {}).forEach(qid => {
+    const data = state.questions[qid];
+    if (!data.completed) return;
+    const q = document.querySelector('[data-q="'+qid+'"]');
+    if (!q) return;
+    q.classList.add('locked');
+    const fb = q.querySelector('.feedback');
+    if (q.dataset.type === 'mc') {
+      q.querySelectorAll('.option-btn').forEach(b => {
+        b.disabled = true;
+        if (b.dataset.correct === 'true' && data.correct) b.classList.add('correct');
+      });
+      if (fb) {
+        fb.className = 'feedback ' + (data.correct ? 'success' : 'reveal') + ' show';
+        fb.textContent = data.correct ? '✓ Eerder beantwoord — goed!' : 'Eerder beantwoord. Het juiste antwoord is hierboven gemarkeerd.';
+      }
+    } else if (q.dataset.type === 'open') {
+      const ta = q.querySelector('.open-answer');
+      const ex = q.querySelector('.example-answer');
+      const sa = q.querySelector('.self-assess');
+      if (ta) ta.disabled = true;
+      if (ex) ex.classList.add('show');
+      if (sa) {
+        sa.classList.add('show');
+        sa.querySelectorAll('button').forEach(b => b.disabled = true);
+      }
+      const sb = q.querySelector('.show-example');
+      if (sb) sb.disabled = true;
+    } else if (q.dataset.type === 'drag') {
+      q.querySelector('.check-order').disabled = true;
+      q.querySelectorAll('.drag-item').forEach(i => i.draggable = false);
+    } else if (q.dataset.type === 'match') {
+      q.querySelector('.check-match').disabled = true;
+      q.querySelectorAll('.match-item').forEach(i => i.classList.add('locked'));
+    }
+  });
+}
+
+// ============ RESET PER SECTION ============
+document.querySelectorAll('.reset-section-btn').forEach((btn, idx) => {
+  btn.addEventListener('click', () => {
+    if (!confirm('Weet je zeker dat je dit onderdeel wilt resetten?')) return;
+    const sec = sections[idx];
+    sec.querySelectorAll('.question').forEach(q => {
+      delete state.questions[q.dataset.q];
+    });
+    saveState(state);
+    location.reload();
+  });
+});
+
+// ============ GLOBAL RESET ============
+document.getElementById('globalReset').addEventListener('click', () => {
+  if (!confirm('Alle voortgang wissen?')) return;
+  try { localStorage.removeItem(KEY); } catch(e) {}
+  location.reload();
+});
+
+</script>
+</body>
+</html>
