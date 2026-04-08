@@ -3,233 +3,342 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Identiteits-Detective Pro!</title>
+    <title>Identiteits-Detective: Intelligence Agency</title>
     <style>
         :root {
-            --dark: #0f0f1a;
-            --accent: #e94560;
-            --gold: #f39c12;
-            --glass: rgba(255, 255, 255, 0.08);
-            --text: #e0e0e0;
+            --bg: #05050a;
+            --panel: #10121b;
+            --cyan: #00f2ff;
+            --gold: #ffcc00;
+            --red: #ff3c3c;
+            --green: #3cfb8d;
+            --text: #e0e6ed;
         }
 
         body {
-            font-family: 'Courier New', Courier, monospace;
-            background-color: var(--dark);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
             color: var(--text);
             margin: 0;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
+            overflow: hidden;
         }
 
-        #game-container {
+        /* Scanline Overlay */
+        body::after {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%);
+            background-size: 100% 4px;
+            z-index: 1000;
+            pointer-events: none;
+            opacity: 0.1;
+        }
+
+        #game-wrapper {
             width: 95%;
-            max-width: 700px;
-            background: var(--glass);
-            backdrop-filter: blur(15px);
-            padding: 40px;
-            border-radius: 5px;
-            border: 1px solid rgba(255,255,255,0.1);
-            box-shadow: 0 0 50px rgba(0,0,0,0.8);
+            max-width: 850px;
+            background: var(--panel);
+            border: 1px solid var(--cyan);
+            box-shadow: 0 0 30px rgba(0, 242, 255, 0.2);
+            padding: 2rem;
+            position: relative;
+            z-index: 10;
+        }
+
+        .hud-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--cyan);
+            padding-bottom: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .hud-header h1 {
+            font-size: 1.2rem;
+            letter-spacing: 5px;
+            margin: 0;
+            color: var(--cyan);
+            text-transform: uppercase;
+        }
+
+        #stats {
+            font-family: monospace;
+            color: var(--gold);
+            font-size: 1.1rem;
+        }
+
+        #dossier-screen {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid #222;
+            padding: 2rem;
+            min-height: 250px;
+            margin-bottom: 2rem;
             position: relative;
         }
 
-        .header { text-align: center; border-bottom: 2px solid var(--gold); padding-bottom: 10px; margin-bottom: 30px; }
-        .header h1 { letter-spacing: 5px; margin: 0; font-size: 1.5rem; color: var(--gold); }
-
-        #score-display { position: absolute; top: 10px; right: 20px; color: var(--gold); font-weight: bold; }
-
-        #dossier-box {
-            background: #16213e;
-            padding: 25px;
-            border: 1px solid #0f3460;
-            min-height: 200px;
-            margin-bottom: 20px;
+        .hint-entry {
+            margin-bottom: 1rem;
+            padding-left: 1.5rem;
             position: relative;
+            color: var(--green);
+            animation: flicker 0.2s ease-in-out;
         }
 
-        #dossier-box::before {
-            content: "TOP SECRET";
+        .hint-entry::before {
+            content: ">";
             position: absolute;
-            top: 10px;
-            right: 10px;
-            border: 2px solid #533434;
-            color: #533434;
-            padding: 2px 5px;
-            transform: rotate(15deg);
-            font-size: 0.7rem;
+            left: 0;
+            color: var(--cyan);
         }
 
-        .hint-line {
-            margin: 15px 0;
-            padding-left: 30px;
-            position: relative;
-            animation: typeIn 0.4s ease-out;
+        @keyframes flicker {
+            0% { opacity: 0.5; }
+            50% { opacity: 1; }
+            100% { opacity: 0.8; }
         }
 
-        .hint-line::before { content: ">"; position: absolute; left: 0; color: var(--gold); }
-
-        @keyframes typeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-
-        .controls { display: flex; flex-direction: column; gap: 10px; }
-        .btn-group { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 20px; }
+        .button-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+        }
 
         button {
-            background: #0f3460;
-            border: 1px solid var(--gold);
-            color: var(--text);
-            padding: 12px;
-            cursor: pointer;
+            background: transparent;
+            border: 1px solid var(--cyan);
+            color: var(--cyan);
+            padding: 1rem;
             text-transform: uppercase;
-            font-size: 0.8rem;
-            transition: 0.3s;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+            font-family: inherit;
         }
 
-        button:hover { background: var(--gold); color: black; font-weight: bold; }
-        button:disabled { opacity: 0.3; cursor: default; }
+        button:hover:not(:disabled) {
+            background: var(--cyan);
+            color: #000;
+            box-shadow: 0 0 15px var(--cyan);
+        }
 
-        #hint-btn { background: #1a1a2e; border-color: #444; color: #888; }
+        button:disabled {
+            border-color: #333;
+            color: #333;
+            cursor: not-allowed;
+        }
 
-        .status-bar { height: 4px; background: #333; margin-top: 30px; }
-        #progress { height: 100%; background: var(--gold); width: 0%; transition: 0.5s; }
+        #hint-trigger {
+            grid-column: span 3;
+            border-color: var(--gold);
+            color: var(--gold);
+            margin-bottom: 0.5rem;
+        }
 
-        .correct { color: #2ecc71; text-align: center; font-weight: bold; }
-        .wrong { color: #e74c3c; text-align: center; font-weight: bold; }
+        #hint-trigger:hover:not(:disabled) {
+            background: var(--gold);
+            color: #000;
+        }
+
+        /* Result Overlay */
+        #result-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            text-align: center;
+        }
+
+        .flag-large { font-size: 5rem; margin-bottom: 1rem; }
+        .score-anim { font-size: 2rem; color: var(--gold); margin-top: 1rem; }
+
+        .progress-container {
+            width: 100%;
+            height: 4px;
+            background: #111;
+            margin-top: 2rem;
+        }
+        #progress-bar {
+            height: 100%;
+            background: var(--cyan);
+            width: 0%;
+            transition: 0.4s;
+        }
     </style>
 </head>
 <body>
 
-<div id="game-container">
-    <div id="score-display">PUNTEN: <span id="points">0</span></div>
-    <div class="header">
-        <h1>CLASSIFIED: IDENTITEIT</h1>
+<div id="game-wrapper">
+    <div class="hud-header">
+        <h1>Benelux Intel Scanner</h1>
+        <div id="stats">CREDITS: <span id="credit-count">0</span></div>
     </div>
 
-    <div id="dossier-box">
-        <div id="hint-list"></div>
+    <div id="dossier-screen">
+        <div id="hint-container"></div>
     </div>
 
-    <div class="controls">
-        <button id="hint-btn" onclick="getNextHint()">+ EXTRA HINT OPVRAGEN (-20 PTN)</button>
-        <div class="btn-group">
-            <button onclick="checkIdent('Nederlander')">Nederlander</button>
-            <button onclick="checkIdent('Vlaming')">Vlaming</button>
-            <button onclick="checkIdent('Waal')">Waal</button>
-        </div>
+    <div class="button-grid">
+        <button id="hint-trigger" onclick="revealHint()">Vraag meer inlichtingen (-25 pnt)</button>
+        <button onclick="makeGuess('Nederlander')">🇳🇱 Nederlander</button>
+        <button onclick="makeGuess('Vlaming')">🇧🇪 Vlaming</button>
+        <button onclick="makeGuess('Waal')">🇧🇪 Waal</button>
     </div>
 
-    <div id="feedback-area" style="margin-top: 20px; min-height: 24px;"></div>
-    <div class="status-bar"><div id="progress"></div></div>
+    <div class="progress-container">
+        <div id="progress-bar"></div>
+    </div>
+</div>
+
+<div id="result-overlay">
+    <div id="overlay-msg"></div>
 </div>
 
 <script>
-    const database = [
-        // Uit de aangeleverde tekst
-        { hints: ["Woont in een eenheidsstaat waar lagere overheden altijd moeten gehoorzamen.", "Groet mensen in de regio vaak met 'Houdoe' of 'Moi'.", "Beschrijft zichzelf vaak als 'nuchter'."], answer: "Nederlander" },
-        { hints: ["Woont in een federale staat waar de gemeenschappen heel belangrijk zijn.", "Verstaat de inwoners aan de andere kant van de taalgrens nauwelijks.", "Vindt een 'goed contact' belangrijker dan een 'goed contract'."], answer: "Vlaming" },
-        { hints: ["Woont in een gebied genaamd Wallonië.", "Behoort tot de Franstalige gemeenschap.", "Zijn identiteit wordt sterk bepaald door de katholieke achtergrond van zijn land."], answer: "Waal" },
-        { hints: ["Woont in een land waar minder dan de helft van de mensen gelovig is.", "Komt uit een land waar 'belgenmoppen' populair zijn.", "Limburgers uit zijn regio beschrijven zichzelf als 'gemoedelijk'."], answer: "Nederlander" },
-        { hints: ["Zegt eerder een Vlaming te zijn dan een Belg.", "Maakt deel uit van een van de drie culturele groepen op basis van taal.", "Heeft een hekel aan buren die als 'arrogant' worden gezien."], answer: "Vlaming" },
-        
-        // Extra sourced van internet/cultuurverschillen
-        { hints: ["Heeft een 'platte hiërarchie': spreekt de baas gewoon bij de voornaam aan.", "Als deze persoon 'een ton' zegt, bedoelt hij 100.000 euro.", "Stopt bij een verjaardag de koekjestrommel na één koekje weer weg."], answer: "Nederlander" },
-        { hints: ["Zegt 'tot sebiet' als hij bedoelt dat hij over een paar minuten terug is.", "Staat op zondag in de rij voor 'pistolekes' bij de bakker.", "Is gericht op familie en vriendschappen (mentaliteit)."], answer: "Vlaming" },
-        { hints: ["In zijn regio neigt de politiek vaker naar de socialistische kant.", "Gebruikt vaak de woorden 'septante' en 'nonante' voor 70 en 90.", "Begroet kennissen vaak met een kus op de wang, ook zakelijk."], answer: "Waal" },
-        { hints: ["Vindt 'stiptheid' extreem belangrijk: 09:00 is ook echt 09:00.", "Woont in een land waar men liever direct is dan beleefd om de hete brij heen draait.", "Zegt vaak 'pinnen' in plaats van 'betalen met de kaart'."], answer: "Nederlander" },
-        { hints: ["Spreekt Nederlands, maar gebruikt vaak woorden als 'allez' en 'u' (beleefdheidsvorm).", "Vindt een zakendiner pas geslaagd als er drie uur lang lekker gegeten is.", "Woont in een land met drie verschillende bestuurslagen."], answer: "Vlaming" }
+    const db = [
+        // --- NEDERLAND ---
+        { h: ["Woont in een eenheidsstaat waar de provincies moeten luisteren naar de centrale regering.", "Begroet mensen in Brabant met 'Houdoe' en in Drenthe met 'Moi'.", "Ziet zichzelf als nuchter en wars van hiërarchie."], a: "Nederlander", f: "🇳🇱" },
+        { h: ["Zegt vaak 'leuk' tegen alles wat hij positief vindt.", "Eet zijn avondeten stipt om 18:00 uur.", "Stuurt je een Tikkie voor een kopje koffie van 2,50 euro."], a: "Nederlander", f: "🇳🇱" },
+        { h: ["Woont in een land waar de fiets het belangrijkste vervoermiddel is.", "Heeft een platte organisatiestructuur op het werk; de baas is een coach.", "Haalt kroketten uit een automaat in de muur."], a: "Nederlander", f: "🇳🇱" },
+        { h: ["Heeft een mening over alles en is niet bang om die ongezouten te geven.", "Woont in een land waar minder dan de helft van de bevolking gelovig is.", "Noemt 100.000 euro 'een ton'."], a: "Nederlander", f: "🇳🇱" },
+        { h: ["Viert Koningsdag in een oranje outfit.", "Heeft een hekel aan 'arrogantie', maar wordt door buren soms zelf zo gezien.", "Zegt 'pinnen' in plaats van 'betalen met de kaart'."], a: "Nederlander", f: "🇳🇱" },
+        { h: ["Heeft een hekel aan gordijnen die dicht zijn; iedereen mag naar binnen kijken.", "Vindt dat één koekje bij de koffie ruim voldoende is.", "Zegt 'patat' of 'friet', maar nooit 'fritjes'."], a: "Nederlander", f: "🇳🇱" },
+        { h: ["Is meester in 'polderen': urenlang vergaderen tot iedereen het eens is.", "Noemt een jurk een 'jurk', geen 'kleed'.", "Vindt de Randstad het centrum van de wereld."], a: "Nederlander", f: "🇳🇱" },
+        { h: ["Zegt 'gezellig' als kernwaarde voor elk sociaal evenement.", "Heeft een hekel aan 'ongevraagd' bezoek; alles gaat op afspraak in de agenda.", "Beschouwt hagelslag als legitiem ontbijt voor volwassenen."], a: "Nederlander", f: "🇳🇱" },
+        { h: ["Woont in een land met de hoogste dichtheid aan fietspaden ter wereld.", "Vindt Belgen 'levensgenieters' maar ook 'ondoorgrondelijk'.", "Denkt dat '020' de enige stad is die er echt toe doet."], a: "Nederlander", f: "🇳🇱" },
+        { h: ["Heeft een hekel aan 'u' zeggen; tutoyeert de koningin bijna."], a: "Nederlander", f: "🇳🇱" },
+
+        // --- VLAANDEREN ---
+        { h: ["Woont in een federale staat waar de gewesten eigen beslissingen nemen.", "Vindt een goed contact belangrijker dan een goed contract.", "Noemt zichzelf Vlaming voordat hij zichzelf Belg noemt."], a: "Vlaming", f: "🇧🇪" },
+        { h: ["Eet 'pistolekes' op zondagochtend van de lokale bakker.", "Gebruikt 'u' als standaard beleefdheidsvorm, ook tegen onbekenden.", "Vindt de noorderburen vaak luidruchtig en direct."], a: "Vlaming", f: "🇧🇪" },
+        { h: ["Zegt 'amai' bij verbazing.", "Kijkt elk jaar naar de Ronde van Vlaanderen (de koers).", "Heeft een 'baksteen in de maag' en wil zijn eigen huis bouwen."], a: "Vlaming", f: "🇧🇪" },
+        { h: ["Woont in een gebied met steden als Antwerpen, Gent en Brugge.", "Zegt 'tot sebiet' als hij over 5 minuten terug is.", "Spreekt Nederlands maar verstaat de Waalse buren nauwelijks."], a: "Vlaming", f: "🇧🇪" },
+        { h: ["Drinkt zijn speciaalbier uit een glas dat exact bij het merk hoort.", "Vindt 'goesting' het mooiste woord in de taal.", "Is opgegroeid met Suske en Wiske strips."], a: "Vlaming", f: "🇧🇪" },
+        { h: ["Zegt 'zetel' tegen een bank en 'kast' tegen een kast.", "Houdt van uitgebreid tafelen; een lunch duurt minstens twee uur.", "Zijn identiteit is gevormd door de taalstrijd in zijn land."], a: "Vlaming", f: "🇧🇪" },
+        { h: ["Woont in de dichtstbevolkte regio van een federale staat.", "Vindt dat zijn noorderburen 'geen cultuur' hebben qua eten.", "Gebruikt het woord 'valling' als hij verkouden is."], a: "Vlaming", f: "🇧🇪" },
+        { h: ["Zegt 'kleed' tegen een jurk.", "Woont in een land met drie gemeenschappen op basis van taal.", "Is vaak bescheiden en spreekt liever 'tussen de regels'."], a: "Vlaming", f: "🇧🇪" },
+        { h: ["Heeft een burgemeester die vaak ook in het parlement zit.", "Woont in een land waar de regering soms jarenlang gevormd moet worden.", "Vindt Franstaligen in zijn land soms lastig."], a: "Vlaming", f: "🇧🇪" },
+        { h: ["Heeft een hekel aan 'Tikkies'; als je trakteert, dan trakteer je echt."], a: "Vlaming", f: "🇧🇪" },
+
+        // --- WALLONIË ---
+        { h: ["Woont in een heuvelachtig gebied dat de Ardennen wordt genoemd.", "Maakt deel uit van de Franstalige gemeenschap.", "Woont in een federale staat en spreekt nauwelijks Nederlands."], a: "Waal", f: "🇧🇪" },
+        { h: ["Zijn identiteit is sterk gebaseerd op het katholieke verleden.", "Begroet vrienden vaak met een kus op de wang.", "Zegt 'septante' en 'nonante' in plaats van 'soixante-dix'."], a: "Waal", f: "🇧🇪" },
+        { h: ["Is trots op het industriële verleden (staal en mijnen) van zijn regio.", "Ziet Namen als de hoofdstad van zijn gewest.", "Vindt de 'levenskunst' (art de vivre) belangrijker dan stiptheid."], a: "Waal", f: "🇧🇪" },
+        { h: ["Woont in het zuidelijke deel van België.", "Heeft een hekel aan de politieke eisen van de noordelijke buren.", "Eet graag 'boulets liégeois' (gehaktballen uit Luik)."], a: "Waal", f: "🇧🇪" },
+        { h: ["Gebruikt 'salut' en 'ça va' de hele dag door.", "Heeft veel meer bossen en natuur in zijn regio dan de rest van het land.", "Lijkt qua mentaliteit soms op een inwoner van Noord-Frankrijk."], a: "Waal", f: "🇧🇪" },
+        { h: ["Woont in een regio waar steden als Charleroi en Luik liggen.", "Zijn economie was vroeger sterker dan die van het noorden.", "Vindt dat de federale staat België moet blijven bestaan."], a: "Waal", f: "🇧🇪" },
+        { h: ["Is minder gericht op regeltjes en stiptheid dan de noorderburen.", "Geniet van 'le terroir': lokale kazen en ambachtelijke bieren.", "Wordt door Vlamingen soms als 'te afhankelijk' gezien."], a: "Waal", f: "🇧🇪" },
+        { h: ["Spreekt een taal die in Nederland op school als 'lastig' wordt ervaren.", "Heeft een gemoedelijke mentaliteit, net als Limburgers.", "Vindt de taalgrens een essentieel onderdeel van zijn land."], a: "Waal", f: "🇧🇪" },
+        { h: ["Zijn regio leunt politiek vaak naar de socialistische kant.", "Viert carnaval op een traditionele, folkloristische manier (zoals in Binche)."], a: "Waal", f: "🇧🇪" },
+        { h: ["Voelt zich Belg, maar vooral inwoner van zijn streek."], a: "Waal", f: "🇧🇪" },
+
+        // --- MIXED ---
+        { h: ["Woont in een land waar de koning Filip heet.", "Heeft drie officiële talen in zijn land.", "Woont in een federale staat."], a: "Vlaming", f: "🇧🇪" },
+        { h: ["Heeft een landsgrens waar het inkomen aan de ene kant vaak hoger is dan aan de andere.", "Woont in een eenheidsstaat.", "Zijn koning heet Willem-Alexander."], a: "Nederlander", f: "🇳🇱" },
+        { h: ["Woont in een land met een Duitstalige minderheid in het oosten.", "Behoort tot de Franstalige taalgroep.", "Heeft een hekel aan de directe communicatie van Nederlanders."], a: "Waal", f: "🇧🇪" },
+        { h: ["Denkt dat Belgenmoppen grappig zijn.", "Vindt dat een goed contact belangrijker is dan een contract.", "Is Nederlands-talig."], a: "Vlaming", f: "🇧🇪" },
+        { h: ["Woont in de buurt van de Maas en vindt Limburgers 'gemoedelijk'.", "Spreekt Frans.", "Woont in een federale staat."], a: "Waal", f: "🇧🇪" }
     ];
 
     let currentCases = [];
-    let caseIndex = 0;
-    let hintIndex = 0;
+    let cIdx = 0;
+    let hIdx = 0;
     let score = 0;
     let currentCaseValue = 100;
 
-    // Shuffle functie (Fisher-Yates)
-    function shuffle(array) {
-        for (let i = array.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [array[i], array[j]] = [array[j], array[i]];
-        }
+    function init() {
+        currentCases = [...db].sort(() => Math.random() - 0.5);
+        cIdx = 0;
+        loadNext();
     }
 
-    function initGame() {
-        currentCases = [...database];
-        shuffle(currentCases);
-        caseIndex = 0;
-        loadCase();
-    }
-
-    function loadCase() {
-        if (caseIndex >= currentCases.length) {
-            finishGame();
+    function loadNext() {
+        if (cIdx >= currentCases.length) {
+            finish();
             return;
         }
-        hintIndex = 0;
+        hIdx = 0;
         currentCaseValue = 100;
-        document.getElementById('hint-list').innerHTML = "";
-        document.getElementById('feedback-area').innerHTML = "";
-        document.getElementById('hint-btn').disabled = false;
-        getNextHint();
+        document.getElementById('hint-container').innerHTML = "";
+        document.getElementById('hint-trigger').disabled = false;
+        revealHint();
         updateUI();
     }
 
-    function getNextHint() {
-        const list = document.getElementById('hint-list');
-        const hints = currentCases[caseIndex].hints;
+    function revealHint() {
+        const container = document.getElementById('hint-container');
+        const hints = currentCases[cIdx].h;
         
-        if (hintIndex < hints.length) {
+        if (hIdx < hints.length) {
             const div = document.createElement('div');
-            div.className = 'hint-line';
-            div.innerText = hints[hintIndex];
-            list.appendChild(div);
+            div.className = 'hint-entry';
+            div.innerText = hints[hIdx];
+            container.appendChild(div);
             
-            if (hintIndex > 0) currentCaseValue -= 30; // Strafpunten voor extra hints
-            hintIndex++;
+            if (hIdx > 0) currentCaseValue -= 25;
+            hIdx++;
         }
         
-        if (hintIndex >= hints.length) {
-            document.getElementById('hint-btn').disabled = true;
+        if (hIdx >= hints.length) {
+            document.getElementById('hint-trigger').disabled = true;
         }
     }
 
-    function checkIdent(guess) {
-        const feedback = document.getElementById('feedback-area');
-        const correctAns = currentCases[caseIndex].answer;
+    function makeGuess(choice) {
+        const overlay = document.getElementById('result-overlay');
+        const msg = document.getElementById('overlay-msg');
+        const correct = currentCases[cIdx].a;
         
-        if (guess === correctAns) {
+        overlay.style.display = "flex";
+        
+        if (choice === correct) {
             score += currentCaseValue;
-            feedback.innerHTML = `<span class="correct">DOSSIER GESLOTEN: +${currentCaseValue} ptn</span>`;
-            caseIndex++;
-            setTimeout(loadCase, 1200);
+            msg.innerHTML = `<div class="flag-large">${currentCases[cIdx].f}</div><h1 style="color:var(--green)">IDENTITEIT GECORRECTEERD</h1><div class="score-anim">+${currentCaseValue} PNT</div>`;
         } else {
             score -= 50;
-            feedback.innerHTML = `<span class="wrong">IDENTITEITSFRAUDE! DIT IS EEN ${correctAns.toUpperCase()} (-50 ptn)</span>`;
-            caseIndex++;
-            setTimeout(loadCase, 2000);
+            msg.innerHTML = `<h1 style="color:var(--red)">IDENTITEITSFRAUDE</h1><p>Dit was een ${correct}.</p><div class="score-anim">-50 PNT</div>`;
         }
+        
+        setTimeout(() => {
+            overlay.style.display = "none";
+            cIdx++;
+            loadNext();
+        }, 1500);
     }
 
     function updateUI() {
-        document.getElementById('points').innerText = score;
-        const progress = (caseIndex / currentCases.length) * 100;
-        document.getElementById('progress').style.width = progress + "%";
+        document.getElementById('credit-count').innerText = score;
+        document.getElementById('progress-bar').style.width = (cIdx / currentCases.length) * 100 + "%";
     }
 
-    function finishGame() {
-        document.getElementById('game-container').innerHTML = `
-            <div class="header"><h1>MISSIE VOLTOOID</h1></div>
-            <div style="text-align:center; padding: 20px;">
-                <p>Je hebt alle dossiers verwerkt.</p>
-                <h2 style="color:var(--gold)">EINDSORE: ${score}</h2>
-                <button onclick="location.reload()" style="width:100%">RESTART SYSTEEM</button>
+    function finish() {
+        let rank = "";
+        if (score < 500) rank = "TOERIST (Verdwaald bij de grens)";
+        else if (score < 1500) rank = "GRENS-PENDELAAR (Kenner van de buren)";
+        else if (score < 2500) rank = "BENELUX-EXPERT (Diplomaat-waardig)";
+        else rank = "TOP DETECTIVE (Staatsgeheim-niveau)";
+
+        document.getElementById('game-wrapper').innerHTML = `
+            <div class="hud-header"><h1>MISSIE VOLBRACHT</h1></div>
+            <div style="text-align:center; padding: 2rem;">
+                <p>Eindrapport opgemaakt voor agent Gemini.</p>
+                <h1 style="color:var(--gold); font-size: 3rem; margin: 1rem 0;">${score}</h1>
+                <p>Jouw rang: <br><strong style="color:var(--cyan)">${rank}</strong></p>
+                <button onclick="location.reload()" style="width:100%; margin-top: 2rem;">RESTART SYSTEM</button>
             </div>
         `;
     }
 
-    initGame();
+    init();
 </script>
 
 </body>
