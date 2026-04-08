@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Identiteits-Detective Pro</title>
+    <style>
+        :root {
+            --dark: #0f0f1a;
+            --accent: #e94560;
+            --gold: #f39c12;
+            --glass: rgba(255, 255, 255, 0.08);
+            --text: #e0e0e0;
+        }
+
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            background-color: var(--dark);
+            color: var(--text);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        #game-container {
+            width: 95%;
+            max-width: 700px;
+            background: var(--glass);
+            backdrop-filter: blur(15px);
+            padding: 40px;
+            border-radius: 5px;
+            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 0 50px rgba(0,0,0,0.8);
+            position: relative;
+        }
+
+        .header { text-align: center; border-bottom: 2px solid var(--gold); padding-bottom: 10px; margin-bottom: 30px; }
+        .header h1 { letter-spacing: 5px; margin: 0; font-size: 1.5rem; color: var(--gold); }
+
+        #score-display { position: absolute; top: 10px; right: 20px; color: var(--gold); font-weight: bold; }
+
+        #dossier-box {
+            background: #16213e;
+            padding: 25px;
+            border: 1px solid #0f3460;
+            min-height: 200px;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        #dossier-box::before {
+            content: "TOP SECRET";
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            border: 2px solid #533434;
+            color: #533434;
+            padding: 2px 5px;
+            transform: rotate(15deg);
+            font-size: 0.7rem;
+        }
+
+        .hint-line {
+            margin: 15px 0;
+            padding-left: 30px;
+            position: relative;
+            animation: typeIn 0.4s ease-out;
+        }
+
+        .hint-line::before { content: ">"; position: absolute; left: 0; color: var(--gold); }
+
+        @keyframes typeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+        .controls { display: flex; flex-direction: column; gap: 10px; }
+        .btn-group { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 20px; }
+
+        button {
+            background: #0f3460;
+            border: 1px solid var(--gold);
+            color: var(--text);
+            padding: 12px;
+            cursor: pointer;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            transition: 0.3s;
+        }
+
+        button:hover { background: var(--gold); color: black; font-weight: bold; }
+        button:disabled { opacity: 0.3; cursor: default; }
+
+        #hint-btn { background: #1a1a2e; border-color: #444; color: #888; }
+
+        .status-bar { height: 4px; background: #333; margin-top: 30px; }
+        #progress { height: 100%; background: var(--gold); width: 0%; transition: 0.5s; }
+
+        .correct { color: #2ecc71; text-align: center; font-weight: bold; }
+        .wrong { color: #e74c3c; text-align: center; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div id="game-container">
+    <div id="score-display">PUNTEN: <span id="points">0</span></div>
+    <div class="header">
+        <h1>CLASSIFIED: IDENTITEIT</h1>
+    </div>
+
+    <div id="dossier-box">
+        <div id="hint-list"></div>
+    </div>
+
+    <div class="controls">
+        <button id="hint-btn" onclick="getNextHint()">+ EXTRA HINT OPVRAGEN (-20 PTN)</button>
+        <div class="btn-group">
+            <button onclick="checkIdent('Nederlander')">Nederlander</button>
+            <button onclick="checkIdent('Vlaming')">Vlaming</button>
+            <button onclick="checkIdent('Waal')">Waal</button>
+        </div>
+    </div>
+
+    <div id="feedback-area" style="margin-top: 20px; min-height: 24px;"></div>
+    <div class="status-bar"><div id="progress"></div></div>
+</div>
+
+<script>
+    const database = [
+        // Uit de aangeleverde tekst
+        { hints: ["Woont in een eenheidsstaat waar lagere overheden altijd moeten gehoorzamen.", "Groet mensen in de regio vaak met 'Houdoe' of 'Moi'.", "Beschrijft zichzelf vaak als 'nuchter'."], answer: "Nederlander" },
+        { hints: ["Woont in een federale staat waar de gemeenschappen heel belangrijk zijn.", "Verstaat de inwoners aan de andere kant van de taalgrens nauwelijks.", "Vindt een 'goed contact' belangrijker dan een 'goed contract'."], answer: "Vlaming" },
+        { hints: ["Woont in een gebied genaamd Wallonië.", "Behoort tot de Franstalige gemeenschap.", "Zijn identiteit wordt sterk bepaald door de katholieke achtergrond van zijn land."], answer: "Waal" },
+        { hints: ["Woont in een land waar minder dan de helft van de mensen gelovig is.", "Komt uit een land waar 'belgenmoppen' populair zijn.", "Limburgers uit zijn regio beschrijven zichzelf als 'gemoedelijk'."], answer: "Nederlander" },
+        { hints: ["Zegt eerder een Vlaming te zijn dan een Belg.", "Maakt deel uit van een van de drie culturele groepen op basis van taal.", "Heeft een hekel aan buren die als 'arrogant' worden gezien."], answer: "Vlaming" },
+        
+        // Extra sourced van internet/cultuurverschillen
+        { hints: ["Heeft een 'platte hiërarchie': spreekt de baas gewoon bij de voornaam aan.", "Als deze persoon 'een ton' zegt, bedoelt hij 100.000 euro.", "Stopt bij een verjaardag de koekjestrommel na één koekje weer weg."], answer: "Nederlander" },
+        { hints: ["Zegt 'tot sebiet' als hij bedoelt dat hij over een paar minuten terug is.", "Staat op zondag in de rij voor 'pistolekes' bij de bakker.", "Is gericht op familie en vriendschappen (mentaliteit)."], answer: "Vlaming" },
+        { hints: ["In zijn regio neigt de politiek vaker naar de socialistische kant.", "Gebruikt vaak de woorden 'septante' en 'nonante' voor 70 en 90.", "Begroet kennissen vaak met een kus op de wang, ook zakelijk."], answer: "Waal" },
+        { hints: ["Vindt 'stiptheid' extreem belangrijk: 09:00 is ook echt 09:00.", "Woont in een land waar men liever direct is dan beleefd om de hete brij heen draait.", "Zegt vaak 'pinnen' in plaats van 'betalen met de kaart'."], answer: "Nederlander" },
+        { hints: ["Spreekt Nederlands, maar gebruikt vaak woorden als 'allez' en 'u' (beleefdheidsvorm).", "Vindt een zakendiner pas geslaagd als er drie uur lang lekker gegeten is.", "Woont in een land met drie verschillende bestuurslagen."], answer: "Vlaming" }
+    ];
+
+    let currentCases = [];
+    let caseIndex = 0;
+    let hintIndex = 0;
+    let score = 0;
+    let currentCaseValue = 100;
+
+    // Shuffle functie (Fisher-Yates)
+    function shuffle(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+    }
+
+    function initGame() {
+        currentCases = [...database];
+        shuffle(currentCases);
+        caseIndex = 0;
+        loadCase();
+    }
+
+    function loadCase() {
+        if (caseIndex >= currentCases.length) {
+            finishGame();
+            return;
+        }
+        hintIndex = 0;
+        currentCaseValue = 100;
+        document.getElementById('hint-list').innerHTML = "";
+        document.getElementById('feedback-area').innerHTML = "";
+        document.getElementById('hint-btn').disabled = false;
+        getNextHint();
+        updateUI();
+    }
+
+    function getNextHint() {
+        const list = document.getElementById('hint-list');
+        const hints = currentCases[caseIndex].hints;
+        
+        if (hintIndex < hints.length) {
+            const div = document.createElement('div');
+            div.className = 'hint-line';
+            div.innerText = hints[hintIndex];
+            list.appendChild(div);
+            
+            if (hintIndex > 0) currentCaseValue -= 30; // Strafpunten voor extra hints
+            hintIndex++;
+        }
+        
+        if (hintIndex >= hints.length) {
+            document.getElementById('hint-btn').disabled = true;
+        }
+    }
+
+    function checkIdent(guess) {
+        const feedback = document.getElementById('feedback-area');
+        const correctAns = currentCases[caseIndex].answer;
+        
+        if (guess === correctAns) {
+            score += currentCaseValue;
+            feedback.innerHTML = `<span class="correct">DOSSIER GESLOTEN: +${currentCaseValue} ptn</span>`;
+            caseIndex++;
+            setTimeout(loadCase, 1200);
+        } else {
+            score -= 50;
+            feedback.innerHTML = `<span class="wrong">IDENTITEITSFRAUDE! DIT IS EEN ${correctAns.toUpperCase()} (-50 ptn)</span>`;
+            caseIndex++;
+            setTimeout(loadCase, 2000);
+        }
+    }
+
+    function updateUI() {
+        document.getElementById('points').innerText = score;
+        const progress = (caseIndex / currentCases.length) * 100;
+        document.getElementById('progress').style.width = progress + "%";
+    }
+
+    function finishGame() {
+        document.getElementById('game-container').innerHTML = `
+            <div class="header"><h1>MISSIE VOLTOOID</h1></div>
+            <div style="text-align:center; padding: 20px;">
+                <p>Je hebt alle dossiers verwerkt.</p>
+                <h2 style="color:var(--gold)">EINDSORE: ${score}</h2>
+                <button onclick="location.reload()" style="width:100%">RESTART SYSTEEM</button>
+            </div>
+        `;
+    }
+
+    initGame();
+</script>
+
+</body>
+</html>
