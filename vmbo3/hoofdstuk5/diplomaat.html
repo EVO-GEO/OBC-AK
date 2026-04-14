@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="nl"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Schelde Diplomaat</title><style>
+body{font-family:system-ui,sans-serif;max-width:640px;margin:20px auto;padding:16px;background:#f4f1ea;color:#222}
+h1{margin:0 0 4px}.sub{color:#666;margin-bottom:16px;font-size:14px}
+.meters{display:flex;gap:12px;margin-bottom:20px}
+.meter{flex:1;background:#fff;border-radius:8px;padding:10px;box-shadow:0 1px 3px rgba(0,0,0,.1)}
+.meter label{font-size:13px;font-weight:600}
+.bar{height:14px;background:#eee;border-radius:7px;overflow:hidden;margin-top:6px}
+.fill{height:100%;transition:width .5s}
+.nl .fill{background:#ff6b1a}.be .fill{background:#fdda24}
+.card{background:#fff;border-radius:10px;padding:18px;box-shadow:0 2px 6px rgba(0,0,0,.08)}
+.case-title{font-weight:700;margin-bottom:6px}
+.case-text{font-size:14px;line-height:1.5;margin-bottom:14px}
+button{display:block;width:100%;text-align:left;margin:8px 0;padding:12px;border:2px solid #ddd;background:#fafafa;border-radius:8px;cursor:pointer;font-size:14px;font-family:inherit;line-height:1.4}
+button:hover{border-color:#ff6b1a;background:#fff}
+.next{background:#222;color:#fff;text-align:center;border-color:#222;font-weight:600;margin-top:14px}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;padding:16px;z-index:10}
+.overlay.show{display:flex}
+.modal{background:#fff;border-radius:12px;max-width:520px;width:100%;padding:22px;max-height:90vh;overflow-y:auto}
+.modal h3{margin:0 0 8px}
+.scores{display:flex;gap:10px;margin:12px 0}
+.scores div{flex:1;padding:10px;border-radius:6px;text-align:center;font-weight:600;font-size:14px}
+.s-nl{background:#fff0e6}.s-be{background:#fff8d1}
+.pc{font-size:13px;line-height:1.55;margin:10px 0}
+.pc .p{color:#1a7a3a;margin:4px 0}.pc .c{color:#a32020;margin:4px 0}
+.reality{font-size:12px;background:#f0f0f0;padding:10px;border-radius:6px;margin-top:10px;color:#444;font-style:italic}
+.end{text-align:center;padding:20px}.badge{font-size:48px;margin:10px}
+</style></head><body>
+<h1>🤝 Schelde Diplomaat</h1>
+<div class="sub">Elke keuze heeft voor- én nadelen. Perfecte oplossingen bestaan zelden.</div>
+<div class="meters">
+<div class="meter nl"><label>🇳🇱 Nederland</label><div class="bar"><div class="fill" id="nlBar"></div></div></div>
+<div class="meter be"><label>🇧🇪 België</label><div class="bar"><div class="fill" id="beBar"></div></div></div>
+</div>
+<div id="game" class="card"></div>
+<div class="overlay" id="ov"><div class="modal" id="md"></div></div>
+<script>
+const cases=[{
+  title:"Baggeren van de Westerschelde",
+  text:"België eist diepere vaargeulen voor Antwerpen. Natuurorganisaties waarschuwen voor schade aan de Zeeuwse natuur. Zeeuwen zijn boos.",
+  options:[
+    {t:"Baggeren toestaan in ruil voor gezamenlijke financiering én natuurcompensatie",nl:+3,be:+8,
+     pros:["BE-haven blijft bereikbaar","Compensatie verzacht protest"],cons:["Zeeuwen vinden natuurherstel 'pleister op de wond'","Dure onderhandelingen, jarenlang"],
+     real:"Dit is ongeveer wat er écht gebeurde met de Scheldeverdragen (2005) — tot vandaag omstreden in Zeeland."},
+    {t:"Alleen beperkt baggeren, strikt binnen milieugrenzen",nl:+6,be:-8,
+     pros:["Natuur beschermd","NL-publiek tevreden"],cons:["Antwerpse haven loopt omzet mis","BE dreigt met EU-procedure"],
+     real:"Milieu boven economie klinkt nobel, maar havenbelangen wegen zwaar in EU-recht."},
+    {t:"Volledig baggeren zoals BE wil, snel en zonder voorwaarden",nl:-12,be:+12,
+     pros:["BE ziet NL als betrouwbare partner","Handel groeit"],cons:["Zeeuwse boeren/natuur in opstand","NL-parlement valt over je"],
+     real:"Snelle toezeggingen zonder achterban-steun ontploffen later politiek."}
+  ]},{
+  title:"Drugsafval over de grens",
+  text:"NL-criminelen dumpen drugsafval in Belgische Kempen. Belgische burgemeesters eisen actie. Maar NL-politie heeft beperkte capaciteit.",
+  options:[
+    {t:"Gezamenlijk grensteam, gefinancierd door beide landen",nl:-3,be:+10,
+     pros:["Pakt bron aan","BE voelt zich gehoord"],cons:["NL betaalt mee aan 'BE-probleem'","Traag op te zetten"],
+     real:"Zulke teams bestaan (Joint Hit Teams), maar stuiten op verschillen in wetgeving."},
+    {t:"Zwaardere straffen in NL voor dumpen, ook buitenslands",nl:+5,be:+2,
+     pros:["Afschrikking","Geen extra BE-kosten"],cons:["Criminelen verplaatsen simpelweg naar verder weg","Werkt alleen ná arrestatie"],
+     real:"Strafverhoging zónder opsporing = symboolpolitiek."},
+    {t:"Grenscontroles verscherpen bij hotspots",nl:-6,be:+4,
+     pros:["Zichtbare actie","Populair bij BE-burgers"],cons:["Pendelaars gedupeerd","Schendt Schengen-geest"],
+     real:"Tijdelijke controles mogen, maar de EU kijkt kritisch mee."}
+  ]},{
+  title:"Chemische lozingen in de Schelde",
+  text:"Antwerpse bedrijven lozen PFAS. Het water stroomt NL in; Zeeuwse vissers slaan alarm. BE-regering wil banen beschermen.",
+  options:[
+    {t:"Klacht bij Europees Hof indienen",nl:+8,be:-15,
+     pros:["Juridisch sterk","Dwingt BE tot actie"],cons:["Jarenlange procedure","Diplomatieke ijstijd"],
+     real:"Juridische druk werkt, maar kost goodwill — vaak jaren vertraging."},
+    {t:"Gezamenlijke Schelde-commissie met harde deadlines",nl:+4,be:+3,
+     pros:["Structurele aanpak","Beide kanten committeren"],cons:["Deadlines worden vaak verzet","Bedrijven lobbyen hard tegen"],
+     real:"De Internationale Scheldecommissie bestaat al — met wisselend succes."},
+    {t:"NL neemt zelf zuiveringsmaatregelen, stuurt rekening naar BE",nl:-2,be:-10,
+     pros:["Direct resultaat voor NL-water","Duidelijk signaal"],cons:["BE betaalt nooit","Vervuiling blijft bij de bron"],
+     real:"Symptoombestrijding — het probleem blijft stroomopwaarts bestaan."}
+  ]},{
+  title:"Luchtvervuiling uit de Antwerpse haven",
+  text:"Fijnstof uit de Antwerpse industrie waait richting Zeeland en Brabant. NL-longartsen luiden de noodklok. BE wil geen banen verliezen.",
+  options:[
+    {t:"Eenzijdig NL-meetstations langs de grens plaatsen en publiceren",nl:+4,be:-6,
+     pros:["Transparantie","Publieke druk op BE"],cons:["BE voelt zich aan de schandpaal","Lost vervuiling niet op"],
+     real:"Meten is weten, maar zonder afspraken leidt het vooral tot krantenkoppen."},
+    {t:"EU-breed pleiten voor strengere industrienormen",nl:+3,be:+1,
+     pros:["Gelijk speelveld","Structurele oplossing"],cons:["Duurt jaren","BE-industrie lobbyt tegen"],
+     real:"EU-route werkt, maar traag — ondertussen blijft de lucht hetzelfde."},
+    {t:"Bilaterale deal: BE investeert in filters, NL in groene energie-export",nl:+2,be:+5,
+     pros:["Beide landen winnen iets","Snellere actie dan EU"],cons:["Belastingbetalers mopperen","Moeilijk te handhaven"],
+     real:"Wederzijdse 'package deals' zijn klassieke diplomatie — vaak net niet genoeg."}
+  ]},{
+  title:"Rijbewijs als identiteitsbewijs",
+  text:"Belgische jongeren werken in NL-horeca en gebruiken hun rijbewijs als ID — in BE mag dat niet, in NL wel. Verwarring bij controles.",
+  options:[
+    {t:"NL past regels aan: Belgisch rijbewijs geldt niet meer als ID",nl:+2,be:-8,
+     pros:["Duidelijkheid","Geen juridisch gedoe"],cons:["BE-jongeren gedupeerd","Grensarbeid lastiger"],
+     real:"Regels gelijktrekken 'naar beneden' frustreert burgers aan beide kanten."},
+    {t:"Gezamenlijke voorlichtingscampagne voor grensarbeiders",nl:+3,be:+4,
+     pros:["Goedkoop","Praktisch probleem opgelost"],cons:["Onderliggend verschil blijft","Bereikt niet iedereen"],
+     real:"Bureau Grensinfo doet dit echt — nuttig maar pleisterwerk."},
+    {t:"Lobby voor Europees geharmoniseerd ID-beleid",nl:+1,be:+2,
+     pros:["Toekomstbestendig","Alle EU-burgers profiteren"],cons:["Jaren werk","BE en NL hebben weinig invloed alleen"],
+     real:"Grote ambitie, klein effect op korte termijn."}
+  ]},{
+  title:"Taalverschillen op de werkvloer",
+  text:"In een grensziekenhuis leiden Vlaamse termen ('botten'=laarzen, 'poepen' betekent iets heel anders) tot miscommunicatie. Een incident haalt het nieuws.",
+  options:[
+    {t:"Verplicht 'Standaardnederlands' op de werkvloer",nl:+3,be:-10,
+     pros:["Duidelijke regel","Minder misverstanden"],cons:["Vlamingen voelen zich weggezet","Juridisch twijfelachtig"],
+     real:"Taal opleggen ligt extreem gevoelig — zeker richting Vlaanderen."},
+    {t:"Woordenlijst + training NL-BE taalverschillen",nl:+4,be:+5,
+     pros:["Respectvol","Praktisch bruikbaar"],cons:["Training kost tijd/geld","Werkt niet bij spoed"],
+     real:"Veel grensziekenhuizen doen dit — simpel en effectief."},
+    {t:"Niets doen, mensen passen zich vanzelf aan",nl:-5,be:-3,
+     pros:["Geen kosten","Respecteert autonomie"],cons:["Volgende incident komt zeker","Patiëntveiligheid in het geding"],
+     real:"Laissez-faire bij veiligheidsrisico's is politiek onhoudbaar."}
+  ]},{
+  title:"Grensarbeiders en belastingen",
+  text:"10.000 Nederlanders werken in BE (en omgekeerd). Dubbele belasting en verschillende sociale zekerheid zorgen voor chaos.",
+  options:[
+    {t:"Nieuw belastingverdrag, gunstiger voor werkland",nl:-4,be:+6,
+     pros:["Duidelijker voor werkgevers","Stimuleert grensarbeid"],cons:["NL loopt belastinginkomsten mis","Politiek gevoelig"],
+     real:"NL-BE belastingverdrag wordt regelmatig herzien — altijd gevecht over wie welke euro krijgt."},
+    {t:"Digitaal loket waar grensarbeiders alles kunnen regelen",nl:+5,be:+5,
+     pros:["Praktisch","Populair bij burgers"],cons:["Onderliggende regelverschillen blijven","IT-projecten lopen vaak uit"],
+     real:"Grensinfopunten bestaan echt — nuttig maar lossen wetsverschillen niet op."},
+    {t:"Status quo handhaven, problemen zijn beheersbaar",nl:+1,be:-4,
+     pros:["Geen onderhandelingsgedoe","Stabiel"],cons:["Klachten blijven stapelen","Mensen verhuizen uit frustratie"],
+     real:"Niks doen is ook een keuze — maar zelden een populaire."}
+  ]},{
+  title:"Klimaatbeleid: kerncentrale Doel",
+  text:"BE wil kerncentrale Doel (vlak over de grens) langer openhouden. NL-omwonenden vrezen risico's, BE heeft de stroom nodig.",
+  options:[
+    {t:"Juridische blokkade via EU-milieurecht",nl:+6,be:-14,
+     pros:["Voorzorgsprincipe","NL-publiek gerustgesteld"],cons:["Ernstige diplomatieke breuk","BE-stroomtekort raakt ook NL"],
+     real:"Doel ligt écht vlak bij de grens — een hete aardappel sinds jaren."},
+    {t:"Akkoord tegen extra veiligheidscontroles + NL-inspraak",nl:+3,be:+4,
+     pros:["Praktische waarborg","Relatie blijft goed"],cons:["NL heeft formeel geen zeggenschap","Controles zijn beperkt"],
+     real:"Inspraak zonder veto is diplomatiek compromis — beide kanten gemengd tevreden."},
+    {t:"Samen investeren in vervangende windenergie op zee",nl:+5,be:+7,
+     pros:["Toekomstgericht","Beide landen profiteren"],cons:["Kost miljarden","Duurt 10+ jaar"],
+     real:"Grote klimaatdeals klinken mooi maar overleven vaak geen regeringswissel."}
+  ]}
+];
+cases.forEach(c=>c.options.sort(()=>Math.random()-.5));
+let nl=50,be=50,i=0;
+const game=document.getElementById('game'),ov=document.getElementById('ov'),md=document.getElementById('md');
+function bars(){document.getElementById('nlBar').style.width=Math.max(0,Math.min(100,nl))+'%';document.getElementById('beBar').style.width=Math.max(0,Math.min(100,be))+'%';}
+function render(){bars();if(i>=cases.length)return end();const c=cases[i];
+  game.innerHTML=`<div class="case-title">Case ${i+1}/${cases.length}: ${c.title}</div><div class="case-text">${c.text}</div><div id="opts"></div>`;
+  c.options.forEach((o,idx)=>{const b=document.createElement('button');b.textContent=o.t;b.onclick=()=>choose(idx);document.getElementById('opts').appendChild(b);});}
+function choose(idx){const o=cases[i].options[idx];nl+=o.nl;be+=o.be;bars();
+  md.innerHTML=`<h3>${cases[i].title}</h3><div style="font-size:13px;color:#555">Je koos: <b>${o.t}</b></div>
+    <div class="scores"><div class="s-nl">🇳🇱 ${o.nl>=0?'+':''}${o.nl}</div><div class="s-be">🇧🇪 ${o.be>=0?'+':''}${o.be}</div></div>
+    <div class="pc"><b>Voordelen</b>${o.pros.map(p=>`<div class="p">✓ ${p}</div>`).join('')}<b>Nadelen</b>${o.cons.map(c=>`<div class="c">✗ ${c}</div>`).join('')}</div>
+    <div class="reality">💡 ${o.real}</div>
+    <button class="next" onclick="closeModal()">${i<cases.length-1?'Volgende case →':'Eindoordeel'}</button>`;
+  ov.classList.add('show');}
+function closeModal(){ov.classList.remove('show');i++;render();}
+function end(){const avg=(nl+be)/2,diff=Math.abs(nl-be);let badge='😬',title='Diplomatieke crisis';
+  if(avg>65&&diff<15){badge='🏆';title='Meesterdiplomaat';}
+  else if(avg>52){badge='🤝';title='Ervaren diplomaat';}
+  else if(avg>40){badge='📋';title='Leerling-diplomaat';}
+  game.innerHTML=`<div class="end"><div class="badge">${badge}</div><h2>${title}</h2>
+    <p>🇳🇱 ${Math.round(nl)} &nbsp; 🇧🇪 ${Math.round(be)}</p>
+    <p style="font-size:13px;color:#666">In de echte wereld bestaan zelden 'juiste' antwoorden — alleen afwegingen.</p>
+    <button class="next" onclick="location.reload()">Opnieuw spelen</button></div>`;}
+render();
+</script></body></html>
