@@ -1,0 +1,2353 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Economie van Europa — HAVO 1</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+  :root {
+    --emerald-900: #0b3d2e;
+    --emerald-700: #146c47;
+    --emerald-500: #2e9d6a;
+    --emerald-300: #8fd3b2;
+    --emerald-100: #e4f4ec;
+    --emerald-50:  #f3faf6;
+    --gold: #d4a24a;
+    --earth: #8a7458;
+    --cream: #faf7f1;
+    --ink: #1f2a26;
+    --muted: #637670;
+    --danger: #c0573b;
+    --success: #2e9d6a;
+    --radius: 14px;
+    --radius-sm: 8px;
+    --space: 16px;
+    --shadow: 0 4px 20px rgba(11,61,46,0.08);
+    --shadow-lg: 0 10px 40px rgba(11,61,46,0.12);
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--cream);
+    color: var(--ink);
+    line-height: 1.6;
+    font-size: 16px;
+  }
+  header.top {
+    background: linear-gradient(135deg, var(--emerald-700), var(--emerald-500));
+    color: white;
+    padding: 28px 32px 24px;
+    box-shadow: var(--shadow);
+  }
+  header.top h1 {
+    margin: 0 0 4px;
+    font-size: 1.7rem;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+  }
+  header.top p {
+    margin: 0;
+    opacity: 0.92;
+    font-size: 0.95rem;
+  }
+  .badge-row {
+    display: flex;
+    gap: 10px;
+    margin-top: 12px;
+    flex-wrap: wrap;
+  }
+  .badge {
+    background: rgba(255,255,255,0.18);
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.82rem;
+    font-weight: 600;
+  }
+
+  /* Sticky progress bar */
+  .progress-wrap {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: white;
+    border-bottom: 1px solid var(--emerald-100);
+    padding: 12px 32px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+  }
+  .progress-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .progress-bar {
+    flex: 1;
+    height: 10px;
+    background: var(--emerald-100);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--emerald-500), var(--emerald-700));
+    width: 0%;
+    transition: width 0.4s ease;
+    border-radius: 10px;
+  }
+  .progress-label {
+    font-weight: 700;
+    color: var(--emerald-700);
+    font-size: 0.9rem;
+    min-width: 70px;
+    text-align: right;
+  }
+  .clear-btn {
+    background: transparent;
+    border: 1px solid var(--emerald-300);
+    color: var(--emerald-700);
+    padding: 6px 12px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: 0.8rem;
+    font-weight: 600;
+    font-family: inherit;
+  }
+  .clear-btn:hover { background: var(--emerald-50); }
+
+  /* Tab bar */
+  .tab-bar-wrap {
+    background: white;
+    border-bottom: 1px solid var(--emerald-100);
+    padding: 8px 16px;
+    position: sticky;
+    top: 47px;
+    z-index: 90;
+  }
+  .tab-counter {
+    max-width: 1200px;
+    margin: 0 auto 6px;
+    font-size: 0.82rem;
+    color: var(--muted);
+    font-weight: 600;
+    padding: 0 16px;
+  }
+  .tab-bar {
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 4px 16px 8px;
+    scrollbar-width: thin;
+  }
+  .tab-bar::-webkit-scrollbar { height: 6px; }
+  .tab-bar::-webkit-scrollbar-thumb { background: var(--emerald-300); border-radius: 3px; }
+  .tab-btn {
+    background: var(--emerald-50);
+    border: 1px solid transparent;
+    padding: 8px 14px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-family: inherit;
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: var(--emerald-700);
+    white-space: nowrap;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .tab-btn:hover { background: var(--emerald-100); }
+  .tab-btn.active {
+    background: var(--emerald-700);
+    color: white;
+  }
+  .tab-btn.completed::before {
+    content: '✓';
+    background: var(--success);
+    color: white;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    font-weight: 700;
+  }
+  .tab-btn.active.completed::before {
+    background: white;
+    color: var(--emerald-700);
+  }
+
+  /* Main content */
+  main {
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 28px 32px 60px;
+  }
+  .tab-section { display: none; animation: fade 0.3s ease; }
+  .tab-section.active { display: block; }
+  @keyframes fade { from { opacity: 0; transform: translateY(6px);} to { opacity: 1; transform: translateY(0);} }
+
+  h2.section-title {
+    font-size: 1.55rem;
+    color: var(--emerald-900);
+    margin: 0 0 6px;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+  }
+  .section-subtitle {
+    color: var(--muted);
+    margin: 0 0 24px;
+    font-size: 1rem;
+  }
+  h3 {
+    color: var(--emerald-700);
+    margin: 32px 0 10px;
+    font-size: 1.15rem;
+    font-weight: 700;
+  }
+
+  .explain-card {
+    background: white;
+    border-radius: var(--radius);
+    padding: 24px 28px;
+    box-shadow: var(--shadow);
+    margin-bottom: 24px;
+    border-left: 4px solid var(--emerald-500);
+  }
+  .explain-card p {
+    margin: 0 0 12px;
+    color: #2e3a35;
+  }
+  .explain-card p:last-child { margin-bottom: 0; }
+
+  .info-block {
+    background: linear-gradient(135deg, var(--emerald-50), #eaf5ee);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    margin: 20px 0;
+    border: 1px solid var(--emerald-100);
+  }
+  .info-block .emoji-header {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: var(--emerald-900);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .info-block .emoji-header span.big { font-size: 1.8rem; }
+
+  .process-flow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 16px 0;
+    align-items: center;
+    justify-content: center;
+    background: var(--cream);
+    padding: 18px;
+    border-radius: var(--radius);
+    border: 1px dashed var(--emerald-300);
+  }
+  .process-step {
+    background: white;
+    padding: 10px 16px;
+    border-radius: 12px;
+    font-weight: 600;
+    box-shadow: var(--shadow);
+    text-align: center;
+    font-size: 0.9rem;
+    min-width: 120px;
+  }
+  .process-step .e { display: block; font-size: 1.6rem; margin-bottom: 4px; }
+  .arrow { color: var(--emerald-500); font-size: 1.4rem; font-weight: 700; }
+
+  .compare-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+    background: white;
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+  }
+  .compare-table th, .compare-table td {
+    padding: 12px 16px;
+    text-align: left;
+    border-bottom: 1px solid var(--emerald-100);
+  }
+  .compare-table th {
+    background: var(--emerald-700);
+    color: white;
+    font-weight: 700;
+  }
+  .compare-table tr:last-child td { border-bottom: none; }
+  .compare-table tr:nth-child(even) td { background: var(--emerald-50); }
+
+  /* Question cards */
+  .question-card {
+    background: white;
+    border-radius: var(--radius);
+    padding: 22px 26px;
+    margin: 18px 0;
+    box-shadow: var(--shadow);
+    border-left: 4px solid var(--gold);
+  }
+  .question-card.correct { border-left-color: var(--success); }
+  .question-card.locked { border-left-color: var(--muted); opacity: 0.92; }
+  .q-label {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--gold);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 6px;
+  }
+  .q-text {
+    font-weight: 700;
+    font-size: 1.02rem;
+    margin-bottom: 14px;
+    color: var(--ink);
+  }
+
+  /* MC options */
+  .mc-options { display: flex; flex-direction: column; gap: 8px; }
+  .mc-option {
+    background: var(--emerald-50);
+    border: 2px solid transparent;
+    padding: 12px 16px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.95rem;
+    text-align: left;
+    transition: all 0.15s;
+    color: var(--ink);
+  }
+  .mc-option:hover:not(:disabled) { background: var(--emerald-100); border-color: var(--emerald-300); }
+  .mc-option.selected { border-color: var(--emerald-500); background: var(--emerald-100); }
+  .mc-option.correct { background: #d7f0e1; border-color: var(--success); color: var(--emerald-900); }
+  .mc-option.incorrect { background: #f8dccf; border-color: var(--danger); color: #5a2a17; }
+  .mc-option:disabled { cursor: default; }
+
+  .btn {
+    background: var(--emerald-700);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 0.9rem;
+    margin-top: 10px;
+    transition: background 0.15s;
+  }
+  .btn:hover { background: var(--emerald-900); }
+  .btn:disabled { background: var(--muted); cursor: not-allowed; }
+  .btn.secondary { background: var(--gold); }
+  .btn.secondary:hover { background: #b88a35; }
+  .btn.ghost { background: transparent; color: var(--emerald-700); border: 1px solid var(--emerald-300); }
+  .btn.ghost:hover { background: var(--emerald-50); }
+  .btn.small { padding: 6px 14px; font-size: 0.82rem; }
+
+  .feedback {
+    margin-top: 12px;
+    padding: 12px 14px;
+    border-radius: var(--radius-sm);
+    font-size: 0.92rem;
+    display: none;
+  }
+  .feedback.hint {
+    background: #fff7e6;
+    border-left: 3px solid var(--gold);
+    color: #6b4d14;
+  }
+  .feedback.success {
+    background: #d7f0e1;
+    border-left: 3px solid var(--success);
+    color: var(--emerald-900);
+  }
+  .feedback.reveal {
+    background: #eef2f0;
+    border-left: 3px solid var(--muted);
+    color: #333;
+  }
+  .feedback.show { display: block; }
+
+  /* Open question */
+  textarea.open-answer {
+    width: 100%;
+    min-height: 90px;
+    padding: 12px;
+    border: 2px solid var(--emerald-100);
+    border-radius: var(--radius-sm);
+    font-family: inherit;
+    font-size: 0.95rem;
+    resize: vertical;
+    background: var(--emerald-50);
+    color: var(--ink);
+  }
+  textarea.open-answer:focus {
+    outline: none;
+    border-color: var(--emerald-500);
+    background: white;
+  }
+  .word-counter {
+    font-size: 0.82rem;
+    color: var(--muted);
+    margin-top: 4px;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  .word-counter.enough { color: var(--success); font-weight: 700; }
+  .self-assess {
+    margin-top: 12px;
+    display: none;
+    gap: 8px;
+    align-items: center;
+  }
+  .self-assess.show { display: flex; flex-wrap: wrap; }
+  .self-assess span { font-size: 0.9rem; color: var(--muted); margin-right: 6px; }
+  .sa-btn {
+    padding: 6px 14px;
+    border-radius: 20px;
+    border: 2px solid;
+    cursor: pointer;
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 0.85rem;
+    background: white;
+  }
+  .sa-btn.good { border-color: var(--success); color: var(--success); }
+  .sa-btn.good:hover, .sa-btn.good.active { background: var(--success); color: white; }
+  .sa-btn.bad { border-color: var(--danger); color: var(--danger); }
+  .sa-btn.bad:hover, .sa-btn.bad.active { background: var(--danger); color: white; }
+
+  /* Drag and drop */
+  .sort-list {
+    list-style: none;
+    padding: 0;
+    margin: 12px 0;
+  }
+  .sort-item {
+    background: white;
+    border: 2px solid var(--emerald-100);
+    padding: 12px 16px;
+    margin-bottom: 6px;
+    border-radius: var(--radius-sm);
+    cursor: grab;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.2s;
+  }
+  .sort-item:hover { border-color: var(--emerald-300); }
+  .sort-item.dragging { opacity: 0.4; cursor: grabbing; }
+  .sort-item.over { border-color: var(--emerald-500); background: var(--emerald-50); }
+  .sort-item.correct-pos { border-color: var(--success); background: #d7f0e1; }
+  .sort-item.wrong-pos { border-color: var(--danger); background: #f8dccf; }
+  .sort-handle { color: var(--muted); font-size: 1.2rem; }
+  .sort-num {
+    background: var(--emerald-700);
+    color: white;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    font-weight: 700;
+  }
+
+  /* Matching */
+  .match-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin: 14px 0;
+  }
+  .match-col h4 {
+    margin: 0 0 8px;
+    font-size: 0.9rem;
+    color: var(--emerald-700);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .match-item {
+    background: var(--emerald-50);
+    padding: 10px 14px;
+    border-radius: var(--radius-sm);
+    margin-bottom: 6px;
+    cursor: pointer;
+    border: 2px solid transparent;
+    font-size: 0.92rem;
+    transition: all 0.2s;
+  }
+  .match-item:hover { background: var(--emerald-100); }
+  .match-item.selected { border-color: var(--emerald-500); background: var(--emerald-100); }
+  .match-item.matched { cursor: default; }
+  .match-item.correct { background: #d7f0e1; border-color: var(--success); }
+  .match-item.incorrect { background: #f8dccf; border-color: var(--danger); }
+  .match-tag {
+    display: inline-block;
+    font-size: 0.72rem;
+    background: var(--emerald-700);
+    color: white;
+    padding: 2px 7px;
+    border-radius: 10px;
+    margin-right: 6px;
+    font-weight: 700;
+  }
+  @media (max-width: 767px) {
+    .match-container { grid-template-columns: 1fr; }
+  }
+
+  /* Map */
+  .map-container {
+    height: 420px;
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    margin: 16px 0;
+    border: 1px solid var(--emerald-100);
+  }
+
+  /* Chart */
+  .chart-container {
+    background: white;
+    border-radius: var(--radius);
+    padding: 20px;
+    box-shadow: var(--shadow);
+    margin: 16px 0;
+    height: 360px;
+  }
+
+  /* Navigation */
+  .tab-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 40px;
+    padding-top: 24px;
+    border-top: 1px solid var(--emerald-100);
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .reset-tab-btn {
+    background: transparent;
+    border: 1px dashed var(--muted);
+    color: var(--muted);
+    padding: 6px 12px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.78rem;
+  }
+  .reset-tab-btn:hover { border-color: var(--danger); color: var(--danger); }
+
+  /* Reflection */
+  .learning-goal {
+    background: white;
+    padding: 12px 16px;
+    border-radius: var(--radius-sm);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    box-shadow: var(--shadow);
+    font-size: 0.92rem;
+  }
+  .lg-check {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--emerald-500);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    font-weight: 700;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .score-display {
+    background: linear-gradient(135deg, var(--emerald-700), var(--emerald-500));
+    color: white;
+    padding: 28px;
+    border-radius: var(--radius);
+    text-align: center;
+    margin: 20px 0;
+    box-shadow: var(--shadow-lg);
+  }
+  .score-display .score-num {
+    font-size: 3rem;
+    font-weight: 800;
+    margin: 8px 0;
+  }
+
+  .exit-ticket-box {
+    background: white;
+    border-radius: var(--radius);
+    padding: 20px;
+    box-shadow: var(--shadow);
+    margin: 20px 0;
+    border: 2px solid var(--gold);
+  }
+  .exit-ticket-box textarea {
+    width: 100%;
+    min-height: 260px;
+    padding: 12px;
+    border: 1px solid var(--emerald-100);
+    border-radius: var(--radius-sm);
+    font-family: 'Courier New', monospace;
+    font-size: 0.82rem;
+    resize: vertical;
+    background: var(--cream);
+  }
+  .reflect-prompt {
+    font-weight: 700;
+    color: var(--emerald-900);
+    margin: 16px 0 6px;
+  }
+
+  .real-world {
+    background: linear-gradient(135deg, #fff7e6, #faf1d9);
+    border-left: 4px solid var(--gold);
+    padding: 16px 20px;
+    border-radius: var(--radius-sm);
+    margin: 18px 0;
+  }
+  .real-world .rw-title {
+    font-weight: 800;
+    color: #8a6a1f;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .attempt-counter {
+    font-size: 0.78rem;
+    color: var(--muted);
+    margin-top: 6px;
+  }
+
+  /* Welfare tier visualization */
+  .tier-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+    margin: 16px 0;
+  }
+  .tier-card {
+    background: white;
+    padding: 14px;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    text-align: center;
+  }
+  .tier-card .tier-emoji { font-size: 2rem; }
+  .tier-card .tier-name { font-weight: 800; color: var(--emerald-900); margin: 4px 0; }
+  .tier-card .tier-val { color: var(--emerald-700); font-weight: 700; font-size: 0.9rem; }
+
+  @media (max-width: 767px) {
+    header.top, .progress-wrap, main { padding-left: 18px; padding-right: 18px; }
+    .tab-bar-wrap { padding: 8px; }
+    .explain-card, .question-card { padding: 18px; }
+    .process-flow { flex-direction: column; }
+    .arrow { transform: rotate(90deg); }
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <h1>🌍 De Economie van Europa</h1>
+  <p>Aardrijkskunde — HAVO leerjaar 1 · ongeveer 60 minuten</p>
+  <div class="badge-row">
+    <span class="badge">💶 Welvaart</span>
+    <span class="badge">📊 BBP</span>
+    <span class="badge">🇪🇺 Interne markt</span>
+    <span class="badge">✈️ Met reis-voorbeelden</span>
+  </div>
+</header>
+
+<div class="progress-wrap">
+  <div class="progress-row">
+    <div style="font-weight:700; color:var(--emerald-700); font-size:0.9rem;">Voortgang</div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="progress-label" id="progressLabel">0%</div>
+    <button class="clear-btn" id="clearAllBtn">🗑️ Wis alles</button>
+  </div>
+</div>
+
+<div class="tab-bar-wrap">
+  <div class="tab-counter" id="tabCounter">Onderdeel 1 van 9</div>
+  <div class="tab-bar" id="tabBar"></div>
+</div>
+
+<main>
+
+<!-- ============ TAB 1: INTRO ECONOMIE ============ -->
+<section class="tab-section active" data-tab="1">
+  <h2 class="section-title">1. Wat is economie eigenlijk?</h2>
+  <p class="section-subtitle">Hoe geld, werk en spullen samenhangen — en waarom niet elk land even rijk is.</p>
+
+  <div class="explain-card">
+    <p>De <strong>economie</strong> gaat over hoe mensen, bedrijven en landen omgaan met geld, werk en spullen. Elk land produceert dingen — <strong>goederen</strong> zoals auto's, brood of kleding, en <strong>diensten</strong> zoals onderwijs, zorg, toerisme en vervoer. Wat een land maakt, kan het zelf gebruiken of verkopen aan andere landen. Hoe meer een land produceert en verkoopt, hoe welvarender het meestal is.</p>
+    <p>In Europa zijn de economische verschillen tussen landen groot. <strong>Luxemburg</strong> is een van de rijkste landen ter wereld, terwijl <strong>Bulgarije</strong> en <strong>Albanië</strong> veel minder welvarend zijn. Die verschillen zijn niet toevallig: ze hebben te maken met geschiedenis (bijvoorbeeld: Oost-Europese landen hadden decennialang een communistisch systeem), ligging (liggen ze aan zee of binnenland?), natuurlijke hulpbronnen (olie, gas, vruchtbare grond), en de politieke keuzes die landen in de loop der tijd gemaakt hebben.</p>
+    <p>Welvaart betekent méér dan alleen geld: het gaat ook over scholen, ziekenhuizen, wegen, veiligheid en de kans op een baan. Maar omdat die dingen vaak samenhangen met hoeveel geld er in een land rondgaat, gebruiken economen toch vooral getallen (zoals inkomens en productie) om welvaart te meten.</p>
+  </div>
+
+  <div class="info-block">
+    <div class="emoji-header"><span class="big">🏭</span> Goederen versus diensten</div>
+    <div class="process-flow">
+      <div class="process-step"><span class="e">🍞</span>Goederen<br><small>brood, auto's, kleding</small></div>
+      <span class="arrow">+</span>
+      <div class="process-step"><span class="e">🏫</span>Diensten<br><small>les, zorg, reizen</small></div>
+      <span class="arrow">=</span>
+      <div class="process-step"><span class="e">💰</span>Economie<br><small>van een land</small></div>
+    </div>
+  </div>
+
+  <div class="real-world">
+    <div class="rw-title">✈️ Herken het in je eigen leven</div>
+    Stel: je gaat deze zomer op vakantie naar Spanje. Je stapt in een Spaans vliegtuig (dienst: vervoer), eet Spaanse tapas (goederen + dienst), slaapt in een hotel (dienst) en koopt een tas voor je moeder (goed). Al jouw euro's gaan dan in de <strong>Spaanse economie</strong>. Zo zie je: toerisme is voor veel Zuid-Europese landen een enorm belangrijke bron van inkomsten.</div>
+
+  <!-- Q1.1 MC -->
+  <div class="question-card" data-qid="q1_1" data-qtype="mc" data-correct="b" data-max-attempts="3"
+       data-hint1="Denk aan het verschil tussen iets dat je vastpakt en iets dat iemand voor je dóet."
+       data-hint2="Een kapper knipt — dat is geen voorwerp, maar een handeling die je krijgt."
+       data-reveal="Een kapsel krijgen is een dienst: je koopt geen voorwerp, maar het werk van de kapper.">
+    <div class="q-label">Vraag 1 · Multiple choice</div>
+    <div class="q-text">Welke van deze is een <em>dienst</em> en geen goed?</div>
+    <div class="mc-options">
+      <button class="mc-option" data-ans="a">Een fiets kopen bij de fietsenmaker</button>
+      <button class="mc-option" data-ans="b">Je haar laten knippen door een kapper</button>
+      <button class="mc-option" data-ans="c">Een appel kopen op de markt</button>
+      <button class="mc-option" data-ans="d">Een Spaanse paella in een doos meenemen</button>
+    </div>
+    <div class="feedback"></div>
+    <div class="attempt-counter"></div>
+  </div>
+
+  <!-- Q1.2 MC -->
+  <div class="question-card" data-qid="q1_2" data-qtype="mc" data-correct="c" data-max-attempts="3"
+       data-hint1="Denk na: welke factor is géén keuze, maar gegeven door de natuur of geschiedenis?"
+       data-hint2="Drie opties zijn factoren die welvaart verklaren — één is dat niet."
+       data-reveal="De kleur van de vlag heeft geen invloed op welvaart. Geschiedenis, ligging en hulpbronnen wél.">
+    <div class="q-label">Vraag 2 · Multiple choice</div>
+    <div class="q-text">Welke factor verklaart volgens de tekst <strong>NIET</strong> waarom landen in Europa verschillen in welvaart?</div>
+    <div class="mc-options">
+      <button class="mc-option" data-ans="a">De geschiedenis van het land</button>
+      <button class="mc-option" data-ans="b">De ligging (aan zee of binnenland)</button>
+      <button class="mc-option" data-ans="c">De kleur van de nationale vlag</button>
+      <button class="mc-option" data-ans="d">De natuurlijke hulpbronnen zoals olie of vruchtbare grond</button>
+    </div>
+    <div class="feedback"></div>
+    <div class="attempt-counter"></div>
+  </div>
+
+  <!-- Q1.3 Open -->
+  <div class="question-card" data-qid="q1_3" data-qtype="open" data-min-words="20">
+    <div class="q-label">Vraag 3 · Schrijfopdracht (min. 20 woorden)</div>
+    <div class="q-text">Leg in je eigen woorden uit wat een economie is. Gebruik minimaal de woorden <em>goederen</em>, <em>diensten</em> en <em>geld</em>.</div>
+    <textarea class="open-answer" placeholder="Typ hier je antwoord..."></textarea>
+    <div class="word-counter"><span class="wc-num">0</span> woorden <span class="wc-check"></span></div>
+    <button class="btn secondary show-example" disabled>Toon voorbeeldantwoord</button>
+    <div class="feedback reveal"></div>
+    <div class="self-assess">
+      <span>Hoe beoordeel je je eigen antwoord?</span>
+      <button class="sa-btn good" data-sa="good">Goed ✓</button>
+      <button class="sa-btn bad" data-sa="bad">Nog niet ✗</button>
+    </div>
+  </div>
+
+  <div class="tab-nav">
+    <button class="reset-tab-btn" data-reset-tab="1">↺ Reset dit onderdeel</button>
+    <button class="btn next-btn" data-next="2">Volgende →</button>
+  </div>
+</section>
+
+<!-- ============ TAB 2: BBP ============ -->
+<section class="tab-section" data-tab="2">
+  <h2 class="section-title">2. Het BBP: hoe meet je rijkdom?</h2>
+  <p class="section-subtitle">Het belangrijkste getal van een economie — en wat het niet vertelt.</p>
+
+  <div class="explain-card">
+    <p>Economen gebruiken één getal om de omvang van een economie te meten: het <strong>bruto binnenlands product</strong>, kortweg <strong>bbp</strong> (in het Engels: GDP). Het bbp is de <strong>totale waarde van alle goederen en diensten die een land in één jaar produceert</strong>. Als je alle auto's, broden, kapsels, vliegtickets, scholen en ziekenhuisbezoeken van een heel jaar bij elkaar optelt in euro's, heb je het bbp.</p>
+    <p>Om landen eerlijk te kunnen vergelijken delen we het bbp door het aantal inwoners: het <strong>bbp per inwoner</strong>. Daarmee zie je hoeveel een gemiddelde inwoner per jaar bijdraagt aan de economie — en dus ruwweg hoe rijk het land is. In <strong>Luxemburg</strong> en <strong>Noorwegen</strong> is dit getal zeer hoog (meer dan €90.000 per persoon), in <strong>Bulgarije</strong> en <strong>Roemenië</strong> veel lager (ongeveer €12.000 - €15.000), al groeien die landen snel.</p>
+    <p>Maar let op: het bbp is een <strong>gemiddelde</strong>. Als één miljardair in een dorp woont met 99 arme mensen, lijkt het hele dorp rijk, terwijl de meeste mensen dat niet zijn. Ook telt het bbp geen vrijwilligerswerk, huishoudelijke klussen of de kwaliteit van het milieu mee. Het is een nuttig getal, maar het vertelt nooit het hele verhaal.</p>
+  </div>
+
+  <div class="info-block">
+    <div class="emoji-header"><span class="big">🧮</span> Zo werkt de bbp-rekensom</div>
+    <div class="process-flow">
+      <div class="process-step"><span class="e">🍞</span>Alle goederen<br><small>in 1 jaar</small></div>
+      <span class="arrow">+</span>
+      <div class="process-step"><span class="e">🏥</span>Alle diensten<br><small>in 1 jaar</small></div>
+      <span class="arrow">÷</span>
+      <div class="process-step"><span class="e">👥</span>Aantal inwoners</div>
+      <span class="arrow">=</span>
+      <div class="process-step"><span class="e">📊</span>BBP per inwoner</div>
+    </div>
+  </div>
+
+  <h3>📊 BBP per inwoner in Europa (2023, afgerond in euro's)</h3>
+  <div class="chart-container"><canvas id="bbpChart"></canvas></div>
+
+  <div class="real-world">
+    <div class="rw-title">✈️ Reizen en het bbp</div>
+    Wanneer jij naar <strong>Bulgarije</strong> op vakantie gaat, valt meteen op dat alles goedkoper is: een ijsje voor €1, een pizza voor €5. Dat komt omdat het gemiddelde inkomen — en dus ook de lonen en de prijzen — veel lager liggen. Dezelfde euro die jij in Nederland hebt, levert in Bulgarije véél meer op. Dat zegt iets over het verschil in bbp per inwoner.</div>
+
+  <!-- Q2.1 Chart-reading -->
+  <div class="question-card" data-qid="q2_1" data-qtype="mc" data-correct="a" data-max-attempts="3"
+       data-hint1="Kijk goed naar de grafiek hierboven: welke balk is het hoogst?"
+       data-hint2="Het land met het hoogste bbp per inwoner in deze grafiek is klein, maar zeer welvarend."
+       data-reveal="Luxemburg heeft in deze grafiek het hoogste bbp per inwoner (~€112.000).">
+    <div class="q-label">Vraag 1 · Grafiek lezen</div>
+    <div class="q-text">Welk land heeft volgens de grafiek het <strong>hoogste</strong> bbp per inwoner?</div>
+    <div class="mc-options">
+      <button class="mc-option" data-ans="a">Luxemburg</button>
+      <button class="mc-option" data-ans="b">Duitsland</button>
+      <button class="mc-option" data-ans="c">Nederland</button>
+      <button class="mc-option" data-ans="d">Bulgarije</button>
+    </div>
+    <div class="feedback"></div>
+    <div class="attempt-counter"></div>
+  </div>
+
+  <!-- Q2.2 Chart-interpretation (open) -->
+  <div class="question-card" data-qid="q2_2" data-qtype="open" data-min-words="20">
+    <div class="q-label">Vraag 2 · Grafiek interpreteren (min. 20 woorden)</div>
+    <div class="q-text">Vergelijk in de grafiek <strong>Bulgarije</strong> met <strong>Luxemburg</strong>. Hoe groot is ongeveer het verschil, en wat betekent dat verschil voor een gemiddelde inwoner? Schrijf minstens 2 zinnen.</div>
+    <textarea class="open-answer" placeholder="Typ hier je antwoord..."></textarea>
+    <div class="word-counter"><span class="wc-num">0</span> woorden <span class="wc-check"></span></div>
+    <button class="btn secondary show-example" disabled>Toon voorbeeldantwoord</button>
+    <div class="feedback reveal"></div>
+    <div class="self-assess">
+      <span>Hoe beoordeel je je eigen antwoord?</span>
+      <button class="sa-btn good" data-sa="good">Goed ✓</button>
+      <button class="sa-btn bad" data-sa="bad">Nog niet ✗</button>
+    </div>
+  </div>
+
+  <!-- Q2.3 MC -->
+  <div class="question-card" data-qid="q2_3" data-qtype="mc" data-correct="c" data-max-attempts="3"
+       data-hint1="Het bbp is een gemiddelde. Wat gebeurt er als een paar mensen heel rijk zijn?"
+       data-hint2="Denk aan het voorbeeld van de miljardair in het arme dorp."
+       data-reveal="Het bbp vertelt niets over hoe gelijk de rijkdom is verdeeld. Er kunnen grote verschillen binnen een land zijn.">
+    <div class="q-label">Vraag 3 · Multiple choice</div>
+    <div class="q-text">Waarom vertelt het bbp per inwoner niet het hele verhaal over welvaart?</div>
+    <div class="mc-options">
+      <button class="mc-option" data-ans="a">Omdat het bbp alleen in euro's wordt gemeten</button>
+      <button class="mc-option" data-ans="b">Omdat het bbp geen rekening houdt met de bevolking</button>
+      <button class="mc-option" data-ans="c">Omdat het een gemiddelde is: rijkdom kan ongelijk verdeeld zijn</button>
+      <button class="mc-option" data-ans="d">Omdat het bbp alleen diensten meet, geen goederen</button>
+    </div>
+    <div class="feedback"></div>
+    <div class="attempt-counter"></div>
+  </div>
+
+  <div class="tab-nav">
+    <button class="reset-tab-btn" data-reset-tab="2">↺ Reset dit onderdeel</button>
+    <div style="display:flex; gap:10px;">
+      <button class="btn ghost prev-btn" data-prev="1">← Vorige</button>
+      <button class="btn next-btn" data-next="3">Volgende →</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TAB 3: WELVAART OP DE KAART ============ -->
+<section class="tab-section" data-tab="3">
+  <h2 class="section-title">3. Welvaart op de kaart</h2>
+  <p class="section-subtitle">Verken Europa en ontdek waar de rijke en arme regio's liggen.</p>
+
+  <div class="explain-card">
+    <p>Als je de kaart van Europa bekijkt met welvaartsbril op, zie je een opvallend patroon: <strong>Noord- en West-Europa</strong> is gemiddeld rijker dan <strong>Oost- en Zuid-Europa</strong>. Landen als Luxemburg, Nederland, Duitsland, Denemarken, Zweden en Noorwegen horen tot de welvarendste van het continent. Aan de andere kant hebben landen als Bulgarije, Roemenië, Albanië, Kroatië en delen van Griekenland een veel lager bbp per inwoner.</p>
+    <p>Die verdeling heeft historische wortels. Na de Tweede Wereldoorlog lag Europa in puin, maar West-Europese landen kregen hulp van het <strong>Marshallplan</strong> (Amerikaans geld voor wederopbouw) en ontwikkelden snel sterke industrieën en democratieën. Oost-Europese landen zaten tot 1989 in het Sovjet-blok met een communistische planeconomie, die uiteindelijk achterbleef. Pas sinds hun toetreding tot de EU (vooral na 2004) groeien die economieën snel, maar de achterstand halen ze nog niet helemaal in.</p>
+    <p>Binnen landen zijn er ook grote verschillen. De hoofdstedelijke regio rondom <strong>Boekarest</strong> is veel welvarender dan het Roemeense platteland. <strong>Noord-Italië</strong> (Milaan, Turijn) is rijk en industrieel, <strong>Zuid-Italië</strong> veel armer. Dit heet <em>regionale ongelijkheid</em>.</p>
+  </div>
+
+  <div class="tier-grid">
+    <div class="tier-card" style="border-top:4px solid var(--emerald-700);"><div class="tier-emoji">🏔️</div><div class="tier-name">Top-welvaart</div><div class="tier-val">Luxemburg, Noorwegen</div></div>
+    <div class="tier-card" style="border-top:4px solid var(--emerald-500);"><div class="tier-emoji">🌳</div><div class="tier-name">Hoge welvaart</div><div class="tier-val">Nederland, Duitsland, Zweden</div></div>
+    <div class="tier-card" style="border-top:4px solid var(--gold);"><div class="tier-emoji">🏛️</div><div class="tier-name">Midden</div><div class="tier-val">Spanje, Italië, Tsjechië</div></div>
+    <div class="tier-card" style="border-top:4px solid var(--earth);"><div class="tier-emoji">🌾</div><div class="tier-name">Lagere welvaart</div><div class="tier-val">Bulgarije, Roemenië, Albanië</div></div>
+  </div>
+
+  <h3>🗺️ Klik op de markers om de landen te verkennen</h3>
+  <div class="map-container" id="welvaartMap"></div>
+
+  <div class="real-world">
+    <div class="rw-title">✈️ Jouw vakantie en welvaart</div>
+    De landen waar Nederlanders het vaakst op vakantie gaan (Frankrijk, Spanje, Italië, Oostenrijk, Duitsland) liggen allemaal in het welvarende West- en Zuid-Europa. Zou je een vakantie in Moldavië of Noord-Macedonië overwegen? Veel mensen niet — en dat maakt het voor die landen moeilijker om via toerisme hun economie te laten groeien.</div>
+
+  <!-- Q3.1 -->
+  <div class="question-card" data-qid="q3_1" data-qtype="mc" data-correct="b" data-max-attempts="3"
+       data-hint1="Bekijk de kaart: welke regio heeft bijna overal groene (welvarende) markers?"
+       data-hint2="Het patroon gaat van rijk in het noordwesten naar armer naar het zuidoosten."
+       data-reveal="Noord- en West-Europa zijn gemiddeld welvarender dan Oost- en Zuid-Europa.">
+    <div class="q-label">Vraag 1 · Kaart lezen</div>
+    <div class="q-text">Welk patroon zie je op de kaart van welvaart in Europa?</div>
+    <div class="mc-options">
+      <button class="mc-option" data-ans="a">Zuid-Europa is het rijkst, Noord-Europa het armst</button>
+      <button class="mc-option" data-ans="b">Noord- en West-Europa zijn gemiddeld rijker dan Oost- en Zuid-Europa</button>
+      <button class="mc-option" data-ans="c">Alle landen zijn ongeveer even welvarend</button>
+      <button class="mc-option" data-ans="d">Alleen landen aan de kust zijn rijk</button>
+    </div>
+    <div class="feedback"></div>
+    <div class="attempt-counter"></div>
+  </div>
+
+  <!-- Q3.2 Match -->
+  <div class="question-card" data-qid="q3_2" data-qtype="match" data-max-attempts="3"
+       data-pairs='[["Luxemburg","Top-welvaart"],["Noorwegen","Top-welvaart"],["Duitsland","Hoge welvaart"],["Nederland","Hoge welvaart"],["Spanje","Midden"],["Bulgarije","Lagere welvaart"]]'>
+    <div class="q-label">Vraag 2 · Koppel landen aan welvaartsniveau</div>
+    <div class="q-text">Klik eerst op een land links, dan op een welvaartsniveau rechts. Een niveau mag meerdere landen krijgen.</div>
+    <div class="match-container">
+      <div class="match-col">
+        <h4>Landen</h4>
+        <div class="match-items-left"></div>
+      </div>
+      <div class="match-col">
+        <h4>Welvaartsniveau</h4>
+        <div class="match-items-right"></div>
+      </div>
+    </div>
+    <button class="btn check-match">Controleer koppelingen</button>
+    <button class="btn ghost reset-match" style="margin-left:6px;">Reset koppelingen</button>
+    <div class="feedback"></div>
+    <div class="attempt-counter"></div>
+  </div>
+
+  <!-- Q3.3 Open -->
+  <div class="question-card" data-qid="q3_3" data-qtype="open" data-min-words="20">
+    <div class="q-label">Vraag 3 · Eigen omgeving (min. 20 woorden)</div>
+    <div class="q-text">Stel je maakt een roadtrip van <strong>Amsterdam naar Sofia</strong> (hoofdstad Bulgarije). Welke verschillen in welvaart zou je onderweg kunnen zien of merken? Noem minstens twee concrete voorbeelden.</div>
+    <textarea class="open-answer" placeholder="Typ hier je antwoord..."></textarea>
+    <div class="word-counter"><span class="wc-num">0</span> woorden <span class="wc-check"></span></div>
+    <button class="btn secondary show-example" disabled>Toon voorbeeldantwoord</button>
+    <div class="feedback reveal"></div>
+    <div class="self-assess">
+      <span>Hoe beoordeel je je eigen antwoord?</span>
+      <button class="sa-btn good" data-sa="good">Goed ✓</button>
+      <button class="sa-btn bad" data-sa="bad">Nog niet ✗</button>
+    </div>
+  </div>
+
+  <div class="tab-nav">
+    <button class="reset-tab-btn" data-reset-tab="3">↺ Reset dit onderdeel</button>
+    <div style="display:flex; gap:10px;">
+      <button class="btn ghost prev-btn" data-prev="2">← Vorige</button>
+      <button class="btn next-btn" data-next="4">Volgende →</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TAB 4: INTERNE MARKT ============ -->
+<section class="tab-section" data-tab="4">
+  <h2 class="section-title">4. De interne markt van de EU</h2>
+  <p class="section-subtitle">Vier vrijheden die het dagelijks leven in Europa stiekem veranderd hebben.</p>
+
+  <div class="explain-card">
+    <p>Een van de belangrijkste uitvindingen van de Europese Unie is de <strong>interne markt</strong> (ook wel: eengemaakte markt). Dit is een afspraak tussen alle EU-landen dat <strong>vier dingen vrij mogen bewegen</strong> tussen de lidstaten: <strong>goederen, diensten, mensen en geld</strong>. Dat heet de "vier vrijheden". Aan de grens tussen bijvoorbeeld Nederland en Duitsland sta je niet meer urenlang in de rij voor de douane — je rijdt gewoon door.</p>
+    <p>Voor bedrijven betekent dit: een Spaans wijnhuis kan zijn flessen verkopen in twintig landen zonder extra belastingen. Voor werknemers: een Poolse bouwvakker mag zonder werkvergunning in Nederland aan de slag. Voor studenten: je kunt via het <strong>Erasmus-programma</strong> een half jaar studeren in Portugal of Italië. Voor consumenten: je kunt online een telefoon uit Duitsland bestellen, of op vakantie in Frankrijk zonder gedoe betalen met dezelfde euro.</p>
+    <p>Niet alle Europese landen zijn lid van de EU. <strong>Noorwegen</strong> en <strong>IJsland</strong> horen bij de EER (Europese Economische Ruimte) en doen wel mee aan de interne markt. <strong>Zwitserland</strong> heeft aparte bilaterale afspraken. Het Verenigd Koninkrijk stapte er in 2020 uit (Brexit), wat opeens wél weer grenscontroles betekende.</p>
+  </div>
+
+  <div class="info-block">
+    <div class="emoji-header"><span class="big">🇪🇺</span> De vier vrijheden van de interne markt</div>
+    <div class="process-flow">
+      <div class="process-step"><span class="e">📦</span>Goederen<br><small>vrij handelen</small></div>
+      <div class="process-step"><span class="e">🛠️</span>Diensten<br><small>overal aanbieden</small></div>
+      <div class="process-step"><span class="e">🚶</span>Mensen<br><small>werken & wonen</small></div>
+      <div class="process-step"><span class="e">💶</span>Kapitaal<br><small>investeren</small></div>
+    </div>
+  </div>
+
+  <div class="real-world">
+    <div class="rw-title">✈️ Reizen door een open Europa</div>
+    Ga je met de auto op vakantie naar Italië? Dan rijd je via België, Luxemburg, Duitsland en Oostenrijk zonder één keer je paspoort te laten zien. Je tankt met dezelfde euro's, koopt Oostenrijkse Wiener schnitzel, Duits brood en Italiaanse ijs — alles zonder importbelasting. Deze gemakken bestaan nog maar sinds de jaren '90. Je oma moest nog aan elke grens stoppen!</div>
+
+  <!-- Q4.1 MC -->
+  <div class="question-card" data-qid="q4_1" data-qtype="mc" data-correct="d" data-max-attempts="3"
+       data-hint1="De vier vrijheden beginnen alle vier met een duidelijk woord. Welke hoort er niet bij?"
+       data-hint2="Het gaat om: goederen, diensten, mensen, kapitaal/geld."
+       data-reveal="De vier vrijheden zijn goederen, diensten, mensen en kapitaal (geld). 'Informatie' hoort er niet officieel bij.">
+    <div class="q-label">Vraag 1 · Multiple choice</div>
+    <div class="q-text">Welke hoort <strong>NIET</strong> bij de vier vrijheden van de interne markt?</div>
+    <div class="mc-options">
+      <button class="mc-option" data-ans="a">Goederen</button>
+      <button class="mc-option" data-ans="b">Mensen</button>
+      <button class="mc-option" data-ans="c">Kapitaal (geld)</button>
+      <button class="mc-option" data-ans="d">Informatie</button>
+    </div>
+    <div class="feedback"></div>
+    <div class="attempt-counter"></div>
+  </div>
+
+  <!-- Q4.2 Sort -->
+  <div class="question-card" data-qid="q4_2" data-qtype="sort" data-max-attempts="3"
+       data-correct-order='["Een Franse boer bakt kaas","De kaas wordt op een vrachtwagen geladen","Zonder douane rijdt de vrachtwagen Nederland binnen","De kaas ligt bij de Albert Heijn in Amsterdam","Jij koopt de kaas met euro muntjes"]'>
+    <div class="q-label">Vraag 2 · Sleep in de juiste volgorde</div>
+    <div class="q-text">Hoe komt Franse kaas dankzij de interne markt in jouw supermarkt terecht? Sleep de stappen in de juiste volgorde (van begin tot eind).</div>
+    <ul class="sort-list"></ul>
+    <button class="btn check-sort">Controleer volgorde</button>
+    <div class="feedback"></div>
+    <div class="attempt-counter"></div>
+  </div>
+
+  <!-- Q4.3 Open -->
+  <div class="question-card" data-qid="q4_3" data-qtype="open" data-min-words="20">
+    <div class="q-label">Vraag 3 · Twee voordelen (min. 20 woorden)</div>
+    <div class="q-text">Noem <strong>twee voordelen</strong> van de interne markt voor gewone mensen (niet voor bedrijven) en leg ze uit met een eigen voorbeeld.</div>
+    <textarea class="open-answer" placeholder="Typ hier je antwoord..."></textarea>
+    <div class="word-counter"><span class="wc-num">0</span> woorden <span class="wc-check"></span></div>
+    <button class="btn secondary show-example" disabled>Toon voorbeeldantwoord</button>
+    <div class="feedback reveal"></div>
+    <div class="self-assess">
+      <span>Hoe beoordeel je je eigen antwoord?</span>
+      <button class="sa-btn good" data-sa="good">Goed ✓</button>
+      <button class="sa-btn bad" data-sa="bad">Nog niet ✗</button>
+    </div>
+  </div>
+
+  <div class="tab-nav">
+    <button class="reset-tab-btn" data-reset-tab="4">↺ Reset dit onderdeel</button>
+    <div style="display:flex; gap:10px;">
+      <button class="btn ghost prev-btn" data-prev="3">← Vorige</button>
+      <button class="btn next-btn" data-next="5">Volgende →</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TAB 5: WERKLOOSHEID ============ -->
+<section class="tab-section" data-tab="5">
+  <h2 class="section-title">5. Werkloosheid: noord vs. zuid</h2>
+  <p class="section-subtitle">Waarom hebben jongeren in Spanje het zo veel moeilijker dan in Duitsland?</p>
+
+  <div class="explain-card">
+    <p><strong>Werkloosheid</strong> is het deel van de bevolking dat wil en kan werken, maar geen baan kan vinden. Meestal wordt het uitgedrukt in een percentage: bijvoorbeeld 5% werkloosheid betekent dat van elke 100 mensen die willen werken, er 5 geen baan hebben. Werkloosheid verschilt in Europa enorm tussen het noorden en het zuiden.</p>
+    <p>In <strong>Noord-Europa</strong> — Duitsland, Nederland, Denemarken, Oostenrijk — is de werkloosheid al jaren laag (rond de 3-4%). De economieën draaien goed en er zijn voldoende banen. In <strong>Zuid-Europa</strong> — vooral Spanje, Griekenland en Italië — is de werkloosheid veel hoger (soms 10-12% of meer). Onder jongeren is het verschil nog extremer: in Spanje heeft bijna 1 op de 3 jongeren geen baan. Dat heet <em>jeugdwerkloosheid</em>.</p>
+    <p>Waarom dit verschil? Een belangrijke oorzaak was de <strong>financiële crisis van 2008</strong>. Zuidelijke landen hadden zwakkere banken, meer schulden en een economie die meer leunde op toerisme en bouw. Toen die sectoren instortten, verloren miljoenen mensen hun baan. Het noorden herstelde sneller dankzij sterkere industrieën (auto's, machines, technologie) en een stabielere overheidsfinanciën. Hoge werkloosheid heeft grote gevolgen: mensen hebben minder te besteden, jongeren vertrekken naar het buitenland op zoek naar werk, en de overheid moet meer geld uitgeven aan uitkeringen.</p>
+  </div>
+
+  <h3>📊 Werkloosheidspercentage in Europa (benaderde cijfers)</h3>
+  <div class="chart-container"><canvas id="werkChart"></canvas></div>
+
+  <table class="compare-table">
+    <thead>
+      <tr><th>Kenmerk</th><th>🌲 Noord-Europa</th><th>☀️ Zuid-Europa</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Werkloosheid</td><td>Laag (3–4%)</td><td>Hoger (8–12%)</td></tr>
+      <tr><td>Jeugdwerkloosheid</td><td>5–8%</td><td>25–30%</td></tr>
+      <tr><td>Belangrijkste sectoren</td><td>Industrie, technologie, diensten</td><td>Toerisme, landbouw, bouw</td></tr>
+      <tr><td>Herstel na 2008</td><td>Snel</td><td>Langzaam</td></tr>
+    </tbody>
+  </table>
+
+  <div class="real-world">
+    <div class="rw-title">✈️ Zie het in Spanje zelf</div>
+    Als je deze zomer in Barcelona of Sevilla rondloopt, let dan eens op hoeveel jonge mensen 's middags op terrasjes zitten. In Nederland zou je denken: "hebben die geen school of werk?" In Zuid-Spanje is het antwoord helaas soms: nee, geen baan te vinden. Veel Spaanse jongeren emigreren daarom naar Duitsland of Nederland om daar te werken.</div>
+
+  <!-- Q5.1 MC -->
+  <div class="question-card" data-qid="q5_1" data-qtype="mc" data-correct="c" data-max-attempts="3"
+       data-hint1="Herlees de definitie: het gaat om mensen die iets willen, maar iets missen."
+       data-hint2="Je moet de baan actief zoeken — anders telt het niet als werkloos."
+       data-reveal="Werkloos = wil werken, kan werken, maar heeft geen baan.">
+    <div class="q-label">Vraag 1 · Multiple choice</div>
+    <div class="q-text">Wat is de correcte definitie van werkloosheid?</div>
+    <div class="mc-options">
+      <button class="mc-option" data-ans="a">Alle mensen die geen baan hebben, ook gepensioneerden</button>
+      <button class="mc-option" data-ans="b">Mensen die wel een baan hebben maar ontevreden zijn</button>
+      <button class="mc-option" data-ans="c">Mensen die willen werken, maar geen baan kunnen vinden</button>
+      <button class="mc-option" data-ans="d">Scholieren die geen bijbaantje hebben</button>
+    </div>
+    <div class="feedback"></div>
+    <div class="attempt-counter"></div>
+  </div>
+
+  <!-- Q5.2 Chart analysis (open) -->
+  <div class="question-card" data-qid="q5_2" data-qtype="open" data-min-words="25">
+    <div class="q-label">Vraag 2 · Data analyseren (min. 25 woorden)</div>
+    <div class="q-text">Kijk naar de grafiek hierboven. Beschrijf het verschil tussen Noord- en Zuid-Europa in werkloosheid en geef minstens één mogelijke verklaring.</div>
+    <textarea class="open-answer" placeholder="Typ hier je antwoord..."></textarea>
+    <div class="word-counter"><span class="wc-num">0</span> woorden <span class="wc-check"></span></div>
+    <button class="btn secondary show-example" disabled>Toon voorbeeldantwoord</button>
+    <div class="feedback reveal"></div>
+    <div class="self-assess">
+      <span>Hoe beoordeel je je eigen antwoord?</span>
+      <button class="sa-btn good" data-sa="good">Goed ✓</button>
+      <button class="sa-btn bad" data-sa="bad">Nog niet ✗</button>
+    </div>
+  </div>
+
+  <!-- Q5.3 MC -->
+  <div class="question-card" data-qid="q5_3" data-qtype="mc" data-correct="b" data-max-attempts="3"
+       data-hint1="Welke gebeurtenis uit de jaren 2000 wordt in de tekst genoemd als belangrijke oorzaak?"
+       data-hint2="Het was een wereldwijde gebeurtenis met banken en hypotheken."
+       data-reveal="De financiële crisis van 2008 trof Zuid-Europa extra hard door schulden en de bouw/toerisme-afhankelijkheid.">
+    <div class="q-label">Vraag 3 · Multiple choice</div>
+    <div class="q-text">Welke gebeurtenis speelde een belangrijke rol in de hogere werkloosheid in Zuid-Europa?</div>
+    <div class="mc-options">
+      <button class="mc-option" data-ans="a">De val van de Berlijnse Muur in 1989</button>
+      <button class="mc-option" data-ans="b">De financiële crisis van 2008</button>
+      <button class="mc-option" data-ans="c">De invoering van de euro in 2002</button>
+      <button class="mc-option" data-ans="d">De Olympische Spelen van Barcelona 1992</button>
+    </div>
+    <div class="feedback"></div>
+    <div class="attempt-counter"></div>
+  </div>
+
+  <div class="tab-nav">
+    <button class="reset-tab-btn" data-reset-tab="5">↺ Reset dit onderdeel</button>
+    <div style="display:flex; gap:10px;">
+      <button class="btn ghost prev-btn" data-prev="4">← Vorige</button>
+      <button class="btn next-btn" data-next="6">Volgende →</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TAB 6: KANSEN & MIGRATIE ============ -->
+<section class="tab-section" data-tab="6">
+  <h2 class="section-title">6. Kansen, werk en migratie</h2>
+  <p class="section-subtitle">Waarom verhuizen zoveel Europeanen voor werk — en wat betekent dat?</p>
+
+  <div class="explain-card">
+    <p>Waar je geboren wordt, bepaalt een groot deel van je kansen. Een jongere die in Nederland opgroeit, heeft statistisch meer kans op een goede opleiding, een goedbetaalde baan en een groot sociaal vangnet (zoals bijstand of een WW-uitkering als het fout gaat) dan een jongere in Roemenië of Bulgarije. Dat is oneerlijk — maar ook de reden dat de interne markt van de EU zo belangrijk is: hij <strong>geeft mensen de vrijheid om naar kansen te gaan</strong>.</p>
+    <p>Dit zie je aan de grote stroom <strong>arbeidsmigranten</strong> binnen Europa. Een Roemeense verpleegkundige verdient in Nederland soms vijf keer zoveel als thuis. Een Poolse bouwvakker, een Bulgaarse aardbeienplukker, een Portugese restaurant-kok: ze vullen banen waar in Nederland of Duitsland tekorten zijn. Dat is goed voor de Nederlandse economie. Voor het thuisland is het dubbel: er komt geld binnen dat arbeidsmigranten naar huis sturen (<em>remittances</em>), maar het land verliest ook talent (<em>brain drain</em>).</p>
+    <p>De EU probeert de verschillen te verkleinen via <strong>structuurfondsen</strong>: pottengeld dat aan armere regio's wordt gegeven om wegen, scholen en bedrijven te bouwen. Polen kreeg bijvoorbeeld miljarden euro's om snelwegen aan te leggen en spoorwegen te moderniseren. Zo hoopt de EU dat op termijn alle regio's mee kunnen doen — zonder dat iedereen per se hoeft te verhuizen.</p>
+  </div>
+
+  <div class="info-block">
+    <div class="emoji-header"><span class="big">🔄</span> Hoe kansenongelijkheid tot migratie leidt</div>
+    <div class="process-flow">
+      <div class="process-step"><span class="e">🏚️</span>Lage lonen<br><small>in thuisland</small></div>
+      <span class="arrow">→</span>
+      <div class="process-step"><span class="e">🛫</span>Verhuizen<br><small>naar rijk EU-land</small></div>
+      <span class="arrow">→</span>
+      <div class="process-step"><span class="e">💶</span>Beter inkomen</div>
+      <span class="arrow">→</span>
+      <div class="process-step"><span class="e">📮</span>Geld naar huis<br><small>(remittances)</small></div>
+    </div>
+  </div>
+
+  <div class="real-world">
+    <div class="rw-title">✈️ Waar werken jouw buren?</div>
+    Als jij naar school fietst in een Nederlandse stad, kom je misschien langs een bouwplaats waar Poolse arbeiders werken, of een glastuinbouwkas in het Westland met Roemeense werknemers. Die mensen zijn <em>arbeidsmigranten</em> — een direct gevolg van de kansenverschillen in Europa. Kun je er twee bedenken in jouw eigen omgeving?</div>
+
+  <!-- Q6.1 MC -->
+  <div class="question-card" data-qid="q6_1" data-qtype="mc" data-correct="a" data-max-attempts="3"
+       data-hint1="Denk na wat het magneet-effect creëert: wat 'trekt' mensen naar een ander land?"
+       data-hint2="Mensen verhuizen meestal omdat ze thuis geen goede kansen hebben."
+       data-reveal="De grote loonverschillen en kansverschillen tussen EU-landen zorgen voor arbeidsmigratie.">
+    <div class="q-label">Vraag 1 · Multiple choice</div>
+    <div class="q-text">Wat is volgens de tekst de belangrijkste oorzaak dat zoveel mensen binnen Europa verhuizen voor werk?</div>
+    <div class="mc-options">
+      <button class="mc-option" data-ans="a">Grote loon- en kansverschillen tussen landen</button>
+      <button class="mc-option" data-ans="b">Het weer in Zuid-Europa is te warm</button>
+      <button class="mc-option" data-ans="c">Er zijn geen restaurants in Oost-Europa</button>
+      <button class="mc-option" data-ans="d">De EU verplicht mensen te verhuizen</button>
+    </div>
+    <div class="feedback"></div>
+    <div class="attempt-counter"></div>
+  </div>
+
+  <!-- Q6.2 MC -->
+  <div class="question-card" data-qid="q6_2" data-qtype="mc" data-correct="c" data-max-attempts="3"
+       data-hint1="Structuur-fondsen zijn bedoeld om iets op te bouwen. Wat?"
+       data-hint2="Het doel is kansen-ongelijkheid verminderen binnen de EU."
+       data-reveal="Structuurfondsen investeren in armere regio's: wegen, scholen, bedrijven.">
+    <div class="q-label">Vraag 2 · Multiple choice</div>
+    <div class="q-text">Waar zijn de EU-structuurfondsen voor bedoeld?</div>
+    <div class="mc-options">
+      <button class="mc-option" data-ans="a">Om Europese voetbalclubs te steunen</button>
+      <button class="mc-option" data-ans="b">Om oorlogen in Afrika te stoppen</button>
+      <button class="mc-option" data-ans="c">Om armere regio's in de EU te laten meegroeien (wegen, scholen, bedrijven)</button>
+      <button class="mc-option" data-ans="d">Om luxe vliegvelden te bouwen in Luxemburg</button>
+    </div>
+    <div class="feedback"></div>
+    <div class="attempt-counter"></div>
+  </div>
+
+  <!-- Q6.3 Open -->
+  <div class="question-card" data-qid="q6_3" data-qtype="open" data-min-words="25">
+    <div class="q-label">Vraag 3 · Redeneren (min. 25 woorden)</div>
+    <div class="q-text">Je hebt gehoord van <em>brain drain</em>: dat talentvolle mensen weggaan uit een arm land. Leg uit waarom dat slecht kan zijn voor een land als Roemenië. Noem ten minste één concreet gevolg.</div>
+    <textarea class="open-answer" placeholder="Typ hier je antwoord..."></textarea>
+    <div class="word-counter"><span class="wc-num">0</span> woorden <span class="wc-check"></span></div>
+    <button class="btn secondary show-example" disabled>Toon voorbeeldantwoord</button>
+    <div class="feedback reveal"></div>
+    <div class="self-assess">
+      <span>Hoe beoordeel je je eigen antwoord?</span>
+      <button class="sa-btn good" data-sa="good">Goed ✓</button>
+      <button class="sa-btn bad" data-sa="bad">Nog niet ✗</button>
+    </div>
+  </div>
+
+  <div class="tab-nav">
+    <button class="reset-tab-btn" data-reset-tab="6">↺ Reset dit onderdeel</button>
+    <div style="display:flex; gap:10px;">
+      <button class="btn ghost prev-btn" data-prev="5">← Vorige</button>
+      <button class="btn next-btn" data-next="7">Volgende →</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TAB 7: TIJDLIJN EU ECONOMIE ============ -->
+<section class="tab-section" data-tab="7">
+  <h2 class="section-title">7. De EU-economie door de tijd</h2>
+  <p class="section-subtitle">Hoe groeide Europa van verwoest continent naar economische reus?</p>
+
+  <div class="explain-card">
+    <p>De huidige Europese economie is het product van bijna 80 jaar samenwerking en crises. Na de <strong>Tweede Wereldoorlog</strong> (1945) lag bijna heel Europa in puin: fabrieken vernield, havens onbruikbaar, miljoenen mensen dakloos. Landen realiseerden zich: als we ooit willen voorkomen dat Europa opnieuw in oorlog belandt, moeten we economisch zó verweven raken dat oorlog simpelweg niet meer rendabel is.</p>
+    <p>Dat begon met de <strong>Europese Gemeenschap voor Kolen en Staal</strong> (1951), waarin Duitsland, Frankrijk en enkele andere landen samenwerkten op het gebied van zware industrie. Dat groeide uit tot de EEG (1957), de <strong>interne markt</strong> (1993), de invoering van de <strong>euro</strong> (1999/2002) en de grote uitbreiding met Oost-Europa (2004). Ondertussen waren er ook klappen: de financiële crisis (2008), de eurocrisis (2011-2013), de Brexit (2020) en de coronacrisis (2020-2022).</p>
+    <p>Begrijpen in welke volgorde deze gebeurtenissen kwamen helpt je zien hoe de EU-economie is opgebouwd — stap voor stap, steeds verder geïntegreerd.</p>
+  </div>
+
+  <!-- Q7.1 Timeline Sort -->
+  <div class="question-card" data-qid="q7_1" data-qtype="sort" data-max-attempts="3"
+       data-correct-order='["1951: Europese Gemeenschap voor Kolen en Staal","1957: Oprichting EEG (Verdrag van Rome)","1993: Start van de interne markt","2002: Euromunten komen in omloop","2004: Grote uitbreiding met Oost-Europese landen","2008: Wereldwijde financiële crisis","2020: Brexit is een feit"]'>
+    <div class="q-label">Vraag 1 · Tijdlijn — sleep op volgorde</div>
+    <div class="q-text">Zet deze gebeurtenissen in de juiste chronologische volgorde (oudst bovenaan).</div>
+    <ul class="sort-list"></ul>
+    <button class="btn check-sort">Controleer volgorde</button>
+    <div class="feedback"></div>
+    <div class="attempt-counter"></div>
+  </div>
+
+  <!-- Q7.2 MC -->
+  <div class="question-card" data-qid="q7_2" data-qtype="mc" data-correct="b" data-max-attempts="3"
+       data-hint1="Wat was het politieke hoofdmotief vlak na 1945 om te gaan samenwerken?"
+       data-hint2="Er was net een vreselijke wereldoorlog geweest..."
+       data-reveal="De Europese samenwerking begon om oorlog te voorkomen door economische verwevenheid te scheppen.">
+    <div class="q-label">Vraag 2 · Multiple choice</div>
+    <div class="q-text">Waarom begonnen Europese landen na 1945 economisch samen te werken?</div>
+    <div class="mc-options">
+      <button class="mc-option" data-ans="a">Om de Olympische Spelen samen te organiseren</button>
+      <button class="mc-option" data-ans="b">Om een nieuwe oorlog tussen hen te voorkomen</button>
+      <button class="mc-option" data-ans="c">Om meer chocolade te produceren</button>
+      <button class="mc-option" data-ans="d">Om Amerika militair te verslaan</button>
+    </div>
+    <div class="feedback"></div>
+    <div class="attempt-counter"></div>
+  </div>
+
+  <!-- Q7.3 Open -->
+  <div class="question-card" data-qid="q7_3" data-qtype="open" data-min-words="20">
+    <div class="q-label">Vraag 3 · Reflecteren (min. 20 woorden)</div>
+    <div class="q-text">Welke stap in deze tijdlijn vind je zelf het belangrijkst voor jouw leven nu? Leg uit waarom.</div>
+    <textarea class="open-answer" placeholder="Typ hier je antwoord..."></textarea>
+    <div class="word-counter"><span class="wc-num">0</span> woorden <span class="wc-check"></span></div>
+    <button class="btn secondary show-example" disabled>Toon voorbeeldantwoord</button>
+    <div class="feedback reveal"></div>
+    <div class="self-assess">
+      <span>Hoe beoordeel je je eigen antwoord?</span>
+      <button class="sa-btn good" data-sa="good">Goed ✓</button>
+      <button class="sa-btn bad" data-sa="bad">Nog niet ✗</button>
+    </div>
+  </div>
+
+  <div class="tab-nav">
+    <button class="reset-tab-btn" data-reset-tab="7">↺ Reset dit onderdeel</button>
+    <div style="display:flex; gap:10px;">
+      <button class="btn ghost prev-btn" data-prev="6">← Vorige</button>
+      <button class="btn next-btn" data-next="8">Volgende →</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TAB 8: CASE STUDY ============ -->
+<section class="tab-section" data-tab="8">
+  <h2 class="section-title">8. Case: de reis van Maja</h2>
+  <p class="section-subtitle">Een Poolse verpleegkundige die in Nederland komt werken.</p>
+
+  <div class="explain-card">
+    <p><strong>Maja (26)</strong> komt uit Lublin, een stad in het oosten van Polen. Ze heeft een opleiding verpleegkunde afgerond en werkt in een ziekenhuis in haar stad, waar ze ongeveer €900 per maand verdient. Met dat salaris komt ze rond, maar sparen voor een eigen huis gaat langzaam. Haar beste vriendin Anna is vorig jaar naar Rotterdam verhuisd en stuurde Maja een video van haar leven daar.</p>
+    <p>In januari besluit Maja ook naar Nederland te komen. Binnen twee weken heeft ze een contract bij een Rotterdams ziekenhuis: ze verdient nu €2.800 bruto per maand — ruim drie keer zoveel. Ze huurt samen met Anna een appartement, stuurt elke maand €400 naar haar ouders, en spaart €300. Het Nederlands leert ze snel dankzij haar patiënten. Tegelijk: ze mist haar familie, de zondagse kerkbezoeken en het Poolse eten. Elke twee maanden vliegt ze met Ryanair voor €40 retour naar Lublin.</p>
+    <p>Maja's verhaal bevat bijna alle thema's van deze les: de interne markt die haar verhuizing mogelijk maakt, de loonverschillen die haar motiveren, de remittances (€400/maand) die Polen binnenkomen, en de brain drain die Poolse ziekenhuizen doet zuchten van personeelstekort.</p>
+  </div>
+
+  <div class="info-block">
+    <div class="emoji-header"><span class="big">📋</span> Maja's balans</div>
+    <table class="compare-table" style="margin-top:10px;">
+      <thead><tr><th></th><th>🇵🇱 Lublin (Polen)</th><th>🇳🇱 Rotterdam (NL)</th></tr></thead>
+      <tbody>
+        <tr><td>Salaris</td><td>€900/maand</td><td>€2.800/maand</td></tr>
+        <tr><td>Huur</td><td>€250 (bij ouders)</td><td>€700 (gedeeld appt)</td></tr>
+        <tr><td>Kan sparen</td><td>€50/maand</td><td>€300/maand</td></tr>
+        <tr><td>Gezin dichtbij</td><td>Ja</td><td>Nee (vliegen)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Q8.1 MC -->
+  <div class="question-card" data-qid="q8_1" data-qtype="mc" data-correct="c" data-max-attempts="3"
+       data-hint1="Welk begrip past bij geld dat een arbeidsmigrant naar zijn/haar thuisland stuurt?"
+       data-hint2="Het Engelse woord begint met R..."
+       data-reveal="Geld dat migranten naar familie in het thuisland sturen heet 'remittances'.">
+    <div class="q-label">Vraag 1 · Begrip herkennen</div>
+    <div class="q-text">De €400 die Maja elke maand naar haar ouders stuurt heet:</div>
+    <div class="mc-options">
+      <button class="mc-option" data-ans="a">Structuurfonds</button>
+      <button class="mc-option" data-ans="b">Import</button>
+      <button class="mc-option" data-ans="c">Remittances</button>
+      <button class="mc-option" data-ans="d">Belasting</button>
+    </div>
+    <div class="feedback"></div>
+    <div class="attempt-counter"></div>
+  </div>
+
+  <!-- Q8.2 MC -->
+  <div class="question-card" data-qid="q8_2" data-qtype="mc" data-correct="b" data-max-attempts="3"
+       data-hint1="Welke vier vrijheid gebruikt Maja? Goederen? Mensen? Geld?"
+       data-hint2="Ze verhuist zelf naar een ander EU-land om te werken."
+       data-reveal="Maja gebruikt de vrijheid van personen/arbeid: vrij kunnen werken in een ander EU-land.">
+    <div class="q-label">Vraag 2 · Multiple choice</div>
+    <div class="q-text">Welke van de vier vrijheden gebruikt Maja als ze in Nederland gaat werken?</div>
+    <div class="mc-options">
+      <button class="mc-option" data-ans="a">Vrij verkeer van goederen</button>
+      <button class="mc-option" data-ans="b">Vrij verkeer van personen</button>
+      <button class="mc-option" data-ans="c">Vrij verkeer van kapitaal</button>
+      <button class="mc-option" data-ans="d">Vrij verkeer van informatie</button>
+    </div>
+    <div class="feedback"></div>
+    <div class="attempt-counter"></div>
+  </div>
+
+  <!-- Q8.3 Open -->
+  <div class="question-card" data-qid="q8_3" data-qtype="open" data-min-words="30">
+    <div class="q-label">Vraag 3 · Argumenteren (min. 30 woorden)</div>
+    <div class="q-text">Is Maja's verhuizing op lange termijn <strong>goed of slecht voor Polen</strong>? Geef zowel een argument vóór als een argument tégen, en kies dan je eigen standpunt.</div>
+    <textarea class="open-answer" placeholder="Typ hier je antwoord..."></textarea>
+    <div class="word-counter"><span class="wc-num">0</span> woorden <span class="wc-check"></span></div>
+    <button class="btn secondary show-example" disabled>Toon voorbeeldantwoord</button>
+    <div class="feedback reveal"></div>
+    <div class="self-assess">
+      <span>Hoe beoordeel je je eigen antwoord?</span>
+      <button class="sa-btn good" data-sa="good">Goed ✓</button>
+      <button class="sa-btn bad" data-sa="bad">Nog niet ✗</button>
+    </div>
+  </div>
+
+  <div class="tab-nav">
+    <button class="reset-tab-btn" data-reset-tab="8">↺ Reset dit onderdeel</button>
+    <div style="display:flex; gap:10px;">
+      <button class="btn ghost prev-btn" data-prev="7">← Vorige</button>
+      <button class="btn next-btn" data-next="9">Volgende →</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TAB 9: AFSLUITING ============ -->
+<section class="tab-section" data-tab="9">
+  <h2 class="section-title">9. Afsluiting &amp; reflectie</h2>
+  <p class="section-subtitle">Kijk terug op wat je geleerd hebt.</p>
+
+  <div class="score-display">
+    <div style="font-size:0.95rem; opacity:0.9;">Je totale score</div>
+    <div class="score-num" id="finalScore">0%</div>
+    <div id="scoreMessage" style="font-size:0.95rem;">Werk je nog aan de opdrachten...</div>
+  </div>
+
+  <h3>✅ Leerdoelen van deze les</h3>
+  <div class="learning-goal"><div class="lg-check">1</div><div>Ik kan uitleggen wat een economie is en twee verschillen noemen in welvaart tussen Europese landen.</div></div>
+  <div class="learning-goal"><div class="lg-check">2</div><div>Ik kan het begrip bruto binnenlands product (bbp) uitleggen en aangeven wat het zegt over de rijkdom van een land.</div></div>
+  <div class="learning-goal"><div class="lg-check">3</div><div>Ik kan uitleggen wat de interne markt van de EU is en twee voordelen ervan noemen voor gewone mensen.</div></div>
+  <div class="learning-goal"><div class="lg-check">4</div><div>Ik kan uitleggen wat werkloosheid is en een verschil noemen in werkloosheid tussen Noord- en Zuid-Europa.</div></div>
+  <div class="learning-goal"><div class="lg-check">5</div><div>Ik kan een verband leggen tussen de economie van een land en de kansen die mensen er hebben op werk en een goed inkomen.</div></div>
+
+  <h3>💭 Reflectievragen</h3>
+
+  <div class="question-card" data-qid="refl_1" data-qtype="reflection">
+    <div class="reflect-prompt">1. Wat vond je het lastigst in deze les en waarom?</div>
+    <textarea class="open-answer reflection" placeholder="Typ hier je reflectie..."></textarea>
+    <div class="word-counter"><span class="wc-num">0</span> woorden</div>
+  </div>
+
+  <div class="question-card" data-qid="refl_2" data-qtype="reflection">
+    <div class="reflect-prompt">2. Wat zou je een klasgenoot in drie zinnen uitleggen over de interne markt of het bbp?</div>
+    <textarea class="open-answer reflection" placeholder="Typ hier je reflectie..."></textarea>
+    <div class="word-counter"><span class="wc-num">0</span> woorden</div>
+  </div>
+
+  <div class="question-card" data-qid="refl_3" data-qtype="reflection">
+    <div class="reflect-prompt">3. Hoe herken je dit onderwerp (economie, welvaartsverschillen, arbeidsmigratie) in je eigen buurt of stad?</div>
+    <textarea class="open-answer reflection" placeholder="Typ hier je reflectie..."></textarea>
+    <div class="word-counter"><span class="wc-num">0</span> woorden</div>
+  </div>
+
+  <h3>🎫 Exitticket voor feedback</h3>
+  <div class="exit-ticket-box">
+    <p style="margin-top:0;"><strong>Kopieer deze tekst en plak hem in de feedback-tool van je docent voor gepersonaliseerde feedback op je werk.</strong></p>
+    <button class="btn" id="generateExitBtn">📋 Produceer exitticket</button>
+    <button class="btn secondary" id="copyExitBtn" style="display:none;">📎 Kopieer naar klembord</button>
+    <div id="copyStatus" style="display:inline-block; margin-left:10px; color:var(--success); font-weight:700;"></div>
+    <textarea id="exitTicketText" readonly style="display:none; margin-top:12px;"></textarea>
+  </div>
+
+  <div class="tab-nav">
+    <button class="reset-tab-btn" data-reset-tab="9">↺ Reset dit onderdeel</button>
+    <button class="btn ghost prev-btn" data-prev="8">← Vorige</button>
+  </div>
+</section>
+
+</main>
+
+<script>
+'use strict';
+
+// ============ STATE & STORAGE ============
+const STORAGE_PREFIX = 'geo_les_';
+const state = {
+  currentTab: 1,
+  totalTabs: 9,
+  answers: {},  // qid -> {type, value, correct, attempts, completed, selfAssess}
+  reflections: {},
+  startTime: Date.now()
+};
+
+function safeStore(key, value) {
+  try { localStorage.setItem(STORAGE_PREFIX + key, JSON.stringify(value)); }
+  catch(e) { /* ignore */ }
+}
+function safeLoad(key) {
+  try {
+    const v = localStorage.getItem(STORAGE_PREFIX + key);
+    return v ? JSON.parse(v) : null;
+  } catch(e) { return null; }
+}
+function saveState() {
+  safeStore('state', {
+    answers: state.answers,
+    reflections: state.reflections,
+    currentTab: state.currentTab,
+    startTime: state.startTime
+  });
+}
+function loadState() {
+  const s = safeLoad('state');
+  if (s) {
+    state.answers = s.answers || {};
+    state.reflections = s.reflections || {};
+    state.currentTab = s.currentTab || 1;
+    state.startTime = s.startTime || Date.now();
+  }
+}
+
+// ============ TAB NAVIGATION ============
+const TAB_NAMES = [
+  'Intro', 'BBP', 'Kaart', 'Interne markt', 'Werkloosheid',
+  'Kansen', 'Tijdlijn', 'Case', 'Afsluiting'
+];
+
+function buildTabBar() {
+  const bar = document.getElementById('tabBar');
+  bar.innerHTML = '';
+  for (let i = 1; i <= state.totalTabs; i++) {
+    const btn = document.createElement('button');
+    btn.className = 'tab-btn';
+    btn.dataset.tab = i;
+    btn.textContent = i + '. ' + TAB_NAMES[i-1];
+    btn.addEventListener('click', () => switchTab(i));
+    bar.appendChild(btn);
+  }
+  updateTabBar();
+}
+
+function updateTabBar() {
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    const tab = parseInt(btn.dataset.tab);
+    btn.classList.toggle('active', tab === state.currentTab);
+    btn.classList.toggle('completed', isTabCompleted(tab));
+  });
+  document.getElementById('tabCounter').textContent = 'Onderdeel ' + state.currentTab + ' van ' + state.totalTabs;
+}
+
+function switchTab(n) {
+  state.currentTab = n;
+  document.querySelectorAll('.tab-section').forEach(s => {
+    s.classList.toggle('active', parseInt(s.dataset.tab) === n);
+  });
+  updateTabBar();
+  saveState();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  // Invalidate map sizes
+  setTimeout(() => {
+    Object.values(maps).forEach(m => { if (m) m.invalidateSize(); });
+    // resize charts
+    Object.values(charts).forEach(c => { if (c) c.resize(); });
+  }, 100);
+}
+
+function isTabCompleted(tabNum) {
+  const section = document.querySelector('.tab-section[data-tab="'+tabNum+'"]');
+  if (!section) return false;
+  const questions = section.querySelectorAll('.question-card[data-qid]:not([data-qtype="reflection"])');
+  if (questions.length === 0) return true;
+  for (const q of questions) {
+    const a = state.answers[q.dataset.qid];
+    if (!a || !a.completed) return false;
+  }
+  return true;
+}
+
+// ============ PROGRESS ============
+function getAllQuestions() {
+  return document.querySelectorAll('.question-card[data-qid]:not([data-qtype="reflection"])');
+}
+
+function updateProgress() {
+  const qs = getAllQuestions();
+  const total = qs.length;
+  let done = 0;
+  qs.forEach(q => {
+    const a = state.answers[q.dataset.qid];
+    if (a && a.completed) done++;
+  });
+  const pct = total === 0 ? 0 : Math.round(done/total * 100);
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressLabel').textContent = pct + '%';
+  updateTabBar();
+  updateFinalScore();
+}
+
+function updateFinalScore() {
+  const qs = getAllQuestions();
+  let total = qs.length, correct = 0;
+  qs.forEach(q => {
+    const a = state.answers[q.dataset.qid];
+    if (a && a.correct) correct++;
+  });
+  const pct = total === 0 ? 0 : Math.round(correct/total * 100);
+  const el = document.getElementById('finalScore');
+  const msg = document.getElementById('scoreMessage');
+  if (el) el.textContent = pct + '%';
+  if (msg) {
+    let doneCount = 0;
+    qs.forEach(q => { if (state.answers[q.dataset.qid] && state.answers[q.dataset.qid].completed) doneCount++; });
+    if (doneCount === 0) msg.textContent = 'Werk je nog aan de opdrachten...';
+    else if (doneCount < total) msg.textContent = doneCount + ' van ' + total + ' opdrachten afgerond';
+    else if (pct >= 80) msg.textContent = '🌟 Top gedaan! Je beheerst de stof goed.';
+    else if (pct >= 60) msg.textContent = '👍 Goed bezig! Bekijk de lastige onderwerpen nog eens.';
+    else msg.textContent = '💪 Je hebt de les doorgewerkt. Bekijk de uitleg nog eens.';
+  }
+}
+
+// ============ MC QUESTIONS ============
+function setupMC(card) {
+  const qid = card.dataset.qid;
+  const correct = card.dataset.correct;
+  const maxA = parseInt(card.dataset.maxAttempts) || 3;
+  const hint1 = card.dataset.hint1;
+  const hint2 = card.dataset.hint2;
+  const reveal = card.dataset.reveal;
+  const fb = card.querySelector('.feedback');
+  const counter = card.querySelector('.attempt-counter');
+  const opts = card.querySelectorAll('.mc-option');
+
+  const saved = state.answers[qid];
+  let attempts = saved ? (saved.attempts || 0) : 0;
+
+  function render() {
+    counter.textContent = attempts > 0 ? 'Pogingen: ' + attempts + ' / ' + maxA : '';
+    const a = state.answers[qid];
+    if (a && a.completed) {
+      opts.forEach(o => {
+        o.disabled = true;
+        o.classList.remove('selected','correct','incorrect');
+        if (o.dataset.ans === correct) o.classList.add('correct');
+        if (a.value === o.dataset.ans && a.value !== correct) o.classList.add('incorrect');
+      });
+      fb.className = 'feedback ' + (a.correct ? 'success' : 'reveal') + ' show';
+      fb.textContent = a.correct ? '✓ Goed! Je had het bij de ' + a.attempts + 'e poging.' : '💡 Antwoord: ' + reveal;
+      card.classList.add('locked');
+      if (a.correct) card.classList.add('correct');
+    }
+  }
+
+  opts.forEach(o => o.addEventListener('click', () => {
+    const existing = state.answers[qid];
+    if (existing && existing.completed) return;
+    const ans = o.dataset.ans;
+    opts.forEach(x => x.classList.remove('selected'));
+    o.classList.add('selected');
+    attempts++;
+    if (ans === correct) {
+      state.answers[qid] = { type:'mc', value: ans, correct: true, attempts: attempts, completed: true };
+      opts.forEach(x => { x.disabled = true; if (x.dataset.ans === correct) x.classList.add('correct'); });
+      fb.className = 'feedback success show';
+      fb.textContent = '✓ Goed gedaan! ' + (attempts === 1 ? 'Meteen raak!' : 'Bij poging ' + attempts + '.');
+      card.classList.add('correct','locked');
+      counter.textContent = '';
+    } else if (attempts >= maxA) {
+      state.answers[qid] = { type:'mc', value: ans, correct: false, attempts: attempts, completed: true };
+      opts.forEach(x => {
+        x.disabled = true;
+        if (x.dataset.ans === correct) x.classList.add('correct');
+        if (x.dataset.ans === ans) x.classList.add('incorrect');
+      });
+      fb.className = 'feedback reveal show';
+      fb.textContent = '💡 Het juiste antwoord: ' + reveal + ' (Deze vraag telt mee in je voortgang.)';
+      card.classList.add('locked');
+      counter.textContent = '';
+    } else {
+      o.classList.add('incorrect');
+      fb.className = 'feedback hint show';
+      fb.textContent = attempts === 1 ? '🤔 ' + hint1 : '💭 ' + hint2;
+      counter.textContent = 'Pogingen: ' + attempts + ' / ' + maxA;
+      // don't mark completed yet
+      setTimeout(() => o.classList.remove('incorrect','selected'), 1500);
+    }
+    saveState();
+    updateProgress();
+  }));
+
+  render();
+}
+
+// ============ OPEN QUESTIONS ============
+const OPEN_EXAMPLES = {
+  q1_3: "Een economie is hoe mensen, bedrijven en een land omgaan met geld, werk en spullen. Landen produceren goederen (zoals kleren of auto's) en diensten (zoals les of zorg) en verkopen die voor geld. Samen vormen alle geldstromen de economie.",
+  q2_2: "Luxemburg heeft ongeveer €112.000 bbp per inwoner, Bulgarije maar ongeveer €13.000. Het verschil is dus rond de €100.000 — Luxemburg is per persoon ongeveer 8 tot 9 keer rijker. Dat betekent dat een gemiddelde Luxemburger veel meer kan uitgeven aan wonen, reizen en luxe dan een gemiddelde Bulgaar.",
+  q3_3: "In Nederland zie je moderne snelwegen en nieuwe auto's. In Duitsland is dat vergelijkbaar. Vanaf Hongarije of Roemenië zou ik oudere gebouwen, minder nieuwe auto's en goedkopere prijzen in winkels kunnen zien. In Bulgarije zijn de salarissen veel lager, waardoor restaurants en hotels goedkoper zijn dan bij ons.",
+  q4_3: "Ten eerste kunnen mensen zonder werkvergunning in een ander EU-land werken, wat meer kansen geeft. Bijvoorbeeld een Nederlandse student kan een bijbaan zoeken in Spanje. Ten tweede zijn producten goedkoper omdat er geen invoerbelasting is — Franse kaas of Duitse auto's zijn daardoor betaalbaarder in onze supermarkt of garage.",
+  q5_2: "Noord-Europa heeft een veel lagere werkloosheid (rond de 3-4%) dan Zuid-Europa (8-12%). Een verklaring is dat Zuid-Europese landen zwaarder getroffen werden door de financiële crisis van 2008 en sterker afhankelijk zijn van toerisme en bouw, terwijl het noorden een stabielere industrie heeft.",
+  q6_3: "Brain drain betekent dat opgeleide jongeren weggaan. Dat is slecht voor Roemenië omdat er dan bijvoorbeeld een tekort aan artsen of leraren komt. Ook verliezen scholen en bedrijven mensen waar ze veel in hebben geïnvesteerd. Het land groeit dan langzamer, want juist talentvolle mensen zorgen voor innovatie en belastingopbrengsten.",
+  q7_3: "Ik vind de invoering van de interne markt in 1993 het belangrijkst voor mij nu. Dankzij die stap kan ik op vakantie naar Italië zonder grenscontrole, en kan ik later in een ander EU-land studeren of werken zonder ingewikkelde vergunningen. Het voelt bijna normaal, maar het heeft mijn vrijheid enorm vergroot.",
+  q8_3: "Voor Polen is Maja's verhuizing op korte termijn slecht, want het ziekenhuis in Lublin verliest een verpleegkundige en Polen heeft veel geld in haar opleiding gestoken (brain drain). Tegelijk stuurt Maja €400 per maand naar haar ouders, wat voor de lokale economie goed is (remittances). Ik vind het op lange termijn negatief: geld kan geen getrainde zorgverleners vervangen."
+};
+
+function setupOpen(card) {
+  const qid = card.dataset.qid;
+  const minWords = parseInt(card.dataset.minWords) || 20;
+  const ta = card.querySelector('textarea.open-answer');
+  const wcNum = card.querySelector('.wc-num');
+  const wcCheck = card.querySelector('.wc-check');
+  const wc = card.querySelector('.word-counter');
+  const exBtn = card.querySelector('.show-example');
+  const fb = card.querySelector('.feedback');
+  const sa = card.querySelector('.self-assess');
+
+  function countWords(s) {
+    return s.trim() ? s.trim().split(/\s+/).length : 0;
+  }
+
+  function updateCounter() {
+    const n = countWords(ta.value);
+    wcNum.textContent = n;
+    if (n >= minWords) {
+      wc.classList.add('enough');
+      wcCheck.textContent = '✓ genoeg';
+      exBtn.disabled = false;
+    } else {
+      wc.classList.remove('enough');
+      wcCheck.textContent = '(min. ' + minWords + ')';
+      // only disable if not already shown example
+      const a = state.answers[qid];
+      if (!a || !a.exampleShown) exBtn.disabled = true;
+    }
+  }
+
+  ta.addEventListener('input', () => {
+    updateCounter();
+    let a = state.answers[qid] || { type:'open', value:'', attempts:0 };
+    a.type = 'open';
+    a.value = ta.value;
+    state.answers[qid] = a;
+    saveState();
+  });
+
+  exBtn.addEventListener('click', () => {
+    fb.className = 'feedback reveal show';
+    fb.innerHTML = '<strong>📘 Voorbeeldantwoord (dit is een voorbeeld, niet dé enige goede antwoord):</strong><br><br>' + OPEN_EXAMPLES[qid];
+    sa.classList.add('show');
+    let a = state.answers[qid] || {};
+    a.type = 'open';
+    a.value = ta.value;
+    a.exampleShown = true;
+    state.answers[qid] = a;
+    saveState();
+  });
+
+  sa.querySelectorAll('.sa-btn').forEach(b => {
+    b.addEventListener('click', () => {
+      sa.querySelectorAll('.sa-btn').forEach(x => x.classList.remove('active'));
+      b.classList.add('active');
+      const v = b.dataset.sa;
+      let a = state.answers[qid] || { type:'open' };
+      a.type = 'open';
+      a.value = ta.value;
+      a.selfAssess = v;
+      a.correct = (v === 'good');
+      a.completed = true;
+      a.attempts = 1;
+      state.answers[qid] = a;
+      saveState();
+      updateProgress();
+      card.classList.add('locked');
+      if (a.correct) card.classList.add('correct');
+    });
+  });
+
+  // restore
+  const saved = state.answers[qid];
+  if (saved) {
+    if (saved.value) ta.value = saved.value;
+    updateCounter();
+    if (saved.exampleShown) {
+      fb.className = 'feedback reveal show';
+      fb.innerHTML = '<strong>📘 Voorbeeldantwoord:</strong><br><br>' + OPEN_EXAMPLES[qid];
+      sa.classList.add('show');
+      exBtn.disabled = false;
+    }
+    if (saved.selfAssess) {
+      const btn = sa.querySelector('.sa-btn[data-sa="'+saved.selfAssess+'"]');
+      if (btn) btn.classList.add('active');
+      card.classList.add('locked');
+      if (saved.correct) card.classList.add('correct');
+    }
+  } else {
+    updateCounter();
+  }
+}
+
+// ============ REFLECTIONS ============
+function setupReflection(card) {
+  const qid = card.dataset.qid;
+  const ta = card.querySelector('textarea');
+  const wcNum = card.querySelector('.wc-num');
+  ta.addEventListener('input', () => {
+    const n = ta.value.trim() ? ta.value.trim().split(/\s+/).length : 0;
+    wcNum.textContent = n;
+    state.reflections[qid] = ta.value;
+    saveState();
+  });
+  if (state.reflections[qid]) {
+    ta.value = state.reflections[qid];
+    ta.dispatchEvent(new Event('input'));
+  }
+}
+
+// ============ SORT (DRAG & DROP) ============
+function setupSort(card) {
+  const qid = card.dataset.qid;
+  const correctOrder = JSON.parse(card.dataset.correctOrder);
+  const maxA = 3;
+  const ul = card.querySelector('.sort-list');
+  const btn = card.querySelector('.check-sort');
+  const fb = card.querySelector('.feedback');
+  const counter = card.querySelector('.attempt-counter');
+
+  let attempts = (state.answers[qid] && state.answers[qid].attempts) || 0;
+
+  // Initial order: shuffled OR saved
+  let current = (state.answers[qid] && state.answers[qid].currentOrder)
+    ? state.answers[qid].currentOrder.slice()
+    : shuffle(correctOrder.slice());
+
+  function shuffle(a) {
+    for (let i = a.length-1; i > 0; i--) {
+      const j = Math.floor(Math.random()*(i+1));
+      [a[i],a[j]] = [a[j],a[i]];
+    }
+    // ensure not already sorted
+    if (a.join('|') === correctOrder.join('|') && a.length > 1) [a[0],a[1]] = [a[1],a[0]];
+    return a;
+  }
+
+  function render() {
+    ul.innerHTML = '';
+    current.forEach((text, idx) => {
+      const li = document.createElement('li');
+      li.className = 'sort-item';
+      li.draggable = true;
+      li.dataset.text = text;
+      li.innerHTML = '<span class="sort-num">'+(idx+1)+'</span><span class="sort-handle">☰</span><span>'+text+'</span>';
+      ul.appendChild(li);
+    });
+    attachDragHandlers();
+  }
+
+  function attachDragHandlers() {
+    let dragEl = null;
+    ul.querySelectorAll('.sort-item').forEach(item => {
+      item.addEventListener('dragstart', (e) => {
+        if (card.classList.contains('locked')) { e.preventDefault(); return; }
+        dragEl = item;
+        item.classList.add('dragging');
+        e.dataTransfer.effectAllowed = 'move';
+      });
+      item.addEventListener('dragend', () => {
+        if (dragEl) dragEl.classList.remove('dragging');
+        ul.querySelectorAll('.sort-item').forEach(x => x.classList.remove('over'));
+        // Update current array from DOM
+        current = Array.from(ul.querySelectorAll('.sort-item')).map(x => x.dataset.text);
+        // Renumber
+        ul.querySelectorAll('.sort-item').forEach((x,i) => {
+          x.querySelector('.sort-num').textContent = (i+1);
+        });
+        saveSort();
+      });
+      item.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        if (!dragEl || dragEl === item) return;
+        item.classList.add('over');
+        const rect = item.getBoundingClientRect();
+        const after = (e.clientY - rect.top) > rect.height/2;
+        if (after) ul.insertBefore(dragEl, item.nextSibling);
+        else ul.insertBefore(dragEl, item);
+      });
+      item.addEventListener('dragleave', () => item.classList.remove('over'));
+      item.addEventListener('drop', (e) => { e.preventDefault(); item.classList.remove('over'); });
+    });
+  }
+
+  function saveSort() {
+    let a = state.answers[qid] || {};
+    a.type = 'sort';
+    a.currentOrder = current;
+    a.attempts = attempts;
+    state.answers[qid] = a;
+    saveState();
+  }
+
+  btn.addEventListener('click', () => {
+    if (card.classList.contains('locked')) return;
+    attempts++;
+    const items = ul.querySelectorAll('.sort-item');
+    let allCorrect = true;
+    items.forEach((el, idx) => {
+      el.classList.remove('correct-pos','wrong-pos');
+      if (current[idx] === correctOrder[idx]) el.classList.add('correct-pos');
+      else { el.classList.add('wrong-pos'); allCorrect = false; }
+    });
+    if (allCorrect) {
+      state.answers[qid] = { type:'sort', currentOrder: current, correct:true, completed:true, attempts: attempts };
+      fb.className = 'feedback success show';
+      fb.textContent = '✓ Perfect! Je hebt ze allemaal op de juiste plek (in ' + attempts + ' poging' + (attempts>1?'en':'') + ').';
+      card.classList.add('correct','locked');
+      btn.disabled = true;
+      counter.textContent = '';
+    } else if (attempts >= maxA) {
+      // Reveal correct order
+      current = correctOrder.slice();
+      render();
+      ul.querySelectorAll('.sort-item').forEach(x => x.classList.add('correct-pos'));
+      state.answers[qid] = { type:'sort', currentOrder: current, correct:false, completed:true, attempts: attempts };
+      fb.className = 'feedback reveal show';
+      fb.textContent = '💡 De juiste volgorde is nu getoond. Deze vraag telt mee in je voortgang.';
+      card.classList.add('locked');
+      btn.disabled = true;
+      counter.textContent = '';
+    } else {
+      const correctCount = items.length - document.querySelectorAll('.question-card[data-qid="'+qid+'"] .wrong-pos').length;
+      fb.className = 'feedback hint show';
+      fb.textContent = '🤔 Je hebt ' + correctCount + ' van de ' + items.length + ' op de juiste plek. Kijk eens goed: welke logische stap komt eerst? Sleep om aan te passen.';
+      counter.textContent = 'Pogingen: ' + attempts + ' / ' + maxA;
+    }
+    saveSort();
+    updateProgress();
+  });
+
+  // restore
+  render();
+  const saved = state.answers[qid];
+  if (saved && saved.completed) {
+    const items = ul.querySelectorAll('.sort-item');
+    if (saved.correct) {
+      items.forEach(x => x.classList.add('correct-pos'));
+      fb.className = 'feedback success show';
+      fb.textContent = '✓ Correct volgorde!';
+      card.classList.add('correct','locked');
+    } else {
+      current = correctOrder.slice();
+      render();
+      ul.querySelectorAll('.sort-item').forEach(x => x.classList.add('correct-pos'));
+      fb.className = 'feedback reveal show';
+      fb.textContent = '💡 De juiste volgorde is getoond.';
+      card.classList.add('locked');
+    }
+    btn.disabled = true;
+    counter.textContent = '';
+  } else if (attempts > 0) {
+    counter.textContent = 'Pogingen: ' + attempts + ' / ' + maxA;
+  }
+}
+
+// ============ MATCH ============
+function setupMatch(card) {
+  const qid = card.dataset.qid;
+  const pairs = JSON.parse(card.dataset.pairs); // [[source,target],...]
+  const maxA = 3;
+  const leftEl = card.querySelector('.match-items-left');
+  const rightEl = card.querySelector('.match-items-right');
+  const btn = card.querySelector('.check-match');
+  const resetBtn = card.querySelector('.reset-match');
+  const fb = card.querySelector('.feedback');
+  const counter = card.querySelector('.attempt-counter');
+
+  // Shuffle left items
+  const lefts = pairs.map(p => p[0]);
+  const rights = [...new Set(pairs.map(p => p[1]))];
+  const shuffledL = lefts.slice().sort(() => Math.random()-0.5);
+
+  let selectedLeft = null;
+  let userMatches = (state.answers[qid] && state.answers[qid].matches) || {};
+  let attempts = (state.answers[qid] && state.answers[qid].attempts) || 0;
+  const colors = ['#e4f4ec','#fff7e6','#f0e4f4','#e4ecf4','#f4e4e4','#e4f4f0','#f4f0e4'];
+  let colorMap = (state.answers[qid] && state.answers[qid].colorMap) || {};
+  let colorIdx = Object.keys(colorMap).length;
+
+  function render() {
+    leftEl.innerHTML = '';
+    rightEl.innerHTML = '';
+    shuffledL.forEach(l => {
+      const el = document.createElement('div');
+      el.className = 'match-item';
+      el.dataset.text = l;
+      if (userMatches[l]) {
+        el.innerHTML = '<span class="match-tag">'+userMatches[l]+'</span>' + l;
+        el.style.background = colorMap[userMatches[l]] || 'white';
+        el.classList.add('matched');
+      } else {
+        el.textContent = l;
+      }
+      el.addEventListener('click', () => {
+        if (card.classList.contains('locked')) return;
+        leftEl.querySelectorAll('.match-item').forEach(x => x.classList.remove('selected'));
+        el.classList.add('selected');
+        selectedLeft = l;
+      });
+      leftEl.appendChild(el);
+    });
+    rights.forEach(r => {
+      const el = document.createElement('div');
+      el.className = 'match-item';
+      el.dataset.text = r;
+      el.style.background = colorMap[r] || '';
+      el.textContent = r;
+      el.addEventListener('click', () => {
+        if (card.classList.contains('locked')) return;
+        if (!selectedLeft) {
+          fb.className = 'feedback hint show';
+          fb.textContent = '👆 Kies eerst een land links, dan een niveau rechts.';
+          return;
+        }
+        if (!colorMap[r]) {
+          colorMap[r] = colors[colorIdx % colors.length];
+          colorIdx++;
+        }
+        userMatches[selectedLeft] = r;
+        selectedLeft = null;
+        fb.classList.remove('show');
+        saveMatch();
+        render();
+      });
+      rightEl.appendChild(el);
+    });
+  }
+
+  function saveMatch() {
+    state.answers[qid] = {
+      type:'match',
+      matches: userMatches,
+      colorMap: colorMap,
+      attempts: attempts,
+      completed: (state.answers[qid] && state.answers[qid].completed) || false,
+      correct: (state.answers[qid] && state.answers[qid].correct) || false
+    };
+    saveState();
+  }
+
+  btn.addEventListener('click', () => {
+    if (card.classList.contains('locked')) return;
+    if (Object.keys(userMatches).length < shuffledL.length) {
+      fb.className = 'feedback hint show';
+      fb.textContent = '🤔 Je hebt nog niet alle landen gekoppeld. Probeer alle ' + shuffledL.length + ' te koppelen.';
+      return;
+    }
+    attempts++;
+    let correctCount = 0;
+    pairs.forEach(p => { if (userMatches[p[0]] === p[1]) correctCount++; });
+    // highlight
+    leftEl.querySelectorAll('.match-item').forEach(el => {
+      el.classList.remove('correct','incorrect');
+      const correctTarget = pairs.find(p => p[0] === el.dataset.text)[1];
+      if (userMatches[el.dataset.text] === correctTarget) el.classList.add('correct');
+      else el.classList.add('incorrect');
+    });
+    if (correctCount === pairs.length) {
+      state.answers[qid] = { type:'match', matches:userMatches, colorMap:colorMap, correct:true, completed:true, attempts: attempts };
+      fb.className = 'feedback success show';
+      fb.textContent = '✓ Alle ' + pairs.length + ' koppelingen goed!';
+      card.classList.add('correct','locked');
+      btn.disabled = true;
+      counter.textContent = '';
+    } else if (attempts >= maxA) {
+      // Show correct
+      pairs.forEach(p => { userMatches[p[0]] = p[1]; });
+      render();
+      leftEl.querySelectorAll('.match-item').forEach(el => el.classList.add('correct'));
+      state.answers[qid] = { type:'match', matches:userMatches, colorMap:colorMap, correct:false, completed:true, attempts: attempts };
+      fb.className = 'feedback reveal show';
+      fb.textContent = '💡 De juiste koppelingen zijn getoond. Deze vraag telt mee in je voortgang.';
+      card.classList.add('locked');
+      btn.disabled = true;
+      counter.textContent = '';
+    } else {
+      fb.className = 'feedback hint show';
+      fb.textContent = '🤔 ' + correctCount + ' van de ' + pairs.length + ' kloppen. Groen = goed, rood = fout. Pas de foute aan en probeer opnieuw.';
+      counter.textContent = 'Pogingen: ' + attempts + ' / ' + maxA;
+    }
+    saveMatch();
+    updateProgress();
+  });
+
+  resetBtn.addEventListener('click', () => {
+    if (card.classList.contains('locked')) return;
+    userMatches = {};
+    colorMap = {};
+    colorIdx = 0;
+    saveMatch();
+    render();
+    fb.classList.remove('show');
+  });
+
+  render();
+  const saved = state.answers[qid];
+  if (saved && saved.completed) {
+    leftEl.querySelectorAll('.match-item').forEach(el => {
+      const correctTarget = pairs.find(p => p[0] === el.dataset.text)[1];
+      if (userMatches[el.dataset.text] === correctTarget) el.classList.add('correct');
+      else if (!saved.correct) el.classList.add('incorrect');
+    });
+    if (saved.correct) {
+      fb.className = 'feedback success show';
+      fb.textContent = '✓ Correct!';
+      card.classList.add('correct','locked');
+    } else {
+      fb.className = 'feedback reveal show';
+      fb.textContent = '💡 De juiste koppelingen zijn getoond.';
+      card.classList.add('locked');
+    }
+    btn.disabled = true;
+  } else if (attempts > 0) {
+    counter.textContent = 'Pogingen: ' + attempts + ' / ' + maxA;
+  }
+}
+
+// ============ RESET TAB ============
+function resetTab(tabNum) {
+  if (!confirm('Weet je zeker dat je onderdeel ' + tabNum + ' wilt resetten?')) return;
+  const section = document.querySelector('.tab-section[data-tab="'+tabNum+'"]');
+  if (!section) return;
+  section.querySelectorAll('.question-card[data-qid]').forEach(card => {
+    const qid = card.dataset.qid;
+    delete state.answers[qid];
+    if (card.dataset.qtype === 'reflection') delete state.reflections[qid];
+  });
+  saveState();
+  // Re-render tab
+  rerenderTab(tabNum);
+  updateProgress();
+}
+
+function rerenderTab(tabNum) {
+  const section = document.querySelector('.tab-section[data-tab="'+tabNum+'"]');
+  section.querySelectorAll('.question-card[data-qid]').forEach(card => {
+    // Reset card classes
+    card.classList.remove('correct','locked');
+    const fb = card.querySelector('.feedback');
+    if (fb) { fb.classList.remove('show','hint','success','reveal'); fb.textContent = ''; }
+    const counter = card.querySelector('.attempt-counter');
+    if (counter) counter.textContent = '';
+
+    const type = card.dataset.qtype;
+    if (type === 'mc') {
+      card.querySelectorAll('.mc-option').forEach(o => {
+        o.disabled = false;
+        o.classList.remove('selected','correct','incorrect');
+      });
+      setupMC(card);
+    } else if (type === 'open') {
+      const ta = card.querySelector('textarea.open-answer');
+      if (ta) ta.value = '';
+      const wcNum = card.querySelector('.wc-num');
+      if (wcNum) wcNum.textContent = '0';
+      const sa = card.querySelector('.self-assess');
+      if (sa) { sa.classList.remove('show'); sa.querySelectorAll('.sa-btn').forEach(x => x.classList.remove('active')); }
+      const exBtn = card.querySelector('.show-example');
+      if (exBtn) exBtn.disabled = true;
+      setupOpen(card);
+    } else if (type === 'sort') {
+      const btn = card.querySelector('.check-sort');
+      if (btn) btn.disabled = false;
+      setupSort(card);
+    } else if (type === 'match') {
+      const btn = card.querySelector('.check-match');
+      if (btn) btn.disabled = false;
+      setupMatch(card);
+    } else if (type === 'reflection') {
+      const ta = card.querySelector('textarea');
+      if (ta) ta.value = '';
+      const wcNum = card.querySelector('.wc-num');
+      if (wcNum) wcNum.textContent = '0';
+    }
+  });
+}
+
+// ============ CHARTS ============
+const charts = {};
+function initCharts() {
+  // BBP chart
+  const ctx1 = document.getElementById('bbpChart');
+  if (ctx1) {
+    charts.bbp = new Chart(ctx1, {
+      type: 'bar',
+      data: {
+        labels: ['Luxemburg','Noorwegen','Nederland','Duitsland','Spanje','Polen','Roemenië','Bulgarije'],
+        datasets: [{
+          label: 'BBP per inwoner (€)',
+          data: [112000, 95000, 58000, 50000, 30000, 18000, 15000, 13000],
+          backgroundColor: ['#0b3d2e','#146c47','#2e9d6a','#2e9d6a','#8fd3b2','#d4a24a','#b88a35','#8a7458'],
+          borderRadius: 6
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend:{display:false}, tooltip:{callbacks:{label: c => '€' + c.parsed.y.toLocaleString('nl-NL')}} },
+        scales: { y: { beginAtZero:true, ticks:{callback: v => '€' + (v/1000) + 'k'} } }
+      }
+    });
+  }
+  // Werkloosheid chart
+  const ctx2 = document.getElementById('werkChart');
+  if (ctx2) {
+    charts.werk = new Chart(ctx2, {
+      type: 'bar',
+      data: {
+        labels: ['Duitsland','Nederland','Denemarken','Oostenrijk','Frankrijk','Italië','Spanje','Griekenland'],
+        datasets: [
+          { label:'Algemeen (%)', data:[3,4,4,5,7,8,11,11], backgroundColor:'#2e9d6a', borderRadius:6 },
+          { label:'Jeugd < 25 (%)', data:[6,9,10,10,18,22,28,26], backgroundColor:'#d4a24a', borderRadius:6 }
+        ]
+      },
+      options: {
+        responsive:true, maintainAspectRatio:false,
+        plugins: { legend:{position:'top'} },
+        scales: { y: { beginAtZero:true, ticks:{callback: v => v + '%'} } }
+      }
+    });
+  }
+}
+
+// ============ MAP ============
+const maps = {};
+function initMap() {
+  const el = document.getElementById('welvaartMap');
+  if (!el) return;
+  const map = L.map(el).setView([52, 15], 4);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap',
+    maxZoom: 18
+  }).addTo(map);
+
+  const welvaart = [
+    { name:'Luxemburg (stad)', lat:49.61, lng:6.13, bbp:'€112.000', tier:'Top-welvaart', color:'#0b3d2e', note:'Rijkste EU-land per inwoner — veel banken en EU-instellingen.' },
+    { name:'Oslo, Noorwegen', lat:59.91, lng:10.75, bbp:'€95.000', tier:'Top-welvaart', color:'#0b3d2e', note:'Rijk door olie- en gasreserves in de Noordzee.' },
+    { name:'Amsterdam, Nederland', lat:52.37, lng:4.90, bbp:'€58.000', tier:'Hoge welvaart', color:'#146c47', note:'Sterke dienstensector en handel.' },
+    { name:'Berlijn, Duitsland', lat:52.52, lng:13.40, bbp:'€50.000', tier:'Hoge welvaart', color:'#146c47', note:'Grootste industriële economie van Europa.' },
+    { name:'Stockholm, Zweden', lat:59.33, lng:18.07, bbp:'€55.000', tier:'Hoge welvaart', color:'#146c47', note:'Innovatieve tech-sector, sterk sociaal stelsel.' },
+    { name:'Madrid, Spanje', lat:40.42, lng:-3.70, bbp:'€30.000', tier:'Midden', color:'#d4a24a', note:'Toeristische economie, hoge jeugdwerkloosheid.' },
+    { name:'Rome, Italië', lat:41.90, lng:12.50, bbp:'€35.000', tier:'Midden', color:'#d4a24a', note:'Rijk noorden, armer zuiden — grote regionale ongelijkheid.' },
+    { name:'Warschau, Polen', lat:52.23, lng:21.01, bbp:'€18.000', tier:'Midden/laag', color:'#d4a24a', note:'Snelst groeiende economie van de EU sinds 2004.' },
+    { name:'Boekarest, Roemenië', lat:44.43, lng:26.10, bbp:'€15.000', tier:'Lagere welvaart', color:'#8a7458', note:'Hoofdstad is rijker dan platteland — regionale ongelijkheid.' },
+    { name:'Sofia, Bulgarije', lat:42.70, lng:23.32, bbp:'€13.000', tier:'Lagere welvaart', color:'#8a7458', note:'Laagste bbp per inwoner in de EU, maar groeit snel.' },
+    { name:'Tirana, Albanië', lat:41.33, lng:19.82, bbp:'€6.000', tier:'Lagere welvaart', color:'#8a7458', note:'Geen EU-lid — wacht op toetreding.' }
+  ];
+
+  welvaart.forEach(p => {
+    const icon = L.divIcon({
+      html: '<div style="background:'+p.color+';width:22px;height:22px;border-radius:50%;border:3px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.3);"></div>',
+      className: '', iconSize:[22,22], iconAnchor:[11,11]
+    });
+    L.marker([p.lat, p.lng], { icon }).addTo(map).bindPopup(
+      '<strong>'+p.name+'</strong><br>💶 BBP: '+p.bbp+'<br>📊 '+p.tier+'<br><em>'+p.note+'</em>'
+    );
+  });
+
+  maps.welvaart = map;
+}
+
+// ============ EXIT TICKET ============
+function generateExitTicket() {
+  const now = new Date();
+  const date = now.toLocaleDateString('nl-NL', { year:'numeric', month:'long', day:'numeric' });
+  let t = '';
+  t += '═══════════════════════════════════\n';
+  t += 'EXITTICKET — Aardrijkskunde\n';
+  t += 'De Economie van Europa\n';
+  t += '═══════════════════════════════════\n\n';
+  t += 'Datum: ' + date + '\n';
+  t += 'Niveau: HAVO leerjaar 1\n';
+  t += 'Moeilijkheidsgraad: standaard\n\n';
+
+  t += '── LEERDOELEN ──\n';
+  t += '1. Ik kan uitleggen wat een economie is en twee verschillen noemen in welvaart tussen Europese landen.\n';
+  t += '2. Ik kan het begrip bruto binnenlands product (bbp) uitleggen en aangeven wat het zegt over de rijkdom van een land.\n';
+  t += '3. Ik kan uitleggen wat de interne markt van de EU is en twee voordelen ervan noemen voor gewone mensen.\n';
+  t += '4. Ik kan uitleggen wat werkloosheid is en een verschil noemen in werkloosheid tussen Noord- en Zuid-Europa.\n';
+  t += '5. Ik kan een verband leggen tussen de economie van een land en de kansen die mensen er hebben op werk en een goed inkomen.\n\n';
+
+  // Stats
+  const qs = getAllQuestions();
+  let total = qs.length, correct = 0, done = 0;
+  qs.forEach(q => {
+    const a = state.answers[q.dataset.qid];
+    if (a && a.completed) done++;
+    if (a && a.correct) correct++;
+  });
+  t += '── SCORE ──\n';
+  t += 'Voltooid: ' + done + ' / ' + total + ' opdrachten\n';
+  t += 'Goed: ' + correct + ' / ' + total + ' (' + Math.round(correct/total*100) + '%)\n\n';
+
+  t += '── ANTWOORDEN PER VRAAG ──\n\n';
+
+  qs.forEach((card, i) => {
+    const qid = card.dataset.qid;
+    const qtype = card.dataset.qtype;
+    const qtext = card.querySelector('.q-text').textContent.trim();
+    const a = state.answers[qid] || {};
+    t += 'Vraag ' + (i+1) + ' [' + qid + '] — ' + qtype.toUpperCase() + '\n';
+    t += 'Vraag: ' + qtext + '\n';
+
+    if (qtype === 'mc') {
+      const selBtn = card.querySelector('.mc-option[data-ans="'+a.value+'"]');
+      t += 'Antwoord leerling: ' + (a.value ? (selBtn ? selBtn.textContent.trim() + ' (' + a.value + ')' : a.value) : '(niet beantwoord)') + '\n';
+      t += 'Resultaat: ' + (a.completed ? (a.correct ? 'GOED ✓' : 'FOUT ✗') : '(niet afgerond)') + '\n';
+      t += 'Aantal pogingen: ' + (a.attempts || 0) + '\n';
+    } else if (qtype === 'open') {
+      t += 'Antwoord leerling: ' + (a.value || '(leeg)') + '\n';
+      t += 'Zelfbeoordeling: ' + (a.selfAssess === 'good' ? 'GOED ✓' : a.selfAssess === 'bad' ? 'NOG NIET ✗' : '(nog niet beoordeeld)') + '\n';
+    } else if (qtype === 'sort') {
+      t += 'Volgorde leerling: ' + (a.currentOrder ? a.currentOrder.join(' → ') : '(niet beantwoord)') + '\n';
+      t += 'Resultaat: ' + (a.completed ? (a.correct ? 'GOED ✓' : 'FOUT ✗') : '(niet afgerond)') + '\n';
+      t += 'Aantal pogingen: ' + (a.attempts || 0) + '\n';
+    } else if (qtype === 'match') {
+      t += 'Koppelingen leerling:\n';
+      if (a.matches) { Object.keys(a.matches).forEach(k => { t += '  - ' + k + ' → ' + a.matches[k] + '\n'; }); }
+      else { t += '  (niet beantwoord)\n'; }
+      t += 'Resultaat: ' + (a.completed ? (a.correct ? 'GOED ✓' : 'FOUT ✗') : '(niet afgerond)') + '\n';
+      t += 'Aantal pogingen: ' + (a.attempts || 0) + '\n';
+    }
+    t += '\n';
+  });
+
+  t += '── REFLECTIEVRAGEN ──\n\n';
+  const refQs = document.querySelectorAll('.question-card[data-qtype="reflection"]');
+  refQs.forEach((card, i) => {
+    const qid = card.dataset.qid;
+    const prompt = card.querySelector('.reflect-prompt').textContent.trim();
+    t += 'Reflectie ' + (i+1) + ': ' + prompt + '\n';
+    t += 'Antwoord: ' + (state.reflections[qid] || '(leeg)') + '\n\n';
+  });
+
+  t += '═══════════════════════════════════\n';
+  t += 'Einde exitticket\n';
+  t += '═══════════════════════════════════';
+  return t;
+}
+
+// ============ INIT ============
+document.addEventListener('DOMContentLoaded', () => {
+  loadState();
+  buildTabBar();
+
+  // Setup all questions
+  document.querySelectorAll('.question-card').forEach(card => {
+    const type = card.dataset.qtype;
+    if (type === 'mc') setupMC(card);
+    else if (type === 'open') setupOpen(card);
+    else if (type === 'sort') setupSort(card);
+    else if (type === 'match') setupMatch(card);
+    else if (type === 'reflection') setupReflection(card);
+  });
+
+  // Navigation buttons
+  document.querySelectorAll('.next-btn').forEach(b => b.addEventListener('click', () => switchTab(parseInt(b.dataset.next))));
+  document.querySelectorAll('.prev-btn').forEach(b => b.addEventListener('click', () => switchTab(parseInt(b.dataset.prev))));
+
+  // Reset tab
+  document.querySelectorAll('.reset-tab-btn').forEach(b => b.addEventListener('click', () => resetTab(parseInt(b.dataset.resetTab))));
+
+  // Clear all
+  document.getElementById('clearAllBtn').addEventListener('click', () => {
+    if (!confirm('Weet je zeker dat je ALLE voortgang wilt wissen?')) return;
+    try {
+      Object.keys(localStorage).forEach(k => {
+        if (k.startsWith(STORAGE_PREFIX)) localStorage.removeItem(k);
+      });
+    } catch(e) {}
+    location.reload();
+  });
+
+  // Exit ticket
+  document.getElementById('generateExitBtn').addEventListener('click', () => {
+    const text = generateExitTicket();
+    const ta = document.getElementById('exitTicketText');
+    ta.value = text;
+    ta.style.display = 'block';
+    document.getElementById('copyExitBtn').style.display = 'inline-block';
+  });
+  document.getElementById('copyExitBtn').addEventListener('click', () => {
+    const ta = document.getElementById('exitTicketText');
+    ta.select();
+    try {
+      navigator.clipboard.writeText(ta.value).then(() => {
+        document.getElementById('copyStatus').textContent = '✓ Gekopieerd!';
+        setTimeout(() => document.getElementById('copyStatus').textContent = '', 2000);
+      });
+    } catch(e) {
+      document.execCommand('copy');
+      document.getElementById('copyStatus').textContent = '✓ Gekopieerd!';
+      setTimeout(() => document.getElementById('copyStatus').textContent = '', 2000);
+    }
+  });
+
+  initCharts();
+  initMap();
+
+  // Restore tab
+  if (state.currentTab !== 1) switchTab(state.currentTab);
+  updateProgress();
+});
+
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    Object.values(maps).forEach(m => { if (m) m.invalidateSize(); });
+  }, 200);
+});
+</script>
+</body>
+</html>
