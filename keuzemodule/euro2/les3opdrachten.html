@@ -1,0 +1,2367 @@
+```html
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>De Economische Dimensie - HAVO 2</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --emerald-deep: #0f5132;
+  --emerald: #198754;
+  --emerald-soft: #6fbf8f;
+  --emerald-mist: #d4ede0;
+  --emerald-bg: #f0f7f3;
+  --earth-sand: #e8dfd0;
+  --earth-clay: #c4a57b;
+  --earth-stone: #8b7355;
+  --cream: #fbf9f4;
+  --ink: #2d3a32;
+  --ink-soft: #5a6b60;
+  --gold: #d4a72c;
+  --rose: #c97064;
+  --shadow: 0 2px 12px rgba(15, 81, 50, 0.08);
+  --shadow-lg: 0 8px 32px rgba(15, 81, 50, 0.12);
+  --radius: 14px;
+  --radius-sm: 8px;
+  --space: 1.25rem;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Nunito', sans-serif;
+  background: var(--emerald-bg);
+  color: var(--ink);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+.header-strip {
+  background: linear-gradient(135deg, var(--emerald-deep) 0%, var(--emerald) 100%);
+  color: var(--cream);
+  padding: 2rem 2rem 1.5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.header-strip::after {
+  content: '';
+  position: absolute;
+  bottom: -40px;
+  right: -40px;
+  width: 200px;
+  height: 200px;
+  background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%);
+  border-radius: 50%;
+}
+
+.header-strip h1 {
+  font-size: 2rem;
+  font-weight: 800;
+  margin-bottom: 0.3rem;
+  letter-spacing: -0.5px;
+}
+
+.header-strip .subtitle {
+  font-size: 1rem;
+  opacity: 0.9;
+  font-weight: 300;
+}
+
+.progress-sticky {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--cream);
+  padding: 1rem 2rem;
+  box-shadow: var(--shadow);
+  border-bottom: 1px solid var(--emerald-mist);
+}
+
+.progress-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.progress-label {
+  font-weight: 700;
+  color: var(--emerald-deep);
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+
+.progress-bar {
+  flex: 1;
+  height: 12px;
+  background: var(--emerald-mist);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--emerald-soft), var(--emerald));
+  width: 0%;
+  transition: width 0.4s ease;
+  border-radius: 999px;
+}
+
+.progress-percent {
+  font-weight: 700;
+  color: var(--emerald);
+  min-width: 50px;
+  text-align: right;
+}
+
+.tab-counter {
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.reset-all-btn {
+  background: transparent;
+  border: 1px solid var(--earth-stone);
+  color: var(--earth-stone);
+  padding: 0.4rem 0.8rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.8rem;
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.reset-all-btn:hover {
+  background: var(--earth-stone);
+  color: var(--cream);
+}
+
+.tab-bar {
+  background: var(--cream);
+  padding: 0.5rem 1rem;
+  display: flex;
+  gap: 0.4rem;
+  overflow-x: auto;
+  border-bottom: 1px solid var(--emerald-mist);
+  scrollbar-width: thin;
+}
+
+.tab-bar::-webkit-scrollbar { height: 6px; }
+.tab-bar::-webkit-scrollbar-thumb { background: var(--emerald-soft); border-radius: 3px; }
+
+.tab-btn {
+  background: transparent;
+  border: none;
+  padding: 0.7rem 1.1rem;
+  font-family: inherit;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--ink-soft);
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.tab-btn:hover { background: var(--emerald-mist); color: var(--emerald-deep); }
+.tab-btn.active {
+  background: var(--emerald);
+  color: var(--cream);
+}
+
+.tab-btn .check {
+  display: none;
+  color: var(--gold);
+  font-weight: 800;
+}
+
+.tab-btn.completed .check { display: inline; }
+.tab-btn.active.completed .check { color: var(--cream); }
+
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 4rem;
+}
+
+.tab-content { display: none; animation: fadeIn 0.4s ease; }
+.tab-content.active { display: block; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.section-title {
+  font-size: 1.8rem;
+  color: var(--emerald-deep);
+  margin-bottom: 0.5rem;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+
+.section-intro {
+  color: var(--ink-soft);
+  font-size: 1.05rem;
+  margin-bottom: 1.5rem;
+  font-style: italic;
+}
+
+.card {
+  background: var(--cream);
+  border-radius: var(--radius);
+  padding: 1.8rem;
+  box-shadow: var(--shadow);
+  margin-bottom: 1.5rem;
+  border: 1px solid rgba(15, 81, 50, 0.05);
+}
+
+.card h3 {
+  color: var(--emerald-deep);
+  font-size: 1.3rem;
+  margin-bottom: 0.8rem;
+  font-weight: 700;
+}
+
+.card p { margin-bottom: 0.9rem; }
+
+.card p:last-child { margin-bottom: 0; }
+
+.flow-diagram {
+  background: linear-gradient(135deg, var(--emerald-mist) 0%, var(--cream) 100%);
+  padding: 1.5rem;
+  border-radius: var(--radius);
+  margin: 1.2rem 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-size: 1.05rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.flow-step {
+  background: var(--cream);
+  padding: 0.8rem 1.2rem;
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow);
+  min-width: 110px;
+}
+
+.flow-arrow { color: var(--emerald); font-size: 1.5rem; font-weight: 800; }
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+  margin: 1.2rem 0;
+}
+
+.info-tile {
+  padding: 1.2rem;
+  border-radius: var(--radius);
+  background: var(--cream);
+  border-left: 4px solid var(--emerald);
+}
+
+.info-tile .icon {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+.info-tile h4 {
+  color: var(--emerald-deep);
+  margin-bottom: 0.4rem;
+  font-size: 1.05rem;
+}
+
+.info-tile p { font-size: 0.92rem; color: var(--ink-soft); }
+
+.info-tile.primary { border-color: var(--earth-clay); }
+.info-tile.secondary { border-color: var(--earth-stone); }
+.info-tile.tertiary { border-color: var(--emerald); }
+
+.real-world {
+  background: linear-gradient(135deg, #fef9e7 0%, #fbf9f4 100%);
+  padding: 1.2rem;
+  border-radius: var(--radius);
+  border-left: 4px solid var(--gold);
+  margin: 1.2rem 0;
+}
+
+.real-world strong {
+  color: var(--emerald-deep);
+  display: block;
+  margin-bottom: 0.4rem;
+  font-size: 1rem;
+}
+
+.exercise {
+  background: var(--cream);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  margin-bottom: 1.2rem;
+  border: 2px solid var(--emerald-mist);
+}
+
+.exercise-label {
+  display: inline-block;
+  background: var(--emerald);
+  color: var(--cream);
+  padding: 0.2rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  margin-bottom: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.exercise-question {
+  font-weight: 600;
+  font-size: 1.05rem;
+  margin-bottom: 1rem;
+  color: var(--ink);
+}
+
+.mc-options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 0.8rem;
+}
+
+.mc-btn {
+  background: var(--cream);
+  border: 2px solid var(--emerald-mist);
+  padding: 0.8rem 1rem;
+  text-align: left;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.95rem;
+  transition: all 0.2s;
+  color: var(--ink);
+}
+
+.mc-btn:hover:not(:disabled) {
+  border-color: var(--emerald);
+  background: var(--emerald-mist);
+}
+
+.mc-btn.correct {
+  background: #d4ede0;
+  border-color: var(--emerald);
+  color: var(--emerald-deep);
+  font-weight: 700;
+}
+
+.mc-btn.incorrect {
+  background: #f5d8d4;
+  border-color: var(--rose);
+  color: #8b3a30;
+}
+
+.mc-btn:disabled { cursor: not-allowed; opacity: 0.7; }
+
+.feedback {
+  margin-top: 0.8rem;
+  padding: 0.8rem 1rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.95rem;
+  display: none;
+}
+
+.feedback.show { display: block; }
+
+.feedback.hint {
+  background: #fef9e7;
+  border-left: 3px solid var(--gold);
+  color: #6b5510;
+}
+
+.feedback.success {
+  background: #d4ede0;
+  border-left: 3px solid var(--emerald);
+  color: var(--emerald-deep);
+}
+
+.feedback.reveal {
+  background: #e7eef5;
+  border-left: 3px solid #5a7a9a;
+  color: #2d4a6a;
+}
+
+textarea.open-answer {
+  width: 100%;
+  min-height: 100px;
+  padding: 0.8rem;
+  border: 2px solid var(--emerald-mist);
+  border-radius: var(--radius-sm);
+  font-family: inherit;
+  font-size: 0.95rem;
+  resize: vertical;
+  background: var(--cream);
+  color: var(--ink);
+}
+
+textarea.open-answer:focus { outline: none; border-color: var(--emerald); }
+
+.word-counter {
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+  margin-top: 0.4rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.word-counter.ok { color: var(--emerald); font-weight: 700; }
+
+.action-btn {
+  background: var(--emerald);
+  color: var(--cream);
+  border: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: var(--radius-sm);
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  margin-top: 0.6rem;
+  margin-right: 0.4rem;
+  transition: all 0.2s;
+}
+
+.action-btn:hover { background: var(--emerald-deep); transform: translateY(-1px); }
+.action-btn:disabled { background: #aaa; cursor: not-allowed; transform: none; }
+
+.action-btn.secondary {
+  background: var(--earth-stone);
+}
+
+.action-btn.secondary:hover { background: #6d5942; }
+
+.action-btn.outline {
+  background: transparent;
+  color: var(--emerald);
+  border: 2px solid var(--emerald);
+}
+
+.action-btn.outline:hover { background: var(--emerald); color: var(--cream); }
+
+.self-assess {
+  display: none;
+  margin-top: 0.8rem;
+  padding: 0.8rem;
+  background: var(--emerald-bg);
+  border-radius: var(--radius-sm);
+}
+
+.self-assess.show { display: block; }
+
+.self-assess strong { color: var(--emerald-deep); display: block; margin-bottom: 0.4rem; }
+
+.self-assess-btns { display: flex; gap: 0.5rem; margin-top: 0.6rem; }
+
+.self-btn {
+  padding: 0.4rem 1rem;
+  border-radius: var(--radius-sm);
+  border: 2px solid;
+  background: var(--cream);
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+
+.self-btn.good { color: var(--emerald); border-color: var(--emerald); }
+.self-btn.good:hover, .self-btn.good.selected { background: var(--emerald); color: var(--cream); }
+.self-btn.bad { color: var(--rose); border-color: var(--rose); }
+.self-btn.bad:hover, .self-btn.bad.selected { background: var(--rose); color: var(--cream); }
+
+.example-answer {
+  margin-top: 0.7rem;
+  padding: 0.9rem;
+  background: #fef9e7;
+  border-left: 3px solid var(--gold);
+  border-radius: var(--radius-sm);
+  font-size: 0.92rem;
+}
+
+.example-answer em {
+  color: var(--ink-soft);
+  font-size: 0.85rem;
+  display: block;
+  margin-bottom: 0.4rem;
+}
+
+#map-tab4, #map-tab8 {
+  height: 420px;
+  border-radius: var(--radius);
+  margin: 1rem 0;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--emerald-mist);
+}
+
+.chart-wrap {
+  background: var(--cream);
+  padding: 1.2rem;
+  border-radius: var(--radius);
+  margin: 1rem 0;
+  box-shadow: var(--shadow);
+}
+
+.chart-wrap canvas { max-height: 350px; }
+
+.compare-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+  background: var(--cream);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+
+.compare-table th {
+  background: var(--emerald);
+  color: var(--cream);
+  padding: 0.8rem;
+  text-align: left;
+  font-weight: 700;
+}
+
+.compare-table td {
+  padding: 0.8rem;
+  border-top: 1px solid var(--emerald-mist);
+}
+
+.compare-table tr:nth-child(even) td { background: var(--emerald-bg); }
+
+.drag-list {
+  list-style: none;
+  padding: 0;
+  margin: 1rem 0;
+}
+
+.drag-item {
+  background: var(--cream);
+  padding: 0.9rem 1rem;
+  margin-bottom: 0.5rem;
+  border: 2px solid var(--emerald-mist);
+  border-radius: var(--radius-sm);
+  cursor: grab;
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  transition: all 0.2s;
+  user-select: none;
+}
+
+.drag-item:hover { border-color: var(--emerald); }
+.drag-item.dragging { opacity: 0.4; }
+.drag-item.over { border-color: var(--gold); border-style: dashed; }
+.drag-item.correct-pos { background: #d4ede0; border-color: var(--emerald); }
+.drag-item.wrong-pos { background: #f5d8d4; border-color: var(--rose); }
+
+.drag-handle {
+  color: var(--ink-soft);
+  font-size: 1.2rem;
+  cursor: grab;
+}
+
+.match-area {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin: 1rem 0;
+}
+
+.match-col h4 {
+  color: var(--emerald-deep);
+  margin-bottom: 0.6rem;
+  font-size: 1rem;
+  text-align: center;
+}
+
+.match-source, .match-target {
+  background: var(--cream);
+  padding: 0.8rem;
+  margin-bottom: 0.5rem;
+  border: 2px solid var(--emerald-mist);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 0.92rem;
+}
+
+.match-source { user-select: none; }
+.match-source:hover, .match-target:hover { border-color: var(--emerald); }
+.match-source.selected { background: var(--emerald); color: var(--cream); border-color: var(--emerald-deep); }
+.match-source.matched, .match-target.matched { opacity: 0.95; }
+
+.match-target {
+  min-height: 60px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.match-target .target-label { font-weight: 700; color: var(--emerald-deep); }
+
+.matched-tag {
+  background: var(--emerald-mist);
+  padding: 0.3rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.matched-tag .remove-tag {
+  cursor: pointer;
+  color: var(--rose);
+  font-weight: 800;
+}
+
+.tab-nav {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--emerald-mist);
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.tab-nav-btn {
+  background: var(--emerald);
+  color: var(--cream);
+  border: none;
+  padding: 0.7rem 1.5rem;
+  border-radius: var(--radius-sm);
+  font-family: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.tab-nav-btn:hover:not(:disabled) { background: var(--emerald-deep); }
+.tab-nav-btn:disabled { background: #ccc; cursor: not-allowed; }
+
+.reset-section-btn {
+  background: transparent;
+  border: 1px solid var(--earth-stone);
+  color: var(--earth-stone);
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-sm);
+  font-family: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.reset-section-btn:hover { background: var(--earth-stone); color: var(--cream); }
+
+.timeline {
+  position: relative;
+  padding-left: 2rem;
+  margin: 1.5rem 0;
+}
+
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 8px;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--emerald-soft);
+  border-radius: 2px;
+}
+
+.timeline-item {
+  position: relative;
+  padding-bottom: 1.5rem;
+  padding-left: 1.5rem;
+}
+
+.timeline-item::before {
+  content: '';
+  position: absolute;
+  left: -28px;
+  top: 4px;
+  width: 18px;
+  height: 18px;
+  background: var(--emerald);
+  border-radius: 50%;
+  border: 3px solid var(--cream);
+  box-shadow: 0 0 0 2px var(--emerald);
+}
+
+.timeline-item h4 {
+  color: var(--emerald-deep);
+  margin-bottom: 0.3rem;
+}
+
+.timeline-item .year {
+  display: inline-block;
+  background: var(--gold);
+  color: var(--cream);
+  padding: 0.1rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  margin-bottom: 0.3rem;
+}
+
+.scenario-box {
+  background: linear-gradient(135deg, var(--emerald-mist) 0%, var(--cream) 100%);
+  padding: 1.5rem;
+  border-radius: var(--radius);
+  border-left: 5px solid var(--emerald);
+  margin: 1.2rem 0;
+  font-style: italic;
+  font-size: 1.05rem;
+  line-height: 1.7;
+}
+
+.scenario-box .narrator {
+  display: block;
+  font-style: normal;
+  font-weight: 700;
+  color: var(--emerald-deep);
+  margin-bottom: 0.6rem;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.final-score {
+  text-align: center;
+  font-size: 3rem;
+  font-weight: 800;
+  color: var(--emerald);
+  margin: 1rem 0;
+}
+
+.goals-list {
+  list-style: none;
+  padding: 0;
+}
+
+.goals-list li {
+  padding: 0.7rem 0.8rem;
+  margin-bottom: 0.5rem;
+  background: var(--emerald-bg);
+  border-radius: var(--radius-sm);
+  border-left: 4px solid var(--emerald-soft);
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+}
+
+.goals-list li::before {
+  content: '🎯';
+  font-size: 1.1rem;
+}
+
+#exitticket-text {
+  width: 100%;
+  height: 300px;
+  font-family: 'Courier New', monospace;
+  font-size: 0.85rem;
+  padding: 1rem;
+  border: 2px solid var(--emerald-mist);
+  border-radius: var(--radius-sm);
+  background: var(--cream);
+  margin-top: 0.5rem;
+}
+
+@media (max-width: 768px) {
+  .header-strip { padding: 1.5rem 1rem; }
+  .header-strip h1 { font-size: 1.5rem; }
+  .progress-sticky { padding: 0.8rem 1rem; }
+  .container { padding: 1.5rem 1rem; }
+  .progress-row { flex-wrap: wrap; }
+  .match-area { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<div class="header-strip">
+  <h1>🌍 De Economische Dimensie</h1>
+  <div class="subtitle">Aardrijkskunde · HAVO 2 · Een reis door werk, welvaart en wereldhandel</div>
+</div>
+
+<div class="progress-sticky">
+  <div class="progress-row">
+    <span class="progress-label">📊 Voortgang</span>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+    <span class="progress-percent" id="progressPercent">0%</span>
+    <span class="tab-counter" id="tabCounter">Onderdeel 1 van 9</span>
+    <button class="reset-all-btn" id="resetAllBtn">🗑️ Voortgang wissen</button>
+  </div>
+</div>
+
+<div class="tab-bar" id="tabBar">
+  <button class="tab-btn active" data-tab="0">1. Welkom <span class="check">✓</span></button>
+  <button class="tab-btn" data-tab="1">2. Sectoren <span class="check">✓</span></button>
+  <button class="tab-btn" data-tab="2">3. Welvaart <span class="check">✓</span></button>
+  <button class="tab-btn" data-tab="3">4. Handel <span class="check">✓</span></button>
+  <button class="tab-btn" data-tab="4">5. EU-kaart <span class="check">✓</span></button>
+  <button class="tab-btn" data-tab="5">6. Globalisering <span class="check">✓</span></button>
+  <button class="tab-btn" data-tab="6">7. Tijdlijn <span class="check">✓</span></button>
+  <button class="tab-btn" data-tab="7">8. Twee landen <span class="check">✓</span></button>
+  <button class="tab-btn" data-tab="8">9. Afsluiting <span class="check">✓</span></button>
+</div>
+
+<div class="container">
+
+<!-- ============ TAB 0: WELKOM ============ -->
+<div class="tab-content active" data-content="0">
+  <h2 class="section-title">✈️ Welkom op je economische reis</h2>
+  <p class="section-intro">Stel je voor: je vliegt door Europa en kijkt naar beneden. Wat zie je? Akkers, fabrieken, kantoren, havens. Allemaal economie.</p>
+
+  <div class="card">
+    <h3>🌱 Wat ga je leren?</h3>
+    <p>In dit lesonderdeel reis je door de <strong>economische dimensie</strong> van aardrijkskunde. Aardrijkskunde gaat niet alleen over bergen en rivieren — het gaat ook over hoe mensen in een gebied <strong>geld verdienen</strong>, hoe <strong>welvarend</strong> ze zijn, en hoe landen via handel met elkaar verbonden zijn.</p>
+    <p>Je gaat ontdekken waarom een Spaanse boer iets heel anders doet dan een Nederlandse softwareontwikkelaar, waarom jouw smartphone onderdelen uit twintig landen bevat, en waarom een T-shirt uit Bangladesh hier soms goedkoper is dan een T-shirt uit eigen land.</p>
+    <p>Aan het eind kun je deze kennis toepassen op twee landen die je zelf kiest — perfect als je later op vakantie gaat en je je afvraagt: "Waarom is dit land anders dan thuis?"</p>
+  </div>
+
+  <div class="card">
+    <h3>🎯 Leerdoelen</h3>
+    <ul class="goals-list">
+      <li>Ik kan uitleggen wat de economische dimensie inhoudt.</li>
+      <li>Ik kan de drie economische sectoren benoemen en voorbeelden geven bij elk.</li>
+      <li>Ik kan uitleggen wat welvaart is en hoe we die meten.</li>
+      <li>Ik kan beschrijven hoe landen met elkaar handel drijven en waarom dat van belang is.</li>
+      <li>Ik kan uitleggen wat globalisering is en welk effect het heeft op de economie van een land.</li>
+      <li>Ik kan de economische dimensie toepassen op mijn eigen twee landen.</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3>🧭 Wat is de economische dimensie eigenlijk?</h3>
+    <p>Aardrijkskundigen kijken naar gebieden vanuit verschillende <strong>dimensies</strong>: natuurlijk (klimaat, landschap), sociaal-cultureel (mensen, taal, religie), politiek (bestuur, grenzen) en <strong>economisch</strong> (geld, werk, handel). De economische dimensie helpt ons begrijpen waarom het ene land rijk is en het andere arm, waarom in sommige regio's veel fabrieken staan en in andere vooral kantoren.</p>
+    <p>Economie gaat over keuzes: wat wordt er geproduceerd, wie doet het werk, wie verdient eraan, en wie koopt het uiteindelijk? Op een vakantie merk je dit constant: in een Grieks bergdorp koop je olijfolie van de boer zelf, maar in Amsterdam haal je dezelfde olie uit een supermarkt waar het via tien tussenpersonen is binnengekomen.</p>
+    <p>In de komende onderdelen pluizen we dit uit: van de drie sectoren waarin alle werk in een land valt, tot de globale netwerken die jouw leven dagelijks vormgeven.</p>
+  </div>
+
+  <div class="real-world">
+    <strong>🌍 Herken je dit?</strong>
+    Denk aan de laatste keer dat je iets kocht — een drankje, een hoodie, een gameconsole. Achter dat product zit een héél economisch verhaal: een boer of fabriek, transport, winkels, btw, lonen. De economische dimensie maakt dat verhaal zichtbaar.
+  </div>
+
+  <div class="exercise">
+    <span class="exercise-label">💭 Open vraag</span>
+    <div class="exercise-question">Beschrijf in eigen woorden wat jij denkt dat "de economische dimensie" inhoudt. Geef minstens één voorbeeld uit je eigen leven (denk aan een aankoop, een vakantie, of werk van iemand die je kent). Min. 20 woorden.</div>
+    <textarea class="open-answer" data-q="t0_q1" placeholder="Schrijf je antwoord hier..."></textarea>
+    <div class="word-counter" data-counter="t0_q1">0 woorden</div>
+    <button class="action-btn" data-show-example="t0_q1">Toon voorbeeldantwoord</button>
+    <div class="example-answer" id="example-t0_q1" style="display:none;">
+      <em>Voorbeeldantwoord (ter vergelijking):</em>
+      De economische dimensie gaat over hoe mensen in een gebied geld verdienen, wat ze produceren, en hoe rijk of arm een land is. Bijvoorbeeld: toen ik laatst in Spanje was, zag ik veel olijfgaarden — daar verdienen mensen hun geld met landbouw. In Nederland zie je vooral kantoren en fabrieken.
+    </div>
+    <div class="self-assess" id="self-t0_q1">
+      <strong>Beoordeel je antwoord:</strong>
+      <div class="self-assess-btns">
+        <button class="self-btn good" data-self="t0_q1" data-val="good">Goed ✓</button>
+        <button class="self-btn bad" data-self="t0_q1" data-val="bad">Nog niet ✗</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="exercise">
+    <span class="exercise-label">✅ Multiple choice</span>
+    <div class="exercise-question">Welke van deze zaken hoort NIET bij de economische dimensie?</div>
+    <div class="mc-options" data-mc="t0_q2" data-correct="2" data-hint="De economische dimensie gaat over geld, werk en productie. Welke van deze opties gaat eigenlijk over iets heel anders?">
+      <button class="mc-btn" data-idx="0">De fabrieken in een regio</button>
+      <button class="mc-btn" data-idx="1">Het bbp per inwoner</button>
+      <button class="mc-btn" data-idx="2">De gemiddelde regenval per maand</button>
+      <button class="mc-btn" data-idx="3">De handelsbalans van een land</button>
+    </div>
+    <div class="feedback" data-fb="t0_q2"></div>
+  </div>
+
+  <div class="tab-nav">
+    <button class="reset-section-btn" data-reset-tab="0">↻ Reset dit onderdeel</button>
+    <button class="tab-nav-btn" data-nav="next">Volgende →</button>
+  </div>
+</div>
+
+<!-- ============ TAB 1: SECTOREN ============ -->
+<div class="tab-content" data-content="1">
+  <h2 class="section-title">🌾 De drie economische sectoren</h2>
+  <p class="section-intro">Alle werk in een land valt in één van drie hoofdsectoren. Welke domineert, zegt veel over hoe ontwikkeld een land is.</p>
+
+  <div class="card">
+    <h3>🏭 Hoe is een economie opgebouwd?</h3>
+    <p>Geografen verdelen alle economische activiteiten in een land in drie <strong>sectoren</strong>. Door te kijken hoeveel mensen in welke sector werken, kun je veel zeggen over hoe modern, hoe rijk en hoe ontwikkeld een land is.</p>
+    <p>De <strong>primaire sector</strong> bestaat uit alles waarbij mensen <em>direct grondstoffen uit de natuur halen</em>. Dat is de oudste vorm van werk: landbouw (boeren die graan, fruit of vee verbouwen), visserij (kotters die haring of tonijn vangen), mijnbouw (delven van kolen, ijzererts of goud) en bosbouw (hout kappen). In rijke geïndustrialiseerde landen werkt vaak maar 2-5% van de bevolking in deze sector. In armere landen kan dat oplopen tot meer dan de helft van alle werkenden.</p>
+    <p>De <strong>secundaire sector</strong> is de industrie en nijverheid: alles waarbij grondstoffen worden <em>omgezet in producten</em>. Een autofabriek maakt van staal, plastic en glas een complete auto. Een textielbedrijf maakt van katoen een T-shirt. Een bouwbedrijf maakt van baksteen en hout een huis. In de twintigste eeuw was deze sector dominant in West-Europa — denk aan de Ruhr in Duitsland of de scheepswerven in Engeland. Inmiddels is veel industrie verschoven naar landen met lagere lonen, zoals China, Vietnam en Bangladesh.</p>
+    <p>De <strong>tertiaire sector</strong> — ook wel de <em>dienstensector</em> — omvat alles waar mensen een dienst leveren in plaats van een product. Onderwijs, gezondheidszorg, transport, horeca, banken, winkels, kapperszaken, IT-bedrijven: allemaal tertiair. In moderne landen als Nederland werkt meer dan 70% van de bevolking in deze sector. Hoe meer dienstverlening, hoe rijker een land doorgaans is.</p>
+  </div>
+
+  <div class="info-grid">
+    <div class="info-tile primary">
+      <span class="icon">🌾</span>
+      <h4>Primaire sector</h4>
+      <p>Grondstoffen uit de natuur. Landbouw, visserij, mijnbouw, bosbouw.</p>
+    </div>
+    <div class="info-tile secondary">
+      <span class="icon">🏭</span>
+      <h4>Secundaire sector</h4>
+      <p>Grondstoffen omgezet tot producten. Industrie, bouw, nijverheid.</p>
+    </div>
+    <div class="info-tile tertiary">
+      <span class="icon">💼</span>
+      <h4>Tertiaire sector</h4>
+      <p>Diensten aan mensen. Onderwijs, zorg, horeca, transport, IT.</p>
+    </div>
+  </div>
+
+  <div class="flow-diagram">
+    <div class="flow-step">🌾 Tarwe<br><small>primair</small></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">🏭 Bakkerij<br><small>secundair</small></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">🥖 Café<br><small>tertiair</small></div>
+  </div>
+
+  <div class="real-world">
+    <strong>🌍 Herken je dit?</strong>
+    Op vakantie in een Frans dorpje zie je alle drie de sectoren naast elkaar: de boer met zijn druiven (primair), de wijnmaker (secundair) en het terrasje waar je de wijn drinkt (tertiair). In Nederland zie je dit veel minder duidelijk omdat de primaire sector hier zo klein is geworden.
+  </div>
+
+  <div class="exercise">
+    <span class="exercise-label">🔗 Koppelopdracht</span>
+    <div class="exercise-question">Sleep — eh, klik — elk beroep aan de juiste sector. Klik eerst op een beroep links, dan op de sector rechts. Eén sector kan meerdere beroepen bevatten!</div>
+    <div class="match-area" id="match-t1">
+      <div class="match-col">
+        <h4>Beroepen</h4>
+        <div class="match-source" data-match-id="m1" data-target="primair">🐟 Visser op de Noordzee</div>
+        <div class="match-source" data-match-id="m2" data-target="tertiair">👨‍⚕️ Huisarts in Utrecht</div>
+        <div class="match-source" data-match-id="m3" data-target="secundair">⚙️ Monteur in autofabriek</div>
+        <div class="match-source" data-match-id="m4" data-target="primair">🍇 Wijnboer in Bordeaux</div>
+        <div class="match-source" data-match-id="m5" data-target="tertiair">✈️ Reisleider in Rome</div>
+        <div class="match-source" data-match-id="m6" data-target="secundair">🏗️ Bouwvakker in Berlijn</div>
+      </div>
+      <div class="match-col">
+        <h4>Sectoren</h4>
+        <div class="match-target" data-target-id="primair"><span class="target-label">🌾 Primair</span></div>
+        <div class="match-target" data-target-id="secundair"><span class="target-label">🏭 Secundair</span></div>
+        <div class="match-target" data-target-id="tertiair"><span class="target-label">💼 Tertiair</span></div>
+      </div>
+    </div>
+    <button class="action-btn" data-match-check="t1">Controleer koppelingen</button>
+    <div class="feedback" data-fb="t1_match"></div>
+  </div>
+
+  <div class="exercise">
+    <span class="exercise-label">✅ Multiple choice</span>
+    <div class="exercise-question">In een land werkt 65% van de bevolking in de tertiaire sector, 25% in de secundaire en 10% in de primaire. Wat zegt dit waarschijnlijk over het land?</div>
+    <div class="mc-options" data-mc="t1_q1" data-correct="1" data-hint="Denk na: in welk type land werkt de meerderheid in dienstverlening?">
+      <button class="mc-btn" data-idx="0">Het is een ontwikkelingsland met veel landbouw</button>
+      <button class="mc-btn" data-idx="1">Het is een welvarend, geïndustrialiseerd land</button>
+      <button class="mc-btn" data-idx="2">Het land heeft geen industrie meer</button>
+      <button class="mc-btn" data-idx="3">Het land is volledig afhankelijk van toerisme</button>
+    </div>
+    <div class="feedback" data-fb="t1_q1"></div>
+  </div>
+
+  <div class="exercise">
+    <span class="exercise-label">💭 Open vraag</span>
+    <div class="exercise-question">Bedenk één beroep van iemand die je kent (familie, buren, ouders van vrienden) en leg uit in welke sector dat beroep valt en waarom. Min. 20 woorden.</div>
+    <textarea class="open-answer" data-q="t1_q2" placeholder="Schrijf hier..."></textarea>
+    <div class="word-counter" data-counter="t1_q2">0 woorden</div>
+    <button class="action-btn" data-show-example="t1_q2">Toon voorbeeldantwoord</button>
+    <div class="example-answer" id="example-t1_q2" style="display:none;">
+      <em>Voorbeeldantwoord:</em>
+      Mijn vader werkt als boekhouder bij een bedrijf. Dat is de tertiaire sector, want hij maakt geen product en haalt ook geen grondstoffen uit de natuur — hij levert een dienst (administratie en advies) aan andere bedrijven.
+    </div>
+    <div class="self-assess" id="self-t1_q2">
+      <strong>Beoordeel je antwoord:</strong>
+      <div class="self-assess-btns">
+        <button class="self-btn good" data-self="t1_q2" data-val="good">Goed ✓</button>
+        <button class="self-btn bad" data-self="t1_q2" data-val="bad">Nog niet ✗</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-nav">
+    <button class="reset-section-btn" data-reset-tab="1">↻ Reset dit onderdeel</button>
+    <div>
+      <button class="tab-nav-btn" data-nav="prev">← Vorige</button>
+      <button class="tab-nav-btn" data-nav="next">Volgende →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ TAB 2: WELVAART ============ -->
+<div class="tab-content" data-content="2">
+  <h2 class="section-title">💰 Welvaart meten</h2>
+  <p class="section-intro">Hoe weet je of een land "rijk" is? En zegt rijkdom ook iets over hoe goed mensen er leven?</p>
+
+  <div class="card">
+    <h3>📊 Wat is welvaart?</h3>
+    <p><strong>Welvaart</strong> is een maat voor hoe goed mensen in een land het materieel hebben — denk aan inkomen, bezittingen, woonomstandigheden. Het is niet hetzelfde als <em>welzijn</em> (geluk, gezondheid, veiligheid), al hangen die twee wel met elkaar samen.</p>
+    <p>De meestgebruikte maatstaf is het <strong>bruto binnenlands product</strong>, kortweg <strong>bbp</strong>. Dat is de totale waarde van alles wat een land in één jaar produceert — alle goederen én alle diensten samen. Maar een groot land heeft logischerwijs een hoger bbp dan een klein land. Daarom delen we het bbp door het aantal inwoners: het <strong>bbp per hoofd van de bevolking</strong>. Dat maakt eerlijk vergelijken mogelijk.</p>
+    <p>Toch heeft het bbp <strong>belangrijke beperkingen</strong>. Het zegt niets over de <em>verdeling</em>: in een land kan het bbp hoog zijn omdat een kleine elite enorm veel verdient, terwijl de meerderheid in armoede leeft. Daarom kijken geografen ook naar de <strong>Human Development Index (HDI)</strong>, die naast inkomen ook <em>onderwijs</em> (geletterdheid, schooljaren) en <em>levensverwachting</em> meet. De HDI loopt van 0 tot 1; landen met een score boven de 0,8 worden als "zeer hoog ontwikkeld" beschouwd.</p>
+  </div>
+
+  <div class="flow-diagram">
+    <div class="flow-step">💰 Inkomen</div>
+    <div class="flow-arrow">+</div>
+    <div class="flow-step">📚 Onderwijs</div>
+    <div class="flow-arrow">+</div>
+    <div class="flow-step">❤️ Levensverwachting</div>
+    <div class="flow-arrow">=</div>
+    <div class="flow-step">🌟 HDI</div>
+  </div>
+
+  <div class="card">
+    <h3>📈 Bbp per hoofd in Europa (2023, in dollars)</h3>
+    <p>Hieronder zie je het bbp per hoofd van enkele Europese landen. De verschillen zijn groot — en die verschillen vertellen een verhaal over geschiedenis, geografie en economische keuzes.</p>
+    <div class="chart-wrap">
+      <canvas id="chart-bbp"></canvas>
+    </div>
+  </div>
+
+  <div class="real-world">
+    <strong>🌍 Herken je dit?</strong>
+    Als je op vakantie naar Bulgarije gaat, merk je direct dat alles goedkoper is dan thuis. Een ijsje van € 1, een diner voor € 8. Dat komt doordat het bbp per hoofd én de lonen daar veel lager liggen dan in Nederland. Maar... is het leven daar dan slechter? Niet per se — daar zegt de HDI meer over.
+  </div>
+
+  <div class="exercise">
+    <span class="exercise-label">📊 Data-analyse</span>
+    <div class="exercise-question">Bekijk de grafiek hierboven. Welk land heeft het hoogste bbp per hoofd?</div>
+    <div class="mc-options" data-mc="t2_q1" data-correct="0" data-hint="Kijk welke balk het verst doorloopt naar rechts (of het hoogst is).">
+      <button class="mc-btn" data-idx="0">Luxemburg</button>
+      <button class="mc-btn" data-idx="1">Nederland</button>
+      <button class="mc-btn" data-idx="2">Duitsland</button>
+      <button class="mc-btn" data-idx="3">Bulgarije</button>
+    </div>
+    <div class="feedback" data-fb="t2_q1"></div>
+  </div>
+
+  <div class="exercise">
+    <span class="exercise-label">✅ Multiple choice</span>
+    <div class="exercise-question">Waarom is het bbp per hoofd alleen geen perfecte maatstaf voor hoe goed mensen leven?</div>
+    <div class="mc-options" data-mc="t2_q2" data-correct="2" data-hint="Wat zegt een gemiddelde nooit over: hoe iets verdeeld is over alle mensen?">
+      <button class="mc-btn" data-idx="0">Omdat bbp niet in euro's wordt gemeten</button>
+      <button class="mc-btn" data-idx="1">Omdat alleen Europese landen bbp gebruiken</button>
+      <button class="mc-btn" data-idx="2">Omdat het niets zegt over de verdeling van rijkdom</button>
+      <button class="mc-btn" data-idx="3">Omdat bbp altijd verkeerd wordt berekend</button>
+    </div>
+    <div class="feedback" data-fb="t2_q2"></div>
+  </div>
+
+  <div class="exercise">
+    <span class="exercise-label">💭 Open vraag</span>
+    <div class="exercise-question">Stel: een land heeft een hoog bbp per hoofd, maar een lage HDI. Wat zou daar aan de hand kunnen zijn? Geef minstens twee mogelijke verklaringen. Min. 20 woorden.</div>
+    <textarea class="open-answer" data-q="t2_q3" placeholder="Denk na en schrijf..."></textarea>
+    <div class="word-counter" data-counter="t2_q3">0 woorden</div>
+    <button class="action-btn" data-show-example="t2_q3">Toon voorbeeldantwoord</button>
+    <div class="example-answer" id="example-t2_q3" style="display:none;">
+      <em>Voorbeeldantwoord:</em>
+      De rijkdom kan oneerlijk verdeeld zijn — bijvoorbeeld bij oliestaten waar een kleine elite alles bezit en de rest weinig krijgt. Ook kan onderwijs en gezondheidszorg slecht zijn ondanks veel geld, waardoor mensen kort leven of weinig naar school gaan. Het bbp meet wel productie maar geen sociale ontwikkeling.
+    </div>
+    <div class="self-assess" id="self-t2_q3">
+      <strong>Beoordeel je antwoord:</strong>
+      <div class="self-assess-btns">
+        <button class="self-btn good" data-self="t2_q3" data-val="good">Goed ✓</button>
+        <button class="self-btn bad" data-self="t2_q3" data-val="bad">Nog niet ✗</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-nav">
+    <button class="reset-section-btn" data-reset-tab="2">↻ Reset dit onderdeel</button>
+    <div>
+      <button class="tab-nav-btn" data-nav="prev">← Vorige</button>
+      <button class="tab-nav-btn" data-nav="next">Volgende →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ TAB 3: HANDEL ============ -->
+<div class="tab-content" data-content="3">
+  <h2 class="section-title">🚢 Handel tussen landen</h2>
+  <p class="section-intro">Geen enkel land kan alles zelf maken. Daarom drijven landen handel — en daar wordt iedereen beter van.</p>
+
+  <div class="card">
+    <h3>🤝 Waarom handelen landen?</h3>
+    <p>Geen enkel land produceert alles wat zijn inwoners nodig hebben. Nederland heeft geen olievelden, dus halen we olie uit Noorwegen of het Midden-Oosten. Spanje heeft geen aardgas, dus importeert het. Tegelijkertijd kan elk land zich <em>specialiseren</em> in iets wat het bijzonder goed of goedkoop kan produceren. Dit principe heet <strong>comparatief voordeel</strong>.</p>
+    <p>Nederland heeft bijvoorbeeld vruchtbare grond, kennis van glastuinbouw en een gunstige ligging aan zee. Daarom is het wereldwijd een topspeler in <em>landbouwproducten</em> (tomaten, bloemen, kaas) en <em>chemische producten</em>. Noorwegen heeft enorme olie- en gasvelden in de Noordzee — die exporteren ze massaal. Duitsland heeft een sterke ingenieurstraditie en exporteert auto's, machines en chemicaliën over de hele wereld.</p>
+    <p>De verhouding tussen wat een land <strong>exporteert</strong> (verkoopt naar het buitenland) en <strong>importeert</strong> (koopt uit het buitenland) heet de <strong>handelsbalans</strong>. Exporteert een land méér dan het importeert, dan is er sprake van een <em>positieve handelsbalans</em> (er stroomt geld het land in). Andersom is er een <em>negatieve handelsbalans</em>. Nederland heeft al jaren een sterk positieve handelsbalans dankzij landbouwexport en de Rotterdamse haven.</p>
+    <p>Binnen Europa speelt de <strong>Europese Unie</strong> een grote rol als <em>vrijhandelszone</em>: tussen EU-landen worden geen invoerrechten geheven, waardoor handel makkelijker en goedkoper wordt. Daarom kun jij in de Albert Heijn zo goedkoop Italiaanse pasta, Spaanse sinaasappels en Duitse worst kopen.</p>
+  </div>
+
+  <div class="flow-diagram">
+    <div class="flow-step">🇳🇱 Tomaten</div>
+    <div class="flow-arrow">↔</div>
+    <div class="flow-step">🇩🇪 Auto's</div>
+    <div class="flow-arrow">↔</div>
+    <div class="flow-step">🇳🇴 Olie</div>
+    <div class="flow-arrow">↔</div>
+    <div class="flow-step">🇮🇹 Wijn</div>
+  </div>
+
+  <table class="compare-table">
+    <thead>
+      <tr><th>Land</th><th>Belangrijkste export</th><th>Reden (geografisch)</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>🇳🇱 Nederland</td><td>Tuinbouw, kaas, chemie</td><td>Vruchtbare delta, kennis, havens</td></tr>
+      <tr><td>🇳🇴 Noorwegen</td><td>Olie, gas, vis</td><td>Noordzee-bodem, lange kust</td></tr>
+      <tr><td>🇩🇪 Duitsland</td><td>Auto's, machines</td><td>Industriële traditie, ingenieurs</td></tr>
+      <tr><td>🇮🇹 Italië</td><td>Mode, voedsel, design</td><td>Cultuur, klimaat, vakmanschap</td></tr>
+    </tbody>
+  </table>
+
+  <div class="real-world">
+    <strong>🌍 Herken je dit?</strong>
+    Kijk eens in je koelkast of in de supermarkt. Hoeveel producten komen uit het buitenland? Yoghurt uit Griekenland, koekjes uit België, fruit uit Spanje. Dat is comparatief voordeel in actie — en het kan dankzij de EU bijna zonder extra kosten over de grens.
+  </div>
+
+  <div class="exercise">
+    <span class="exercise-label">✅ Multiple choice</span>
+    <div class="exercise-question">Wat betekent een <em>positieve</em> handelsbalans?</div>
+    <div class="mc-options" data-mc="t3_q1" data-correct="1" data-hint="Positief = meer naar buiten of meer naar binnen? Wat brengt geld het land in?">
+      <button class="mc-btn" data-idx="0">Het land importeert meer dan het exporteert</button>
+      <button class="mc-btn" data-idx="1">Het land exporteert meer dan het importeert</button>
+      <button class="mc-btn" data-idx="2">Het land koopt veel uit andere landen</button>
+      <button class="mc-btn" data-idx="3">Het land heeft geen handel met buurlanden</button>
+    </div>
+    <div class="feedback" data-fb="t3_q1"></div>
+  </div>
+
+  <div class="exercise">
+    <span class="exercise-label">💭 Open vraag</span>
+    <div class="exercise-question">Wat is het <em>comparatief voordeel</em> van Nederland? Leg uit waarom Nederland goed is in landbouwexport, ondanks dat het een klein land is. Min. 20 woorden.</div>
+    <textarea class="open-answer" data-q="t3_q2" placeholder="..."></textarea>
+    <div class="word-counter" data-counter="t3_q2">0 woorden</div>
+    <button class="action-btn" data-show-example="t3_q2">Toon voorbeeldantwoord</button>
+    <div class="example-answer" id="example-t3_q2" style="display:none;">
+      <em>Voorbeeldantwoord:</em>
+      Nederland heeft heel vruchtbare delta-grond, veel kennis van glastuinbouw en moderne technologie. Ondanks dat het land klein is, halen boeren enorme opbrengsten per hectare. Bovendien liggen de havens van Rotterdam en Schiphol gunstig voor snelle export naar de rest van Europa, dus tomaten en bloemen liggen binnen 24 uur in Berlijn of Parijs.
+    </div>
+    <div class="self-assess" id="self-t3_q2">
+      <strong>Beoordeel je antwoord:</strong>
+      <div class="self-assess-btns">
+        <button class="self-btn good" data-self="t3_q2" data-val="good">Goed ✓</button>
+        <button class="self-btn bad" data-self="t3_q2" data-val="bad">Nog niet ✗</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="exercise">
+    <span class="exercise-label">📊 Data-analyse</span>
+    <div class="exercise-question">Hieronder zie je een grafiek van de Nederlandse export per categorie. Welke categorie levert het meeste op?</div>
+    <div class="chart-wrap">
+      <canvas id="chart-export"></canvas>
+    </div>
+    <div class="mc-options" data-mc="t3_q3" data-correct="0" data-hint="Welke balk is het langst?">
+      <button class="mc-btn" data-idx="0">Machines & elektronica</button>
+      <button class="mc-btn" data-idx="1">Voedsel & landbouw</button>
+      <button class="mc-btn" data-idx="2">Chemische producten</button>
+      <button class="mc-btn" data-idx="3">Brandstoffen</button>
+    </div>
+    <div class="feedback" data-fb="t3_q3"></div>
+  </div>
+
+  <div class="tab-nav">
+    <button class="reset-section-btn" data-reset-tab="3">↻ Reset dit onderdeel</button>
+    <div>
+      <button class="tab-nav-btn" data-nav="prev">← Vorige</button>
+      <button class="tab-nav-btn" data-nav="next">Volgende →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ TAB 4: EU KAART ============ -->
+<div class="tab-content" data-content="4">
+  <h2 class="section-title">🗺️ Europa op de kaart</h2>
+  <p class="section-intro">Klik op de markers om te zien waar belangrijke economische activiteiten plaatsvinden in Europa.</p>
+
+  <div class="card">
+    <h3>📍 Economische hotspots in Europa</h3>
+    <p>Europa is een lappendeken van economieën. In het noorden vind je olie- en gasrijkdom (Noorwegen), in het midden zware industrie (Duitsland), in het zuiden landbouw en toerisme (Spanje, Italië, Griekenland), en in het oosten goedkope productielocaties (Polen, Tsjechië). Deze geografische spreiding is geen toeval: ze komt voort uit klimaat, grondstoffen, bevolkingsdichtheid en historische ontwikkeling.</p>
+    <p>Vrijhandel binnen de EU zorgt ervoor dat al deze regio's elkaar aanvullen. Een Pool die in een autofabriek werkt, maakt onderdelen die in Duitsland worden gemonteerd en als Volkswagen in Spanje worden verkocht. Dat is de moderne Europese economie in een notendop.</p>
+    <p>Klik op de groene markers om per stad of regio te lezen wat de economische bijzonderheid is. Probeer patronen te zien: waar staan de havens? Waar de industrie? Waar de toerismehoofdsteden?</p>
+  </div>
+
+  <div id="map-tab4"></div>
+
+  <div class="real-world">
+    <strong>🌍 Herken je dit?</strong>
+    Op een Europese roadtrip zie je deze verschillen letterlijk voorbijkomen: in Noord-Italië rijd je langs autofabrieken, in Toscane langs wijngaarden, in Beieren langs hightech-bedrijven. Aardrijkskunde en economie hangen letterlijk in het landschap.
+  </div>
+
+  <div class="exercise">
+    <span class="exercise-label">🗺️ Kaart-analyse</span>
+    <div class="exercise-question">Bekijk de kaart. Welke stad is bekend om de grootste haven van Europa?</div>
+    <div class="mc-options" data-mc="t4_q1" data-correct="1" data-hint="De grootste haven van Europa ligt in Nederland, in een grote havenstad.">
+      <button class="mc-btn" data-idx="0">Hamburg</button>
+      <button class="mc-btn" data-idx="1">Rotterdam</button>
+      <button class="mc-btn" data-idx="2">Antwerpen</button>
+      <button class="mc-btn" data-idx="3">Marseille</button>
+    </div>
+    <div class="feedback" data-fb="t4_q1"></div>
+  </div>
+
+  <div class="exercise">
+    <span class="exercise-label">💭 Open vraag</span>
+    <div class="exercise-question">Kies één marker op de kaart die je het interessantst vindt. Beschrijf in je eigen woorden waarom die plek economisch belangrijk is voor Europa. Min. 20 woorden.</div>
+    <textarea class="open-answer" data-q="t4_q2" placeholder="..."></textarea>
+    <div class="word-counter" data-counter="t4_q2">0 woorden</div>
+    <button class="action-btn" data-show-example="t4_q2">Toon voorbeeldantwoord</button>
+    <div class="example-answer" id="example-t4_q2" style="display:none;">
+      <em>Voorbeeldantwoord:</em>
+      Ik vind Rotterdam interessant. Het is de grootste haven van Europa en het toegangspunt voor goederen die naar heel West-Europa gaan. Veel olie, containers en grondstoffen komen hier binnen en gaan via de Rijn verder naar Duitsland. Zonder Rotterdam zou de Europese handel veel langzamer en duurder zijn.
+    </div>
+    <div class="self-assess" id="self-t4_q2">
+      <strong>Beoordeel je antwoord:</strong>
+      <div class="self-assess-btns">
+        <button class="self-btn good" data-self="t4_q2" data-val="good">Goed ✓</button>
+        <button class="self-btn bad" data-self="t4_q2" data-val="bad">Nog niet ✗</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-nav">
+    <button class="reset-section-btn" data-reset-tab="4">↻ Reset dit onderdeel</button>
+    <div>
+      <button class="tab-nav-btn" data-nav="prev">← Vorige</button>
+      <button class="tab-nav-btn" data-nav="next">Volgende →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ TAB 5: GLOBALISERING ============ -->
+<div class="tab-content" data-content="5">
+  <h2 class="section-title">🌐 Globalisering</h2>
+  <p class="section-intro">De wereld is kleiner dan ooit. Wat betekent dat voor jou, voor Nederland en voor de rest van de wereld?</p>
+
+  <div class="card">
+    <h3>🌍 Wat is globalisering?</h3>
+    <p><strong>Globalisering</strong> is het proces waarbij landen, bedrijven en mensen wereldwijd <em>steeds sterker met elkaar verbonden raken</em>. Dat gebeurt via handel, communicatie (internet!) en transport. Door betere technologie en goedkopere transportmiddelen — vooral containerschepen en vliegtuigen — zijn producten, mensen en ideeën mobieler dan ooit.</p>
+    <p>Een voorbeeld: jouw smartphone bevat onderdelen uit tientallen landen. De chip uit Taiwan, het scherm uit Zuid-Korea, lithium uit Chili, ontworpen in Californië, in elkaar gezet in China, verkocht in Nederland. Een spijkerbroek wordt ontworpen in Italië, het katoen komt uit India, gemaakt in Bangladesh, en jij koopt 'm bij de H&M in Arnhem. Dit is alleen mogelijk dankzij globalisering.</p>
+    <p>Voor <strong>rijke landen</strong> brengt globalisering veel voordelen: goedkopere producten in de winkel, nieuwe afzetmarkten voor bedrijven, en economische groei. Maar er zijn ook nadelen: industriële werkgelegenheid verdwijnt naar landen met lagere lonen (denk aan textielfabrieken die uit Twente naar China verhuisden), en kleine lokale bedrijven kunnen moeilijk concurreren met enorme multinationals zoals Amazon of Zara.</p>
+    <p>Voor <strong>armere landen</strong> kan globalisering kansen bieden — denk aan de opkomst van China, dat in 30 jaar van armoede naar wereldmacht groeide. Maar het kan ook leiden tot <em>afhankelijkheid</em> van buitenlandse bedrijven, lage lonen en slechte arbeidsomstandigheden in fabrieken.</p>
+    <p>Binnen Europa zie je het effect duidelijk: West-Europese landen zijn overgestapt op een <em>kenniseconomie</em> (financiën, IT, design), terwijl Oost-Europese landen aantrekkelijk zijn als productielocatie vanwege lagere loonkosten. Een directe uitkomst van globalisering en de mondiale arbeidsverdeling.</p>
+  </div>
+
+  <div class="info-grid">
+    <div class="info-tile">
+      <span class="icon">📱</span>
+      <h4>Voordelen rijke landen</h4>
+      <p>Goedkopere producten, nieuwe markten, economische groei.</p>
+    </div>
+    <div class="info-tile" style="border-color: var(--rose);">
+      <span class="icon">🏚️</span>
+      <h4>Nadelen rijke landen</h4>
+      <p>Verlies van industriële banen, kleine winkels weggeconcurreerd.</p>
+    </div>
+    <div class="info-tile">
+      <span class="icon">📈</span>
+      <h4>Voordelen arme landen</h4>
+      <p>Werkgelegenheid, economische groei, technologie.</p>
+    </div>
+    <div class="info-tile" style="border-color: var(--rose);">
+      <span class="icon">⚠️</span>
+      <h4>Nadelen arme landen</h4>
+      <p>Lage lonen, slechte arbeidsomstandigheden, afhankelijkheid.</p>
+    </div>
+  </div>
+
+  <div class="real-world">
+    <strong>🌍 Herken je dit?</strong>
+    Kijk eens op het label in je trui of T-shirt. Waar is het gemaakt? Bangladesh? Vietnam? Turkije? Dat is globalisering: het kledingstuk heeft waarschijnlijk een grotere reis gemaakt dan jij ooit zult maken.
+  </div>
+
+  <div class="exercise">
+    <span class="exercise-label">🔄 Sorteeropdracht</span>
+    <div class="exercise-question">Sleep de stappen in de juiste volgorde — hoe ontstaat een T-shirt in jouw kast?</div>
+    <ul class="drag-list" id="drag-t5">
+      <li class="drag-item" draggable="true" data-order="2"><span class="drag-handle">⋮⋮</span> Naaister in Bangladesh maakt T-shirt</li>
+      <li class="drag-item" draggable="true" data-order="0"><span class="drag-handle">⋮⋮</span> Katoen wordt geoogst in India</li>
+      <li class="drag-item" draggable="true" data-order="4"><span class="drag-handle">⋮⋮</span> Jij koopt het T-shirt bij H&M in Nederland</li>
+      <li class="drag-item" draggable="true" data-order="1"><span class="drag-handle">⋮⋮</span> Katoen wordt verwerkt tot stof</li>
+      <li class="drag-item" draggable="true" data-order="3"><span class="drag-handle">⋮⋮</span> Containerschip vaart naar Rotterdam</li>
+    </ul>
+    <button class="action-btn" data-drag-check="t5">Controleer volgorde</button>
+    <div class="feedback" data-fb="t5_drag"></div>
+  </div>
+
+  <div class="exercise">
+    <span class="exercise-label">✅ Multiple choice</span>
+    <div class="exercise-question">Waarom verhuizen veel fabrieken van West-Europa naar Oost-Europa of Azië?</div>
+    <div class="mc-options" data-mc="t5_q1" data-correct="2" data-hint="Wat is voor een bedrijf het verschil tussen een Duitse en een Vietnamese fabrieksarbeider qua kosten?">
+      <button class="mc-btn" data-idx="0">Het klimaat is daar beter voor productie</button>
+      <button class="mc-btn" data-idx="1">Daar is meer ruimte voor grote fabrieken</button>
+      <button class="mc-btn" data-idx="2">De lonen zijn daar veel lager</button>
+      <button class="mc-btn" data-idx="3">De producten zijn daar beter</button>
+    </div>
+    <div class="feedback" data-fb="t5_q1"></div>
+  </div>
+
+  <div class="exercise">
+    <span class="exercise-label">💭 Open vraag</span>
+    <div class="exercise-question">Noem één voordeel én één nadeel van globalisering uit jouw eigen leefwereld. Denk aan kleding, eten, technologie of vakanties. Min. 20 woorden.</div>
+    <textarea class="open-answer" data-q="t5_q2" placeholder="..."></textarea>
+    <div class="word-counter" data-counter="t5_q2">0 woorden</div>
+    <button class="action-btn" data-show-example="t5_q2">Toon voorbeeldantwoord</button>
+    <div class="example-answer" id="example-t5_q2" style="display:none;">
+      <em>Voorbeeldantwoord:</em>
+      Voordeel: ik kan goedkoop een nieuwe hoodie kopen bij Primark omdat die in Bangladesh wordt gemaakt. Nadeel: de naaisters daar verdienen heel weinig en werken in slechte omstandigheden. Ook zijn er minder kledingfabrieken in Nederland zelf, dus minder banen in de industrie hier.
+    </div>
+    <div class="self-assess" id="self-t5_q2">
+      <strong>Beoordeel je antwoord:</strong>
+      <div class="self-assess-btns">
+        <button class="self-btn good" data-self="t5_q2" data-val="good">Goed ✓</button>
+        <button class="self-btn bad" data-self="t5_q2" data-val="bad">Nog niet ✗</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-nav">
+    <button class="reset-section-btn" data-reset-tab="5">↻ Reset dit onderdeel</button>
+    <div>
+      <button class="tab-nav-btn" data-nav="prev">← Vorige</button>
+      <button class="tab-nav-btn" data-nav="next">Volgende →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ TAB 6: TIJDLIJN ============ -->
+<div class="tab-content" data-content="6">
+  <h2 class="section-title">📜 De economische geschiedenis van Europa</h2>
+  <p class="section-intro">Hoe is Europa van een agrarische naar een diensten-economie veranderd? Een korte tijdreis.</p>
+
+  <div class="card">
+    <h3>⏳ Een ontwikkelingstraject in vogelvlucht</h3>
+    <p>De economische dimensie van een land is niet statisch — het verandert constant. Tweehonderd jaar geleden werkte het overgrote deel van Europa nog op het land. Vandaag werken de meesten in een kantoor of winkel. Hoe is dat zo gekomen?</p>
+    <p>Hieronder zie je een tijdlijn van vijf grote momenten die de Europese economie hebben gevormd. Lees ze door — ze laten zien hoe de drie sectoren in de loop van de tijd van plaats wisselden.</p>
+  </div>
+
+  <div class="timeline">
+    <div class="timeline-item">
+      <span class="year">~1800</span>
+      <h4>🌾 Agrarische economie</h4>
+      <p>De meerderheid van de Europeanen werkt op het land. Primaire sector domineert. Eten is duur, mensen zijn arm, levensverwachting laag.</p>
+    </div>
+    <div class="timeline-item">
+      <span class="year">~1850</span>
+      <h4>🏭 Industriële Revolutie</h4>
+      <p>Stoommachines, fabrieken en kolen veranderen alles. Mensen trekken naar steden om in fabrieken te werken. Secundaire sector groeit explosief.</p>
+    </div>
+    <div class="timeline-item">
+      <span class="year">~1950</span>
+      <h4>🚗 Hoogtijdagen industrie</h4>
+      <p>Wederopbouw na WO2. Auto-, staal- en chemie-industrie domineert West-Europa. Welvaart stijgt, middenklasse ontstaat.</p>
+    </div>
+    <div class="timeline-item">
+      <span class="year">~1990</span>
+      <h4>💼 Diensteneconomie</h4>
+      <p>Industrie verhuist naar Azië. Banken, IT, gezondheidszorg en onderwijs nemen het over. Tertiaire sector wordt dominant.</p>
+    </div>
+    <div class="timeline-item">
+      <span class="year">~2020</span>
+      <h4>🌐 Kennis- en globaliseringsfase</h4>
+      <p>Wereldwijde productieketens, online werk, kunstmatige intelligentie. Nederland leeft van kennis, design, logistiek en handel.</p>
+    </div>
+  </div>
+
+  <div class="real-world">
+    <strong>🌍 Herken je dit?</strong>
+    Vraag het je opa of oma: wat deden hun ouders voor werk? Vaak nog in de fabriek of op het land. En jouw ouders? Veel waarschijnlijker in een kantoor of school. Jouw werk later? Misschien iets dat nu nog niet eens bestaat.
+  </div>
+
+  <div class="exercise">
+    <span class="exercise-label">📜 Tijdlijn-analyse</span>
+    <div class="exercise-question">Welke sector was rond 1850 in opkomst door de Industriële Revolutie?</div>
+    <div class="mc-options" data-mc="t6_q1" data-correct="1" data-hint="Industriële Revolutie = fabrieken en machines. In welke sector vallen die?">
+      <button class="mc-btn" data-idx="0">Primaire sector</button>
+      <button class="mc-btn" data-idx="1">Secundaire sector</button>
+      <button class="mc-btn" data-idx="2">Tertiaire sector</button>
+      <button class="mc-btn" data-idx="3">Geen — alle sectoren krompen</button>
+    </div>
+    <div class="feedback" data-fb="t6_q1"></div>
+  </div>
+
+  <div class="exercise">
+    <span class="exercise-label">📊 Grafiekanalyse</span>
+    <div class="exercise-question">Bekijk de grafiek hieronder. Wat valt je op aan de groei van de tertiaire sector tussen 1900 en 2020?</div>
+    <div class="chart-wrap">
+      <canvas id="chart-sectoren"></canvas>
+    </div>
+    <div class="mc-options" data-mc="t6_q2" data-correct="2" data-hint="Vergelijk hoe groot de tertiaire sector was rond 1900 versus 2020.">
+      <button class="mc-btn" data-idx="0">Hij is altijd ongeveer hetzelfde gebleven</button>
+      <button class="mc-btn" data-idx="1">Hij is langzaam afgenomen</button>
+      <button class="mc-btn" data-idx="2">Hij is enorm gegroeid en nu de grootste sector</button>
+      <button class="mc-btn" data-idx="3">Hij was rond 1950 het grootst en kromp daarna</button>
+    </div>
+    <div class="feedback" data-fb="t6_q2"></div>
+  </div>
+
+  <div class="exercise">
+    <span class="exercise-label">💭 Open vraag</span>
+    <div class="exercise-question">Wat zou jouw beroep later kunnen zijn, en in welke sector valt dat? Waarom denk je dat in jouw generatie nog meer mensen in de tertiaire sector werken? Min. 20 woorden.</div>
+    <textarea class="open-answer" data-q="t6_q3" placeholder="..."></textarea>
+    <div class="word-counter" data-counter="t6_q3">0 woorden</div>
+    <button class="action-btn" data-show-example="t6_q3">Toon voorbeeldantwoord</button>
+    <div class="example-answer" id="example-t6_q3" style="display:none;">
+      <em>Voorbeeldantwoord:</em>
+      Ik wil graag reisleider of game designer worden, dat is allebei tertiaire sector (diensten). In mijn generatie werken nog meer mensen in diensten omdat fabrieken steeds vaker geautomatiseerd zijn of naar het buitenland verplaatst. Tegelijk komen er steeds meer banen in IT, gezondheidszorg en toerisme bij.
+    </div>
+    <div class="self-assess" id="self-t6_q3">
+      <strong>Beoordeel je antwoord:</strong>
+      <div class="self-assess-btns">
+        <button class="self-btn good" data-self="t6_q3" data-val="good">Goed ✓</button>
+        <button class="self-btn bad" data-self="t6_q3" data-val="bad">Nog niet ✗</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-nav">
+    <button class="reset-section-btn" data-reset-tab="6">↻ Reset dit onderdeel</button>
+    <div>
+      <button class="tab-nav-btn" data-nav="prev">← Vorige</button>
+      <button class="tab-nav-btn" data-nav="next">Volgende →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ TAB 7: TWEE LANDEN (CASE) ============ -->
+<div class="tab-content" data-content="7">
+  <h2 class="section-title">🇳🇱🇪🇸 Toepassen: Nederland vs Spanje</h2>
+  <p class="section-intro">Een verhalende casus. Pak alle kennis erbij en denk mee met Lara.</p>
+
+  <div class="scenario-box">
+    <span class="narrator">📖 Het verhaal</span>
+    Lara (HAVO 2) gaat met haar familie op zomervakantie naar Andalusië, in het zuiden van Spanje. Ze rijden door enorme olijfgaarden, langs uitgestrekte serres met tomaten, en stoppen bij dorpjes waar haar vader euro's pint die hier verbazend ver gaan. "Waarom is alles zo goedkoop hier?" vraagt ze zich af. "En waarom werken hier zoveel mensen op het land, terwijl thuis bijna niemand boer is?" Ze besluit het uit te zoeken — en dat doe jij met haar mee.
+  </div>
+
+  <div class="card">
+    <h3>📊 Nederland vs Spanje — de cijfers</h3>
+    <p>Hieronder zie je een vergelijking van beide landen op vier economische indicatoren. Bestudeer de cijfers goed: ze vertellen het verhaal van twee verschillende economieën binnen dezelfde EU.</p>
+    <table class="compare-table">
+      <thead>
+        <tr><th>Indicator</th><th>🇳🇱 Nederland</th><th>🇪🇸 Spanje</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Bbp per hoofd (USD, 2023)</td><td>~$ 64.000</td><td>~$ 33.000</td></tr>
+        <tr><td>HDI (2023)</td><td>0,946</td><td>0,911</td></tr>
+        <tr><td>% in primaire sector</td><td>~2%</td><td>~4%</td></tr>
+        <tr><td>% in secundaire sector</td><td>~16%</td><td>~20%</td></tr>
+        <tr><td>% in tertiaire sector</td><td>~82%</td><td>~76%</td></tr>
+        <tr><td>Belangrijkste export</td><td>Machines, chemie, tuinbouw</td><td>Auto's, voedsel, mode</td></tr>
+        <tr><td>Belangrijke inkomstenbron</td><td>Handel, logistiek, kennis</td><td>Toerisme, landbouw, industrie</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div id="map-tab8"></div>
+
+  <div class="real-world">
+    <strong>🌍 Herken je dit?</strong>
+    Heb jij ooit een vakantie gehad waar alles goedkoper of juist duurder was dan thuis? Dat is direct het bbp en het loonniveau dat je voelt — economie is geen abstract begrip, je merkt het op je terras met een ijsje van € 1,20.
+  </div>
+
+  <div class="exercise">
+    <span class="exercise-label">✅ Multiple choice</span>
+    <div class="exercise-question">Op basis van de tabel: in welk land is de tertiaire sector groter — en wat zegt dat over welvaart?</div>
+    <div class="mc-options" data-mc="t7_q1" data-correct="0" data-hint="Vergelijk de percentages tertiaire sector. Hoger % tertiair = meer welvaart in de regel.">
+      <button class="mc-btn" data-idx="0">Nederland — meer dienstverlening hangt samen met hogere welvaart</button>
+      <button class="mc-btn" data-idx="1">Spanje — meer toerisme betekent meer rijkdom</button>
+      <button class="mc-btn" data-idx="2">Beide gelijk — geen verschil in welvaart</button>
+      <button class="mc-btn" data-idx="3">Geen van beide — de primaire sector telt niet</button>
+    </div>
+    <div class="feedback" data-fb="t7_q1"></div>
+  </div>
+
+  <div class="exercise">
+    <span class="exercise-label">💭 Open vraag</span>
+    <div class="exercise-question">Help Lara: leg in je eigen woorden uit waarom alles in Spanje goedkoper voelt dan in Nederland. Gebruik minstens twee economische begrippen uit deze les (bijv. bbp, lonen, sector, comparatief voordeel). Min. 20 woorden.</div>
+    <textarea class="open-answer" data-q="t7_q2" placeholder="..."></textarea>
+    <div class="word-counter" data-counter="t7_q2">0 woorden</div>
+    <button class="action-btn" data-show-example="t7_q2">Toon voorbeeldantwoord</button>
+    <div class="example-answer" id="example-t7_q2" style="display:none;">
+      <em>Voorbeeldantwoord:</em>
+      Het bbp per hoofd in Spanje is ongeveer de helft van dat in Nederland. Daardoor zijn de lonen lager en kunnen restaurants en winkels lagere prijzen vragen. Bovendien heeft Spanje een groter aandeel in de primaire sector (landbouw), en lokale producten zijn daardoor goedkoper. Comparatief voordeel zorgt dat olijfolie of fruit hier veel minder kost dan bij ons.
+    </div>
+    <div class="self-assess" id="self-t7_q2">
+      <strong>Beoordeel je antwoord:</strong>
+      <div class="self-assess-btns">
+        <button class="self-btn good" data-self="t7_q2" data-val="good">Goed ✓</button>
+        <button class="self-btn bad" data-self="t7_q2" data-val="bad">Nog niet ✗</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="exercise">
+    <span class="exercise-label">💭 Open vraag (toepassen)</span>
+    <div class="exercise-question">Stel: Lara wil iets terugbrengen voor haar oma uit Spanje — iets dat typisch Spaans is en goedkoper is dan in Nederland. Geef één voorbeeld én leg uit waarom Spanje hier een comparatief voordeel heeft. Min. 20 woorden.</div>
+    <textarea class="open-answer" data-q="t7_q3" placeholder="..."></textarea>
+    <div class="word-counter" data-counter="t7_q3">0 woorden</div>
+    <button class="action-btn" data-show-example="t7_q3">Toon voorbeeldantwoord</button>
+    <div class="example-answer" id="example-t7_q3" style="display:none;">
+      <em>Voorbeeldantwoord:</em>
+      Lara koopt een fles olijfolie. Spanje heeft een comparatief voordeel: het klimaat is warm en droog, perfect voor olijfbomen, en er zijn enorme olijfgaarden. Daardoor is olijfolie er goedkoop en van topkwaliteit. In Nederland kunnen olijven niet groeien, dus moeten wij importeren — wat het hier duurder maakt.
+    </div>
+    <div class="self-assess" id="self-t7_q3">
+      <strong>Beoordeel je antwoord:</strong>
+      <div class="self-assess-btns">
+        <button class="self-btn good" data-self="t7_q3" data-val="good">Goed ✓</button>
+        <button class="self-btn bad" data-self="t7_q3" data-val="bad">Nog niet ✗</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-nav">
+    <button class="reset-section-btn" data-reset-tab="7">↻ Reset dit onderdeel</button>
+    <div>
+      <button class="tab-nav-btn" data-nav="prev">← Vorige</button>
+      <button class="tab-nav-btn" data-nav="next">Volgende →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ TAB 8: AFSLUITING ============ -->
+<div class="tab-content" data-content="8">
+  <h2 class="section-title">🎓 Afsluiting & reflectie</h2>
+  <p class="section-intro">Goed werk! Tijd om terug te kijken op wat je geleerd hebt.</p>
+
+  <div class="card">
+    <h3>📊 Jouw score</h3>
+    <div class="final-score" id="finalScore">0%</div>
+    <p style="text-align:center; color: var(--ink-soft);">Aantal voltooide opdrachten over alle onderdelen</p>
+  </div>
+
+  <div class="card">
+    <h3>🎯 Je leerdoelen — heb je ze gehaald?</h3>
+    <ul class="goals-list">
+      <li>Ik kan uitleggen wat de economische dimensie inhoudt.</li>
+      <li>Ik kan de drie economische sectoren benoemen en voorbeelden geven bij elk.</li>
+      <li>Ik kan uitleggen wat welvaart is en hoe we die meten.</li>
+      <li>Ik kan beschrijven hoe landen met elkaar handel drijven en waarom dat van belang is.</li>
+      <li>Ik kan uitleggen wat globalisering is en welk effect het heeft op de economie van een land.</li>
+      <li>Ik kan de economische dimensie toepassen op mijn eigen twee landen.</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3>💭 Reflectievragen</h3>
+
+    <div class="exercise" style="border:none; padding:0; margin-top:1rem;">
+      <div class="exercise-question">1. Wat vond je het lastigst en waarom?</div>
+      <textarea class="open-answer" data-q="reflect_1" placeholder="..."></textarea>
+      <div class="word-counter" data-counter="reflect_1">0 woorden</div>
+      <div class="self-assess show" id="self-reflect_1" style="background:transparent; padding-top:0.5rem;">
+        <div class="self-assess-btns">
+          <button class="self-btn good" data-self="reflect_1" data-val="good">Klaar ✓</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="exercise" style="border:none; padding:0; margin-top:1rem;">
+      <div class="exercise-question">2. Wat zou je een klasgenoot uitleggen over dit onderwerp?</div>
+      <textarea class="open-answer" data-q="reflect_2" placeholder="..."></textarea>
+      <div class="word-counter" data-counter="reflect_2">0 woorden</div>
+      <div class="self-assess show" id="self-reflect_2" style="background:transparent; padding-top:0.5rem;">
+        <div class="self-assess-btns">
+          <button class="self-btn good" data-self="reflect_2" data-val="good">Klaar ✓</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="exercise" style="border:none; padding:0; margin-top:1rem;">
+      <div class="exercise-question">3. Hoe zou je dit onderwerp herkennen in je eigen omgeving (denk aan reizen, winkels, werk van familie)?</div>
+      <textarea class="open-answer" data-q="reflect_3" placeholder="..."></textarea>
+      <div class="word-counter" data-counter="reflect_3">0 woorden</div>
+      <div class="self-assess show" id="self-reflect_3" style="background:transparent; padding-top:0.5rem;">
+        <div class="self-assess-btns">
+          <button class="self-btn good" data-self="reflect_3" data-val="good">Klaar ✓</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>📤 Exitticket</h3>
+    <p>Kopieer deze tekst en plak hem in de feedback-tool van je docent voor gepersonaliseerde feedback op je werk.</p>
+    <button class="action-btn" id="generateExit">📝 Produceer exitticket</button>
+    <div id="exitWrapper" style="display:none; margin-top:1rem;">
+      <textarea id="exitticket-text" readonly></textarea>
+      <button class="action-btn outline" id="copyExit">📋 Kopieer naar klembord</button>
+      <span id="copyStatus" style="margin-left:0.6rem; color:var(--emerald); font-weight:700;"></span>
+    </div>
+  </div>
+
+  <div class="tab-nav">
+    <button class="reset-section-btn" data-reset-tab="8">↻ Reset dit onderdeel</button>
+    <button class="tab-nav-btn" data-nav="prev">← Vorige</button>
+  </div>
+</div>
+
+</div>
+
+<script>
+(function() {
+  'use strict';
+
+  const STORAGE_PREFIX = 'geo_les_';
+  const TOTAL_TABS = 9;
+
+  // Question registry — defines all questions per tab for tracking & reset
+  const questions = {
+    0: [
+      { id: 't0_q1', type: 'open', text: 'Beschrijf in eigen woorden wat jij denkt dat "de economische dimensie" inhoudt.' },
+      { id: 't0_q2', type: 'mc', text: 'Welke van deze zaken hoort NIET bij de economische dimensie?', correct: 2, options: ['De fabrieken in een regio','Het bbp per inwoner','De gemiddelde regenval per maand','De handelsbalans van een land'] }
+    ],
+    1: [
+      { id: 't1_match', type: 'match', text: 'Koppel beroepen aan sectoren' },
+      { id: 't1_q1', type: 'mc', text: 'In een land werkt 65% in tertiair, 25% in secundair, 10% in primair...', correct: 1, options: ['Ontwikkelingsland met landbouw','Welvarend, geïndustrialiseerd','Geen industrie meer','Afhankelijk van toerisme'] },
+      { id: 't1_q2', type: 'open', text: 'Bedenk één beroep van iemand die je kent en leg uit in welke sector dat valt.' }
+    ],
+    2: [
+      { id: 't2_q1', type: 'mc', text: 'Welk land heeft het hoogste bbp per hoofd?', correct: 0, options: ['Luxemburg','Nederland','Duitsland','Bulgarije'] },
+      { id: 't2_q2', type: 'mc', text: 'Waarom is bbp per hoofd geen perfecte maatstaf?', correct: 2, options: ['Niet in euro\'s','Alleen Europees','Niets over verdeling','Verkeerd berekend'] },
+      { id: 't2_q3', type: 'open', text: 'Land met hoog bbp maar lage HDI — wat zou daar aan de hand zijn?' }
+    ],
+    3: [
+      { id: 't3_q1', type: 'mc', text: 'Wat is een positieve handelsbalans?', correct: 1, options: ['Imp > Exp','Exp > Imp','Veel kopen','Geen handel'] },
+      { id: 't3_q2', type: 'open', text: 'Wat is het comparatief voordeel van Nederland?' },
+      { id: 't3_q3', type: 'mc', text: 'Welke categorie levert Nederland de meeste export op?', correct: 0, options: ['Machines & elektronica','Voedsel & landbouw','Chemische producten','Brandstoffen'] }
+    ],
+    4: [
+      { id: 't4_q1', type: 'mc', text: 'Welke stad heeft de grootste haven van Europa?', correct: 1, options: ['Hamburg','Rotterdam','Antwerpen','Marseille'] },
+      { id: 't4_q2', type: 'open', text: 'Kies een marker en beschrijf waarom die plek economisch belangrijk is.' }
+    ],
+    5: [
+      { id: 't5_drag', type: 'drag', text: 'Sorteer de stappen van T-shirtproductie' },
+      { id: 't5_q1', type: 'mc', text: 'Waarom verhuizen fabrieken naar Azië?', correct: 2, options: ['Beter klimaat','Meer ruimte','Lagere lonen','Betere producten'] },
+      { id: 't5_q2', type: 'open', text: 'Voor- en nadeel van globalisering uit jouw leefwereld.' }
+    ],
+    6: [
+      { id: 't6_q1', type: 'mc', text: 'Welke sector kwam op rond 1850?', correct: 1, options: ['Primair','Secundair','Tertiair','Geen'] },
+      { id: 't6_q2', type: 'mc', text: 'Wat zie je in de grafiek van sectoren 1900-2020?', correct: 2, options: ['Hetzelfde gebleven','Langzaam afgenomen','Tertiair enorm gegroeid','Tertiair piek 1950'] },
+      { id: 't6_q3', type: 'open', text: 'Wat zou jouw beroep later zijn en in welke sector?' }
+    ],
+    7: [
+      { id: 't7_q1', type: 'mc', text: 'In welk land is de tertiaire sector groter?', correct: 0, options: ['Nederland','Spanje','Beide gelijk','Geen'] },
+      { id: 't7_q2', type: 'open', text: 'Waarom voelt alles in Spanje goedkoper dan in Nederland?' },
+      { id: 't7_q3', type: 'open', text: 'Spaans souvenir met comparatief voordeel — geef voorbeeld.' }
+    ],
+    8: [
+      { id: 'reflect_1', type: 'reflect', text: 'Wat vond je het lastigst en waarom?' },
+      { id: 'reflect_2', type: 'reflect', text: 'Wat zou je een klasgenoot uitleggen?' },
+      { id: 'reflect_3', type: 'reflect', text: 'Hoe herken je dit in je eigen omgeving?' }
+    ]
+  };
+
+  // State
+  let state = {
+    answers: {},      // { qid: { value, attempts, correct, completed, selfAssess } }
+    completedTabs: {} // { tabIdx: true }
+  };
+
+  // ----- Storage helpers -----
+  function saveState() {
+    try {
+      localStorage.setItem(STORAGE_PREFIX + 'state', JSON.stringify(state));
+      localStorage.setItem(STORAGE_PREFIX + 'lastUpdate', new Date().toISOString());
+    } catch (e) { /* ignore */ }
+  }
+
+  function loadState() {
+    try {
+      const raw = localStorage.getItem(STORAGE_PREFIX + 'state');
+      if (raw) state = JSON.parse(raw);
+    } catch (e) { state = { answers: {}, completedTabs: {} }; }
+    if (!state.answers) state.answers = {};
+    if (!state.completedTabs) state.completedTabs = {};
+  }
+
+  function clearStorage() {
+    try {
+      localStorage.removeItem(STORAGE_PREFIX + 'state');
+      localStorage.removeItem(STORAGE_PREFIX + 'lastUpdate');
+    } catch (e) {}
+  }
+
+  // ----- Progress -----
+  function getTotalQuestions() {
+    let total = 0;
+    Object.values(questions).forEach(arr => total += arr.length);
+    return total;
+  }
+
+  function getCompletedCount() {
+    let c = 0;
+    Object.values(state.answers).forEach(a => { if (a.completed) c++; });
+    return c;
+  }
+
+  function updateProgress() {
+    const total = getTotalQuestions();
+    const done = getCompletedCount();
+    const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+    document.getElementById('progressFill').style.width = pct + '%';
+    document.getElementById('progressPercent').textContent = pct + '%';
+    const finalScore = document.getElementById('finalScore');
+    if (finalScore) finalScore.textContent = pct + '%';
+
+    // Update completed tabs
+    Object.keys(questions).forEach(tab => {
+      const tabQs = questions[tab];
+      const allDone = tabQs.every(q => state.answers[q.id] && state.answers[q.id].completed);
+      const btn = document.querySelector('.tab-btn[data-tab="' + tab + '"]');
+      if (btn) {
+        if (allDone) btn.classList.add('completed');
+        else btn.classList.remove('completed');
+      }
+    });
+  }
+
+  // ----- Tab switching -----
+  let activeTab = 0;
+  function switchTab(idx) {
+    activeTab = idx;
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    const btn = document.querySelector('.tab-btn[data-tab="' + idx + '"]');
+    const content = document.querySelector('.tab-content[data-content="' + idx + '"]');
+    if (btn) btn.classList.add('active');
+    if (content) content.classList.add('active');
+    document.getElementById('tabCounter').textContent = 'Onderdeel ' + (idx + 1) + ' van ' + TOTAL_TABS;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    // Refresh maps
+    setTimeout(() => {
+      if (idx === 4 && mapEU) mapEU.invalidateSize();
+      if (idx === 7 && mapNLES) mapNLES.invalidateSize();
+    }, 100);
+  }
+
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => switchTab(parseInt(btn.dataset.tab)));
+  });
+
+  document.querySelectorAll('[data-nav]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const dir = btn.dataset.nav;
+      let next = activeTab + (dir === 'next' ? 1 : -1);
+      if (next < 0) next = 0;
+      if (next >= TOTAL_TABS) next = TOTAL_TABS - 1;
+      switchTab(next);
+    });
+  });
+
+  // ----- MC questions -----
+  function setupMCQuestions() {
+    document.querySelectorAll('[data-mc]').forEach(group => {
+      const qid = group.dataset.mc;
+      const correct = parseInt(group.dataset.correct);
+      const hint = group.dataset.hint;
+      const fb = document.querySelector('[data-fb="' + qid + '"]');
+
+      group.querySelectorAll('.mc-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          if (state.answers[qid] && state.answers[qid].completed) return;
+          const idx = parseInt(btn.dataset.idx);
+          if (!state.answers[qid]) state.answers[qid] = { attempts: 0 };
+          state.answers[qid].attempts = (state.answers[qid].attempts || 0) + 1;
+          state.answers[qid].value = idx;
+
+          if (idx === correct) {
+            btn.classList.add('correct');
+            group.querySelectorAll('.mc-btn').forEach(b => b.disabled = true);
+            fb.className = 'feedback show success';
+            fb.innerHTML = '✅ <strong>Goed!</strong> Dat is het juiste antwoord.';
+            state.answers[qid].correct = true;
+            state.answers[qid].completed = true;
+          } else {
+            btn.classList.add('incorrect');
+            btn.disabled = true;
+            if (state.answers[qid].attempts >= 3) {
+              // Reveal answer
+              const correctBtn = group.querySelector('.mc-btn[data-idx="' + correct + '"]');
+              if (correctBtn) correctBtn.classList.add('correct');
+              group.querySelectorAll('.mc-btn').forEach(b => b.disabled = true);
+              fb.className = 'feedback show reveal';
+              fb.innerHTML = '💡 <strong>Het juiste antwoord is gemarkeerd.</strong> Probeer bij de volgende vraag rustig na te denken — je gaat het zeker krijgen.';
+              state.answers[qid].correct = false;
+              state.answers[qid].completed = true;
+            } else {
+              fb.className = 'feedback show hint';
+              fb.innerHTML = '🤔 <strong>Nog niet helemaal.</strong> ' + hint + ' (poging ' + state.answers[qid].attempts + '/3)';
+            }
+          }
+          saveState();
+          updateProgress();
+        });
+      });
+    });
+  }
+
+  // ----- Open questions -----
+  function setupOpenQuestions() {
+    document.querySelectorAll('textarea.open-answer').forEach(ta => {
+      const qid = ta.dataset.q;
+      const counter = document.querySelector('[data-counter="' + qid + '"]');
+
+      ta.addEventListener('input', () => {
+        const words = ta.value.trim().split(/\s+/).filter(w => w.length > 0).length;
+        if (counter) {
+          counter.textContent = words + ' woorden';
+          if (words >= 20) counter.classList.add('ok');
+          else counter.classList.remove('ok');
+          if (words >= 20) counter.innerHTML = '✓ ' + words + ' woorden';
+        }
+        if (!state.answers[qid]) state.answers[qid] = {};
+        state.answers[qid].value = ta.value;
+        saveState();
+      });
+    });
+
+    document.querySelectorAll('[data-show-example]').forEach(btn => {
+      const qid = btn.dataset.showExample;
+      btn.addEventListener('click', () => {
+        const ta = document.querySelector('textarea[data-q="' + qid + '"]');
+        const words = ta.value.trim().split(/\s+/).filter(w => w.length > 0).length;
+        if (words < 20) {
+          alert('Schrijf eerst minimaal 20 woorden voordat je het voorbeeldantwoord bekijkt.');
+          return;
+        }
+        document.getElementById('example-' + qid).style.display = 'block';
+        document.getElementById('self-' + qid).classList.add('show');
+        btn.disabled = true;
+        btn.textContent = '✓ Voorbeeld getoond';
+      });
+    });
+
+    document.querySelectorAll('[data-self]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const qid = btn.dataset.self;
+        const val = btn.dataset.val;
+        if (!state.answers[qid]) state.answers[qid] = {};
+        state.answers[qid].selfAssess = val;
+        state.answers[qid].correct = (val === 'good');
+        state.answers[qid].completed = true;
+
+        const container = document.getElementById('self-' + qid);
+        container.querySelectorAll('.self-btn').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+
+        saveState();
+        updateProgress();
+      });
+    });
+  }
+
+  // ----- Match (Tab 1) -----
+  let matchSelected = null;
+  let matchedItems = {}; // sourceId -> targetId
+
+  function setupMatch() {
+    const container = document.getElementById('match-t1');
+    if (!container) return;
+
+    container.querySelectorAll('.match-source').forEach(src => {
+      src.addEventListener('click', () => {
+        if (src.classList.contains('matched')) {
+          // Allow unmatch via click
+          delete matchedItems[src.dataset.matchId];
+          src.classList.remove('matched');
+          src.style.display = '';
+          renderMatchedTags();
+          return;
+        }
+        container.querySelectorAll('.match-source').forEach(s => s.classList.remove('selected'));
+        src.classList.add('selected');
+        matchSelected = src;
+      });
+    });
+
+    container.querySelectorAll('.match-target').forEach(tgt => {
+      tgt.addEventListener('click', () => {
+        if (!matchSelected) return;
+        const sid = matchSelected.dataset.matchId;
+        const tid = tgt.dataset.targetId;
+        matchedItems[sid] = tid;
+        matchSelected.classList.add('matched');
+        matchSelected.classList.remove('selected');
+        matchSelected.style.display = 'none';
+        matchSelected = null;
+        renderMatchedTags();
+      });
+    });
+  }
+
+  function renderMatchedTags() {
+    const container = document.getElementById('match-t1');
+    if (!container) return;
+    container.querySelectorAll('.match-target').forEach(tgt => {
+      // Clear existing tags
+      tgt.querySelectorAll('.matched-tag').forEach(t => t.remove());
+      const tid = tgt.dataset.targetId;
+      Object.keys(matchedItems).forEach(sid => {
+        if (matchedItems[sid] === tid) {
+          const src = container.querySelector('.match-source[data-match-id="' + sid + '"]');
+          if (src) {
+            const tag = document.createElement('span');
+            tag.className = 'matched-tag';
+            tag.innerHTML = src.textContent + ' <span class="remove-tag" data-unmatch="' + sid + '">×</span>';
+            tgt.appendChild(tag);
+          }
+        }
+      });
+    });
+    // Hook unmatch
+    container.querySelectorAll('.remove-tag').forEach(rm => {
+      rm.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const sid = rm.dataset.unmatch;
+        delete matchedItems[sid];
+        const src = container.querySelector('.match-source[data-match-id="' + sid + '"]');
+        if (src) {
+          src.classList.remove('matched');
+          src.style.display = '';
+        }
+        renderMatchedTags();
+      });
+    });
+  }
+
+  document.querySelectorAll('[data-match-check]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const container = document.getElementById('match-t1');
+      const fb = document.querySelector('[data-fb="t1_match"]');
+      const total = container.querySelectorAll('.match-source').length;
+      const matched = Object.keys(matchedItems).length;
+      if (matched < total) {
+        fb.className = 'feedback show hint';
+        fb.innerHTML = '⚠️ Je hebt nog niet alle beroepen gekoppeld (' + matched + '/' + total + ').';
+        return;
+      }
+      let correct = 0;
+      Object.keys(matchedItems).forEach(sid => {
+        const src = container.querySelector('.match-source[data-match-id="' + sid + '"]');
+        if (src && src.dataset.target === matchedItems[sid]) correct++;
+      });
+      if (!state.answers['t1_match']) state.answers['t1_match'] = { attempts: 0 };
+      state.answers['t1_match'].attempts++;
+      state.answers['t1_match'].value = JSON.stringify(matchedItems);
+
+      if (correct === total) {
+        fb.className = 'feedback show success';
+        fb.innerHTML = '🎉 <strong>Allemaal goed!</strong> Je hebt alle beroepen aan de juiste sector gekoppeld.';
+        state.answers['t1_match'].correct = true;
+        state.answers['t1_match'].completed = true;
+      } else if (state.answers['t1_match'].attempts >= 3) {
+        // Reveal
+        Object.keys(matchedItems).forEach(sid => delete matchedItems[sid]);
+        container.querySelectorAll('.match-source').forEach(src => {
+          matchedItems[src.dataset.matchId] = src.dataset.target;
+          src.classList.add('matched');
+          src.style.display = 'none';
+        });
+        renderMatchedTags();
+        fb.className = 'feedback show reveal';
+        fb.innerHTML = '💡 De juiste koppelingen staan nu getoond. Bestudeer ze even.';
+        state.answers['t1_match'].correct = false;
+        state.answers['t1_match'].completed = true;
+      } else {
+        fb.className = 'feedback show hint';
+        fb.innerHTML = '🤔 ' + correct + ' van ' + total + ' goed. Bekijk je koppelingen nog eens — denk: haalt iemand grondstoffen, maakt iets, of levert een dienst? (poging ' + state.answers['t1_match'].attempts + '/3)';
+      }
+      saveState();
+      updateProgress();
+    });
+  });
+
+  // ----- Drag & drop (Tab 5) -----
+  function setupDrag() {
+    const list = document.getElementById('drag-t5');
+    if (!list) return;
+    let dragSrc = null;
+
+    list.querySelectorAll('.drag-item').forEach(item => {
+      item.addEventListener('dragstart', (e) => {
+        dragSrc = item;
+        item.classList.add('dragging');
+        e.dataTransfer.effectAllowed = 'move';
+      });
+      item.addEventListener('dragend', () => {
+        item.classList.remove('dragging');
+        list.querySelectorAll('.drag-item').forEach(i => i.classList.remove('over'));
+      });
+      item.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        if (item !== dragSrc) item.classList.add('over');
+      });
+      item.addEventListener('dragleave', () => item.classList.remove('over'));
+      item.addEventListener('drop', (e) => {
+        e.preventDefault();
+        if (item !== dragSrc && dragSrc) {
+          const items = Array.from(list.children);
+          const srcIdx = items.indexOf(dragSrc);
+          const tgtIdx = items.indexOf(item);
+          if (srcIdx < tgtIdx) list.insertBefore(dragSrc, item.nextSibling);
+          else list.insertBefore(dragSrc, item);
+        }
+        item.classList.remove('over');
+      });
+    });
+  }
+
+  document.querySelectorAll('[data-drag-check]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const list = document.getElementById('drag-t5');
+      const fb = document.querySelector('[data-fb="t5_drag"]');
+      const items = Array.from(list.children);
+      let allCorrect = true;
+      items.forEach((item, idx) => {
+        item.classList.remove('correct-pos', 'wrong-pos');
+        if (parseInt(item.dataset.order) === idx) item.classList.add('correct-pos');
+        else { item.classList.add('wrong-pos'); allCorrect = false; }
+      });
+
+      if (!state.answers['t5_drag']) state.answers['t5_drag'] = { attempts: 0 };
+      state.answers['t5_drag'].attempts++;
+
+      if (allCorrect) {
+        fb.className = 'feedback show success';
+        fb.innerHTML = '🎉 <strong>Perfect!</strong> Je hebt de productieketen helemaal goed.';
+        state.answers['t5_drag'].correct = true;
+        state.answers['t5_drag'].completed = true;
+      } else if (state.answers['t5_drag'].attempts >= 3) {
+        // Auto-sort to correct
+        const sorted = items.slice().sort((a, b) => parseInt(a.dataset.order) - parseInt(b.dataset.order));
+        sorted.forEach(s => list.appendChild(s));
+        list.querySelectorAll('.drag-item').forEach(i => { i.classList.remove('wrong-pos'); i.classList.add('correct-pos'); });
+        fb.className = 'feedback show reveal';
+        fb.innerHTML = '💡 Hier is de juiste volgorde. De keten loopt van grondstof → productie → transport → verkoop.';
+        state.answers['t5_drag'].correct = false;
+        state.answers['t5_drag'].completed = true;
+      } else {
+        fb.className = 'feedback show hint';
+        fb.innerHTML = '🤔 De rode items staan nog niet goed. Denk: waar begint een T-shirt — bij de plant of bij jou? (poging ' + state.answers['t5_drag'].attempts + '/3)';
+      }
+      saveState();
+      updateProgress();
+    });
+  });
+
+  // ----- Reset section -----
+  document.querySelectorAll('[data-reset-tab]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const tab = btn.dataset.resetTab;
+      if (!confirm('Weet je zeker dat je dit onderdeel wilt resetten?')) return;
+      questions[tab].forEach(q => { delete state.answers[q.id]; });
+      saveState();
+      // Hard reload to rebuild UI cleanly
+      location.reload();
+    });
+  });
+
+  // ----- Reset all -----
+  document.getElementById('resetAllBtn').addEventListener('click', () => {
+    if (!confirm('Weet je zeker dat je alle voortgang wilt wissen? Dit kan niet ongedaan worden gemaakt.')) return;
+    clearStorage();
+    state = { answers: {}, completedTabs: {} };
+    location.reload();
+  });
+
+  // ----- Restore UI from state -----
+  function restoreUI() {
+    Object.keys(state.answers).forEach(qid => {
+      const a = state.answers[qid];
+
+      // MC restore
+      const mcGroup = document.querySelector('[data-mc="' + qid + '"]');
+      if (mcGroup && a.completed) {
+        const correct = parseInt(mcGroup.dataset.correct);
+        mcGroup.querySelectorAll('.mc-btn').forEach(b => b.disabled = true);
+        if (a.correct) {
+          const userBtn = mcGroup.querySelector('.mc-btn[data-idx="' + a.value + '"]');
+          if (userBtn) userBtn.classList.add('correct');
+          const fb = document.querySelector('[data-fb="' + qid + '"]');
+          if (fb) { fb.className = 'feedback show success'; fb.innerHTML = '✅ <strong>Goed!</strong> Dat is het juiste antwoord.'; }
+        } else {
+          const correctBtn = mcGroup.querySelector('.mc-btn[data-idx="' + correct + '"]');
+          if (correctBtn) correctBtn.classList.add('correct');
+          if (a.value !== undefined && a.value !== correct) {
+            const userBtn = mcGroup.querySelector('.mc-btn[data-idx="' + a.value + '"]');
+            if (userBtn) userBtn.classList.add('incorrect');
+          }
+          const fb = document.querySelector('[data-fb="' + qid + '"]');
+          if (fb) { fb.className = 'feedback show reveal'; fb.innerHTML = '💡 <strong>Het juiste antwoord is gemarkeerd.</strong>'; }
+        }
+      }
+
+      // Open restore
+      const ta = document.querySelector('textarea[data-q="' + qid + '"]');
+      if (ta && a.value) {
+        ta.value = a.value;
+        const ev = new Event('input');
+        ta.dispatchEvent(ev);
+        if (a.selfAssess) {
+          const exEl = document.getElementById('example-' + qid);
+          if (exEl) exEl.style.display = 'block';
+          const selfEl = document.getElementById('self-' + qid);
+          if (selfEl) {
+            selfEl.classList.add('show');
+            const sBtn = selfEl.querySelector('.self-btn[data-val="' + a.selfAssess + '"]');
+            if (sBtn) sBtn.classList.add('selected');
+          }
+          const exBtn = document.querySelector('[data-show-example="' + qid + '"]');
+          if (exBtn) { exBtn.disabled = true; exBtn.textContent = '✓ Voorbeeld getoond'; }
+        }
+      }
+    });
+
+    // Match restore
+    if (state.answers['t1_match'] && state.answers['t1_match'].value) {
+      try {
+        const m = JSON.parse(state.answers['t1_match'].value);
+        Object.keys(m).forEach(sid => {
+          matchedItems[sid] = m[sid];
+          const src = document.querySelector('.match-source[data-match-id="' + sid + '"]');
+          if (src) { src.classList.add('matched'); src.style.display = 'none'; }
+        });
+        renderMatchedTags();
+        if (state.answers['t1_match'].completed) {
+          const fb = document.querySelector('[data-fb="t1_match"]');
+          if (state.answers['t1_match'].correct) {
+            fb.className = 'feedback show success';
+            fb.innerHTML = '🎉 <strong>Allemaal goed!</strong>';
+          } else {
+            fb.className = 'feedback show reveal';
+            fb.innerHTML = '💡 De juiste koppelingen waren getoond.';
+          }
+        }
+      } catch (e) {}
+    }
+  }
+
+  // ----- Charts -----
+  function setupCharts() {
+    const ctxBbp = document.getElementById('chart-bbp');
+    if (ctxBbp) {
+      new Chart(ctxBbp, {
+        type: 'bar',
+        data: {
+          labels: ['Luxemburg', 'Nederland', 'Duitsland', 'Spanje', 'Polen', 'Bulgarije'],
+          datasets: [{
+            label: 'Bbp per hoofd (USD, 2023)',
+            data: [128000, 64000, 52000, 33000, 22000, 15000],
+            backgroundColor: ['#0f5132', '#198754', '#6fbf8f', '#c4a57b', '#d4a72c', '#c97064'],
+            borderRadius: 6
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { display: false } },
+          scales: { y: { beginAtZero: true, ticks: { callback: v => '$' + (v/1000) + 'k' } } }
+        }
+      });
+    }
+
+    const ctxExp = document.getElementById('chart-export');
+    if (ctxExp) {
+      new Chart(ctxExp, {
+        type: 'bar',
+        data: {
+          labels: ['Machines & elektronica', 'Chemie', 'Voedsel & landbouw', 'Brandstoffen', 'Vervoermiddelen'],
+          datasets: [{
+            label: 'NL Export (mld €)',
+            data: [185, 95, 90, 70, 55],
+            backgroundColor: '#198754',
+            borderRadius: 6
+          }]
+        },
+        options: { indexAxis: 'y', responsive: true, plugins: { legend: { display: false } } }
+      });
+    }
+
+    const ctxSec = document.getElementById('chart-sectoren');
+    if (ctxSec) {
+      new Chart(ctxSec, {
+        type: 'line',
+        data: {
+          labels: ['1900', '1950', '1980', '2000', '2020'],
+          datasets: [
+            { label: 'Primair', data: [40, 20, 8, 4, 2], borderColor: '#c4a57b', backgroundColor: 'rgba(196,165,123,0.2)', tension: 0.3 },
+            { label: 'Secundair', data: [35, 45, 35, 22, 16], borderColor: '#8b7355', backgroundColor: 'rgba(139,115,85,0.2)', tension: 0.3 },
+            { label: 'Tertiair', data: [25, 35, 57, 74, 82], borderColor: '#198754', backgroundColor: 'rgba(25,135,84,0.2)', tension: 0.3 }
+          ]
+        },
+        options: {
+          responsive: true,
+          scales: { y: { beginAtZero: true, max: 100, ticks: { callback: v => v + '%' } } }
+        }
+      });
+    }
+  }
+
+  // ----- Maps -----
+  let mapEU = null, mapNLES = null;
+  function setupMaps() {
+    if (document.getElementById('map-tab4')) {
+      mapEU = L.map('map-tab4').setView([50.5, 10], 4);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap', maxZoom: 18
+      }).addTo(mapEU);
+
+      const places = [
+        { lat: 51.9244, lng: 4.4777, name: 'Rotterdam', info: '🚢 Grootste haven van Europa. Toegangspoort voor goederen naar West-Europa.' },
+        { lat: 53.5511, lng: 9.9937, name: 'Hamburg', info: '⚓ Tweede grootste haven van Europa, belangrijk voor Duitse export.' },
+        { lat: 48.1351, lng: 11.5820, name: 'München (Beieren)', info: '🚗 Hightech industrie: BMW, Siemens. Centrum van Duitse autoproductie.' },
+        { lat: 45.4642, lng: 9.1900, name: 'Milaan', info: '👗 Modehoofdstad van Italië. Design, mode en financiële diensten.' },
+        { lat: 41.3851, lng: 2.1734, name: 'Barcelona', info: '🏖️ Toerisme + havenstad. Belangrijk voor Spaanse dienstensector.' },
+        { lat: 60.4720, lng: 8.4689, name: 'Noorwegen (centraal)', info: '🛢️ Olie- en gasproductie in de Noordzee. Grote bron van welvaart.' },
+        { lat: 50.0755, lng: 14.4378, name: 'Praag (Tsjechië)', info: '🏭 Aantrekkelijke productielocatie voor Westerse bedrijven (lage lonen).' },
+        { lat: 48.8566, lng: 2.3522, name: 'Parijs', info: '💼 Financiële hub, mode, toerisme. Zeer sterke tertiaire sector.' },
+        { lat: 52.5200, lng: 13.4050, name: 'Berlijn', info: '🎨 Diensten, tech-startups, overheid. Zwaartepunt verschuift hier.' }
+      ];
+      places.forEach(p => {
+        L.marker([p.lat, p.lng]).addTo(mapEU).bindPopup('<strong>' + p.name + '</strong><br>' + p.info);
+      });
+    }
+
+    if (document.getElementById('map-tab8')) {
+      mapNLES = L.map('map-tab8').setView([44, 0], 4);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap', maxZoom: 18
+      }).addTo(mapNLES);
+
+      const placesNL = [
+        { lat: 52.3676, lng: 4.9041, name: '🇳🇱 Amsterdam', info: 'Financieel centrum NL — banken, hoofdkantoren, toerisme.' },
+        { lat: 51.9244, lng: 4.4777, name: '🇳🇱 Rotterdam', info: 'Grootste haven Europa — logistiek en chemie.' },
+        { lat: 52.0907, lng: 5.1214, name: '🇳🇱 Westland', info: 'Glastuinbouw — wereldleider in tomaten & bloemen.' }
+      ];
+      const placesES = [
+        { lat: 40.4168, lng: -3.7038, name: '🇪🇸 Madrid', info: 'Financieel centrum & overheid — sterke tertiaire sector.' },
+        { lat: 41.3851, lng: 2.1734, name: '🇪🇸 Barcelona', info: 'Toerisme, haven, design.' },
+        { lat: 37.3891, lng: -5.9845, name: '🇪🇸 Sevilla (Andalusië)', info: 'Olijfolie, landbouw — primaire sector groot.' },
+        { lat: 39.4699, lng: -0.3763, name: '🇪🇸 Valencia', info: 'Citrusvruchten, haven.' }
+      ];
+      [...placesNL, ...placesES].forEach(p => {
+        L.marker([p.lat, p.lng]).addTo(mapNLES).bindPopup('<strong>' + p.name + '</strong><br>' + p.info);
+      });
+    }
+  }
+
+  // ----- Exit ticket -----
+  document.getElementById('generateExit').addEventListener('click', () => {
+    const lines = [];
+    lines.push('═══════════════════════════');
+    lines.push('         EXITTICKET');
+    lines.push('═══════════════════════════');
+    lines.push('Datum: ' + new Date().toLocaleDateString('nl-NL'));
+    lines.push('Niveau: HAVO 2');
+    lines.push('Onderwerp: De economische dimensie');
+    lines.push('');
+    lines.push('LEERDOELEN:');
+    lines.push('1. Ik kan uitleggen wat de economische dimensie inhoudt.');
+    lines.push('2. Ik kan de drie economische sectoren benoemen en voorbeelden geven.');
+    lines.push('3. Ik kan uitleggen wat welvaart is en hoe we die meten.');
+    lines.push('4. Ik kan beschrijven hoe landen handel drijven en waarom dat belangrijk is.');
+    lines.push('5. Ik kan uitleggen wat globalisering is en wat het effect is.');
+    lines.push('6. Ik kan de economische dimensie toepassen op twee landen.');
+    lines.push('');
+    const total = getTotalQuestions();
+    const done = getCompletedCount();
+    const correct = Object.values(state.answers).filter(a => a.correct).length;
+    lines.push('SCORE: ' + done + '/' + total + ' opdrachten voltooid, waarvan ' + correct + ' goed.');
+    lines.push('');
+    lines.push('═══════════════════════════');
+    lines.push('  ANTWOORDEN PER VRAAG');
+    lines.push('═══════════════════════════');
+    lines.push('');
+
+    Object.keys(questions).forEach(tab => {
+      questions[tab].forEach(q => {
+        const a = state.answers[q.id] || {};
+        lines.push('--- ' + q.id + ' ---');
+        lines.push('Vraag: ' + q.text);
+        if (q.type === 'mc') {
+          const userIdx = a.value;
+          const userAns = (userIdx !== undefined) ? q.options[userIdx] : '(niet beantwoord)';
+          const correctAns = q.options[q.correct];
+          lines.push('Antwoord leerling: ' + userAns);
+          lines.push('Juist: ' + correctAns);
+          lines.push('Resultaat: ' + (a.correct ? 'GOED ✓' : 'FOUT ✗') + ' (na ' + (a.attempts || 0) + ' poging[en])');
+        } else if (q.type === 'open' || q.type === 'reflect') {
+          lines.push('Antwoord leerling: ' + (a.value || '(leeg)'));
+          if (a.selfAssess) lines.push('Zelfbeoordeling: ' + (a.selfAssess === 'good' ? 'GOED ✓' : 'NOG NIET ✗'));
+        } else if (q.type === 'match') {
+          lines.push('Resultaat: ' + (a.correct ? 'GOED ✓' : 'FOUT/onthuld') + ' (na ' + (a.attempts || 0) + ' poging[en])');
+        } else if (q.type === 'drag') {
+          lines.push('Resultaat: ' + (a.correct ? 'GOED ✓' : 'FOUT/onthuld') + ' (na ' + (a.attempts || 0) + ' poging[en])');
+        }
+        lines.push('');
+      });
+    });
+
+    document.getElementById('exitticket-text').value = lines.join('\n');
+    document.getElementById('exitWrapper').style.display = 'block';
+  });
+
+  document.getElementById('copyExit').addEventListener('click', () => {
+    const ta = document.getElementById('exitticket-text');
+    ta.select();
+    try {
+      document.execCommand('copy');
+      document.getElementById('copyStatus').textContent = '✓ Gekopieerd!';
+      setTimeout(() => document.getElementById('copyStatus').textContent = '', 2000);
+    } catch (e) {
+      navigator.clipboard.writeText(ta.value).then(() => {
+        document.getElementById('copyStatus').textContent = '✓ Gekopieerd!';
+        setTimeout(() => document.getElementById('copyStatus').textContent = '', 2000);
+      });
+    }
+  });
+
+  // ----- Init -----
+  window.addEventListener('DOMContentLoaded', function() {
+    loadState();
+    setupMCQuestions();
+    setupOpenQuestions();
+    setupMatch();
+    setupDrag();
+    setupCharts();
+    setupMaps();
+    restoreUI();
+    updateProgress();
+  });
+})();
+</script>
+</body>
+</html>
+```
