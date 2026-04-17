@@ -88,7 +88,7 @@ kbd { display:inline-block; background:#f1f5f9; border:1px solid #cbd5e1; border
 .accordion.open .arrow { transform:rotate(180deg); color:var(--c-primary); }
 .accordion.open .accordion-header { border-bottom: 1px solid var(--c-border); color: var(--c-primary-dark); }
 .accordion-body { max-height:0; overflow:hidden; transition:max-height 0.35s ease,padding 0.35s ease; background:var(--c-bg); padding:0 1.2rem; font-size:0.95rem; line-height:1.7; }
-.accordion.open .accordion-body { max-height:800px; padding:1.2rem; }
+.accordion.open .accordion-body { max-height:1600px; padding:1.2rem; }
 .accordion-body h4 { font-family:'Baloo 2',cursive; font-size:1.05rem; color:var(--c-primary); margin: 0.8rem 0 0.3rem; }
 .accordion-body h4:first-child { margin-top: 0; }
 .accordion-body ul { padding-left: 1.2rem; margin-top: 0.3rem; }
@@ -169,7 +169,7 @@ table.rubric tbody td p { font-weight: 400; font-size: 0.85rem; color: var(--c-t
   <nav class="tab-nav" id="tabNav">
     <button class="tab-btn active" data-tab="opdracht"><span class="tab-icon">📋</span>Opdracht</button>
     <button class="tab-btn" data-tab="planning"><span class="tab-icon">📅</span>Planning</button>
-    <button class="tab-btn" data-tab="dias"><span class="tab-icon">🖼️</span>Dia's</button>
+    <button class="tab-btn" data-tab="dias"><span class="tab-icon">🖼️</span>Kernpunten</button>
     <button class="tab-btn" data-tab="kiezer"><span class="tab-icon">🎰</span>Kiezer</button>
     <button class="tab-btn" data-tab="begrippen"><span class="tab-icon">📖</span>Begrippen</button>
     <button class="tab-btn" data-tab="tips"><span class="tab-icon">💡</span>Tips</button>
@@ -222,7 +222,7 @@ table.rubric tbody td p { font-weight: 400; font-size: 0.85rem; color: var(--c-t
           <ul>
             <li>Kies samen jullie twee landen.</li>
             <li>Zoek in de atlas de overzichtskaart en de cijfers over welvaart.</li>
-            <li>Maak <strong>dia 1</strong> (titel) en <strong>dia 2</strong> (wereldkaart). Typ alvast de eerste uitleg in je Notities.</li>
+            <li>Begin met de eerste twee kernpunten: de <strong>titel</strong> en de <strong>wereldkaart</strong>. Typ alvast de eerste uitleg in je Notities.</li>
           </ul>
         </div>
         <div class="timeline-item">
@@ -245,14 +245,14 @@ table.rubric tbody td p { font-weight: 400; font-size: 0.85rem; color: var(--c-t
 
   <div class="tab-content" id="tab-dias">
     <div class="card">
-      <h2>🖼️ Eisen per dia (Stappenplan)</h2>
-      <p>Klik op een dia om precies te zien wat je erop moet zetten én welke vragen je in de Notities moet beantwoorden. Zorg dat je antwoorden makkelijk te begrijpen zijn!</p>
+      <h2>🖼️ De 6 Kernpunten (Stappenplan)</h2>
+      <p>Klik op een kernpunt om precies te zien wat erbij hoort én welke vragen je in de Notities moet beantwoorden. Elk kernpunt heeft minstens één dia nodig, maar je mag er gerust <strong>meerdere dia's</strong> voor gebruiken — bijvoorbeeld als je twee kaarten wilt laten zien bij hetzelfde onderwerp. Meer dia's is vaak beter!</p>
       
       <div style="margin-top:1.5rem;">
         
-        <div class="accordion"><div class="accordion-header" onclick="toggleAcc(this)"><span class="slide-num">1</span> Titeldia <span class="arrow">▼</span></div>
+        <div class="accordion"><div class="accordion-header" onclick="toggleAcc(this)"><span class="slide-num">1</span> Titel & Introductie <span class="arrow">▼</span></div>
           <div class="accordion-body">
-            <h4>📸 Op de dia zelf:</h4>
+            <h4>📸 Op de dia('s):</h4>
             <ul>
               <li>Een duidelijke titel.</li>
               <li>Jullie voor- en achternamen + klas.</li>
@@ -265,7 +265,7 @@ table.rubric tbody td p { font-weight: 400; font-size: 0.85rem; color: var(--c-t
 
         <div class="accordion"><div class="accordion-header" onclick="toggleAcc(this)"><span class="slide-num">2</span> Waar liggen ze? <span class="arrow">▼</span></div>
           <div class="accordion-body">
-            <h4>📸 Op de dia zelf:</h4>
+            <h4>📸 Op de dia('s):</h4>
             <ul>
               <li>Een screenshot van een wereldkaart of continentenkaart uit de atlas.</li>
               <li>Zorg dat je kunt zien waar beide landen liggen. Zet er desnoods een pijl of cirkel bij!</li>
@@ -281,7 +281,7 @@ table.rubric tbody td p { font-weight: 400; font-size: 0.85rem; color: var(--c-t
 
         <div class="accordion"><div class="accordion-header" onclick="toggleAcc(this)"><span class="slide-num">3</span> Welvaart (Geld) <span class="arrow">▼</span></div>
           <div class="accordion-body">
-            <h4>📸 Op de dia zelf:</h4>
+            <h4>📸 Op de dia('s):</h4>
             <ul>
               <li>Kies een kaart uit de atlas over het <strong>BNI per inwoner</strong> óf de <strong>werksectoren</strong> (landbouw, industrie, diensten).</li>
               <li>Vergeet de legenda niet in de screenshot! Maximaal 5 steekwoorden.</li>
@@ -307,7 +307,7 @@ table.rubric tbody td p { font-weight: 400; font-size: 0.85rem; color: var(--c-t
 
         <div class="accordion"><div class="accordion-header" onclick="toggleAcc(this)"><span class="slide-num">4</span> Welzijn (Leefomstandigheden) <span class="arrow">▼</span></div>
           <div class="accordion-body">
-            <h4>📸 Op de dia zelf:</h4>
+            <h4>📸 Op de dia('s):</h4>
             <ul>
               <li>Kies een nieuwe atlaskaart, bijvoorbeeld over <strong>levensverwachting</strong>, <strong>analfabetisme</strong> of <strong>zuigelingensterfte</strong>.</li>
               <li>Legenda weer duidelijk in beeld.</li>
@@ -323,22 +323,37 @@ table.rubric tbody td p { font-weight: 400; font-size: 0.85rem; color: var(--c-t
 
         <div class="accordion"><div class="accordion-header" onclick="toggleAcc(this)"><span class="slide-num">5</span> De Oorzaken <span class="arrow">▼</span></div>
           <div class="accordion-body">
-            <h4>📸 Op de dia zelf:</h4>
+            <h4>📸 Op de dia('s):</h4>
             <ul>
-              <li>Kies een natuurkundige kaart. Bijvoorbeeld de <strong>klimaatgebieden</strong> of <strong>natuurlijke hulpbronnen (grondstoffen)</strong>.</li>
+              <li>Kies een kaart uit de atlas die iets laat zien over de <strong>natuur</strong> van jullie twee landen. Goede opties zijn:</li>
+              <li>🌦️ <strong>Klimaatkaart</strong> — welk klimaat heeft elk land? (woestijn, tropisch, gematigd…)</li>
+              <li>⛏️ <strong>Grondstoffenkaart</strong> — welke natuurlijke rijkdommen (olie, gas, metalen) zitten er in de grond?</li>
+              <li>🌾 <strong>Landbouwkaart</strong> — wat kun je er verbouwen?</li>
             </ul>
+            <div class="tip-box tip-yellow" style="margin: 0.8rem 0;">
+              <span class="tip-icon">💡</span>
+              <div><strong>Hulpvraag om je op weg te helpen:</strong> Stel je voor dat jíj een boer bent in het arme land. Kun je makkelijk voedsel verbouwen? Is het er te droog, te heet, of regent het juist te veel? Vergelijk dat nu met het rijke land.</div>
+            </div>
             <h4>📝 In de Notities beantwoord je:</h4>
             <ul>
-              <li>Waarom is het arme land arm gebleven? Vergelijk het klimaat of het landschap van de twee landen.</li>
-              <li>Is het in het arme land te droog voor landbouw? Zijn er veel natuurrampen? Of hebben ze juist heel weinig grondstoffen vergeleken met het rijke land?</li>
-              <li>Koppel dit aan jullie eerdere kaarten: leg uit waarom de natuur invloed heeft op het geld of de gezondheid.</li>
+              <li><strong>Stap 1 — Beschrijf:</strong> Welk klimaat heeft jullie arme land volgens de kaart? En welk klimaat heeft het rijke land? Gebruik de legenda!</li>
+              <li><strong>Stap 2 — Vergelijk:</strong> Wat is het belangrijkste verschil? Denk aan: droogte, overstromingen, woestijn, tropische hitte, of juist vruchtbare grond en een mild klimaat.</li>
+              <li><strong>Stap 3 — Leg het verband:</strong> Koppel de natuur aan wat je bij de kernpunten Welvaart en Welzijn hebt gevonden. Bijvoorbeeld: <em>"Op de klimaatkaart zie je dat Niger in de Sahel ligt, waar het heel droog is. Daardoor kunnen boeren weinig verbouwen → de meeste mensen blijven arm (welvaart) → er is ook minder geld voor ziekenhuizen (welzijn)."</em></li>
             </ul>
+            <div class="tip-box tip-green" style="margin: 0.8rem 0;">
+              <span class="tip-icon">🔗</span>
+              <div><strong>Verband leggen is de sleutel!</strong> Je docent wil zien dat je snapt hoe het ene probleem het andere veroorzaakt. Gebruik woorden als <em>"daardoor"</em>, <em>"want"</em>, <em>"dit komt doordat"</em> en <em>"dit heeft als gevolg dat"</em>.</div>
+            </div>
+            <div class="tip-box tip-purple" style="margin: 0.8rem 0;">
+              <span class="tip-icon">🤔</span>
+              <div><strong>Geen duidelijk verband? Dat mag ook!</strong> Soms zie je op de kaart dat het klimaat of de grondstoffen van beide landen best vergelijkbaar zijn. Dan is de natuur dus <em>niet</em> de grote verklaring voor het verschil. Schrijf dat dan op! Bijvoorbeeld: <em>"Japan heeft weinig grondstoffen maar is toch heel rijk, dus de natuur is hier niet de belangrijkste oorzaak."</em> Dat is een prima conclusie — je laat zien dat je kritisch nadenkt.</div>
+            </div>
           </div>
         </div>
 
         <div class="accordion"><div class="accordion-header" onclick="toggleAcc(this)"><span class="slide-num">6</span> De Conclusie <span class="arrow">▼</span></div>
           <div class="accordion-body">
-            <h4>📸 Op de dia zelf:</h4>
+            <h4>📸 Op de dia('s):</h4>
             <ul>
               <li>Eén afsluitende afbeelding (bijv. een foto van hoe de landen eruitzien) en jullie belangrijkste kernzin (max 5 woorden).</li>
             </ul>
@@ -357,18 +372,18 @@ table.rubric tbody td p { font-weight: 400; font-size: 0.85rem; color: var(--c-t
   <div class="tab-content" id="tab-kiezer">
     <div class="card">
       <h2>🎰 Landenkiezer</h2>
-      <p>Weet je niet welk land je moet kiezen? Draai aan de raderen! Links krijg je een <strong>rijk land</strong>, rechts een <strong>arm land</strong>.</p>
+      <p>Druk op de knop en beide raderen draaien tegelijk! Je krijgt een <strong>rijk land</strong> én een <strong>arm land</strong> als combinatie.</p>
       
+      <div style="text-align:center; margin:1.2rem 0 0.5rem;">
+        <button class="spin-btn" id="btnSpin" onclick="spinBoth()" style="font-size:1.1rem; padding:0.8rem 2.4rem;">🎲 Draai allebei!</button>
+      </div>
+
       <div class="wheels-container">
         <div class="wheel-section">
           <h3>💰 Rijke landen</h3>
           <div class="wheel-wrapper">
             <div class="wheel-pointer"></div>
             <canvas id="wheelRich" width="600" height="600"></canvas>
-          </div>
-          <div class="wheel-result-box">
-            <div class="wheel-result" id="resultRich"></div>
-            <button class="spin-btn" id="btnRich" onclick="spinWheel('rich')">🎲 Draai!</button>
           </div>
         </div>
         <div class="wheel-section">
@@ -377,11 +392,11 @@ table.rubric tbody td p { font-weight: 400; font-size: 0.85rem; color: var(--c-t
             <div class="wheel-pointer"></div>
             <canvas id="wheelPoor" width="600" height="600"></canvas>
           </div>
-          <div class="wheel-result-box">
-            <div class="wheel-result" id="resultPoor"></div>
-            <button class="spin-btn" id="btnPoor" onclick="spinWheel('poor')">🎲 Draai!</button>
-          </div>
         </div>
+      </div>
+
+      <div id="comboResult" style="text-align:center; margin-top:1.2rem; min-height:70px;">
+        <div id="comboText" class="wheel-result" style="font-size:1.35rem;"></div>
       </div>
     </div>
   </div>
@@ -545,24 +560,33 @@ function calcTotal() {
   }
 }
 
-// ═══ WHEEL OF FORTUNE (VERZSNELD) ═══
+// ═══ WHEEL OF FORTUNE ═══
 const richCountries = [
-  'Nederland','Duitsland','Japan','Verenigde Staten',
-  'Australië','Canada','Noorwegen','Zuid-Korea',
-  'Ver. Koninkrijk','Frankrijk','Zweden','Zwitserland'
+  'Duitsland','Japan','Verenigde Staten','Australië',
+  'Canada','Noorwegen','Zuid-Korea','Ver. Koninkrijk',
+  'Frankrijk','Zweden','Zwitserland','Finland',
+  'Denemarken','België','Oostenrijk','Nieuw-Zeeland'
 ];
 const poorCountries = [
   'Mali','Afghanistan','Ethiopië','Bangladesh',
   'Mozambique','Niger','Tsjaad','Sierra Leone',
-  'Haïti','Myanmar','Madagascar','Burkina Faso'
+  'Haïti','Myanmar','Madagascar','Burkina Faso',
+  'Somalië','Congo (DRC)','Centraal-Afr. Rep.','Zuid-Soedan'
 ];
 
-const palRich = ['#1e40af','#2563eb','#1d4ed8','#3b82f6','#1e3a8a','#60a5fa','#1e40af','#2563eb','#1d4ed8','#3b82f6','#1e3a8a','#60a5fa'];
-const palPoor = ['#5b21b6','#7c3aed','#6d28d9','#8b5cf6','#4c1d95','#a78bfa','#5b21b6','#7c3aed','#6d28d9','#8b5cf6','#4c1d95','#a78bfa'];
+function makePal(baseColors, n) {
+  const out = [];
+  for (let i = 0; i < n; i++) out.push(baseColors[i % baseColors.length]);
+  return out;
+}
+const richBase = ['#1e40af','#2563eb','#1d4ed8','#3b82f6','#1e3a8a','#60a5fa','#1e40af','#2563eb'];
+const poorBase = ['#5b21b6','#7c3aed','#6d28d9','#8b5cf6','#4c1d95','#a78bfa','#5b21b6','#7c3aed'];
+const palRich = makePal(richBase, richCountries.length);
+const palPoor = makePal(poorBase, poorCountries.length);
 
 const W = {
-  rich:  { canvas:null, ctx:null, items:richCountries, pal:palRich, angle:0, spinning:false, vel:0, hasResult:false },
-  poor:  { canvas:null, ctx:null, items:poorCountries, pal:palPoor, angle:0, spinning:false, vel:0, hasResult:false }
+  rich:  { canvas:null, ctx:null, items:richCountries, pal:palRich, angle:0, spinning:false, vel:0 },
+  poor:  { canvas:null, ctx:null, items:poorCountries, pal:palPoor, angle:0, spinning:false, vel:0 }
 };
 
 function drawWheel(t) {
@@ -575,16 +599,16 @@ function drawWheel(t) {
     ctx.strokeStyle = 'rgba(255,255,255,0.35)'; ctx.lineWidth = 2; ctx.stroke();
     ctx.save(); ctx.translate(cx,cy); ctx.rotate(sa+arc/2);
     ctx.textAlign='right'; ctx.fillStyle='#fff';
-    ctx.font='bold 21px Nunito,sans-serif';
+    ctx.font='bold 18px Nunito,sans-serif';
     ctx.shadowColor='rgba(0,0,0,0.4)'; ctx.shadowBlur=4;
-    ctx.fillText(w.items[i], r-18, 7);
+    ctx.fillText(w.items[i], r-16, 6);
     ctx.shadowBlur=0; ctx.restore();
   }
-  ctx.beginPath(); ctx.arc(cx,cy,30,0,2*Math.PI);
+  ctx.beginPath(); ctx.arc(cx,cy,28,0,2*Math.PI);
   ctx.fillStyle='#fff'; ctx.fill();
   ctx.strokeStyle = t==='rich'?'#1e40af':'#5b21b6'; ctx.lineWidth=4; ctx.stroke();
   ctx.fillStyle = t==='rich'?'#1e40af':'#5b21b6';
-  ctx.font='bold 20px sans-serif'; ctx.textAlign='center'; ctx.fillText('?',cx,cy+7);
+  ctx.font='bold 18px sans-serif'; ctx.textAlign='center'; ctx.fillText('?',cx,cy+6);
 }
 
 function getWinner(t) {
@@ -594,42 +618,49 @@ function getWinner(t) {
   return w.items[Math.floor(norm/arc) % n];
 }
 
-function spinWheel(t) {
-  const w = W[t];
-  if (w.spinning) return;
-  w.spinning = true;
-  w.hasResult = false;
+let spinning = false;
+let doneCount = 0;
 
-  const btn = document.getElementById(t==='rich'?'btnRich':'btnPoor');
+function spinBoth() {
+  if (spinning) return;
+  spinning = true;
+  doneCount = 0;
+
+  const btn = document.getElementById('btnSpin');
   btn.disabled = true;
-  const res = document.getElementById(t==='rich'?'resultRich':'resultPoor');
-  res.classList.remove('show'); res.textContent = '';
+  const combo = document.getElementById('comboText');
+  combo.classList.remove('show'); combo.textContent = '';
 
-  // Start velocity (faster) and friction (slows down quicker)
-  w.vel = 0.5 + Math.random()*0.2;
-  const friction = 0.945 + Math.random()*0.01;
+  ['rich','poor'].forEach(t => {
+    const w = W[t];
+    w.vel = 0.45 + Math.random()*0.25;
+    const friction = 0.945 + Math.random()*0.012;
 
-  (function anim() {
-    w.angle += w.vel;
-    w.vel *= friction;
-    drawWheel(t);
-    if (w.vel > 0.001) { requestAnimationFrame(anim); }
-    else {
-      w.spinning = false;
-      w.hasResult = true;
-      btn.disabled = false;
-      btn.textContent = '🔄 Opnieuw draaien';
-      btn.classList.add('again');
-      const winner = getWinner(t);
-      res.textContent = '🎉 ' + winner + '!';
-      res.classList.add('show');
-      launchConfetti();
-    }
-  })();
+    (function anim() {
+      w.angle += w.vel;
+      w.vel *= friction;
+      drawWheel(t);
+      if (w.vel > 0.001) { requestAnimationFrame(anim); }
+      else {
+        doneCount++;
+        if (doneCount === 2) {
+          spinning = false;
+          btn.disabled = false;
+          btn.textContent = '🔄 Opnieuw draaien!';
+          btn.classList.add('again');
+          const rich = getWinner('rich');
+          const poor = getWinner('poor');
+          combo.textContent = '🎉 ' + rich + '  vs.  ' + poor + '!';
+          combo.classList.add('show');
+          launchConfetti();
+        }
+      }
+    })();
+  });
 }
 
-document.getElementById('wheelRich').addEventListener('click', () => spinWheel('rich'));
-document.getElementById('wheelPoor').addEventListener('click', () => spinWheel('poor'));
+document.getElementById('wheelRich').addEventListener('click', () => spinBoth());
+document.getElementById('wheelPoor').addEventListener('click', () => spinBoth());
 
 function initWheels() {
   W.rich.canvas = document.getElementById('wheelRich');
