@@ -1,0 +1,1424 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Plan van Aanpak — EnergieVlog</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,800&family=Inter+Tight:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0f1f17;
+    --paper: #f4f1e8;
+    --paper-deep: #ebe6d4;
+    --leaf: #2d5e3e;
+    --leaf-bright: #4a8a5e;
+    --sun: #f0a93b;
+    --sun-deep: #d68a1c;
+    --rust: #b04825;
+    --line: #0f1f17;
+    --shadow: rgba(15, 31, 23, 0.12);
+    --serif: 'Fraunces', Georgia, serif;
+    --sans: 'Inter Tight', -apple-system, sans-serif;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    font-family: var(--sans);
+    background: var(--paper);
+    color: var(--ink);
+    line-height: 1.5;
+    background-image:
+      radial-gradient(circle at 20% 10%, rgba(74, 138, 94, 0.08) 0%, transparent 40%),
+      radial-gradient(circle at 80% 70%, rgba(240, 169, 59, 0.08) 0%, transparent 40%);
+    min-height: 100vh;
+  }
+
+  /* Subtle paper grain texture */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' /%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.4'/%3E%3C/svg%3E");
+    opacity: 0.06;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .container {
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 40px 24px 80px;
+    position: relative;
+    z-index: 2;
+  }
+
+  /* Header */
+  header {
+    border: 2px solid var(--ink);
+    background: var(--paper-deep);
+    padding: 32px 36px;
+    margin-bottom: 32px;
+    position: relative;
+    box-shadow: 6px 6px 0 var(--ink);
+  }
+
+  .meta-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    align-items: center;
+    font-family: var(--sans);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--leaf);
+    margin-bottom: 14px;
+    font-weight: 600;
+  }
+
+  .meta-bar .dot {
+    width: 6px;
+    height: 6px;
+    background: var(--sun);
+    border-radius: 50%;
+  }
+
+  h1 {
+    font-family: var(--serif);
+    font-size: clamp(2.4rem, 5vw, 3.8rem);
+    font-weight: 800;
+    line-height: 0.95;
+    letter-spacing: -0.02em;
+    margin-bottom: 10px;
+  }
+
+  h1 em {
+    font-style: italic;
+    color: var(--leaf);
+    font-weight: 400;
+  }
+
+  .subtitle {
+    font-family: var(--serif);
+    font-size: 1.15rem;
+    font-style: italic;
+    color: var(--ink);
+    opacity: 0.75;
+    max-width: 600px;
+    margin-top: 8px;
+  }
+
+  .header-decoration {
+    position: absolute;
+    top: 20px;
+    right: 24px;
+    font-family: var(--serif);
+    font-size: 11px;
+    color: var(--leaf);
+    text-align: right;
+    line-height: 1.3;
+  }
+
+  /* Names section */
+  .names-bar {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    border: 2px solid var(--ink);
+    margin-bottom: 32px;
+    background: white;
+    box-shadow: 4px 4px 0 var(--ink);
+  }
+
+  .names-bar .field {
+    padding: 16px 20px;
+    border-right: 2px solid var(--ink);
+  }
+
+  .names-bar .field:last-child {
+    border-right: none;
+  }
+
+  .names-bar label {
+    display: block;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--leaf);
+    margin-bottom: 6px;
+    font-weight: 600;
+  }
+
+  .names-bar input {
+    border: none;
+    outline: none;
+    background: transparent;
+    font-family: var(--serif);
+    font-size: 1.4rem;
+    font-weight: 600;
+    width: 100%;
+    color: var(--ink);
+  }
+
+  .names-bar input::placeholder {
+    color: var(--ink);
+    opacity: 0.25;
+    font-style: italic;
+    font-weight: 400;
+  }
+
+  /* Section */
+  section.plan-section {
+    background: white;
+    border: 2px solid var(--ink);
+    margin-bottom: 28px;
+    box-shadow: 4px 4px 0 var(--ink);
+    overflow: hidden;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    padding: 20px 28px;
+    border-bottom: 2px solid var(--ink);
+    background: var(--paper-deep);
+  }
+
+  .section-number {
+    font-family: var(--serif);
+    font-size: 2.4rem;
+    font-weight: 800;
+    line-height: 1;
+    color: var(--leaf);
+    min-width: 50px;
+  }
+
+  .section-title-block h2 {
+    font-family: var(--serif);
+    font-size: 1.6rem;
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+  }
+
+  .section-title-block .lead {
+    font-size: 0.92rem;
+    color: var(--ink);
+    opacity: 0.7;
+    margin-top: 4px;
+    font-style: italic;
+    font-family: var(--serif);
+  }
+
+  .section-body {
+    padding: 28px;
+  }
+
+  /* Form fields */
+  .field-group {
+    margin-bottom: 22px;
+  }
+
+  .field-group:last-child {
+    margin-bottom: 0;
+  }
+
+  .field-group label {
+    display: block;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    color: var(--leaf);
+    margin-bottom: 8px;
+    font-weight: 600;
+  }
+
+  .field-group .hint {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 0.92rem;
+    color: var(--ink);
+    opacity: 0.65;
+    margin-bottom: 10px;
+    line-height: 1.4;
+  }
+
+  textarea, input[type="text"], input[type="date"], input[type="time"] {
+    width: 100%;
+    border: 1.5px solid var(--ink);
+    background: var(--paper);
+    padding: 12px 14px;
+    font-family: var(--sans);
+    font-size: 0.98rem;
+    color: var(--ink);
+    border-radius: 0;
+    outline: none;
+    resize: vertical;
+    transition: background 0.15s;
+  }
+
+  textarea:focus, input[type="text"]:focus, input[type="date"]:focus, input[type="time"]:focus {
+    background: white;
+    border-color: var(--leaf);
+    box-shadow: 3px 3px 0 var(--leaf);
+  }
+
+  textarea {
+    min-height: 90px;
+    line-height: 1.5;
+  }
+
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+  }
+
+  .three-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 14px;
+  }
+
+  /* Roles */
+  .roles-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 14px;
+  }
+
+  .role-card {
+    border: 1.5px solid var(--ink);
+    padding: 14px 16px;
+    background: var(--paper);
+  }
+
+  .role-card .role-title {
+    font-family: var(--serif);
+    font-weight: 700;
+    font-size: 1.05rem;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .role-card .role-emoji {
+    font-size: 1.2rem;
+  }
+
+  .role-card .role-desc {
+    font-size: 0.82rem;
+    opacity: 0.7;
+    margin-bottom: 10px;
+    font-style: italic;
+    font-family: var(--serif);
+  }
+
+  .role-card input {
+    background: white;
+    border: 1px solid var(--ink);
+    padding: 8px 10px;
+    font-family: var(--sans);
+    font-size: 0.9rem;
+    width: 100%;
+    outline: none;
+  }
+
+  /* Shotlist */
+  .shotlist {
+    border: 1.5px solid var(--ink);
+    background: var(--paper);
+  }
+
+  .shot-row {
+    display: grid;
+    grid-template-columns: 40px 1fr 1.6fr 1fr;
+    border-bottom: 1px solid var(--ink);
+  }
+
+  .shot-row:last-child {
+    border-bottom: none;
+  }
+
+  .shot-row.head {
+    background: var(--ink);
+    color: var(--paper);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    font-weight: 600;
+  }
+
+  .shot-row.head > div {
+    padding: 10px 12px;
+  }
+
+  .shot-row > div {
+    border-right: 1px solid var(--ink);
+    padding: 0;
+  }
+
+  .shot-row > div:last-child {
+    border-right: none;
+  }
+
+  .shot-row .shot-num {
+    font-family: var(--serif);
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--leaf);
+    text-align: center;
+    line-height: 44px;
+  }
+
+  .shot-row.head .shot-num {
+    color: var(--paper);
+    font-family: var(--sans);
+    line-height: normal;
+  }
+
+  .shot-row input, .shot-row textarea {
+    border: none;
+    background: transparent;
+    width: 100%;
+    padding: 12px 14px;
+    font-size: 0.92rem;
+    font-family: var(--sans);
+    outline: none;
+    box-shadow: none !important;
+    resize: none;
+    min-height: auto;
+  }
+
+  .shot-row input:focus, .shot-row textarea:focus {
+    background: white;
+    box-shadow: none !important;
+    border: none !important;
+  }
+
+  /* Begrippen */
+  .begrippen-box {
+    background: var(--paper-deep);
+    border: 1.5px solid var(--ink);
+    padding: 18px 20px;
+    margin-bottom: 18px;
+  }
+
+  .begrippen-box .label-mini {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    color: var(--leaf);
+    font-weight: 600;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .begrip-counter {
+    font-family: var(--serif);
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1;
+  }
+
+  .begrip-counter.complete {
+    color: var(--leaf);
+  }
+
+  .begrippen-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 8px;
+  }
+
+  .begrip-chip {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 8px 10px;
+    background: white;
+    border: 1.5px solid var(--ink);
+    cursor: pointer;
+    transition: all 0.15s;
+    font-size: 0.88rem;
+    line-height: 1.3;
+    user-select: none;
+  }
+
+  .begrip-chip:hover {
+    transform: translate(-1px, -1px);
+    box-shadow: 2px 2px 0 var(--ink);
+  }
+
+  .begrip-chip input[type="checkbox"] {
+    margin: 3px 0 0 0;
+    accent-color: var(--leaf);
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  .begrip-chip.checked {
+    background: var(--leaf);
+    color: var(--paper);
+  }
+
+  .begrip-chip .uitleg {
+    display: block;
+    font-size: 0.72rem;
+    opacity: 0.7;
+    margin-top: 2px;
+    font-style: italic;
+    font-family: var(--serif);
+  }
+
+  /* Checklist */
+  .checklist {
+    border: 1.5px solid var(--ink);
+    background: var(--paper);
+  }
+
+  .check-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--ink);
+    cursor: pointer;
+    transition: background 0.12s;
+    user-select: none;
+  }
+
+  .check-item:last-child {
+    border-bottom: none;
+  }
+
+  .check-item:hover {
+    background: white;
+  }
+
+  .check-item input {
+    accent-color: var(--leaf);
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+  }
+
+  .check-item.done {
+    background: var(--paper-deep);
+    text-decoration: line-through;
+    opacity: 0.6;
+  }
+
+  .check-label {
+    font-family: var(--serif);
+    font-size: 1rem;
+  }
+
+  /* Tijdverdeling visualisatie */
+  .time-bar {
+    display: flex;
+    height: 38px;
+    border: 2px solid var(--ink);
+    margin-top: 10px;
+    overflow: hidden;
+    font-family: var(--sans);
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  .time-bar .seg {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--paper);
+    border-right: 2px solid var(--ink);
+  }
+
+  .time-bar .seg:last-child {
+    border-right: none;
+  }
+
+  .time-bar .seg.huis { background: var(--leaf); flex: 2; }
+  .time-bar .seg.wijk { background: var(--leaf-bright); flex: 2; }
+  .time-bar .seg.intro { background: var(--sun); color: var(--ink); flex: 0.8; }
+  .time-bar .seg.conclusie { background: var(--rust); flex: 1; }
+
+  /* Action buttons */
+  .actions {
+    position: sticky;
+    bottom: 20px;
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin-top: 40px;
+    flex-wrap: wrap;
+    z-index: 10;
+  }
+
+  .btn {
+    font-family: var(--sans);
+    font-weight: 600;
+    font-size: 0.92rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    padding: 14px 24px;
+    border: 2px solid var(--ink);
+    cursor: pointer;
+    transition: all 0.12s;
+    background: var(--paper);
+    color: var(--ink);
+    box-shadow: 4px 4px 0 var(--ink);
+  }
+
+  .btn:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0 var(--ink);
+  }
+
+  .btn:active {
+    transform: translate(2px, 2px);
+    box-shadow: 0 0 0 var(--ink);
+  }
+
+  .btn.primary {
+    background: var(--leaf);
+    color: var(--paper);
+  }
+
+  .btn.warning {
+    background: var(--sun);
+  }
+
+  .btn.word-btn {
+    background: #2b579a;
+    color: var(--paper);
+  }
+
+  /* Save indicator */
+  .save-toast {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: var(--ink);
+    color: var(--paper);
+    padding: 12px 22px;
+    font-family: var(--sans);
+    font-size: 0.88rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    transition: transform 0.3s;
+    z-index: 100;
+  }
+
+  .save-toast.visible {
+    transform: translateX(-50%) translateY(0);
+  }
+
+  /* Footer */
+  footer {
+    text-align: center;
+    margin-top: 60px;
+    padding-top: 30px;
+    border-top: 1px solid var(--ink);
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 0.92rem;
+    color: var(--ink);
+    opacity: 0.6;
+  }
+
+  /* Responsive */
+  @media (max-width: 720px) {
+    .container { padding: 20px 14px 60px; }
+    header { padding: 22px; box-shadow: 4px 4px 0 var(--ink); }
+    .header-decoration { display: none; }
+    .names-bar { grid-template-columns: 1fr; }
+    .names-bar .field { border-right: none; border-bottom: 2px solid var(--ink); }
+    .names-bar .field:last-child { border-bottom: none; }
+    .two-col, .three-col { grid-template-columns: 1fr; }
+    .section-header { padding: 16px 18px; }
+    .section-body { padding: 20px; }
+    .section-number { font-size: 2rem; }
+    .shot-row { grid-template-columns: 30px 1fr; gap: 0; }
+    .shot-row > div { border-right: none; border-bottom: 1px solid var(--ink); }
+    .shot-row > div.shot-num { border-bottom: 1px solid var(--ink); }
+    .shot-row.head { display: none; }
+  }
+
+  /* Print styles */
+  @media print {
+    body { background: white; }
+    body::before { display: none; }
+    .actions, .save-toast { display: none; }
+    section.plan-section, .names-bar, header { 
+      box-shadow: none; 
+      page-break-inside: avoid;
+    }
+    .container { padding: 10px; }
+    textarea, input { background: white !important; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <div class="meta-bar">
+      <span>Aardrijkskunde</span>
+      <span class="dot"></span>
+      <span>Klas 3 VMBO-T</span>
+      <span class="dot"></span>
+      <span>Plan van Aanpak</span>
+    </div>
+    <h1>Energie<em>Vlog</em><br>werkplan</h1>
+    <p class="subtitle">Voordat de camera aangaat — alles wat jullie nodig hebben om buiten de les meteen door te kunnen.</p>
+    <div class="header-decoration">
+      ⚡ Duurzame energie<br>
+      🎬 5–7 minuten<br>
+      👥 Duo-opdracht
+    </div>
+  </header>
+
+  <div class="names-bar">
+    <div class="field">
+      <label>Leerling 1</label>
+      <input type="text" data-key="naam1" placeholder="Voornaam + achternaam">
+    </div>
+    <div class="field">
+      <label>Leerling 2</label>
+      <input type="text" data-key="naam2" placeholder="Voornaam + achternaam">
+    </div>
+  </div>
+
+  <!-- 1. Centrale vraag -->
+  <section class="plan-section">
+    <div class="section-header">
+      <div class="section-number">01</div>
+      <div class="section-title-block">
+        <h2>De centrale vraag</h2>
+        <p class="lead">Hoe duurzaam is de energie in jouw huis en wijk, en wat valt jou daarin op?</p>
+      </div>
+    </div>
+    <div class="section-body">
+      <div class="field-group">
+        <label>Onze invulling van de centrale vraag</label>
+        <p class="hint">Wat gaan jullie precies onderzoeken? Welke wijk? Welk huis? Maak het concreet.</p>
+        <textarea data-key="centrale_vraag" placeholder="Voorbeeld: We onderzoeken de wijk Lent en het huis van Sara. We willen weten of nieuwere wijken duurzamer zijn dan oudere..."></textarea>
+      </div>
+
+      <div class="field-group">
+        <label>Wat verwachten we te zien? (hypothese)</label>
+        <p class="hint">Een goede hypothese helpt om scherp te observeren tijdens het filmen.</p>
+        <textarea data-key="hypothese" placeholder="We denken dat... omdat..."></textarea>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. Rolverdeling -->
+  <section class="plan-section">
+    <div class="section-header">
+      <div class="section-number">02</div>
+      <div class="section-title-block">
+        <h2>Rolverdeling</h2>
+        <p class="lead">Wissel af wie filmt en wie in beeld is — jullie moeten <strong>allebei zichtbaar én hoorbaar</strong> zijn in de vlog.</p>
+      </div>
+    </div>
+    <div class="section-body">
+
+      <div style="background: var(--sun); border: 1.5px solid var(--ink); padding: 12px 16px; margin-bottom: 20px; font-family: var(--serif); font-size: 0.95rem;">
+        ⚠️ <strong>Let op:</strong> De camera wisselt steeds van hand. Wie praat staat vóór de camera, de ander filmt. Bij het volgende stuk draaien jullie om. Zo komen jullie allebei in beeld.
+      </div>
+
+      <div class="roles-grid">
+        <div class="role-card">
+          <div class="role-title"><span class="role-emoji">🎬</span> Stuk 1 — Intro</div>
+          <div class="role-desc">Wie staat in beeld? (de ander filmt)</div>
+          <input type="text" data-key="rol_intro" placeholder="Naam in beeld">
+        </div>
+        <div class="role-card">
+          <div class="role-title"><span class="role-emoji">🏠</span> Stuk 2 — Thuis</div>
+          <div class="role-desc">Wie staat in beeld? (de ander filmt)</div>
+          <input type="text" data-key="rol_huis" placeholder="Naam in beeld">
+        </div>
+        <div class="role-card">
+          <div class="role-title"><span class="role-emoji">🏘️</span> Stuk 3 — Wijk</div>
+          <div class="role-desc">Wie staat in beeld? (de ander filmt)</div>
+          <input type="text" data-key="rol_wijk" placeholder="Naam in beeld">
+        </div>
+        <div class="role-card">
+          <div class="role-title"><span class="role-emoji">🎯</span> Stuk 4 — Slot</div>
+          <div class="role-desc">Tip: doe de conclusie samen, allebei in beeld</div>
+          <input type="text" data-key="rol_slot" placeholder="Bijv. samen, of naam">
+        </div>
+      </div>
+
+      <div style="margin-top: 24px;">
+        <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em; color: var(--leaf); font-weight: 600; margin-bottom: 12px;">Taken na het filmen</div>
+        <div class="two-col">
+          <div class="role-card">
+            <div class="role-title"><span class="role-emoji">✂️</span> Monteur</div>
+            <div class="role-desc">Knipt de beelden samen tot één vlog</div>
+            <input type="text" data-key="rol_monteur" placeholder="Naam">
+          </div>
+          <div class="role-card">
+            <div class="role-title"><span class="role-emoji">📤</span> Inleveraar</div>
+            <div class="role-desc">Levert de vlog op tijd in</div>
+            <input type="text" data-key="rol_inleveren" placeholder="Naam">
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- 3. Planning -->
+  <section class="plan-section">
+    <div class="section-header">
+      <div class="section-number">03</div>
+      <div class="section-title-block">
+        <h2>Wanneer & waar</h2>
+        <p class="lead">Daglicht is jullie beste vriend. Plan vooruit.</p>
+      </div>
+    </div>
+    <div class="section-body">
+      <div class="three-col">
+        <div class="field-group">
+          <label>Datum filmen</label>
+          <input type="date" data-key="datum">
+        </div>
+        <div class="field-group">
+          <label>Starttijd</label>
+          <input type="time" data-key="starttijd">
+        </div>
+        <div class="field-group">
+          <label>Eindtijd</label>
+          <input type="time" data-key="eindtijd">
+        </div>
+      </div>
+      <div class="two-col">
+        <div class="field-group">
+          <label>Adres / locatie huis</label>
+          <input type="text" data-key="locatie_huis" placeholder="Wiens huis filmen we?">
+        </div>
+        <div class="field-group">
+          <label>Route door de wijk</label>
+          <input type="text" data-key="route" placeholder="Welke straten lopen we?">
+        </div>
+      </div>
+      <div class="field-group" style="margin-top: 6px;">
+        <label>Reservedatum (voor als het regent of we ziek zijn)</label>
+        <input type="text" data-key="reserve" placeholder="Datum + plan B">
+      </div>
+
+      <div class="field-group" style="margin-top: 22px;">
+        <label>Tijdsverdeling van de vlog (5–7 minuten)</label>
+        <div class="time-bar">
+          <div class="seg intro">Intro<br>±30s</div>
+          <div class="seg huis">Thuis<br>±2 min</div>
+          <div class="seg wijk">Wijk<br>±2 min</div>
+          <div class="seg conclusie">Slot<br>±1 min</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. Begrippen -->
+  <section class="plan-section">
+    <div class="section-header">
+      <div class="section-number">04</div>
+      <div class="section-title-block">
+        <h2>Welke begrippen gebruiken we?</h2>
+        <p class="lead">Minimaal 3 nodig — vink aan welke jullie willen verwerken.</p>
+      </div>
+    </div>
+    <div class="section-body">
+      <div class="begrippen-box">
+        <div class="label-mini">
+          <span>Aangevinkt</span>
+          <span class="begrip-counter" id="counter">0 / 10</span>
+        </div>
+        <div class="begrippen-grid" id="begrippenGrid">
+          <!-- Vullen met JS -->
+        </div>
+      </div>
+
+      <div class="field-group">
+        <label>In welke zinnen gaan we deze begrippen gebruiken?</label>
+        <p class="hint">Schrijf alvast op hoe je ze in de vlog wil zeggen — dan vergeet je ze niet.</p>
+        <textarea data-key="begrippen_zinnen" placeholder="Voorbeeld: 'Op dit dak zien we zonnepanelen — een vorm van zonne-energie...'" style="min-height: 120px;"></textarea>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. Shotlist huis -->
+  <section class="plan-section">
+    <div class="section-header">
+      <div class="section-number">05</div>
+      <div class="section-title-block">
+        <h2>Shotlist — bij het huis</h2>
+        <p class="lead">Wat ga je filmen, en wat ga je daarbij zeggen? (±2 min)</p>
+      </div>
+    </div>
+    <div class="section-body">
+      <div class="shotlist">
+        <div class="shot-row head">
+          <div class="shot-num">#</div>
+          <div>Wat zien we?</div>
+          <div>Wat zeggen we erover?</div>
+          <div>Begrip(pen)</div>
+        </div>
+        <div class="shot-row">
+          <div class="shot-num">1</div>
+          <div><input type="text" data-key="shot_huis_1_zien" placeholder="bv. de cv-ketel"></div>
+          <div><input type="text" data-key="shot_huis_1_zeg" placeholder="Wat valt op? Waarom?"></div>
+          <div><input type="text" data-key="shot_huis_1_begrip" placeholder="bv. fossiel"></div>
+        </div>
+        <div class="shot-row">
+          <div class="shot-num">2</div>
+          <div><input type="text" data-key="shot_huis_2_zien" placeholder=""></div>
+          <div><input type="text" data-key="shot_huis_2_zeg" placeholder=""></div>
+          <div><input type="text" data-key="shot_huis_2_begrip" placeholder=""></div>
+        </div>
+        <div class="shot-row">
+          <div class="shot-num">3</div>
+          <div><input type="text" data-key="shot_huis_3_zien" placeholder=""></div>
+          <div><input type="text" data-key="shot_huis_3_zeg" placeholder=""></div>
+          <div><input type="text" data-key="shot_huis_3_begrip" placeholder=""></div>
+        </div>
+        <div class="shot-row">
+          <div class="shot-num">4</div>
+          <div><input type="text" data-key="shot_huis_4_zien" placeholder=""></div>
+          <div><input type="text" data-key="shot_huis_4_zeg" placeholder=""></div>
+          <div><input type="text" data-key="shot_huis_4_begrip" placeholder=""></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6. Shotlist wijk -->
+  <section class="plan-section">
+    <div class="section-header">
+      <div class="section-number">06</div>
+      <div class="section-title-block">
+        <h2>Shotlist — in de wijk</h2>
+        <p class="lead">Let op patronen: oude versus nieuwe huizen, daken, straatbeeld. (±2 min)</p>
+      </div>
+    </div>
+    <div class="section-body">
+      <div class="shotlist">
+        <div class="shot-row head">
+          <div class="shot-num">#</div>
+          <div>Wat zien we?</div>
+          <div>Wat zeggen we erover?</div>
+          <div>Begrip(pen)</div>
+        </div>
+        <div class="shot-row">
+          <div class="shot-num">1</div>
+          <div><input type="text" data-key="shot_wijk_1_zien" placeholder="bv. zonnepanelen op een rij huizen"></div>
+          <div><input type="text" data-key="shot_wijk_1_zeg" placeholder=""></div>
+          <div><input type="text" data-key="shot_wijk_1_begrip" placeholder=""></div>
+        </div>
+        <div class="shot-row">
+          <div class="shot-num">2</div>
+          <div><input type="text" data-key="shot_wijk_2_zien" placeholder=""></div>
+          <div><input type="text" data-key="shot_wijk_2_zeg" placeholder=""></div>
+          <div><input type="text" data-key="shot_wijk_2_begrip" placeholder=""></div>
+        </div>
+        <div class="shot-row">
+          <div class="shot-num">3</div>
+          <div><input type="text" data-key="shot_wijk_3_zien" placeholder=""></div>
+          <div><input type="text" data-key="shot_wijk_3_zeg" placeholder=""></div>
+          <div><input type="text" data-key="shot_wijk_3_begrip" placeholder=""></div>
+        </div>
+        <div class="shot-row">
+          <div class="shot-num">4</div>
+          <div><input type="text" data-key="shot_wijk_4_zien" placeholder=""></div>
+          <div><input type="text" data-key="shot_wijk_4_zeg" placeholder=""></div>
+          <div><input type="text" data-key="shot_wijk_4_begrip" placeholder=""></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7. Conclusie -->
+  <section class="plan-section">
+    <div class="section-header">
+      <div class="section-number">07</div>
+      <div class="section-title-block">
+        <h2>Concept-conclusie</h2>
+        <p class="lead">Schrijf alvast op wat jullie waarschijnlijk gaan zeggen aan het eind van de vlog (±1 min).</p>
+      </div>
+    </div>
+    <div class="section-body">
+      <div class="field-group">
+        <label>Hoe duurzaam is jullie omgeving?</label>
+        <textarea data-key="concl_duurzaam" placeholder="Onze conclusie is..."></textarea>
+      </div>
+      <div class="field-group">
+        <label>Wat valt jullie op? (patronen, verschillen)</label>
+        <textarea data-key="concl_opvallend" placeholder="Wat zien we vaak? Wat juist weinig?"></textarea>
+      </div>
+      <div class="field-group">
+        <label>Wat zou anders kunnen of moeten?</label>
+        <textarea data-key="concl_advies" placeholder="Onze tip voor de wijk..."></textarea>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8. Spullen -->
+  <section class="plan-section">
+    <div class="section-header">
+      <div class="section-number">08</div>
+      <div class="section-title-block">
+        <h2>Wat nemen we mee?</h2>
+        <p class="lead">Vink af voordat je de deur uit gaat.</p>
+      </div>
+    </div>
+    <div class="section-body">
+      <div class="checklist" id="checklist">
+        <label class="check-item">
+          <input type="checkbox" data-check="check_telefoon">
+          <span class="check-label">Telefoon — opgeladen, met genoeg ruimte voor video</span>
+        </label>
+        <label class="check-item">
+          <input type="checkbox" data-check="check_powerbank">
+          <span class="check-label">Powerbank of oplader (voor de zekerheid)</span>
+        </label>
+        <label class="check-item">
+          <input type="checkbox" data-check="check_oortjes">
+          <span class="check-label">Oortjes met microfoon (geluid wordt veel beter)</span>
+        </label>
+        <label class="check-item">
+          <input type="checkbox" data-check="check_plan">
+          <span class="check-label">Dit plan van aanpak (geprint of op je telefoon)</span>
+        </label>
+        <label class="check-item">
+          <input type="checkbox" data-check="check_jas">
+          <span class="check-label">Goede kleren — niet te warm, niet te koud</span>
+        </label>
+        <label class="check-item">
+          <input type="checkbox" data-check="check_toestemming">
+          <span class="check-label">Toestemming gevraagd om binnen te filmen</span>
+        </label>
+        <label class="check-item">
+          <input type="checkbox" data-check="check_route">
+          <span class="check-label">Route door de wijk vooraf afgesproken</span>
+        </label>
+      </div>
+    </div>
+  </section>
+
+  <!-- 9. Inleveren -->
+  <section class="plan-section">
+    <div class="section-header">
+      <div class="section-number">09</div>
+      <div class="section-title-block">
+        <h2>Na het filmen</h2>
+        <p class="lead">Bijna klaar — nog even monteren en inleveren.</p>
+      </div>
+    </div>
+    <div class="section-body">
+      <div class="checklist">
+        <label class="check-item">
+          <input type="checkbox" data-check="check_monteren">
+          <span class="check-label">Beelden gemonteerd tot één vlog van 5–7 minuten</span>
+        </label>
+        <label class="check-item">
+          <input type="checkbox" data-check="check_geluid">
+          <span class="check-label">Geluid is duidelijk verstaanbaar overal</span>
+        </label>
+        <label class="check-item">
+          <input type="checkbox" data-check="check_beiden">
+          <span class="check-label">We zijn allebei zichtbaar én hoorbaar</span>
+        </label>
+        <label class="check-item">
+          <input type="checkbox" data-check="check_3begrippen">
+          <span class="check-label">Minimaal 3 begrippen zijn correct gebruikt</span>
+        </label>
+        <label class="check-item">
+          <input type="checkbox" data-check="check_conclusie">
+          <span class="check-label">Conclusie zit erin (huis → wijk → conclusie)</span>
+        </label>
+        <label class="check-item">
+          <input type="checkbox" data-check="check_inleveren">
+          <span class="check-label">Vlog ingeleverd via afgesproken manier</span>
+        </label>
+      </div>
+    </div>
+  </section>
+
+  <div class="actions">
+    <button class="btn primary" onclick="saveAll()">💾 Opslaan</button>
+    <button class="btn" onclick="window.print()">🖨️ Printen / PDF</button>
+    <button class="btn word-btn" onclick="copyForWord()">📄 Kopieer voor Word</button>
+    <button class="btn warning" onclick="resetAll()">🗑️ Wissen</button>
+  </div>
+
+  <footer>
+    Plan van aanpak · gebaseerd op de EnergieVlog-opdracht · aardrijkskunde<br>
+    <span style="font-size: 0.78rem; opacity: 0.7;">Je werk wordt automatisch opgeslagen in deze browser.</span>
+  </footer>
+
+</div>
+
+<div class="save-toast" id="toast">✓ Opgeslagen</div>
+
+<script>
+  // Begrippen uit de opdracht
+  const begrippen = [
+    { naam: 'Duurzame energie', uitleg: 'zon, wind, water — raakt niet op' },
+    { naam: 'Fossiele brandstoffen', uitleg: 'kolen, gas, olie — raakt op, geeft CO₂' },
+    { naam: 'Zonne-energie', uitleg: 'via zonnepanelen' },
+    { naam: 'Windenergie', uitleg: 'via windmolens' },
+    { naam: 'Energieverbruik', uitleg: 'hoeveel je gebruikt' },
+    { naam: 'Isolatie', uitleg: 'houdt warmte binnen' },
+    { naam: 'CO₂-uitstoot', uitleg: 'draagt bij aan opwarming' },
+    { naam: 'Energietransitie', uitleg: 'overgang naar duurzaam' },
+    { naam: 'Zonnepaneel', uitleg: 'plaat die licht omzet in stroom' },
+    { naam: 'Warmtepomp', uitleg: 'verwarmt zonder gas' }
+  ];
+
+  const STORAGE_KEY = 'energievlog_plan';
+
+  // Render begrippen
+  const begrippenGrid = document.getElementById('begrippenGrid');
+  begrippen.forEach((b, i) => {
+    const label = document.createElement('label');
+    label.className = 'begrip-chip';
+    label.innerHTML = `
+      <input type="checkbox" data-begrip="${b.naam}">
+      <span>
+        <strong>${b.naam}</strong>
+        <span class="uitleg">${b.uitleg}</span>
+      </span>
+    `;
+    begrippenGrid.appendChild(label);
+
+    const cb = label.querySelector('input');
+    cb.addEventListener('change', () => {
+      label.classList.toggle('checked', cb.checked);
+      updateCounter();
+      saveAll(true);
+    });
+  });
+
+  function updateCounter() {
+    const total = document.querySelectorAll('[data-begrip]').length;
+    const checked = document.querySelectorAll('[data-begrip]:checked').length;
+    const counter = document.getElementById('counter');
+    counter.textContent = `${checked} / ${total}`;
+    counter.classList.toggle('complete', checked >= 3);
+  }
+
+  // Save & load
+  function saveAll(silent = false) {
+    const data = {};
+    
+    // Tekstvelden
+    document.querySelectorAll('[data-key]').forEach(el => {
+      data[el.dataset.key] = el.value;
+    });
+
+    // Checklists
+    document.querySelectorAll('[data-check]').forEach(el => {
+      data[el.dataset.check] = el.checked;
+    });
+
+    // Begrippen
+    data.begrippen = [];
+    document.querySelectorAll('[data-begrip]').forEach(el => {
+      if (el.checked) data.begrippen.push(el.dataset.begrip);
+    });
+
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      if (!silent) showToast('✓ Opgeslagen');
+    } catch (e) {
+      if (!silent) showToast('⚠️ Kon niet opslaan');
+    }
+  }
+
+  function loadAll() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return;
+      const data = JSON.parse(raw);
+
+      document.querySelectorAll('[data-key]').forEach(el => {
+        if (data[el.dataset.key] !== undefined) el.value = data[el.dataset.key];
+      });
+
+      document.querySelectorAll('[data-check]').forEach(el => {
+        if (data[el.dataset.check] !== undefined) {
+          el.checked = data[el.dataset.check];
+          updateCheckItem(el);
+        }
+      });
+
+      if (Array.isArray(data.begrippen)) {
+        document.querySelectorAll('[data-begrip]').forEach(el => {
+          if (data.begrippen.includes(el.dataset.begrip)) {
+            el.checked = true;
+            el.closest('.begrip-chip').classList.add('checked');
+          }
+        });
+      }
+
+      updateCounter();
+    } catch (e) {
+      console.error('Laden mislukt:', e);
+    }
+  }
+
+  function resetAll() {
+    if (!confirm('Weet je zeker dat je alles wilt wissen? Dit kan niet ongedaan gemaakt worden.')) return;
+    localStorage.removeItem(STORAGE_KEY);
+    document.querySelectorAll('[data-key]').forEach(el => el.value = '');
+    document.querySelectorAll('[data-check]').forEach(el => {
+      el.checked = false;
+      updateCheckItem(el);
+    });
+    document.querySelectorAll('[data-begrip]').forEach(el => {
+      el.checked = false;
+      el.closest('.begrip-chip').classList.remove('checked');
+    });
+    updateCounter();
+    showToast('🗑️ Alles gewist');
+  }
+
+  function updateCheckItem(checkbox) {
+    const item = checkbox.closest('.check-item');
+    if (item) item.classList.toggle('done', checkbox.checked);
+  }
+
+  // Auto-save
+  let saveTimer;
+  document.querySelectorAll('[data-key], [data-check]').forEach(el => {
+    el.addEventListener('input', () => {
+      clearTimeout(saveTimer);
+      saveTimer = setTimeout(() => saveAll(true), 600);
+    });
+    if (el.type === 'checkbox') {
+      el.addEventListener('change', () => updateCheckItem(el));
+    }
+  });
+
+  // Toast
+  let toastTimer;
+  function showToast(msg) {
+    const toast = document.getElementById('toast');
+    toast.textContent = msg;
+    toast.classList.add('visible');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toast.classList.remove('visible'), 1800);
+  }
+
+  // Kopieer voor Word
+  function copyForWord() {
+    const get = (key) => {
+      const el = document.querySelector(`[data-key="${key}"]`);
+      return el ? el.value.trim() : '';
+    };
+    const isChecked = (key) => {
+      const el = document.querySelector(`[data-check="${key}"]`);
+      return el ? el.checked : false;
+    };
+    const checkMark = (key) => isChecked(key) ? '☑' : '☐';
+
+    const naam1 = get('naam1') || '________________';
+    const naam2 = get('naam2') || '________________';
+
+    const aangevinkteBegrippen = [];
+    document.querySelectorAll('[data-begrip]:checked').forEach(el => {
+      aangevinkteBegrippen.push(el.dataset.begrip);
+    });
+
+    // Shotlist regel bouwen — alleen tonen als er iets is ingevuld
+    const shotRegel = (zien, zeg, begrip) => {
+      const z = get(zien);
+      const s = get(zeg);
+      const b = get(begrip);
+      if (!z && !s && !b) return null;
+      let regel = `   • Wat zien we: ${z || '(leeg)'}\n`;
+      regel += `     Wat zeggen we: ${s || '(leeg)'}\n`;
+      regel += `     Begrip: ${b || '(leeg)'}`;
+      return regel;
+    };
+
+    const shotsHuis = [];
+    for (let i = 1; i <= 4; i++) {
+      const r = shotRegel(`shot_huis_${i}_zien`, `shot_huis_${i}_zeg`, `shot_huis_${i}_begrip`);
+      if (r) shotsHuis.push(`Shot ${i}:\n${r}`);
+    }
+
+    const shotsWijk = [];
+    for (let i = 1; i <= 4; i++) {
+      const r = shotRegel(`shot_wijk_${i}_zien`, `shot_wijk_${i}_zeg`, `shot_wijk_${i}_begrip`);
+      if (r) shotsWijk.push(`Shot ${i}:\n${r}`);
+    }
+
+    const tekst = `PLAN VAN AANPAK — ENERGIEVLOG
+Aardrijkskunde · Klas 3 VMBO-T
+
+═══════════════════════════════════════════════
+
+Leerling 1: ${naam1}
+Leerling 2: ${naam2}
+Datum filmen: ${get('datum') || '________'}    Tijd: ${get('starttijd') || '____'} – ${get('eindtijd') || '____'}
+
+═══════════════════════════════════════════════
+
+1. DE CENTRALE VRAAG
+───────────────────────────────────────────────
+Hoe duurzaam is de energie in jouw huis en wijk, en wat valt jou daarin op?
+
+Onze invulling van de centrale vraag:
+${get('centrale_vraag') || '(nog niet ingevuld)'}
+
+Onze hypothese (wat verwachten we te zien?):
+${get('hypothese') || '(nog niet ingevuld)'}
+
+
+2. ROLVERDELING
+───────────────────────────────────────────────
+We wisselen wie filmt en wie in beeld is, zodat we allebei zichtbaar én hoorbaar zijn.
+
+Stuk 1 — Intro:    in beeld = ${get('rol_intro') || '________'}
+Stuk 2 — Thuis:    in beeld = ${get('rol_huis') || '________'}
+Stuk 3 — Wijk:     in beeld = ${get('rol_wijk') || '________'}
+Stuk 4 — Slot:     in beeld = ${get('rol_slot') || '________'}
+
+Na het filmen:
+   Monteur:        ${get('rol_monteur') || '________'}
+   Inleveraar:     ${get('rol_inleveren') || '________'}
+
+
+3. WANNEER & WAAR
+───────────────────────────────────────────────
+Datum:              ${get('datum') || '________'}
+Starttijd:          ${get('starttijd') || '________'}
+Eindtijd:           ${get('eindtijd') || '________'}
+Locatie huis:       ${get('locatie_huis') || '________'}
+Route door wijk:    ${get('route') || '________'}
+Reservedatum:       ${get('reserve') || '________'}
+
+Tijdsverdeling vlog (5–7 min):
+   Intro       ±30 sec
+   Thuis       ±2 min
+   Wijk        ±2 min
+   Slot        ±1 min
+
+
+4. BEGRIPPEN DIE WE GAAN GEBRUIKEN
+───────────────────────────────────────────────
+Aangevinkt: ${aangevinkteBegrippen.length} van 10 (minimaal 3 nodig)
+
+${aangevinkteBegrippen.length > 0 ? aangevinkteBegrippen.map(b => `   • ${b}`).join('\n') : '   (nog geen begrippen aangevinkt)'}
+
+In welke zinnen gaan we deze begrippen gebruiken?
+${get('begrippen_zinnen') || '(nog niet ingevuld)'}
+
+
+5. SHOTLIST — BIJ HET HUIS  (±2 min)
+───────────────────────────────────────────────
+${shotsHuis.length > 0 ? shotsHuis.join('\n\n') : '(nog geen shots ingevuld)'}
+
+
+6. SHOTLIST — IN DE WIJK  (±2 min)
+───────────────────────────────────────────────
+${shotsWijk.length > 0 ? shotsWijk.join('\n\n') : '(nog geen shots ingevuld)'}
+
+
+7. CONCEPT-CONCLUSIE  (±1 min)
+───────────────────────────────────────────────
+Hoe duurzaam is onze omgeving?
+${get('concl_duurzaam') || '(nog niet ingevuld)'}
+
+Wat valt ons op? (patronen, verschillen)
+${get('concl_opvallend') || '(nog niet ingevuld)'}
+
+Wat zou anders kunnen of moeten?
+${get('concl_advies') || '(nog niet ingevuld)'}
+
+
+8. WAT NEMEN WE MEE?
+───────────────────────────────────────────────
+${checkMark('check_telefoon')} Telefoon — opgeladen, met genoeg ruimte voor video
+${checkMark('check_powerbank')} Powerbank of oplader (voor de zekerheid)
+${checkMark('check_oortjes')} Oortjes met microfoon
+${checkMark('check_plan')} Dit plan van aanpak (geprint of op telefoon)
+${checkMark('check_jas')} Goede kleren (niet te warm, niet te koud)
+${checkMark('check_toestemming')} Toestemming gevraagd om binnen te filmen
+${checkMark('check_route')} Route door de wijk vooraf afgesproken
+
+
+9. NA HET FILMEN
+───────────────────────────────────────────────
+${checkMark('check_monteren')} Beelden gemonteerd tot één vlog van 5–7 minuten
+${checkMark('check_geluid')} Geluid is duidelijk verstaanbaar overal
+${checkMark('check_beiden')} We zijn allebei zichtbaar én hoorbaar
+${checkMark('check_3begrippen')} Minimaal 3 begrippen correct gebruikt
+${checkMark('check_conclusie')} Conclusie zit erin (huis → wijk → conclusie)
+${checkMark('check_inleveren')} Vlog ingeleverd via afgesproken manier
+
+═══════════════════════════════════════════════
+Plan van aanpak EnergieVlog · ${new Date().toLocaleDateString('nl-NL')}
+`;
+
+    // Probeer naar klembord te kopiëren
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(tekst).then(() => {
+        showToast('📄 Gekopieerd! Plak in Word met Ctrl+V');
+      }).catch(() => {
+        fallbackCopy(tekst);
+      });
+    } else {
+      fallbackCopy(tekst);
+    }
+  }
+
+  // Fallback voor oudere browsers / als clipboard API faalt
+  function fallbackCopy(tekst) {
+    const ta = document.createElement('textarea');
+    ta.value = tekst;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.focus();
+    ta.select();
+    try {
+      document.execCommand('copy');
+      showToast('📄 Gekopieerd! Plak in Word met Ctrl+V');
+    } catch (e) {
+      // Laatste redmiddel: laat tekst zien in een nieuw venster
+      const win = window.open('', '_blank');
+      win.document.write(`<pre style="font-family: Consolas, monospace; padding: 20px; white-space: pre-wrap;">${tekst.replace(/</g, '&lt;')}</pre>`);
+      showToast('⚠️ Kopiëren lukte niet — selecteer en kopieer handmatig');
+    }
+    document.body.removeChild(ta);
+  }
+
+  // Init
+  loadAll();
+</script>
+</body>
+</html>
