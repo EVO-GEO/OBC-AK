@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Geography Project — Rich & Poor in Focus</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700;800&family=Nunito:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --c-bg: #f0f4f8;
+  --c-card: #ffffff;
+  --c-primary: #2563eb;
+  --c-primary-light: #dbeafe;
+  --c-primary-dark: #1e40af;
+  --c-accent: #f59e0b;
+  --c-accent-light: #fef3c7;
+  --c-green: #10b981;
+  --c-green-light: #d1fae5;
+  --c-red: #ef4444;
+  --c-red-light: #fee2e2;
+  --c-purple: #8b5cf6;
+  --c-purple-light: #ede9fe;
+  --c-text: #1e293b;
+  --c-text-muted: #64748b;
+  --c-border: #e2e8f0;
+  --radius: 16px;
+  --shadow: 0 4px 24px rgba(0,0,0,0.06);
+  --shadow-lg: 0 8px 40px rgba(0,0,0,0.10);
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Nunito',sans-serif; background:var(--c-bg); color:var(--c-text); min-height:100vh; overflow-x:hidden; }
+
+.hero { background:linear-gradient(135deg,#1e3a5f 0%,#2563eb 50%,#7c3aed 100%); color:white; padding:2.5rem 1.5rem 3.5rem; text-align:center; position:relative; overflow:hidden; }
+.hero::before { content:''; position:absolute; top:-50%; left:-50%; width:200%; height:200%; background:radial-gradient(circle at 30% 40%,rgba(255,255,255,0.08) 0%,transparent 50%),radial-gradient(circle at 70% 60%,rgba(245,158,11,0.12) 0%,transparent 40%); animation:heroFloat 20s ease-in-out infinite; }
+@keyframes heroFloat { 0%,100%{transform:translate(0,0) rotate(0deg)} 50%{transform:translate(-2%,1%) rotate(1deg)} }
+.hero-content { position:relative; z-index:1; max-width:800px; margin:0 auto; }
+.hero-emoji { font-size:3rem; margin-bottom:0.5rem; display:block; animation:bounce 2s ease-in-out infinite; }
+@keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+.hero h1 { font-family:'Baloo 2',cursive; font-size:clamp(1.8rem,5vw,2.8rem); font-weight:800; line-height:1.15; margin-bottom:0.4rem; }
+.hero p { font-size:1.05rem; opacity:0.9; max-width:550px; margin:0 auto; line-height:1.5; }
+.hero-badge { display:inline-block; background:rgba(255,255,255,0.18); backdrop-filter:blur(8px); border:1px solid rgba(255,255,255,0.25); border-radius:999px; padding:0.35rem 1rem; font-size:0.85rem; font-weight:600; margin-top:1rem; }
+
+.tab-container { max-width:960px; margin:-1.5rem auto 2rem; padding:0 1rem; position:relative; z-index:2; }
+.tab-nav { display:flex; gap:0.35rem; background:var(--c-card); border-radius:var(--radius); padding:0.4rem; box-shadow:var(--shadow-lg); overflow-x:auto; -webkit-overflow-scrolling:touch; scrollbar-width:none; }
+.tab-nav::-webkit-scrollbar { display:none; }
+.tab-btn { flex:1; min-width:0; border:none; background:transparent; padding:0.65rem 0.4rem; border-radius:12px; cursor:pointer; font-family:'Nunito',sans-serif; font-weight:700; font-size:0.72rem; color:var(--c-text-muted); transition:all 0.25s ease; display:flex; flex-direction:column; align-items:center; gap:0.15rem; white-space:nowrap; }
+.tab-btn span.tab-icon { font-size:1.2rem; }
+.tab-btn:hover { background:var(--c-primary-light); color:var(--c-primary); }
+.tab-btn.active { background:var(--c-primary); color:white; box-shadow:0 4px 16px rgba(37,99,235,0.3); }
+
+.tab-content { display:none; animation:fadeSlideIn 0.35s ease; }
+.tab-content.active { display:block; }
+@keyframes fadeSlideIn { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+.content-area { max-width:900px; margin:0 auto 3rem; padding:0 1rem; }
+
+.card { background:var(--c-card); border-radius:var(--radius); box-shadow:var(--shadow); padding:1.8rem; margin-bottom:1.2rem; border:1px solid var(--c-border); transition:transform 0.2s ease, box-shadow 0.2s ease; }
+.card:hover { transform:translateY(-2px); box-shadow:var(--shadow-lg); }
+.card h2 { font-family:'Baloo 2',cursive; font-size:1.4rem; font-weight:700; margin-bottom:0.8rem; display:flex; align-items:center; gap:0.5rem; }
+.card h3 { font-family:'Baloo 2',cursive; font-size:1.15rem; font-weight:700; margin:1rem 0 0.5rem; color:var(--c-primary-dark); }
+.card p,.card li { line-height:1.7; color:var(--c-text); font-size:0.95rem; }
+.card ul,.card ol { padding-left:1.3rem; margin:0.5rem 0; }
+.card li { margin-bottom:0.3rem; }
+
+.tip-box { border-radius:12px; padding:1rem 1.2rem; margin:0.8rem 0; display:flex; gap:0.7rem; align-items:flex-start; font-size:0.9rem; line-height:1.6; }
+.tip-box .tip-icon { font-size:1.3rem; flex-shrink:0; margin-top:0.1rem; }
+.tip-blue { background:var(--c-primary-light); border-left:4px solid var(--c-primary); }
+.tip-yellow { background:var(--c-accent-light); border-left:4px solid var(--c-accent); }
+.tip-green { background:var(--c-green-light); border-left:4px solid var(--c-green); }
+.tip-red { background:var(--c-red-light); border-left:4px solid var(--c-red); }
+.tip-purple { background:var(--c-purple-light); border-left:4px solid var(--c-purple); }
+
+kbd { display:inline-block; background:#f1f5f9; border:1px solid #cbd5e1; border-radius:6px; padding:0.15rem 0.5rem; font-family:'Nunito',sans-serif; font-size:0.82rem; font-weight:700; color:var(--c-text); box-shadow:0 2px 0 #cbd5e1; margin:0 0.1rem; white-space:nowrap; }
+
+.timeline { position:relative; padding-left:2.5rem; margin:1rem 0; }
+.timeline::before { content:''; position:absolute; left:1rem; top:0; bottom:0; width:3px; background:linear-gradient(to bottom,var(--c-primary),var(--c-purple)); border-radius:2px; }
+.timeline-item { position:relative; margin-bottom:1.5rem; padding:1rem 1.2rem; background:var(--c-bg); border-radius:12px; border:1px solid var(--c-border); }
+.timeline-item::before { content:''; position:absolute; left:-1.85rem; top:1.2rem; width:14px; height:14px; border-radius:50%; background:var(--c-primary); border:3px solid white; box-shadow:0 0 0 2px var(--c-primary); }
+.timeline-item:last-child::before { background:var(--c-purple); box-shadow:0 0 0 2px var(--c-purple); }
+.timeline-item h3 { font-family:'Baloo 2',cursive; font-size:1.1rem; margin:0 0 0.3rem; color:var(--c-primary-dark); }
+.timeline-item p { font-size:0.9rem; line-height:1.6; }
+
+/* ═══ ACCORDIONS FOR SLIDES AND TERMS ═══ */
+.accordion { border-radius:12px; margin-bottom:0.8rem; border:1px solid var(--c-border); overflow:hidden; transition:box-shadow 0.2s; background:var(--c-card); }
+.accordion:hover { box-shadow:var(--shadow); }
+.accordion-header { display:flex; align-items:center; gap:0.8rem; padding:1rem 1.2rem; cursor:pointer; font-weight:700; font-size:1rem; user-select:none; transition:background 0.15s; }
+.accordion-header:hover { background:var(--c-primary-light); }
+.accordion-header .arrow { margin-left:auto; transition:transform 0.3s ease; font-size:0.8rem; color:var(--c-text-muted); }
+.accordion.open .arrow { transform:rotate(180deg); color:var(--c-primary); }
+.accordion.open .accordion-header { border-bottom: 1px solid var(--c-border); color: var(--c-primary-dark); }
+.accordion-body { max-height:0; overflow:hidden; transition:max-height 0.35s ease,padding 0.35s ease; background:var(--c-bg); padding:0 1.2rem; font-size:0.95rem; line-height:1.7; }
+.accordion.open .accordion-body { max-height:1600px; padding:1.2rem; }
+.accordion-body h4 { font-family:'Baloo 2',cursive; font-size:1.05rem; color:var(--c-primary); margin: 0.8rem 0 0.3rem; }
+.accordion-body h4:first-child { margin-top: 0; }
+.accordion-body ul { padding-left: 1.2rem; margin-top: 0.3rem; }
+.slide-num { display:inline-flex; align-items:center; justify-content:center; width:30px; height:30px; border-radius:8px; background:var(--c-primary); color:white; font-weight:800; font-size:0.9rem; font-family:'Baloo 2',cursive; flex-shrink: 0;}
+
+.rubric-wrap { overflow-x:auto; margin:1rem 0; }
+table.rubric { width:100%; border-collapse:separate; border-spacing:0; font-size:0.9rem; border-radius:12px; overflow:hidden; border:1px solid var(--c-border); }
+table.rubric thead th { background:var(--c-primary); color:white; padding:0.8rem 0.7rem; font-weight:700; text-align:left; font-family:'Baloo 2',cursive; font-size:1rem; }
+table.rubric tbody td { padding:1rem 0.7rem; border-bottom:1px solid var(--c-border); vertical-align:middle; line-height:1.5; }
+table.rubric tbody tr:last-child td { border-bottom:none; }
+table.rubric tbody tr:nth-child(even) { background:#f8fafc; }
+table.rubric tbody td:first-child { font-weight:700; }
+table.rubric tbody td p { font-weight: 400; font-size: 0.85rem; color: var(--c-text-muted); margin-top: 0.2rem; }
+
+.rubric-score-card { display:flex; align-items:center; gap:1.5rem; background:linear-gradient(135deg,var(--c-primary-light),var(--c-purple-light)); border-radius:16px; padding:1.5rem; margin:1.5rem 0; border:2px solid var(--c-primary); }
+.rubric-score-circle { width:100px; height:100px; border-radius:50%; background:var(--c-primary); color:white; display:flex; flex-direction:column; align-items:center; justify-content:center; font-family:'Baloo 2',cursive; flex-shrink:0; box-shadow: 0 4px 15px rgba(37,99,235,0.4); }
+.rubric-score-circle .big { font-size:2.2rem; font-weight:800; line-height:1; }
+.rubric-score-circle .small { font-size:0.8rem; opacity:0.85; margin-top: 0.2rem; }
+.rubric-score-text h3 { margin:0 0 0.3rem; font-size:1.3rem; font-family: 'Baloo 2', cursive;}
+.rubric-score-text p { font-size:0.95rem; color:var(--c-text-muted); margin:0; line-height: 1.5;}
+
+.checklist { list-style:none; padding:0; margin:0.8rem 0; }
+.checklist li { display:flex; align-items:flex-start; gap:0.6rem; padding:0.6rem 0; border-bottom:1px solid var(--c-border); font-size:0.9rem; line-height:1.5; }
+.checklist li:last-child { border-bottom:none; }
+.checklist input[type="checkbox"] { flex-shrink:0; width:20px; height:20px; accent-color:var(--c-primary); margin-top:0.1rem; cursor:pointer; }
+
+.score-input { font-family:Nunito,sans-serif; font-size:1rem; font-weight:700; padding:0.4rem 0.5rem; border-radius:8px; border:2px solid #cbd5e1; background:#fff; text-align:center; width:70px; outline: none; transition: border-color 0.2s;}
+.score-input:focus { border-color: var(--c-primary); }
+
+/* ═══ WHEEL OF FORTUNE ═══ */
+.wheels-container { display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; margin:1.2rem 0; }
+@media (max-width:700px) { .wheels-container { grid-template-columns:1fr; } }
+.wheel-section { display:flex; flex-direction:column; align-items:center; }
+.wheel-section h3 { font-family:'Baloo 2',cursive; font-size:1.15rem; margin-bottom:0.6rem; text-align:center; }
+.wheel-wrapper { position:relative; width:300px; height:300px; max-width:100%; }
+.wheel-wrapper canvas { width:100%; height:100%; border-radius:50%; box-shadow:0 0 0 6px var(--c-primary),0 0 0 10px var(--c-primary-light),var(--shadow-lg); cursor:pointer; transition:filter 0.3s; }
+.wheel-wrapper canvas:hover { filter:brightness(1.04); }
+.wheel-pointer { position:absolute; top:-14px; left:50%; transform:translateX(-50%); width:0; height:0; border-left:14px solid transparent; border-right:14px solid transparent; border-top:22px solid var(--c-primary-dark); filter:drop-shadow(0 2px 4px rgba(0,0,0,0.25)); z-index:3; }
+.wheel-result-box { margin-top:1rem; min-height:56px; display:flex; flex-direction:column; align-items:center; gap:0.5rem; }
+.wheel-result { font-family:'Baloo 2',cursive; font-size:1.5rem; font-weight:800; color:var(--c-primary-dark); opacity:0; transform:scale(0.5); transition:all 0.5s cubic-bezier(0.34,1.56,0.64,1); text-align:center; }
+.wheel-result.show { opacity:1; transform:scale(1); }
+.spin-btn { display:inline-flex; align-items:center; gap:0.4rem; background:var(--c-primary); color:white; border:none; border-radius:999px; padding:0.6rem 1.6rem; font-family:'Nunito',sans-serif; font-weight:700; font-size:0.9rem; cursor:pointer; box-shadow:0 4px 16px rgba(37,99,235,0.3); transition:all 0.2s; }
+.spin-btn:hover { background:var(--c-primary-dark); transform:translateY(-1px); }
+.spin-btn:disabled { opacity:0.5; cursor:not-allowed; transform:none; }
+.spin-btn.again { background:var(--c-accent); box-shadow:0 4px 16px rgba(245,158,11,0.3); }
+.spin-btn.again:hover { background:#d97706; }
+
+#confettiCanvas { position:fixed; top:0; left:0; width:100vw; height:100vh; pointer-events:none; z-index:9999; }
+
+.footer { text-align:center; padding:1.5rem; color:var(--c-text-muted); font-size:0.8rem; }
+
+@media (max-width:640px) {
+  .hero { padding:2rem 1rem 3rem; }
+  .hero h1 { font-size:1.6rem; }
+  .tab-btn { font-size:0.65rem; padding:0.55rem 0.25rem; }
+  .tab-btn span.tab-icon { font-size:1rem; }
+  .card { padding:1.3rem; }
+  table.rubric { font-size:0.78rem; }
+  .wheel-wrapper { width:240px; height:240px; }
+  .rubric-score-card { flex-direction:column; text-align:center; gap: 0.8rem; }
+}
+</style>
+</head>
+<body>
+
+<canvas id="confettiCanvas"></canvas>
+
+<header class="hero">
+  <div class="hero-content">
+    <span class="hero-emoji">🌍</span>
+    <h1>Rich & Poor in Focus</h1>
+    <p>Compare a rich country with a poor country. Use maps from your atlas to show the differences. <strong>No class presentation — everything goes in your Notes!</strong></p>
+    <span class="hero-badge">📚 Geography Project — Year 1 TTO</span>
+  </div>
+</header>
+
+<div class="tab-container">
+  <nav class="tab-nav" id="tabNav">
+    <button class="tab-btn active" data-tab="opdracht"><span class="tab-icon">📋</span>Task</button>
+    <button class="tab-btn" data-tab="planning"><span class="tab-icon">📅</span>Planning</button>
+    <button class="tab-btn" data-tab="dias"><span class="tab-icon">🖼️</span>Key Points</button>
+    <button class="tab-btn" data-tab="kiezer"><span class="tab-icon">🎰</span>Picker</button>
+    <button class="tab-btn" data-tab="begrippen"><span class="tab-icon">📖</span>Terms</button>
+    <button class="tab-btn" data-tab="tips"><span class="tab-icon">💡</span>Tips</button>
+    <button class="tab-btn" data-tab="rubric"><span class="tab-icon">⭐</span>Grade</button>
+  </nav>
+</div>
+
+<main class="content-area">
+
+  <div class="tab-content active" id="tab-opdracht">
+    <div class="card">
+      <h2>🎯 What are you going to do?</h2>
+      <p>You are going to compare the development of a <strong>rich country</strong> with a <strong>poor country</strong>. This time you do <em>not</em> have to present in front of the class. Instead, you hand in a special PowerPoint file that follows four <strong>golden rules</strong>:</p>
+      
+      <div class="tip-box tip-blue" style="margin-top: 1rem;">
+        <span class="tip-icon">🏆</span>
+        <div>
+          <strong>The 4 Golden Rules:</strong>
+          <ol style="margin-top: 0.5rem; padding-left: 1.2rem;">
+            <li><strong>On the slides</strong> you only put images/maps, a title, and a maximum of 5 keywords. No full sentences!</li>
+            <li><strong>In the 'Notes'</strong> (the text box under your slide in PowerPoint) you type your full explanation in your own words.</li>
+            <li><strong>The Atlas is required.</strong> Use screenshots of maps (including the legend!) as your proof, and explain them in your notes.</li>
+            <li><strong>Use the key terms:</strong> You must use the geography terms (like illiteracy and prosperity) correctly in your texts.</li>
+          </ol>
+        </div>
+      </div>
+
+      <div class="tip-box tip-red" style="margin-top: 1.5rem; border-left: 5px solid var(--c-red);">
+        <span class="tip-icon">🛑</span>
+        <div>
+          <strong>Important: AI use and your own words!</strong>
+          <p style="margin-top:0.3rem;">You must type all your answers and notes in your <strong>own, easy-to-understand English</strong>. Copy-pasting complicated texts from Google or AI tools (like ChatGPT) is strictly forbidden. If your teacher thinks you used too much AI, you will have to <strong>hand in a brand new product</strong> and/or come in outside of class for a <strong>strict oral check-up</strong> to explain your work.</p>
+        </div>
+      </div>
+      
+      <h3 style="margin-top: 1.5rem;">Working together</h3>
+      <p>You work in <strong>pairs</strong>. Divide the work smartly: one person collects the maps for the rich country, the other for the poor country. But you write the comparison in the notes <strong>together</strong> and you check each other's work.</p>
+    </div>
+  </div>
+
+  <div class="tab-content" id="tab-planning">
+    <div class="card">
+      <h2>📅 The Planning</h2>
+      <p>You finish the whole project in <strong>two lessons</strong>. After that, you hand in the file digitally.</p>
+      <div class="timeline">
+        <div class="timeline-item">
+          <h3>📗 Lesson 1 — Choose Countries & Start</h3>
+          <p><strong>With the whole class:</strong> Explanation about GNI, the UN index, and the golden rules of this PowerPoint.</p>
+          <p><strong>What you do:</strong></p>
+          <ul>
+            <li>Choose your two countries together.</li>
+            <li>Find the overview map and the numbers about prosperity in the atlas.</li>
+            <li>Start with the first two key points: the <strong>title</strong> and the <strong>world map</strong>. Begin typing your first explanation in the Notes.</li>
+          </ul>
+        </div>
+        <div class="timeline-item">
+          <h3>📘 Lesson 2 — Atlas & Deeper Research</h3>
+          <p><strong>With the whole class:</strong> Explanation of the snipping tool (<kbd>Win</kbd> + <kbd>Shift</kbd> + <kbd>S</kbd>) and how to find the Notes in PowerPoint.</p>
+          <p><strong>What you do:</strong></p>
+          <ul>
+            <li>Find thematic maps (health, climate, etc.) in the atlas.</li>
+            <li>Take screenshots <em>including the legend</em>, and paste them on your slides.</li>
+            <li><strong>Important:</strong> Type your answers, explanations, and comparisons in the Notes box!</li>
+          </ul>
+        </div>
+        <div class="timeline-item">
+          <h3>💾 After That — Check & Hand In</h3>
+          <p>Read your Notes carefully. Are they in your own words? Is every legend on the slide? Hand in the `.pptx` file digitally before the deadline.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-content" id="tab-dias">
+    <div class="card">
+      <h2>🖼️ The 6 Key Points (Step-by-Step Plan)</h2>
+      <p>Click on a key point to see exactly what to include <em>and</em> which questions you have to answer in the Notes. Each key point needs at least one slide, but you are absolutely allowed to use <strong>more slides</strong> — for example, if you want to show two maps for the same topic. More slides is often better!</p>
+      
+      <div style="margin-top:1.5rem;">
+        
+        <div class="accordion"><div class="accordion-header" onclick="toggleAcc(this)"><span class="slide-num">1</span> Title & Introduction <span class="arrow">▼</span></div>
+          <div class="accordion-body">
+            <h4>📸 On the slide(s):</h4>
+            <ul>
+              <li>A clear title.</li>
+              <li>Your first and last names + class.</li>
+              <li>The names of your two chosen countries and a nice picture or the flags.</li>
+            </ul>
+            <h4>📝 In the Notes you type:</h4>
+            <p>Briefly say who did what (the division of tasks).</p>
+          </div>
+        </div>
+
+        <div class="accordion"><div class="accordion-header" onclick="toggleAcc(this)"><span class="slide-num">2</span> Where are they? <span class="arrow">▼</span></div>
+          <div class="accordion-body">
+            <h4>📸 On the slide(s):</h4>
+            <ul>
+              <li>A screenshot of a world map or a continent map from the atlas.</li>
+              <li>Make sure you can see where both countries are. Add an arrow or a circle if you need to!</li>
+            </ul>
+            <h4>📝 In the Notes you answer:</h4>
+            <ul>
+              <li>On which continent is your rich country? And the poor country?</li>
+              <li>Which important seas or oceans do they border?</li>
+              <li>Are the countries close to the equator, or far away? Explain in your own words where they are on the globe.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="accordion"><div class="accordion-header" onclick="toggleAcc(this)"><span class="slide-num">3</span> Prosperity (Money) <span class="arrow">▼</span></div>
+          <div class="accordion-body">
+            <h4>📸 On the slide(s):</h4>
+            <ul>
+              <li>Choose a map from the atlas about the <strong>GNI per person</strong> or the <strong>job sectors</strong> (agriculture, industry, services).</li>
+              <li>Don't forget the legend in the screenshot! Maximum 5 keywords.</li>
+            </ul>
+            <div class="tip-box tip-green" style="margin: 0.8rem 0;">
+              <span class="tip-icon">🔎</span>
+              <div><strong>Atlas tip:</strong> In the Digital Atlas, search for the word <kbd>income</kbd> (or <kbd>inkomen</kbd> in the Dutch version) — you will quickly find the right map about GNI per person!</div>
+            </div>
+            <h4>📝 In the Notes you answer:</h4>
+            <ul>
+              <li>Look at the legend: which colour do your countries have on the map, and what does that colour mean in euros/dollars or percentages?</li>
+              <li>What exactly is the difference in prosperity between your rich and poor country? Give the hard numbers.</li>
+              <li>In which sector do most people work in your poor country? Why does that sector often make less money?</li>
+            </ul>
+            <div class="tip-box tip-purple" style="margin: 0.8rem 0;">
+              <span class="tip-icon">🏭</span>
+              <div>
+                <strong>Sectors and prosperity:</strong> There are three job sectors. In poor countries most people work in <strong>agriculture</strong> (the primary sector) — this makes little money because the products are cheap and there are often few machines available. In rich countries, most people work in <strong>services</strong> (the tertiary sector), such as banks, IT, hospitals, and education. These jobs usually pay much more. <strong>Industry</strong> (the secondary sector — factories) sits in between.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="accordion"><div class="accordion-header" onclick="toggleAcc(this)"><span class="slide-num">4</span> Well-being (Living Conditions) <span class="arrow">▼</span></div>
+          <div class="accordion-body">
+            <h4>📸 On the slide(s):</h4>
+            <ul>
+              <li>Choose a new atlas map, for example about <strong>life expectancy</strong>, <strong>illiteracy</strong>, or <strong>infant mortality</strong>.</li>
+              <li>Make sure the legend is clearly visible again.</li>
+            </ul>
+            <h4>📝 In the Notes you answer:</h4>
+            <ul>
+              <li>Read the legend carefully: What is the percentage or the age in your rich country compared to the poor country?</li>
+              <li>How would you explain this in your own, easy words to someone who knows nothing about geography? What do these numbers tell you about the quality of hospitals and schools?</li>
+              <li><em>Note: Use at least one of the new key terms correctly here!</em></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="accordion"><div class="accordion-header" onclick="toggleAcc(this)"><span class="slide-num">5</span> The Causes <span class="arrow">▼</span></div>
+          <div class="accordion-body">
+            <h4>📸 On the slide(s):</h4>
+            <ul>
+              <li>Choose a map from the atlas that shows something about the <strong>nature</strong> of your two countries. Good options are:</li>
+              <li>🌦️ <strong>Climate map</strong> — what climate does each country have? (desert, tropical, mild...)</li>
+              <li>⛏️ <strong>Resources map</strong> — which natural resources (oil, gas, metals) are in the ground?</li>
+              <li>🌾 <strong>Farming map</strong> — what can be grown there?</li>
+            </ul>
+            <div class="tip-box tip-yellow" style="margin: 0.8rem 0;">
+              <span class="tip-icon">💡</span>
+              <div><strong>A question to help you start:</strong> Imagine <em>you</em> are a farmer in the poor country. Can you easily grow food? Is it too dry, too hot, or does it rain too much? Now compare that to the rich country.</div>
+            </div>
+            <h4>📝 In the Notes you answer:</h4>
+            <ul>
+              <li><strong>Step 1 — Describe:</strong> What climate does your poor country have according to the map? And what climate does the rich country have? Use the legend!</li>
+              <li><strong>Step 2 — Compare:</strong> What is the most important difference? Think about: drought, floods, desert, tropical heat, or fertile land and a mild climate.</li>
+              <li><strong>Step 3 — Make the link:</strong> Link nature to what you found in the Prosperity and Well-being key points. For example: <em>"On the climate map you can see that Niger is in the Sahel, where it is very dry. Because of this, farmers can grow very little → most people stay poor (prosperity) → there is also less money for hospitals (well-being)."</em></li>
+            </ul>
+            <div class="tip-box tip-green" style="margin: 0.8rem 0;">
+              <span class="tip-icon">🔗</span>
+              <div><strong>Making links is the key!</strong> Your teacher wants to see that you understand how one problem causes another. Use words like <em>"because of this"</em>, <em>"because"</em>, <em>"this is caused by"</em>, and <em>"as a result"</em>.</div>
+            </div>
+            <div class="tip-box tip-purple" style="margin: 0.8rem 0;">
+              <span class="tip-icon">🤔</span>
+              <div><strong>No clear link? That's fine too!</strong> Sometimes you will see on the map that the climate or the resources of both countries are quite similar. In that case nature is <em>not</em> the big reason for the difference. Just write that down! For example: <em>"Japan has very few natural resources but is still very rich, so nature is not the main cause here."</em> That is a perfectly good conclusion — it shows you can think critically.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="accordion"><div class="accordion-header" onclick="toggleAcc(this)"><span class="slide-num">6</span> The Conclusion <span class="arrow">▼</span></div>
+          <div class="accordion-body">
+            <h4>📸 On the slide(s):</h4>
+            <ul>
+              <li>One closing image (for example, a photo of what the countries look like) and your most important key sentence (max 5 words).</li>
+            </ul>
+            <h4>📝 In the Notes you answer:</h4>
+            <ul>
+              <li>Look back at your whole research. What do you think is the biggest and most important cause of the difference between these two countries?</li>
+              <li>What did you find the most shocking or surprising difference while doing this project? Explain why.</li>
+            </ul>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-content" id="tab-kiezer">
+    <div class="card">
+      <h2>🎰 Country Picker</h2>
+      <p>Press the button and both wheels spin at the same time! You get a <strong>rich country</strong> <em>and</em> a <strong>poor country</strong> as a combination.</p>
+      
+      <div style="text-align:center; margin:1.2rem 0 0.5rem;">
+        <button class="spin-btn" id="btnSpin" onclick="spinBoth()" style="font-size:1.1rem; padding:0.8rem 2.4rem;">🎲 Spin both!</button>
+      </div>
+
+      <div class="wheels-container">
+        <div class="wheel-section">
+          <h3>💰 Rich countries</h3>
+          <div class="wheel-wrapper">
+            <div class="wheel-pointer"></div>
+            <canvas id="wheelRich" width="600" height="600"></canvas>
+          </div>
+        </div>
+        <div class="wheel-section">
+          <h3>🌍 Poor countries</h3>
+          <div class="wheel-wrapper">
+            <div class="wheel-pointer"></div>
+            <canvas id="wheelPoor" width="600" height="600"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div id="comboResult" style="text-align:center; margin-top:1.2rem; min-height:70px;">
+        <div id="comboText" class="wheel-result" style="font-size:1.35rem;"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-content" id="tab-begrippen">
+    <div class="card">
+      <h2>📖 Key Terms</h2>
+      <p>Click on a term to read the explanation. <strong>You are required</strong> to use these terms correctly in your PowerPoint Notes!</p>
+      <div style="margin-top:1.5rem;">
+        
+        <div class="accordion"><div class="accordion-header" onclick="toggleAcc(this)"><span>📊</span> Illiteracy<span class="arrow">▼</span></div><div class="accordion-body"><p>The percentage of the population (older than 15 years) that <strong>cannot read or write</strong>. You often see this in poor countries because children have to work instead of going to school.</p></div></div>
+        
+        <div class="accordion"><div class="accordion-header" onclick="toggleAcc(this)"><span>🎂</span> Life expectancy<span class="arrow">▼</span></div><div class="accordion-body"><p>How old the people in a certain country <strong>get on average</strong> from the moment they are born. In rich countries, life expectancy is much higher because of better food, safety, and good hospitals.</p></div></div>
+        
+        <div class="accordion"><div class="accordion-header" onclick="toggleAcc(this)"><span>👶</span> Infant mortality<span class="arrow">▼</span></div><div class="accordion-body"><p>A sad but important term: the number of babies (per 1,000 live births) that <strong>die before they are one year old</strong>. A high infant mortality rate shows that healthcare is very poor, drinking water is dirty, or there are many diseases.</p></div></div>
+
+        <div class="accordion"><div class="accordion-header" onclick="toggleAcc(this)"><span>💰</span> Gross National Income (GNI)<span class="arrow">▼</span></div><div class="accordion-body"><p>The <strong>GNI</strong> is the total value of everything the people of a country earn in one year, even if they earn that money in another country.</p><p>If you divide this by the number of inhabitants, you get the <strong>GNI per person</strong> (also called <em>GNI per capita</em>). This is an easy way to measure how rich a country is on average. You can find it in the Digital Atlas by searching for <kbd>income</kbd> (or <kbd>inkomen</kbd>).</p></div></div>
+        
+        <div class="accordion"><div class="accordion-header" onclick="toggleAcc(this)"><span>📈</span> Prosperity<span class="arrow">▼</span></div><div class="accordion-body"><p><strong>Prosperity</strong> is only about money and possessions. Do people have a lot of things, a solid house, and enough money to buy food? The GNI per person is the most important way to measure this.</p></div></div>
+        
+        <div class="accordion"><div class="accordion-header" onclick="toggleAcc(this)"><span>❤️</span> Well-being<span class="arrow">▼</span></div><div class="accordion-body"><p><strong>Well-being</strong> is about how <em>good</em> life is, apart from how much money you have in the bank. Think about the quality of schools, hospitals, safety on the streets, and clean drinking water.</p></div></div>
+        
+        <div class="accordion"><div class="accordion-header" onclick="toggleAcc(this)"><span>🌐</span> UN Index (HDI)<span class="arrow">▼</span></div><div class="accordion-body"><p>A smart "report card" made by the United Nations to compare countries. It does not only look at money, but at three things at the same time:</p><ul><li><strong>Health</strong> (life expectancy)</li><li><strong>Education</strong> (how long do children go to school?)</li><li><strong>Income</strong> (the GNI per person)</li></ul><p>HDI stands for <em>Human Development Index</em>.</p></div></div>
+
+        <div class="accordion"><div class="accordion-header" onclick="toggleAcc(this)"><span>🏭</span> Job sectors<span class="arrow">▼</span></div><div class="accordion-body"><p>The economy of every country is divided into three sectors:</p><ul><li><strong>Primary sector (agriculture)</strong> — working on the land, fishing, mining. Often makes little money. In poor countries, most people work here.</li><li><strong>Secondary sector (industry)</strong> — factories that make products. Makes more money than agriculture.</li><li><strong>Tertiary sector (services)</strong> — office work, IT, banks, hospitals, education. On average, this makes the most money. In rich countries, most people work here.</li></ul><p>The more people work in the services sector, the richer a country usually is.</p></div></div>
+        
+        <div class="accordion"><div class="accordion-header" onclick="toggleAcc(this)"><span>🗺️</span> Legend<span class="arrow">▼</span></div><div class="accordion-body"><p>The important little box next to a map that explains the colours and symbols. <strong>It is always required</strong> to include this when you take a screenshot!</p></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-content" id="tab-tips">
+    <div class="card">
+      <h2>💡 Handy Tips</h2>
+      
+      <h3>📝 Where do I find the Notes in PowerPoint?</h3>
+      <div class="tip-box tip-yellow"><span class="tip-icon">👀</span><div>In PowerPoint, click on the <strong>'Notes'</strong> button at the very bottom of your screen. An extra white text box will appear under your slide, where you can type your own explanation without any limit!</div></div>
+
+      <h3>🔧 Use the Snipping Tool quickly</h3>
+      <div class="tip-box tip-blue"><span class="tip-icon">✂️</span><div>Press <kbd>Win</kbd> + <kbd>Shift</kbd> + <kbd>S</kbd> on your keyboard. Your screen turns grey. Drag a rectangle over the atlas map <strong>and the legend</strong>. Go back to your PowerPoint and press <kbd>Ctrl</kbd> + <kbd>V</kbd> (paste).</div></div>
+    </div>
+  </div>
+
+  <div class="tab-content" id="tab-rubric">
+    <div class="card">
+      <h2>⭐ Grading Model</h2>
+      <p>Your project will be graded with <strong>three sub-grades</strong> (on a scale of 1 to 10). Not everything is equally important! Because the content of your texts <em>and</em> the use of the atlas are the heart of this subject, these count <strong>twice</strong>. The design counts once.</p>
+
+      <div class="rubric-score-card">
+        <div class="rubric-score-circle"><span class="big" id="circleScore">—</span><span class="small">/ 10</span></div>
+        <div class="rubric-score-text">
+          <h3>Your Final Grade</h3>
+          <p>This is a weighted average. So make sure that your texts are correct and that you chose the maps well!</p>
+        </div>
+      </div>
+
+      <h3 style="margin-top:1.5rem;">📝 Form for the Teacher</h3>
+      <p style="font-size:0.85rem; color:var(--c-text-muted);">Fill in the three grades (1 to 10) below. The final grade is calculated automatically.</p>
+      
+      <div class="rubric-wrap">
+        <table class="rubric" id="rubricForm">
+          <thead>
+            <tr>
+              <th>Part of the assessment</th>
+              <th style="width:70px;text-align:center;">Weight</th>
+              <th style="width:100px;text-align:center;">Grade</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>
+                <strong>1. Content (Your Notes)</strong>
+                <p>The answers to the research questions are correct and detailed enough. The text is fully in your own words (no AI copy-paste) and the geography terms are used correctly.</p>
+              </td>
+              <td style="text-align:center;font-weight:700;color:var(--c-primary);font-size:1.1rem;">2x</td>
+              <td style="text-align:center;">
+                <input type="number" class="score-input" data-weight="2" min="1" max="10" step="0.1" oninput="calcTotal()" placeholder="1-10">
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <strong>2. Use of Atlas & Maps</strong>
+                <p>You chose smart and clear thematic maps from the atlas. Every screenshot is sharp, includes the full legend, and the legend is correctly read out in your explanation.</p>
+              </td>
+              <td style="text-align:center;font-weight:700;color:var(--c-primary);font-size:1.1rem;">2x</td>
+              <td style="text-align:center;">
+                <input type="number" class="score-input" data-weight="2" min="1" max="10" step="0.1" oninput="calcTotal()" placeholder="1-10">
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <strong>3. PowerPoint Design</strong>
+                <p>The slides look neat, calm, and well cared for. You followed the 'Golden Rule' perfectly: maximum 5 keywords and <em>no</em> full sentences on the slides themselves.</p>
+              </td>
+              <td style="text-align:center;font-weight:700;color:var(--c-primary);font-size:1.1rem;">1x</td>
+              <td style="text-align:center;">
+                <input type="number" class="score-input" data-weight="1" min="1" max="10" step="0.1" oninput="calcTotal()" placeholder="1-10">
+              </td>
+            </tr>
+            <tr style="background:var(--c-primary-light);font-weight:700;">
+              <td colspan="2" style="font-size:1.1rem; text-align:right; padding-right:1rem;">🏆 Final Grade</td>
+              <td style="text-align:center;font-size:1.3rem;color:var(--c-primary-dark);" id="rubricTotal">—</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </div>
+
+</main>
+
+<footer class="footer">Geography Year 1 TTO · Project · Rich & Poor in Focus</footer>
+
+<script>
+// ═══ TABS ═══
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+});
+
+// ═══ ACCORDIONS (FOR SLIDES AND TERMS) ═══
+function toggleAcc(headerEl) { 
+  const accordionEl = headerEl.parentElement;
+  accordionEl.classList.toggle('open'); 
+}
+
+// ═══ RUBRIC CALC (2-2-1) ═══
+function calcTotal() {
+  const inputs = document.querySelectorAll('.score-input');
+  let totalScore = 0;
+  let totalWeight = 0;
+  let allFilled = true;
+
+  inputs.forEach(input => {
+    if (input.value && !isNaN(input.value)) {
+      let val = parseFloat(input.value);
+      if (val > 10) { val = 10; input.value = 10; }
+      if (val < 1) { val = 1; input.value = 1; }
+      
+      let w = parseInt(input.dataset.weight);
+      totalScore += (val * w);
+      totalWeight += w;
+    } else {
+      allFilled = false;
+    }
+  });
+
+  if (totalWeight > 0 && allFilled) {
+    let finalGrade = (totalScore / totalWeight).toFixed(1);
+    document.getElementById('rubricTotal').textContent = finalGrade;
+    document.getElementById('circleScore').textContent = finalGrade;
+  } else {
+    document.getElementById('rubricTotal').textContent = '—';
+    document.getElementById('circleScore').textContent = '—';
+  }
+}
+
+// ═══ WHEEL OF FORTUNE ═══
+const richCountries = [
+  'Germany','Japan','United States','Australia',
+  'Canada','Norway','South Korea','United Kingdom',
+  'France','Sweden','Switzerland','Finland',
+  'Denmark','Belgium','Austria','New Zealand'
+];
+const poorCountries = [
+  'Mali','Afghanistan','Ethiopia','Bangladesh',
+  'Mozambique','Niger','Chad','Sierra Leone',
+  'Haiti','Myanmar','Madagascar','Burkina Faso',
+  'Somalia','DR Congo','Central Afr. Rep.','South Sudan'
+];
+
+function makePal(baseColors, n) {
+  const out = [];
+  for (let i = 0; i < n; i++) out.push(baseColors[i % baseColors.length]);
+  return out;
+}
+const richBase = ['#1e40af','#2563eb','#1d4ed8','#3b82f6','#1e3a8a','#60a5fa','#1e40af','#2563eb'];
+const poorBase = ['#5b21b6','#7c3aed','#6d28d9','#8b5cf6','#4c1d95','#a78bfa','#5b21b6','#7c3aed'];
+const palRich = makePal(richBase, richCountries.length);
+const palPoor = makePal(poorBase, poorCountries.length);
+
+const W = {
+  rich:  { canvas:null, ctx:null, items:richCountries, pal:palRich, angle:0, spinning:false, vel:0 },
+  poor:  { canvas:null, ctx:null, items:poorCountries, pal:palPoor, angle:0, spinning:false, vel:0 }
+};
+
+function drawWheel(t) {
+  const w = W[t], ctx = w.ctx, cx=300, cy=300, r=290, n=w.items.length, arc=2*Math.PI/n;
+  ctx.clearRect(0,0,600,600);
+  for (let i=0; i<n; i++) {
+    const sa = w.angle + i*arc, ea = sa + arc;
+    ctx.beginPath(); ctx.moveTo(cx,cy); ctx.arc(cx,cy,r,sa,ea); ctx.closePath();
+    ctx.fillStyle = w.pal[i]; ctx.fill();
+    ctx.strokeStyle = 'rgba(255,255,255,0.35)'; ctx.lineWidth = 2; ctx.stroke();
+    ctx.save(); ctx.translate(cx,cy); ctx.rotate(sa+arc/2);
+    ctx.textAlign='right'; ctx.fillStyle='#fff';
+    ctx.font='bold 18px Nunito,sans-serif';
+    ctx.shadowColor='rgba(0,0,0,0.4)'; ctx.shadowBlur=4;
+    ctx.fillText(w.items[i], r-16, 6);
+    ctx.shadowBlur=0; ctx.restore();
+  }
+  ctx.beginPath(); ctx.arc(cx,cy,28,0,2*Math.PI);
+  ctx.fillStyle='#fff'; ctx.fill();
+  ctx.strokeStyle = t==='rich'?'#1e40af':'#5b21b6'; ctx.lineWidth=4; ctx.stroke();
+  ctx.fillStyle = t==='rich'?'#1e40af':'#5b21b6';
+  ctx.font='bold 18px sans-serif'; ctx.textAlign='center'; ctx.fillText('?',cx,cy+6);
+}
+
+function getWinner(t) {
+  const w=W[t], n=w.items.length, arc=2*Math.PI/n;
+  const ptr = 3*Math.PI/2;
+  let norm = ((ptr - w.angle) % (2*Math.PI) + 2*Math.PI) % (2*Math.PI);
+  return w.items[Math.floor(norm/arc) % n];
+}
+
+let spinning = false;
+let doneCount = 0;
+
+function spinBoth() {
+  if (spinning) return;
+  spinning = true;
+  doneCount = 0;
+
+  const btn = document.getElementById('btnSpin');
+  btn.disabled = true;
+  const combo = document.getElementById('comboText');
+  combo.classList.remove('show'); combo.textContent = '';
+
+  ['rich','poor'].forEach(t => {
+    const w = W[t];
+    w.vel = 0.45 + Math.random()*0.25;
+    const friction = 0.945 + Math.random()*0.012;
+
+    (function anim() {
+      w.angle += w.vel;
+      w.vel *= friction;
+      drawWheel(t);
+      if (w.vel > 0.001) { requestAnimationFrame(anim); }
+      else {
+        doneCount++;
+        if (doneCount === 2) {
+          spinning = false;
+          btn.disabled = false;
+          btn.textContent = '🔄 Spin again!';
+          btn.classList.add('again');
+          const rich = getWinner('rich');
+          const poor = getWinner('poor');
+          combo.textContent = '🎉 ' + rich + '  vs.  ' + poor + '!';
+          combo.classList.add('show');
+          launchConfetti();
+        }
+      }
+    })();
+  });
+}
+
+document.getElementById('wheelRich').addEventListener('click', () => spinBoth());
+document.getElementById('wheelPoor').addEventListener('click', () => spinBoth());
+
+function initWheels() {
+  W.rich.canvas = document.getElementById('wheelRich');
+  W.rich.ctx = W.rich.canvas.getContext('2d');
+  W.poor.canvas = document.getElementById('wheelPoor');
+  W.poor.ctx = W.poor.canvas.getContext('2d');
+  W.rich.angle = Math.random()*Math.PI*2;
+  W.poor.angle = Math.random()*Math.PI*2;
+  drawWheel('rich'); drawWheel('poor');
+}
+
+// ═══ CONFETTI ═══
+const cCanvas = document.getElementById('confettiCanvas');
+const cCtx = cCanvas.getContext('2d');
+let cParts = [], cRunning = false;
+
+function resizeC() { cCanvas.width=window.innerWidth; cCanvas.height=window.innerHeight; }
+window.addEventListener('resize', resizeC); resizeC();
+
+const cColors = ['#2563eb','#f59e0b','#10b981','#ef4444','#8b5cf6','#ec4899','#06b6d4','#f97316','#84cc16'];
+
+function launchConfetti() {
+  cParts = [];
+  for (let i=0; i<180; i++) {
+    cParts.push({
+      x: Math.random()*cCanvas.width,
+      y: -20 - Math.random()*400,
+      w: 5+Math.random()*9,
+      h: 3+Math.random()*7,
+      color: cColors[Math.floor(Math.random()*cColors.length)],
+      vx: (Math.random()-0.5)*5,
+      vy: 2+Math.random()*5,
+      rot: Math.random()*360,
+      rv: (Math.random()-0.5)*14,
+      op: 1,
+      shape: Math.random()>0.5 ? 'rect' : 'circle'
+    });
+  }
+  if (!cRunning) { cRunning=true; animC(); }
+}
+
+function animC() {
+  cCtx.clearRect(0,0,cCanvas.width,cCanvas.height);
+  let alive = false;
+  cParts.forEach(p => {
+    p.x += p.vx; p.y += p.vy; p.vy += 0.08; p.rot += p.rv;
+    if (p.y > cCanvas.height-200) p.op -= 0.018;
+    if (p.op <= 0) return;
+    alive = true;
+    cCtx.save();
+    cCtx.translate(p.x, p.y);
+    cCtx.rotate(p.rot*Math.PI/180);
+    cCtx.globalAlpha = Math.max(0, p.op);
+    cCtx.fillStyle = p.color;
+    if (p.shape === 'circle') {
+      cCtx.beginPath(); cCtx.arc(0,0,p.w/2,0,2*Math.PI); cCtx.fill();
+    } else {
+      cCtx.fillRect(-p.w/2,-p.h/2,p.w,p.h);
+    }
+    cCtx.restore();
+  });
+  if (alive) requestAnimationFrame(animC);
+  else { cRunning=false; cCtx.clearRect(0,0,cCanvas.width,cCanvas.height); }
+}
+
+// ═══ INIT ═══
+initWheels();
+</script>
+</body>
+</html>
