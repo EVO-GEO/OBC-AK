@@ -424,6 +424,20 @@ textarea { resize: vertical; min-height: 85px; }
     </div>
   </div>
 
+  <!-- ─── 8½. EXITTICKET ─── -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">⚙</div>
+      <div class="section-title">Extra opties</div>
+    </div>
+    <div class="toggle-group">
+      <div class="toggle-row" id="exitticketToggle" onclick="toggleExitticket(this)">
+        <span class="toggle-label">🎫 Exitticket genereren (voor AI-feedbacktool)</span>
+        <div class="toggle-switch"></div>
+      </div>
+    </div>
+  </div>
+
   <!-- ─── 9. DESIGN ─── -->
   <div class="section">
     <div class="section-header">
@@ -599,7 +613,7 @@ textarea { resize: vertical; min-height: 85px; }
 // ── STATE ──
 const state = {
   niveau: null, jaar: null, moeilijkheid: null, stijl: null,
-  kleur: 'Diepblauw (oceaan)', opdrachten: [], lesduur: '60 minuten'
+  kleur: 'Diepblauw (oceaan)', opdrachten: [], lesduur: '60 minuten', exitticket: false
 };
 
 // ── TABS ──
@@ -665,6 +679,11 @@ function toggleOpdracht(el, label) {
   else { state.opdrachten = state.opdrachten.filter(o => o !== label); }
   document.getElementById('val-opdracht').classList.remove('show');
   updateProgress();
+}
+
+function toggleExitticket(el) {
+  el.classList.toggle('on');
+  state.exitticket = el.classList.contains('on');
 }
 
 // ── COLOR ──
@@ -776,8 +795,13 @@ Sfeer: ${stijl}${designwens ? '\nExtra wensen: ' + designwens : ''}
 TECHNISCHE EISEN
 ══════════════════════════════════
 1. Eén single-file HTML — alle CSS en JS inline. Geen externe bestanden.
+`;
 
-2. LEAFLET.JS — VERPLICHTE OPZET (als het onderwerp geografische locaties of regio's betreft):
+  const heeftKaart = state.opdrachten.some(o => o.includes('kaart'));
+  const heeftGrafiek = state.opdrachten.some(o => o.includes('grafieken'));
+
+  if (heeftKaart) p += `
+2. LEAFLET.JS — VERPLICHTE OPZET:
    Voeg EERST de CSS toe in de <head>:
    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
    Voeg DAN het script toe VOOR je eigen <script>:
@@ -790,9 +814,13 @@ TECHNISCHE EISEN
    Teken GEEN polygonen, gebiedsoverlays of grenzen — de coördinaten hiervoor zijn te complex om correct te genereren en leiden tot feitelijk onjuiste kaarten.
    KAART-RENDERING:
    Roep map.invalidateSize() aan bij elke tabwisseling om te voorkomen dat kaarten grijs worden.
+`;
 
+  if (heeftGrafiek) p += `
 3. CHART.JS: Gebruik Chart.js (CDN: https://cdn.jsdelivr.net/npm/chart.js) voor grafieken bij relevante statistieken of data. Laad het script in <head> of vóór je eigen code.
+`;
 
+  p += `
 4. VISUELE ELEMENTEN — GEEN EXTERNE AFBEELDINGEN:
    Gebruik GEEN externe afbeeldingen (geen Unsplash, Wikimedia, of andere image-URLs). Deze breken te vaak.
    Maak uitlegblokken visueel rijk met elementen die WEL betrouwbaar werken:
@@ -800,7 +828,6 @@ TECHNISCHE EISEN
      🌊 Verdamping → ☁️ Wolken → 🌧️ Regen → 🌳 Groei
    - Visuele vergelijkingstabellen met kleur en iconen
    - Stijlvolle informatieblokken met kleurverloop, grote emoji-headers en duidelijke typografie
-   - Leaflet-kaarten en Chart.js-grafieken waar inhoudelijk relevant
    Elke sectie krijgt een inhoudelijk uitlegblok met voldoende tekst en duidelijke koppen. Leerlingen mogen geen extern boek nodig hebben.
    ECHTE-WERELD KOPPELING — VERPLICHT:
    Elke sectie moet de stof expliciet verbinden aan de leefwereld van de leerling. Aardrijkskunde gaat niet over abstracte processen — het gaat over de wereld waarin leerlingen leven, waar ze aan bijdragen en die ze dagelijks ervaren. Gebruik herkenbare voorbeelden ("Als jij vanochtend naar school fietste..."), en stel minstens één vraag per sectie die de leerling uitnodigt om de stof te herkennen in de eigen omgeving.
@@ -849,7 +876,22 @@ TECHNISCHE EISEN
     Herlaad voortgang automatisch bij openen. Knop "Voortgang wissen" toevoegen.
 
 11. AFSLUITING: Reflectiesectie met leerdoelenoverzicht, score, en reflectievragen die gericht zijn op het leerproces (niet alleen inhoud). Bijv.: "Wat vond je het lastigst en waarom?", "Wat zou je een klasgenoot uitleggen over dit onderwerp?", "Hoe zou je dit onderwerp herkennen in je eigen omgeving?"
+`;
 
+  if (state.exitticket) p += `
+    EXITTICKET — VERPLICHT:
+    Voeg onderaan de afsluitingssectie een prominente knop "Produceer exitticket" toe. Deze knop genereert een platte-tekst samenvatting van het volledige werk van de leerling, bedoeld om te plakken in een AI-feedbacktool.
+    De gegenereerde tekst moet bevatten:
+    - Titel "EXITTICKET" en de datum
+    - Niveau en leerjaar van de leerling
+    - De volledige leerdoelen (zoals meegegeven in de prompt)
+    - Alle vragen uit de leeromgeving, met per vraag: de vraagtekst, het gegeven antwoord van de leerling, en (bij gesloten vragen) of het goed of fout was en na hoeveel pogingen
+    - Bij open vragen: het antwoord van de leerling én de zelfbeoordeling (goed/fout)
+    - De reflectie-antwoorden aan het einde
+    Toon de tekst in een textarea waaruit de leerling kan kopiëren, met een "Kopieer naar klembord" knop ernaast. Voeg boven de textarea een korte instructie toe: "Kopieer deze tekst en plak hem in de feedback-tool van je docent voor gepersonaliseerde feedback op je werk."
+`;
+
+  p += `
 12. RESPONSIVE: Laptop én tablet (min. 768px breed).
 
 13. CODE-KWALITEIT — WERKBAARHEID BOVEN COMPACTHEID:
