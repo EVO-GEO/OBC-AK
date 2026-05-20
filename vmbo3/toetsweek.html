@@ -8,6 +8,9 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter+Tight:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <style>
 /* ============================================================
    AARDRIJKSKUNDE LEERTOOL — STIJL
@@ -986,6 +989,602 @@ p:last-child { margin-bottom: 0; }
   }
 }
 
+/* ============================================================
+   THEORIE — ICONEN, KLIKBARE BEGRIPPEN, POP-OVER
+   ============================================================ */
+.theory-block {
+  position: relative;
+}
+.theory-block .block-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  font-size: 20px;
+  margin-bottom: 10px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--line);
+}
+.chapter-header.ocher ~ * .theory-block .block-icon,
+.view-chapter.ocher .theory-block .block-icon { background: var(--ocher-bg); }
+
+.theory-block h3 {
+  display: block;
+  margin-bottom: 10px;
+}
+
+/* Klikbare begrippen in lopende tekst */
+.term-link {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  cursor: pointer;
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 3px;
+  transition: color 0.15s, text-decoration-color 0.15s;
+}
+.chapter-view.ocher .term-link { text-decoration-color: var(--ocher); }
+.chapter-view.moss .term-link { text-decoration-color: var(--moss); }
+.chapter-view.terracotta .term-link { text-decoration-color: var(--terracotta); }
+.chapter-view.bordeaux .term-link { text-decoration-color: var(--bordeaux); }
+
+.chapter-view.ocher .term-link:hover { color: var(--ocher); }
+.chapter-view.moss .term-link:hover { color: var(--moss); }
+.chapter-view.terracotta .term-link:hover { color: var(--terracotta); }
+.chapter-view.bordeaux .term-link:hover { color: var(--bordeaux); }
+
+/* Pop-over (modal-stijl, geen complex positioning) */
+.popover-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(42, 38, 32, 0.4);
+  z-index: 100;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  animation: fadeIn 0.18s ease-out;
+  padding: 0;
+}
+@media (min-width: 600px) {
+  .popover-backdrop { align-items: center; padding: 20px; }
+}
+.popover {
+  background: var(--bg-elevated);
+  border-radius: 18px 18px 0 0;
+  padding: 20px 22px 28px 22px;
+  max-width: 480px;
+  width: 100%;
+  box-shadow: 0 -10px 40px rgba(60, 50, 30, 0.2);
+  animation: slideUp 0.25s ease-out;
+  position: relative;
+}
+@media (min-width: 600px) {
+  .popover { border-radius: 18px; }
+}
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+.popover .pop-handle {
+  width: 36px;
+  height: 4px;
+  background: var(--line-strong);
+  border-radius: 2px;
+  margin: 0 auto 16px auto;
+}
+@media (min-width: 600px) {
+  .popover .pop-handle { display: none; }
+}
+.popover .pop-eyebrow {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-bottom: 6px;
+}
+.popover .pop-term {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 22px;
+  font-weight: 500;
+  margin-bottom: 8px;
+  line-height: 1.2;
+}
+.popover .pop-def {
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--ink);
+}
+.popover .pop-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ink-soft);
+}
+
+/* ============================================================
+   DIAGRAMS
+   ============================================================ */
+.diagram-card {
+  background: var(--bg-elevated);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 18px 18px 16px 18px;
+  margin: 14px 0;
+  box-shadow: var(--shadow-soft);
+}
+.diagram-title {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 16px;
+  font-weight: 500;
+  margin-bottom: 14px;
+  text-align: center;
+  color: var(--ink);
+}
+.diagram-note {
+  margin-top: 12px;
+  padding: 8px 12px;
+  background: var(--bg-card);
+  border-radius: 8px;
+  font-size: 13px;
+  color: var(--ink-soft);
+  line-height: 1.45;
+  text-align: center;
+}
+.diagram-legend {
+  margin-top: 10px;
+  font-size: 13px;
+  color: var(--ink-soft);
+  line-height: 1.6;
+}
+.diagram-legend > div {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 2px;
+}
+.legend-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.svg-diagram {
+  width: 100%;
+  height: auto;
+  max-height: 280px;
+  display: block;
+}
+
+/* Comparison 2-kolom */
+.comparison-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.comp-col {
+  border-radius: 10px;
+  padding: 14px 12px;
+  text-align: center;
+}
+.comp-col.ocher-bg { background: var(--ocher-bg); }
+.comp-col.moss-bg { background: var(--moss-bg); }
+.comp-col.terracotta-bg { background: var(--terracotta-bg); }
+.comp-col.bordeaux-bg { background: var(--bordeaux-bg); }
+.comp-emoji {
+  font-size: 28px;
+  margin-bottom: 4px;
+}
+.comp-label {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 17px;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+.comp-content {
+  font-size: 13px;
+  line-height: 1.4;
+  text-align: left;
+}
+.comp-content p { margin: 6px 0; }
+.comp-content ul {
+  margin: 4px 0;
+  padding-left: 18px;
+}
+.comp-tag {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  background: rgba(255,255,255,0.5);
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  margin-bottom: 8px;
+}
+.comp-content .example {
+  margin-top: 8px;
+  font-style: italic;
+  font-size: 12px;
+  color: var(--ink-soft);
+}
+.state-diagram {
+  margin-top: 6px;
+  text-align: center;
+}
+.state-top, .state-bottom {
+  background: rgba(255,255,255,0.6);
+  border-radius: 6px;
+  padding: 6px 8px;
+  font-size: 12px;
+  font-weight: 600;
+}
+.state-bottom.small { font-size: 11px; }
+.state-arrow {
+  font-size: 11px;
+  margin: 4px 0;
+  color: var(--ink-soft);
+}
+
+/* Ladder (driedeling welvaart) */
+.ladder { display: flex; flex-direction: column; gap: 4px; }
+.ladder-step {
+  border-radius: 8px;
+  padding: 12px 14px;
+  position: relative;
+}
+.ladder-top { background: var(--moss-bg); margin-right: 0; }
+.ladder-mid { background: var(--ocher-bg); margin-right: 8%; }
+.ladder-bot { background: var(--terracotta-bg); margin-right: 16%; }
+.step-label {
+  font-weight: 600;
+  font-size: 14px;
+}
+.step-examples {
+  font-size: 12px;
+  color: var(--ink-soft);
+  margin-top: 2px;
+}
+.step-badge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  background: rgba(255,255,255,0.7);
+  padding: 2px 8px;
+  border-radius: 999px;
+  margin-top: 6px;
+}
+
+/* Quad-grid (4 vakken) */
+.quad-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.quad-cell {
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 12px 10px;
+  text-align: center;
+}
+.quad-icon {
+  font-size: 26px;
+  margin-bottom: 4px;
+}
+.quad-name {
+  font-weight: 600;
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+.quad-info {
+  font-size: 12px;
+  color: var(--ink-soft);
+  line-height: 1.35;
+}
+
+/* Penta-grid (5 vakken) */
+.penta-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 6px;
+}
+.penta-cell {
+  background: var(--moss-bg);
+  border-radius: 8px;
+  padding: 10px 4px;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.25;
+}
+.penta-cell small {
+  font-weight: 400;
+  color: var(--ink-soft);
+  font-size: 10px;
+}
+.penta-icon {
+  font-size: 24px;
+  margin-bottom: 4px;
+}
+@media (max-width: 500px) {
+  .penta-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+/* Flow chain */
+.flow-chain {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+.flow-node {
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 8px 6px;
+  text-align: center;
+  font-size: 22px;
+  min-width: 64px;
+  line-height: 1;
+}
+.flow-node span {
+  display: block;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--ink-soft);
+  margin-top: 4px;
+  line-height: 1.2;
+}
+.flow-arrow {
+  color: var(--ink-faint);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+/* Matrix 2x2 */
+.matrix-2x2 {
+  display: grid;
+  grid-template-columns: 80px 1fr 1fr;
+  gap: 4px;
+  font-size: 12px;
+}
+.matrix-header {
+  font-weight: 700;
+  background: var(--bg-card);
+  border-radius: 6px;
+  padding: 8px 6px;
+  text-align: center;
+  font-size: 12px;
+}
+.matrix-rowlabel {
+  background: var(--bg-card);
+  border-radius: 6px;
+  padding: 8px 6px;
+  font-weight: 600;
+  font-size: 12px;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.matrix-rowlabel small {
+  font-weight: 400;
+  color: var(--ink-soft);
+}
+.matrix-cell {
+  background: var(--bg-elevated);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 8px;
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+/* Schaalniveau-stack */
+.scale-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.scale-row {
+  background: var(--terracotta-bg);
+  border-radius: 10px;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+.scale-big { background: var(--terracotta-bg); width: 100%; }
+.scale-mid { background: var(--ocher-bg); width: 80%; }
+.scale-small { background: var(--moss-bg); width: 60%; }
+.scale-icon { font-size: 26px; }
+.scale-info { text-align: left; }
+.scale-name {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 15px;
+  font-weight: 500;
+}
+.scale-desc {
+  font-size: 12px;
+  color: var(--ink-soft);
+}
+.scale-arrow {
+  color: var(--ink-faint);
+  font-size: 18px;
+  margin: 3px 0;
+}
+
+/* ============================================================
+   BEGRIPPEN-TAB sub-keuze
+   ============================================================ */
+.sub-mode-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.sub-mode-btn {
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 16px 14px;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  color: inherit;
+  transition: transform 0.15s, border-color 0.15s;
+}
+.sub-mode-btn:hover { border-color: var(--line-strong); transform: translateY(-1px); }
+.sub-mode-btn.active {
+  border-color: var(--ink);
+  background: var(--bg-elevated);
+  box-shadow: var(--shadow-soft);
+}
+.sub-mode-btn .smb-icon {
+  font-size: 22px;
+  margin-bottom: 6px;
+}
+.sub-mode-btn .smb-label {
+  font-weight: 600;
+  font-size: 14px;
+}
+.sub-mode-btn .smb-sub {
+  font-size: 12px;
+  color: var(--ink-soft);
+  margin-top: 2px;
+}
+
+/* ============================================================
+   STEPS BLOCK — voor genummerde opsommingen
+   ============================================================ */
+.steps-block {
+  margin-top: 14px;
+}
+.steps-title {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-bottom: 10px;
+}
+.steps-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
+@media (min-width: 500px) {
+  .steps-grid { grid-template-columns: repeat(3, 1fr); }
+  .steps-grid.steps-4 { grid-template-columns: repeat(2, 1fr); }
+}
+.step-card {
+  background: var(--bg-elevated);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 12px 14px;
+  position: relative;
+  text-align: left;
+}
+.step-card .step-num {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  color: var(--ink-faint);
+  font-size: 12px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.step-card.ocher .step-num { background: var(--ocher-bg); color: var(--ocher); border-color: var(--ocher-soft); }
+.step-card.moss .step-num { background: var(--moss-bg); color: var(--moss); border-color: var(--moss-soft); }
+.step-card.terracotta .step-num { background: var(--terracotta-bg); color: var(--terracotta); border-color: var(--terracotta-soft); }
+.step-card.bordeaux .step-num { background: var(--bordeaux-bg); color: var(--bordeaux); border-color: var(--bordeaux-soft); }
+
+.step-card .step-icon {
+  font-size: 22px;
+  margin-bottom: 6px;
+  line-height: 1;
+}
+.step-card .step-name {
+  font-weight: 600;
+  font-size: 14px;
+  margin-bottom: 4px;
+  padding-right: 28px;
+  line-height: 1.25;
+}
+.step-card .step-desc {
+  font-size: 12px;
+  color: var(--ink-soft);
+  line-height: 1.4;
+}
+
+/* ============================================================
+   INTERACTIVE DIAGRAMS — chart & map containers
+   ============================================================ */
+.interactive-diagram { padding: 16px 14px 14px 14px; }
+.chart-wrap {
+  position: relative;
+  height: 240px;
+  margin: 4px 0;
+}
+.chart-wrap canvas { max-width: 100%; }
+
+.map-wrap {
+  height: 320px;
+  border-radius: 10px;
+  overflow: hidden;
+  margin: 4px 0;
+  background: #e6dccb;
+  position: relative;
+  z-index: 0;
+}
+@media (max-width: 500px) {
+  .map-wrap { height: 280px; }
+}
+
+/* Leaflet popup/tooltip aanpassingen */
+.leaflet-tooltip {
+  font-family: 'Inter Tight', sans-serif !important;
+  font-size: 13px !important;
+  border-radius: 8px !important;
+  border: 1px solid var(--line-strong) !important;
+  background: var(--bg-elevated) !important;
+  color: var(--ink) !important;
+  box-shadow: 0 4px 12px rgba(60, 50, 30, 0.15) !important;
+  padding: 8px 10px !important;
+  max-width: 220px !important;
+}
+.leaflet-tooltip b {
+  display: block;
+  margin-bottom: 2px;
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 14px;
+}
+
 </style>
 </head>
 <body>
@@ -1717,6 +2316,1053 @@ const MIX_TEST_POOL = []; // wordt at-runtime gevuld uit de chapter-vragen
 </script>
 <script>
 // ============================================================
+// THEORY ENRICHMENT — iconen, klikbare begrippen, schema's
+// ============================================================
+// Per hoofdstuk en heading: optionele icon, linkTerms (substring → term-key),
+// en optionele diagram-id
+
+const THEORY_ENRICH = {
+  h1: {
+    "Welvaart vs. Welzijn": {
+      icon: "💶",
+      linkTerms: ["welvaart", "welzijn", "Human Development Index (HDI)", "levensverwachting", "alfabetiseringsgraad"],
+      diagram: "welvaart-welzijn"
+    },
+    "Hoe meet je welvaart?": {
+      icon: "📊",
+      linkTerms: ["bbp per persoon", "werkgelegenheid", "beroepsbevolking"],
+      diagram: "chart-beroepsbevolking",
+      steps: {
+        title: "Drie manieren om welvaart van een land te meten",
+        items: [
+          { icon: "💶", title: "bbp per persoon", desc: "Alles wat in een land verdiend wordt, gedeeld door het aantal inwoners" },
+          { icon: "💼", title: "Werkgelegenheid", desc: "Hoeveel mensen kunnen aan werk komen" },
+          { icon: "🌾🏭🏢", title: "Verdeling beroepsbevolking", desc: "Landbouw vs industrie vs diensten (arme landen: veel landbouw, rijke: veel diensten)" }
+        ]
+      }
+    },
+    "Formele vs. informele sector": {
+      icon: "🏢",
+      linkTerms: ["formele sector", "informele sector"]
+    },
+    "Indeling landen wereldwijd": {
+      icon: "🌍",
+      linkTerms: ["hoge-inkomenslanden", "midden-inkomenslanden", "lage-inkomenslanden"],
+      diagram: "driedeling-welvaart"
+    },
+    "Regionale verschillen in Nederland": {
+      icon: "🇳🇱",
+      linkTerms: ["bbp per persoon", "brp per persoon"],
+      diagram: "map-middenland-randland"
+    },
+    "Regionale ongelijkheid vs. sociale ongelijkheid": {
+      icon: "⚖️",
+      linkTerms: ["regionale ongelijkheid", "sociale ongelijkheid"]
+    },
+    "Woonomgeving en gezondheid": {
+      icon: "🏘️",
+      linkTerms: ["bebouwingsdichtheid", "levensverwachting", "woonomgeving"]
+    },
+    "Wijken, buurten en bewoners": {
+      icon: "🏠",
+      linkTerms: ["wijk", "buurt", "bevolkingssamenstelling"]
+    },
+    "Vergrijzing en ontgroening": {
+      icon: "👵",
+      linkTerms: ["vergrijzing", "ontgroening"]
+    },
+    "Pluriforme samenleving": {
+      icon: "🤝",
+      linkTerms: ["pluriforme samenleving"]
+    }
+  },
+  h3: {
+    "Waarom energie zo belangrijk is": {
+      icon: "⚡",
+      linkTerms: [],
+      diagram: "chart-energie-wereld"
+    },
+    "Fossiele brandstoffen": {
+      icon: "🛢️",
+      linkTerms: ["aardolie", "steenkool", "aardgas", "fossiele brandstoffen", "kernenergie"],
+      diagram: "fossiel-overzicht"
+    },
+    "Nadelen van fossiele bronnen": {
+      icon: "⚠️",
+      linkTerms: ["natuurlijk broeikaseffect", "uitputbare energiebronnen", "radioactiviteit"]
+    },
+    "Duurzame (hernieuwbare) energiebronnen": {
+      icon: "🌱",
+      linkTerms: ["duurzame energie", "hernieuwbare energiebronnen", "waterkracht", "zonne-energie", "windkracht", "aardwarmte", "geothermie", "biomassa"],
+      diagram: "vijf-duurzaam"
+    },
+    "Voor- en nadelen duurzame bronnen": {
+      icon: "📋",
+      linkTerms: ["biomassa", "waterkracht"]
+    },
+    "Transport van brandstoffen": {
+      icon: "🚢",
+      linkTerms: ["LNG", "raffinaderij", "pijpleiding"],
+      diagram: "transport-keten"
+    },
+    "Transport van elektriciteit": {
+      icon: "🔌",
+      linkTerms: ["thermische centrale", "hoogspanningsleiding"],
+      diagram: "thermische-centrale"
+    },
+    "Uitbreiding en onderhoud": {
+      icon: "🔧",
+      linkTerms: []
+    }
+  },
+  h5: {
+    "Wat is een grens?": {
+      icon: "🚧",
+      linkTerms: ["landsgrens", "natuurlijke grens", "kunstmatige grens"],
+      diagram: "soorten-grenzen"
+    },
+    "Open/zacht vs. gesloten/hard": {
+      icon: "🚪",
+      linkTerms: ["open grens", "zachte grens", "gesloten grens", "harde grens"]
+    },
+    "Territoriale wateren": {
+      icon: "🌊",
+      linkTerms: ["territoriale wateren"]
+    },
+    "Drie manieren waarop je verbonden bent aan een land": {
+      icon: "🔗",
+      linkTerms: ["nationaliteit", "soeverein"],
+      steps: {
+        title: "Drie manieren waarop jij verbonden bent met een land",
+        items: [
+          { icon: "🛂", title: "Politiek", desc: "Door je nationaliteit en paspoort" },
+          { icon: "💼", title: "Economisch", desc: "Door je baan, huis en belastingen" },
+          { icon: "🗣️", title: "Sociaal / cultureel", desc: "Door taal, godsdienst en gewoonten" }
+        ]
+      }
+    },
+    "Identiteit en mentaliteit": {
+      icon: "🪞",
+      linkTerms: ["identiteit", "mentaliteit", "mentale verstedelijking", "cultuur"]
+    },
+    "Nationalisme, regionalisme, lokalisme": {
+      icon: "🏛️",
+      linkTerms: ["nationalisme", "regionalisme", "lokalisme"],
+      diagram: "schaalniveaus"
+    },
+    "Ruimtelijke ordening": {
+      icon: "🗺️",
+      linkTerms: ["ruimtelijke ordening", "omgevingsplan", "provincies", "gemeente"],
+      steps: {
+        title: "Drie bestuurslagen die over de ruimte gaan",
+        items: [
+          { icon: "🏛️", title: "Het Rijk", desc: "Algemene zaken: infrastructuur, water, grote projecten" },
+          { icon: "🏞️", title: "De provincie", desc: "Uitbreiding van steden en industrieterreinen" },
+          { icon: "🏘️", title: "De gemeente", desc: "Omgevingsplan met regels per gebied" }
+        ]
+      }
+    },
+    "Jouw rol": {
+      icon: "🗳️",
+      linkTerms: ["inspraak", "bezwaar"],
+      steps: {
+        title: "Drie manieren waarop jij invloed hebt op je leefomgeving",
+        items: [
+          { icon: "📣", title: "Inspraak", desc: "Officieel bezwaar maken tegen beslissingen van de gemeente" },
+          { icon: "🗳️", title: "Verkiezingen", desc: "Vanaf je 18e kun je stemmen" },
+          { icon: "📱", title: "Meldingen", desc: "Via apps van de gemeente kapotte lantaarnpalen, zwerfvuil of onveilige fietspaden doorgeven" }
+        ]
+      }
+    },
+    "Grens met België en Duitsland": {
+      icon: "🇧🇪",
+      linkTerms: ["enclave"],
+      diagram: "map-grenzen-nl-bd"
+    },
+    "Schengen en grenspendel": {
+      icon: "✈️",
+      linkTerms: ["Verdrag van Schengen", "grenspendel"]
+    },
+    "België: federale staat": {
+      icon: "🏤",
+      linkTerms: ["eenheidsstaat", "federale staat", "gemeenschap", "taalgrens"],
+      diagram: "eenheid-vs-federaal"
+    },
+    "Verschillen tussen Nederlanders en Belgen": {
+      icon: "👥",
+      linkTerms: ["stereotype", "chauvinisme"]
+    },
+    "Grensoverschrijdende problemen": {
+      icon: "🌐",
+      linkTerms: ["Zeeschelde"]
+    },
+    "Botsende belangen": {
+      icon: "⚔️",
+      linkTerms: ["IJzeren Rijn", "Grensmaas"]
+    },
+    "Samenwerking en euregio's": {
+      icon: "🤝",
+      linkTerms: ["euregio", "Schelde-Rijnverbinding"]
+    }
+  },
+  h6: {
+    "Russische Federatie": {
+      icon: "🇷🇺",
+      linkTerms: [],
+      diagram: "map-rusland-buren"
+    },
+    "Religie en bevolking": {
+      icon: "⛪",
+      linkTerms: ["etnische groep"],
+      diagram: "chart-rusland-etnisch"
+    },
+    "Geografie en welvaart": {
+      icon: "🗺️",
+      linkTerms: []
+    },
+    "Etnische groepen en russificatie": {
+      icon: "🌐",
+      linkTerms: ["etnische groep", "culturele identiteit", "bevolkingsspreiding", "russificatie"]
+    },
+    "Nationalisme en separatisme": {
+      icon: "⚔️",
+      linkTerms: ["nationalisme", "separatisme"],
+      diagram: "nationalisme-vs-separatisme"
+    },
+    "Conflict in de Kaukasus": {
+      icon: "🏔️",
+      linkTerms: ["russificatie", "separatisme"]
+    },
+    "Conflict met Oekraïne": {
+      icon: "💥",
+      linkTerms: ["russificatie"]
+    },
+    "Russische economie en grondstoffen": {
+      icon: "💰",
+      linkTerms: []
+    },
+    "Vier problemen rond grondstoffen": {
+      icon: "❗",
+      linkTerms: [],
+      diagram: "vier-problemen"
+    },
+    "Noordelijke IJszee — klimaat en geografie": {
+      icon: "🧊",
+      linkTerms: ["ijsberg", "ijsschol", "pakijs", "uiterste pakijsgrens", "poolcirkel"]
+    },
+    "Toendra en permafrost": {
+      icon: "❄️",
+      linkTerms: []
+    },
+    "Wie heeft recht op het Noordpoolgebied?": {
+      icon: "⚖️",
+      linkTerms: ["exclusieve economische zone", "continentaal plat", "territoriale wateren"],
+      diagram: "map-noordpool"
+    },
+    "Vier perspectieven op het Noordpoolgebied": {
+      icon: "🔭",
+      linkTerms: ["Noordelijke Doorvaart", "Earth Charter", "ngo"]
+    }
+  }
+};
+
+// ============================================================
+// DIAGRAMS — SVG schema's per id
+// ============================================================
+const DIAGRAMS = {
+  "welvaart-welzijn": () => `
+    <div class="diagram-card">
+      <div class="diagram-title">Welvaart vs. Welzijn</div>
+      <div class="comparison-grid">
+        <div class="comp-col ocher-bg">
+          <div class="comp-emoji">💶</div>
+          <div class="comp-label">Welvaart</div>
+          <div class="comp-content">
+            <div class="comp-tag">= GELD</div>
+            <ul>
+              <li>bbp per persoon</li>
+              <li>inkomen</li>
+              <li>koopkracht</li>
+            </ul>
+          </div>
+        </div>
+        <div class="comp-col moss-bg">
+          <div class="comp-emoji">❤️</div>
+          <div class="comp-label">Welzijn</div>
+          <div class="comp-content">
+            <div class="comp-tag">= LEVEN</div>
+            <ul>
+              <li>levensverwachting</li>
+              <li>onderwijs</li>
+              <li>gezondheid</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="diagram-note">📐 HDI combineert beide: levensverwachting + alfabetiseringsgraad + bbp/pp</div>
+    </div>
+  `,
+
+  "driedeling-welvaart": () => `
+    <div class="diagram-card">
+      <div class="diagram-title">Driedeling van landen wereldwijd</div>
+      <div class="ladder">
+        <div class="ladder-step ladder-top">
+          <div class="step-label">Hoge-inkomenslanden</div>
+          <div class="step-examples">Nederland · Frankrijk · Japan · VS</div>
+        </div>
+        <div class="ladder-step ladder-mid">
+          <div class="step-label">Midden-inkomenslanden</div>
+          <div class="step-examples">Brazilië · China · Egypte · Turkije</div>
+          <div class="step-badge">Opkomende economieën ↗</div>
+        </div>
+        <div class="ladder-step ladder-bot">
+          <div class="step-label">Lage-inkomenslanden</div>
+          <div class="step-examples">Afghanistan · DR Congo · Niger</div>
+        </div>
+      </div>
+    </div>
+  `,
+
+  "middenland-randland": () => `
+    <div class="diagram-card">
+      <div class="diagram-title">Middenland & Randland in Nederland</div>
+      <svg viewBox="0 0 300 240" class="svg-diagram" xmlns="http://www.w3.org/2000/svg">
+        <!-- vereenvoudigde NL-vorm -->
+        <path d="M 60,30 L 140,20 L 200,15 L 240,40 L 260,90 L 250,140 L 240,180 L 220,210 L 180,225 L 140,220 L 100,210 L 70,180 L 50,140 L 40,90 L 50,50 Z"
+              fill="#ead7af" stroke="#b8842d" stroke-width="2"/>
+        <!-- middenland (Randstad+Utrecht) -->
+        <ellipse cx="120" cy="115" rx="55" ry="42" fill="#b8842d" opacity="0.6"/>
+        <text x="120" y="118" text-anchor="middle" fill="white" font-weight="600" font-size="12">Middenland</text>
+        <text x="120" y="132" text-anchor="middle" fill="white" font-size="9">hoog brp</text>
+        <!-- noord -->
+        <text x="180" y="50" font-size="10" fill="#5a5347">Randland</text>
+        <text x="180" y="62" font-size="9" fill="#8a8270">(noorden)</text>
+        <!-- zuid -->
+        <text x="180" y="200" font-size="10" fill="#5a5347">Randland</text>
+        <text x="180" y="212" font-size="9" fill="#8a8270">(zuiden)</text>
+      </svg>
+      <div class="diagram-legend">
+        <div><span class="legend-dot" style="background:#b8842d"></span>Middenland: hoger inkomen, dichtbevolkt, meer diensten</div>
+        <div><span class="legend-dot" style="background:#ead7af"></span>Randland: lager inkomen, meer landbouw, lagere levensverwachting</div>
+      </div>
+    </div>
+  `,
+
+  "fossiel-overzicht": () => `
+    <div class="diagram-card">
+      <div class="diagram-title">Vier veelgebruikte (niet-duurzame) energiebronnen</div>
+      <div class="quad-grid">
+        <div class="quad-cell">
+          <div class="quad-icon">🛢️</div>
+          <div class="quad-name">Aardolie</div>
+          <div class="quad-info">uit dood plankton<br>benzine · diesel · kerosine</div>
+        </div>
+        <div class="quad-cell">
+          <div class="quad-icon">⛏️</div>
+          <div class="quad-name">Kolen</div>
+          <div class="quad-info">uit plantenresten<br>stroom</div>
+        </div>
+        <div class="quad-cell">
+          <div class="quad-icon">🔥</div>
+          <div class="quad-name">Aardgas</div>
+          <div class="quad-info">"schoonste" fossiele<br>verwarming · stroom</div>
+        </div>
+        <div class="quad-cell">
+          <div class="quad-icon">☢️</div>
+          <div class="quad-name">Kernenergie</div>
+          <div class="quad-info">uit uranium<br>1 kg = stroom voor 5000 huishoudens/jaar</div>
+        </div>
+      </div>
+      <div class="diagram-note">⚠ Allemaal uitputbaar. CO₂ versterkt broeikaseffect. Kernenergie → radioactief afval.</div>
+    </div>
+  `,
+
+  "vijf-duurzaam": () => `
+    <div class="diagram-card">
+      <div class="diagram-title">Vijf duurzame energiebronnen</div>
+      <div class="penta-grid">
+        <div class="penta-cell"><div class="penta-icon">💧</div><div>Water<br><small>rivieren · getijden</small></div></div>
+        <div class="penta-cell"><div class="penta-icon">☀️</div><div>Zon<br><small>panelen · collectoren</small></div></div>
+        <div class="penta-cell"><div class="penta-icon">💨</div><div>Wind<br><small>turbines op land/zee</small></div></div>
+        <div class="penta-cell"><div class="penta-icon">🌋</div><div>Aardwarmte<br><small>(geothermie)</small></div></div>
+        <div class="penta-cell"><div class="penta-icon">🌾</div><div>Biomassa<br><small>verbranden afval</small></div></div>
+      </div>
+      <div class="diagram-note">✅ Raken niet op &nbsp;·&nbsp; ✅ Weinig vervuiling &nbsp;·&nbsp; Wereldwijd nu: 11%</div>
+    </div>
+  `,
+
+  "transport-keten": () => `
+    <div class="diagram-card">
+      <div class="diagram-title">Hoe komt brandstof bij jou?</div>
+      <div class="flow-chain">
+        <div class="flow-node">🛢️<br><span>winning</span></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node">🚢<br><span>tankschip</span></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node">⚓<br><span>haven</span></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node">🏭<br><span>raffinaderij</span></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node">🚛<br><span>tankwagen / pijpleiding</span></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node">⛽<br><span>jij</span></div>
+      </div>
+      <div class="diagram-note">🇷🇺 Aardgas uit Rusland naar NL: 12 dagen reizen</div>
+    </div>
+  `,
+
+  "thermische-centrale": () => `
+    <div class="diagram-card">
+      <div class="diagram-title">Thermische centrale: brandstof → stroom</div>
+      <div class="flow-chain">
+        <div class="flow-node">🔥<br><span>brandstof verbrandt</span></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node">♨️<br><span>water → stoom</span></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node">⚙️<br><span>turbine draait</span></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node">⚡<br><span>elektriciteit</span></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node">🏠<br><span>hoogspannings­leiding naar gebruiker</span></div>
+      </div>
+      <div class="diagram-note">📉 Over grote afstanden gaat onderweg energie verloren. Daarom is zonnepaneel op je dak efficiënter.</div>
+    </div>
+  `,
+
+  "soorten-grenzen": () => `
+    <div class="diagram-card">
+      <div class="diagram-title">Soorten landsgrenzen</div>
+      <div class="matrix-2x2">
+        <div class="matrix-header"></div>
+        <div class="matrix-header">Open / Zacht 🟢</div>
+        <div class="matrix-header">Gesloten / Hard 🔴</div>
+        <div class="matrix-rowlabel">Natuurlijk<br><small>(rivier, gebergte, zee)</small></div>
+        <div class="matrix-cell">Maas tussen NL & B (in EU/Schengen)</div>
+        <div class="matrix-cell">Rio Grande tussen VS & Mexico</div>
+        <div class="matrix-rowlabel">Kunstmatig<br><small>(door mensen getrokken)</small></div>
+        <div class="matrix-cell">Grenspalen NL-Duitsland (Schengen)</div>
+        <div class="matrix-cell">Muur tussen Noord- en Zuid-Korea</div>
+      </div>
+      <div class="diagram-note">💡 Open = Zacht (synoniemen). Gesloten = Hard (synoniemen).</div>
+    </div>
+  `,
+
+  "schaalniveaus": () => `
+    <div class="diagram-card">
+      <div class="diagram-title">Schaalniveaus van gehechtheid</div>
+      <div class="scale-stack">
+        <div class="scale-row scale-big">
+          <div class="scale-icon">🇳🇱</div>
+          <div class="scale-info">
+            <div class="scale-name">Nationalisme</div>
+            <div class="scale-desc">Voorkeur voor eigen <strong>land</strong></div>
+          </div>
+        </div>
+        <div class="scale-arrow">↓</div>
+        <div class="scale-row scale-mid">
+          <div class="scale-icon">🏞️</div>
+          <div class="scale-info">
+            <div class="scale-name">Regionalisme</div>
+            <div class="scale-desc">Hechten aan eigen <strong>regio/provincie</strong> (Friesland, Limburg)</div>
+          </div>
+        </div>
+        <div class="scale-arrow">↓</div>
+        <div class="scale-row scale-small">
+          <div class="scale-icon">🏘️</div>
+          <div class="scale-info">
+            <div class="scale-name">Lokalisme</div>
+            <div class="scale-desc">Gericht op eigen <strong>dorp/gemeente</strong></div>
+          </div>
+        </div>
+      </div>
+      <div class="diagram-note">📏 Van groot (land) naar klein (dorp). Veel Nederlanders voelen méér voor regio/dorp dan voor het land.</div>
+    </div>
+  `,
+
+  "eenheid-vs-federaal": () => `
+    <div class="diagram-card">
+      <div class="diagram-title">Eenheidsstaat vs. Federale staat</div>
+      <div class="comparison-grid">
+        <div class="comp-col ocher-bg">
+          <div class="comp-emoji">🇳🇱</div>
+          <div class="comp-label">Eenheidsstaat</div>
+          <div class="comp-content">
+            <div class="comp-tag">NEDERLAND</div>
+            <div class="state-diagram">
+              <div class="state-top">Centrale regering</div>
+              <div class="state-arrow">↓ bepaalt het meeste</div>
+              <div class="state-bottom">Provincies & gemeenten</div>
+            </div>
+          </div>
+        </div>
+        <div class="comp-col terracotta-bg">
+          <div class="comp-emoji">🇧🇪</div>
+          <div class="comp-label">Federale staat</div>
+          <div class="comp-content">
+            <div class="comp-tag">BELGIË</div>
+            <div class="state-diagram">
+              <div class="state-top">Landsregering</div>
+              <div class="state-arrow">⇋ macht verdeeld</div>
+              <div class="state-bottom small">3 gewesten + 3 gemeenschappen</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="diagram-note">💡 In een federale staat mag elk deelgebied zelfstandig beslissen over eigen zaken.</div>
+    </div>
+  `,
+
+  "nationalisme-vs-separatisme": () => `
+    <div class="diagram-card">
+      <div class="diagram-title">Nationalisme &ne; Separatisme</div>
+      <div class="comparison-grid">
+        <div class="comp-col bordeaux-bg">
+          <div class="comp-emoji">🇷🇺</div>
+          <div class="comp-label">Nationalisme</div>
+          <div class="comp-content">
+            <div class="comp-tag">SAMEN BLIJVEN</div>
+            <p>Sterke voorkeur voor je eigen land. Trots op cultuur, taal, geschiedenis. Vaak afkeer van het vreemde.</p>
+            <div class="example">→ Russen trots op Rusland</div>
+          </div>
+        </div>
+        <div class="comp-col moss-bg">
+          <div class="comp-emoji">✂️</div>
+          <div class="comp-label">Separatisme</div>
+          <div class="comp-content">
+            <div class="comp-tag">AFSPLITSEN</div>
+            <p>Een groep wil zich afsplitsen van een land om een eigen, nieuwe staat te vormen.</p>
+            <div class="example">→ Tsjetsjenen willen los van Rusland</div>
+          </div>
+        </div>
+      </div>
+      <div class="diagram-note">⚔️ Nationalisme & separatisme botsen vaak. Rusland wil deelgebieden binnenhouden — Tsjetsjenië wil eruit.</div>
+    </div>
+  `,
+
+  "vier-problemen": () => `
+    <div class="diagram-card">
+      <div class="diagram-title">Vier problemen met Russische grondstoffen</div>
+      <div class="quad-grid">
+        <div class="quad-cell">
+          <div class="quad-icon">💸</div>
+          <div class="quad-name">Economie</div>
+          <div class="quad-info">Grondstofprijzen schommelen → kwetsbare economie. Strafmaatregelen na oorlog deden pijn.</div>
+        </div>
+        <div class="quad-cell">
+          <div class="quad-icon">⚖️</div>
+          <div class="quad-name">Sociale ongelijkheid</div>
+          <div class="quad-info">Winst gaat naar een kleine groep rijken (oligarchen). 12,6% leeft onder de armoedegrens.</div>
+        </div>
+        <div class="quad-cell">
+          <div class="quad-icon">🛢️</div>
+          <div class="quad-name">Milieu</div>
+          <div class="quad-info">Lekkages in olie/gas, vervuilde rivieren, luchtvervuiling, verouderde kerncentrales.</div>
+        </div>
+        <div class="quad-cell">
+          <div class="quad-icon">🏛️</div>
+          <div class="quad-name">Politiek</div>
+          <div class="quad-info">Deelgebieden (Tatarstan) willen zelf profiteren → separatisme dat Rusland blokkeert.</div>
+        </div>
+      </div>
+    </div>
+  `,
+
+  "noordpool-zones": () => `
+    <div class="diagram-card">
+      <div class="diagram-title">Wie mag wat op de Noordpool? (volgens VN)</div>
+      <svg viewBox="0 0 320 200" class="svg-diagram" xmlns="http://www.w3.org/2000/svg">
+        <!-- land -->
+        <rect x="0" y="120" width="320" height="80" fill="#e6dccb"/>
+        <text x="20" y="155" font-size="13" font-weight="600" fill="#5a5347">LAND (kust)</text>
+        <!-- zee -->
+        <rect x="0" y="0" width="320" height="120" fill="#c6d6dd"/>
+        <!-- zones -->
+        <rect x="0" y="80" width="60" height="40" fill="#8a3a3a" opacity="0.4"/>
+        <text x="30" y="105" text-anchor="middle" font-size="10" fill="#5a5347">12 zm</text>
+        <text x="30" y="115" text-anchor="middle" font-size="8" fill="#5a5347">territorium</text>
+
+        <rect x="60" y="80" width="140" height="40" fill="#5e7c3a" opacity="0.4"/>
+        <text x="130" y="105" text-anchor="middle" font-size="10" fill="#5a5347">200 zeemijl</text>
+        <text x="130" y="115" text-anchor="middle" font-size="8" fill="#5a5347">exclusieve economische zone</text>
+
+        <rect x="200" y="80" width="100" height="40" fill="#b8842d" opacity="0.4"/>
+        <text x="250" y="105" text-anchor="middle" font-size="10" fill="#5a5347">350 zeemijl</text>
+        <text x="250" y="115" text-anchor="middle" font-size="8" fill="#5a5347">continentaal plat</text>
+
+        <!-- vlag/grens markeerlijntjes -->
+        <line x1="60" y1="75" x2="60" y2="85" stroke="#2a2620" stroke-width="1"/>
+        <line x1="200" y1="75" x2="200" y2="85" stroke="#2a2620" stroke-width="1"/>
+        <line x1="300" y1="75" x2="300" y2="85" stroke="#2a2620" stroke-width="1"/>
+
+        <text x="160" y="30" text-anchor="middle" font-size="13" font-weight="600" fill="#5a5347">🌊 Open zee — niemand van</text>
+      </svg>
+      <div class="diagram-legend">
+        <div><span class="legend-dot" style="background:#8a3a3a;opacity:0.6"></span><strong>12 zm</strong>: territoriale wateren — helemaal van het land</div>
+        <div><span class="legend-dot" style="background:#5e7c3a;opacity:0.6"></span><strong>200 zm</strong>: exclusieve economische zone — alleen dat land mag vissen/winnen</div>
+        <div><span class="legend-dot" style="background:#b8842d;opacity:0.6"></span><strong>350 zm</strong>: continentaal plat — claim op zeebodem</div>
+      </div>
+      <div class="diagram-note">🇷🇺 Rusland wil verder gaan en plantte zelfs een vlag op de Noordpool-bodem.</div>
+    </div>
+  `
+};
+
+</script>
+<script>
+// ============================================================
+// INTERACTIVE DIAGRAMS — Chart.js + Leaflet
+// ============================================================
+// Werking: bij theory-rendering plaatsen we een placeholder <div>
+// of <canvas> met data-init="X". Na render scannen we het document
+// en initialiseren alle interactieve diagrammen.
+
+const INTERACTIVE = {
+
+  // ============ CHARTS (Chart.js) ============
+
+  'chart-beroepsbevolking': {
+    type: 'chart',
+    title: 'Verdeling beroepsbevolking: arm vs rijk land',
+    render: (canvas) => {
+      new Chart(canvas, {
+        type: 'bar',
+        data: {
+          labels: ['Landbouw', 'Industrie', 'Diensten'],
+          datasets: [
+            {
+              label: 'Kenia (laag inkomen)',
+              data: [61, 7, 32],
+              backgroundColor: '#b85a3c',
+            },
+            {
+              label: 'Frankrijk (hoog inkomen)',
+              data: [2, 18, 80],
+              backgroundColor: '#5e7c3a',
+            }
+          ]
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'bottom', labels: { font: { size: 12 } } },
+            tooltip: { callbacks: { label: (c) => c.dataset.label + ': ' + c.parsed.x + '%' } }
+          },
+          scales: {
+            x: { beginAtZero: true, max: 100, title: { display: true, text: '% van beroepsbevolking' } },
+            y: { ticks: { font: { size: 13 } } }
+          }
+        }
+      });
+    },
+    note: '💡 In arme landen werkt veel volk in landbouw; in rijke landen vooral in diensten.'
+  },
+
+  'chart-energie-wereld': {
+    type: 'chart',
+    title: 'Energieverbruik wereldwijd',
+    render: (canvas) => {
+      new Chart(canvas, {
+        type: 'doughnut',
+        data: {
+          labels: ['Aardolie', 'Kolen', 'Aardgas', 'Kernenergie', 'Duurzaam'],
+          datasets: [{
+            data: [31, 27, 23, 4, 15],
+            backgroundColor: ['#2a2620', '#5a5347', '#8a8270', '#b04a4a', '#5e7c3a'],
+            borderColor: '#fbf7ee',
+            borderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'bottom', labels: { font: { size: 12 }, padding: 10 } },
+            tooltip: { callbacks: { label: (c) => c.label + ': ' + c.parsed + '%' } }
+          }
+        }
+      });
+    },
+    note: '⚠️ Fossiele bronnen (olie + kolen + gas) zijn samen nog ruim 80% van het energieverbruik.'
+  },
+
+  'chart-rusland-etnisch': {
+    type: 'chart',
+    title: 'Etnische samenstelling Rusland',
+    render: (canvas) => {
+      new Chart(canvas, {
+        type: 'doughnut',
+        data: {
+          labels: ['Etnische Russen', 'Andere etnische groepen (±160 groepen)'],
+          datasets: [{
+            data: [80, 20],
+            backgroundColor: ['#8a3a3a', '#d8a8a8'],
+            borderColor: '#fbf7ee',
+            borderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'bottom', labels: { font: { size: 12 }, padding: 10 } },
+            tooltip: { callbacks: { label: (c) => c.label + ': ' + c.parsed + '%' } }
+          }
+        }
+      });
+    },
+    note: '🌐 Ruim 20% van de Russen behoort tot een andere etnische groep — ongeveer 160 groepen in totaal.'
+  },
+
+  // ============ MAPS (Leaflet) ============
+
+  'map-middenland-randland': {
+    type: 'map',
+    title: 'Middenland & Randland in Nederland',
+    render: (container) => {
+      const map = L.map(container, {
+        center: [52.2, 5.3],
+        zoom: 7,
+        minZoom: 6,
+        maxZoom: 9,
+        maxBounds: [[50.3, 2.5], [54.0, 8.2]],
+        scrollWheelZoom: false,
+        attributionControl: true,
+      });
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap',
+        maxZoom: 9
+      }).addTo(map);
+
+      // Middenland (Randstad + Utrecht + Flevoland — schematisch polygon)
+      const middenland = L.polygon([
+        [52.85, 4.55],  // Noord-Holland kop
+        [52.95, 5.0],
+        [52.7, 5.7],   // Flevoland oost
+        [52.4, 5.95],
+        [52.0, 5.45],  // Utrecht oost
+        [51.85, 5.0],
+        [51.7, 4.4],   // Zuid-Holland
+        [52.0, 4.05],  // kust
+        [52.45, 4.55],
+        [52.85, 4.55]
+      ], {
+        color: '#b8842d',
+        fillColor: '#b8842d',
+        fillOpacity: 0.45,
+        weight: 2
+      }).addTo(map);
+      middenland.bindTooltip('<b>Middenland</b><br>Randstad + Utrecht + Flevoland<br>Hoger gemiddeld brp per persoon', { sticky: true });
+
+      // Randland-noord
+      const noord = L.polygon([
+        [53.55, 5.0],
+        [53.5, 7.2],
+        [52.85, 7.05],
+        [52.6, 6.1],
+        [52.95, 5.0],
+        [52.85, 4.55],
+        [53.05, 4.7]
+      ], {
+        color: '#5a5347',
+        fillColor: '#ead7af',
+        fillOpacity: 0.55,
+        weight: 2,
+        dashArray: '4, 4'
+      }).addTo(map);
+      noord.bindTooltip('<b>Randland (noord)</b><br>Friesland, Groningen, Drenthe<br>Lager gemiddeld inkomen', { sticky: true });
+
+      // Randland-zuid/oost
+      const zuid = L.polygon([
+        [52.6, 6.1],
+        [52.4, 7.05],
+        [51.85, 6.45],
+        [51.2, 6.15],
+        [50.75, 5.75],
+        [51.4, 4.25],
+        [51.7, 4.4],
+        [51.85, 5.0],
+        [52.0, 5.45]
+      ], {
+        color: '#5a5347',
+        fillColor: '#ead7af',
+        fillOpacity: 0.55,
+        weight: 2,
+        dashArray: '4, 4'
+      }).addTo(map);
+      zuid.bindTooltip('<b>Randland (zuid/oost)</b><br>Zeeland, Brabant, Limburg, Gelderland-oost<br>Meer landbouw, lager gemiddeld inkomen', { sticky: true });
+    },
+    legend: [
+      { color: '#b8842d', label: 'Middenland — hoger brp, dichtbevolkt, veel diensten' },
+      { color: '#ead7af', label: 'Randland — lager brp, meer landbouw' }
+    ],
+    note: '💡 Tip op de gebieden voor meer info. Het Randland ligt aan de randen van Nederland; het Middenland in het westen en midden.'
+  },
+
+  'map-grenzen-nl-bd': {
+    type: 'map',
+    title: 'Landsgrenzen Nederland — België — Duitsland',
+    render: (container) => {
+      const map = L.map(container, {
+        center: [51.7, 5.5],
+        zoom: 7,
+        minZoom: 6,
+        maxZoom: 11,
+        maxBounds: [[50.0, 2.0], [54.0, 8.5]],
+        scrollWheelZoom: false,
+      });
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap',
+        maxZoom: 11
+      }).addTo(map);
+
+      // Baarle-Hertog enclaves (Belgisch gebied in NL) — schematisch een marker
+      const baarle = L.circleMarker([51.443, 4.929], {
+        color: '#b85a3c',
+        fillColor: '#b85a3c',
+        fillOpacity: 0.7,
+        radius: 8,
+        weight: 2
+      }).addTo(map);
+      baarle.bindTooltip('<b>Baarle-Hertog / Baarle-Nassau</b><br>Belgische enclaves in Nederland (en Nederlandse contra-enclaves binnen Baarle-Hertog!)', { sticky: true });
+
+      // Grensmaas (natuurlijke grens NL-België in Limburg)
+      const grensmaas = L.polyline([
+        [50.755, 5.69],
+        [50.95, 5.73],
+        [51.1, 5.80],
+        [51.18, 5.83]
+      ], {
+        color: '#5e7c3a',
+        weight: 5,
+        opacity: 0.8
+      }).addTo(map);
+      grensmaas.bindTooltip('<b>Grensmaas</b><br>Natuurlijke grens NL-België (rivier de Maas)', { sticky: true });
+
+      // IJzeren Rijn route schematisch (Antwerpen → Mönchengladbach via NL)
+      const ijzerenrijn = L.polyline([
+        [51.22, 4.40],   // Antwerpen
+        [51.25, 4.85],
+        [51.27, 5.40],
+        [51.28, 5.85],   // Weert/Roermond gebied
+        [51.20, 6.10],
+        [51.20, 6.43]    // Mönchengladbach
+      ], {
+        color: '#8a3a3a',
+        weight: 3,
+        opacity: 0.85,
+        dashArray: '6, 4'
+      }).addTo(map);
+      ijzerenrijn.bindTooltip('<b>IJzeren Rijn</b><br>Spoorlijn Antwerpen → Duitsland, deels door NL (Nationaal Park De Meinweg)', { sticky: true });
+
+      // Westerschelde (botsend belang)
+      const westerschelde = L.polygon([
+        [51.34, 3.40],
+        [51.43, 3.65],
+        [51.46, 3.85],
+        [51.39, 4.05],
+        [51.32, 4.25],
+        [51.22, 4.40],
+        [51.27, 3.85],
+        [51.30, 3.55]
+      ], {
+        color: '#b8842d',
+        fillColor: '#b8842d',
+        fillOpacity: 0.3,
+        weight: 2
+      }).addTo(map);
+      westerschelde.bindTooltip('<b>Westerschelde</b><br>Vaarroute naar Antwerpen — botsend belang met NL (baggeren)', { sticky: true });
+    },
+    legend: [
+      { color: '#b85a3c', label: 'Baarle: Belgische enclaves in NL' },
+      { color: '#5e7c3a', label: 'Grensmaas: natuurlijke grens (rivier)' },
+      { color: '#8a3a3a', label: 'IJzeren Rijn: spoor­route door NL' },
+      { color: '#b8842d', label: 'Westerschelde: betwiste vaarroute' }
+    ],
+    note: '🗺️ Zoom in op Baarle (51.44°N, 4.93°O) om de enclave-situatie te zien.'
+  },
+
+  'map-rusland-buren': {
+    type: 'map',
+    title: 'Rusland en zijn buurlanden',
+    render: (container) => {
+      const map = L.map(container, {
+        center: [55, 60],
+        zoom: 3,
+        minZoom: 2,
+        maxZoom: 5,
+        maxBounds: [[20, -30], [85, 180]],
+        scrollWheelZoom: false,
+        worldCopyJump: false,
+      });
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap',
+        maxZoom: 5
+      }).addTo(map);
+
+      // Markers voor oud-Sovjet-republieken (zelfstandig sinds 1991)
+      const buren = [
+        { name: 'Oekraïne', latlng: [49.0, 31.0], info: 'Onafhankelijk sinds 1991. Conflict sinds 2014 (Krim) en 2022 (oorlog).', color: '#b04a4a' },
+        { name: 'Wit-Rusland', latlng: [53.7, 28.0], info: 'Onafhankelijk sinds 1991. Bondgenoot van Rusland.', color: '#c2872d' },
+        { name: 'Estland', latlng: [58.8, 25.5], info: 'Onafhankelijk sinds 1991. Nu EU/NAVO-lid. Veel etnische Russen.', color: '#c2872d' },
+        { name: 'Letland', latlng: [56.9, 25.0], info: 'Onafhankelijk sinds 1991. Nu EU/NAVO-lid.', color: '#c2872d' },
+        { name: 'Litouwen', latlng: [55.3, 24.0], info: 'Onafhankelijk sinds 1991. Nu EU/NAVO-lid.', color: '#c2872d' },
+        { name: 'Georgië', latlng: [42.3, 43.4], info: 'Onafhankelijk sinds 1991. Conflict met Rusland in 2008.', color: '#b04a4a' },
+        { name: 'Kazachstan', latlng: [48.0, 67.0], info: 'Onafhankelijk sinds 1991. Veel etnische Russen in het noorden.', color: '#c2872d' },
+        { name: 'Tsjetsjenië', latlng: [43.4, 45.7], info: 'Deelgebied binnen Rusland. Twee oorlogen om afsplitsing.', color: '#b04a4a' },
+        { name: 'Krim', latlng: [45.0, 34.0], info: 'Schiereiland van Oekraïne, in 2014 door Rusland bezet.', color: '#b04a4a' },
+        { name: 'Moskou', latlng: [55.75, 37.6], info: 'Hoofdstad van Rusland.', color: '#8a3a3a' },
+      ];
+
+      buren.forEach(b => {
+        const m = L.circleMarker(b.latlng, {
+          color: b.color,
+          fillColor: b.color,
+          fillOpacity: 0.75,
+          radius: 7,
+          weight: 2
+        }).addTo(map);
+        m.bindTooltip('<b>' + b.name + '</b><br>' + b.info, { sticky: true });
+      });
+    },
+    legend: [
+      { color: '#8a3a3a', label: 'Rusland (kern)' },
+      { color: '#b04a4a', label: 'Conflictzones' },
+      { color: '#c2872d', label: 'Oud-Sovjet-republiek, nu zelfstandig' }
+    ],
+    note: '🌐 Tip op een marker voor meer info. Veel landen om Rusland waren tot 1991 onderdeel van de Sovjet-Unie.'
+  },
+
+  'map-noordpool': {
+    type: 'map',
+    title: 'Noordpoolgebied — wie claimt wat?',
+    render: (container) => {
+      const map = L.map(container, {
+        center: [80, 0],
+        zoom: 2,
+        minZoom: 1,
+        maxZoom: 4,
+        maxBounds: [[55, -180], [90, 180]],
+        scrollWheelZoom: false,
+      });
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap',
+        maxZoom: 4
+      }).addTo(map);
+
+      // Markers per claim-land op hun noordkust
+      const landen = [
+        { name: 'Rusland', latlng: [71, 100], info: 'Grootste claim. Plantte zelfs een vlag op de Noordpool-zeebodem.', color: '#8a3a3a' },
+        { name: 'Canada', latlng: [73, -95], info: 'Tweede grootste claim. Concurreert met Rusland.', color: '#5e7c3a' },
+        { name: 'Groenland (Denemarken)', latlng: [78, -40], info: 'Groenland is een autonoom deel van Denemarken. Belangen op zeebodem.', color: '#b8842d' },
+        { name: 'Noorwegen', latlng: [78, 18], info: 'Spitsbergen-eilanden. Conflict met Rusland over visrechten.', color: '#b85a3c' },
+        { name: 'Verenigde Staten', latlng: [70, -150], info: 'Alaska — noordkust grenst aan Noordelijke IJszee.', color: '#5a5347' },
+      ];
+
+      landen.forEach(l => {
+        const m = L.circleMarker(l.latlng, {
+          color: l.color,
+          fillColor: l.color,
+          fillOpacity: 0.8,
+          radius: 9,
+          weight: 2
+        }).addTo(map);
+        m.bindTooltip('<b>' + l.name + '</b><br>' + l.info, { sticky: true, direction: 'top' });
+      });
+
+      // Noordpool zelf
+      const pool = L.circleMarker([90, 0], {
+        color: '#2a2620',
+        fillColor: '#fbf7ee',
+        fillOpacity: 1,
+        radius: 6,
+        weight: 3
+      }).addTo(map);
+      pool.bindTooltip('<b>Noordpool</b><br>Niemand van — maar Rusland claimt zeebodem hieronder.', { sticky: true });
+    },
+    legend: [
+      { color: '#8a3a3a', label: 'Rusland' },
+      { color: '#5e7c3a', label: 'Canada' },
+      { color: '#b8842d', label: 'Groenland/Denemarken' },
+      { color: '#b85a3c', label: 'Noorwegen' },
+      { color: '#5a5347', label: 'Verenigde Staten' }
+    ],
+    note: '🧊 Volgens VN-recht: 12 zeemijl territoriaal · 200 zeemijl exclusieve economische zone · 350 zeemijl continentaal plat.'
+  }
+};
+
+// Genereer placeholder HTML voor een diagram, te plaatsen door theory-render
+function interactiveDiagramHTML(id) {
+  const def = INTERACTIVE[id];
+  if (!def) return '';
+  const safeId = 'idi-' + id + '-' + Math.random().toString(36).slice(2, 9);
+
+  if (def.type === 'chart') {
+    const legendHTML = '';
+    return `
+      <div class="diagram-card interactive-diagram">
+        <div class="diagram-title">${def.title}</div>
+        <div class="chart-wrap"><canvas data-init="${id}" id="${safeId}"></canvas></div>
+        ${def.note ? `<div class="diagram-note">${def.note}</div>` : ''}
+      </div>
+    `;
+  }
+  if (def.type === 'map') {
+    let legendHTML = '';
+    if (def.legend) {
+      legendHTML = '<div class="diagram-legend">';
+      for (const item of def.legend) {
+        legendHTML += `<div><span class="legend-dot" style="background:${item.color}"></span>${item.label}</div>`;
+      }
+      legendHTML += '</div>';
+    }
+    return `
+      <div class="diagram-card interactive-diagram">
+        <div class="diagram-title">${def.title}</div>
+        <div class="map-wrap" data-init="${id}" id="${safeId}"></div>
+        ${legendHTML}
+        ${def.note ? `<div class="diagram-note">${def.note}</div>` : ''}
+      </div>
+    `;
+  }
+  return '';
+}
+
+// Initialiseer alle interactieve diagrammen die nog niet geinitialiseerd zijn
+function initInteractiveDiagrams() {
+  const els = document.querySelectorAll('[data-init]:not([data-initialized])');
+  els.forEach(el => {
+    const id = el.dataset.init;
+    const def = INTERACTIVE[id];
+    if (!def) return;
+    el.dataset.initialized = 'true';
+    try {
+      // Voor maps: zorg dat we even wachten tot het element zichtbaar is
+      if (def.type === 'map') {
+        setTimeout(() => {
+          if (typeof L === 'undefined') {
+            el.innerHTML = '<div style="padding:20px;text-align:center;color:#8a8270;font-size:13px;">Kaart laadt niet — controleer je internetverbinding.</div>';
+            return;
+          }
+          def.render(el);
+        }, 50);
+      } else if (def.type === 'chart') {
+        if (typeof Chart === 'undefined') {
+          el.parentElement.innerHTML = '<div style="padding:20px;text-align:center;color:#8a8270;font-size:13px;">Grafiek laadt niet — controleer je internetverbinding.</div>';
+          return;
+        }
+        def.render(el);
+      }
+    } catch (e) {
+      console.error('Init error', id, e);
+    }
+  });
+}
+
+</script>
+<script>
+// ============================================================
 // AARDRIJKSKUNDE LEERTOOL — APP LOGICA
 // ============================================================
 
@@ -1858,6 +3504,79 @@ function shuffle(arr) {
   return a;
 }
 
+// HTML escape (voor data-attributes)
+function escAttr(s) {
+  return String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+// Maakt begrippen in tekst klikbaar — match alleen het eerste voorkomen per term,
+// alleen hele woorden, case-insensitive op de eerste letter
+function linkifyTerms(text, termNames, chapter) {
+  if (!termNames || termNames.length === 0) return text;
+  // Sorteer op lengte (langste eerst) zodat "bbp per persoon" niet door "bbp" wordt gepakt
+  const sorted = [...termNames].sort((a, b) => b.length - a.length);
+  let result = text;
+  const usedRanges = []; // [start, end]
+  for (const termName of sorted) {
+    // Zoek de definitie in de begrippenlijst van dit hoofdstuk
+    const termObj = chapter.terms.find(t => t.term === termName);
+    if (!termObj) continue;
+    // Escape regex specialtekens
+    const esc = termName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    // Probeer hele-woord-match, case-insensitive op eerste letter
+    const re = new RegExp('\\b(' + esc + ')\\b', 'i');
+    const match = result.match(re);
+    if (!match || match.index === undefined) continue;
+    const start = match.index;
+    const end = start + match[0].length;
+    // Check overlap met al gebruikte ranges
+    const overlap = usedRanges.some(([s, e]) => !(end <= s || start >= e));
+    if (overlap) continue;
+    // Vervang met klikbare button
+    const defEsc = escAttr(termObj.definition);
+    const termEsc = escAttr(termObj.term);
+    const replacement = `<button class="term-link" data-action="show-term" data-term="${termEsc}" data-def="${defEsc}">${match[0]}</button>`;
+    result = result.slice(0, start) + replacement + result.slice(end);
+    // Adjust used ranges: nieuwe lengte
+    const lenDelta = replacement.length - match[0].length;
+    usedRanges.push([start, start + replacement.length]);
+    // Adjust al bestaande ranges achter deze positie
+    for (let i = 0; i < usedRanges.length - 1; i++) {
+      if (usedRanges[i][0] > start) {
+        usedRanges[i][0] += lenDelta;
+        usedRanges[i][1] += lenDelta;
+      }
+    }
+  }
+  return result;
+}
+
+// Pop-over open/close
+function showTermPopover(term, def) {
+  closeTermPopover();
+  const backdrop = document.createElement('div');
+  backdrop.className = 'popover-backdrop';
+  backdrop.id = 'term-popover-backdrop';
+  backdrop.innerHTML = `
+    <div class="popover" role="dialog" aria-label="Begrip">
+      <div class="pop-handle"></div>
+      <button class="pop-close" data-action="close-popover" aria-label="Sluiten">×</button>
+      <div class="pop-eyebrow">Begrip</div>
+      <div class="pop-term">${term}</div>
+      <div class="pop-def">${def}</div>
+    </div>
+  `;
+  // Klik op backdrop sluit ook
+  backdrop.addEventListener('click', (e) => {
+    if (e.target === backdrop) closeTermPopover();
+  });
+  document.body.appendChild(backdrop);
+}
+function closeTermPopover() {
+  const ex = document.getElementById('term-popover-backdrop');
+  if (ex) ex.remove();
+}
+
 // ---- DASHBOARD RENDER ----
 function renderDashboard() {
   document.querySelector('.topbar .back').style.display = 'none';
@@ -1961,53 +3680,107 @@ function renderChapter(ctx) {
   `;
 
   if (tab === 'theorie') {
+    html = html.replace('class="mode-tabs"', 'class="mode-tabs"').replace('<div class="mode-tabs">',
+      `<div class="chapter-view ${ch.color}" style="display:contents;"></div><div class="mode-tabs">`);
+    // wrap whole content in chapter-view class for color-scoped CSS
+    const enrich = (THEORY_ENRICH && THEORY_ENRICH[ch.id]) || {};
     for (const t of ch.theory) {
+      const e = enrich[t.heading] || {};
+      const icon = e.icon || '📖';
+      const linkedBody = linkifyTerms(t.body, e.linkTerms || [], ch);
+      let diagramHTML = '';
+      if (e.diagram) {
+        if (typeof INTERACTIVE !== 'undefined' && INTERACTIVE[e.diagram]) {
+          diagramHTML = interactiveDiagramHTML(e.diagram);
+        } else if (DIAGRAMS[e.diagram]) {
+          diagramHTML = DIAGRAMS[e.diagram]();
+        }
+      }
+      let stepsHTML = '';
+      if (e.steps) {
+        stepsHTML = `<div class="steps-block">
+          <div class="steps-title">${e.steps.title}</div>
+          <div class="steps-grid">`;
+        e.steps.items.forEach((s, i) => {
+          stepsHTML += `<div class="step-card chapter-view ${ch.color}">
+            <div class="step-num">${i + 1}</div>
+            <div class="step-icon">${s.icon}</div>
+            <div class="step-name">${s.title}</div>
+            <div class="step-desc">${s.desc}</div>
+          </div>`;
+        });
+        stepsHTML += `</div></div>`;
+      }
       html += `
-        <div class="theory-block">
+        <div class="theory-block chapter-view ${ch.color}">
+          <div class="block-icon">${icon}</div>
           <h3>${t.heading}</h3>
-          <p>${t.body}</p>
+          <p>${linkedBody}</p>
           ${t.warning ? `<div class="theory-warning">⚠ ${t.warning}</div>` : ''}
+          ${stepsHTML}
+          ${diagramHTML}
         </div>
       `;
     }
-    html += `
-      <div class="terms-section">
-        <h2>Alle begrippen op een rij</h2>
-    `;
-    for (const term of ch.terms) {
-      html += `
-        <div class="term-item">
-          <div class="t">${term.term}</div>
-          <div class="d">${term.definition}</div>
-        </div>
-      `;
-    }
-    html += `</div>`;
   } else if (tab === 'begrippen') {
+    const subMode = ctx.subMode || 'oefenen';
     html += `
-      <div class="trainer-setup">
-        <div style="font-weight: 600; margin-bottom: 8px;">Hoe wil je oefenen?</div>
-        <label>
-          <input type="radio" name="direction" value="term-to-def" checked>
-          Begrip → definitie (makkelijker)
-        </label>
-        <label>
-          <input type="radio" name="direction" value="def-to-term">
-          Definitie → begrip (zoals op de toets)
-        </label>
-        <label>
-          <input type="radio" name="direction" value="mix">
-          Door elkaar
-        </label>
+      <div class="sub-mode-row">
+        <button class="sub-mode-btn ${subMode === 'oefenen' ? 'active' : ''}" data-action="set-submode" data-submode="oefenen">
+          <div class="smb-icon">🎯</div>
+          <div class="smb-label">Oefenen</div>
+          <div class="smb-sub">flashcards trainen</div>
+        </button>
+        <button class="sub-mode-btn ${subMode === 'lijst' ? 'active' : ''}" data-action="set-submode" data-submode="lijst">
+          <div class="smb-icon">📋</div>
+          <div class="smb-label">Lijst bekijken</div>
+          <div class="smb-sub">alle begrippen op een rij</div>
+        </button>
       </div>
-      <div style="margin-bottom: 12px; font-size: 14px; color: var(--ink-soft);">
-        ${p.termsKnown} van ${p.termsTotal} begrippen al beheerst.
-      </div>
-      <button class="btn-primary" data-action="start-trainer" data-chapter="${ch.id}">
-        ${p.termsKnown > 0 ? 'Doorgaan met oefenen' : 'Start oefenen'}
-      </button>
-      ${p.termsKnown > 0 ? `<button class="btn-secondary" data-action="reset-terms" data-chapter="${ch.id}">Begrippen opnieuw beginnen</button>` : ''}
     `;
+
+    if (subMode === 'oefenen') {
+      html += `
+        <div class="trainer-setup">
+          <div style="font-weight: 600; margin-bottom: 8px;">Hoe wil je oefenen?</div>
+          <label>
+            <input type="radio" name="direction" value="term-to-def" checked>
+            Begrip → definitie (makkelijker)
+          </label>
+          <label>
+            <input type="radio" name="direction" value="def-to-term">
+            Definitie → begrip (zoals op de toets)
+          </label>
+          <label>
+            <input type="radio" name="direction" value="mix">
+            Door elkaar
+          </label>
+        </div>
+        <div style="margin-bottom: 12px; font-size: 14px; color: var(--ink-soft);">
+          ${p.termsKnown} van ${p.termsTotal} begrippen al beheerst.
+        </div>
+        <button class="btn-primary" data-action="start-trainer" data-chapter="${ch.id}">
+          ${p.termsKnown > 0 ? 'Doorgaan met oefenen' : 'Start oefenen'}
+        </button>
+        ${p.termsKnown > 0 ? `<button class="btn-secondary" data-action="reset-terms" data-chapter="${ch.id}">Begrippen opnieuw beginnen</button>` : ''}
+      `;
+    } else {
+      html += `
+        <div style="margin-bottom: 12px; font-size: 14px; color: var(--ink-soft);">
+          ${ch.terms.length} begrippen in dit hoofdstuk.
+        </div>
+        <div class="terms-section">
+      `;
+      for (const term of ch.terms) {
+        html += `
+          <div class="term-item">
+            <div class="t">${term.term}</div>
+            <div class="d">${term.definition}</div>
+          </div>
+        `;
+      }
+      html += `</div>`;
+    }
   } else if (tab === 'doelen') {
     html += `<div class="doelen-list">`;
     for (const o of ch.objectives) {
@@ -2031,6 +3804,11 @@ function renderChapter(ctx) {
   }
 
   document.getElementById('view-chapter').innerHTML = html;
+
+  // Initialiseer eventuele Chart.js / Leaflet diagrammen
+  if (typeof initInteractiveDiagrams === 'function') {
+    initInteractiveDiagrams();
+  }
 }
 
 // ---- BEGRIPPEN TRAINER ----
@@ -2615,7 +4393,18 @@ document.addEventListener('click', (e) => {
       break;
     case 'set-tab':
       // niet een navTo, maar een re-render binnen het chapter view
-      renderChapter({ ...currentCtx, tab: target.dataset.tab });
+      currentCtx = { ...currentCtx, tab: target.dataset.tab, subMode: 'oefenen' };
+      renderChapter(currentCtx);
+      break;
+    case 'set-submode':
+      currentCtx = { ...currentCtx, subMode: target.dataset.submode };
+      renderChapter(currentCtx);
+      break;
+    case 'show-term':
+      showTermPopover(target.dataset.term, target.dataset.def);
+      break;
+    case 'close-popover':
+      closeTermPopover();
       break;
     case 'start-trainer': {
       const direction = document.querySelector('input[name="direction"]:checked')?.value || 'term-to-def';
@@ -2673,6 +4462,11 @@ document.addEventListener('click', (e) => {
 // Topbar back-button
 document.querySelector('.topbar .back').addEventListener('click', () => {
   navBack();
+});
+
+// ESC sluit pop-over
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeTermPopover();
 });
 
 // Topbar scroll effect
