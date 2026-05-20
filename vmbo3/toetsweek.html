@@ -1,0 +1,2688 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#f5efe4">
+<title>Aardrijkskunde Leertool — Toetsweek 3 vmbo-t</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter+Tight:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   AARDRIJKSKUNDE LEERTOOL — STIJL
+   Rustig, leesbaar, mobile-first
+   ============================================================ */
+
+:root {
+  /* Base palette — warm cream/paper */
+  --bg: #f5efe4;
+  --bg-card: #fbf7ee;
+  --bg-elevated: #ffffff;
+  --ink: #2a2620;
+  --ink-soft: #5a5347;
+  --ink-faint: #8a8270;
+  --line: #e6dccb;
+  --line-strong: #d4c8b3;
+
+  /* Hoofdstukkleuren (per id) */
+  --ocher: #b8842d;          /* H1 */
+  --ocher-soft: #ead7af;
+  --ocher-bg: #f5e7c4;
+
+  --moss: #5e7c3a;           /* H3 */
+  --moss-soft: #c8d4ad;
+  --moss-bg: #dde4c4;
+
+  --terracotta: #b85a3c;     /* H5 */
+  --terracotta-soft: #e8c0ad;
+  --terracotta-bg: #f0d4c3;
+
+  --bordeaux: #8a3a3a;       /* H6 */
+  --bordeaux-soft: #d8a8a8;
+  --bordeaux-bg: #e8c8c8;
+
+  /* States */
+  --good: #4a7c3a;
+  --good-bg: #d9e6ce;
+  --warn: #c2872d;
+  --warn-bg: #f1e2c0;
+  --bad:  #b04a4a;
+  --bad-bg:  #ecc6c6;
+
+  /* Sizing */
+  --radius: 10px;
+  --radius-sm: 6px;
+  --radius-lg: 16px;
+
+  /* Shadows */
+  --shadow-soft: 0 1px 2px rgba(60, 50, 30, 0.04), 0 2px 8px rgba(60, 50, 30, 0.04);
+  --shadow-med:  0 2px 6px rgba(60, 50, 30, 0.08), 0 8px 20px rgba(60, 50, 30, 0.06);
+}
+
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: 'Inter Tight', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  font-feature-settings: 'ss01' on, 'cv11' on;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Subtiele papier-textuur */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    radial-gradient(circle at 20% 30%, rgba(184, 132, 45, 0.03) 0, transparent 50%),
+    radial-gradient(circle at 80% 70%, rgba(94, 124, 58, 0.03) 0, transparent 50%);
+  pointer-events: none;
+  z-index: -1;
+}
+
+h1, h2, h3, h4 {
+  font-family: 'Fraunces', Georgia, serif;
+  font-weight: 500;
+  margin: 0;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+}
+
+p { margin: 0 0 0.8em 0; }
+p:last-child { margin-bottom: 0; }
+
+/* ============================================================
+   APP CONTAINER & TOP BAR
+   ============================================================ */
+.app {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 0 16px 100px 16px;
+  min-height: 100vh;
+}
+
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: var(--bg);
+  padding: 16px 0 12px 0;
+  margin: 0 -16px 8px -16px;
+  padding-left: 16px;
+  padding-right: 16px;
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.topbar.scrolled {
+  border-bottom-color: var(--line);
+  box-shadow: 0 4px 12px -8px rgba(60, 50, 30, 0.1);
+}
+
+.topbar .back {
+  background: none;
+  border: 1px solid var(--line-strong);
+  color: var(--ink-soft);
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-family: inherit;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.15s;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.topbar .back:hover { background: var(--bg-card); }
+.topbar .back:active { transform: translateY(1px); }
+.topbar .title {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 17px;
+  font-weight: 500;
+  flex: 1;
+  color: var(--ink);
+}
+.topbar .badge {
+  font-size: 13px;
+  color: var(--ink-faint);
+  font-weight: 500;
+}
+
+/* ============================================================
+   VIEW WRAPPERS
+   ============================================================ */
+.view { display: none; animation: fadeIn 0.25s ease-out; }
+.view.active { display: block; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ============================================================
+   DASHBOARD
+   ============================================================ */
+.hero {
+  padding: 8px 4px 24px 4px;
+}
+.hero .eyebrow {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-faint);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.hero h1 {
+  font-size: clamp(28px, 7vw, 38px);
+  line-height: 1.1;
+  margin-bottom: 6px;
+}
+.hero .sub {
+  color: var(--ink-soft);
+  font-size: 15px;
+}
+
+.overall-progress {
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  padding: 18px 20px;
+  margin-bottom: 20px;
+}
+.overall-progress .label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-faint);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.overall-progress .pct {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 36px;
+  font-weight: 500;
+  line-height: 1;
+}
+.overall-progress .bar {
+  height: 8px;
+  background: var(--line);
+  border-radius: 999px;
+  overflow: hidden;
+  margin-top: 12px;
+}
+.overall-progress .bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--ocher), var(--moss), var(--terracotta), var(--bordeaux));
+  border-radius: 999px;
+  transition: width 0.6s ease-out;
+}
+.overall-progress .stats {
+  display: flex;
+  gap: 18px;
+  margin-top: 14px;
+  flex-wrap: wrap;
+  font-size: 14px;
+  color: var(--ink-soft);
+}
+.overall-progress .stats span strong {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.section-title {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 20px;
+  margin: 24px 0 12px 0;
+}
+
+/* Chapter cards */
+.chapter-grid {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.chapter-card {
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  padding: 18px 20px;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  color: inherit;
+  width: 100%;
+  display: block;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.chapter-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-med); }
+.chapter-card:active { transform: translateY(0); }
+.chapter-card .accent {
+  position: absolute;
+  top: 0; left: 0; bottom: 0;
+  width: 4px;
+}
+.chapter-card.ocher .accent { background: var(--ocher); }
+.chapter-card.moss .accent { background: var(--moss); }
+.chapter-card.terracotta .accent { background: var(--terracotta); }
+.chapter-card.bordeaux .accent { background: var(--bordeaux); }
+
+.chapter-card .ch-num {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+.chapter-card.ocher .ch-num { color: var(--ocher); }
+.chapter-card.moss .ch-num { color: var(--moss); }
+.chapter-card.terracotta .ch-num { color: var(--terracotta); }
+.chapter-card.bordeaux .ch-num { color: var(--bordeaux); }
+
+.chapter-card .ch-title {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 20px;
+  margin: 2px 0 4px 0;
+  line-height: 1.2;
+}
+.chapter-card .ch-sub {
+  font-size: 13px;
+  color: var(--ink-soft);
+  margin-bottom: 14px;
+}
+
+.chapter-card .ch-progress {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.chapter-card .mini-bar {
+  flex: 1;
+  min-width: 80px;
+  height: 6px;
+  background: var(--line);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.chapter-card .mini-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.4s;
+}
+.chapter-card.ocher .mini-bar-fill { background: var(--ocher); }
+.chapter-card.moss .mini-bar-fill { background: var(--moss); }
+.chapter-card.terracotta .mini-bar-fill { background: var(--terracotta); }
+.chapter-card.bordeaux .mini-bar-fill { background: var(--bordeaux); }
+
+.chapter-card .ch-stats {
+  font-size: 13px;
+  color: var(--ink-soft);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.chapter-card .ch-doelen {
+  display: flex;
+  gap: 6px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+.doel-pill {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-variant-numeric: tabular-nums;
+}
+.doel-pill.good { background: var(--good-bg); color: var(--good); }
+.doel-pill.warn { background: var(--warn-bg); color: var(--warn); }
+.doel-pill.bad  { background: var(--bad-bg);  color: var(--bad); }
+.doel-pill.neutral { background: var(--line); color: var(--ink-faint); }
+
+/* Mix toets card */
+.mix-card {
+  background: var(--ink);
+  color: var(--bg);
+  border-radius: var(--radius-lg);
+  padding: 22px 24px;
+  text-align: left;
+  font-family: inherit;
+  width: 100%;
+  border: none;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.mix-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-med); }
+.mix-card .mix-eyebrow {
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  opacity: 0.6;
+  margin-bottom: 4px;
+  font-weight: 600;
+}
+.mix-card .mix-title {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 22px;
+  margin-bottom: 6px;
+}
+.mix-card .mix-sub {
+  font-size: 14px;
+  opacity: 0.75;
+}
+.mix-card .mix-arrow {
+  position: absolute;
+  right: 22px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 20px;
+  opacity: 0.6;
+}
+
+/* ============================================================
+   CHAPTER DETAIL VIEW
+   ============================================================ */
+.chapter-header {
+  padding: 8px 4px 20px 4px;
+}
+.chapter-header .ch-num {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.chapter-header.ocher .ch-num { color: var(--ocher); }
+.chapter-header.moss .ch-num { color: var(--moss); }
+.chapter-header.terracotta .ch-num { color: var(--terracotta); }
+.chapter-header.bordeaux .ch-num { color: var(--bordeaux); }
+.chapter-header h1 {
+  font-size: clamp(24px, 6vw, 32px);
+  line-height: 1.15;
+  margin: 4px 0 6px 0;
+}
+.chapter-header .sub {
+  color: var(--ink-soft);
+  font-size: 15px;
+}
+
+.mode-tabs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  background: var(--bg-card);
+  padding: 4px;
+  border-radius: var(--radius);
+  margin-bottom: 20px;
+  border: 1px solid var(--line);
+}
+.mode-tab {
+  background: none;
+  border: none;
+  padding: 10px 8px;
+  border-radius: calc(var(--radius) - 4px);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  color: var(--ink-soft);
+  transition: all 0.15s;
+}
+.mode-tab.active {
+  background: var(--bg-elevated);
+  color: var(--ink);
+  box-shadow: var(--shadow-soft);
+}
+
+/* ============================================================
+   THEORY VIEW
+   ============================================================ */
+.theory-block {
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  margin-bottom: 10px;
+}
+.theory-block h3 {
+  font-size: 18px;
+  margin-bottom: 8px;
+  line-height: 1.3;
+}
+.theory-block p {
+  color: var(--ink);
+  font-size: 15px;
+  line-height: 1.55;
+}
+.theory-warning {
+  background: linear-gradient(to right, var(--warn-bg), transparent 80%);
+  border-left: 3px solid var(--warn);
+  padding: 10px 14px;
+  margin-top: 12px;
+  border-radius: 4px;
+  font-size: 14px;
+  color: var(--ink);
+  line-height: 1.5;
+}
+
+.terms-section {
+  margin-top: 20px;
+}
+.terms-section h2 {
+  font-size: 20px;
+  margin-bottom: 12px;
+}
+.term-item {
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 12px 16px;
+  margin-bottom: 6px;
+}
+.term-item .t {
+  font-weight: 600;
+  margin-bottom: 4px;
+  color: var(--ink);
+}
+.term-item .d {
+  font-size: 14px;
+  color: var(--ink-soft);
+  line-height: 1.5;
+}
+
+/* ============================================================
+   BEGRIPPEN TRAINER (FLASHCARDS)
+   ============================================================ */
+.trainer-setup {
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-bottom: 16px;
+}
+.trainer-setup label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 8px 0;
+}
+.trainer-setup input[type=radio] { accent-color: var(--ink); }
+
+.flashcard-wrap {
+  perspective: 1200px;
+  margin: 20px 0;
+  min-height: 280px;
+}
+.flashcard {
+  background: var(--bg-elevated);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-lg);
+  padding: 28px 24px;
+  min-height: 240px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  cursor: pointer;
+  box-shadow: var(--shadow-soft);
+  position: relative;
+  transition: transform 0.5s;
+  transform-style: preserve-3d;
+}
+.flashcard.flipped { transform: rotateY(180deg); }
+.flashcard .face {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  position: absolute;
+  inset: 28px 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+.flashcard .back { transform: rotateY(180deg); }
+.flashcard .label {
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-bottom: 12px;
+  font-weight: 600;
+}
+.flashcard .content {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 22px;
+  line-height: 1.3;
+  color: var(--ink);
+}
+.flashcard .content.def {
+  font-family: 'Inter Tight', sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+}
+.flashcard .hint {
+  position: absolute;
+  bottom: 14px;
+  font-size: 12px;
+  color: var(--ink-faint);
+}
+
+.flashcard-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+  margin-top: 16px;
+}
+.flashcard-actions button {
+  padding: 12px 8px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius);
+  background: var(--bg-card);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+  color: var(--ink);
+}
+.flashcard-actions button:active { transform: translateY(1px); }
+.flashcard-actions .again { border-color: var(--bad-bg); color: var(--bad); }
+.flashcard-actions .again:hover { background: var(--bad-bg); }
+.flashcard-actions .hard { border-color: var(--warn-bg); color: var(--warn); }
+.flashcard-actions .hard:hover { background: var(--warn-bg); }
+.flashcard-actions .good { border-color: var(--good-bg); color: var(--good); }
+.flashcard-actions .good:hover { background: var(--good-bg); }
+
+.trainer-progress {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  color: var(--ink-soft);
+  margin-bottom: 4px;
+  font-variant-numeric: tabular-nums;
+}
+.trainer-progress .bar {
+  height: 4px;
+  background: var(--line);
+  border-radius: 999px;
+  margin-top: 6px;
+  overflow: hidden;
+}
+.trainer-progress .bar-fill {
+  height: 100%;
+  background: var(--ink);
+  border-radius: 999px;
+  transition: width 0.3s;
+}
+
+/* ============================================================
+   LEERDOELEN CHECK
+   ============================================================ */
+.doelen-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.doel-card {
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  cursor: pointer;
+  font-family: inherit;
+  text-align: left;
+  width: 100%;
+  color: inherit;
+  transition: background 0.15s, border-color 0.15s;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+.doel-card:hover { border-color: var(--line-strong); }
+.doel-card .doel-status {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+  background: var(--line);
+  color: var(--ink-faint);
+}
+.doel-card .doel-status.good { background: var(--good-bg); color: var(--good); }
+.doel-card .doel-status.warn { background: var(--warn-bg); color: var(--warn); }
+.doel-card .doel-status.bad  { background: var(--bad-bg);  color: var(--bad); }
+.doel-card .doel-text {
+  flex: 1;
+  font-size: 14px;
+  line-height: 1.4;
+}
+.doel-card .doel-arrow { color: var(--ink-faint); }
+
+/* Quiz / question rendering */
+.quiz-progress-bar {
+  height: 4px;
+  background: var(--line);
+  border-radius: 999px;
+  margin-bottom: 20px;
+  overflow: hidden;
+}
+.quiz-progress-bar-fill {
+  height: 100%;
+  background: var(--ink);
+  border-radius: 999px;
+  transition: width 0.3s;
+}
+.quiz-meta {
+  font-size: 13px;
+  color: var(--ink-faint);
+  margin-bottom: 8px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.question-card {
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 16px;
+}
+.question-card .q-text {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 19px;
+  line-height: 1.35;
+  margin-bottom: 16px;
+}
+
+.mc-options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.mc-option {
+  background: var(--bg-elevated);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 12px 16px;
+  text-align: left;
+  font-family: inherit;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 0.15s;
+  color: var(--ink);
+  line-height: 1.4;
+}
+.mc-option:hover { border-color: var(--ink-soft); background: var(--bg-card); }
+.mc-option.selected { border-color: var(--ink); background: var(--bg-card); }
+.mc-option.correct {
+  border-color: var(--good);
+  background: var(--good-bg);
+  color: var(--good);
+  font-weight: 600;
+}
+.mc-option.incorrect {
+  border-color: var(--bad);
+  background: var(--bad-bg);
+  color: var(--bad);
+}
+.mc-option:disabled { cursor: default; }
+
+.open-input {
+  width: 100%;
+  min-height: 80px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  font-family: inherit;
+  font-size: 15px;
+  resize: vertical;
+  background: var(--bg-elevated);
+  color: var(--ink);
+}
+.open-input:focus {
+  outline: 2px solid var(--ink);
+  outline-offset: 1px;
+}
+
+.answer-reveal {
+  background: var(--bg-elevated);
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--good);
+  border-radius: var(--radius-sm);
+  padding: 14px 16px;
+  margin-top: 12px;
+  font-size: 15px;
+  line-height: 1.5;
+}
+.answer-reveal .label {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--good);
+  margin-bottom: 6px;
+}
+
+.self-rating {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+  margin-top: 14px;
+}
+.self-rating button {
+  padding: 10px 6px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  background: var(--bg-elevated);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.self-rating .had-niet { border-color: var(--bad-bg); color: var(--bad); }
+.self-rating .had-niet:hover { background: var(--bad-bg); }
+.self-rating .had-deels { border-color: var(--warn-bg); color: var(--warn); }
+.self-rating .had-deels:hover { background: var(--warn-bg); }
+.self-rating .had-wel { border-color: var(--good-bg); color: var(--good); }
+.self-rating .had-wel:hover { background: var(--good-bg); }
+
+.btn-primary {
+  background: var(--ink);
+  color: var(--bg);
+  border: none;
+  padding: 12px 24px;
+  border-radius: var(--radius);
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  width: 100%;
+  margin-top: 8px;
+  transition: opacity 0.15s, transform 0.1s;
+}
+.btn-primary:hover { opacity: 0.9; }
+.btn-primary:active { transform: translateY(1px); }
+.btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.btn-secondary {
+  background: var(--bg-card);
+  color: var(--ink);
+  border: 1px solid var(--line-strong);
+  padding: 12px 24px;
+  border-radius: var(--radius);
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  width: 100%;
+  margin-top: 8px;
+  transition: background 0.15s;
+}
+.btn-secondary:hover { background: var(--line); }
+
+/* Quiz result screen */
+.result-card {
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  padding: 28px 24px;
+  text-align: center;
+  margin-bottom: 16px;
+}
+.result-card .score-num {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 56px;
+  font-weight: 500;
+  line-height: 1;
+  margin: 8px 0;
+}
+.result-card .score-num.good { color: var(--good); }
+.result-card .score-num.warn { color: var(--warn); }
+.result-card .score-num.bad  { color: var(--bad); }
+.result-card .score-label {
+  font-size: 14px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  font-weight: 600;
+}
+.result-card .score-msg {
+  margin-top: 14px;
+  color: var(--ink-soft);
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+/* Mix-toets per-chapter results */
+.mix-breakdown {
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  margin-bottom: 16px;
+}
+.mix-breakdown h3 {
+  font-size: 15px;
+  margin-bottom: 12px;
+  font-family: inherit;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+.mix-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 14px;
+}
+.mix-row:last-child { border-bottom: none; }
+.mix-row .dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.mix-row.ocher .dot { background: var(--ocher); }
+.mix-row.moss .dot { background: var(--moss); }
+.mix-row.terracotta .dot { background: var(--terracotta); }
+.mix-row.bordeaux .dot { background: var(--bordeaux); }
+.mix-row .name { flex: 1; }
+.mix-row .score { font-variant-numeric: tabular-nums; font-weight: 600; }
+
+/* Empty / done states */
+.empty {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--ink-soft);
+}
+.empty .icon {
+  font-size: 36px;
+  margin-bottom: 8px;
+}
+.empty h2 {
+  font-size: 22px;
+  margin-bottom: 8px;
+}
+
+/* Settings */
+.settings-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--line);
+}
+.settings-row:last-child { border-bottom: none; }
+.settings-row .lbl { font-size: 15px; }
+.settings-row .desc { font-size: 13px; color: var(--ink-faint); margin-top: 2px; }
+.settings-row button {
+  background: var(--bad-bg);
+  color: var(--bad);
+  border: none;
+  padding: 8px 14px;
+  border-radius: var(--radius-sm);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* Footer reset link */
+.footer-link {
+  text-align: center;
+  margin-top: 30px;
+  padding: 20px 0;
+}
+.footer-link button {
+  background: none;
+  border: none;
+  color: var(--ink-faint);
+  font-family: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.footer-link button:hover { color: var(--bad); }
+
+/* Tablet+ tweaks */
+@media (min-width: 600px) {
+  .app { padding: 0 24px 100px 24px; }
+  .topbar { margin-left: -24px; margin-right: -24px; padding-left: 24px; padding-right: 24px; }
+  .chapter-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <button class="back" type="button">← Terug</button>
+    <div class="title"></div>
+    <div class="badge"></div>
+  </header>
+
+  <main>
+    <section id="view-dashboard" class="view active"></section>
+    <section id="view-chapter" class="view"></section>
+    <section id="view-trainer" class="view"></section>
+    <section id="view-doel-quiz" class="view"></section>
+    <section id="view-mix" class="view"></section>
+  </main>
+</div>
+
+<script>
+// ============================================================
+// DATA-LAAG: theorie, begrippen, leerdoelen, vragen
+// ============================================================
+
+const DATA = {
+  chapters: [
+    {
+      id: "h1",
+      number: 1,
+      title: "Arm en rijk in Nederland",
+      subtitle: "Welvaart, welzijn en regionale verschillen",
+      color: "ocher",
+      theory: [
+        {
+          heading: "Welvaart vs. Welzijn",
+          body: "Welvaart gaat over geld: hoeveel verdienen mensen in een land? Welzijn gaat over hoe goed je leeft: gezondheid, onderwijs, levensverwachting. Een land kan rijk zijn (hoge welvaart) maar toch laag welzijn hebben, of andersom. De VN combineert beide in de Human Development Index (HDI): levensverwachting + alfabetiseringsgraad + gemiddeld inkomen.",
+          warning: "LET OP: welvaart = geld, welzijn = levensomstandigheden. Veel leerlingen halen dit door elkaar."
+        },
+        {
+          heading: "Hoe meet je welvaart?",
+          body: "Drie manieren: (1) Het bbp per persoon — alles wat er in een land verdiend wordt, gedeeld door het aantal inwoners. (2) De werkgelegenheid — hoeveel mensen kunnen aan werk komen. (3) De verdeling van de beroepsbevolking — in arme landen werken veel mensen in de landbouw (Kenia: 61%), in rijke landen vooral in diensten (Frankrijk: <2% in landbouw)."
+        },
+        {
+          heading: "Formele vs. informele sector",
+          body: "In rijke landen werken veel mensen in de formele sector: vast loon, recht op uitkering, betalen belasting. In arme landen werken veel mensen in de informele sector: los-vast werk, geen vast inkomen, geen sociale zekerheid."
+        },
+        {
+          heading: "Indeling landen wereldwijd",
+          body: "Hoge-inkomenslanden (zoals Nederland, Frankrijk), midden-inkomenslanden en lage-inkomenslanden. Opkomende economieën zijn landen die snel rijker worden: Brazilië, China, India, Indonesië, Rusland, Turkije, Zuid-Afrika, Egypte."
+        },
+        {
+          heading: "Regionale verschillen in Nederland",
+          body: "Het bbp meet welvaart van een héél land, het brp meet welvaart van een régio. In Nederland: rijke gemeenten liggen in het westen en midden (middenland, Randstad), armere gemeenten vooral in het noorden en langs de randen (randland). Kleine gemeenten hebben vaak een hoger gemiddeld inkomen dan grote steden.",
+          warning: "LET OP: bbp = land (B van Binnenlands), brp = regio (R van Regionaal)."
+        },
+        {
+          heading: "Regionale ongelijkheid vs. sociale ongelijkheid",
+          body: "Regionale ongelijkheid = verschillen in welvaart tussen gebíeden. Sociale ongelijkheid = verschillen in welvaart tussen gróepen mensen. De twee hangen samen: in arme buurten wonen vaak mensen met lagere inkomens.",
+          warning: "LET OP: regionaal = gebieden, sociaal = groepen mensen."
+        },
+        {
+          heading: "Woonomgeving en gezondheid",
+          body: "In de Randstad is de bebouwingsdichtheid hoog (veel huizen per km²), wat zorgt voor files en lucht/water/bodemvervuiling. In landelijke gebieden zorgt intensieve landbouw voor stikstof en fijnstof. De levensverwachting is lager in grote steden dan in dorpen erbuiten — dat komt vooral doordat mensen met hogere opleiding (vaak in dorpen om grote steden) gezonder leven."
+        },
+        {
+          heading: "Wijken, buurten en bewoners",
+          body: "Een wijk = deel van een woonplaats, bestaat uit één of meer buurten. Een buurt = onderdeel van een wijk met één hoofdfunctie (wonen, werken, recreatie). Buurten verschillen in bewonerskenmerken (leeftijd, inkomen, opleiding, herkomst) en bevolkingssamenstelling."
+        },
+        {
+          heading: "Vergrijzing en ontgroening",
+          body: "Vergrijzing = toename van het aantal mensen boven de 65. Ontgroening = afname van het aandeel jonge mensen in de bevolking. Komen vaak samen voor in dorpen waar jongeren wegtrekken naar de stad."
+        },
+        {
+          heading: "Pluriforme samenleving",
+          body: "Nederland is een pluriforme samenleving: mensen met verschillende culturen, levensstijlen en religies leven met en naast elkaar. Dat zie je vooral terug in de bewonerskenmerken van stadsbuurten."
+        }
+      ],
+      terms: [
+        { term: "welvaart", definition: "de rijkdom van een land gemeten op basis van geld" },
+        { term: "welzijn", definition: "de rijkdom van een land gemeten op basis van de levensomstandigheden: gezondheid, onderwijs en inkomen" },
+        { term: "bbp per persoon", definition: "het bruto binnenlands product is alles wat er in een land verdiend wordt, gedeeld door het aantal inwoners van het land" },
+        { term: "brp per persoon", definition: "het bruto regionaal product is alles wat in een jaar in een regio verdiend wordt, gedeeld door het aantal inwoners van die regio" },
+        { term: "koopkracht", definition: "hoeveel je voor 1 dollar of 1 euro kunt kopen" },
+        { term: "armoedegrens", definition: "iemand die minder dan € 1,70 per dag te besteden heeft, leeft onder de armoedegrens" },
+        { term: "alfabetiseringsgraad", definition: "hoeveel mensen ouder dan vijftien jaar kunnen lezen en schrijven" },
+        { term: "levensverwachting", definition: "hoe oud mensen in een land gemiddeld worden" },
+        { term: "Human Development Index (HDI)", definition: "een cijfer dat aangeeft hoe de levensomstandigheden in een land zijn. Gebaseerd op levensverwachting, alfabetiseringsgraad en bbp/pp" },
+        { term: "beroepsbevolking", definition: "alle mensen die tegen betaling werken plus de werklozen" },
+        { term: "werkgelegenheid", definition: "het aantal banen dat beschikbaar is" },
+        { term: "formele sector", definition: "het officiële deel van de economie" },
+        { term: "informele sector", definition: "het niet-officiële deel van de economie van een land" },
+        { term: "hoge-inkomenslanden", definition: "landen met een hoge welvaart" },
+        { term: "midden-inkomenslanden", definition: "landen die geen lage maar ook geen hoge welvaart hebben" },
+        { term: "lage-inkomenslanden", definition: "landen met een lage welvaart" },
+        { term: "regionale ongelijkheid", definition: "wanneer er in een land (grote) verschillen zijn in welvaart tussen gebieden" },
+        { term: "sociale ongelijkheid", definition: "wanneer er in een land (grote) verschillen zijn in welvaart tussen groepen mensen" },
+        { term: "bebouwingsdichtheid", definition: "het aantal woningen per hectare (100 bij 100 meter)" },
+        { term: "woonomgeving", definition: "de optelsom van de kenmerken van het gebied waarin je woont" },
+        { term: "wijk", definition: "een deel van een woonplaats dat bestaat uit meerdere buurten" },
+        { term: "buurt", definition: "een onderdeel van een wijk waarin één functie het belangrijkste is, bijvoorbeeld wonen, werken of recreatie" },
+        { term: "bevolkingssamenstelling", definition: "de manier waarop de bevolking is samengesteld, waarbij je kunt kijken naar leeftijd, geslacht en herkomst" },
+        { term: "vergrijzing", definition: "toename van het aantal mensen ouder dan 65 jaar" },
+        { term: "ontgroening", definition: "afname van het aandeel jonge mensen in de bevolking" },
+        { term: "pluriforme samenleving", definition: "een samenleving waarin verschillende groepen mensen met elkaar samenleven, bijvoorbeeld mensen met verschillende culturen, levensstijlen en religies" },
+        { term: "openbare ruimte", definition: "de gemeenschappelijke (publieke) ruimte in een wijk" }
+      ],
+      objectives: [
+        {
+          id: "h1-d1",
+          text: "Je kunt op een wereldkaart een driedeling maken op basis van welvaart.",
+          questions: [
+            { type: "mc", q: "Hoe verdeel je landen in op basis van welvaart?", options: ["Rijke en arme landen", "Hoge-, midden- en lage-inkomenslanden", "Eerste, tweede en derde wereld", "Noord en zuid"], correct: 1 },
+            { type: "mc", q: "Welk land hoort bij de opkomende economieën?", options: ["Frankrijk", "Afghanistan", "Brazilië", "Duitsland"], correct: 2 },
+            { type: "open", q: "Noem drie landen die bij de opkomende economieën horen.", answer: "Brazilië, China, Egypte, Zuid-Afrika, India, Indonesië, Rusland of Turkije (3 noemen volstaat)." }
+          ]
+        },
+        {
+          id: "h1-d2",
+          text: "Je begrijpt hoe welvaart en welzijn met elkaar samenhangen.",
+          questions: [
+            { type: "mc", q: "Wat is het verschil tussen welvaart en welzijn?", options: ["Welvaart gaat over geld, welzijn over levensomstandigheden", "Welvaart gaat over levensomstandigheden, welzijn over geld", "Beide gaan over geld", "Beide gaan over gezondheid"], correct: 0 },
+            { type: "mc", q: "Wat meet de HDI?", options: ["Alleen het inkomen", "Levensverwachting, alfabetiseringsgraad en gemiddeld inkomen", "Het bbp per persoon", "De armoedegrens"], correct: 1 },
+            { type: "open", q: "Leg uit waarom een land hoge welvaart kan hebben maar laag welzijn.", answer: "Welvaart gaat over geld (bbp). Een land kan veel geld verdienen (bijv. door olie), maar als die rijkdom niet eerlijk verdeeld is, kunnen veel mensen toch slechte levensomstandigheden hebben: lage levensverwachting, weinig onderwijs." }
+          ]
+        },
+        {
+          id: "h1-d3",
+          text: "Je kent manieren om welvaart en welzijn van gebieden te vergelijken.",
+          questions: [
+            { type: "mc", q: "Welke maat gebruik je om de welvaart van een heel land te meten?", options: ["brp per persoon", "bbp per persoon", "HDI", "Armoedegrens"], correct: 1 },
+            { type: "mc", q: "Wat is koopkracht?", options: ["Hoeveel mensen werken in een land", "Het gemiddeld inkomen", "Hoeveel je voor 1 euro kunt kopen", "Het aantal banen"], correct: 2 },
+            { type: "open", q: "Welke drie dingen meet je om de welvaart van een land te beschrijven?", answer: "(1) Bbp per persoon, (2) werkgelegenheid, (3) verdeling van de beroepsbevolking over landbouw, industrie en diensten." }
+          ]
+        },
+        {
+          id: "h1-d4",
+          text: "Je weet dat er in Nederland regionale verschillen bestaan in welvaart, woonomgeving en gezondheid.",
+          questions: [
+            { type: "mc", q: "Waar liggen de rijkere gemeenten in Nederland vooral?", options: ["In het noorden en langs de randen", "In het westen en midden (middenland)", "In Limburg en Zeeland", "Verspreid door het hele land"], correct: 1 },
+            { type: "mc", q: "Wat is randland?", options: ["Het westen en midden van Nederland", "Het noorden en de randen van Nederland", "Het buitenland", "De Randstad"], correct: 1 },
+            { type: "open", q: "Geef twee voorbeelden van regionale verschillen in Nederland.", answer: "Mogelijke antwoorden: verschil in gemiddeld inkomen tussen Randstad en noorden, verschil in bebouwingsdichtheid tussen stad en platteland, verschil in levensverwachting tussen grote steden en omliggende dorpen, verschil in werkgelegenheid (Randstad heeft mainports en diensten, randland heeft veel landbouw)." }
+          ]
+        },
+        {
+          id: "h1-d5",
+          text: "Je begrijpt het verband tussen opleiding, manier van leven en gezondheid.",
+          questions: [
+            { type: "mc", q: "Waarom is de levensverwachting in dorpen rond grote steden vaak hoger dan in de stad zelf?", options: ["Omdat de lucht schoner is", "Omdat daar vooral mensen met meer opleiding en hoger inkomen wonen die gezonder leven", "Omdat er minder mensen wonen", "Omdat er meer ziekenhuizen zijn"], correct: 1 },
+            { type: "mc", q: "Welke groep heeft gemiddeld de laagste levensverwachting?", options: ["Mensen met hoge opleiding en hoog inkomen", "Mensen met lagere opleiding en laag inkomen", "Mensen die in dorpen wonen", "Mensen met een eigen bedrijf"], correct: 1 },
+            { type: "open", q: "Leg uit hoe opleiding en gezondheid met elkaar samenhangen.", answer: "Mensen met meer opleiding hebben vaak een beter inkomen en kennis over gezond leven (eten, bewegen, niet roken). Daardoor leven ze gemiddeld gezonder en langer dan mensen met een kortere opleiding en lager inkomen." }
+          ]
+        },
+        {
+          id: "h1-d6",
+          text: "Je kunt op een inkomenskaart gebieden aanwijzen met een lagere of hogere levensverwachting.",
+          questions: [
+            { type: "mc", q: "In welk gebied in Nederland is de levensverwachting gemiddeld lager?", options: ["Dorpen rond grote steden", "Kleine gemeenten op het platteland", "Grote steden in de Randstad", "Provincie Utrecht"], correct: 2 },
+            { type: "mc", q: "Wat verwacht je in een buurt met overwegend lage inkomens?", options: ["Hogere levensverwachting", "Lagere levensverwachting", "Geen verschil", "Veel jongeren"], correct: 1 },
+            { type: "open", q: "Waarom kun je op een inkomenskaart ook iets zeggen over levensverwachting?", answer: "Omdat er een verband is tussen inkomen, opleiding en gezond leven. In gebieden met lage inkomens wonen vaker mensen met lagere opleiding die minder gezond leven, daardoor is daar de levensverwachting lager." }
+          ]
+        },
+        {
+          id: "h1-d7",
+          text: "Je kent een aantal bewonerskenmerken en begrijpt de samenhang met buurtkenmerken.",
+          questions: [
+            { type: "mc", q: "Welke van deze is een bewonerskenmerk?", options: ["Aantal vrijstaande huizen", "Gemiddeld opleidingsniveau", "Onderhoud van de openbare ruimte", "Bebouwingsdichtheid"], correct: 1 },
+            { type: "mc", q: "Wat is bevolkingssamenstelling?", options: ["Hoe veel mensen er wonen", "Hoe de bevolking is opgebouwd naar leeftijd, geslacht en herkomst", "Hoe de huizen gebouwd zijn", "Wat mensen verdienen"], correct: 1 },
+            { type: "open", q: "Noem drie bewonerskenmerken van een buurt.", answer: "Mogelijke antwoorden: leeftijd, inkomen, opleidingsniveau, herkomst/nationaliteit, beroep, gezinssamenstelling (3 noemen volstaat)." }
+          ]
+        },
+        {
+          id: "h1-d8",
+          text: "Je kunt aan de hand van buurtkenmerken uitspraken doen over bewoners en andersom.",
+          questions: [
+            { type: "mc", q: "In een buurt met veel flats, slecht onderhoud en weinig speelterreintjes verwacht je…", options: ["Bewoners met hoog inkomen", "Veel gezinnen met jonge kinderen", "Bewoners met gemiddeld lager inkomen", "Veel ouderen"], correct: 2 },
+            { type: "mc", q: "Wat zegt vergrijzing over een buurt?", options: ["Er wonen veel jonge gezinnen", "Het aantal mensen boven de 65 neemt toe", "De buurt is verouderd qua bouw", "Er zijn weinig voorzieningen"], correct: 1 },
+            { type: "open", q: "Wat is het verschil tussen vergrijzing en ontgroening?", answer: "Vergrijzing = het aandeel mensen ouder dan 65 jaar neemt toe. Ontgroening = het aandeel jonge mensen neemt af. Ze komen vaak samen voor." }
+          ]
+        }
+      ]
+    },
+    {
+      id: "h3",
+      number: 3,
+      title: "Energie in Nederland en Frankrijk",
+      subtitle: "Fossiele en duurzame energiebronnen",
+      color: "moss",
+      theory: [
+        {
+          heading: "Waarom energie zo belangrijk is",
+          body: "Energie zit overal: in elektriciteit, brandstof, verwarming, transport en de productie van spullen. Het wereldwijde energiegebruik is in 100 jaar 20× zo groot geworden, en blijft groeien doordat de wereldbevolking groeit en de welvaart stijgt."
+        },
+        {
+          heading: "Fossiele brandstoffen",
+          body: "Lang geleden ontstaan uit planten- en dierenresten. De vier hoofdgroepen: aardolie (uit dood plankton, gebruikt voor benzine/diesel/kerosine), kolen (uit plantenresten, vooral voor stroom), aardgas (de 'schoonste' fossiele, voor verwarming en stroom), en kernenergie (uit uranium, heel krachtig: 1 kilo = stroom voor 5000 huishoudens per jaar)."
+        },
+        {
+          heading: "Nadelen van fossiele bronnen",
+          body: "Bij verbranding komt CO₂ vrij → versterkt het natuurlijke broeikaseffect → aarde warmt op. Ook zijn fossiele bronnen uitputbaar: de voorraad raakt op. Kernenergie heeft een ander probleem: radioactiviteit. Het afval blijft duizenden jaren gevaarlijk."
+        },
+        {
+          heading: "Duurzame (hernieuwbare) energiebronnen",
+          body: "Raken nooit op en vervuilen niet (of veel minder). Wereldwijd nog maar 11% van het energieverbruik. Vijf belangrijke vormen: waterkracht (rivieren, getijden), zonne-energie (panelen of collectoren), windkracht (turbines), aardwarmte/geothermie (warm grondwater uit de diepte), en biomassa (verbranden van organisch afval).",
+          warning: "LET OP: hernieuwbaar = niet-opraken. Duurzaam = niet vervuilen. Vaak hetzelfde, maar niet altijd!"
+        },
+        {
+          heading: "Voor- en nadelen duurzame bronnen",
+          body: "Voordeel algemeen: raken niet op. Nadelen variëren: waterkracht beïnvloedt de omgeving sterk, zon en wind zijn niet constant, aardwarmte is duur, biomassa kost natuur (gewassen voor brandstof). Biomassa heeft als bijzonder voordeel dat het weinig extra CO₂ in de atmosfeer brengt."
+        },
+        {
+          heading: "Transport van brandstoffen",
+          body: "Niet elk land heeft zelf voldoende energiebronnen (België en Japan importeren >80%). Havens zijn knooppunten met opslag, raffinaderijen en elektriciteitscentrales. Tankschepen vervoeren olie, kolen, LNG (Liquefied Natural Gas = vloeibaar aardgas) en biomassa. Vanuit havens gaat het verder via tankwagens, binnenvaartschepen en pijpleidingen. Aardgas uit Rusland doet 12 dagen over de reis naar Nederland."
+        },
+        {
+          heading: "Transport van elektriciteit",
+          body: "In thermische centrales worden brandstoffen verbrand → warmte → stoom → turbine draait → elektriciteit. Stroom gaat via hoogspanningsleidingen (boven of ondergronds) naar de gebruikers. Bij lange afstanden gaat energie verloren — daarom is opwekken op locatie (zonnepanelen op je dak) efficiënter."
+        },
+        {
+          heading: "Uitbreiding en onderhoud",
+          body: "Door de groeiende energievraag moet de infrastructuur meegroeien: meer leidingen, kabels, schepen, raffinaderijen. Dat kost veel geld en tijd door regels. Onderhoud is ook belangrijk: stormen, aardbevingen of opzet kunnen het netwerk beschadigen."
+        }
+      ],
+      terms: [
+        { term: "aardolie", definition: "een brandstof die miljoenen jaren geleden ontstaan is uit dood plankton" },
+        { term: "aardgas", definition: "een brandstof die ontstaat als aardolie of steenkool lange tijd onder druk staat" },
+        { term: "steenkool", definition: "een brandstof die ontstaat als bruinkool lange tijd onder hoge druk staat" },
+        { term: "bruinkool", definition: "een brandstof ontstaan uit plantenresten die onder hoge druk veranderden in veen en daarna in bruinkool" },
+        { term: "fossiele brandstoffen", definition: "energiebronnen die lang geleden ontstaan zijn uit planten- en dierenresten" },
+        { term: "uitputbare energiebronnen", definition: "energiebronnen waarvan de voorraad opraakt" },
+        { term: "kernenergie", definition: "energie die wordt opgewekt in een kerncentrale door het splijten van uranium" },
+        { term: "radioactiviteit", definition: "de straling die vrijkomt bij de productie van kernenergie en waarvan kleine hoeveelheden al erg schadelijk zijn" },
+        { term: "natuurlijk broeikaseffect", definition: "een natuurlijk proces waarbij broeikasgassen (zoals CO₂ en methaan) in de dampkring de warmte van de zon deels op aarde vasthouden" },
+        { term: "duurzame energie", definition: "energie die niet vervuilt en nooit opraakt" },
+        { term: "hernieuwbare energiebronnen", definition: "bronnen van energie die niet opraken" },
+        { term: "waterkracht", definition: "energie uit stromend water" },
+        { term: "zonne-energie", definition: "energie uit de zon" },
+        { term: "windkracht", definition: "energie uit de wind" },
+        { term: "aardwarmte", definition: "warmte uit de ondergrond vanaf 500 meter tot 3 km diepte" },
+        { term: "geothermie", definition: "een ander woord voor aardwarmte" },
+        { term: "biomassa", definition: "organisch materiaal zoals mest, plantenresten, houtsnippers of frituurvet, waarmee stroom of brandstof opgewekt kan worden" },
+        { term: "raffinaderij", definition: "een fabriek waar aardolie geschikt wordt gemaakt voor verder gebruik" },
+        { term: "pijpleiding", definition: "buizen waardoor vloeistoffen of gassen getransporteerd kunnen worden" },
+        { term: "LNG", definition: "Liquefied Natural Gas / vloeibaar aardgas. Door aardgas sterk af te koelen, wordt het vloeibaar" },
+        { term: "thermische centrale", definition: "een elektriciteitscentrale die stroom produceert door het verbranden van bijvoorbeeld kolen, aardgas of biomassa" },
+        { term: "hoogspanningsleiding", definition: "een kabel waardoor stroom wordt getransporteerd" }
+      ],
+      objectives: [
+        {
+          id: "h3-d1",
+          text: "Je weet welke veelgebruikte energiebronnen er zijn en hun belangrijke kenmerken.",
+          questions: [
+            { type: "mc", q: "Welke energiebron is wereldwijd het meest gebruikt?", options: ["Aardgas", "Aardolie", "Kolen", "Zonne-energie"], correct: 1 },
+            { type: "mc", q: "Aardolie is ontstaan uit…", options: ["Plantenresten", "Dood plankton", "Vulkanische as", "Houtsnippers"], correct: 1 },
+            { type: "open", q: "Noem de vier veelgebruikte (niet-duurzame) energiebronnen.", answer: "Aardolie, aardgas, kolen (steenkool/bruinkool) en kernenergie." }
+          ]
+        },
+        {
+          id: "h3-d2",
+          text: "Je kunt de voor- en nadelen van veelgebruikte energiebronnen uitleggen.",
+          questions: [
+            { type: "mc", q: "Wat is een nadeel van fossiele brandstoffen?", options: ["Ze zijn duur", "Ze zijn moeilijk te transporteren", "Bij verbranding komt CO₂ vrij dat het broeikaseffect versterkt", "Ze worden alleen in arme landen gevonden"], correct: 2 },
+            { type: "mc", q: "Wat is een nadeel van kernenergie?", options: ["Het is heel duur", "Het levert weinig stroom op", "Er komt radioactieve straling vrij en het afval blijft duizenden jaren gevaarlijk", "Het is niet beschikbaar in rijke landen"], correct: 2 },
+            { type: "open", q: "Waarom wordt aardgas vaak de 'schoonste' fossiele brandstof genoemd?", answer: "Bij verbranding van aardgas komen veel minder CO₂ en roetdeeltjes vrij dan bij kolen of olie." }
+          ]
+        },
+        {
+          id: "h3-d3",
+          text: "Je begrijpt hoe belangrijk energie wereldwijd is.",
+          questions: [
+            { type: "mc", q: "Het wereldwijde energiegebruik is sinds 100 jaar geleden…", options: ["Ongeveer gelijk gebleven", "2× zo groot geworden", "Ruim 20× zo groot geworden", "Halveerd"], correct: 2 },
+            { type: "mc", q: "Waarom blijft de vraag naar energie groeien?", options: ["Omdat fossiele brandstoffen op raken", "Omdat de wereldbevolking groeit én de welvaart stijgt", "Omdat duurzame bronnen meer energie kosten", "Omdat de aarde opwarmt"], correct: 1 },
+            { type: "open", q: "Noem drie alledaagse dingen waarvoor energie nodig is.", answer: "Veel mogelijk: verwarming, koeling, transport (auto/trein), productie van kleding/voedsel/staal, telefoon opladen, koken, verlichting, etc." }
+          ]
+        },
+        {
+          id: "h3-d4",
+          text: "Je weet welke soorten duurzame energiebronnen er zijn.",
+          questions: [
+            { type: "mc", q: "Welke is geen duurzame energiebron?", options: ["Waterkracht", "Aardgas", "Aardwarmte", "Biomassa"], correct: 1 },
+            { type: "mc", q: "Wat is geothermie?", options: ["Energie uit de wind", "Energie uit de zon", "Warmte uit de diepe ondergrond", "Verbranden van organisch afval"], correct: 2 },
+            { type: "open", q: "Noem alle vijf de duurzame energiebronnen.", answer: "Waterkracht, zonne-energie, windkracht, aardwarmte (geothermie) en biomassa." }
+          ]
+        },
+        {
+          id: "h3-d5",
+          text: "Je begrijpt de voor- en nadelen van duurzame energiebronnen.",
+          questions: [
+            { type: "mc", q: "Een nadeel van zonne-energie is…", options: ["Het is uitputbaar", "De opbrengst wisselt omdat de zon niet altijd schijnt", "Het is heel vervuilend", "Het is alleen in Spanje mogelijk"], correct: 1 },
+            { type: "mc", q: "Wat is het voordeel van biomassa?", options: ["Het levert oneindig veel energie", "Het brengt relatief weinig extra CO₂ in de atmosfeer", "Het is gratis", "Het levert kernenergie op"], correct: 1 },
+            { type: "open", q: "Noem een voordeel en een nadeel van waterkracht.", answer: "Voordeel: behoorlijk constante energiebron (rivieren stromen altijd). Nadeel: de aanleg van een waterkrachtcentrale (dam) heeft flinke gevolgen voor de omgeving." }
+          ]
+        },
+        {
+          id: "h3-d6",
+          text: "Je begrijpt waarom transport van energie nodig is.",
+          questions: [
+            { type: "mc", q: "Waarom moet energie getransporteerd worden?", options: ["Omdat elektriciteit niet kan worden opgeslagen", "Omdat niet elk land voldoende eigen energiebronnen heeft", "Omdat olie altijd uit Rusland komt", "Omdat duurzame energie te weinig oplevert"], correct: 1 },
+            { type: "mc", q: "Hoeveel procent van zijn energie importeert België?", options: ["Ongeveer 20%", "Ongeveer 50%", "Meer dan 80%", "Niets, België is energieneutraal"], correct: 2 },
+            { type: "open", q: "Waarom zijn havens belangrijke knooppunten in het energienetwerk?", answer: "Havens zijn aan- en doorvoerplekken: brandstoffen komen er binnen met tankschepen, worden tijdelijk opgeslagen, en gaan verder via tankwagens of pijpleidingen. Vaak staan er ook raffinaderijen en elektriciteitscentrales." }
+          ]
+        },
+        {
+          id: "h3-d7",
+          text: "Je kunt uitleggen welke infrastructuur nodig is voor het transport van energie.",
+          questions: [
+            { type: "mc", q: "Waarmee worden grote hoeveelheden olie en gas over zee vervoerd?", options: ["Hoogspanningsleidingen", "Tankschepen", "Vrachtwagens", "Pijpleidingen"], correct: 1 },
+            { type: "mc", q: "Hoe wordt elektriciteit over land getransporteerd?", options: ["Via pijpleidingen", "Via tankwagens", "Via hoogspanningsleidingen", "Met treinen"], correct: 2 },
+            { type: "open", q: "Noem drie soorten infrastructuur die nodig zijn voor energietransport.", answer: "Mogelijk: tankschepen, pijpleidingen, raffinaderijen, hoogspanningsleidingen, tankwagens, binnenvaartschepen, transformatorstations, havens (3 noemen volstaat)." }
+          ]
+        },
+        {
+          id: "h3-d8",
+          text: "Je begrijpt waarom een betrouwbare energievoorziening niet vanzelfsprekend is.",
+          questions: [
+            { type: "mc", q: "Wat kan de energievoorziening verstoren?", options: ["Goede wegen", "Stormen, aardbevingen en sabotage van het netwerk", "Te veel zonnepanelen", "Goedkoop transport"], correct: 1 },
+            { type: "mc", q: "Een nadeel van het transporteren van stroom over grote afstanden is…", options: ["Er gaat energie verloren onderweg", "Het is gratis", "Er ontstaat radioactiviteit", "Het werkt alleen 's nachts"], correct: 0 },
+            { type: "open", q: "Waarom is uitbreiding van het energienetwerk lastig?", answer: "Het kost veel geld, het duurt lang door alle regels, en het is moeilijk om geschikte locaties te vinden voor hoogspanningsmasten, zonnepaneelvelden of transformatorstations." }
+          ]
+        }
+      ]
+    },
+    {
+      id: "h5",
+      number: 5,
+      title: "Grenzen en identiteit in Nederland en België",
+      subtitle: "Landsgrenzen, identiteit en samenwerking",
+      color: "terracotta",
+      theory: [
+        {
+          heading: "Wat is een grens?",
+          body: "Een landsgrens is de door mensen aangewezen scheidingslijn tussen twee landen. Een natuurlijke grens volgt landschap (rivier, zee, gebergte — bijv. de Pyreneeën tussen Frankrijk en Spanje). Een kunstmatige grens is door mensen getrokken, vaak met hekken of grenspalen.",
+          warning: "LET OP: natuurlijk = uit het landschap (rivier, zee), kunstmatig = door mensen getrokken (hek, paal). Beide zijn 'door mensen aangewezen' — het verschil zit in wát de grens vormt!"
+        },
+        {
+          heading: "Open/zacht vs. gesloten/hard",
+          body: "Een open of zachte grens is makkelijk over te steken zonder controle (zoals binnen de EU). Een gesloten of harde grens heeft strenge controles, hekken of een muur. Open en zacht zijn synoniemen, gesloten en hard ook.",
+          warning: "LET OP: open = zacht (synoniemen), gesloten = hard (synoniemen). Onthoud deze paartjes!"
+        },
+        {
+          heading: "Territoriale wateren",
+          body: "Vanaf de kust hoort nog 12 zeemijl (≈22 km) bij het land. Dit zijn de territoriale wateren. Het luchtruim, de bodem en de ondergrond zijn ook van dat land. Voor de exclusieve economische zone geldt vaak een grotere afstand (tot 200 zeemijl)."
+        },
+        {
+          heading: "Drie manieren waarop je verbonden bent aan een land",
+          body: "(1) Politiek — door je nationaliteit en paspoort. (2) Economisch — door je baan, huis en belastingen. (3) Sociaal/cultureel — door taal, godsdienst en gewoonten. Een land dat zelfstandig is en geen invloed van buitenaf duldt, is soeverein."
+        },
+        {
+          heading: "Identiteit en mentaliteit",
+          body: "Identiteit = waarmee een groep zich onderscheidt van andere groepen. Mentaliteit = hoe je denkt en voelt. In Nederland zie je verschillen: een stedelijke mentaliteit (Randstad, op zichzelf gericht) versus een dorpse mentaliteit (kleinere plaatsen, meer ons-kent-ons). Door mentale verstedelijking gaan dorpen steeds meer op de stad lijken."
+        },
+        {
+          heading: "Nationalisme, regionalisme, lokalisme",
+          body: "Nationalisme = grote voorkeur voor je eigen land, vaak met afkeer van het vreemde. Regionalisme = inwoners van een regio hechten aan hun eigen geschiedenis en cultuur (Friezen, Limburgers). Lokalisme = gericht zijn op je eigen dorp of gemeente. Veel mensen in Nederland voelen zich méér verbonden met hun regio of woonplaats dan met Nederland.",
+          warning: "LET OP: van groot naar klein: nationalisme (land) → regionalisme (regio/provincie) → lokalisme (dorp/gemeente)."
+        },
+        {
+          heading: "Ruimtelijke ordening",
+          body: "Nederland is dichtbevolkt, dus de ruimte moet goed verdeeld worden: wonen, werken, landbouw, natuur, infrastructuur. Wetten hierover heten ruimtelijke ordening. Op drie niveaus: het Rijk (algemeen, infrastructuur, water), de provincie (uitbreiding van steden, industrieterreinen), de gemeente (omgevingsplan met regels per gebied)."
+        },
+        {
+          heading: "Jouw rol",
+          body: "Je hebt invloed op de ruimte om je heen via: (1) inspraak — officieel bezwaar maken tegen beslissingen van de gemeente. (2) Verkiezingen — vanaf je 18e kun je stemmen. (3) Meldingen — via apps van de gemeente kapotte lantaarnpalen, zwerfvuil of onveilige fietspaden doorgeven."
+        },
+        {
+          heading: "Grens met België en Duitsland",
+          body: "Sinds 1830 zijn België en Nederland zelfstandig met vaste landsgrenzen. Soms natuurlijke grens (Maas in Limburg), soms kunstmatige (grenspalen). Baarle in Noord-Brabant heeft enclaves: stukjes Belgisch grondgebied liggen als eilandjes in Nederland. De grens met Duitsland is grotendeels honderden jaren oud, met enkele grenscorrecties na WO2."
+        },
+        {
+          heading: "Schengen en grenspendel",
+          body: "In het Verdrag van Schengen (1985, ondertekend in Schengen, Luxemburg) spraken Nederland, België, Luxemburg, Frankrijk en Duitsland af om geen grenscontroles meer te houden. Nu doen 26 landen mee. Voordeel: makkelijk reizen en handel. Nadeel: ook vluchtelingen en criminelen kunnen vrij reizen. Grenspendel = dagelijks de grens oversteken om bij de buren te werken of boodschappen te doen."
+        },
+        {
+          heading: "België: federale staat",
+          body: "Nederland is een eenheidsstaat (centrale regering bepaalt het meeste). België is een federale staat met drie bestuurslagen die zelfstandig beslissen: de landsregering, de gewesten (Brussel, Vlaanderen, Wallonië) en de drie gemeenschappen (Nederlandstalig, Franstalig, Duitstalig). De taalgrens loopt dwars door België: een Vlaming verstaat een Waal nauwelijks.",
+          warning: "LET OP: eenheidsstaat = centraal (Nederland), federale staat = verdeelde macht (België)."
+        },
+        {
+          heading: "Verschillen tussen Nederlanders en Belgen",
+          body: "Nederlanders worden door Belgen vaak gezien als zuinig en arrogant (een stereotype: groep beschrijven op één kenmerk). Belgen zijn meer rooms-katholiek, meer gericht op familie en vriendschappen, en hechten meer aan persoonlijk contact dan aan contracten. Chauvinisme (overdreven liefde voor je vaderland) is in beide landen niet sterk — behalve bij voetbal!"
+        },
+        {
+          heading: "Grensoverschrijdende problemen",
+          body: "Problemen die niet stoppen aan de grens: klimaatverandering, criminaliteit (Nederlandse drugscriminelen in België), luchtvervuiling. Voorbeeld: Antwerpse bedrijven lozen chemische stoffen in de Schelde → vervuild water stroomt naar Nederland."
+        },
+        {
+          heading: "Botsende belangen",
+          body: "Soms willen Nederland en België verschillende dingen. (1) De Westerschelde: Antwerpen wil dat Nederland baggert zodat grote schepen kunnen passeren — voor Nederland minder belangrijk. (2) De IJzeren Rijn: een spoorlijn Antwerpen–Mönchengladbach die over Nederlands grondgebied loopt (deels door een Nationaal Park). België wil hem open, Nederland heeft moeite vanwege de natuur."
+        },
+        {
+          heading: "Samenwerking en euregio's",
+          body: "Veel onderlinge handel (België exporteert €45 miljard naar NL, andersom €53 miljard). Voorbeelden van samenwerking: de Schelde-Rijnverbinding (kanaal tussen havens), de Grensmaas (samen voorkomen van overstromingen). Een euregio is een grensoverschrijdend samenwerkingsgebied binnen de EU. Voorbeeld: Euregio Scheldemond met de havens Gent, Zeebrugge, Antwerpen (B), Terneuzen en Vlissingen (NL)."
+        }
+      ],
+      terms: [
+        { term: "landsgrens", definition: "de door mensen aangewezen scheidingslijn tussen twee landen" },
+        { term: "natuurlijke grens", definition: "landsgrens die wordt gevormd door landschappelijke elementen zoals zeeën, meren, rivieren of bergen" },
+        { term: "kunstmatige grens", definition: "landsgrens die niet herkenbaar is aan elementen uit het landschap (zoals een gebergte of een rivier)" },
+        { term: "open grens", definition: "landsgrens die zonder controle te passeren is" },
+        { term: "zachte grens", definition: "landsgrens die zonder controle te passeren is (synoniem met open grens)" },
+        { term: "gesloten grens", definition: "landsgrens die zonder controle niet te passeren is" },
+        { term: "harde grens", definition: "landsgrens die zonder controle niet te passeren is (synoniem met gesloten grens)" },
+        { term: "territoriale wateren", definition: "deel van de zee langs de kust van een land met een breedte van twaalf zeemijl" },
+        { term: "nationaliteit", definition: "het bezit van het staatsburgerschap van een land of meerdere landen" },
+        { term: "soeverein", definition: "zelfstandig en onafhankelijk" },
+        { term: "cultuur", definition: "de manier waarop een groep mensen leeft" },
+        { term: "identiteit", definition: "eigenschappen en kenmerken waarmee een groep zich van andere groepen onderscheidt" },
+        { term: "mentaliteit", definition: "de manier waarop je denkt en voelt" },
+        { term: "mentale verstedelijking", definition: "toename van stedelijke mentaliteit en levenswijze op het platteland" },
+        { term: "nationalisme", definition: "een grote voorkeur voor alles wat met het eigen land te maken heeft, vaak met een zekere afkeer van het vreemde" },
+        { term: "regionalisme", definition: "inwoners van een regio houden vast aan hun eigen geschiedenis en cultuur" },
+        { term: "lokalisme", definition: "het gericht zijn op eigen dorp en gemeente" },
+        { term: "ruimtelijke ordening", definition: "de wetten en regels die bepalen hoe de ruimte gebruikt mag worden" },
+        { term: "omgevingsplan", definition: "plan waarin staat wat er met de ruimte in een gemeente mag gebeuren" },
+        { term: "bezwaar", definition: "het recht van burgers om protest aan te tekenen tegen beslissingen van de overheid" },
+        { term: "inspraak", definition: "gelegenheid om je mening te laten horen en daardoor invloed te krijgen op beslissingen" },
+        { term: "provincies", definition: "de bestuurslaag tussen het Rijk en de gemeenten, bestuurd door de Provinciale Staten" },
+        { term: "gemeente", definition: "na het Rijk en de provincies de onderste bestuurslaag in Nederland, bestuurd door burgemeester en wethouders" },
+        { term: "enclave", definition: "gebied dat door grondgebied van een ander land wordt omsloten" },
+        { term: "Verdrag van Schengen", definition: "overeenkomst tussen 26 Europese landen om grenscontroles voor personen af te schaffen" },
+        { term: "grenspendel", definition: "het regelmatig passeren van een landsgrens voor werk, opleiding en bijvoorbeeld boodschappen" },
+        { term: "eenheidsstaat", definition: "een land waarbij de uiteindelijke macht ligt bij de centrale overheid maar lagere bestuurslagen ook zelfstandig beslissingen mogen nemen over lokale kwesties" },
+        { term: "federale staat", definition: "een land waarin de macht verdeeld is over meerdere bestuurslagen die elk hun eigen beslissingen mogen nemen" },
+        { term: "gemeenschap", definition: "culturele regio in België met als belangrijkste overeenkomst de taal" },
+        { term: "taalgrens", definition: "denkbeeldige scheiding tussen gebieden waar mensen verschillende talen spreken" },
+        { term: "chauvinisme", definition: "overdreven liefde voor je vaderland" },
+        { term: "stereotype", definition: "een beschrijving van een groep mensen op basis van slechts één (of enkele) verondersteld(e) kenmerk(en)" },
+        { term: "Zeeschelde", definition: "het deel van de Schelde van de Nederlands-Belgische grens tot de plaats Gentbrugge (B)" },
+        { term: "Grensmaas", definition: "deel van de rivier de Maas die de grens vormt tussen Nederland en België" },
+        { term: "IJzeren Rijn", definition: "spoorlijn tussen Antwerpen en Duitsland die voor een deel over Nederlands grondgebied loopt" },
+        { term: "Schelde-Rijnverbinding", definition: "scheepvaartverbinding met kanalen en sluizen tussen de rivieren de Schelde en de Rijn" },
+        { term: "euregio", definition: "een grensoverschrijdend samenwerkingsverband tussen landen in Europa" }
+      ],
+      objectives: [
+        {
+          id: "h5-d1",
+          text: "Je begrijpt dat mensen op verschillende manieren verbonden zijn met een land.",
+          questions: [
+            { type: "mc", q: "Op welke drie manieren ben je verbonden met een land?", options: ["Politiek, economisch, sociaal/cultureel", "Politiek, militair, religieus", "Geografisch, taalkundig, juridisch", "Werk, school, familie"], correct: 0 },
+            { type: "mc", q: "Wat betekent dat een land soeverein is?", options: ["Het ligt aan zee", "Het is rijk", "Het is zelfstandig en onafhankelijk", "Het heeft een koning"], correct: 2 },
+            { type: "open", q: "Geef een voorbeeld van economische verbondenheid met een land.", answer: "Door je baan, je huis, de belastingen die je betaalt, of door regelingen zoals kinderbijslag." }
+          ]
+        },
+        {
+          id: "h5-d2",
+          text: "Je weet welke soorten grenzen er zijn.",
+          questions: [
+            { type: "mc", q: "Wat is een natuurlijke grens?", options: ["Een grens die door mensen is gemaakt met hekken", "Een grens die wordt gevormd door landschappelijke elementen zoals een rivier of gebergte", "Een grens die je niet kunt zien", "Een grens binnen de EU"], correct: 1 },
+            { type: "mc", q: "Wat is GEEN synoniem voor een 'open grens'?", options: ["Zachte grens", "Grens zonder controle", "Harde grens", "EU-binnengrens"], correct: 2 },
+            { type: "open", q: "Wat is het verschil tussen een natuurlijke en een kunstmatige grens?", answer: "Een natuurlijke grens wordt gevormd door iets uit het landschap (rivier, zee, gebergte). Een kunstmatige grens is door mensen getrokken zonder landschapselement, vaak herkenbaar aan hekken of grenspalen. Beide zijn wel door mensen aangewezen!" }
+          ]
+        },
+        {
+          id: "h5-d3",
+          text: "Je weet dat een persoon en groep mensen een identiteit hebben.",
+          questions: [
+            { type: "mc", q: "Wat is identiteit?", options: ["Je paspoort", "De eigenschappen waarmee een groep zich van andere groepen onderscheidt", "Je woonplaats", "Het land waar je werkt"], correct: 1 },
+            { type: "mc", q: "Wat staat NIET op je ID-kaart maar hoort wel bij je identiteit?", options: ["Geboortedatum", "Lengte", "Wat je denkt en belangrijk vindt", "Geslacht"], correct: 2 },
+            { type: "open", q: "Leg uit waarom 'dé Nederlander' niet bestaat.", answer: "Mensen in Nederland verschillen sterk in cultuur, opvattingen, religie en levensstijl. Je kunt een groep niet vatten in één set kenmerken — dat zou een stereotype zijn." }
+          ]
+        },
+        {
+          id: "h5-d4",
+          text: "Je begrijpt dat groepen mensen kunnen verschillen in mentaliteit en wat de gevolgen zijn.",
+          questions: [
+            { type: "mc", q: "Wat is mentaliteit?", options: ["Je intelligentie", "De manier waarop je denkt en voelt", "Je gezondheid", "Je culturele achtergrond"], correct: 1 },
+            { type: "mc", q: "Wat is mentale verstedelijking?", options: ["Mensen verhuizen naar de stad", "Steden worden groter", "Mensen op het platteland gaan zich gedragen als in de stad", "Stedelingen verhuizen naar het platteland"], correct: 2 },
+            { type: "open", q: "Noem een verschil tussen een stedelijke en een dorpse mentaliteit.", answer: "In de stad zijn mensen vaak meer met zichzelf en werk bezig, in een dorp is er een ons-kent-ons-gevoel en bemoeien mensen zich meer met elkaar. (Andere voorbeelden ook goed.)" }
+          ]
+        },
+        {
+          id: "h5-d5",
+          text: "Je begrijpt waarom mensen hun eigen omgeving belangrijk vinden en kent nationalisme, regionalisme, lokalisme.",
+          questions: [
+            { type: "mc", q: "Wat is regionalisme?", options: ["Voorkeur voor je eigen land", "Inwoners van een regio hechten aan hun eigen geschiedenis en cultuur", "Gericht zijn op je eigen dorp", "Een afkeer van vreemdelingen"], correct: 1 },
+            { type: "mc", q: "Een Friese boer die trots de Friese vlag hijst en het Frysk Folksliet zingt is een voorbeeld van…", options: ["Nationalisme", "Regionalisme", "Lokalisme", "Chauvinisme"], correct: 1 },
+            { type: "open", q: "Wat is het verschil tussen nationalisme, regionalisme en lokalisme?", answer: "Het schaalniveau is anders: nationalisme = land, regionalisme = regio/provincie, lokalisme = dorp/gemeente. Het gaat steeds om gehechtheid aan, maar op een ander schaalniveau." }
+          ]
+        },
+        {
+          id: "h5-d6",
+          text: "Je weet hoe in Nederland bepaald wordt hoe de ruimte wordt ingericht.",
+          questions: [
+            { type: "mc", q: "Wat is ruimtelijke ordening?", options: ["De inrichting van een huis", "De wetten en regels die bepalen hoe de ruimte gebruikt mag worden", "Stedenbouwkunde", "Het maken van wegen"], correct: 1 },
+            { type: "mc", q: "Op welke drie niveaus wordt ruimtelijke ordening geregeld?", options: ["EU, land, regio", "Rijk, provincie, gemeente", "Gemeente, wijk, buurt", "Land, stad, dorp"], correct: 1 },
+            { type: "open", q: "Wat is een omgevingsplan en wie maakt dat?", answer: "Een omgevingsplan is een plan van de gemeente waarin staat hoe de gemeente het leefgebied wil ontwikkelen en wat er wel en niet mag in een gebied. De gemeente maakt het." }
+          ]
+        },
+        {
+          id: "h5-d7",
+          text: "Je begrijpt dat bij de inrichting van de ruimte met verschillende belangen rekening gehouden moet worden, en kent jouw rol.",
+          questions: [
+            { type: "mc", q: "Wat is inspraak?", options: ["Je mening laten horen om beslissingen te beïnvloeden", "Stemmen bij verkiezingen", "Praten in de klas", "Lid worden van een politieke partij"], correct: 0 },
+            { type: "mc", q: "Wat is GEEN manier waarop jij invloed hebt op je leefomgeving?", options: ["Bezwaar indienen", "Stemmen vanaf je 18e", "Meldingen doen via de gemeente-app", "De wet veranderen in je eentje"], correct: 3 },
+            { type: "open", q: "Noem drie manieren waarop een jongere invloed kan hebben op zijn omgeving.", answer: "Bezwaar indienen / inspraak, vanaf 18 jaar stemmen bij verkiezingen, meldingen doen via de gemeente-app over bijv. kapotte lantaarnpalen of vuilnis." }
+          ]
+        },
+        {
+          id: "h5-d8",
+          text: "Je kent de landsgrens van Nederland en de aanliggende gebieden.",
+          questions: [
+            { type: "mc", q: "Aan welke landen grenst Nederland (in Europa)?", options: ["Alleen België en Duitsland", "België, Duitsland en Frankrijk", "België en Duitsland (en via Sint Maarten ook Frankrijk)", "Alle EU-landen"], correct: 2 },
+            { type: "mc", q: "Wat is bijzonder aan Baarle?", options: ["Het is de oudste stad van Nederland", "Stukjes België liggen er als enclaves in Nederland", "Het ligt op een eiland", "Het is een Duitstalige gemeente"], correct: 1 },
+            { type: "open", q: "Geef een voorbeeld van een natuurlijke grens van Nederland en een kunstmatige.", answer: "Natuurlijke grens: Maas in Limburg, of Noordzee met VK. Kunstmatige grens: grenspalen tussen Nederland en België of Duitsland." }
+          ]
+        },
+        {
+          id: "h5-d9",
+          text: "Je kent het Verdrag van Schengen en de voor- en nadelen.",
+          questions: [
+            { type: "mc", q: "Wat regelt het Verdrag van Schengen?", options: ["Een gemeenschappelijke munt", "Geen grenscontroles meer voor personen", "Een gezamenlijk leger", "Vrij verkeer van goederen"], correct: 1 },
+            { type: "mc", q: "Wat is een nadeel van het Verdrag van Schengen?", options: ["Reizen wordt moeilijker", "Handel wordt duurder", "Ook vluchtelingen en criminelen kunnen vrij reizen tussen landen", "Mensen krijgen meerdere paspoorten"], correct: 2 },
+            { type: "open", q: "Noem een voordeel en een nadeel van het Verdrag van Schengen.", answer: "Voordeel: makkelijker en sneller reizen tussen landen, voordelig voor handel en grenspendel. Nadeel: vluchtelingen of criminelen die eenmaal binnen zijn kunnen vrij tussen landen reizen, daarom voerden sommige landen later weer controles in." }
+          ]
+        },
+        {
+          id: "h5-d10",
+          text: "Je weet hoe België en Nederland zijn onderverdeeld en welke verschillen er tussen die regio's bestaan.",
+          questions: [
+            { type: "mc", q: "Wat is Nederland qua staatsvorm?", options: ["Federale staat", "Eenheidsstaat", "Republiek", "Confederatie"], correct: 1 },
+            { type: "mc", q: "Uit welke drie gewesten bestaat België?", options: ["Vlaanderen, Wallonië, Brussel", "Noord, Midden, Zuid", "Antwerpen, Brussel, Gent", "Vlaams, Frans, Duits"], correct: 0 },
+            { type: "open", q: "Wat is het verschil tussen een eenheidsstaat en een federale staat?", answer: "In een eenheidsstaat (zoals Nederland) ligt de uiteindelijke macht bij de centrale overheid. In een federale staat (zoals België) is de macht verdeeld over meerdere bestuurslagen die zelf beslissingen mogen nemen." }
+          ]
+        },
+        {
+          id: "h5-d11",
+          text: "Je kunt verschillen tussen Nederlanders en Belgen beschrijven en grensoverschrijdende problemen herkennen.",
+          questions: [
+            { type: "mc", q: "Wat is een stereotype?", options: ["Een waarheidsgetrouwe beschrijving van een volk", "Een beschrijving van een groep op basis van slechts één kenmerk", "Een wettelijke regel", "Een soort identiteitskaart"], correct: 1 },
+            { type: "mc", q: "Welk probleem is grensoverschrijdend tussen Nederland en België?", options: ["De Nederlandse taal", "Drugscriminelen die in België drugslabs zetten", "Het Schengen-verdrag", "De munteenheid"], correct: 1 },
+            { type: "open", q: "Geef twee voorbeelden van botsende belangen tussen Nederland en België.", answer: "(1) De Westerschelde: België wil dat Nederland baggert voor de Antwerpse haven, Nederland vindt dat minder belangrijk. (2) De IJzeren Rijn: België wil de spoorlijn (door Nederlands Nationaal Park) helemaal open, Nederland heeft moeite met de natuuraantasting." }
+          ]
+        },
+        {
+          id: "h5-d12",
+          text: "Je begrijpt hoe en waarom er in grensgebieden wordt samengewerkt en wat een euregio is.",
+          questions: [
+            { type: "mc", q: "Wat is een euregio?", options: ["Een EU-land", "Een grensoverschrijdend samenwerkingsverband tussen landen in Europa", "Een Europese munt", "Een natuurgebied in Europa"], correct: 1 },
+            { type: "mc", q: "Welke euregio omvat de havens Gent, Zeebrugge, Antwerpen, Terneuzen en Vlissingen?", options: ["Euregio Maas-Rijn", "Euregio Scheldemond", "Euregio Rijnland", "Euregio Benelux"], correct: 1 },
+            { type: "open", q: "Geef een voorbeeld van samenwerking tussen Nederland en België.", answer: "Mogelijk: de Schelde-Rijnverbinding (kanaal tussen havens van Antwerpen en Rotterdam), de Grensmaas (samen ruimte geven aan de Maas om overstromingen te voorkomen), Euregio Scheldemond, of gezamenlijk zwembad voor grensgemeenten." }
+          ]
+        }
+      ]
+    },
+    {
+      id: "h6",
+      number: 6,
+      title: "Grenzen en identiteit in Rusland",
+      subtitle: "Federatie, separatisme en het Noordpoolgebied",
+      color: "bordeaux",
+      theory: [
+        {
+          heading: "Russische Federatie",
+          body: "Tot 1992 bestond de Sovjet-Unie uit meerdere republieken. Rusland was de grootste. Toen de Sovjet-Unie uiteenviel werden veel republieken zelfstandige landen (Oekraïne, Wit-Rusland, Estland). Rusland zelf bleef over, en heet officieel de Russische Federatie: ongeveer 80 deelgebieden werken samen onder het machtigste deelgebied, Rusland."
+        },
+        {
+          heading: "Religie en bevolking",
+          body: "De Russisch-orthodoxe kerk is belangrijk in Rusland. In het zuiden woont een grote groep moslims. De Russische overheid steunt de orthodoxe waarden en stimuleert nationalisme. Ruim 20% van de bevolking hoort bij een andere etnische groep dan de Russen; in totaal zijn er ongeveer 160 etnische groepen."
+        },
+        {
+          heading: "Geografie en welvaart",
+          body: "Rusland ligt voor een groot deel in Azië. Het Europese deel is dichtbevolkt (Moskou, Sint-Petersburg), Siberië is leeg (toendralandschap, <1 inwoner per km²). Maar Siberië heeft veel delfstoffen: aardolie en aardgas. Daardoor is er een kleine groep zeer rijke Russen, de oligarchen — en grote sociale ongelijkheid: 12,6% leeft onder de armoedegrens."
+        },
+        {
+          heading: "Etnische groepen en russificatie",
+          body: "Een etnische groep = groep mensen met dezelfde culturele identiteit. In de Sovjet-Unie werden Russen overal heen verspreid (bevolkingsspreiding) en moest iedereen Russisch leren en de Russische cultuur overnemen — russificatie. Daardoor wonen nu nog Russen in landen als Oekraïne en Estland, en is het Russisch er nog veel gesproken."
+        },
+        {
+          heading: "Nationalisme en separatisme",
+          body: "Veel Russen hebben sterke voorkeur voor het eigen volk (nationalisme). De Russische overheid stimuleert dit. Tegelijk willen deelgebieden zoals Tsjetsjenië zich afsplitsen — dat is separatisme. Rusland accepteert dat niet, vooral omdat er waardevolle grondstoffen in die gebieden zitten. Opstanden worden met geweld neergeslagen.",
+          warning: "LET OP: nationalisme = liefde voor je eigen land. Separatisme = je willen afsplitsen om een nieuwe staat te vormen. Tegengesteld!"
+        },
+        {
+          heading: "Conflict in de Kaukasus",
+          body: "In de Kaukasus wonen veel etnische groepen met verschillende religies (christendom, islam, boeddhisme). Tsjetsjenië wil zelfstandig worden. In WO2 werden Tsjetsjenen weggevoerd, hun bezittingen overgenomen door Russen, en onderwijs werd Russisch (russificatie). Toen de Sovjet-Unie viel, leidde het nationalisme van de Tsjetsjenen tot conflicten en terreur."
+        },
+        {
+          heading: "Conflict met Oekraïne",
+          body: "Oekraïne werd zelfstandig na 1990. De Krim (schiereiland met grote marinehaven) was strategisch belangrijk voor Rusland. In 2014 bezette Rusland de Krim. In 2022 leidde dit tot oorlog, waarbij Rusland grote delen van oost- en zuid-Oekraïne veroverde. Veel Oekraïners spreken nog Russisch door russificatie. Er zijn ook twee orthodoxe stromingen: Oekraïens- en Russisch-orthodox."
+        },
+        {
+          heading: "Russische economie en grondstoffen",
+          body: "De Russische economie is sterk afhankelijk van export: aardolie, aardgas, steenkool, graan, metalen. Megabedrijven beheersen de productie en verdienen veel. Vier problemen met deze afhankelijkheid:"
+        },
+        {
+          heading: "Vier problemen rond grondstoffen",
+          body: "(1) ECONOMIE: prijzen van grondstoffen schommelen → kwetsbare economie. Strafmaatregelen na de Oekraïne-oorlog deden Rusland pijn. (2) SOCIALE ONGELIJKHEID: de winst gaat naar een kleine groep rijken, niet naar gewone Russen. (3) MILIEU: lekkages in olie/gas, vervuilde rivieren en bodem, luchtvervuiling, verouderde kerncentrales. (4) POLITIEK: deelgebieden (zoals Tatarstan, rijk aan olie) willen zelf van de grondstoffen profiteren → separatisme dat Rusland blokkeert."
+        },
+        {
+          heading: "Noordelijke IJszee — klimaat en geografie",
+          body: "Onder de Noordelijke IJszee zitten naar schatting 20% van de nog niet ontdekte olie- en gasvoorraden. Het gebied heeft een poolklimaat (zon komt 's winters niet boven de horizon, temperatuur ver onder nul). In zee zijn ijsbergen (afgebroken stukken gletsjer), ijsschollen en pakijs (drijvende stukken die op elkaar liggen). De pakijsgrens schuift in de zomer richting de pool. Door klimaatverandering smelt het ijs sneller."
+        },
+        {
+          heading: "Toendra en permafrost",
+          body: "Het land rond de Noordelijke IJszee heeft een toendraklimaat met permafrost: een altijd bevroren ondergrond. Er groeien nauwelijks planten — vooral mossen in de korte zomer. Hier zit een kwart van de Russische olie- en gasreserves, getransporteerd via enorme pijpleidingen."
+        },
+        {
+          heading: "Wie heeft recht op het Noordpoolgebied?",
+          body: "Volgens de VN mag elk kustland tot 200 zeemijl buiten de kust een deel van de zee claimen (exclusieve economische zone), en tot 350 zeemijl het continentaal plat (ondiepe zeebodem bij de kust). Rusland wil verder gaan: het plantte zelfs een vlag op de Noordpool-zeebodem. Andere landen die belang hebben: Canada, Groenland (Denemarken), Noorwegen en de VS. Conflicten ontstaan o.a. bij Spitsbergen (Noorwegen) over visrechten."
+        },
+        {
+          heading: "Vier perspectieven op het Noordpoolgebied",
+          body: "ECONOMIE: smeltend ijs maakt boren naar olie/gas makkelijker, en opent de Noordelijke Doorvaart (snelle vaarroute Europa-Azië via de poolzeeën). POLITIEK: er zijn afspraken in het Earth Charter (Handvest van de Aarde) over respectvol omgaan met de aarde, en in de Arctische Raad (8 landen). SOCIAAL: oorspronkelijke bewoners (zoals Groenlanders) worden bedreigd door scheepvaart, visserij en toerisme. MILIEU/NATUUR: grondstofwinning beschadigt de natuur; ngo's zoals Greenpeace en WNF strijden voor bescherming. Voorbeeld: Frans-Jozefland ligt vol oude olievaten uit de Sovjettijd."
+        }
+      ],
+      terms: [
+        { term: "bevolkingsspreiding", definition: "spreiding van de bevolking(sgroepen) in een land" },
+        { term: "etnische groep", definition: "groep mensen met dezelfde culturele identiteit" },
+        { term: "culturele identiteit", definition: "de verbondenheid die mensen voelen met hun cultuur" },
+        { term: "culturele verschillen", definition: "verschillen in de manier waarop een groep mensen leeft" },
+        { term: "russificatie", definition: "het Russisch maken van niet-Russen door het laten overnemen van de Russische taal en cultuur" },
+        { term: "nationalisme", definition: "grote voorkeur voor alles wat met het eigen land te maken heeft, vaak met een zekere afkeer van het vreemde" },
+        { term: "separatisme", definition: "het streven van een groep mensen om zich af te scheiden van een staat om een nieuwe staat te vormen" },
+        { term: "vreemdelingenhaat", definition: "haat gericht op mensen die niet uit het eigen land of de eigen omgeving komen" },
+        { term: "mensenrechten", definition: "rechten die ieder mens heeft, zoals het recht om je eigen mening te uiten" },
+        { term: "exclusieve economische zone", definition: "deel van de zee en land waarvan een land vindt dat het er economische rechten op heeft" },
+        { term: "continentaal plat", definition: "de ondiepe bodem van de zee grenzend aan de kust" },
+        { term: "territoriale wateren", definition: "deel van de zee langs de kust van een land met een breedte van twaalf zeemijl" },
+        { term: "ijsberg", definition: "een afgebroken stuk ijs van een gletsjer dat bij de poolgebieden in zee drijft" },
+        { term: "ijsschol", definition: "grote plaat drijvend ijs in zee" },
+        { term: "pakijs", definition: "drijvende stukken ijs die op en over elkaar liggen en een grote vlakte vormen" },
+        { term: "landijs", definition: "ijs dat op land ligt" },
+        { term: "zee-ijs", definition: "ijs dat op zeewater drijft" },
+        { term: "uiterste pakijsgrens", definition: "de plaats op zee waar nog pakijs voorkomt" },
+        { term: "poolcirkel", definition: "denkbeeldige cirkel op de kaart in de buurt van de polen, binnen deze cirkel gaat de zon een lange periode niet onder en komt lange tijd niet op" },
+        { term: "Noordelijke Doorvaart", definition: "de korte zeeverbinding tussen bijvoorbeeld Europa en Azië via de Noordelijke IJszee" },
+        { term: "Earth Charter", definition: "Handvest van de Aarde, afspraken over hoe we in de 21e eeuw moeten omgaan met de aarde" },
+        { term: "ngo", definition: "niet-gouvernementele organisatie, organisatie als Greenpeace die niet door de overheid wordt geleid" }
+      ],
+      objectives: [
+        {
+          id: "h6-d1",
+          text: "Je begrijpt waarom er culturele verschillen zijn in het grote Rusland en dat het land een lappendeken van volken is.",
+          questions: [
+            { type: "mc", q: "Uit hoeveel deelgebieden bestaat de Russische Federatie ongeveer?", options: ["10", "80", "160", "200"], correct: 1 },
+            { type: "mc", q: "Hoeveel etnische groepen leven er ongeveer in Rusland?", options: ["20", "80", "160", "500"], correct: 2 },
+            { type: "open", q: "Waarom zijn er zulke grote culturele verschillen in Rusland?", answer: "Rusland is een enorm groot land met ongeveer 160 etnische groepen die allemaal hun eigen taal, godsdienst en cultuur hebben. Daardoor is het 'een lappendeken van volken'." }
+          ]
+        },
+        {
+          id: "h6-d2",
+          text: "Je weet dat Rusland een federatie is van deelgebieden met verschillende culturele identiteiten.",
+          questions: [
+            { type: "mc", q: "Wat is een etnische groep?", options: ["Een politieke partij", "Een groep mensen met dezelfde culturele identiteit", "Een groep mensen met dezelfde leeftijd", "Een groep mensen met dezelfde nationaliteit"], correct: 1 },
+            { type: "mc", q: "Wat is de Russische Federatie?", options: ["Een verzameling van rond de 80 deelgebieden die samenwerken", "Een EU-land", "Een communistische staat", "Een federatie van 160 landen"], correct: 0 },
+            { type: "open", q: "Wat is culturele identiteit?", answer: "De verbondenheid die mensen voelen met hun cultuur — hun taal, gewoonten, godsdienst en geschiedenis." }
+          ]
+        },
+        {
+          id: "h6-d3",
+          text: "Je kunt uitleggen waarom er problemen zijn tussen Rusland en buurlanden, en wat russificatie, nationalisme en separatisme betekenen.",
+          questions: [
+            { type: "mc", q: "Wat is russificatie?", options: ["Russen die naar het buitenland verhuizen", "Het Russisch maken van niet-Russen door taal en cultuur op te dringen", "De val van de Sovjet-Unie", "De Russische religie verspreiden"], correct: 1 },
+            { type: "mc", q: "Wat is separatisme?", options: ["Het streven om je af te scheiden van een land en een nieuwe staat te vormen", "Liefde voor je eigen land", "Het verspreiden van een religie", "Een vorm van handel"], correct: 0 },
+            { type: "open", q: "Wat is het verschil tussen nationalisme en separatisme?", answer: "Nationalisme = grote voorkeur voor je eigen land/volk (Russen die trots zijn op Rusland). Separatisme = juist afsplitsen van een land om een nieuwe eigen staat te vormen (Tsjetsjenië dat onafhankelijk wil zijn van Rusland). Ze zijn dus tegengesteld." }
+          ]
+        },
+        {
+          id: "h6-d4",
+          text: "Je begrijpt dat nationalisme, separatisme en russificatie voor veel problemen zorgen.",
+          questions: [
+            { type: "mc", q: "Waarom wil Rusland niet dat Tsjetsjenië zelfstandig wordt?", options: ["Omdat Tsjetsjenen geen Russisch spreken", "Onder andere omdat er waardevolle grondstoffen in de bodem zitten", "Omdat het te klein is", "Omdat de EU dat verbiedt"], correct: 1 },
+            { type: "mc", q: "Wat is een gevolg van de spanningen in Oekraïne en de Kaukasus?", options: ["Toename van vreemdelingenhaat in Rusland", "Russen die emigreren naar de EU", "Meer mensenrechten in Rusland", "Sterkere economie in Rusland"], correct: 0 },
+            { type: "open", q: "Leg uit hoe russificatie nu nog voor problemen zorgt in Oekraïne.", answer: "Door russificatie in de Sovjettijd spreken veel Oekraïners nog Russisch (30% als moedertaal) en zijn er twee orthodoxe stromingen (Russisch- en Oekraïens-orthodox). Veel Russisch sprekenden in oost-Oekraïne wilden nauwere banden met Rusland, wat een rol speelde in het conflict van 2014/2022." }
+          ]
+        },
+        {
+          id: "h6-d5",
+          text: "Je kunt vier problemen noemen met betrekking tot Russische grondstoffen.",
+          questions: [
+            { type: "mc", q: "Welke vier problemen brengen Russische grondstoffen mee?", options: ["Economie, sociale ongelijkheid, milieu en politiek", "Klimaat, gezondheid, taal en religie", "Onderwijs, infrastructuur, sport en cultuur", "Werk, wonen, vervoer en onderwijs"], correct: 0 },
+            { type: "mc", q: "Wat is een sociaal probleem rond Russische grondstoffen?", options: ["Veel mensen werken in de mijnbouw", "Een kleine groep rijken profiteert, terwijl 12,6% onder de armoedegrens leeft", "Te weinig mensen werken", "Er is geen sociale zekerheid"], correct: 1 },
+            { type: "open", q: "Noem twee milieuproblemen rond Russische grondstoffen.", answer: "Mogelijk: lekkage in olie/gasnetwerk vervuilt rivieren en bodem, luchtvervuiling door chemische industrie, stuwdammen verstoren natuurlijk evenwicht, verouderde kerncentrales met radioactief afval." }
+          ]
+        },
+        {
+          id: "h6-d6",
+          text: "Je weet dat de Russische economie afhankelijk is van een paar grondstoffen en begrijpt waarom dit kwetsbaar maakt.",
+          questions: [
+            { type: "mc", q: "Waarvan is de Russische economie vooral afhankelijk?", options: ["Export van aardolie, aardgas, kolen, graan en metalen", "Toerisme en visserij", "Auto-industrie", "Landbouwproducten"], correct: 0 },
+            { type: "mc", q: "Wat gebeurde er met de Russische economie door de oorlog in Oekraïne?", options: ["Niets bijzonders", "Andere landen voerden strafmaatregelen in en kochten minder Russische producten", "De export verdubbelde", "De olieprijzen stortten in"], correct: 1 },
+            { type: "open", q: "Waarom is afhankelijkheid van grondstoffen-export kwetsbaar?", answer: "Grondstofprijzen schommelen sterk: ze kunnen stijgen maar ook dalen. Bij politieke problemen kunnen andere landen strafmaatregelen nemen waardoor Rusland minder kan exporteren. Dat raakt de hele economie." }
+          ]
+        },
+        {
+          id: "h6-d7",
+          text: "Je weet wat de natuurlijke omstandigheden in de Noordelijke IJszee zijn.",
+          questions: [
+            { type: "mc", q: "Welk klimaat heerst er in het Noordpoolgebied?", options: ["Tropisch klimaat", "Pool- of ijsklimaat", "Steppeklimaat", "Zeeklimaat"], correct: 1 },
+            { type: "mc", q: "Wat is pakijs?", options: ["IJs op een gletsjer", "Drijvende stukken ijs die op en over elkaar liggen", "IJs dat op land ligt", "Sneeuw die nog niet gesmolten is"], correct: 1 },
+            { type: "open", q: "Wat is het verschil tussen een ijsberg en pakijs?", answer: "Een ijsberg is een afgebroken stuk ijs van een gletsjer dat in zee drijft. Pakijs zijn drijvende stukken ijs die op en over elkaar liggen en een grote vlakte vormen op zee." }
+          ]
+        },
+        {
+          id: "h6-d8",
+          text: "Je begrijpt waarom er problemen zijn (en kunnen ontstaan) in de Noordelijke IJszee, en welke landen er belangen hebben.",
+          questions: [
+            { type: "mc", q: "Welke landen hebben belangen in het Noordpoolgebied?", options: ["Alleen Rusland", "Rusland, Canada, Groenland, Noorwegen en de VS", "Alle EU-landen", "Alleen Rusland en de VS"], correct: 1 },
+            { type: "mc", q: "Waarom wordt het Noordpoolgebied steeds aantrekkelijker?", options: ["Het wordt steeds koeler", "Er smelt ijs door klimaatverandering, waardoor grondstoffen bereikbaar worden en de Noordelijke Doorvaart bruikbaar wordt", "Er wonen meer mensen", "Het is gemakkelijker bereikbaar met vliegtuigen"], correct: 1 },
+            { type: "open", q: "Tot hoeveel zeemijl buiten de kust mag een land volgens de VN economische rechten claimen?", answer: "Tot 200 zeemijl (exclusieve economische zone), en tot 350 zeemijl voor het continentaal plat." }
+          ]
+        },
+        {
+          id: "h6-d9",
+          text: "Je weet wat het Earth Charter inhoudt en waarom ngo's de afspraken belangrijk vinden.",
+          questions: [
+            { type: "mc", q: "Wat is het Earth Charter?", options: ["Een VN-land", "Het Handvest van de Aarde: afspraken over hoe we met de aarde moeten omgaan", "Een Russische wet", "Een soort euregio"], correct: 1 },
+            { type: "mc", q: "Wat is een ngo?", options: ["Een politieke partij", "Een overheidsorganisatie", "Een niet-gouvernementele (= niet-overheids-) organisatie zoals Greenpeace", "Een bedrijf dat olie wint"], correct: 2 },
+            { type: "open", q: "Waarom vinden ngo's zoals Greenpeace de afspraken van het Earth Charter belangrijk?", answer: "Doordat landen zich aan het Earth Charter moeten houden, wordt het moeilijker om in het Noordpoolgebied grondstoffen te winnen en te vissen. De natuur en de kwetsbare ecosystemen worden zo beter beschermd." }
+          ]
+        },
+        {
+          id: "h6-d10",
+          text: "Je kunt argumenten geven voor en tegen het boren naar olie en gas in het Noordpoolgebied.",
+          questions: [
+            { type: "mc", q: "Welk argument is VÓÓR boren naar olie en gas op de Noordpool?", options: ["Er liggen naar schatting 20% van de nog niet ontdekte voorraden olie en gas", "Het is goed voor het milieu", "De natuur wordt beter beschermd", "Het maakt het ijs sterker"], correct: 0 },
+            { type: "mc", q: "Welk argument is TÉGEN boren naar olie en gas op de Noordpool?", options: ["Het levert veel geld op", "Het maakt vaarroutes korter", "Boren beschadigt de kwetsbare natuur en bedreigt oorspronkelijke bewoners zoals de Groenlanders", "Het is technisch makkelijk"], correct: 2 },
+            { type: "open", q: "Noem een argument vóór en een argument tegen boren naar olie en gas in het Noordpoolgebied.", answer: "Vóór: economisch belangrijk (grote olie/gasvoorraden), en de Noordelijke Doorvaart wordt aantrekkelijker. Tegen: kwetsbare natuur wordt beschadigd, fauna verstoord, leefgebied van oorspronkelijke bewoners (Groenlanders) bedreigd, risico op olielekkages in een gebied waar opruimen extra moeilijk is." }
+          ]
+        }
+      ]
+    }
+  ]
+};
+
+// Mix-toets vragen: brede selectie uit alle hoofdstukken voor toetssimulatie
+// (gegenereerd uit leerdoel-vragen + extra inzichtsvragen)
+const MIX_TEST_POOL = []; // wordt at-runtime gevuld uit de chapter-vragen
+
+</script>
+<script>
+// ============================================================
+// AARDRIJKSKUNDE LEERTOOL — APP LOGICA
+// ============================================================
+
+// ---- STATE & STORAGE ----
+const STORAGE_KEY = 'ak_leertool_v1';
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return defaultState();
+    const parsed = JSON.parse(raw);
+    return { ...defaultState(), ...parsed };
+  } catch {
+    return defaultState();
+  }
+}
+
+function defaultState() {
+  return {
+    terms: {}, // { 'h1-welvaart': { status: 'new'|'learning'|'known', seen: 0 } }
+    objectives: {}, // { 'h1-d1': { status: 'red'|'orange'|'green', lastScore: 0.66 } }
+    lastMix: null, // { date, score, perChapter: {h1: 0.8, ...} }
+  };
+}
+
+function saveState() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  } catch (e) {
+    console.warn('Kon voortgang niet opslaan:', e);
+  }
+}
+
+let state = loadState();
+
+// ---- NAVIGATIE ----
+const viewStack = []; // history voor terug-knop
+
+function showView(viewId, ctx) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  const view = document.getElementById(viewId);
+  if (!view) return;
+  view.classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'instant' });
+
+  // render content
+  if (viewId === 'view-dashboard') renderDashboard();
+  if (viewId === 'view-chapter') renderChapter(ctx);
+  if (viewId === 'view-trainer') renderTrainer(ctx);
+  if (viewId === 'view-doel-quiz') renderDoelQuiz(ctx);
+  if (viewId === 'view-mix') renderMix(ctx);
+}
+
+function navTo(viewId, ctx) {
+  viewStack.push({ viewId: currentView(), ctx: currentCtx });
+  currentCtx = ctx;
+  showView(viewId, ctx);
+}
+
+function navBack() {
+  const prev = viewStack.pop();
+  if (prev) {
+    currentCtx = prev.ctx;
+    showView(prev.viewId, prev.ctx);
+  } else {
+    currentCtx = null;
+    showView('view-dashboard');
+  }
+}
+
+let currentCtx = null;
+function currentView() {
+  const active = document.querySelector('.view.active');
+  return active ? active.id : 'view-dashboard';
+}
+
+// ---- HELPERS ----
+function getChapter(id) {
+  return DATA.chapters.find(c => c.id === id);
+}
+
+function chapterProgress(ch) {
+  const objs = ch.objectives;
+  const counts = { good: 0, warn: 0, bad: 0, neutral: 0 };
+  for (const o of objs) {
+    const st = state.objectives[o.id];
+    if (!st) counts.neutral++;
+    else if (st.status === 'green') counts.good++;
+    else if (st.status === 'orange') counts.warn++;
+    else counts.bad++;
+  }
+  const total = objs.length;
+  // Voortgang: green telt vol, orange half, rest niet
+  const score = (counts.good + counts.warn * 0.5) / total;
+
+  // Begrippen voortgang
+  const termIds = ch.terms.map(t => ch.id + '-' + t.term);
+  const knownTerms = termIds.filter(id => state.terms[id]?.status === 'known').length;
+
+  return {
+    objectives: counts,
+    objectiveTotal: total,
+    objectiveScore: score,
+    termsKnown: knownTerms,
+    termsTotal: ch.terms.length,
+  };
+}
+
+function overallProgress() {
+  let totalScore = 0, totalCount = 0;
+  let goodCount = 0, warnCount = 0, badCount = 0, neutralCount = 0;
+  let termsKnown = 0, termsTotal = 0;
+
+  for (const ch of DATA.chapters) {
+    const p = chapterProgress(ch);
+    totalScore += p.objectiveScore;
+    totalCount += 1;
+    goodCount += p.objectives.good;
+    warnCount += p.objectives.warn;
+    badCount += p.objectives.bad;
+    neutralCount += p.objectives.neutral;
+    termsKnown += p.termsKnown;
+    termsTotal += p.termsTotal;
+  }
+  return {
+    pct: Math.round(totalScore / totalCount * 100),
+    goodCount, warnCount, badCount, neutralCount,
+    termsKnown, termsTotal,
+  };
+}
+
+// Shuffle helper
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+// ---- DASHBOARD RENDER ----
+function renderDashboard() {
+  document.querySelector('.topbar .back').style.display = 'none';
+  document.querySelector('.topbar .title').textContent = 'Aardrijkskunde — Toetsweek T3';
+  document.querySelector('.topbar .badge').textContent = '';
+
+  const overall = overallProgress();
+
+  // Aanmoedigend bericht
+  let msg;
+  if (overall.pct === 0) msg = "Begin met een hoofdstuk om de tool te leren kennen.";
+  else if (overall.pct < 30) msg = "Je bent net begonnen — goed bezig!";
+  else if (overall.pct < 60) msg = "Lekker bezig — blijf oefenen.";
+  else if (overall.pct < 85) msg = "Aardig op weg naar de toets!";
+  else msg = "Sterk! Je bent goed voorbereid.";
+
+  let html = `
+    <div class="hero">
+      <div class="eyebrow">Klas 3 vmbo-t</div>
+      <h1>Aardrijkskunde<br>Toetsweek 3</h1>
+      <div class="sub">Bruggen — hoofdstukken 1, 3, 5 en 6</div>
+    </div>
+
+    <div class="overall-progress">
+      <div class="label">Klaar voor de toets</div>
+      <div class="pct">${overall.pct}%</div>
+      <div class="bar"><div class="bar-fill" style="width: ${overall.pct}%"></div></div>
+      <div class="stats">
+        <span><strong>${overall.goodCount}</strong> doelen op groen</span>
+        <span><strong>${overall.warnCount}</strong> op oranje</span>
+        <span><strong>${overall.badCount}</strong> op rood</span>
+        <span><strong>${overall.termsKnown}</strong> / ${overall.termsTotal} begrippen</span>
+      </div>
+    </div>
+
+    <div class="section-title">Hoofdstukken</div>
+    <div class="chapter-grid">
+  `;
+
+  for (const ch of DATA.chapters) {
+    const p = chapterProgress(ch);
+    const pct = Math.round(p.objectiveScore * 100);
+    html += `
+      <button class="chapter-card ${ch.color}" data-action="open-chapter" data-id="${ch.id}">
+        <div class="accent"></div>
+        <div class="ch-num">Hoofdstuk ${ch.number}</div>
+        <div class="ch-title">${ch.title}</div>
+        <div class="ch-sub">${ch.subtitle}</div>
+        <div class="ch-progress">
+          <div class="mini-bar"><div class="mini-bar-fill" style="width: ${pct}%"></div></div>
+          <div class="ch-stats">${pct}% · ${p.termsKnown}/${p.termsTotal} begrippen</div>
+        </div>
+        <div class="ch-doelen">
+          ${p.objectives.good ? `<span class="doel-pill good">${p.objectives.good} groen</span>` : ''}
+          ${p.objectives.warn ? `<span class="doel-pill warn">${p.objectives.warn} oranje</span>` : ''}
+          ${p.objectives.bad ? `<span class="doel-pill bad">${p.objectives.bad} rood</span>` : ''}
+          ${p.objectives.neutral ? `<span class="doel-pill neutral">${p.objectives.neutral} onbekend</span>` : ''}
+        </div>
+      </button>
+    `;
+  }
+
+  html += `</div>
+    <button class="mix-card" data-action="open-mix">
+      <div class="mix-eyebrow">Toetssimulatie</div>
+      <div class="mix-title">Mix-toets</div>
+      <div class="mix-sub">25 vragen door alle hoofdstukken heen</div>
+      <span class="mix-arrow">→</span>
+    </button>
+
+    <div class="footer-link">
+      <button data-action="reset">Voortgang wissen</button>
+    </div>
+  `;
+
+  document.getElementById('view-dashboard').innerHTML = html;
+}
+
+// ---- CHAPTER DETAIL RENDER ----
+function renderChapter(ctx) {
+  const ch = getChapter(ctx.chapterId);
+  document.querySelector('.topbar .back').style.display = 'inline-flex';
+  document.querySelector('.topbar .title').textContent = `H${ch.number} ${ch.title}`;
+  document.querySelector('.topbar .badge').textContent = '';
+
+  const tab = ctx.tab || 'theorie';
+  const p = chapterProgress(ch);
+
+  let html = `
+    <div class="chapter-header ${ch.color}">
+      <div class="ch-num">Hoofdstuk ${ch.number}</div>
+      <h1>${ch.title}</h1>
+      <div class="sub">${ch.subtitle}</div>
+    </div>
+
+    <div class="mode-tabs">
+      <button class="mode-tab ${tab === 'theorie' ? 'active' : ''}" data-action="set-tab" data-tab="theorie">Theorie</button>
+      <button class="mode-tab ${tab === 'begrippen' ? 'active' : ''}" data-action="set-tab" data-tab="begrippen">Begrippen</button>
+      <button class="mode-tab ${tab === 'doelen' ? 'active' : ''}" data-action="set-tab" data-tab="doelen">Leerdoelen</button>
+    </div>
+  `;
+
+  if (tab === 'theorie') {
+    for (const t of ch.theory) {
+      html += `
+        <div class="theory-block">
+          <h3>${t.heading}</h3>
+          <p>${t.body}</p>
+          ${t.warning ? `<div class="theory-warning">⚠ ${t.warning}</div>` : ''}
+        </div>
+      `;
+    }
+    html += `
+      <div class="terms-section">
+        <h2>Alle begrippen op een rij</h2>
+    `;
+    for (const term of ch.terms) {
+      html += `
+        <div class="term-item">
+          <div class="t">${term.term}</div>
+          <div class="d">${term.definition}</div>
+        </div>
+      `;
+    }
+    html += `</div>`;
+  } else if (tab === 'begrippen') {
+    html += `
+      <div class="trainer-setup">
+        <div style="font-weight: 600; margin-bottom: 8px;">Hoe wil je oefenen?</div>
+        <label>
+          <input type="radio" name="direction" value="term-to-def" checked>
+          Begrip → definitie (makkelijker)
+        </label>
+        <label>
+          <input type="radio" name="direction" value="def-to-term">
+          Definitie → begrip (zoals op de toets)
+        </label>
+        <label>
+          <input type="radio" name="direction" value="mix">
+          Door elkaar
+        </label>
+      </div>
+      <div style="margin-bottom: 12px; font-size: 14px; color: var(--ink-soft);">
+        ${p.termsKnown} van ${p.termsTotal} begrippen al beheerst.
+      </div>
+      <button class="btn-primary" data-action="start-trainer" data-chapter="${ch.id}">
+        ${p.termsKnown > 0 ? 'Doorgaan met oefenen' : 'Start oefenen'}
+      </button>
+      ${p.termsKnown > 0 ? `<button class="btn-secondary" data-action="reset-terms" data-chapter="${ch.id}">Begrippen opnieuw beginnen</button>` : ''}
+    `;
+  } else if (tab === 'doelen') {
+    html += `<div class="doelen-list">`;
+    for (const o of ch.objectives) {
+      const st = state.objectives[o.id];
+      let statusClass = 'neutral';
+      let statusIcon = '?';
+      if (st) {
+        if (st.status === 'green') { statusClass = 'good'; statusIcon = '✓'; }
+        else if (st.status === 'orange') { statusClass = 'warn'; statusIcon = '~'; }
+        else { statusClass = 'bad'; statusIcon = '✗'; }
+      }
+      html += `
+        <button class="doel-card" data-action="start-doel" data-doel="${o.id}" data-chapter="${ch.id}">
+          <div class="doel-status ${statusClass}">${statusIcon}</div>
+          <div class="doel-text">${o.text}</div>
+          <div class="doel-arrow">→</div>
+        </button>
+      `;
+    }
+    html += `</div>`;
+  }
+
+  document.getElementById('view-chapter').innerHTML = html;
+}
+
+// ---- BEGRIPPEN TRAINER ----
+let trainer = null;
+
+function startTrainer(chapterId, direction) {
+  const ch = getChapter(chapterId);
+  // Lijst: begrippen die nog niet 'known' zijn, plus alle voor herhaling
+  const cards = ch.terms.map(t => {
+    const id = ch.id + '-' + t.term;
+    const tState = state.terms[id] || { status: 'new', seen: 0 };
+    return {
+      id,
+      term: t.term,
+      definition: t.definition,
+      chapterId: ch.id,
+      status: tState.status,
+    };
+  }).filter(c => c.status !== 'known');
+
+  if (cards.length === 0) {
+    // alle bekend — biedt aan opnieuw te beginnen
+    document.getElementById('view-trainer').innerHTML = `
+      <div class="empty">
+        <div class="icon">✓</div>
+        <h2>Alles geleerd!</h2>
+        <p>Je hebt alle begrippen van dit hoofdstuk beheerst.</p>
+        <button class="btn-secondary" data-action="reset-terms" data-chapter="${ch.id}" style="max-width: 280px; margin: 16px auto 0; display: block;">Opnieuw beginnen</button>
+      </div>
+    `;
+    return;
+  }
+
+  trainer = {
+    chapter: ch,
+    direction,
+    queue: shuffle(cards),
+    initialTotal: cards.length,
+    completed: 0,
+    flipped: false,
+  };
+  renderTrainerCard();
+}
+
+function renderTrainer(ctx) {
+  const ch = getChapter(ctx.chapterId);
+  document.querySelector('.topbar .back').style.display = 'inline-flex';
+  document.querySelector('.topbar .title').textContent = `H${ch.number} — Begrippen`;
+  startTrainer(ctx.chapterId, ctx.direction);
+}
+
+function renderTrainerCard() {
+  if (!trainer || trainer.queue.length === 0) {
+    // klaar voor nu
+    document.getElementById('view-trainer').innerHTML = `
+      <div class="empty">
+        <div class="icon">✓</div>
+        <h2>Sessie klaar!</h2>
+        <p>Je hebt ${trainer.completed} begrip${trainer.completed !== 1 ? 'pen' : ''} geoefend.</p>
+        <button class="btn-primary" data-action="back" style="max-width: 280px; margin: 16px auto 0; display: block;">Terug naar hoofdstuk</button>
+      </div>
+    `;
+    return;
+  }
+
+  const card = trainer.queue[0];
+  const remaining = trainer.queue.length;
+  const progress = trainer.completed / (trainer.completed + remaining);
+
+  // Welke kant zichtbaar?
+  let frontText, frontLabel, backText, backLabel;
+  let frontClass = 'content', backClass = 'content def';
+  const dir = trainer.direction === 'mix'
+    ? (Math.random() < 0.5 ? 'term-to-def' : 'def-to-term')
+    : trainer.direction;
+
+  if (dir === 'term-to-def') {
+    frontLabel = 'Begrip';
+    frontText = card.term;
+    backLabel = 'Definitie';
+    backText = card.definition;
+  } else {
+    frontLabel = 'Definitie';
+    frontText = card.definition;
+    frontClass = 'content def';
+    backLabel = 'Begrip';
+    backText = card.term;
+    backClass = 'content';
+  }
+
+  document.getElementById('view-trainer').innerHTML = `
+    <div class="trainer-progress">
+      <span>Sessie: ${trainer.completed} / ${trainer.initialTotal}</span>
+      <span>Nog ${remaining}</span>
+    </div>
+    <div class="trainer-progress" style="margin-bottom: 14px;">
+      <div class="bar" style="flex:1;"><div class="bar-fill" style="width: ${progress * 100}%"></div></div>
+    </div>
+
+    <div class="flashcard-wrap">
+      <div class="flashcard" id="flashcard" data-action="flip-card">
+        <div class="face front">
+          <div class="label">${frontLabel}</div>
+          <div class="${frontClass}">${frontText}</div>
+          <div class="hint">Tik om te draaien</div>
+        </div>
+        <div class="face back">
+          <div class="label">${backLabel}</div>
+          <div class="${backClass}">${backText}</div>
+          <div class="hint">Hoe ging het?</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flashcard-actions" id="flashcard-actions" style="display: none;">
+      <button class="again" data-action="rate-card" data-rate="again">Opnieuw</button>
+      <button class="hard" data-action="rate-card" data-rate="hard">Bijna</button>
+      <button class="good" data-action="rate-card" data-rate="good">Goed</button>
+    </div>
+  `;
+}
+
+function flipCard() {
+  const card = document.getElementById('flashcard');
+  if (!card) return;
+  card.classList.toggle('flipped');
+  const actions = document.getElementById('flashcard-actions');
+  if (card.classList.contains('flipped')) {
+    actions.style.display = 'grid';
+  }
+}
+
+function rateCard(rate) {
+  if (!trainer) return;
+  const card = trainer.queue.shift();
+
+  // Spaced repetition light
+  const tState = state.terms[card.id] || { status: 'new', seen: 0 };
+  tState.seen++;
+
+  if (rate === 'good') {
+    tState.status = 'known';
+    trainer.completed++;
+  } else if (rate === 'hard') {
+    tState.status = 'learning';
+    // Plaats kaart 3 posities verder in de queue
+    const insertAt = Math.min(3, trainer.queue.length);
+    trainer.queue.splice(insertAt, 0, card);
+  } else {
+    // 'again' — kaart komt 1 positie verder terug
+    tState.status = 'learning';
+    const insertAt = Math.min(1, trainer.queue.length);
+    trainer.queue.splice(insertAt, 0, card);
+  }
+  state.terms[card.id] = tState;
+  saveState();
+
+  renderTrainerCard();
+}
+
+// ---- LEERDOELEN-CHECK ----
+let quiz = null;
+
+function startDoelQuiz(chapterId, doelId) {
+  const ch = getChapter(chapterId);
+  const doel = ch.objectives.find(o => o.id === doelId);
+  if (!doel) return;
+  quiz = {
+    chapter: ch,
+    doel,
+    questions: doel.questions,
+    current: 0,
+    results: [], // {correct: bool|null, type, self?}
+    answered: false,
+  };
+  renderQuizQuestion();
+}
+
+function renderDoelQuiz(ctx) {
+  const ch = getChapter(ctx.chapterId);
+  document.querySelector('.topbar .back').style.display = 'inline-flex';
+  document.querySelector('.topbar .title').textContent = `H${ch.number} — Leerdoel`;
+  startDoelQuiz(ctx.chapterId, ctx.doelId);
+}
+
+function renderQuizQuestion() {
+  if (!quiz) return;
+  if (quiz.current >= quiz.questions.length) {
+    finishDoelQuiz();
+    return;
+  }
+
+  const q = quiz.questions[quiz.current];
+  const progress = quiz.current / quiz.questions.length;
+
+  let html = `
+    <div class="quiz-progress-bar">
+      <div class="quiz-progress-bar-fill" style="width: ${progress * 100}%"></div>
+    </div>
+    <div class="quiz-meta">Leerdoel · vraag ${quiz.current + 1} van ${quiz.questions.length}</div>
+    <div style="font-size: 14px; color: var(--ink-soft); margin-bottom: 16px; line-height: 1.4;">${quiz.doel.text}</div>
+
+    <div class="question-card">
+      <div class="q-text">${q.q}</div>
+  `;
+
+  if (q.type === 'mc') {
+    html += `<div class="mc-options" id="mc-options">`;
+    q.options.forEach((opt, i) => {
+      html += `<button class="mc-option" data-action="mc-answer" data-idx="${i}">${opt}</button>`;
+    });
+    html += `</div>`;
+  } else {
+    html += `
+      <textarea class="open-input" id="open-input" placeholder="Typ hier je antwoord… (of denk het in je hoofd en klik 'Toon antwoord')"></textarea>
+      <button class="btn-primary" data-action="reveal-answer">Toon antwoord</button>
+    `;
+  }
+
+  html += `</div>`;
+  document.getElementById('view-doel-quiz').innerHTML = html;
+  quiz.answered = false;
+}
+
+function answerMC(idx) {
+  if (!quiz || quiz.answered) return;
+  const q = quiz.questions[quiz.current];
+  const correct = idx === q.correct;
+  quiz.results.push({ correct, type: 'mc' });
+  quiz.answered = true;
+
+  const opts = document.querySelectorAll('.mc-option');
+  opts.forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === q.correct) btn.classList.add('correct');
+    if (i === idx && !correct) btn.classList.add('incorrect');
+  });
+
+  // Wacht even en toon volgende
+  setTimeout(() => {
+    quiz.current++;
+    renderQuizQuestion();
+  }, 1400);
+}
+
+function revealAnswer() {
+  if (!quiz || quiz.answered) return;
+  const q = quiz.questions[quiz.current];
+  quiz.answered = true;
+
+  // Render in plaats van textarea: het antwoord + zelfevaluatie
+  const card = document.querySelector('.question-card');
+  if (!card) return;
+  card.querySelector('.btn-primary').remove();
+  const userInput = document.getElementById('open-input');
+  if (userInput) userInput.disabled = true;
+
+  const div = document.createElement('div');
+  div.innerHTML = `
+    <div class="answer-reveal">
+      <div class="label">Modelantwoord</div>
+      ${q.answer}
+    </div>
+    <div style="margin-top: 12px; font-size: 14px; color: var(--ink-soft);">Hoe deed jij het?</div>
+    <div class="self-rating">
+      <button class="had-niet" data-action="self-rate" data-rate="niet">Had ik niet</button>
+      <button class="had-deels" data-action="self-rate" data-rate="deels">Deels</button>
+      <button class="had-wel" data-action="self-rate" data-rate="wel">Had ik</button>
+    </div>
+  `;
+  card.appendChild(div);
+}
+
+function selfRate(rate) {
+  if (!quiz) return;
+  let correct;
+  if (rate === 'wel') correct = true;
+  else if (rate === 'deels') correct = 0.5;
+  else correct = false;
+  quiz.results.push({ correct, type: 'open', self: rate });
+  setTimeout(() => {
+    quiz.current++;
+    renderQuizQuestion();
+  }, 300);
+}
+
+function finishDoelQuiz() {
+  if (!quiz) return;
+  // Score berekenen (correct kan true/false/0.5 zijn)
+  let total = 0;
+  for (const r of quiz.results) {
+    total += r.correct === true ? 1 : r.correct === 0.5 ? 0.5 : 0;
+  }
+  const pct = total / quiz.questions.length;
+
+  let status;
+  if (pct >= 0.85) status = 'green';
+  else if (pct >= 0.5) status = 'orange';
+  else status = 'red';
+
+  state.objectives[quiz.doel.id] = { status, lastScore: pct };
+  saveState();
+
+  const pctRound = Math.round(pct * 100);
+  let scoreClass, msg;
+  if (status === 'green') {
+    scoreClass = 'good';
+    msg = 'Sterk! Dit leerdoel beheers je goed.';
+  } else if (status === 'orange') {
+    scoreClass = 'warn';
+    msg = 'Op de goede weg. Bekijk de theorie en oefen dit leerdoel nog eens.';
+  } else {
+    scoreClass = 'bad';
+    msg = 'Hier kun je nog winst halen. Lees de theorie van dit hoofdstuk goed door en probeer dit leerdoel later opnieuw.';
+  }
+
+  document.getElementById('view-doel-quiz').innerHTML = `
+    <div class="result-card">
+      <div class="score-label">Resultaat</div>
+      <div class="score-num ${scoreClass}">${pctRound}%</div>
+      <div style="font-size: 13px; color: var(--ink-faint); margin-top: 4px;">
+        ${quiz.doel.text}
+      </div>
+      <div class="score-msg">${msg}</div>
+    </div>
+    <button class="btn-primary" data-action="back">Terug</button>
+    <button class="btn-secondary" data-action="retry-doel" data-doel="${quiz.doel.id}" data-chapter="${quiz.chapter.id}">Nog een keer</button>
+  `;
+
+  quiz = null;
+}
+
+// ---- MIX-TOETS ----
+let mix = null;
+
+function startMix() {
+  // Bouw een gevarieerde set van 25 vragen: ongeveer evenredig over hoofdstukken
+  const allQ = [];
+  for (const ch of DATA.chapters) {
+    for (const o of ch.objectives) {
+      for (const q of o.questions) {
+        allQ.push({ ...q, chapterId: ch.id, doelId: o.id, chapterColor: ch.color, chapterNum: ch.number });
+      }
+    }
+  }
+  // Per hoofdstuk evenredig trekken
+  const perChapter = {};
+  for (const ch of DATA.chapters) {
+    perChapter[ch.id] = shuffle(allQ.filter(q => q.chapterId === ch.id)).slice(0, 7);
+  }
+  // Combineren tot ~25, daarna shuffelen
+  let combined = [];
+  for (const id in perChapter) combined = combined.concat(perChapter[id]);
+  combined = shuffle(combined).slice(0, 25);
+
+  mix = {
+    questions: combined,
+    current: 0,
+    results: [],
+    answered: false,
+  };
+  renderMixQuestion();
+}
+
+function renderMix(ctx) {
+  document.querySelector('.topbar .back').style.display = 'inline-flex';
+  document.querySelector('.topbar .title').textContent = 'Mix-toets';
+  startMix();
+}
+
+function renderMixQuestion() {
+  if (!mix) return;
+  if (mix.current >= mix.questions.length) {
+    finishMix();
+    return;
+  }
+  const q = mix.questions[mix.current];
+  const progress = mix.current / mix.questions.length;
+
+  let html = `
+    <div class="quiz-progress-bar">
+      <div class="quiz-progress-bar-fill" style="width: ${progress * 100}%"></div>
+    </div>
+    <div class="quiz-meta">Vraag ${mix.current + 1} van ${mix.questions.length} · H${q.chapterNum}</div>
+
+    <div class="question-card">
+      <div class="q-text">${q.q}</div>
+  `;
+
+  if (q.type === 'mc') {
+    html += `<div class="mc-options">`;
+    q.options.forEach((opt, i) => {
+      html += `<button class="mc-option" data-action="mix-mc" data-idx="${i}">${opt}</button>`;
+    });
+    html += `</div>`;
+  } else {
+    html += `
+      <textarea class="open-input" id="open-input" placeholder="Typ hier je antwoord, of denk het en klik dan 'Toon antwoord'"></textarea>
+      <button class="btn-primary" data-action="mix-reveal">Toon antwoord</button>
+    `;
+  }
+
+  html += `</div>`;
+  document.getElementById('view-mix').innerHTML = html;
+  mix.answered = false;
+}
+
+function mixAnswerMC(idx) {
+  if (!mix || mix.answered) return;
+  const q = mix.questions[mix.current];
+  const correct = idx === q.correct;
+  mix.results.push({ correct, chapterId: q.chapterId, type: 'mc' });
+  mix.answered = true;
+
+  const opts = document.querySelectorAll('.mc-option');
+  opts.forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === q.correct) btn.classList.add('correct');
+    if (i === idx && !correct) btn.classList.add('incorrect');
+  });
+
+  setTimeout(() => {
+    mix.current++;
+    renderMixQuestion();
+  }, 1200);
+}
+
+function mixReveal() {
+  if (!mix || mix.answered) return;
+  const q = mix.questions[mix.current];
+  mix.answered = true;
+  const card = document.querySelector('.question-card');
+  if (!card) return;
+  card.querySelector('.btn-primary').remove();
+  const input = document.getElementById('open-input');
+  if (input) input.disabled = true;
+  const div = document.createElement('div');
+  div.innerHTML = `
+    <div class="answer-reveal">
+      <div class="label">Modelantwoord</div>
+      ${q.answer}
+    </div>
+    <div style="margin-top: 12px; font-size: 14px; color: var(--ink-soft);">Hoe deed jij het?</div>
+    <div class="self-rating">
+      <button class="had-niet" data-action="mix-self" data-rate="niet">Had ik niet</button>
+      <button class="had-deels" data-action="mix-self" data-rate="deels">Deels</button>
+      <button class="had-wel" data-action="mix-self" data-rate="wel">Had ik</button>
+    </div>
+  `;
+  card.appendChild(div);
+}
+
+function mixSelfRate(rate) {
+  if (!mix) return;
+  const q = mix.questions[mix.current];
+  let correct;
+  if (rate === 'wel') correct = true;
+  else if (rate === 'deels') correct = 0.5;
+  else correct = false;
+  mix.results.push({ correct, chapterId: q.chapterId, type: 'open', self: rate });
+  setTimeout(() => {
+    mix.current++;
+    renderMixQuestion();
+  }, 300);
+}
+
+function finishMix() {
+  if (!mix) return;
+  let total = 0;
+  const perCh = {};
+  for (const ch of DATA.chapters) perCh[ch.id] = { score: 0, count: 0 };
+  for (const r of mix.results) {
+    const val = r.correct === true ? 1 : r.correct === 0.5 ? 0.5 : 0;
+    total += val;
+    perCh[r.chapterId].score += val;
+    perCh[r.chapterId].count += 1;
+  }
+  const pct = total / mix.questions.length;
+  const pctRound = Math.round(pct * 100);
+
+  // bewaar lastMix
+  const perChObj = {};
+  for (const id in perCh) {
+    if (perCh[id].count > 0) {
+      perChObj[id] = perCh[id].score / perCh[id].count;
+    }
+  }
+  state.lastMix = { date: new Date().toISOString(), score: pct, perChapter: perChObj };
+  saveState();
+
+  let scoreClass, msg;
+  if (pct >= 0.75) {
+    scoreClass = 'good';
+    msg = 'Goed bezig! Op dit niveau ben je goed voorbereid op de toets.';
+  } else if (pct >= 0.5) {
+    scoreClass = 'warn';
+    msg = 'Redelijk, maar er is nog ruimte voor verbetering. Kijk hieronder per hoofdstuk waar je nog kunt oefenen.';
+  } else {
+    scoreClass = 'bad';
+    msg = 'Dit was nog niet sterk genoeg voor de toets. Werk eerst de theorie en leerdoelen door, oefen je begrippen, en probeer dan opnieuw.';
+  }
+
+  // Per hoofdstuk advies
+  let breakdown = '<div class="mix-breakdown"><h3>Per hoofdstuk</h3>';
+  for (const ch of DATA.chapters) {
+    const cScore = perCh[ch.id];
+    if (cScore.count === 0) continue;
+    const cPct = Math.round((cScore.score / cScore.count) * 100);
+    breakdown += `
+      <div class="mix-row ${ch.color}">
+        <div class="dot"></div>
+        <div class="name">H${ch.number} — ${ch.title}</div>
+        <div class="score">${cPct}%</div>
+      </div>
+    `;
+  }
+  breakdown += '</div>';
+
+  // Welk hoofdstuk verdient meeste aandacht?
+  let worstCh = null, worstScore = 1;
+  for (const ch of DATA.chapters) {
+    const cScore = perCh[ch.id];
+    if (cScore.count === 0) continue;
+    const cPct = cScore.score / cScore.count;
+    if (cPct < worstScore) { worstScore = cPct; worstCh = ch; }
+  }
+  let recommendation = '';
+  if (worstCh && worstScore < 0.7) {
+    recommendation = `
+      <button class="btn-secondary" data-action="open-chapter" data-id="${worstCh.id}">
+        Werk aan H${worstCh.number}: ${worstCh.title}
+      </button>
+    `;
+  }
+
+  document.getElementById('view-mix').innerHTML = `
+    <div class="result-card">
+      <div class="score-label">Mix-toets resultaat</div>
+      <div class="score-num ${scoreClass}">${pctRound}%</div>
+      <div class="score-msg">${msg}</div>
+    </div>
+    ${breakdown}
+    <button class="btn-primary" data-action="back">Terug naar dashboard</button>
+    ${recommendation}
+    <button class="btn-secondary" data-action="restart-mix">Nieuwe mix-toets</button>
+  `;
+
+  mix = null;
+}
+
+// ---- RESET ----
+function resetTermsForChapter(chapterId) {
+  const ch = getChapter(chapterId);
+  if (!ch) return;
+  for (const t of ch.terms) {
+    delete state.terms[ch.id + '-' + t.term];
+  }
+  saveState();
+  // re-render trainer setup
+  renderChapter({ chapterId, tab: 'begrippen' });
+}
+
+function resetAll() {
+  if (!confirm('Weet je zeker dat je alle voortgang wilt wissen? Dit kun je niet ongedaan maken.')) return;
+  localStorage.removeItem(STORAGE_KEY);
+  state = defaultState();
+  showView('view-dashboard');
+}
+
+// ---- EVENT DELEGATION ----
+document.addEventListener('click', (e) => {
+  const target = e.target.closest('[data-action]');
+  if (!target) return;
+  const action = target.dataset.action;
+
+  switch (action) {
+    case 'open-chapter':
+      navTo('view-chapter', { chapterId: target.dataset.id, tab: 'theorie' });
+      break;
+    case 'open-mix':
+      navTo('view-mix', {});
+      break;
+    case 'set-tab':
+      // niet een navTo, maar een re-render binnen het chapter view
+      renderChapter({ ...currentCtx, tab: target.dataset.tab });
+      break;
+    case 'start-trainer': {
+      const direction = document.querySelector('input[name="direction"]:checked')?.value || 'term-to-def';
+      navTo('view-trainer', { chapterId: target.dataset.chapter, direction });
+      break;
+    }
+    case 'reset-terms':
+      if (confirm('Weet je zeker dat je de begrippen van dit hoofdstuk wilt resetten?')) {
+        resetTermsForChapter(target.dataset.chapter);
+      }
+      break;
+    case 'flip-card':
+      flipCard();
+      break;
+    case 'rate-card':
+      rateCard(target.dataset.rate);
+      break;
+    case 'start-doel':
+      navTo('view-doel-quiz', { chapterId: target.dataset.chapter, doelId: target.dataset.doel });
+      break;
+    case 'mc-answer':
+      answerMC(parseInt(target.dataset.idx, 10));
+      break;
+    case 'reveal-answer':
+      revealAnswer();
+      break;
+    case 'self-rate':
+      selfRate(target.dataset.rate);
+      break;
+    case 'retry-doel':
+      // herstart zelfde quiz
+      navTo('view-doel-quiz', { chapterId: target.dataset.chapter, doelId: target.dataset.doel });
+      break;
+    case 'restart-mix':
+      navTo('view-mix', {});
+      break;
+    case 'mix-mc':
+      mixAnswerMC(parseInt(target.dataset.idx, 10));
+      break;
+    case 'mix-reveal':
+      mixReveal();
+      break;
+    case 'mix-self':
+      mixSelfRate(target.dataset.rate);
+      break;
+    case 'back':
+      navBack();
+      break;
+    case 'reset':
+      resetAll();
+      break;
+  }
+});
+
+// Topbar back-button
+document.querySelector('.topbar .back').addEventListener('click', () => {
+  navBack();
+});
+
+// Topbar scroll effect
+window.addEventListener('scroll', () => {
+  document.querySelector('.topbar').classList.toggle('scrolled', window.scrollY > 8);
+}, { passive: true });
+
+// ---- INIT ----
+showView('view-dashboard');
+
+</script>
+</body>
+</html>
