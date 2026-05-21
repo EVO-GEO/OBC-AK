@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#f5efe4">
-<title>Aardrijkskunde Leertool — Toetsweek 3 vmbo-t</title>
+<title>Aardrijkskunde Leertool — Toetsweek 4 vmbo-t klas 3</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter+Tight:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -4676,7 +4676,7 @@ function closeTermPopover() {
 // ---- DASHBOARD RENDER ----
 function renderDashboard() {
   document.querySelector('.topbar .back').style.display = 'none';
-  document.querySelector('.topbar .title').textContent = 'Aardrijkskunde — Toetsweek T3';
+  document.querySelector('.topbar .title').textContent = 'Aardrijkskunde — Toetsweek 4';
   document.querySelector('.topbar .badge').textContent = '';
 
   const overall = overallProgress();
@@ -4692,8 +4692,8 @@ function renderDashboard() {
   let html = `
     <div class="hero">
       <div class="eyebrow">Klas 3 vmbo-t</div>
-      <h1>Aardrijkskunde<br>Toetsweek 3</h1>
-      <div class="sub">Bruggen — hoofdstukken 1, 3, 5 en 6</div>
+      <h1>Aardrijkskunde<br>Toetsweek 4</h1>
+      <div class="sub">Bruggen H1 en H3 · Hoofdstukken 5 en 6</div>
     </div>
 
     <div class="overall-progress">
@@ -4701,7 +4701,7 @@ function renderDashboard() {
       <div class="pct">${overall.pct}%</div>
       <div class="bar"><div class="bar-fill" style="width: ${overall.pct}%"></div></div>
       <div class="stats">
-        <span><strong>${overall.goodCount}</strong> doelen op groen</span>
+        <span><strong>${overall.goodCount}</strong> thema's op groen</span>
         <span><strong>${overall.warnCount}</strong> op oranje</span>
         <span><strong>${overall.badCount}</strong> op rood</span>
         <span><strong>${overall.termsKnown}</strong> / ${overall.termsTotal} begrippen</span>
@@ -4714,7 +4714,7 @@ function renderDashboard() {
     const lastCh = getChapter(state.lastChapter.id);
     if (lastCh) {
       const tabLabel = state.lastChapter.tab === 'begrippen' ? 'Begrippen' :
-                       state.lastChapter.tab === 'doelen' ? 'Leerdoelen' : 'Theorie';
+                       state.lastChapter.tab === 'doelen' ? "Thema's" : 'Theorie';
       html += `
         <button class="resume-card chapter-view ${lastCh.color}"
                 data-action="resume"
@@ -4794,7 +4794,7 @@ function renderChapter(ctx) {
     <div class="mode-tabs">
       <button class="mode-tab ${tab === 'theorie' ? 'active' : ''}" data-action="set-tab" data-tab="theorie">Theorie</button>
       <button class="mode-tab ${tab === 'begrippen' ? 'active' : ''}" data-action="set-tab" data-tab="begrippen">Begrippen</button>
-      <button class="mode-tab ${tab === 'doelen' ? 'active' : ''}" data-action="set-tab" data-tab="doelen">Leerdoelen</button>
+      <button class="mode-tab ${tab === 'doelen' ? 'active' : ''}" data-action="set-tab" data-tab="doelen">Thema's</button>
     </div>
   `;
 
@@ -4848,7 +4848,7 @@ function renderChapter(ctx) {
         for (const dId of linkedDoelen) {
           if (dId.startsWith(ch.id + '-')) {
             const n = doelNummer(dId);
-            doelPillsHTML += `<button class="theory-doel-pill chapter-view ${ch.color}" data-action="start-doel" data-doel="${dId}" data-chapter="${ch.id}">📖 Leerdoel ${n}</button>`;
+            doelPillsHTML += `<button class="theory-doel-pill chapter-view ${ch.color}" data-action="start-doel" data-doel="${dId}" data-chapter="${ch.id}">📖 Thema ${n}</button>`;
           }
         }
         doelPillsHTML += '</div>';
@@ -5158,7 +5158,7 @@ function startDoelQuiz(chapterId, doelId) {
 function renderDoelQuiz(ctx) {
   const ch = getChapter(ctx.chapterId);
   document.querySelector('.topbar .back').style.display = 'inline-flex';
-  document.querySelector('.topbar .title').textContent = `H${ch.number} — Leerdoel`;
+  document.querySelector('.topbar .title').textContent = `H${ch.number} — Thema`;
   startDoelQuiz(ctx.chapterId, ctx.doelId);
 }
 
@@ -5176,7 +5176,7 @@ function renderQuizQuestion() {
     <div class="quiz-progress-bar">
       <div class="quiz-progress-bar-fill" style="width: ${progress * 100}%"></div>
     </div>
-    <div class="quiz-meta">Leerdoel · vraag ${quiz.current + 1} van ${quiz.questions.length}</div>
+    <div class="quiz-meta">Thema · vraag ${quiz.current + 1} van ${quiz.questions.length}</div>
     <div style="font-size: 14px; color: var(--ink-soft); margin-bottom: 16px; line-height: 1.4;">${quiz.doel.text}</div>
 
     <div class="question-card">
@@ -5284,13 +5284,13 @@ function finishDoelQuiz() {
   let scoreClass, msg;
   if (status === 'green') {
     scoreClass = 'good';
-    msg = 'Sterk! Dit leerdoel beheers je goed.';
+    msg = 'Sterk! Dit thema beheers je goed.';
   } else if (status === 'orange') {
     scoreClass = 'warn';
-    msg = 'Op de goede weg. Bekijk de theorie en oefen dit leerdoel nog eens.';
+    msg = 'Op de goede weg. Bekijk de theorie en oefen dit thema nog eens.';
   } else {
     scoreClass = 'bad';
-    msg = 'Hier kun je nog winst halen. Lees de theorie van dit hoofdstuk goed door en probeer dit leerdoel later opnieuw.';
+    msg = 'Hier kun je nog winst halen. Lees de theorie van dit hoofdstuk goed door en probeer dit thema later opnieuw.';
   }
 
   document.getElementById('view-doel-quiz').innerHTML = `
@@ -5303,7 +5303,7 @@ function finishDoelQuiz() {
       <div class="score-msg">${msg}</div>
     </div>
     <button class="btn-primary" data-action="back">Terug</button>
-    ${status !== 'green' ? `<button class="btn-secondary" data-action="goto-theory-for-doel" data-doel="${quiz.doel.id}" data-chapter="${quiz.chapter.id}">📖 Lees de theorie bij dit leerdoel</button>` : ''}
+    ${status !== 'green' ? `<button class="btn-secondary" data-action="goto-theory-for-doel" data-doel="${quiz.doel.id}" data-chapter="${quiz.chapter.id}">📖 Lees de theorie bij dit thema</button>` : ''}
     <button class="btn-secondary" data-action="retry-doel" data-doel="${quiz.doel.id}" data-chapter="${quiz.chapter.id}">Nog een keer</button>
   `;
 
@@ -5489,7 +5489,7 @@ function finishMix() {
   } else {
     scoreClass = 'bad';
     indicatief = '≈ ruim onvoldoende';
-    msg = `Dit was <b>${indicatief}</b>. Werk eerst de theorie + leerdoelen + begrippen door, en kom dan terug voor een nieuwe poging.`;
+    msg = `Dit was <b>${indicatief}</b>. Werk eerst de theorie + thema's + begrippen door, en kom dan terug voor een nieuwe poging.`;
   }
 
   // Per hoofdstuk advies
@@ -5709,12 +5709,15 @@ function showWelcome() {
         <p>Deze tool helpt je om <b>overzicht te krijgen</b> en de stof te <b>oefenen</b> voor de toetsweek. Je vindt hier:</p>
         <ul class="welcome-list">
           <li>📖 Een samenvatting van de theorie per hoofdstuk</li>
-          <li>🎯 De leerdoelen met oefenvragen</li>
+          <li>🎯 De thema's met oefenvragen</li>
           <li>🗂️ Een begrippentrainer</li>
           <li>📝 Een mix-toets om je voorbereiding te testen</li>
         </ul>
         <div class="welcome-warn">
           <b>Belangrijk:</b> deze tool is een <u>hulpmiddel</u>, geen vervanging van je gewone aardrijkskundeboek. De originele theorie, leerdoelen en opdrachten in de methode zijn de basis — gebruik die zeker ook. De boek-teksten geven meer context, voorbeelden en achtergrond dan wat hier samengevat is.
+        </div>
+        <div class="welcome-warn">
+          <b>Let op:</b> de officiële leerdoelen van je toets vind je in je boek. De tool werkt met 38 oefenthema's — soms zijn leerdoelen die nauw bij elkaar horen samengevoegd zodat je overzichtelijker kunt oefenen. Voor de complete lijst: kijk in je boek.
         </div>
         <p style="margin-top: 12px; font-size: 13px; color: var(--ink-soft);">Veel succes met leren!</p>
       </div>
