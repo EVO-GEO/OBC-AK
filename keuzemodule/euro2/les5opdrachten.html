@@ -1,0 +1,2643 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sociaal-culturele dimensie — Ontdekkingsreis</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+:root {
+  --ocean-deep: #0a2540;
+  --ocean-mid: #0e3a6b;
+  --ocean-bright: #1565a8;
+  --ocean-light: #2a8fd4;
+  --ocean-pale: #e6f2fb;
+  --sand: #f4e4bc;
+  --coral: #ff6b4a;
+  --gold: #ffc857;
+  --seagreen: #2cb67d;
+  --error: #e63946;
+  --text-dark: #0a2540;
+  --text-light: #ffffff;
+  --bg-paper: #f7fafd;
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 22px;
+  --space-xs: 6px;
+  --space-sm: 12px;
+  --space-md: 20px;
+  --space-lg: 32px;
+  --shadow-sm: 0 2px 8px rgba(10,37,64,0.08);
+  --shadow-md: 0 6px 20px rgba(10,37,64,0.15);
+  --shadow-lg: 0 12px 40px rgba(10,37,64,0.25);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Nunito', sans-serif;
+  background: linear-gradient(180deg, #04152b 0%, #0a2540 50%, #0e3a6b 100%);
+  background-attachment: fixed;
+  color: var(--text-dark);
+  min-height: 100vh;
+  line-height: 1.6;
+}
+
+/* ===== STICKY HEADER ===== */
+.sticky-header {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: linear-gradient(135deg, var(--ocean-deep), var(--ocean-mid));
+  color: var(--text-light);
+  padding: var(--space-md);
+  box-shadow: var(--shadow-lg);
+  border-bottom: 3px solid var(--gold);
+}
+
+.header-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-sm);
+}
+
+.title-block h1 {
+  font-size: 1.4rem;
+  font-weight: 900;
+  letter-spacing: -0.5px;
+}
+
+.title-block .subtitle {
+  font-size: 0.85rem;
+  opacity: 0.85;
+  font-weight: 600;
+}
+
+.compass {
+  font-size: 1.8rem;
+  animation: spin 20s linear infinite;
+  display: inline-block;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.progress-wrap {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.progress-bar {
+  flex: 1;
+  height: 14px;
+  background: rgba(255,255,255,0.15);
+  border-radius: 99px;
+  overflow: hidden;
+  position: relative;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--gold), var(--coral));
+  border-radius: 99px;
+  width: 0%;
+  transition: width 0.4s ease;
+  box-shadow: 0 0 10px var(--gold);
+}
+
+.progress-text {
+  font-weight: 700;
+  font-size: 0.95rem;
+  min-width: 80px;
+  text-align: right;
+}
+
+.btn-clear {
+  background: rgba(255,255,255,0.1);
+  color: white;
+  border: 1px solid rgba(255,255,255,0.3);
+  padding: 6px 14px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.8rem;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+
+.btn-clear:hover { background: rgba(255,255,255,0.2); }
+
+/* ===== TAB NAVIGATION ===== */
+.tab-nav-wrap {
+  background: rgba(10,37,64,0.95);
+  padding: 0;
+  border-bottom: 2px solid rgba(255,200,87,0.3);
+}
+
+.tab-counter {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 8px var(--space-md) 0;
+  color: var(--gold);
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+
+.tab-nav {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  overflow-x: auto;
+  scrollbar-width: thin;
+  padding: 8px var(--space-md);
+  gap: 6px;
+}
+
+.tab-nav::-webkit-scrollbar { height: 6px; }
+.tab-nav::-webkit-scrollbar-track { background: transparent; }
+.tab-nav::-webkit-scrollbar-thumb { background: var(--ocean-bright); border-radius: 3px; }
+
+.tab-btn {
+  background: rgba(255,255,255,0.08);
+  color: rgba(255,255,255,0.7);
+  border: 1px solid rgba(255,255,255,0.15);
+  padding: 10px 16px;
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 0.85rem;
+  white-space: nowrap;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tab-btn:hover {
+  background: rgba(255,255,255,0.15);
+  color: white;
+}
+
+.tab-btn.active {
+  background: var(--bg-paper);
+  color: var(--ocean-deep);
+  border-color: var(--gold);
+}
+
+.tab-btn .check {
+  color: var(--seagreen);
+  font-weight: 900;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.tab-btn.completed .check { opacity: 1; }
+
+/* ===== MAIN CONTAINER ===== */
+.main-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--space-md);
+}
+
+.tab-content {
+  display: none;
+  background: var(--bg-paper);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
+  box-shadow: var(--shadow-md);
+  animation: fadeIn 0.4s ease;
+}
+
+.tab-content.active { display: block; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== SECTION HEADER ===== */
+.section-header {
+  background: linear-gradient(135deg, var(--ocean-deep), var(--ocean-bright));
+  color: white;
+  padding: var(--space-lg);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-md);
+  position: relative;
+  overflow: hidden;
+}
+
+.section-header::before {
+  content: "";
+  position: absolute;
+  right: -50px;
+  top: -50px;
+  width: 200px;
+  height: 200px;
+  background: radial-gradient(circle, rgba(255,200,87,0.2), transparent 70%);
+  border-radius: 50%;
+}
+
+.section-header h2 {
+  font-size: 1.8rem;
+  font-weight: 900;
+  margin-bottom: 8px;
+  position: relative;
+}
+
+.section-header .lead {
+  font-size: 1.05rem;
+  opacity: 0.95;
+  position: relative;
+}
+
+.section-header .icon-big {
+  font-size: 3rem;
+  position: absolute;
+  right: var(--space-lg);
+  top: 50%;
+  transform: translateY(-50%);
+  opacity: 0.3;
+}
+
+/* ===== CONTENT BLOCKS ===== */
+.content-block {
+  background: white;
+  padding: var(--space-md);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-md);
+  box-shadow: var(--shadow-sm);
+}
+
+.content-block h3 {
+  color: var(--ocean-deep);
+  font-size: 1.25rem;
+  font-weight: 800;
+  margin-bottom: var(--space-sm);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 2px solid var(--ocean-pale);
+  padding-bottom: 8px;
+}
+
+.content-block p {
+  margin-bottom: var(--space-sm);
+  color: #2a3f5f;
+  font-size: 1rem;
+}
+
+.content-block p:last-child { margin-bottom: 0; }
+
+/* ===== HIGHLIGHT BOXES ===== */
+.info-box {
+  background: linear-gradient(135deg, var(--ocean-pale), #d4e8f7);
+  border-left: 5px solid var(--ocean-bright);
+  padding: var(--space-md);
+  border-radius: var(--radius-sm);
+  margin: var(--space-sm) 0;
+}
+
+.info-box.gold {
+  background: linear-gradient(135deg, #fff4d1, #ffe49c);
+  border-left-color: var(--gold);
+}
+
+.info-box.coral {
+  background: linear-gradient(135deg, #ffe2da, #ffcfc0);
+  border-left-color: var(--coral);
+}
+
+.info-box.green {
+  background: linear-gradient(135deg, #d4f4e3, #b4ebd0);
+  border-left-color: var(--seagreen);
+}
+
+.info-box h4 {
+  color: var(--ocean-deep);
+  font-weight: 800;
+  margin-bottom: 6px;
+  font-size: 1.05rem;
+}
+
+/* ===== EMOJI FLOW ===== */
+.emoji-flow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  background: linear-gradient(135deg, var(--ocean-deep), var(--ocean-mid));
+  color: white;
+  padding: var(--space-md);
+  border-radius: var(--radius-md);
+  margin: var(--space-sm) 0;
+  font-size: 1rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.flow-item {
+  background: rgba(255,255,255,0.12);
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 90px;
+}
+
+.flow-item .emoji { font-size: 1.8rem; margin-bottom: 4px; }
+.flow-item .label { font-size: 0.85rem; }
+
+.flow-arrow {
+  color: var(--gold);
+  font-size: 1.5rem;
+  font-weight: 900;
+  margin: 0 4px;
+}
+
+/* ===== COMPARISON TABLE ===== */
+.compare-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  margin: var(--space-sm) 0;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+.compare-table th {
+  background: var(--ocean-deep);
+  color: white;
+  padding: 12px;
+  font-weight: 800;
+  text-align: left;
+  font-size: 0.95rem;
+}
+
+.compare-table td {
+  padding: 12px;
+  border-bottom: 1px solid #e0e8f0;
+  background: white;
+  vertical-align: top;
+  font-size: 0.95rem;
+}
+
+.compare-table tr:last-child td { border-bottom: none; }
+.compare-table tr:nth-child(even) td { background: #f4f9fd; }
+
+/* ===== QUESTION BLOCKS ===== */
+.question-block {
+  background: white;
+  border: 2px solid var(--ocean-pale);
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+  margin: var(--space-md) 0;
+  position: relative;
+  transition: border-color 0.3s;
+}
+
+.question-block.done {
+  border-color: var(--seagreen);
+  background: linear-gradient(180deg, #f0fdf6, white);
+}
+
+.question-block.failed {
+  border-color: var(--coral);
+  background: linear-gradient(180deg, #fff5f2, white);
+}
+
+.q-label {
+  display: inline-block;
+  background: var(--ocean-bright);
+  color: white;
+  padding: 3px 10px;
+  border-radius: 99px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  margin-bottom: 8px;
+  letter-spacing: 0.5px;
+}
+
+.q-text {
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--ocean-deep);
+  margin-bottom: var(--space-sm);
+}
+
+.options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: var(--space-sm);
+}
+
+.option-btn {
+  background: white;
+  border: 2px solid #cfdde9;
+  padding: 12px 16px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.95rem;
+  text-align: left;
+  transition: all 0.2s;
+  color: var(--text-dark);
+  font-weight: 600;
+}
+
+.option-btn:hover:not(:disabled) {
+  background: var(--ocean-pale);
+  border-color: var(--ocean-bright);
+  transform: translateX(4px);
+}
+
+.option-btn:disabled { cursor: not-allowed; opacity: 0.85; }
+
+.option-btn.correct {
+  background: linear-gradient(135deg, #d4f4e3, #b4ebd0);
+  border-color: var(--seagreen);
+  color: #0d6b3f;
+  font-weight: 800;
+}
+
+.option-btn.wrong {
+  background: linear-gradient(135deg, #ffe2da, #ffcfc0);
+  border-color: var(--coral);
+  color: #b8341a;
+}
+
+/* ===== FEEDBACK ===== */
+.feedback {
+  margin-top: var(--space-sm);
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  font-size: 0.95rem;
+  display: none;
+}
+
+.feedback.show { display: block; animation: fadeIn 0.3s ease; }
+
+.feedback.hint {
+  background: linear-gradient(135deg, #fff4d1, #ffe49c);
+  color: #7a5800;
+  border-left: 4px solid var(--gold);
+}
+
+.feedback.success {
+  background: linear-gradient(135deg, #d4f4e3, #b4ebd0);
+  color: #0d6b3f;
+  border-left: 4px solid var(--seagreen);
+}
+
+.feedback.reveal {
+  background: linear-gradient(135deg, #e6f2fb, #c8e1f5);
+  color: var(--ocean-deep);
+  border-left: 4px solid var(--ocean-bright);
+}
+
+/* ===== TEXTAREA ===== */
+.open-answer {
+  width: 100%;
+  min-height: 100px;
+  padding: 12px;
+  border: 2px solid #cfdde9;
+  border-radius: var(--radius-sm);
+  font-family: inherit;
+  font-size: 0.95rem;
+  resize: vertical;
+  transition: border-color 0.2s;
+}
+
+.open-answer:focus {
+  outline: none;
+  border-color: var(--ocean-bright);
+}
+
+.word-count {
+  font-size: 0.85rem;
+  color: #6b7c93;
+  margin-top: 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.word-count.enough { color: var(--seagreen); font-weight: 700; }
+
+/* ===== BUTTONS ===== */
+.btn {
+  background: linear-gradient(135deg, var(--ocean-bright), var(--ocean-light));
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 0.95rem;
+  margin-top: 8px;
+  transition: all 0.2s;
+  box-shadow: var(--shadow-sm);
+}
+
+.btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  background: linear-gradient(135deg, var(--gold), #ffb627);
+  color: var(--ocean-deep);
+}
+
+.btn-success {
+  background: linear-gradient(135deg, var(--seagreen), #1f9c66);
+}
+
+.btn-danger {
+  background: linear-gradient(135deg, var(--coral), #e54a2a);
+}
+
+.btn-small {
+  padding: 6px 14px;
+  font-size: 0.85rem;
+}
+
+.self-assess {
+  display: none;
+  margin-top: var(--space-sm);
+  padding: var(--space-sm);
+  background: var(--ocean-pale);
+  border-radius: var(--radius-sm);
+}
+
+.self-assess.show { display: block; }
+
+.self-assess p {
+  font-weight: 700;
+  color: var(--ocean-deep);
+  margin-bottom: 8px;
+}
+
+.self-assess-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+/* ===== DRAG AND DROP ===== */
+.drag-list {
+  list-style: none;
+  padding: 0;
+  margin: var(--space-sm) 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.drag-item {
+  background: white;
+  border: 2px solid var(--ocean-bright);
+  padding: 12px 16px;
+  border-radius: var(--radius-sm);
+  cursor: grab;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.2s;
+  user-select: none;
+}
+
+.drag-item:hover {
+  background: var(--ocean-pale);
+  transform: translateX(4px);
+}
+
+.drag-item.dragging {
+  opacity: 0.4;
+  cursor: grabbing;
+}
+
+.drag-item.drag-over {
+  border-color: var(--gold);
+  background: #fff4d1;
+}
+
+.drag-handle {
+  color: var(--ocean-bright);
+  font-size: 1.3rem;
+  font-weight: 900;
+}
+
+.drag-item.correct-pos {
+  border-color: var(--seagreen);
+  background: linear-gradient(135deg, #d4f4e3, #b4ebd0);
+}
+
+.drag-item.wrong-pos {
+  border-color: var(--coral);
+  background: linear-gradient(135deg, #ffe2da, #ffcfc0);
+}
+
+/* ===== MATCHING ===== */
+.match-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-md);
+  margin: var(--space-sm) 0;
+}
+
+.match-column {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.match-column h4 {
+  background: var(--ocean-deep);
+  color: white;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.match-item {
+  background: white;
+  border: 2px solid #cfdde9;
+  padding: 12px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.92rem;
+  transition: all 0.2s;
+  text-align: center;
+  min-height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.match-item:hover:not(.locked-src) { border-color: var(--ocean-bright); background: var(--ocean-pale); }
+.match-item.selected { border-color: var(--gold); background: #fff4d1; }
+.match-item.matched-1 { background: #d4f4e3; border-color: var(--seagreen); }
+.match-item.matched-2 { background: #ffe2da; border-color: var(--coral); }
+.match-item.matched-3 { background: #e6dafc; border-color: #7b4ed4; }
+.match-item.matched-4 { background: #ffeac2; border-color: #d49a1f; }
+.match-item.matched-5 { background: #c7e9ff; border-color: #1565a8; }
+.match-item.locked-src { opacity: 0.85; cursor: default; }
+
+.match-item.match-correct { box-shadow: 0 0 0 3px var(--seagreen); }
+.match-item.match-wrong { box-shadow: 0 0 0 3px var(--coral); }
+
+/* ===== MAP ===== */
+.map-container {
+  height: 450px;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  margin: var(--space-sm) 0;
+  border: 3px solid var(--ocean-deep);
+  box-shadow: var(--shadow-md);
+}
+
+.map-legend {
+  background: white;
+  padding: var(--space-sm);
+  border-radius: var(--radius-sm);
+  margin-bottom: var(--space-sm);
+  font-size: 0.9rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-md);
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.legend-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid white;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+
+/* ===== CHART ===== */
+.chart-container {
+  background: white;
+  padding: var(--space-md);
+  border-radius: var(--radius-md);
+  margin: var(--space-sm) 0;
+  box-shadow: var(--shadow-sm);
+  position: relative;
+  height: 380px;
+}
+
+/* ===== TAB FOOTER ===== */
+.tab-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: var(--space-lg);
+  padding-top: var(--space-md);
+  border-top: 2px dashed #cfdde9;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+}
+
+.nav-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+/* ===== SCENARIO ===== */
+.scenario {
+  background: linear-gradient(135deg, #1a3a5c, #0a2540);
+  color: white;
+  padding: var(--space-md);
+  border-radius: var(--radius-md);
+  margin: var(--space-sm) 0;
+  position: relative;
+  border-left: 5px solid var(--gold);
+}
+
+.scenario-character {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.2);
+}
+
+.scenario-avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--gold), var(--coral));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6rem;
+  flex-shrink: 0;
+}
+
+.scenario-name {
+  font-weight: 800;
+  font-size: 1.1rem;
+}
+
+.scenario-meta {
+  font-size: 0.85rem;
+  opacity: 0.85;
+}
+
+.scenario-text { font-size: 1rem; line-height: 1.65; }
+
+.scenario-quote {
+  background: rgba(255,200,87,0.15);
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  margin: 10px 0;
+  font-style: italic;
+  border-left: 3px solid var(--gold);
+}
+
+/* ===== REFLECTION ===== */
+.final-card {
+  background: linear-gradient(135deg, var(--ocean-deep), var(--ocean-bright));
+  color: white;
+  padding: var(--space-lg);
+  border-radius: var(--radius-lg);
+  text-align: center;
+  margin-bottom: var(--space-md);
+  position: relative;
+  overflow: hidden;
+}
+
+.final-card .big-emoji {
+  font-size: 4rem;
+  margin-bottom: 10px;
+  display: block;
+}
+
+.final-card h2 { font-size: 2rem; margin-bottom: 10px; }
+
+.score-display {
+  display: inline-block;
+  background: rgba(255,255,255,0.15);
+  padding: var(--space-md) var(--space-lg);
+  border-radius: var(--radius-md);
+  margin: var(--space-sm) 0;
+  border: 2px solid var(--gold);
+}
+
+.score-number {
+  font-size: 3rem;
+  font-weight: 900;
+  color: var(--gold);
+  display: block;
+}
+
+.goals-list {
+  background: white;
+  color: var(--ocean-deep);
+  padding: var(--space-md);
+  border-radius: var(--radius-md);
+  margin: var(--space-sm) 0;
+}
+
+.goals-list ul { list-style: none; padding: 0; }
+.goals-list li {
+  padding: 10px 0;
+  border-bottom: 1px solid #e0e8f0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.goals-list li:last-child { border-bottom: none; }
+.goals-list .goal-check {
+  color: var(--seagreen);
+  font-weight: 900;
+  font-size: 1.3rem;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 900px) {
+  .match-container { grid-template-columns: 1fr; }
+  .section-header h2 { font-size: 1.5rem; }
+  .section-header .icon-big { display: none; }
+  .compare-table { font-size: 0.85rem; }
+  .compare-table th, .compare-table td { padding: 8px; }
+}
+
+.attempts-info {
+  font-size: 0.8rem;
+  color: #6b7c93;
+  margin-top: 4px;
+  font-weight: 600;
+}
+
+.locked-overlay {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: var(--seagreen);
+  color: white;
+  padding: 4px 10px;
+  border-radius: 99px;
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+
+.locked-overlay.fail { background: var(--coral); }
+
+.you-question {
+  background: linear-gradient(135deg, #fff4d1, #ffe49c);
+  border-left: 5px solid var(--gold);
+  padding: var(--space-sm);
+  border-radius: var(--radius-sm);
+  margin: var(--space-sm) 0;
+  font-weight: 600;
+  color: #7a5800;
+}
+
+.you-question::before {
+  content: "🌍 In jouw wereld: ";
+  font-weight: 900;
+  color: var(--ocean-deep);
+}
+
+.tag {
+  display: inline-block;
+  background: var(--ocean-pale);
+  color: var(--ocean-deep);
+  padding: 2px 10px;
+  border-radius: 99px;
+  font-size: 0.78rem;
+  font-weight: 800;
+  margin-right: 4px;
+}
+
+</style>
+</head>
+<body>
+
+<header class="sticky-header">
+  <div class="header-inner">
+    <div class="header-top">
+      <div class="title-block">
+        <h1><span class="compass">🧭</span> Ontdekkingsreis: De sociaal-culturele dimensie</h1>
+        <div class="subtitle">HAVO 2 · Aardrijkskunde · Hoe mensen samenleven in landen</div>
+      </div>
+      <button class="btn-clear" id="clearProgressBtn">🗑️ Voortgang wissen</button>
+    </div>
+    <div class="progress-wrap">
+      <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+      <div class="progress-text" id="progressText">0%</div>
+    </div>
+  </div>
+</header>
+
+<nav class="tab-nav-wrap">
+  <div class="tab-counter" id="tabCounter">Onderdeel 1 van 7</div>
+  <div class="tab-nav" id="tabNav">
+    <button class="tab-btn active" data-tab="intro">1. Introductie <span class="check">✓</span></button>
+    <button class="tab-btn" data-tab="taal">2. Taal <span class="check">✓</span></button>
+    <button class="tab-btn" data-tab="religie">3. Religie <span class="check">✓</span></button>
+    <button class="tab-btn" data-tab="cultuur">4. Cultuur <span class="check">✓</span></button>
+    <button class="tab-btn" data-tab="onderwijs">5. Onderwijs <span class="check">✓</span></button>
+    <button class="tab-btn" data-tab="zorg">6. Gezondheidszorg <span class="check">✓</span></button>
+    <button class="tab-btn" data-tab="reflectie">7. Reflectie <span class="check">✓</span></button>
+  </div>
+</nav>
+
+<main class="main-container">
+
+<!-- =================== TAB 1: INTRO =================== -->
+<section class="tab-content active" data-tab="intro">
+  <div class="section-header">
+    <h2>🌊 Welkom, ontdekkingsreiziger</h2>
+    <p class="lead">Vandaag verken je de sociaal-culturele dimensie — de mensen achter de landkaart.</p>
+    <span class="icon-big">🧭</span>
+  </div>
+
+  <div class="content-block">
+    <h3>🎯 Wat is de sociaal-culturele dimensie?</h3>
+    <p>Stel je voor: je opent TikTok en scrolt langs video's uit Italië, Japan, Brazilië en Polen. Je hoort verschillende talen, ziet andere kleren, andere gerechten, andere manieren van begroeten. Dat is precies wat de <strong>sociaal-culturele dimensie</strong> beschrijft: de manier waarop mensen in een land samenleven en wat hen uniek maakt.</p>
+
+    <p>Geografen bekijken een land vanuit verschillende <em>dimensies</em> (perspectieven). De economische dimensie gaat over geld en werk, de natuurlijke dimensie over landschap en klimaat. De sociaal-culturele dimensie gaat over de <strong>mensen</strong>: welke taal ze spreken, welke religie ze hebben, hun gewoonten en tradities, en hoe een land voor hen zorgt via onderwijs en gezondheidszorg.</p>
+
+    <p>Juist deze dimensie zorgt vaak voor de meest verrassende verschillen. Twee buurlanden kunnen klimatologisch bijna identiek zijn maar cultureel volledig anders aanvoelen. Denk aan Nederland en België — buren, vergelijkbare economieën, maar de manier van samenleven verschilt enorm.</p>
+  </div>
+
+  <div class="emoji-flow">
+    <div class="flow-item"><span class="emoji">🗣️</span><span class="label">Taal</span></div>
+    <span class="flow-arrow">+</span>
+    <div class="flow-item"><span class="emoji">⛪</span><span class="label">Religie</span></div>
+    <span class="flow-arrow">+</span>
+    <div class="flow-item"><span class="emoji">🎭</span><span class="label">Cultuur</span></div>
+    <span class="flow-arrow">+</span>
+    <div class="flow-item"><span class="emoji">🎓</span><span class="label">Onderwijs</span></div>
+    <span class="flow-arrow">+</span>
+    <div class="flow-item"><span class="emoji">🏥</span><span class="label">Zorg</span></div>
+    <span class="flow-arrow">=</span>
+    <div class="flow-item"><span class="emoji">🌍</span><span class="label">Identiteit van een land</span></div>
+  </div>
+
+  <div class="info-box gold">
+    <h4>💡 Waarom is dit belangrijk?</h4>
+    <p>Wie de sociaal-culturele dimensie van een land kent, begrijpt waarom mensen daar bepaalde keuzes maken, waarom bepaalde wetten bestaan, en waarom een vakantie naar Spanje totaal anders voelt dan een vakantie naar Zweden. Het is de "ziel" van een land.</p>
+  </div>
+
+  <div class="you-question">
+    Als je morgen zou verhuizen naar een ander Europees land, wat zou voor jou het grootste verschil zijn — de taal, het eten, de manier van begroeten, of iets anders? Denk daar even over na.
+  </div>
+
+  <!-- Question 1 -->
+  <div class="question-block" data-qid="intro-1" data-qtype="mc" data-correct="b">
+    <span class="q-label">VRAAG 1 · Multiple choice</span>
+    <p class="q-text">Welke van onderstaande onderwerpen hoort bij de sociaal-culturele dimensie?</p>
+    <div class="options">
+      <button class="option-btn" data-answer="a">a) De hoeveelheid neerslag per jaar</button>
+      <button class="option-btn" data-answer="b">b) Welke talen mensen spreken in een land</button>
+      <button class="option-btn" data-answer="c">c) De omvang van de oliereserves</button>
+      <button class="option-btn" data-answer="d">d) De hoogte van de bergen</button>
+    </div>
+    <div class="feedback"></div>
+    <div class="attempts-info"></div>
+  </div>
+
+  <!-- Question 2: Matching -->
+  <div class="question-block" data-qid="intro-2" data-qtype="match">
+    <span class="q-label">VRAAG 2 · Koppel begrip aan voorbeeld</span>
+    <p class="q-text">Sleep niet, maar klik: koppel elk onderdeel van de sociaal-culturele dimensie aan een voorbeeld uit het dagelijks leven. Klik eerst een begrip, dan een voorbeeld.</p>
+    <div class="match-container" id="introMatch">
+      <div class="match-column">
+        <h4>📚 Begrip</h4>
+        <div class="match-item" data-side="src" data-key="taal">Taal</div>
+        <div class="match-item" data-side="src" data-key="religie">Religie</div>
+        <div class="match-item" data-side="src" data-key="cultuur">Cultuur</div>
+        <div class="match-item" data-side="src" data-key="zorg">Gezondheidszorg</div>
+      </div>
+      <div class="match-column">
+        <h4>🌍 Voorbeeld</h4>
+        <div class="match-item" data-side="tgt" data-key="cultuur">In Spanje eten mensen vaak pas om 22:00 uur 's avonds</div>
+        <div class="match-item" data-side="tgt" data-key="taal">In Zwitserland staan straatborden in vier talen</div>
+        <div class="match-item" data-side="tgt" data-key="zorg">In Spanje wordt iemand gemiddeld 83 jaar oud</div>
+        <div class="match-item" data-side="tgt" data-key="religie">In Polen zijn de meeste mensen katholiek</div>
+      </div>
+    </div>
+    <button class="btn" data-action="check-match" data-target="introMatch">Controleer koppelingen</button>
+    <div class="feedback"></div>
+    <div class="attempts-info"></div>
+  </div>
+
+  <!-- Question 3: Open -->
+  <div class="question-block" data-qid="intro-3" data-qtype="open" data-min-words="20">
+    <span class="q-label">VRAAG 3 · Open vraag (≥20 woorden)</span>
+    <p class="q-text">Beschrijf in eigen woorden wat de sociaal-culturele dimensie inhoudt. Noem minimaal twee onderdelen en geef bij elk een voorbeeld.</p>
+    <textarea class="open-answer" placeholder="Schrijf hier je antwoord..."></textarea>
+    <div class="word-count"><span class="wc-text">0 woorden (minimaal 20)</span></div>
+    <button class="btn" data-action="show-example" disabled>Toon voorbeeldantwoord</button>
+    <div class="feedback"></div>
+    <div class="self-assess">
+      <p>📝 Vergelijk je antwoord met de voorbeelden. Hoe goed dekt jouw antwoord de stof?</p>
+      <div class="self-assess-buttons">
+        <button class="btn btn-success btn-small" data-self="good">Goed ✓</button>
+        <button class="btn btn-danger btn-small" data-self="fail">Verbeterpunt ✗</button>
+      </div>
+    </div>
+    <div class="example-answer" data-example="De sociaal-culturele dimensie gaat over de mensen in een land en hoe ze samenleven. Twee belangrijke onderdelen zijn taal en religie. Voorbeeld bij taal: in Zwitserland spreken mensen vier officiële talen. Voorbeeld bij religie: in Italië heeft het katholicisme nog steeds veel invloed op feestdagen en gewoonten."></div>
+  </div>
+
+  <div class="tab-footer">
+    <button class="btn-clear btn-small" data-action="reset-tab" data-tab="intro">🔄 Reset dit onderdeel</button>
+    <div class="nav-buttons">
+      <button class="btn" data-nav="next">Volgende →</button>
+    </div>
+  </div>
+</section>
+
+<!-- =================== TAB 2: TAAL =================== -->
+<section class="tab-content" data-tab="taal">
+  <div class="section-header">
+    <h2>🗣️ Taal — het meest hoorbare verschil</h2>
+    <p class="lead">Hoe taal landen vormt, verdeelt en verbindt.</p>
+    <span class="icon-big">💬</span>
+  </div>
+
+  <div class="content-block">
+    <h3>🌐 Eén land, één taal? Niet altijd.</h3>
+    <p>Taal is het eerste wat je opvalt als je een landsgrens oversteekt. Een bord, een radiozender, een gesprek in de bus. In de meeste Europese landen is er één officiële taal, maar de werkelijkheid is vaak ingewikkelder dan dat. <strong>Zwitserland</strong> heeft maar liefst <strong>vier officiële talen</strong>: Duits, Frans, Italiaans en Reto-Romaans. <strong>België</strong> is verdeeld tussen het Nederlandstalige Vlaanderen en het Franstalige Wallonië, met Brussel als officieel tweetalig gebied.</p>
+
+    <p>Taal is meer dan alleen een communicatiemiddel — het is vaak een <strong>politiek onderwerp</strong>. Minderheidstalen kunnen worden onderdrukt of juist beschermd door wetten. Taalgrenzen lopen soms dwars door landen heen en kunnen tot spanningen leiden. Zo is de taalstrijd in België al decennialang een politiek thema.</p>
+
+    <p>Naast de officiële taal zijn er in veel landen <strong>regionale talen en dialecten</strong>. In Spanje spreken mensen in Catalonië Catalaans en in het Baskenland Baskisch — talen met een eigen culturele en politieke identiteit. Die taalgemeenschappen voelen zich vaak ook politiek anders. De aanwezigheid van meerdere talen in één land zegt iets over de <em>geschiedenis</em> en de <em>samenstelling van de bevolking</em>.</p>
+  </div>
+
+  <table class="compare-table">
+    <thead>
+      <tr><th>Land</th><th>Officiële taal/talen</th><th>Bijzonder</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>🇨🇭 Zwitserland</td><td>Duits, Frans, Italiaans, Reto-Romaans</td><td>Vier officiële talen in één klein land</td></tr>
+      <tr><td>🇧🇪 België</td><td>Nederlands, Frans, Duits</td><td>Strikte taalgrens; Brussel tweetalig</td></tr>
+      <tr><td>🇪🇸 Spanje</td><td>Spaans (Castiliaans)</td><td>Catalaans en Baskisch in regio's</td></tr>
+      <tr><td>🇫🇷 Frankrijk</td><td>Frans</td><td>Sterke focus op één nationale taal</td></tr>
+      <tr><td>🇳🇱 Nederland</td><td>Nederlands</td><td>Fries als tweede officiële taal in Friesland</td></tr>
+    </tbody>
+  </table>
+
+  <div class="info-box coral">
+    <h4>📱 Taal en social media</h4>
+    <p>Op TikTok en Instagram zie je hoe taal bewust gebruikt wordt om een doelgroep te bereiken. Catalaanse influencers posten bewust in het Catalaans, niet in het Spaans, als statement. Engelstalige content bereikt iedereen — maar lokale content voelt persoonlijker. Taal bepaalt dus ook online wie je bereikt.</p>
+  </div>
+
+  <h3 style="color: var(--ocean-deep); margin-top: var(--space-md);">🗺️ Verken de taalkaart van Europa</h3>
+  <div class="map-legend">
+    <div class="legend-item"><span class="legend-dot" style="background: #1565a8;"></span> Eén officiële taal</div>
+    <div class="legend-item"><span class="legend-dot" style="background: #ffc857;"></span> Meerdere officiële talen</div>
+    <div class="legend-item"><span class="legend-dot" style="background: #ff6b4a;"></span> Sterke regionale taal(strijd)</div>
+  </div>
+  <div class="map-container" id="taalMap"></div>
+
+  <div class="you-question">
+    Spreken jouw ouders of grootouders nog een dialect of een andere taal dan Nederlands? Welke woorden gebruik je zelf die je vrienden uit andere delen van Nederland misschien niet kennen?
+  </div>
+
+  <!-- Question 1 -->
+  <div class="question-block" data-qid="taal-1" data-qtype="mc" data-correct="c">
+    <span class="q-label">VRAAG 1 · Multiple choice</span>
+    <p class="q-text">Welk Europees land heeft VIER officiële talen?</p>
+    <div class="options">
+      <button class="option-btn" data-answer="a">a) België</button>
+      <button class="option-btn" data-answer="b">b) Spanje</button>
+      <button class="option-btn" data-answer="c">c) Zwitserland</button>
+      <button class="option-btn" data-answer="d">d) Italië</button>
+    </div>
+    <div class="feedback"></div>
+    <div class="attempts-info"></div>
+  </div>
+
+  <!-- Question 2 -->
+  <div class="question-block" data-qid="taal-2" data-qtype="mc" data-correct="b">
+    <span class="q-label">VRAAG 2 · Multiple choice</span>
+    <p class="q-text">In welke regio in Spanje spreken mensen een eigen, niet-Spaanse taal (Catalaans)?</p>
+    <div class="options">
+      <button class="option-btn" data-answer="a">a) Andalusië</button>
+      <button class="option-btn" data-answer="b">b) Catalonië</button>
+      <button class="option-btn" data-answer="c">c) Madrid</button>
+      <button class="option-btn" data-answer="d">d) Mallorca</button>
+    </div>
+    <div class="feedback"></div>
+    <div class="attempts-info"></div>
+  </div>
+
+  <!-- Question 3: Open -->
+  <div class="question-block" data-qid="taal-3" data-qtype="open" data-min-words="20">
+    <span class="q-label">VRAAG 3 · Open vraag (≥20 woorden)</span>
+    <p class="q-text">Waarom kan taal in een land een politiek onderwerp zijn? Geef een concreet voorbeeld uit Europa.</p>
+    <textarea class="open-answer" placeholder="Schrijf hier je antwoord..."></textarea>
+    <div class="word-count"><span class="wc-text">0 woorden (minimaal 20)</span></div>
+    <button class="btn" data-action="show-example" disabled>Toon voorbeeldantwoord</button>
+    <div class="feedback"></div>
+    <div class="self-assess">
+      <p>📝 Vergelijk je antwoord met het voorbeeld.</p>
+      <div class="self-assess-buttons">
+        <button class="btn btn-success btn-small" data-self="good">Goed ✓</button>
+        <button class="btn btn-danger btn-small" data-self="fail">Verbeterpunt ✗</button>
+      </div>
+    </div>
+    <div class="example-answer" data-example="Taal kan politiek zijn omdat het samenhangt met identiteit en macht. Mensen die een minderheidstaal spreken, voelen zich soms achtergesteld of willen onafhankelijk zijn. Voorbeeld: in Catalonië willen veel mensen zich afsplitsen van Spanje, en het Catalaans speelt daarin een centrale rol als symbool van hun eigen identiteit."></div>
+  </div>
+
+  <div class="tab-footer">
+    <button class="btn-clear btn-small" data-action="reset-tab" data-tab="taal">🔄 Reset dit onderdeel</button>
+    <div class="nav-buttons">
+      <button class="btn" data-nav="prev">← Vorige</button>
+      <button class="btn" data-nav="next">Volgende →</button>
+    </div>
+  </div>
+</section>
+
+<!-- =================== TAB 3: RELIGIE =================== -->
+<section class="tab-content" data-tab="religie">
+  <div class="section-header">
+    <h2>⛪ Religie — de onzichtbare hand</h2>
+    <p class="lead">Hoe geloof eeuwen later nog steeds zichtbaar is in dagelijkse gewoonten.</p>
+    <span class="icon-big">🕌</span>
+  </div>
+
+  <div class="content-block">
+    <h3>🌍 Religie als culturele kracht</h3>
+    <p>Religie heeft eeuwenlang een grote stempel gedrukt op de cultuur, wetgeving en gewoonten van Europese landen. Ook in landen waar mensen nu zelf zeggen "ik ben niet meer religieus", zie je de invloed nog terug: in feestdagen, in de architectuur van het centrum, in de schoolvakanties (denk aan Kerst en Pasen), zelfs in de hoogte van de kerktorens.</p>
+
+    <p>In <strong>Zuid-Europa</strong> — Italië, Spanje, Portugal — speelt het <strong>katholicisme</strong> nog steeds een zichtbare rol in het dagelijks leven. Kerken zijn vol op zondag, religieuze feesten zoals de Spaanse Semana Santa zijn grote evenementen, en katholieke waarden beïnvloeden discussies over familie en wetgeving. In <strong>Noord-Europa</strong> — Scandinavië, Nederland — is de invloed van de kerk juist <strong>veel kleiner</strong> geworden. Veel mensen zijn niet meer religieus opgevoed, en de samenleving is sterk geseculariseerd.</p>
+
+    <p>In <strong>Oost-Europa</strong>, zoals in Polen en Hongarije, is het christendom de afgelopen jaren juist <strong>politiek prominenter</strong> geworden. Regeringen koppelen nationale identiteit aan religieuze traditie. Tegelijkertijd is Europa door migratie ook diverser geworden. In veel landen wonen nu gemeenschappen met een <strong>islamitische, joodse of hindoeïstische</strong> achtergrond. Hoe een land omgaat met deze religieuze diversiteit — tolerant of juist gespannen — zegt veel over de sociaal-culturele sfeer.</p>
+  </div>
+
+  <div class="emoji-flow">
+    <div class="flow-item"><span class="emoji">🇮🇹</span><span class="label">Italië<br>Katholiek</span></div>
+    <span class="flow-arrow">·</span>
+    <div class="flow-item"><span class="emoji">🇵🇱</span><span class="label">Polen<br>Katholiek</span></div>
+    <span class="flow-arrow">·</span>
+    <div class="flow-item"><span class="emoji">🇳🇱</span><span class="label">Nederland<br>Geseculariseerd</span></div>
+    <span class="flow-arrow">·</span>
+    <div class="flow-item"><span class="emoji">🇸🇪</span><span class="label">Zweden<br>Geseculariseerd</span></div>
+    <span class="flow-arrow">·</span>
+    <div class="flow-item"><span class="emoji">🇬🇷</span><span class="label">Griekenland<br>Orthodox</span></div>
+  </div>
+
+  <div class="info-box">
+    <h4>📊 Religieuze samenstelling van enkele Europese landen</h4>
+    <p>Hieronder zie je hoe groot het percentage mensen is dat zichzelf nog als religieus omschrijft. Let op de grote verschillen tussen Noord en Zuid, en tussen Oost en West.</p>
+  </div>
+
+  <div class="chart-container">
+    <canvas id="religieChart"></canvas>
+  </div>
+
+  <div class="you-question">
+    Welke feestdagen vier jij thuis — en hebben die een religieuze oorsprong? Denk aan Kerst, Pasen, Suikerfeest, Holi of Chanoeka. Veel mensen vieren ze inmiddels vooral cultureel, zonder dat het nog over geloof gaat.
+  </div>
+
+  <!-- Question 1 -->
+  <div class="question-block" data-qid="religie-1" data-qtype="mc" data-correct="b">
+    <span class="q-label">VRAAG 1 · Multiple choice</span>
+    <p class="q-text">In welke regio van Europa speelt het katholicisme nog steeds een grote rol in het dagelijks leven?</p>
+    <div class="options">
+      <button class="option-btn" data-answer="a">a) Scandinavië (Noord-Europa)</button>
+      <button class="option-btn" data-answer="b">b) Zuid-Europa (Italië, Spanje, Portugal)</button>
+      <button class="option-btn" data-answer="c">c) De Baltische staten</button>
+      <button class="option-btn" data-answer="d">d) Het Verenigd Koninkrijk</button>
+    </div>
+    <div class="feedback"></div>
+    <div class="attempts-info"></div>
+  </div>
+
+  <!-- Question 2: analyse -->
+  <div class="question-block" data-qid="religie-2" data-qtype="open" data-min-words="20">
+    <span class="q-label">VRAAG 2 · Grafiek analyseren (≥20 woorden)</span>
+    <p class="q-text">Kijk naar de grafiek hierboven. Welk patroon zie je tussen Noord-Europa en Zuid-Europa wat betreft religiositeit? Beschrijf wat je opvalt en geef een mogelijke verklaring.</p>
+    <textarea class="open-answer" placeholder="Schrijf hier je analyse..."></textarea>
+    <div class="word-count"><span class="wc-text">0 woorden (minimaal 20)</span></div>
+    <button class="btn" data-action="show-example" disabled>Toon voorbeeldantwoord</button>
+    <div class="feedback"></div>
+    <div class="self-assess">
+      <p>📝 Vergelijk je antwoord met het voorbeeld.</p>
+      <div class="self-assess-buttons">
+        <button class="btn btn-success btn-small" data-self="good">Goed ✓</button>
+        <button class="btn btn-danger btn-small" data-self="fail">Verbeterpunt ✗</button>
+      </div>
+    </div>
+    <div class="example-answer" data-example="In Zuid-Europese landen zoals Italië en Polen noemt een veel groter deel van de bevolking zich religieus dan in Noord-Europese landen zoals Zweden en Nederland. Een mogelijke verklaring is dat het secularisatieproces in Noord-Europa eerder en sterker is doorgezet, terwijl in Zuid-Europa de katholieke traditie diep verankerd blijft in het dagelijks leven en de cultuur."></div>
+  </div>
+
+  <!-- Question 3: Drag and drop -->
+  <div class="question-block" data-qid="religie-3" data-qtype="drag">
+    <span class="q-label">VRAAG 3 · Sleep in de juiste volgorde</span>
+    <p class="q-text">Zet de landen in volgorde van <strong>meest religieus naar minst religieus</strong> (op basis van de grafiek hierboven). Sleep de items met je muis.</p>
+    <ul class="drag-list" id="religieDrag" data-correct-order="Polen,Italië,Griekenland,Spanje,Duitsland,Nederland,Zweden">
+      <li class="drag-item" draggable="true" data-value="Zweden"><span class="drag-handle">⋮⋮</span> Zweden</li>
+      <li class="drag-item" draggable="true" data-value="Polen"><span class="drag-handle">⋮⋮</span> Polen</li>
+      <li class="drag-item" draggable="true" data-value="Nederland"><span class="drag-handle">⋮⋮</span> Nederland</li>
+      <li class="drag-item" draggable="true" data-value="Italië"><span class="drag-handle">⋮⋮</span> Italië</li>
+      <li class="drag-item" draggable="true" data-value="Duitsland"><span class="drag-handle">⋮⋮</span> Duitsland</li>
+      <li class="drag-item" draggable="true" data-value="Griekenland"><span class="drag-handle">⋮⋮</span> Griekenland</li>
+      <li class="drag-item" draggable="true" data-value="Spanje"><span class="drag-handle">⋮⋮</span> Spanje</li>
+    </ul>
+    <button class="btn" data-action="check-drag" data-target="religieDrag">Controleer volgorde</button>
+    <div class="feedback"></div>
+    <div class="attempts-info"></div>
+  </div>
+
+  <div class="tab-footer">
+    <button class="btn-clear btn-small" data-action="reset-tab" data-tab="religie">🔄 Reset dit onderdeel</button>
+    <div class="nav-buttons">
+      <button class="btn" data-nav="prev">← Vorige</button>
+      <button class="btn" data-nav="next">Volgende →</button>
+    </div>
+  </div>
+</section>
+
+<!-- =================== TAB 4: CULTUUR =================== -->
+<section class="tab-content" data-tab="cultuur">
+  <div class="section-header">
+    <h2>🎭 Cultuur — alles wat mensen samen doen</h2>
+    <p class="lead">Van eten en muziek tot hoe je iemand begroet.</p>
+    <span class="icon-big">🎨</span>
+  </div>
+
+  <div class="content-block">
+    <h3>🍝 Wat is cultuur eigenlijk?</h3>
+    <p>Cultuur is een breed begrip. Het gaat over <strong>gewoonten, tradities, eten, muziek, kunst</strong> en de manier waarop mensen met elkaar omgaan. Cultuur zie je terug in kleine dingen: hoe laat mensen eten ("Wat? Pas om half zes? In Spanje eten we om tien uur 's avonds!"), hoe ze elkaar begroeten (één hand, twee zoenen, drie zoenen, of buigen?), wat ze vieren en hoe.</p>
+
+    <p>Maar cultuur zit ook in <strong>grotere structuren</strong>: hoe individualistisch of juist gemeenschapsgericht een samenleving is, hoe mensen kijken naar autoriteit, gezin en werk. In sommige culturen is het normaal dat kinderen tot ze trouwen bij hun ouders wonen; in andere ben je raar als je na je 21e nog niet op jezelf woont. Dat zijn diepe culturele verschillen die je niet meteen ziet, maar wel voelt als je in een land woont.</p>
+
+    <p>Binnen Europa zijn de culturele verschillen groot. In <strong>mediterrane landen</strong> als Italië en Griekenland speelt het <strong>gezinsleven</strong> een centrale rol en is de sociale sfeer warm en informeel. In <strong>noordelijke landen</strong> als Finland of Denemarken hechten mensen meer waarde aan <strong>privacy en zelfstandigheid</strong>. Die verschillen zijn geen toeval — ze hangen samen met geschiedenis, religie, klimaat (binnen of buiten leven) en economische ontwikkeling.</p>
+  </div>
+
+  <table class="compare-table">
+    <thead>
+      <tr><th>Kenmerk</th><th>🌞 Mediterraan (Italië, Spanje, Griekenland)</th><th>❄️ Noordelijk (Finland, Zweden, Denemarken)</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Begroeting</td><td>Twee of drie kussen, omhelzing</td><td>Hand schudden, vaak afstandelijk</td></tr>
+      <tr><td>Eettijd 's avonds</td><td>20:00 — 22:00 uur</td><td>17:00 — 18:30 uur</td></tr>
+      <tr><td>Gezinsleven</td><td>Centraal, grote families, lang thuis wonen</td><td>Individueel, jong op kamers</td></tr>
+      <tr><td>Sociale sfeer</td><td>Luid, levendig, op straat</td><td>Stil, ingetogen, binnen</td></tr>
+      <tr><td>Privacy</td><td>Wordt minder belangrijk gevonden</td><td>Heel belangrijk</td></tr>
+    </tbody>
+  </table>
+
+  <div class="info-box coral">
+    <h4>📱 Cultuur op social media</h4>
+    <p>Op TikTok zie je hoe culturele verschillen viral worden. Filmpjes als "Italian mom reacts to pineapple pizza" of "Finnish people minding their own business" werken juist omdat ze culturele stereotypes zichtbaar maken. Soms grappig, soms simplistisch — maar ze laten zien dat cultuur een dagelijkse realiteit is, ook online.</p>
+  </div>
+
+  <div class="emoji-flow">
+    <div class="flow-item"><span class="emoji">🌍</span><span class="label">Geschiedenis</span></div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-item"><span class="emoji">⛪</span><span class="label">Religie</span></div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-item"><span class="emoji">☀️</span><span class="label">Klimaat</span></div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-item"><span class="emoji">🎭</span><span class="label">Cultuur</span></div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-item"><span class="emoji">🤝</span><span class="label">Hoe mensen<br>met elkaar omgaan</span></div>
+  </div>
+
+  <div class="you-question">
+    Stel: je hebt een uitwisseling met een Italiaanse leeftijdsgenoot die een week bij jou thuis komt. Welk Nederlands gedrag of welke gewoonte zou hem of haar het meest opvallen?
+  </div>
+
+  <h3 style="color: var(--ocean-deep); margin-top: var(--space-md);">📖 Casus: Sofia op TikTok</h3>
+  <div class="scenario">
+    <div class="scenario-character">
+      <div class="scenario-avatar">👩🏽</div>
+      <div>
+        <div class="scenario-name">Sofia, 14 jaar, uit Napels (Italië)</div>
+        <div class="scenario-meta">🇮🇹 Italië · 18.000 volgers op TikTok · houdt van koken</div>
+      </div>
+    </div>
+    <p class="scenario-text">Sofia maakt TikTok-video's over haar dagelijks leven in Italië. Haar populairste video is van een zondag: drie generaties van haar familie — oma, ouders, tantes, ooms, neefjes — eten samen aan een lange tafel op het binnenhof. Het is half drie 's middags en het eten duurt al twee uur. Mensen praten luid door elkaar, lachen, en niemand kijkt op zijn telefoon.</p>
+    <div class="scenario-quote">"De comments op mijn video zijn grappig. Nederlandse kijkers schrijven: 'WHO are all these people?? Is this a wedding?' En Amerikanen vragen: 'Why is your phone not at the table?' Voor mij is dit een normale zondag."</div>
+    <p class="scenario-text">Sofia merkt dat haar Italiaanse cultuur online wordt gezien als bijzonder, terwijl het voor haar gewoon dagelijks leven is. Cultuur valt vooral op als je iemand met andere ogen ernaar laat kijken.</p>
+  </div>
+
+  <!-- Question 1 -->
+  <div class="question-block" data-qid="cultuur-1" data-qtype="mc" data-correct="a">
+    <span class="q-label">VRAAG 1 · Multiple choice over de casus</span>
+    <p class="q-text">Welk cultureel kenmerk uit Sofia's verhaal is typisch mediterraan?</p>
+    <div class="options">
+      <button class="option-btn" data-answer="a">a) Lang en met de hele familie samen eten</button>
+      <button class="option-btn" data-answer="b">b) Strikt op tijd eten om 18:00 uur</button>
+      <button class="option-btn" data-answer="c">c) Iedereen scrolt door zijn telefoon tijdens het eten</button>
+      <button class="option-btn" data-answer="d">d) Mensen eten in stilte</button>
+    </div>
+    <div class="feedback"></div>
+    <div class="attempts-info"></div>
+  </div>
+
+  <!-- Question 2: Open -->
+  <div class="question-block" data-qid="cultuur-2" data-qtype="open" data-min-words="20">
+    <span class="q-label">VRAAG 2 · Open vraag (≥20 woorden)</span>
+    <p class="q-text">Noem twee culturele verschillen tussen Nederland en een mediterraan land naar keuze. Leg uit waar deze verschillen vandaan kunnen komen.</p>
+    <textarea class="open-answer" placeholder="Schrijf hier je antwoord..."></textarea>
+    <div class="word-count"><span class="wc-text">0 woorden (minimaal 20)</span></div>
+    <button class="btn" data-action="show-example" disabled>Toon voorbeeldantwoord</button>
+    <div class="feedback"></div>
+    <div class="self-assess">
+      <p>📝 Vergelijk je antwoord met het voorbeeld.</p>
+      <div class="self-assess-buttons">
+        <button class="btn btn-success btn-small" data-self="good">Goed ✓</button>
+        <button class="btn btn-danger btn-small" data-self="fail">Verbeterpunt ✗</button>
+      </div>
+    </div>
+    <div class="example-answer" data-example="Een verschil tussen Nederland en Italië is de eettijd: Nederlanders eten rond zes uur, Italianen pas rond negen of tien uur 's avonds. Een tweede verschil is het gezinsleven: in Italië wonen jongeren vaak lang bij hun ouders en is de familie centraal, terwijl Nederlandse jongeren al rond hun 18e op kamers gaan. Deze verschillen komen door klimaat (in Italië eet je laat omdat het overdag te warm is), religie (katholiek gezinsdenken) en geschiedenis."></div>
+  </div>
+
+  <!-- Question 3: Matching -->
+  <div class="question-block" data-qid="cultuur-3" data-qtype="match">
+    <span class="q-label">VRAAG 3 · Koppel cultureel kenmerk aan regio</span>
+    <p class="q-text">Klik op een kenmerk en daarna op de juiste regio waar het bij past. Eén regio kan meerdere kenmerken hebben.</p>
+    <div class="match-container" id="cultuurMatch">
+      <div class="match-column">
+        <h4>🎭 Cultureel kenmerk</h4>
+        <div class="match-item" data-side="src" data-key="med">Lange familiediners</div>
+        <div class="match-item" data-side="src" data-key="noord">Hoge waardering voor privacy</div>
+        <div class="match-item" data-side="src" data-key="med">Luide, levendige sociale sfeer</div>
+        <div class="match-item" data-side="src" data-key="noord">Vroeg op kamers gaan wonen</div>
+      </div>
+      <div class="match-column">
+        <h4>🌍 Regio</h4>
+        <div class="match-item" data-side="tgt" data-key="med">🌞 Mediterrane regio (Italië, Spanje, Griekenland)</div>
+        <div class="match-item" data-side="tgt" data-key="noord">❄️ Noord-Europa (Scandinavië)</div>
+      </div>
+    </div>
+    <button class="btn" data-action="check-match" data-target="cultuurMatch">Controleer koppelingen</button>
+    <div class="feedback"></div>
+    <div class="attempts-info"></div>
+  </div>
+
+  <div class="tab-footer">
+    <button class="btn-clear btn-small" data-action="reset-tab" data-tab="cultuur">🔄 Reset dit onderdeel</button>
+    <div class="nav-buttons">
+      <button class="btn" data-nav="prev">← Vorige</button>
+      <button class="btn" data-nav="next">Volgende →</button>
+    </div>
+  </div>
+</section>
+
+<!-- =================== TAB 5: ONDERWIJS =================== -->
+<section class="tab-content" data-tab="onderwijs">
+  <div class="section-header">
+    <h2>🎓 Onderwijs — de toekomst van een land</h2>
+    <p class="lead">Hoe goed onderwijs de kansen van mensen bepaalt.</p>
+    <span class="icon-big">📚</span>
+  </div>
+
+  <div class="content-block">
+    <h3>🏫 Niet elk onderwijs is gelijk</h3>
+    <p>Stel je voor: twee leerlingen van veertien jaar, even slim, even ambitieus. De één woont in Finland, de ander in Roemenië. Hebben ze dezelfde kansen op een goede toekomst? Helaas niet. De <strong>kwaliteit en toegankelijkheid van onderwijs</strong> verschilt sterk tussen Europese landen — en dat heeft enorme gevolgen.</p>
+
+    <p>In landen met <strong>goed en toegankelijk onderwijs</strong> — zoals <strong>Finland</strong>, dat internationaal hoog scoort op de PISA-test — hebben kinderen <em>ongeacht hun achtergrond</em> een goede kans op een goede toekomst. Het Finse systeem heeft kleine klassen, goed opgeleide docenten met veel vrijheid, weinig huiswerk en gratis schoollunches. Iedereen krijgt zo veel mogelijk dezelfde startkans. In landen waar het onderwijs minder goed is georganiseerd of minder toegankelijk is voor bepaalde groepen, <strong>vergroot dat de ongelijkheid</strong> in de samenleving.</p>
+
+    <p>Het <strong>opleidingsniveau</strong> van een bevolking hangt nauw samen met de <strong>economische ontwikkeling</strong> van een land. Landen met een goed opgeleide bevolking trekken meer kennisintensieve bedrijven aan (tech, biotech, design) en kunnen beter meekomen in een globaliserende economie. Onderwijs is dus niet alleen een individuele zaak — het is een investering in de toekomst van een heel land.</p>
+  </div>
+
+  <div class="emoji-flow">
+    <div class="flow-item"><span class="emoji">🎓</span><span class="label">Goed onderwijs</span></div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-item"><span class="emoji">🧠</span><span class="label">Geschoolde<br>bevolking</span></div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-item"><span class="emoji">💼</span><span class="label">Kennisbedrijven</span></div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-item"><span class="emoji">💰</span><span class="label">Sterke<br>economie</span></div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-item"><span class="emoji">🏥</span><span class="label">Meer geld voor<br>zorg en onderwijs</span></div>
+  </div>
+
+  <div class="info-box green">
+    <h4>🇫🇮 Waarom is Finland zo'n onderwijs-topper?</h4>
+    <p>Finse leerlingen beginnen pas op hun 7e met school, hebben weinig huiswerk, krijgen geen verplichte cijfers tot ongeveer hun 12e, en alle docenten hebben een masterdiploma. Iedereen krijgt een gratis warme lunch, gratis leerboeken en gratis schoolreisjes. Het uitgangspunt: elk kind moet gelijke kansen krijgen, en docenten zijn experts die je vertrouwt.</p>
+  </div>
+
+  <div class="chart-container">
+    <canvas id="onderwijsChart"></canvas>
+  </div>
+
+  <div class="you-question">
+    Wat zou jij willen veranderen aan het Nederlandse onderwijs als je één ding mocht overnemen uit het Finse systeem? En wat zou je juist NIET willen overnemen?
+  </div>
+
+  <!-- Question 1: analyse -->
+  <div class="question-block" data-qid="onderwijs-1" data-qtype="mc" data-correct="b">
+    <span class="q-label">VRAAG 1 · Grafiek aflezen</span>
+    <p class="q-text">Welk land scoort het hoogst op de PISA-score volgens de grafiek hierboven?</p>
+    <div class="options">
+      <button class="option-btn" data-answer="a">a) Roemenië</button>
+      <button class="option-btn" data-answer="b">b) Finland</button>
+      <button class="option-btn" data-answer="c">c) Italië</button>
+      <button class="option-btn" data-answer="d">d) Polen</button>
+    </div>
+    <div class="feedback"></div>
+    <div class="attempts-info"></div>
+  </div>
+
+  <!-- Question 2 -->
+  <div class="question-block" data-qid="onderwijs-2" data-qtype="mc" data-correct="c">
+    <span class="q-label">VRAAG 2 · Multiple choice</span>
+    <p class="q-text">Waarom heeft een land met goed onderwijs vaak ook een sterkere economie?</p>
+    <div class="options">
+      <button class="option-btn" data-answer="a">a) Omdat scholen veel belastinggeld opleveren</button>
+      <button class="option-btn" data-answer="b">b) Omdat het toerisme aantrekt</button>
+      <button class="option-btn" data-answer="c">c) Omdat geschoolde mensen kennisbedrijven aantrekken en innoveren</button>
+      <button class="option-btn" data-answer="d">d) Omdat leerlingen al jong belasting betalen</button>
+    </div>
+    <div class="feedback"></div>
+    <div class="attempts-info"></div>
+  </div>
+
+  <!-- Question 3: Open -->
+  <div class="question-block" data-qid="onderwijs-3" data-qtype="open" data-min-words="20">
+    <span class="q-label">VRAAG 3 · Open vraag (≥20 woorden)</span>
+    <p class="q-text">Leg uit waarom goed onderwijs niet alleen goed is voor de individuele leerling, maar ook voor de hele samenleving. Geef minstens twee redenen.</p>
+    <textarea class="open-answer" placeholder="Schrijf hier je antwoord..."></textarea>
+    <div class="word-count"><span class="wc-text">0 woorden (minimaal 20)</span></div>
+    <button class="btn" data-action="show-example" disabled>Toon voorbeeldantwoord</button>
+    <div class="feedback"></div>
+    <div class="self-assess">
+      <p>📝 Vergelijk je antwoord met het voorbeeld.</p>
+      <div class="self-assess-buttons">
+        <button class="btn btn-success btn-small" data-self="good">Goed ✓</button>
+        <button class="btn btn-danger btn-small" data-self="fail">Verbeterpunt ✗</button>
+      </div>
+    </div>
+    <div class="example-answer" data-example="Goed onderwijs is belangrijk voor de hele samenleving omdat het zorgt voor een goed opgeleide bevolking die nieuwe ideeën en bedrijven kan ontwikkelen. Daardoor wordt de economie sterker en is er meer geld voor zorg en publieke voorzieningen. Daarnaast vergroot toegankelijk onderwijs de gelijkheid: kinderen uit arme gezinnen krijgen ook een eerlijke kans, waardoor de samenleving stabieler wordt."></div>
+  </div>
+
+  <div class="tab-footer">
+    <button class="btn-clear btn-small" data-action="reset-tab" data-tab="onderwijs">🔄 Reset dit onderdeel</button>
+    <div class="nav-buttons">
+      <button class="btn" data-nav="prev">← Vorige</button>
+      <button class="btn" data-nav="next">Volgende →</button>
+    </div>
+  </div>
+</section>
+
+<!-- =================== TAB 6: ZORG =================== -->
+<section class="tab-content" data-tab="zorg">
+  <div class="section-header">
+    <h2>🏥 Gezondheidszorg — hoe lang word je oud?</h2>
+    <p class="lead">De zorg voor zieken en ouderen als spiegel van een land.</p>
+    <span class="icon-big">⚕️</span>
+  </div>
+
+  <div class="content-block">
+    <h3>💉 Goede zorg = lang leven</h3>
+    <p>Hoe goed een land voor zijn zieke en kwetsbare inwoners zorgt, is een belangrijke <strong>maat voor de kwaliteit van leven</strong>. Als je ziek wordt, kun je dan naar een huisarts? Krijg je medicijnen vergoed? Is er een ambulance binnen tien minuten als er iets ergs gebeurt? In sommige landen is dat allemaal vanzelfsprekend, in andere niet.</p>
+
+    <p>In <strong>West-Europa</strong> hebben de meeste landen een <strong>goed georganiseerd zorgstelsel</strong>. Iedereen heeft toegang tot een huisarts, ziekenhuizen zijn modern, en kosten worden grotendeels gedekt door verzekeringen of belastingen. In <strong>Oost-Europa</strong> zijn de gezondheidszorgstelsels gemiddeld <strong>minder goed ontwikkeld</strong>, hoewel er grote verschillen zijn tussen landen.</p>
+
+    <p>De <strong>levensverwachting</strong> — hoe oud mensen gemiddeld worden — is een handige graadmeter voor de kwaliteit van de zorg én de leefstijl. Die ligt in <strong>Spanje en Italië rond de 83 jaar</strong>, terwijl hij in <strong>Bulgarije en Roemenië dichter bij de 75 jaar</strong> ligt. Een verschil van bijna acht jaar tussen Europese buurlanden! Gezondheidszorg en onderwijs samen vormen wat geografen de <strong>sociale infrastructuur</strong> van een land noemen. Een sterke sociale infrastructuur betekent dat mensen langer, gezonder en productiever leven — en dat heeft weer gevolgen voor de economie en demografie.</p>
+  </div>
+
+  <div class="info-box gold">
+    <h4>🧠 Begrip: sociale infrastructuur</h4>
+    <p><strong>Sociale infrastructuur</strong> = alle voorzieningen die ervoor zorgen dat mensen kunnen leren, gezond blijven en goed kunnen samenleven. Denk aan scholen, ziekenhuizen, bibliotheken, sportvelden, kinderopvang. Een land met een sterke sociale infrastructuur "investeert in zijn mensen".</p>
+  </div>
+
+  <h3 style="color: var(--ocean-deep); margin-top: var(--space-md);">📊 Levensverwachting in Europa</h3>
+  <div class="chart-container">
+    <canvas id="zorgChart"></canvas>
+  </div>
+
+  <h3 style="color: var(--ocean-deep); margin-top: var(--space-md);">🗺️ Verken Europa op de kaart</h3>
+  <div class="map-legend">
+    <div class="legend-item"><span class="legend-dot" style="background: #2cb67d;"></span> Hoge levensverwachting (≥82 jaar)</div>
+    <div class="legend-item"><span class="legend-dot" style="background: #ffc857;"></span> Gemiddeld (78-82 jaar)</div>
+    <div class="legend-item"><span class="legend-dot" style="background: #ff6b4a;"></span> Lager (&lt;78 jaar)</div>
+  </div>
+  <div class="map-container" id="zorgMap"></div>
+
+  <div class="you-question">
+    Heb je weleens een ziekenhuis bezocht in het buitenland, of ken je iemand die daar werd behandeld? Wat viel op aan het verschil met Nederland? En: weet je hoe oud je grootouders zijn vergeleken met het Europese gemiddelde?
+  </div>
+
+  <!-- Question 1 -->
+  <div class="question-block" data-qid="zorg-1" data-qtype="mc" data-correct="b">
+    <span class="q-label">VRAAG 1 · Multiple choice</span>
+    <p class="q-text">In welke landen ligt de gemiddelde levensverwachting rond de 83 jaar?</p>
+    <div class="options">
+      <button class="option-btn" data-answer="a">a) Bulgarije en Roemenië</button>
+      <button class="option-btn" data-answer="b">b) Spanje en Italië</button>
+      <button class="option-btn" data-answer="c">c) Polen en Hongarije</button>
+      <button class="option-btn" data-answer="d">d) Estland en Letland</button>
+    </div>
+    <div class="feedback"></div>
+    <div class="attempts-info"></div>
+  </div>
+
+  <!-- Question 2 -->
+  <div class="question-block" data-qid="zorg-2" data-qtype="mc" data-correct="c">
+    <span class="q-label">VRAAG 2 · Multiple choice</span>
+    <p class="q-text">Wat verstaan geografen onder de "sociale infrastructuur" van een land?</p>
+    <div class="options">
+      <button class="option-btn" data-answer="a">a) Het wegennet en de spoorwegen</button>
+      <button class="option-btn" data-answer="b">b) De industrie en de havens</button>
+      <button class="option-btn" data-answer="c">c) Het geheel van onderwijs, zorg en sociale voorzieningen</button>
+      <button class="option-btn" data-answer="d">d) Het aantal volgers op social media</button>
+    </div>
+    <div class="feedback"></div>
+    <div class="attempts-info"></div>
+  </div>
+
+  <!-- Question 3: Open analysis -->
+  <div class="question-block" data-qid="zorg-3" data-qtype="open" data-min-words="20">
+    <span class="q-label">VRAAG 3 · Analyse (≥20 woorden)</span>
+    <p class="q-text">Kijk naar de grafiek met levensverwachting. Wat is het grote verschil tussen Zuid/West-Europa en Oost-Europa? Geef minstens één mogelijke verklaring voor dit verschil.</p>
+    <textarea class="open-answer" placeholder="Schrijf hier je analyse..."></textarea>
+    <div class="word-count"><span class="wc-text">0 woorden (minimaal 20)</span></div>
+    <button class="btn" data-action="show-example" disabled>Toon voorbeeldantwoord</button>
+    <div class="feedback"></div>
+    <div class="self-assess">
+      <p>📝 Vergelijk je antwoord met het voorbeeld.</p>
+      <div class="self-assess-buttons">
+        <button class="btn btn-success btn-small" data-self="good">Goed ✓</button>
+        <button class="btn btn-danger btn-small" data-self="fail">Verbeterpunt ✗</button>
+      </div>
+    </div>
+    <div class="example-answer" data-example="In Zuid- en West-Europa, zoals Spanje en Italië, worden mensen gemiddeld rond de 83 jaar oud, terwijl in Oost-Europa, zoals Bulgarije en Roemenië, de levensverwachting rond de 75 jaar ligt. Een verklaring is het verschil in welvaart en zorgstelsel: West-Europese landen investeren al langer in goede ziekenhuizen, preventie en gezonde voeding, terwijl Oost-Europese landen na de Koude Oorlog economisch achterliepen en hun zorgsysteem minder snel kon meegroeien."></div>
+  </div>
+
+  <div class="tab-footer">
+    <button class="btn-clear btn-small" data-action="reset-tab" data-tab="zorg">🔄 Reset dit onderdeel</button>
+    <div class="nav-buttons">
+      <button class="btn" data-nav="prev">← Vorige</button>
+      <button class="btn" data-nav="next">Volgende →</button>
+    </div>
+  </div>
+</section>
+
+<!-- =================== TAB 7: REFLECTIE =================== -->
+<section class="tab-content" data-tab="reflectie">
+  <div class="final-card">
+    <span class="big-emoji">🏆</span>
+    <h2>Je ontdekkingsreis zit erop!</h2>
+    <p style="opacity: 0.9; font-size: 1.05rem;">Je hebt de sociaal-culturele dimensie van Europa verkend.</p>
+    <div class="score-display">
+      <span class="score-number" id="finalScore">0%</span>
+      <span style="font-weight: 700;">van de opdrachten voltooid</span>
+    </div>
+  </div>
+
+  <div class="content-block">
+    <h3>🎯 Wat heb je geleerd?</h3>
+    <p>Je hebt nu de vijf onderdelen van de sociaal-culturele dimensie gezien: <strong>taal, religie, cultuur, onderwijs en gezondheidszorg</strong>. Samen vormen ze de "ziel" van een land — de manier waarop mensen samenleven, communiceren, geloven, leren en voor elkaar zorgen. Twee landen kunnen op de kaart heel dicht bij elkaar liggen en toch totaal anders voelen, juist door deze dimensie.</p>
+
+    <p>Je hebt ook gezien dat geografie geen losse vakjes zijn. Religie beïnvloedt cultuur. Onderwijs beïnvloedt economie. Gezondheidszorg hangt samen met levensverwachting. Wie de sociaal-culturele dimensie begrijpt, ziet beter waarom landen zijn zoals ze zijn — en kan beter samenleven met mensen uit andere culturen.</p>
+  </div>
+
+  <div class="goals-list">
+    <h3 style="color: var(--ocean-deep); margin-bottom: var(--space-sm);">✅ Leerdoelen — vink af wat je kunt</h3>
+    <ul>
+      <li><span class="goal-check">✓</span> Ik kan uitleggen wat de sociaal-culturele dimensie inhoudt.</li>
+      <li><span class="goal-check">✓</span> Ik kan beschrijven hoe taal en religie de identiteit van een land bepalen.</li>
+      <li><span class="goal-check">✓</span> Ik kan uitleggen wat cultuur is en voorbeelden geven van culturele verschillen tussen landen.</li>
+      <li><span class="goal-check">✓</span> Ik kan beschrijven hoe onderwijs en gezondheidszorg de kwaliteit van leven beïnvloeden.</li>
+      <li><span class="goal-check">✓</span> Ik kan de sociaal-culturele dimensie toepassen op twee landen.</li>
+    </ul>
+  </div>
+
+  <h3 style="color: white; margin-top: var(--space-lg); margin-bottom: var(--space-sm); text-shadow: 0 2px 8px rgba(0,0,0,0.4);">💭 Reflectievragen over het leerproces</h3>
+
+  <!-- Reflection 1 -->
+  <div class="question-block" data-qid="ref-1" data-qtype="open" data-min-words="20">
+    <span class="q-label">REFLECTIE 1 · Wat was lastig? (≥20 woorden)</span>
+    <p class="q-text">Welk onderdeel van deze les vond je het lastigst, en waarom? Probeer concreet te zijn — was het de stof, de opdrachten, of iets anders?</p>
+    <textarea class="open-answer" placeholder="Schrijf hier je reflectie..."></textarea>
+    <div class="word-count"><span class="wc-text">0 woorden (minimaal 20)</span></div>
+    <button class="btn" data-action="show-example" disabled>Toon voorbeeldantwoord</button>
+    <div class="feedback"></div>
+    <div class="self-assess">
+      <p>📝 Een goede reflectie is concreet en eerlijk.</p>
+      <div class="self-assess-buttons">
+        <button class="btn btn-success btn-small" data-self="good">Goed ✓</button>
+        <button class="btn btn-danger btn-small" data-self="fail">Verbeterpunt ✗</button>
+      </div>
+    </div>
+    <div class="example-answer" data-example="Ik vond het onderdeel over religie het lastigst, omdat ik weinig wist over de verschillen tussen Noord- en Zuid-Europa. Vooral de grafiek met religiositeitscijfers vond ik in het begin moeilijk te begrijpen, maar door eerst de uitleg goed te lezen en daarna naar de grafiek te kijken, viel het kwartje. Voor mij hielp het om kleine stukjes tegelijk te doen."></div>
+  </div>
+
+  <!-- Reflection 2 -->
+  <div class="question-block" data-qid="ref-2" data-qtype="open" data-min-words="20">
+    <span class="q-label">REFLECTIE 2 · Uitleggen aan een klasgenoot (≥20 woorden)</span>
+    <p class="q-text">Stel: een klasgenoot was vandaag ziek. Hoe zou jij in maximaal vijf zinnen uitleggen wat de sociaal-culturele dimensie is en waarom die belangrijk is?</p>
+    <textarea class="open-answer" placeholder="Schrijf hier je uitleg..."></textarea>
+    <div class="word-count"><span class="wc-text">0 woorden (minimaal 20)</span></div>
+    <button class="btn" data-action="show-example" disabled>Toon voorbeeldantwoord</button>
+    <div class="feedback"></div>
+    <div class="self-assess">
+      <p>📝 Goed uitleggen = de essentie pakken én een voorbeeld geven.</p>
+      <div class="self-assess-buttons">
+        <button class="btn btn-success btn-small" data-self="good">Goed ✓</button>
+        <button class="btn btn-danger btn-small" data-self="fail">Verbeterpunt ✗</button>
+      </div>
+    </div>
+    <div class="example-answer" data-example="De sociaal-culturele dimensie gaat over de mensen in een land en hoe ze samenleven. Het bestaat uit vijf onderdelen: taal, religie, cultuur, onderwijs en gezondheidszorg. Deze maken landen uniek: zo eten Italianen pas om tien uur en wonen jongeren lang thuis, terwijl Nederlanders al jong op kamers gaan. Het is belangrijk omdat het verklaart waarom landen ondanks soortgelijke ligging toch heel anders voelen."></div>
+  </div>
+
+  <!-- Reflection 3 -->
+  <div class="question-block" data-qid="ref-3" data-qtype="open" data-min-words="20">
+    <span class="q-label">REFLECTIE 3 · Toepassen op eigen omgeving (≥20 woorden)</span>
+    <p class="q-text">Hoe herken je deze onderwerpen (taal, religie, cultuur, onderwijs, zorg) in je eigen omgeving — in jouw stad, school of social media feed? Geef twee concrete voorbeelden.</p>
+    <textarea class="open-answer" placeholder="Schrijf hier je voorbeelden..."></textarea>
+    <div class="word-count"><span class="wc-text">0 woorden (minimaal 20)</span></div>
+    <button class="btn" data-action="show-example" disabled>Toon voorbeeldantwoord</button>
+    <div class="feedback"></div>
+    <div class="self-assess">
+      <p>📝 Verbind de stof met wat je dagelijks ziet.</p>
+      <div class="self-assess-buttons">
+        <button class="btn btn-success btn-small" data-self="good">Goed ✓</button>
+        <button class="btn btn-danger btn-small" data-self="fail">Verbeterpunt ✗</button>
+      </div>
+    </div>
+    <div class="example-answer" data-example="In mijn klas zitten leerlingen met verschillende achtergronden: sommigen vieren Suikerfeest en anderen Kerst. Dat laat de religieuze diversiteit zien die we ook in Europa zien. Op TikTok krijg ik veel Spaanse en Italiaanse video's waarin mensen later op de avond eten dan wij — dat is een cultureel verschil in dagindeling. Op school merk ik dat het Nederlandse onderwijssysteem veel keuze geeft (havo/vwo), terwijl in andere landen iedereen langer in dezelfde klas zit."></div>
+  </div>
+
+  <div class="tab-footer">
+    <button class="btn-clear btn-small" data-action="reset-tab" data-tab="reflectie">🔄 Reset dit onderdeel</button>
+    <div class="nav-buttons">
+      <button class="btn" data-nav="prev">← Vorige</button>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<script>
+'use strict';
+
+// ===================== GLOBAL STATE =====================
+const STORAGE_PREFIX = 'geo_les_socul_';
+const TABS = ['intro', 'taal', 'religie', 'cultuur', 'onderwijs', 'zorg', 'reflectie'];
+let currentTab = 'intro';
+let questionState = {}; // qid -> {status, attempts, value, completed}
+let mapInstances = {}; // tab -> map
+let chartInstances = {};
+let matchState = {}; // matchId -> {selected, pairs:{srcEl: tgtKey}, colorIndex}
+
+// ===================== STORAGE HELPERS =====================
+function saveState() {
+  try {
+    localStorage.setItem(STORAGE_PREFIX + 'state', JSON.stringify(questionState));
+    localStorage.setItem(STORAGE_PREFIX + 'currentTab', currentTab);
+    localStorage.setItem(STORAGE_PREFIX + 'timestamp', new Date().toISOString());
+  } catch (e) {
+    console.warn('localStorage not available');
+  }
+}
+
+function loadState() {
+  try {
+    const saved = localStorage.getItem(STORAGE_PREFIX + 'state');
+    if (saved) questionState = JSON.parse(saved);
+    const tab = localStorage.getItem(STORAGE_PREFIX + 'currentTab');
+    if (tab && TABS.includes(tab)) currentTab = tab;
+  } catch (e) {
+    questionState = {};
+  }
+}
+
+function clearAllProgress() {
+  try {
+    Object.keys(localStorage).forEach(k => {
+      if (k.startsWith(STORAGE_PREFIX)) localStorage.removeItem(k);
+    });
+  } catch (e) {}
+  questionState = {};
+  location.reload();
+}
+
+// ===================== TAB NAVIGATION =====================
+function showTab(tabName) {
+  if (!TABS.includes(tabName)) return;
+  currentTab = tabName;
+  document.querySelectorAll('.tab-content').forEach(el => {
+    el.classList.toggle('active', el.dataset.tab === tabName);
+  });
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.tab === tabName);
+  });
+  updateTabCounter();
+  // Refresh maps
+  setTimeout(() => {
+    if (mapInstances[tabName]) {
+      mapInstances[tabName].invalidateSize();
+    }
+  }, 100);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  saveState();
+}
+
+function updateTabCounter() {
+  const idx = TABS.indexOf(currentTab) + 1;
+  document.getElementById('tabCounter').textContent = `Onderdeel ${idx} van ${TABS.length}`;
+}
+
+function navTab(direction) {
+  const idx = TABS.indexOf(currentTab);
+  const next = direction === 'next' ? idx + 1 : idx - 1;
+  if (next >= 0 && next < TABS.length) showTab(TABS[next]);
+}
+
+// ===================== PROGRESS =====================
+function getAllQuestions() {
+  return Array.from(document.querySelectorAll('.question-block'));
+}
+
+function updateProgress() {
+  const all = getAllQuestions();
+  const total = all.length;
+  let done = 0;
+  all.forEach(q => {
+    const qid = q.dataset.qid;
+    if (questionState[qid] && questionState[qid].completed) done++;
+  });
+  const pct = total === 0 ? 0 : Math.round((done / total) * 100);
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressText').textContent = pct + '%';
+
+  // Tab completion checks
+  TABS.forEach(tabName => {
+    const tabQs = Array.from(document.querySelectorAll(`.tab-content[data-tab="${tabName}"] .question-block`));
+    if (tabQs.length === 0) return;
+    const allDone = tabQs.every(q => questionState[q.dataset.qid] && questionState[q.dataset.qid].completed);
+    const btn = document.querySelector(`.tab-btn[data-tab="${tabName}"]`);
+    if (btn) btn.classList.toggle('completed', allDone);
+  });
+
+  // Final score
+  const finalScoreEl = document.getElementById('finalScore');
+  if (finalScoreEl) finalScoreEl.textContent = pct + '%';
+}
+
+// ===================== QUESTION COMPLETION =====================
+function markQuestionDone(qid, status) {
+  questionState[qid] = questionState[qid] || { attempts: 0 };
+  questionState[qid].completed = true;
+  questionState[qid].status = status; // 'correct' or 'incorrect' or 'self-good' or 'self-fail'
+  updateProgress();
+  saveState();
+}
+
+function updateAttemptsInfo(qBlock) {
+  const qid = qBlock.dataset.qid;
+  const info = qBlock.querySelector('.attempts-info');
+  if (!info) return;
+  const st = questionState[qid];
+  if (!st) { info.textContent = ''; return; }
+  if (st.completed) {
+    info.textContent = '';
+  } else {
+    info.textContent = `Pogingen: ${st.attempts || 0} / 3`;
+  }
+}
+
+// ===================== MULTIPLE CHOICE =====================
+function handleMcClick(qBlock, btn) {
+  const qid = qBlock.dataset.qid;
+  const answer = btn.dataset.answer;
+  const correct = qBlock.dataset.correct;
+  const feedback = qBlock.querySelector('.feedback');
+
+  questionState[qid] = questionState[qid] || { attempts: 0 };
+  if (questionState[qid].completed) return;
+  questionState[qid].attempts++;
+
+  if (answer === correct) {
+    qBlock.querySelectorAll('.option-btn').forEach(b => {
+      b.disabled = true;
+      if (b.dataset.answer === correct) b.classList.add('correct');
+    });
+    feedback.className = 'feedback show success';
+    feedback.innerHTML = '✅ <strong>Goed gedaan!</strong> Dat klopt helemaal.';
+    qBlock.classList.add('done');
+    markQuestionDone(qid, 'correct');
+    addLockedBadge(qBlock, 'success');
+  } else {
+    btn.classList.add('wrong');
+    btn.disabled = true;
+    if (questionState[qid].attempts >= 3) {
+      // Show correct answer
+      qBlock.querySelectorAll('.option-btn').forEach(b => {
+        b.disabled = true;
+        if (b.dataset.answer === correct) b.classList.add('correct');
+      });
+      feedback.className = 'feedback show reveal';
+      feedback.innerHTML = '💡 <strong>Het juiste antwoord is gemarkeerd.</strong> Geen zorgen — door fouten leer je het beste. Lees het juiste antwoord nog eens rustig door.';
+      qBlock.classList.add('failed');
+      markQuestionDone(qid, 'incorrect');
+      addLockedBadge(qBlock, 'fail');
+    } else {
+      feedback.className = 'feedback show hint';
+      const hints = getHintsForQuestion(qid);
+      const hint = hints[Math.min(questionState[qid].attempts - 1, hints.length - 1)] || 'Lees de uitleg nog eens goed door.';
+      feedback.innerHTML = `🤔 <strong>Bijna!</strong> ${hint}`;
+    }
+  }
+  updateAttemptsInfo(qBlock);
+  saveState();
+}
+
+function getHintsForQuestion(qid) {
+  const hints = {
+    'intro-1': ['Welk antwoord gaat over MENSEN, niet over natuur of geld?', 'Wat hoort bij hoe mensen samenleven?'],
+    'taal-1': ['Denk aan het land in het midden van Europa, met Alpen en banken.', 'Het is een klein neutraal land met meerdere taalgebieden.'],
+    'taal-2': ['Denk aan het gebied rond Barcelona.', 'De hoofdstad ervan is Barcelona.'],
+    'religie-1': ['Denk aan landen waar de paus belangrijk is.', 'Welke regio heeft een sterke katholieke traditie?'],
+    'cultuur-1': ['Wat zegt het verhaal over hoeveel mensen aan tafel zaten?', 'Kijk naar de duur en de sfeer van het eten.'],
+    'onderwijs-1': ['Kijk welk land het hoogste balkje heeft in de grafiek.', 'Het land staat bekend om PISA-topscores.'],
+    'onderwijs-2': ['Wat doen geschoolde mensen voor de economie?', 'Welke link bestaat er tussen kennis en bedrijven?'],
+    'zorg-1': ['Denk aan landen in het zuiden met goede zorg.', 'Welke twee landen worden in de tekst als voorbeeld van hoge levensverwachting genoemd?'],
+    'zorg-2': ['Het gaat NIET over wegen of fabrieken.', 'Welke voorzieningen helpen mensen leren én gezond blijven?']
+  };
+  return hints[qid] || ['Lees de tekst nog eens goed door.'];
+}
+
+function addLockedBadge(qBlock, type) {
+  if (qBlock.querySelector('.locked-overlay')) return;
+  const badge = document.createElement('div');
+  badge.className = 'locked-overlay' + (type === 'fail' ? ' fail' : '');
+  badge.textContent = type === 'fail' ? '🔒 Voltooid' : '✓ Goed';
+  qBlock.appendChild(badge);
+}
+
+// ===================== OPEN QUESTIONS =====================
+function handleTextareaInput(qBlock, ta) {
+  const qid = qBlock.dataset.qid;
+  const minWords = parseInt(qBlock.dataset.minWords) || 20;
+  const wcText = qBlock.querySelector('.wc-text');
+  const wcWrap = qBlock.querySelector('.word-count');
+  const exampleBtn = qBlock.querySelector('[data-action="show-example"]');
+
+  const words = ta.value.trim().split(/\s+/).filter(w => w.length > 0);
+  const count = words.length;
+
+  wcText.textContent = `${count} woorden (minimaal ${minWords})`;
+  wcWrap.classList.toggle('enough', count >= minWords);
+
+  if (count >= minWords) {
+    exampleBtn.disabled = false;
+  } else {
+    exampleBtn.disabled = true;
+  }
+
+  // Save value
+  questionState[qid] = questionState[qid] || { attempts: 0 };
+  questionState[qid].value = ta.value;
+  saveState();
+}
+
+function handleShowExample(qBlock) {
+  const qid = qBlock.dataset.qid;
+  const exampleData = qBlock.querySelector('.example-answer');
+  const feedback = qBlock.querySelector('.feedback');
+  const exampleBtn = qBlock.querySelector('[data-action="show-example"]');
+  const selfAssess = qBlock.querySelector('.self-assess');
+
+  if (!exampleData) return;
+  const exampleText = exampleData.dataset.example;
+
+  feedback.className = 'feedback show reveal';
+  feedback.innerHTML = `<strong>📖 Voorbeeldantwoord (jouw antwoord mag anders zijn):</strong><br><br>${exampleText}`;
+
+  exampleBtn.style.display = 'none';
+  selfAssess.classList.add('show');
+}
+
+function handleSelfAssess(qBlock, value) {
+  const qid = qBlock.dataset.qid;
+  const feedback = qBlock.querySelector('.feedback');
+  const selfAssess = qBlock.querySelector('.self-assess');
+
+  if (value === 'good') {
+    qBlock.classList.add('done');
+    markQuestionDone(qid, 'self-good');
+    addLockedBadge(qBlock, 'success');
+    feedback.innerHTML += '<br><br>✅ <strong>Mooi werk!</strong> Je hebt je antwoord vergeleken en als goed beoordeeld.';
+  } else {
+    qBlock.classList.add('failed');
+    markQuestionDone(qid, 'self-fail');
+    addLockedBadge(qBlock, 'fail');
+    feedback.innerHTML += '<br><br>💪 <strong>Eerlijk is het beste!</strong> Je herkent een verbeterpunt — dat is hoe je groeit. Lees het voorbeeld nog eens om beter te begrijpen wat erbij hoort.';
+  }
+
+  // Lock textarea
+  qBlock.querySelector('.open-answer').disabled = true;
+  selfAssess.querySelectorAll('button').forEach(b => b.disabled = true);
+}
+
+// ===================== MATCH =====================
+const MATCH_COLORS = 5;
+
+function initMatch(matchId) {
+  matchState[matchId] = { selectedSrc: null, pairs: [], colorIndex: 0 };
+}
+
+function handleMatchClick(matchEl, itemEl) {
+  const matchId = matchEl.id;
+  const state = matchState[matchId];
+  const side = itemEl.dataset.side;
+  const key = itemEl.dataset.key;
+
+  if (itemEl.classList.contains('locked-src')) return;
+
+  if (side === 'src') {
+    // Deselect any other src
+    matchEl.querySelectorAll('.match-item[data-side="src"]').forEach(el => {
+      if (el !== itemEl) el.classList.remove('selected');
+    });
+    itemEl.classList.toggle('selected');
+    state.selectedSrc = itemEl.classList.contains('selected') ? itemEl : null;
+  } else if (side === 'tgt') {
+    // Only act if a source is selected
+    if (!state.selectedSrc) return;
+    const srcEl = state.selectedSrc;
+    const srcKey = srcEl.dataset.key;
+    const tgtKey = key;
+
+    // Use color based on tgt item to support many-to-one
+    let tgtColorIdx = parseInt(itemEl.dataset.colorIdx);
+    if (isNaN(tgtColorIdx)) {
+      state.colorIndex = (state.colorIndex % MATCH_COLORS) + 1;
+      tgtColorIdx = state.colorIndex;
+      itemEl.dataset.colorIdx = tgtColorIdx;
+      itemEl.classList.add('matched-' + tgtColorIdx);
+    }
+
+    // Lock source visually
+    // Remove any earlier match color from this src
+    for (let i = 1; i <= MATCH_COLORS; i++) srcEl.classList.remove('matched-' + i);
+    srcEl.classList.add('matched-' + tgtColorIdx);
+    srcEl.classList.add('locked-src');
+    srcEl.classList.remove('selected');
+
+    // Remove previous pair for this src
+    state.pairs = state.pairs.filter(p => p.srcEl !== srcEl);
+    state.pairs.push({ srcEl, srcKey, tgtEl: itemEl, tgtKey });
+
+    state.selectedSrc = null;
+  }
+}
+
+function checkMatch(qBlock, matchId) {
+  const qid = qBlock.dataset.qid;
+  const state = matchState[matchId];
+  const matchEl = document.getElementById(matchId);
+  const feedback = qBlock.querySelector('.feedback');
+
+  if (questionState[qid] && questionState[qid].completed) return;
+
+  // Check all sources matched
+  const allSrcs = matchEl.querySelectorAll('.match-item[data-side="src"]');
+  if (state.pairs.length < allSrcs.length) {
+    feedback.className = 'feedback show hint';
+    feedback.innerHTML = '🤔 <strong>Niet alle begrippen zijn gekoppeld.</strong> Maak eerst alle koppelingen.';
+    return;
+  }
+
+  questionState[qid] = questionState[qid] || { attempts: 0 };
+  questionState[qid].attempts++;
+
+  let correct = 0;
+  state.pairs.forEach(p => {
+    p.srcEl.classList.remove('match-correct', 'match-wrong');
+    p.tgtEl.classList.remove('match-correct', 'match-wrong');
+    if (p.srcKey === p.tgtKey) {
+      p.srcEl.classList.add('match-correct');
+      correct++;
+    } else {
+      p.srcEl.classList.add('match-wrong');
+    }
+  });
+
+  if (correct === state.pairs.length) {
+    feedback.className = 'feedback show success';
+    feedback.innerHTML = `✅ <strong>Alle koppelingen kloppen!</strong> Goed gedaan.`;
+    qBlock.classList.add('done');
+    markQuestionDone(qid, 'correct');
+    addLockedBadge(qBlock, 'success');
+    matchEl.querySelectorAll('.match-item').forEach(el => el.style.pointerEvents = 'none');
+    qBlock.querySelector('[data-action="check-match"]').disabled = true;
+  } else if (questionState[qid].attempts >= 3) {
+    // Reveal correct matches
+    feedback.className = 'feedback show reveal';
+    feedback.innerHTML = `💡 <strong>Hier is de juiste oplossing:</strong> Bekijk welke koppelingen klopten en welke niet (groen = goed, rood = fout). Lees de uitleg nog eens en kijk welke samen horen.`;
+    qBlock.classList.add('failed');
+    markQuestionDone(qid, 'incorrect');
+    addLockedBadge(qBlock, 'fail');
+    matchEl.querySelectorAll('.match-item').forEach(el => el.style.pointerEvents = 'none');
+    qBlock.querySelector('[data-action="check-match"]').disabled = true;
+  } else {
+    feedback.className = 'feedback show hint';
+    feedback.innerHTML = `🤔 <strong>${correct} van de ${state.pairs.length} koppelingen kloppen.</strong> Probeer de foute koppelingen aan te passen. Klik op een fout gekoppeld item om opnieuw te koppelen.`;
+
+    // Allow re-matching wrong items
+    state.pairs.forEach(p => {
+      if (p.srcKey !== p.tgtKey) {
+        p.srcEl.classList.remove('locked-src');
+        // Remove color
+        for (let i = 1; i <= MATCH_COLORS; i++) p.srcEl.classList.remove('matched-' + i);
+      }
+    });
+    // Keep correct pairs
+    state.pairs = state.pairs.filter(p => p.srcKey === p.tgtKey);
+  }
+  updateAttemptsInfo(qBlock);
+  saveState();
+}
+
+// ===================== DRAG AND DROP =====================
+let dragSrcEl = null;
+
+function initDragList(listEl) {
+  const items = listEl.querySelectorAll('.drag-item');
+  items.forEach(item => {
+    item.addEventListener('dragstart', function(e) {
+      dragSrcEl = this;
+      this.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.setData('text/html', this.outerHTML);
+    });
+    item.addEventListener('dragend', function() {
+      this.classList.remove('dragging');
+      listEl.querySelectorAll('.drag-item').forEach(i => i.classList.remove('drag-over'));
+    });
+    item.addEventListener('dragover', function(e) {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      if (this !== dragSrcEl) this.classList.add('drag-over');
+      return false;
+    });
+    item.addEventListener('dragleave', function() {
+      this.classList.remove('drag-over');
+    });
+    item.addEventListener('drop', function(e) {
+      e.stopPropagation();
+      e.preventDefault();
+      if (dragSrcEl && dragSrcEl !== this) {
+        // Insert dragged before this
+        const rect = this.getBoundingClientRect();
+        const midpoint = rect.top + rect.height / 2;
+        if (e.clientY < midpoint) {
+          listEl.insertBefore(dragSrcEl, this);
+        } else {
+          listEl.insertBefore(dragSrcEl, this.nextSibling);
+        }
+      }
+      this.classList.remove('drag-over');
+      return false;
+    });
+  });
+}
+
+function checkDragOrder(qBlock, listId) {
+  const listEl = document.getElementById(listId);
+  const qid = qBlock.dataset.qid;
+  const feedback = qBlock.querySelector('.feedback');
+  const correctOrder = listEl.dataset.correctOrder.split(',');
+  const currentOrder = Array.from(listEl.querySelectorAll('.drag-item')).map(el => el.dataset.value);
+
+  if (questionState[qid] && questionState[qid].completed) return;
+  questionState[qid] = questionState[qid] || { attempts: 0 };
+  questionState[qid].attempts++;
+
+  let correct = 0;
+  listEl.querySelectorAll('.drag-item').forEach((el, idx) => {
+    el.classList.remove('correct-pos', 'wrong-pos');
+    if (el.dataset.value === correctOrder[idx]) {
+      el.classList.add('correct-pos');
+      correct++;
+    } else {
+      el.classList.add('wrong-pos');
+    }
+  });
+
+  const total = correctOrder.length;
+  if (correct === total) {
+    feedback.className = 'feedback show success';
+    feedback.innerHTML = '✅ <strong>Perfect!</strong> Alles staat in de juiste volgorde.';
+    qBlock.classList.add('done');
+    markQuestionDone(qid, 'correct');
+    addLockedBadge(qBlock, 'success');
+    listEl.querySelectorAll('.drag-item').forEach(el => { el.draggable = false; });
+    qBlock.querySelector('[data-action="check-drag"]').disabled = true;
+  } else if (questionState[qid].attempts >= 3) {
+    // Auto-arrange to correct order
+    const itemsMap = {};
+    listEl.querySelectorAll('.drag-item').forEach(el => {
+      itemsMap[el.dataset.value] = el;
+    });
+    listEl.innerHTML = '';
+    correctOrder.forEach(val => {
+      if (itemsMap[val]) {
+        itemsMap[val].classList.remove('wrong-pos');
+        itemsMap[val].classList.add('correct-pos');
+        listEl.appendChild(itemsMap[val]);
+      }
+    });
+    feedback.className = 'feedback show reveal';
+    feedback.innerHTML = '💡 <strong>Hier is de juiste volgorde.</strong> Bekijk hem rustig en lees de uitleg nog eens. Geen zorgen, dit was een lastige!';
+    qBlock.classList.add('failed');
+    markQuestionDone(qid, 'incorrect');
+    addLockedBadge(qBlock, 'fail');
+    listEl.querySelectorAll('.drag-item').forEach(el => { el.draggable = false; });
+    qBlock.querySelector('[data-action="check-drag"]').disabled = true;
+  } else {
+    feedback.className = 'feedback show hint';
+    feedback.innerHTML = `🤔 <strong>${correct} van de ${total} staan goed.</strong> De groene items staan op de juiste plek. Probeer de rode items te verplaatsen.`;
+  }
+  updateAttemptsInfo(qBlock);
+  saveState();
+}
+
+// ===================== RESET A TAB =====================
+function resetTab(tabName) {
+  const tabEl = document.querySelector(`.tab-content[data-tab="${tabName}"]`);
+  if (!tabEl) return;
+  if (!confirm('Weet je zeker dat je dit onderdeel wilt resetten? Je antwoorden in dit tabblad worden gewist.')) return;
+
+  const qBlocks = tabEl.querySelectorAll('.question-block');
+  qBlocks.forEach(qBlock => {
+    const qid = qBlock.dataset.qid;
+    delete questionState[qid];
+
+    // Reset visual state
+    qBlock.classList.remove('done', 'failed');
+    const badge = qBlock.querySelector('.locked-overlay');
+    if (badge) badge.remove();
+
+    // Reset feedback
+    const fb = qBlock.querySelector('.feedback');
+    if (fb) { fb.className = 'feedback'; fb.innerHTML = ''; }
+
+    // Reset MC buttons
+    qBlock.querySelectorAll('.option-btn').forEach(b => {
+      b.disabled = false;
+      b.classList.remove('correct', 'wrong');
+    });
+
+    // Reset textarea
+    const ta = qBlock.querySelector('.open-answer');
+    if (ta) {
+      ta.value = '';
+      ta.disabled = false;
+      const wc = qBlock.querySelector('.wc-text');
+      const wcWrap = qBlock.querySelector('.word-count');
+      if (wc) wc.textContent = '0 woorden (minimaal ' + (qBlock.dataset.minWords || 20) + ')';
+      if (wcWrap) wcWrap.classList.remove('enough');
+    }
+
+    // Reset show-example button
+    const exBtn = qBlock.querySelector('[data-action="show-example"]');
+    if (exBtn) {
+      exBtn.disabled = true;
+      exBtn.style.display = '';
+    }
+    const sa = qBlock.querySelector('.self-assess');
+    if (sa) {
+      sa.classList.remove('show');
+      sa.querySelectorAll('button').forEach(b => b.disabled = false);
+    }
+
+    // Reset match
+    const matchEl = qBlock.querySelector('[id$="Match"]');
+    if (matchEl) {
+      matchEl.querySelectorAll('.match-item').forEach(el => {
+        el.classList.remove('selected', 'locked-src', 'match-correct', 'match-wrong');
+        for (let i = 1; i <= MATCH_COLORS; i++) el.classList.remove('matched-' + i);
+        delete el.dataset.colorIdx;
+        el.style.pointerEvents = '';
+      });
+      initMatch(matchEl.id);
+      const checkBtn = qBlock.querySelector('[data-action="check-match"]');
+      if (checkBtn) checkBtn.disabled = false;
+    }
+
+    // Reset drag - need to rebuild because order may have changed
+    const dragEl = qBlock.querySelector('.drag-list');
+    if (dragEl) {
+      // Rebuild items to original order? Just shuffle current items and clear classes
+      const items = Array.from(dragEl.querySelectorAll('.drag-item'));
+      items.forEach(item => {
+        item.classList.remove('correct-pos', 'wrong-pos', 'dragging', 'drag-over');
+        item.draggable = true;
+      });
+      // Shuffle
+      for (let i = items.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        dragEl.appendChild(items[j]);
+        items.splice(j, 1);
+      }
+      items.forEach(item => dragEl.appendChild(item));
+      // Re-init drag listeners are still attached
+      const checkBtn = qBlock.querySelector('[data-action="check-drag"]');
+      if (checkBtn) checkBtn.disabled = false;
+    }
+
+    updateAttemptsInfo(qBlock);
+  });
+
+  updateProgress();
+  saveState();
+}
+
+// ===================== RESTORE UI FROM STATE =====================
+function restoreUI() {
+  document.querySelectorAll('.question-block').forEach(qBlock => {
+    const qid = qBlock.dataset.qid;
+    const qtype = qBlock.dataset.qtype;
+    const st = questionState[qid];
+    if (!st) {
+      updateAttemptsInfo(qBlock);
+      return;
+    }
+
+    // Restore textarea
+    const ta = qBlock.querySelector('.open-answer');
+    if (ta && st.value) {
+      ta.value = st.value;
+      // Update word count
+      const minWords = parseInt(qBlock.dataset.minWords) || 20;
+      const words = st.value.trim().split(/\s+/).filter(w => w.length > 0);
+      const wcText = qBlock.querySelector('.wc-text');
+      const wcWrap = qBlock.querySelector('.word-count');
+      if (wcText) wcText.textContent = `${words.length} woorden (minimaal ${minWords})`;
+      if (wcWrap) wcWrap.classList.toggle('enough', words.length >= minWords);
+      const exBtn = qBlock.querySelector('[data-action="show-example"]');
+      if (exBtn && words.length >= minWords) exBtn.disabled = false;
+    }
+
+    if (st.completed) {
+      const feedback = qBlock.querySelector('.feedback');
+
+      if (qtype === 'mc') {
+        const correct = qBlock.dataset.correct;
+        qBlock.querySelectorAll('.option-btn').forEach(b => {
+          b.disabled = true;
+          if (b.dataset.answer === correct) b.classList.add('correct');
+        });
+        if (st.status === 'correct') {
+          qBlock.classList.add('done');
+          if (feedback) {
+            feedback.className = 'feedback show success';
+            feedback.innerHTML = '✅ <strong>Goed gedaan!</strong> Dat klopt helemaal.';
+          }
+          addLockedBadge(qBlock, 'success');
+        } else {
+          qBlock.classList.add('failed');
+          if (feedback) {
+            feedback.className = 'feedback show reveal';
+            feedback.innerHTML = '💡 <strong>Het juiste antwoord is gemarkeerd.</strong>';
+          }
+          addLockedBadge(qBlock, 'fail');
+        }
+      } else if (qtype === 'open') {
+        // Lock textarea and show example
+        if (ta) ta.disabled = true;
+        const exData = qBlock.querySelector('.example-answer');
+        const exBtn = qBlock.querySelector('[data-action="show-example"]');
+        const sa = qBlock.querySelector('.self-assess');
+        if (exData && feedback) {
+          feedback.className = 'feedback show reveal';
+          feedback.innerHTML = `<strong>📖 Voorbeeldantwoord:</strong><br><br>${exData.dataset.example}`;
+        }
+        if (exBtn) exBtn.style.display = 'none';
+        if (sa) {
+          sa.classList.add('show');
+          sa.querySelectorAll('button').forEach(b => b.disabled = true);
+        }
+        if (st.status === 'self-good') {
+          qBlock.classList.add('done');
+          addLockedBadge(qBlock, 'success');
+        } else {
+          qBlock.classList.add('failed');
+          addLockedBadge(qBlock, 'fail');
+        }
+      } else if (qtype === 'match') {
+        const matchEl = qBlock.querySelector('[id$="Match"]');
+        if (matchEl) matchEl.querySelectorAll('.match-item').forEach(el => el.style.pointerEvents = 'none');
+        const checkBtn = qBlock.querySelector('[data-action="check-match"]');
+        if (checkBtn) checkBtn.disabled = true;
+        if (st.status === 'correct') {
+          qBlock.classList.add('done');
+          addLockedBadge(qBlock, 'success');
+        } else {
+          qBlock.classList.add('failed');
+          addLockedBadge(qBlock, 'fail');
+        }
+      } else if (qtype === 'drag') {
+        const dragEl = qBlock.querySelector('.drag-list');
+        if (dragEl) dragEl.querySelectorAll('.drag-item').forEach(el => el.draggable = false);
+        const checkBtn = qBlock.querySelector('[data-action="check-drag"]');
+        if (checkBtn) checkBtn.disabled = true;
+        if (st.status === 'correct') {
+          qBlock.classList.add('done');
+          addLockedBadge(qBlock, 'success');
+        } else {
+          qBlock.classList.add('failed');
+          addLockedBadge(qBlock, 'fail');
+        }
+      }
+    }
+    updateAttemptsInfo(qBlock);
+  });
+}
+
+// ===================== MAPS =====================
+function initMaps() {
+  // Map 1: Taal
+  const taalMapEl = document.getElementById('taalMap');
+  if (taalMapEl) {
+    const taalMap = L.map('taalMap').setView([48.5, 10], 4);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap',
+      maxZoom: 8
+    }).addTo(taalMap);
+
+    const taalMarkers = [
+      { coords: [46.8, 8.2], color: '#ffc857', name: 'Zwitserland', info: '4 officiële talen: Duits, Frans, Italiaans, Reto-Romaans' },
+      { coords: [50.5, 4.5], color: '#ffc857', name: 'België', info: '3 officiële talen: Nederlands, Frans, Duits' },
+      { coords: [41.6, 1.5], color: '#ff6b4a', name: 'Catalonië (Spanje)', info: 'Eigen taal: Catalaans. Sterke regionale identiteit.' },
+      { coords: [43.0, -2.5], color: '#ff6b4a', name: 'Baskenland (Spanje)', info: 'Eigen taal: Baskisch. Niet verwant aan Spaans!' },
+      { coords: [48.8, 2.3], color: '#1565a8', name: 'Frankrijk', info: 'Eén officiële taal: Frans (sterke focus op eenheid).' },
+      { coords: [52.1, 5.3], color: '#1565a8', name: 'Nederland', info: 'Nederlands; Fries officieel in Friesland.' },
+      { coords: [59.3, 18.0], color: '#1565a8', name: 'Zweden', info: 'Zweeds; Samisch erkend als minderheidstaal.' },
+      { coords: [52.2, 21.0], color: '#1565a8', name: 'Polen', info: 'Eén taal: Pools.' },
+      { coords: [41.9, 12.5], color: '#1565a8', name: 'Italië', info: 'Italiaans; veel sterke regionale dialecten.' }
+    ];
+
+    taalMarkers.forEach(m => {
+      const marker = L.circleMarker(m.coords, {
+        radius: 10, fillColor: m.color, color: '#fff', weight: 2, fillOpacity: 0.9
+      }).addTo(taalMap);
+      marker.bindPopup(`<strong>${m.name}</strong><br>${m.info}`);
+    });
+
+    mapInstances['taal'] = taalMap;
+  }
+
+  // Map 2: Zorg
+  const zorgMapEl = document.getElementById('zorgMap');
+  if (zorgMapEl) {
+    const zorgMap = L.map('zorgMap').setView([50, 15], 4);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap',
+      maxZoom: 8
+    }).addTo(zorgMap);
+
+    const zorgMarkers = [
+      { coords: [40.4, -3.7], color: '#2cb67d', name: 'Spanje', info: 'Levensverwachting: ~83 jaar. Goed georganiseerd zorgstelsel.' },
+      { coords: [41.9, 12.5], color: '#2cb67d', name: 'Italië', info: 'Levensverwachting: ~83 jaar. Mediterraan dieet helpt.' },
+      { coords: [52.1, 5.3], color: '#2cb67d', name: 'Nederland', info: 'Levensverwachting: ~82 jaar. Universele zorgverzekering.' },
+      { coords: [48.8, 2.3], color: '#2cb67d', name: 'Frankrijk', info: 'Levensverwachting: ~82 jaar. Sterk publiek zorgstelsel.' },
+      { coords: [51.5, 10.5], color: '#ffc857', name: 'Duitsland', info: 'Levensverwachting: ~81 jaar.' },
+      { coords: [52.2, 21.0], color: '#ffc857', name: 'Polen', info: 'Levensverwachting: ~78 jaar.' },
+      { coords: [42.7, 25.5], color: '#ff6b4a', name: 'Bulgarije', info: 'Levensverwachting: ~75 jaar. Zorgstelsel minder goed ontwikkeld.' },
+      { coords: [45.9, 25.0], color: '#ff6b4a', name: 'Roemenië', info: 'Levensverwachting: ~75 jaar.' },
+      { coords: [60.2, 24.9], color: '#2cb67d', name: 'Finland', info: 'Levensverwachting: ~82 jaar. Sterke sociale infrastructuur.' }
+    ];
+
+    zorgMarkers.forEach(m => {
+      const marker = L.circleMarker(m.coords, {
+        radius: 11, fillColor: m.color, color: '#fff', weight: 2, fillOpacity: 0.9
+      }).addTo(zorgMap);
+      marker.bindPopup(`<strong>${m.name}</strong><br>${m.info}`);
+    });
+
+    mapInstances['zorg'] = zorgMap;
+  }
+}
+
+// ===================== CHARTS =====================
+function initCharts() {
+  // Religie chart
+  const religieCanvas = document.getElementById('religieChart');
+  if (religieCanvas) {
+    chartInstances.religie = new Chart(religieCanvas, {
+      type: 'bar',
+      data: {
+        labels: ['Polen', 'Italië', 'Griekenland', 'Spanje', 'Duitsland', 'Nederland', 'Zweden'],
+        datasets: [{
+          label: '% mensen dat zich religieus noemt',
+          data: [88, 75, 71, 60, 42, 30, 21],
+          backgroundColor: ['#0a2540', '#0e3a6b', '#1565a8', '#2a8fd4', '#ffc857', '#ff6b4a', '#e63946'],
+          borderRadius: 8
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          title: { display: true, text: '🙏 Percentage van bevolking dat zich religieus noemt', font: { size: 15, weight: 'bold', family: 'Nunito' }, color: '#0a2540' }
+        },
+        scales: {
+          y: { beginAtZero: true, max: 100, title: { display: true, text: '%' } }
+        }
+      }
+    });
+  }
+
+  // Onderwijs chart
+  const onderwijsCanvas = document.getElementById('onderwijsChart');
+  if (onderwijsCanvas) {
+    chartInstances.onderwijs = new Chart(onderwijsCanvas, {
+      type: 'bar',
+      data: {
+        labels: ['Finland', 'Nederland', 'Duitsland', 'Polen', 'Spanje', 'Italië', 'Roemenië'],
+        datasets: [{
+          label: 'PISA-score (lezen, gemiddeld)',
+          data: [520, 503, 498, 488, 477, 482, 428],
+          backgroundColor: ['#2cb67d', '#1565a8', '#2a8fd4', '#0e3a6b', '#ffc857', '#ff6b4a', '#e63946'],
+          borderRadius: 8
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          title: { display: true, text: '🎓 Onderwijskwaliteit (PISA-leesscore, hoger = beter)', font: { size: 15, weight: 'bold', family: 'Nunito' }, color: '#0a2540' }
+        },
+        scales: {
+          y: { beginAtZero: false, min: 400, max: 550, title: { display: true, text: 'PISA-score' } }
+        }
+      }
+    });
+  }
+
+  // Zorg chart
+  const zorgCanvas = document.getElementById('zorgChart');
+  if (zorgCanvas) {
+    chartInstances.zorg = new Chart(zorgCanvas, {
+      type: 'bar',
+      data: {
+        labels: ['Spanje', 'Italië', 'Frankrijk', 'Nederland', 'Finland', 'Duitsland', 'Polen', 'Bulgarije', 'Roemenië'],
+        datasets: [{
+          label: 'Levensverwachting (jaar)',
+          data: [83, 83, 82, 82, 82, 81, 78, 75, 75],
+          backgroundColor: ['#2cb67d', '#2cb67d', '#2cb67d', '#2cb67d', '#2cb67d', '#ffc857', '#ffc857', '#ff6b4a', '#ff6b4a'],
+          borderRadius: 8
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          title: { display: true, text: '🏥 Gemiddelde levensverwachting in Europese landen', font: { size: 15, weight: 'bold', family: 'Nunito' }, color: '#0a2540' }
+        },
+        scales: {
+          y: { beginAtZero: false, min: 70, max: 90, title: { display: true, text: 'Jaar' } }
+        }
+      }
+    });
+  }
+}
+
+// ===================== EVENT BINDING =====================
+function bindEvents() {
+  // Tab buttons
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => showTab(btn.dataset.tab));
+  });
+
+  // Nav buttons
+  document.querySelectorAll('[data-nav]').forEach(btn => {
+    btn.addEventListener('click', () => navTab(btn.dataset.nav));
+  });
+
+  // Clear progress
+  document.getElementById('clearProgressBtn').addEventListener('click', () => {
+    if (confirm('Weet je zeker dat je ALLE voortgang wilt wissen? Dit kan niet ongedaan worden gemaakt.')) {
+      clearAllProgress();
+    }
+  });
+
+  // Reset tab buttons
+  document.querySelectorAll('[data-action="reset-tab"]').forEach(btn => {
+    btn.addEventListener('click', () => resetTab(btn.dataset.tab));
+  });
+
+  // MC questions
+  document.querySelectorAll('.question-block[data-qtype="mc"] .option-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const qBlock = btn.closest('.question-block');
+      handleMcClick(qBlock, btn);
+    });
+  });
+
+  // Open questions textareas
+  document.querySelectorAll('.question-block[data-qtype="open"] .open-answer').forEach(ta => {
+    ta.addEventListener('input', () => {
+      const qBlock = ta.closest('.question-block');
+      handleTextareaInput(qBlock, ta);
+    });
+  });
+
+  // Show example
+  document.querySelectorAll('[data-action="show-example"]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const qBlock = btn.closest('.question-block');
+      handleShowExample(qBlock);
+    });
+  });
+
+  // Self assess
+  document.querySelectorAll('[data-self]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const qBlock = btn.closest('.question-block');
+      handleSelfAssess(qBlock, btn.dataset.self);
+    });
+  });
+
+  // Match init
+  document.querySelectorAll('[id$="Match"]').forEach(matchEl => {
+    initMatch(matchEl.id);
+    matchEl.querySelectorAll('.match-item').forEach(item => {
+      item.addEventListener('click', () => handleMatchClick(matchEl, item));
+    });
+  });
+
+  // Check match
+  document.querySelectorAll('[data-action="check-match"]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const qBlock = btn.closest('.question-block');
+      checkMatch(qBlock, btn.dataset.target);
+    });
+  });
+
+  // Drag lists
+  document.querySelectorAll('.drag-list').forEach(listEl => {
+    initDragList(listEl);
+  });
+
+  // Check drag
+  document.querySelectorAll('[data-action="check-drag"]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const qBlock = btn.closest('.question-block');
+      checkDragOrder(qBlock, btn.dataset.target);
+    });
+  });
+}
+
+// ===================== INIT =====================
+window.addEventListener('DOMContentLoaded', function() {
+  loadState();
+  bindEvents();
+  initMaps();
+  initCharts();
+  restoreUI();
+  showTab(currentTab);
+  updateProgress();
+});
+
+</script>
+
+</body>
+</html>
