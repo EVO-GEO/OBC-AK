@@ -1,0 +1,2337 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cultuur & Identiteit in Europa — HAVO 1</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+:root {
+  --geel-licht: #FFF8DC;
+  --geel: #FFD93D;
+  --geel-donker: #F4B400;
+  --oranje: #FF8C42;
+  --rood-zacht: #E63946;
+  --groen: #6BBF59;
+  --blauw-eu: #003399;
+  --blauw-licht: #4A90E2;
+  --paars: #8E5CD9;
+  --tekst: #2D2A26;
+  --tekst-licht: #6B6661;
+  --wit: #FFFFFF;
+  --bg: #FFFBEA;
+  --kaart-bg: #FFFFFF;
+  --rand: #F0E5B8;
+  --r-klein: 8px;
+  --r-mid: 14px;
+  --r-groot: 22px;
+  --schaduw: 0 4px 14px rgba(244,180,0,0.18);
+  --schaduw-hover: 0 8px 24px rgba(244,180,0,0.28);
+  --sp-1: 6px;
+  --sp-2: 12px;
+  --sp-3: 18px;
+  --sp-4: 26px;
+  --sp-5: 40px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: linear-gradient(135deg, var(--bg) 0%, #FFF3B0 100%);
+  color: var(--tekst);
+  min-height: 100vh;
+  line-height: 1.6;
+  font-size: 16px;
+}
+
+/* Header */
+.header {
+  background: linear-gradient(135deg, var(--geel) 0%, var(--oranje) 100%);
+  padding: var(--sp-4) var(--sp-3);
+  text-align: center;
+  border-bottom: 4px solid var(--geel-donker);
+  position: relative;
+  overflow: hidden;
+}
+.header::before {
+  content: "🇪🇺 🏰 🎭 🎵 🍕";
+  position: absolute;
+  top: 8px;
+  right: 16px;
+  font-size: 20px;
+  opacity: 0.6;
+}
+.header h1 {
+  font-size: clamp(1.6rem, 4vw, 2.4rem);
+  font-weight: 900;
+  color: var(--tekst);
+  margin-bottom: 6px;
+}
+.header p {
+  font-size: 1.05rem;
+  color: var(--tekst);
+  font-weight: 600;
+}
+
+/* Sticky voortgang */
+.voortgang-wrap {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--wit);
+  border-bottom: 3px solid var(--geel-donker);
+  box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+}
+.voortgang-balk {
+  padding: var(--sp-2) var(--sp-3);
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  flex-wrap: wrap;
+}
+.voortgang-balk-bar {
+  flex: 1;
+  height: 14px;
+  background: var(--geel-licht);
+  border-radius: 50px;
+  overflow: hidden;
+  min-width: 180px;
+  border: 2px solid var(--rand);
+}
+.voortgang-balk-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--groen) 0%, var(--geel) 100%);
+  width: 0%;
+  transition: width 0.4s ease;
+  border-radius: 50px;
+}
+.voortgang-tekst {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--tekst);
+  white-space: nowrap;
+}
+.btn-wissen {
+  background: var(--wit);
+  border: 2px solid var(--rood-zacht);
+  color: var(--rood-zacht);
+  padding: 6px 14px;
+  border-radius: var(--r-klein);
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+  font-family: inherit;
+}
+.btn-wissen:hover { background: var(--rood-zacht); color: var(--wit); }
+
+/* Tabs */
+.tabs-wrap {
+  background: var(--wit);
+  border-bottom: 3px solid var(--rand);
+  padding: 0 var(--sp-3);
+}
+.tabs-info {
+  padding: 8px 0;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--tekst-licht);
+}
+.tabs {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: var(--sp-2);
+  scrollbar-width: thin;
+}
+.tabs::-webkit-scrollbar { height: 6px; }
+.tabs::-webkit-scrollbar-thumb { background: var(--geel-donker); border-radius: 3px; }
+.tab {
+  background: var(--geel-licht);
+  border: 2px solid var(--rand);
+  padding: 10px 16px;
+  border-radius: var(--r-klein) var(--r-klein) 0 0;
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  white-space: nowrap;
+  color: var(--tekst);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s;
+}
+.tab:hover { background: var(--geel); }
+.tab.actief {
+  background: var(--oranje);
+  color: var(--wit);
+  border-color: var(--oranje);
+  box-shadow: var(--schaduw);
+}
+.tab .vinkje {
+  display: none;
+  color: var(--groen);
+  font-weight: 900;
+}
+.tab.voltooid .vinkje { display: inline; }
+.tab.actief.voltooid .vinkje { color: var(--wit); }
+
+/* Hoofdcontainer */
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: var(--sp-4) var(--sp-3);
+}
+
+.sectie { display: none; }
+.sectie.actief { display: block; animation: fadeIn 0.4s ease; }
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.sectie-titel {
+  font-size: 1.8rem;
+  font-weight: 900;
+  margin-bottom: var(--sp-2);
+  color: var(--tekst);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.sectie-intro {
+  font-size: 1.05rem;
+  color: var(--tekst-licht);
+  margin-bottom: var(--sp-4);
+  font-weight: 600;
+}
+
+/* Uitlegblokken */
+.uitleg-blok {
+  background: var(--wit);
+  border-radius: var(--r-groot);
+  padding: var(--sp-4);
+  margin-bottom: var(--sp-4);
+  box-shadow: var(--schaduw);
+  border-left: 6px solid var(--geel-donker);
+}
+.uitleg-blok h3 {
+  font-size: 1.3rem;
+  font-weight: 800;
+  margin-bottom: var(--sp-2);
+  color: var(--tekst);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.uitleg-blok p {
+  margin-bottom: var(--sp-2);
+  font-size: 1rem;
+}
+.uitleg-blok p:last-child { margin-bottom: 0; }
+
+.visueel-proces {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--geel-licht) 0%, #FFF3B0 100%);
+  padding: var(--sp-3);
+  border-radius: var(--r-mid);
+  margin: var(--sp-3) 0;
+  font-weight: 700;
+}
+.visueel-proces .stap {
+  background: var(--wit);
+  padding: 10px 16px;
+  border-radius: var(--r-klein);
+  border: 2px solid var(--geel-donker);
+  font-size: 0.95rem;
+  text-align: center;
+  min-width: 120px;
+}
+.visueel-proces .pijl {
+  font-size: 1.6rem;
+  color: var(--oranje);
+}
+
+.echte-wereld {
+  background: linear-gradient(135deg, #E8F4FD 0%, #D6E9FB 100%);
+  border-left: 6px solid var(--blauw-eu);
+  padding: var(--sp-3);
+  border-radius: var(--r-mid);
+  margin-top: var(--sp-3);
+}
+.echte-wereld h4 {
+  font-size: 1.05rem;
+  font-weight: 800;
+  margin-bottom: 8px;
+  color: var(--blauw-eu);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.vergelijk-tabel {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  margin: var(--sp-3) 0;
+  background: var(--wit);
+  border-radius: var(--r-mid);
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+.vergelijk-tabel th {
+  background: var(--oranje);
+  color: var(--wit);
+  padding: 12px;
+  text-align: left;
+  font-weight: 800;
+}
+.vergelijk-tabel td {
+  padding: 12px;
+  border-bottom: 1px solid var(--rand);
+}
+.vergelijk-tabel tr:last-child td { border-bottom: none; }
+.vergelijk-tabel tr:nth-child(even) td { background: var(--geel-licht); }
+
+/* Opdracht-card */
+.opdracht {
+  background: var(--wit);
+  border-radius: var(--r-groot);
+  padding: var(--sp-4);
+  margin-bottom: var(--sp-3);
+  box-shadow: var(--schaduw);
+  border-top: 4px solid var(--oranje);
+}
+.opdracht h4 {
+  font-size: 1.15rem;
+  font-weight: 800;
+  margin-bottom: var(--sp-2);
+  color: var(--tekst);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.opdracht-vraag {
+  font-size: 1rem;
+  margin-bottom: var(--sp-3);
+  font-weight: 600;
+}
+
+/* Multiple choice */
+.mc-opties { display: flex; flex-direction: column; gap: 8px; margin-bottom: var(--sp-2); }
+.mc-optie {
+  background: var(--geel-licht);
+  border: 2px solid var(--rand);
+  padding: 12px 16px;
+  border-radius: var(--r-klein);
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  font-size: 0.98rem;
+  font-weight: 600;
+  transition: all 0.2s;
+  color: var(--tekst);
+}
+.mc-optie:hover:not(:disabled) {
+  background: var(--geel);
+  transform: translateX(4px);
+}
+.mc-optie.goed { background: var(--groen); color: var(--wit); border-color: var(--groen); }
+.mc-optie.fout { background: var(--rood-zacht); color: var(--wit); border-color: var(--rood-zacht); }
+.mc-optie:disabled { cursor: not-allowed; opacity: 0.85; }
+
+/* Feedback */
+.feedback {
+  margin-top: var(--sp-2);
+  padding: 12px 16px;
+  border-radius: var(--r-klein);
+  font-weight: 600;
+  display: none;
+}
+.feedback.actief { display: block; }
+.feedback.hint { background: #FFF3B0; border-left: 4px solid var(--geel-donker); }
+.feedback.goed { background: #D8F3DC; border-left: 4px solid var(--groen); color: #1B4332; }
+.feedback.fout { background: #FFE5E5; border-left: 4px solid var(--rood-zacht); color: #6A040F; }
+
+/* Textarea voor open vragen */
+.open-vraag {
+  width: 100%;
+  min-height: 100px;
+  padding: 12px;
+  border: 2px solid var(--rand);
+  border-radius: var(--r-klein);
+  font-family: inherit;
+  font-size: 1rem;
+  resize: vertical;
+  background: #FFFEF7;
+}
+.open-vraag:focus { outline: none; border-color: var(--oranje); }
+.woorden-teller {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  margin-top: 6px;
+  color: var(--tekst-licht);
+}
+.woorden-teller .vinkje-w { color: var(--groen); display: none; }
+.woorden-teller.voldoende .vinkje-w { display: inline; }
+.woorden-teller.voldoende { color: var(--groen); }
+
+/* Knoppen */
+.knop {
+  background: var(--oranje);
+  color: var(--wit);
+  border: none;
+  padding: 10px 20px;
+  border-radius: var(--r-klein);
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-top: 8px;
+  margin-right: 6px;
+}
+.knop:hover { background: var(--geel-donker); transform: translateY(-2px); box-shadow: var(--schaduw-hover); }
+.knop:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+.knop.secundair { background: var(--blauw-licht); }
+.knop.secundair:hover { background: var(--blauw-eu); }
+.knop.groen { background: var(--groen); }
+.knop.rood { background: var(--rood-zacht); }
+.knop.klein { padding: 6px 12px; font-size: 0.85rem; }
+
+/* Voorbeeldantwoord blok */
+.voorbeeld-antwoord {
+  background: #FFF8DC;
+  border: 2px dashed var(--geel-donker);
+  padding: var(--sp-3);
+  border-radius: var(--r-klein);
+  margin-top: var(--sp-2);
+  display: none;
+}
+.voorbeeld-antwoord.actief { display: block; }
+.voorbeeld-antwoord h5 {
+  font-size: 0.95rem;
+  font-weight: 800;
+  margin-bottom: 8px;
+  color: var(--tekst);
+}
+.voorbeeld-antwoord p { font-size: 0.95rem; margin-bottom: 8px; }
+.zelf-beoordeling {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+  align-items: center;
+}
+.zelf-beoordeling-tekst {
+  font-weight: 700;
+  font-size: 0.9rem;
+  margin-right: 6px;
+}
+
+/* Drag-and-drop */
+.drag-lijst {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: var(--sp-2);
+}
+.drag-item {
+  background: var(--geel-licht);
+  border: 2px solid var(--rand);
+  padding: 12px 16px;
+  border-radius: var(--r-klein);
+  cursor: grab;
+  font-weight: 600;
+  user-select: none;
+  transition: background 0.2s, transform 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.drag-item::before { content: "⋮⋮"; color: var(--tekst-licht); font-weight: 900; }
+.drag-item:hover { background: var(--geel); }
+.drag-item.dragging { opacity: 0.4; cursor: grabbing; }
+.drag-item.juist { background: #D8F3DC; border-color: var(--groen); }
+.drag-item.onjuist { background: #FFE5E5; border-color: var(--rood-zacht); }
+.drop-over { border-top: 3px dashed var(--oranje); }
+
+/* Koppelopdracht */
+.koppel-wrap {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-2);
+}
+.koppel-kolom h5 {
+  font-weight: 800;
+  margin-bottom: 8px;
+  color: var(--tekst);
+  font-size: 1rem;
+}
+.koppel-bron, .koppel-doel {
+  background: var(--geel-licht);
+  border: 2px solid var(--rand);
+  padding: 12px;
+  border-radius: var(--r-klein);
+  margin-bottom: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: all 0.2s;
+}
+.koppel-bron:hover, .koppel-doel:hover { background: var(--geel); }
+.koppel-bron.geselecteerd { background: var(--oranje); color: var(--wit); border-color: var(--oranje); }
+.koppel-doel.gekoppeld-info {
+  border-color: var(--blauw-licht);
+}
+.koppel-bron.gekoppeld {
+  opacity: 0.95;
+}
+.koppel-bron.juist { background: #D8F3DC; border-color: var(--groen); }
+.koppel-bron.onjuist { background: #FFE5E5; border-color: var(--rood-zacht); }
+.koppel-doel.juist-doel { background: #D8F3DC; border-color: var(--groen); }
+.koppel-doel.onjuist-doel { background: #FFE5E5; border-color: var(--rood-zacht); }
+.koppel-info {
+  font-size: 0.85rem;
+  color: var(--tekst-licht);
+  margin-top: 6px;
+  font-style: italic;
+}
+.gekoppelde-lijst {
+  font-size: 0.85rem;
+  margin-top: 8px;
+  padding: 6px;
+  background: #E8F4FD;
+  border-radius: 6px;
+  min-height: 24px;
+}
+.gekoppelde-lijst .gek-item {
+  display: inline-block;
+  background: var(--wit);
+  padding: 3px 8px;
+  border-radius: 4px;
+  margin: 2px;
+  font-weight: 700;
+  border: 1px solid var(--blauw-licht);
+}
+
+/* Kaart */
+.kaart-wrap {
+  background: var(--wit);
+  border-radius: var(--r-mid);
+  padding: var(--sp-2);
+  margin-bottom: var(--sp-3);
+  box-shadow: var(--schaduw);
+}
+.leaflet-map {
+  height: 450px;
+  border-radius: var(--r-klein);
+}
+
+/* Grafiek */
+.grafiek-wrap {
+  background: var(--wit);
+  border-radius: var(--r-mid);
+  padding: var(--sp-3);
+  margin-bottom: var(--sp-3);
+  box-shadow: var(--schaduw);
+}
+.grafiek-canvas {
+  max-width: 100%;
+  max-height: 400px;
+}
+
+/* Navigatie onderaan */
+.nav-onder {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--sp-2);
+  padding-top: var(--sp-4);
+  margin-top: var(--sp-4);
+  border-top: 2px dashed var(--rand);
+  flex-wrap: wrap;
+}
+.btn-reset-tab {
+  background: var(--wit);
+  border: 2px solid var(--tekst-licht);
+  color: var(--tekst-licht);
+  padding: 6px 14px;
+  border-radius: var(--r-klein);
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+.btn-reset-tab:hover { background: var(--tekst-licht); color: var(--wit); }
+
+/* Eindreflectie */
+.eind-score {
+  background: linear-gradient(135deg, var(--geel) 0%, var(--oranje) 100%);
+  border-radius: var(--r-groot);
+  padding: var(--sp-4);
+  text-align: center;
+  margin-bottom: var(--sp-4);
+  color: var(--tekst);
+  box-shadow: var(--schaduw);
+}
+.eind-score h2 { font-size: 2rem; font-weight: 900; margin-bottom: 8px; }
+.eind-score .score-getal { font-size: 3.5rem; font-weight: 900; margin: 12px 0; }
+.leerdoelen-lijst {
+  background: var(--wit);
+  padding: var(--sp-3);
+  border-radius: var(--r-mid);
+  list-style: none;
+  margin-bottom: var(--sp-3);
+}
+.leerdoelen-lijst li {
+  padding: 10px 0;
+  border-bottom: 1px solid var(--rand);
+  font-weight: 600;
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+.leerdoelen-lijst li:last-child { border-bottom: none; }
+.leerdoelen-lijst li::before {
+  content: "🎯";
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+@media (max-width: 768px) {
+  .koppel-wrap { grid-template-columns: 1fr; }
+  .visueel-proces .stap { min-width: 100%; }
+  .sectie-titel { font-size: 1.4rem; }
+}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <h1>🌍 Cultuur & Identiteit in Europa</h1>
+  <p>HAVO 1 · Aardrijkskunde · ±60 minuten</p>
+</header>
+
+<div class="voortgang-wrap">
+  <div class="voortgang-balk">
+    <span class="voortgang-tekst">📊 Voortgang: <span id="voortgang-percentage">0</span>%</span>
+    <div class="voortgang-balk-bar"><div class="voortgang-balk-fill" id="voortgang-fill"></div></div>
+    <button class="btn-wissen" id="btn-wissen-alles">🗑️ Voortgang wissen</button>
+  </div>
+</div>
+
+<div class="tabs-wrap">
+  <div class="tabs-info">Onderdeel <span id="tab-huidig">1</span> van <span id="tab-totaal">9</span></div>
+  <div class="tabs" id="tabs"></div>
+</div>
+
+<main class="container">
+
+<!-- ============ SECTIE 1: WAT IS CULTUUR? ============ -->
+<section class="sectie actief" data-sectie="1">
+  <h2 class="sectie-titel">🎭 Wat is cultuur?</h2>
+  <p class="sectie-intro">In dit onderdeel ontdek je wat cultuur eigenlijk is en welke onderdelen daarbij horen.</p>
+
+  <div class="uitleg-blok">
+    <h3>📖 Uitleg: Cultuur als manier van leven</h3>
+    <p>Cultuur is de manier waarop een groep mensen leeft. Het gaat over hoe je feesten viert, wat je eet, welke taal je spreekt, wat je gelooft en hoe je met andere mensen omgaat. Cultuur is dus niet één ding — het is een verzameling van allerlei gewoonten, regels en gevoelens die mensen met elkaar delen. Belangrijk: cultuur leer je niet uit een boek. Je groeit er in op. Vanaf je geboorte neem je de gewoonten over van je ouders, je school, je vrienden en de samenleving om je heen.</p>
+    <p>Een cultuur bestaat uit verschillende lagen. De buitenkant kun je zien: kleding, eten, muziek, gebouwen. Maar onder die buitenkant zit een diepere laag van waarden en normen — wat mensen belangrijk vinden, wat ze "goed" of "verkeerd" gedrag noemen. In Nederland is het bijvoorbeeld normaal om met je leraar op voornaam te spreken, terwijl je in Italië bijna altijd "professore" zegt. Niet omdat de regels overal anders zijn, maar omdat de cultuur dat zo heeft gevormd.</p>
+    <p>Europa telt tientallen landen, elk met een eigen cultuur. Toch zijn er ook overeenkomsten. Veel Europese landen delen een geschiedenis van christendom, een Grieks-Romeinse erfenis (denk aan Latijnse woorden, democratie en wetgeving) en de Verlichting — een periode in de 17e en 18e eeuw waarin ideeën over vrijheid, gelijkheid en wetenschap centraal kwamen te staan.</p>
+
+    <div class="visueel-proces">
+      <div class="stap">👨‍👩‍👧 Thuis<br><small>gewoonten leren</small></div>
+      <div class="pijl">→</div>
+      <div class="stap">🏫 School<br><small>kennis & regels</small></div>
+      <div class="pijl">→</div>
+      <div class="stap">👫 Vrienden<br><small>trends & taal</small></div>
+      <div class="pijl">→</div>
+      <div class="stap">🌍 Samenleving<br><small>jouw cultuur</small></div>
+    </div>
+
+    <div class="echte-wereld">
+      <h4>📱 In jouw leven</h4>
+      <p>Denk eens aan je TikTok of Instagram-feed. De memes, dansjes en trends die je voorbij ziet komen, zijn ook cultuur — alleen dan digitaal en wereldwijd. Een dansje uit Korea, een meme uit Amerika, een grap in het Nederlands: jij combineert ze waarschijnlijk de hele dag door.</p>
+      <p><strong>Vraag voor jou:</strong> Welke drie dingen uit jouw dagelijks leven zou je als "typisch Nederlands" omschrijven? Denk aan eten, sport, feestdagen of taal.</p>
+    </div>
+  </div>
+
+  <!-- Opdracht 1.1 -->
+  <div class="opdracht" data-opdracht-id="1.1">
+    <h4>✏️ Opdracht 1: Wat hoort bij cultuur?</h4>
+    <p class="opdracht-vraag">Welke van deze dingen horen NIET bij cultuur?</p>
+    <div class="mc-opties">
+      <button class="mc-optie" data-correct="false">De taal die mensen spreken</button>
+      <button class="mc-optie" data-correct="false">Hoe mensen elkaar begroeten</button>
+      <button class="mc-optie" data-correct="true">Het aantal regenuren per jaar in een land</button>
+      <button class="mc-optie" data-correct="false">Welke feesten een groep mensen viert</button>
+    </div>
+    <div class="feedback"></div>
+  </div>
+
+  <!-- Opdracht 1.2 OPEN -->
+  <div class="opdracht" data-opdracht-id="1.2">
+    <h4>✍️ Opdracht 2: Drie culturele uitingen</h4>
+    <p class="opdracht-vraag">Noem drie verschillende voorbeelden van culturele uitingen uit jouw eigen leven. Leg per voorbeeld in één zin uit waarom dit cultuur is. (minimaal 20 woorden)</p>
+    <textarea class="open-vraag" placeholder="Bijvoorbeeld: muziek die ik luister, het eten dat we thuis maken..."></textarea>
+    <div class="woorden-teller">Aantal woorden: <span class="aantal">0</span> <span class="vinkje-w">✓</span></div>
+    <button class="knop secundair toon-voorbeeld" disabled>💡 Toon voorbeeldantwoord</button>
+    <div class="voorbeeld-antwoord">
+      <h5>📌 Voorbeeldantwoord:</h5>
+      <p><strong>Voorbeeld 1:</strong> Sinterklaas vieren is cultuur, want het is een feest dat van generatie op generatie wordt doorgegeven en typisch Nederlands is. De TikTok-dansjes die ik leer zijn cultuur, omdat ze een gedeelde manier zijn waarop jongeren wereldwijd plezier maken. Eten als boerenkool met worst hoort bij Nederlandse keukencultuur, omdat het traditioneel met de seizoenen samenhangt.</p>
+      <div class="zelf-beoordeling">
+        <span class="zelf-beoordeling-tekst">Hoe vond je je eigen antwoord?</span>
+        <button class="knop groen klein zelf-goed">Goed ✓</button>
+        <button class="knop rood klein zelf-fout">Kon beter ✗</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Opdracht 1.3 MC -->
+  <div class="opdracht" data-opdracht-id="1.3">
+    <h4>✏️ Opdracht 3: Cultuur leren</h4>
+    <p class="opdracht-vraag">Hoe leer je het meest over cultuur?</p>
+    <div class="mc-opties">
+      <button class="mc-optie" data-correct="false">Door een boek over cultuur te lezen</button>
+      <button class="mc-optie" data-correct="true">Door op te groeien in een gemeenschap en gewoonten over te nemen</button>
+      <button class="mc-optie" data-correct="false">Door een examen aardrijkskunde te halen</button>
+      <button class="mc-optie" data-correct="false">Door een vakantie van een week in een ander land</button>
+    </div>
+    <div class="feedback"></div>
+  </div>
+
+  <div class="nav-onder">
+    <button class="knop secundair btn-vorige" disabled>← Vorige</button>
+    <button class="btn-reset-tab">🔄 Reset dit onderdeel</button>
+    <button class="knop btn-volgende">Volgende →</button>
+  </div>
+</section>
+
+<!-- ============ SECTIE 2: TRADITIES & GEWOONTEN ============ -->
+<section class="sectie" data-sectie="2">
+  <h2 class="sectie-titel">🎉 Tradities & gewoonten</h2>
+  <p class="sectie-intro">Tradities verschillen per land. Ontdek hoe geschiedenis, religie en klimaat de gewoonten van Europeanen vormen.</p>
+
+  <div class="uitleg-blok">
+    <h3>📖 Uitleg: Wat zijn tradities?</h3>
+    <p>Tradities zijn gewoonten die van generatie op generatie worden doorgegeven. Ze kunnen groot zijn — zoals nationale feestdagen of religieuze rituelen — maar ook klein, zoals de manier waarop mensen elkaar begroeten of wat ze 's ochtends eten. Tradities geven mensen het gevoel ergens bij te horen. Ze verbinden generaties: jouw oma heeft Sinterklaas waarschijnlijk net zo gevierd als jij, alleen dan zonder TikTok-filmpjes.</p>
+    <p>In Spanje is de siësta een eeuwenoude traditie: een lange middagpauze waarin winkels sluiten en mensen rust nemen. Dit hangt samen met het hete klimaat — in de middag is het te warm om door te werken. In Finland is de sauna een vaste gewoonte, soms zelfs met collega's of buren. Dit komt door het koude klimaat en het feit dat warmte in Finland eeuwenlang heel waardevol was. In Nederland vieren we Koningsdag in oranje kleding, iets wat voor buitenlanders best vreemd kan lijken — een hele stad die zich verkleedt voor de jarige koning.</p>
+    <p>In Polen, Italië en andere landen waar veel mensen religieus zijn, spelen feesten als Pasen en Kerstmis een veel grotere publieke rol dan in Nederland. Hele dorpen lopen mee in processies, kerken zitten vol en het werk ligt soms dagen stil. In Nederland zijn deze feesten vooral gezellig met familie geworden, met minder nadruk op de religieuze betekenis. Zulke verschillen laten zien dat geschiedenis, religie én klimaat samen de cultuur van een land vormen.</p>
+
+    <table class="vergelijk-tabel">
+      <thead><tr><th>Land</th><th>Bekende traditie</th><th>Waarom?</th></tr></thead>
+      <tbody>
+        <tr><td>🇪🇸 Spanje</td><td>Siësta</td><td>Heet klimaat, oude landbouwgewoonte</td></tr>
+        <tr><td>🇫🇮 Finland</td><td>Sauna</td><td>Koud klimaat, sociaal gebruik</td></tr>
+        <tr><td>🇳🇱 Nederland</td><td>Koningsdag</td><td>Monarchie, oranje als nationaal symbool</td></tr>
+        <tr><td>🇵🇱 Polen</td><td>Kerstmis & Pasen</td><td>Sterke katholieke geschiedenis</td></tr>
+        <tr><td>🇮🇹 Italië</td><td>Carnevale (Venetië)</td><td>Religieuze oorsprong, eeuwenoude maskers</td></tr>
+      </tbody>
+    </table>
+
+    <div class="echte-wereld">
+      <h4>📱 In jouw leven</h4>
+      <p>Op social media zie je tradities uit de hele wereld voorbij komen. Een Spaanse Tomatina (tomatengevecht), een Duits Oktoberfest, een Italiaanse pizza-bakwedstrijd. Soms gaan tradities zelfs viraal — denk aan #LaTomatina of #Carnevale-video's met miljoenen views.</p>
+      <p><strong>Vraag voor jou:</strong> Welke Nederlandse traditie zou volgens jou viral kunnen gaan op TikTok? En waarom?</p>
+    </div>
+  </div>
+
+  <!-- Opdracht 2.1 KOPPELEN -->
+  <div class="opdracht" data-opdracht-id="2.1">
+    <h4>🔗 Opdracht 1: Koppel land en traditie</h4>
+    <p class="opdracht-vraag">Klik eerst op een traditie (links), klik dan op het bijbehorende land (rechts). Eén land kan meerdere tradities krijgen!</p>
+    <div class="koppel-wrap">
+      <div class="koppel-kolom">
+        <h5>📌 Tradities</h5>
+        <div class="koppel-bron" data-bron="siesta">😴 Siësta (middagrust)</div>
+        <div class="koppel-bron" data-bron="sauna">🧖 Sauna met buren</div>
+        <div class="koppel-bron" data-bron="koningsdag">👑 Koningsdag in oranje</div>
+        <div class="koppel-bron" data-bron="processie">⛪ Religieuze processies</div>
+      </div>
+      <div class="koppel-kolom">
+        <h5>🌍 Land</h5>
+        <div class="koppel-doel" data-doel="spanje">🇪🇸 Spanje
+          <div class="gekoppelde-lijst"></div>
+        </div>
+        <div class="koppel-doel" data-doel="finland">🇫🇮 Finland
+          <div class="gekoppelde-lijst"></div>
+        </div>
+        <div class="koppel-doel" data-doel="nederland">🇳🇱 Nederland
+          <div class="gekoppelde-lijst"></div>
+        </div>
+        <div class="koppel-doel" data-doel="polen">🇵🇱 Polen
+          <div class="gekoppelde-lijst"></div>
+        </div>
+      </div>
+    </div>
+    <p class="koppel-info">Tip: een land kan meerdere tradities krijgen. Klik eerst links, dan rechts.</p>
+    <button class="knop koppel-check">🔍 Controleer koppelingen</button>
+    <button class="knop secundair klein koppel-reset">🔄 Wis koppelingen</button>
+    <div class="feedback"></div>
+  </div>
+
+  <!-- Opdracht 2.2 MC -->
+  <div class="opdracht" data-opdracht-id="2.2">
+    <h4>✏️ Opdracht 2: Waarom de siësta?</h4>
+    <p class="opdracht-vraag">Waarom is de siësta vooral in Zuid-Europese landen ontstaan?</p>
+    <div class="mc-opties">
+      <button class="mc-optie" data-correct="false">Mensen zijn er gemiddeld luier</button>
+      <button class="mc-optie" data-correct="true">Het is in de middag te heet om door te werken</button>
+      <button class="mc-optie" data-correct="false">De wet verbiedt werken na 13:00 uur</button>
+      <button class="mc-optie" data-correct="false">De Europese Unie heeft het zo afgesproken</button>
+    </div>
+    <div class="feedback"></div>
+  </div>
+
+  <!-- Opdracht 2.3 OPEN -->
+  <div class="opdracht" data-opdracht-id="2.3">
+    <h4>✍️ Opdracht 3: Tradities vergelijken</h4>
+    <p class="opdracht-vraag">Kies één Nederlandse traditie en één traditie uit een ander Europees land. Leg uit wat de overeenkomst en het verschil is. (minimaal 20 woorden)</p>
+    <textarea class="open-vraag" placeholder="Bijvoorbeeld: Koningsdag in Nederland en..."></textarea>
+    <div class="woorden-teller">Aantal woorden: <span class="aantal">0</span> <span class="vinkje-w">✓</span></div>
+    <button class="knop secundair toon-voorbeeld" disabled>💡 Toon voorbeeldantwoord</button>
+    <div class="voorbeeld-antwoord">
+      <h5>📌 Voorbeeldantwoord:</h5>
+      <p>Koningsdag in Nederland en het Italiaanse Carnevale zijn allebei feesten waarbij hele steden zich verkleden en de straat op gaan. Het verschil is dat Koningsdag draait om het Koningshuis en oranje kleding, terwijl Carnevale een oude religieuze oorsprong heeft en bekend staat om de prachtige maskers en kostuums in Venetië.</p>
+      <div class="zelf-beoordeling">
+        <span class="zelf-beoordeling-tekst">Hoe vond je je eigen antwoord?</span>
+        <button class="knop groen klein zelf-goed">Goed ✓</button>
+        <button class="knop rood klein zelf-fout">Kon beter ✗</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="nav-onder">
+    <button class="knop secundair btn-vorige">← Vorige</button>
+    <button class="btn-reset-tab">🔄 Reset dit onderdeel</button>
+    <button class="knop btn-volgende">Volgende →</button>
+  </div>
+</section>
+
+<!-- ============ SECTIE 3: KAART VAN TRADITIES ============ -->
+<section class="sectie" data-sectie="3">
+  <h2 class="sectie-titel">🗺️ Kaart: tradities in Europa</h2>
+  <p class="sectie-intro">Klik op de markers en ontdek welke traditie bij welk land hoort.</p>
+
+  <div class="uitleg-blok">
+    <h3>📖 Uitleg: Cultuur op de kaart</h3>
+    <p>Cultuur is niet gelijkmatig verdeeld over Europa. Elk land heeft zijn eigen mix van tradities, eten, taal en geloof. Sommige tradities zijn beperkt tot één regio (zoals Carnevale in Venetië), terwijl andere in heel Europa bestaan (zoals Kerstmis vieren). Op de kaart hieronder zie je een aantal beroemde tradities aangewezen op de plek waar ze het sterkst leven.</p>
+    <p>Wat opvalt: tradities zijn vaak gekoppeld aan klimaat en geschiedenis. In het noorden (Finland, Zweden) zijn tradities vaak verbonden met de lange winters en de natuur — denk aan sauna en midzomerfeesten. In het zuiden (Spanje, Italië) zien we juist tradities die te maken hebben met warm weer en buitenleven — denk aan siësta en straatfestivals. In het oosten (Polen, Tsjechië) speelt het christelijk geloof vaak een grotere rol.</p>
+    <p>Dit betekent niet dat alle Spanjaarden een siësta houden of dat elke Fin elke week in de sauna gaat. Tradities veranderen door de tijd: vooral in steden en onder jongeren verdwijnen sommige oude gewoonten, terwijl nieuwe tradities (zoals festivals met internationale dj's) erbij komen.</p>
+
+    <div class="echte-wereld">
+      <h4>📱 In jouw leven</h4>
+      <p>Stel je voor: je zit op vakantie in Spanje en alle winkels gaan om 14:00 uur dicht voor de siësta. Geen ijsje voor je. Of in Finland: je vriend van een uitwisseling nodigt je uit voor een gezellige sauna-avond. Misschien een beetje awkward voor een Nederlander!</p>
+      <p><strong>Vraag voor jou:</strong> Welk land op deze kaart zou jij willen bezoeken vanwege de cultuur, en waarom?</p>
+    </div>
+  </div>
+
+  <div class="kaart-wrap">
+    <div id="kaart-tradities" class="leaflet-map"></div>
+  </div>
+
+  <!-- Opdracht 3.1 MC -->
+  <div class="opdracht" data-opdracht-id="3.1">
+    <h4>✏️ Opdracht 1: Lezen van de kaart</h4>
+    <p class="opdracht-vraag">Klik op de marker bij Finland. Welke traditie hoort bij dit land?</p>
+    <div class="mc-opties">
+      <button class="mc-optie" data-correct="false">Stierengevecht</button>
+      <button class="mc-optie" data-correct="true">Sauna-cultuur</button>
+      <button class="mc-optie" data-correct="false">Carnaval</button>
+      <button class="mc-optie" data-correct="false">Tomatengevecht</button>
+    </div>
+    <div class="feedback"></div>
+  </div>
+
+  <!-- Opdracht 3.2 MC -->
+  <div class="opdracht" data-opdracht-id="3.2">
+    <h4>✏️ Opdracht 2: Klimaat en cultuur</h4>
+    <p class="opdracht-vraag">Waarom horen siësta en straatfestivals vooral bij landen rond de Middellandse Zee?</p>
+    <div class="mc-opties">
+      <button class="mc-optie" data-correct="false">Daar wonen veel meer mensen</button>
+      <button class="mc-optie" data-correct="true">Het warme klimaat maakt buitenleven en middagpauzes logisch</button>
+      <button class="mc-optie" data-correct="false">De Romeinen hadden dit zo bedacht</button>
+      <button class="mc-optie" data-correct="false">Het is een EU-regel</button>
+    </div>
+    <div class="feedback"></div>
+  </div>
+
+  <!-- Opdracht 3.3 OPEN -->
+  <div class="opdracht" data-opdracht-id="3.3">
+    <h4>✍️ Opdracht 3: Patroon herkennen</h4>
+    <p class="opdracht-vraag">Bekijk de kaart goed. Welk patroon zie je tussen ligging in Europa (noord/zuid/oost/west) en het soort tradities dat er hoort? Schrijf in eigen woorden. (minimaal 20 woorden)</p>
+    <textarea class="open-vraag" placeholder="Ik zie dat..."></textarea>
+    <div class="woorden-teller">Aantal woorden: <span class="aantal">0</span> <span class="vinkje-w">✓</span></div>
+    <button class="knop secundair toon-voorbeeld" disabled>💡 Toon voorbeeldantwoord</button>
+    <div class="voorbeeld-antwoord">
+      <h5>📌 Voorbeeldantwoord:</h5>
+      <p>In Zuid-Europa zie ik tradities die te maken hebben met warm weer en buitenleven, zoals de siësta en festivals op straat. In Noord-Europa zoals Finland zijn de tradities meer verbonden met warmte zoeken, zoals de sauna. In Oost-Europa lijken religieuze tradities zoals processies belangrijker. Het klimaat en de geschiedenis bepalen dus echt mee welke tradities er ontstaan.</p>
+      <div class="zelf-beoordeling">
+        <span class="zelf-beoordeling-tekst">Hoe vond je je eigen antwoord?</span>
+        <button class="knop groen klein zelf-goed">Goed ✓</button>
+        <button class="knop rood klein zelf-fout">Kon beter ✗</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="nav-onder">
+    <button class="knop secundair btn-vorige">← Vorige</button>
+    <button class="btn-reset-tab">🔄 Reset dit onderdeel</button>
+    <button class="knop btn-volgende">Volgende →</button>
+  </div>
+</section>
+
+<!-- ============ SECTIE 4: CULTURELE IDENTITEIT ============ -->
+<section class="sectie" data-sectie="4">
+  <h2 class="sectie-titel">🪞 Culturele identiteit</h2>
+  <p class="sectie-intro">Wie ben je, en waar hoor je bij? Ontdek hoe geschiedenis, religie en taal jouw identiteit vormen.</p>
+
+  <div class="uitleg-blok">
+    <h3>📖 Uitleg: Wat is culturele identiteit?</h3>
+    <p>Culturele identiteit gaat over het gevoel ergens bij te horen. Het is het antwoord op de vraag: "wie ben ik, en bij welke groep mensen voel ik me thuis?" Dit gevoel ontstaat niet zomaar. Het wordt gevormd door allerlei dingen: de taal die je spreekt, het geloof waarin je bent opgegroeid, de geschiedenis die je hebt geleerd en de gewoonten die je deelt met de mensen om je heen.</p>
+    <p>Een Nederlander voelt zich misschien Nederlands omdat hij Nederlands spreekt, Sinterklaas viert en op vakantie in het buitenland direct herkenbaar is aan zijn lengte en uitspraak. Maar identiteit is laagjes. Je kunt je tegelijk Nederlander voelen, Amsterdammer, fan van een bepaalde voetbalclub én Europeaan. Welke laag je het belangrijkst vindt, hangt af van de situatie en van wie je het vraagt.</p>
+    <p>Drie dingen spelen vaak een grote rol bij culturele identiteit: <strong>geschiedenis</strong> (wat zijn de belangrijke gebeurtenissen die jouw groep gedeeld heeft?), <strong>religie</strong> (welke waarden en gewoonten komen voort uit het geloof?), en <strong>taal</strong> (in welke taal denk je, droom je, scheld je?). Een Catalaan in Spanje voelt zich vaak meer Catalaan dan Spanjaard, omdat hij Catalaans spreekt, een Catalaanse vlag heeft en een geschiedenis van zelfstandigheid kent. Een Vlaming in België voelt iets anders dan een Waal, vooral door taal: Nederlands tegenover Frans.</p>
+
+    <div class="visueel-proces">
+      <div class="stap">📜 Geschiedenis</div>
+      <div class="pijl">+</div>
+      <div class="stap">🙏 Religie</div>
+      <div class="pijl">+</div>
+      <div class="stap">🗣️ Taal</div>
+      <div class="pijl">=</div>
+      <div class="stap">🪞 Identiteit</div>
+    </div>
+
+    <div class="echte-wereld">
+      <h4>📱 In jouw leven</h4>
+      <p>Op je Instagram-profiel staat misschien al een hint van je identiteit: een Nederlandse vlag, een stadsnaam, de naam van je sportclub of een song-quote in je bio. Dat is allemaal identiteit-bouwen, of je het door hebt of niet.</p>
+      <p><strong>Vraag voor jou:</strong> Welke vier "laagjes" van jouw identiteit zou je in je bio kunnen zetten? (bijv. "Nederlandse, Utrechter, FC Utrecht-fan, Europeaan")</p>
+    </div>
+  </div>
+
+  <!-- Opdracht 4.1 DRAG SORT -->
+  <div class="opdracht" data-opdracht-id="4.1">
+    <h4>📊 Opdracht 1: Sorteer de laagjes</h4>
+    <p class="opdracht-vraag">Sleep de identiteits-laagjes in volgorde van <strong>kleinste groep (boven)</strong> naar <strong>grootste groep (onder)</strong>. Klik en sleep ze in de juiste volgorde.</p>
+    <div class="drag-lijst" data-juist="ik,gezin,stad,nederland,europa,wereld">
+      <div class="drag-item" draggable="true" data-id="europa">🇪🇺 Europeaan</div>
+      <div class="drag-item" draggable="true" data-id="ik">👤 Ik (individu)</div>
+      <div class="drag-item" draggable="true" data-id="wereld">🌍 Wereldburger</div>
+      <div class="drag-item" draggable="true" data-id="stad">🏙️ Inwoner van mijn stad</div>
+      <div class="drag-item" draggable="true" data-id="nederland">🇳🇱 Nederlander</div>
+      <div class="drag-item" draggable="true" data-id="gezin">👨‍👩‍👧 Familie/gezin</div>
+    </div>
+    <button class="knop sort-check">🔍 Controleer volgorde</button>
+    <div class="feedback"></div>
+  </div>
+
+  <!-- Opdracht 4.2 MC -->
+  <div class="opdracht" data-opdracht-id="4.2">
+    <h4>✏️ Opdracht 2: Wat vormt identiteit?</h4>
+    <p class="opdracht-vraag">Welke drie elementen spelen volgens de tekst de grootste rol bij culturele identiteit?</p>
+    <div class="mc-opties">
+      <button class="mc-optie" data-correct="false">Sport, mode, voedsel</button>
+      <button class="mc-optie" data-correct="true">Geschiedenis, religie, taal</button>
+      <button class="mc-optie" data-correct="false">Wetenschap, technologie, school</button>
+      <button class="mc-optie" data-correct="false">Inkomen, opleiding, beroep</button>
+    </div>
+    <div class="feedback"></div>
+  </div>
+
+  <!-- Opdracht 4.3 OPEN -->
+  <div class="opdracht" data-opdracht-id="4.3">
+    <h4>✍️ Opdracht 3: Jouw identiteit</h4>
+    <p class="opdracht-vraag">Beschrijf jouw eigen culturele identiteit. Welke geschiedenis, religie of taal heeft jou gevormd? (minimaal 20 woorden)</p>
+    <textarea class="open-vraag" placeholder="Mijn identiteit is gevormd door..."></textarea>
+    <div class="woorden-teller">Aantal woorden: <span class="aantal">0</span> <span class="vinkje-w">✓</span></div>
+    <button class="knop secundair toon-voorbeeld" disabled>💡 Toon voorbeeldantwoord</button>
+    <div class="voorbeeld-antwoord">
+      <h5>📌 Voorbeeldantwoord:</h5>
+      <p>Mijn identiteit is vooral Nederlands, omdat ik in Nederland ben opgegroeid, Nederlands spreek en Nederlandse feestdagen vier zoals Sinterklaas. Mijn ouders komen oorspronkelijk uit Marokko, dus daar zit ook een laag van: Arabisch leren, de Ramadan vieren en familie in twee landen hebben. Ik voel me dus Nederlander én Marokkaan tegelijk.</p>
+      <div class="zelf-beoordeling">
+        <span class="zelf-beoordeling-tekst">Hoe vond je je eigen antwoord?</span>
+        <button class="knop groen klein zelf-goed">Goed ✓</button>
+        <button class="knop rood klein zelf-fout">Kon beter ✗</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="nav-onder">
+    <button class="knop secundair btn-vorige">← Vorige</button>
+    <button class="btn-reset-tab">🔄 Reset dit onderdeel</button>
+    <button class="knop btn-volgende">Volgende →</button>
+  </div>
+</section>
+
+<!-- ============ SECTIE 5: REGIO VS NATIE ============ -->
+<section class="sectie" data-sectie="5">
+  <h2 class="sectie-titel">⚔️ Regio versus land</h2>
+  <p class="sectie-intro">Soms botst de regionale identiteit met de nationale. Lees het verhaal van Marta uit Catalonië.</p>
+
+  <div class="uitleg-blok">
+    <h3>📖 Uitleg: Spanning tussen regio en land</h3>
+    <p>Niet iedereen voelt zich vooral verbonden met zijn land. In veel Europese landen zijn er regio's met een sterke eigen identiteit. Soms is die identiteit zelfs sterker dan de nationale. Mensen voelen zich dan eerst Catalaan, Schot, Baski of Vlaming — en daarna pas (of helemaal niet) Spanjaard, Brit of Belg.</p>
+    <p>Dit kan leiden tot spanningen. In Catalonië (een regio in Spanje met als hoofdstad Barcelona) wil een deel van de bevolking onafhankelijk worden van Spanje. Ze hebben hun eigen taal (Catalaans), hun eigen vlag (de Senyera) en een geschiedenis van eigen wetten en koningen. In 2017 was er zelfs een onafhankelijkheidsreferendum, maar de Spaanse overheid verklaarde dat ongeldig. In Schotland wil een groot deel van de bevolking zich losmaken van het Verenigd Koninkrijk, vooral omdat Schotten vaak willen blijven samenwerken met de EU (en Engeland niet).</p>
+    <p>Deze spanningen laten zien dat culturele identiteit niet vanzelfsprekend is. Het is iets wat mensen actief beleven en soms ook verdedigen. Wanneer een groep het gevoel heeft dat hun taal of cultuur door de overheid wordt onderdrukt, ontstaat al snel verzet. Tegelijk vinden andere bewoners van dezelfde regio het juist fijn om bij een groter land te horen — dus binnen één regio zijn er vaak meerdere meningen.</p>
+  </div>
+
+  <div class="uitleg-blok" style="border-left-color: var(--paars); background: linear-gradient(135deg, #F5EBFA 0%, #FFFFFF 100%);">
+    <h3>📖 Scenario: Marta in Barcelona</h3>
+    <p><em>Marta is 14 jaar oud en woont in Barcelona. Op school praat ze Catalaans, thuis ook. Spaans gebruikt ze vooral op vakantie in andere delen van Spanje. In haar bio op Instagram staat: "Catalana 🎗️". Een nieuwe klasgenoot uit Madrid vraagt haar: "Jij bent toch ook Spaans?" Marta twijfelt even.</em></p>
+    <p>"Ja, op mijn paspoort staat Spanje," zegt ze. "Maar ik voel me eerst Catalaan. Mijn oma en opa hebben de Catalaanse vlag in de tuin staan, mijn ouders gaan elk jaar op 11 september (de nationale dag van Catalonië) naar de demonstratie, en mijn taal is anders dan Spaans. Spanje is mijn paspoort, Catalonië is mijn thuis."</p>
+    <p>Op TikTok ziet Marta dat een influencer uit Madrid een grap maakt over Catalanen. Daar wordt ze boos van. "Dit gebeurt steeds. Mensen begrijpen het niet — het gaat niet alleen om voetbal of taal, het gaat om wie we zijn." Ze post er zelf een video over, met de hashtag #SocCatalana ("Ik ben Catalaan" in het Catalaans).</p>
+
+    <div class="echte-wereld">
+      <h4>📱 In jouw leven</h4>
+      <p>Stel: iemand op TikTok zegt dat "alle Friezen ook gewoon Nederlanders zijn", terwijl iemand uit Friesland zich juist heel sterk Fries voelt en Fries spreekt. Hoe zou je daarop reageren?</p>
+      <p><strong>Vraag voor jou:</strong> Voel jij je meer Nederlander, of meer inwoner van je provincie/stad? Of allebei evenveel?</p>
+    </div>
+  </div>
+
+  <!-- Opdracht 5.1 MC -->
+  <div class="opdracht" data-opdracht-id="5.1">
+    <h4>✏️ Opdracht 1: Marta's keuze</h4>
+    <p class="opdracht-vraag">Welke identiteit voelt Marta het sterkst?</p>
+    <div class="mc-opties">
+      <button class="mc-optie" data-correct="false">Spaans</button>
+      <button class="mc-optie" data-correct="true">Catalaans</button>
+      <button class="mc-optie" data-correct="false">Europees</button>
+      <button class="mc-optie" data-correct="false">Allebei even sterk</button>
+    </div>
+    <div class="feedback"></div>
+  </div>
+
+  <!-- Opdracht 5.2 OPEN -->
+  <div class="opdracht" data-opdracht-id="5.2">
+    <h4>✍️ Opdracht 2: Spanning beschrijven</h4>
+    <p class="opdracht-vraag">Beschrijf in je eigen woorden de spanning tussen Marta's Catalaanse identiteit en haar Spaanse paspoort. Wat maakt dit lastig? (minimaal 20 woorden)</p>
+    <textarea class="open-vraag" placeholder="De spanning ontstaat omdat..."></textarea>
+    <div class="woorden-teller">Aantal woorden: <span class="aantal">0</span> <span class="vinkje-w">✓</span></div>
+    <button class="knop secundair toon-voorbeeld" disabled>💡 Toon voorbeeldantwoord</button>
+    <div class="voorbeeld-antwoord">
+      <h5>📌 Voorbeeldantwoord:</h5>
+      <p>De spanning ontstaat omdat Marta officieel Spaans is door haar paspoort, maar zich vooral Catalaans voelt. Haar taal, gewoontes en familie horen bij Catalonië, niet bij heel Spanje. Dat maakt het lastig: bij sport kan ze niet kiezen voor "haar" land, en op TikTok krijgt ze grapjes te horen die laten zien dat anderen haar identiteit niet serieus nemen.</p>
+      <div class="zelf-beoordeling">
+        <span class="zelf-beoordeling-tekst">Hoe vond je je eigen antwoord?</span>
+        <button class="knop groen klein zelf-goed">Goed ✓</button>
+        <button class="knop rood klein zelf-fout">Kon beter ✗</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Opdracht 5.3 MC -->
+  <div class="opdracht" data-opdracht-id="5.3">
+    <h4>✏️ Opdracht 3: Andere voorbeelden</h4>
+    <p class="opdracht-vraag">Welke andere Europese regio kent ook spanning met het "moederland"?</p>
+    <div class="mc-opties">
+      <button class="mc-optie" data-correct="false">Toscane in Italië</button>
+      <button class="mc-optie" data-correct="true">Schotland in het Verenigd Koninkrijk</button>
+      <button class="mc-optie" data-correct="false">Beieren in Duitsland</button>
+      <button class="mc-optie" data-correct="false">Noord-Holland in Nederland</button>
+    </div>
+    <div class="feedback"></div>
+  </div>
+
+  <div class="nav-onder">
+    <button class="knop secundair btn-vorige">← Vorige</button>
+    <button class="btn-reset-tab">🔄 Reset dit onderdeel</button>
+    <button class="knop btn-volgende">Volgende →</button>
+  </div>
+</section>
+
+<!-- ============ SECTIE 6: EUROPESE IDENTITEIT ============ -->
+<section class="sectie" data-sectie="6">
+  <h2 class="sectie-titel">🇪🇺 Europese identiteit</h2>
+  <p class="sectie-intro">Bestaat er één Europese identiteit? Of zijn we daarvoor te verschillend?</p>
+
+  <div class="uitleg-blok">
+    <h3>📖 Uitleg: Eén Europa?</h3>
+    <p>Naast nationale en regionale identiteiten is er ook een bredere Europese identiteit in de maak. De Europese Unie (EU) probeert dit gevoel bewust te versterken. Er is een gezamenlijke vlag (twaalf gele sterren op een blauwe achtergrond), een Europees volkslied (de Ode aan de Vreugde van Beethoven) en uitwisselingsprogramma's zoals Erasmus, waarbij studenten een half jaar of jaar in een ander EU-land kunnen studeren. De euro als gemeenschappelijke munt versterkt dit gevoel ook.</p>
+    <p>Toch voelen lang niet alle Europeanen zich in de eerste plaats "Europeaan". In onderzoek geven veel mensen aan dat ze zich vooral verbonden voelen met hun eigen land of regio. Pas op de tweede of derde plaats komt "Europees". Bij jongeren is het anders: zij reizen vaker, hebben vrienden in andere EU-landen via gaming of social media, en zijn meer gewend aan een Europees leven dan hun grootouders.</p>
+    <p>Of er ooit echt één Europese identiteit ontstaat, is een open vraag. Europa heeft ruim 40 landen, meer dan 60 erkende talen en zeer verschillende culturen — van de Sami in Noord-Finland tot de Sicilianen in Zuid-Italië. Sommige experts zeggen: voor één identiteit zijn we te verschillend. Anderen zeggen: juist die verschillen samen vormen wat Europa Europees maakt. "Eenheid in verscheidenheid" is dan ook het officiële motto van de EU.</p>
+
+    <table class="vergelijk-tabel">
+      <thead><tr><th>Symbool</th><th>Wat is het?</th><th>Doel</th></tr></thead>
+      <tbody>
+        <tr><td>🇪🇺 EU-vlag</td><td>12 gele sterren op blauw</td><td>Eenheid en perfectie</td></tr>
+        <tr><td>🎵 Volkslied</td><td>Ode aan de Vreugde (Beethoven)</td><td>Gedeeld muzikaal symbool</td></tr>
+        <tr><td>💶 Euro</td><td>Gemeenschappelijke munt</td><td>Economisch verbonden</td></tr>
+        <tr><td>🎓 Erasmus</td><td>Studie-uitwisseling</td><td>Jongeren leren elkaars cultuur kennen</td></tr>
+        <tr><td>🛂 Schengen</td><td>Reizen zonder grenscontrole</td><td>Vrij verkeer van mensen</td></tr>
+      </tbody>
+    </table>
+
+    <div class="echte-wereld">
+      <h4>📱 In jouw leven</h4>
+      <p>Op TikTok of YouTube zie je waarschijnlijk content uit allerlei EU-landen voorbij komen: een Duitse YouTuber, Spaanse muziek, een Franse film op Netflix. Dankzij de EU kun je zonder paspoort naar Spanje op vakantie en daar met euro's betalen. Dat is Europese identiteit-in-actie.</p>
+      <p><strong>Vraag voor jou:</strong> Hoeveel social media-accounts volg jij uit andere EU-landen? En in welke taal kijk je dan?</p>
+    </div>
+  </div>
+
+  <div class="grafiek-wrap">
+    <h3 style="margin-bottom: 12px;">📊 Identiteitsgevoel in de EU (% dat zich "Europeaan" voelt naast eigen nationaliteit)</h3>
+    <canvas id="grafiek-identiteit" class="grafiek-canvas"></canvas>
+  </div>
+
+  <!-- Opdracht 6.1 DATA-ANALYSE -->
+  <div class="opdracht" data-opdracht-id="6.1">
+    <h4>📊 Opdracht 1: Lees de grafiek</h4>
+    <p class="opdracht-vraag">Welke leeftijdsgroep voelt zich het MEEST Europeaan?</p>
+    <div class="mc-opties">
+      <button class="mc-optie" data-correct="false">55+ jaar</button>
+      <button class="mc-optie" data-correct="false">40-54 jaar</button>
+      <button class="mc-optie" data-correct="false">25-39 jaar</button>
+      <button class="mc-optie" data-correct="true">15-24 jaar (jongeren)</button>
+    </div>
+    <div class="feedback"></div>
+  </div>
+
+  <!-- Opdracht 6.2 OPEN ANALYSE -->
+  <div class="opdracht" data-opdracht-id="6.2">
+    <h4>✍️ Opdracht 2: Verklaar het verschil</h4>
+    <p class="opdracht-vraag">Verklaar waarom jongeren zich meer Europeaan voelen dan ouderen. Noem minstens twee redenen. (minimaal 20 woorden)</p>
+    <textarea class="open-vraag" placeholder="Jongeren voelen zich meer Europees omdat..."></textarea>
+    <div class="woorden-teller">Aantal woorden: <span class="aantal">0</span> <span class="vinkje-w">✓</span></div>
+    <button class="knop secundair toon-voorbeeld" disabled>💡 Toon voorbeeldantwoord</button>
+    <div class="voorbeeld-antwoord">
+      <h5>📌 Voorbeeldantwoord:</h5>
+      <p>Jongeren voelen zich meer Europees omdat ze opgegroeid zijn met de euro, met reizen zonder grenscontroles en met social media uit allerlei EU-landen. Ze hebben vaker vrienden in het buitenland en doen mee aan uitwisselingen zoals Erasmus. Ouderen hebben meer een tijd meegemaakt waarin grenzen, douanes en aparte munten normaal waren — voor hen voelt "Europa" meer als iets nieuws.</p>
+      <div class="zelf-beoordeling">
+        <span class="zelf-beoordeling-tekst">Hoe vond je je eigen antwoord?</span>
+        <button class="knop groen klein zelf-goed">Goed ✓</button>
+        <button class="knop rood klein zelf-fout">Kon beter ✗</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Opdracht 6.3 SPANNING -->
+  <div class="opdracht" data-opdracht-id="6.3">
+    <h4>✍️ Opdracht 3: Spanning beschrijven</h4>
+    <p class="opdracht-vraag">Beschrijf een spanning tussen een nationale (of regionale) identiteit en een gezamenlijke Europese identiteit. Geef een concreet voorbeeld. (minimaal 20 woorden)</p>
+    <textarea class="open-vraag" placeholder="Een voorbeeld van spanning is..."></textarea>
+    <div class="woorden-teller">Aantal woorden: <span class="aantal">0</span> <span class="vinkje-w">✓</span></div>
+    <button class="knop secundair toon-voorbeeld" disabled>💡 Toon voorbeeldantwoord</button>
+    <div class="voorbeeld-antwoord">
+      <h5>📌 Voorbeeldantwoord:</h5>
+      <p>Een spanning is dat de EU regels maakt waaraan elk land zich moet houden, terwijl landen hun eigen tradities en wetten willen houden. Hongarije bijvoorbeeld wil zijn eigen cultuur sterk beschermen en botst soms met EU-regels over vrijheid en gelijkheid. Veel Hongaren voelen zich vooral Hongaars en niet zo Europees. Dat laat zien dat nationale identiteit kan botsen met een gemeenschappelijke Europese identiteit.</p>
+      <div class="zelf-beoordeling">
+        <span class="zelf-beoordeling-tekst">Hoe vond je je eigen antwoord?</span>
+        <button class="knop groen klein zelf-goed">Goed ✓</button>
+        <button class="knop rood klein zelf-fout">Kon beter ✗</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="nav-onder">
+    <button class="knop secundair btn-vorige">← Vorige</button>
+    <button class="btn-reset-tab">🔄 Reset dit onderdeel</button>
+    <button class="knop btn-volgende">Volgende →</button>
+  </div>
+</section>
+
+<!-- ============ SECTIE 7: GLOBALISERING ============ -->
+<section class="sectie" data-sectie="7">
+  <h2 class="sectie-titel">🌐 Globalisering & cultuur</h2>
+  <p class="sectie-intro">De wereld wordt steeds meer één grote markt. Wat doet dat met de Europese cultuur?</p>
+
+  <div class="uitleg-blok">
+    <h3>📖 Uitleg: Wat is globalisering?</h3>
+    <p>Globalisering betekent dat de wereld steeds meer met elkaar verbonden raakt. Niet alleen economisch (denk aan kleding uit China, telefoons uit Korea), maar ook cultureel. Amerikaanse films, Japanse manga, K-pop uit Zuid-Korea, fastfoodketens zoals McDonald's en Starbucks: ze zijn in bijna elk Europees land aanwezig. Jongeren in Polen, Portugal en Finland luisteren naar dezelfde muziek (vaak in het Engels) en dragen vergelijkbare merken.</p>
+    <p>Dat heeft <strong>voordelen</strong>: mensen leren andere culturen kennen, voelen zich verbonden met de rest van de wereld, en kunnen makkelijk reizen en communiceren. Engels is bijna een wereldtaal geworden waardoor je overal vrienden kunt maken. Internet en social media maken het mogelijk dat een Nederlandse tiener tegelijkertijd met een Japanse tiener een spel speelt en met een Spaanse vriend chat.</p>
+    <p>Maar globalisering heeft ook <strong>nadelen</strong>. Lokale tradities, dialecten en ambachten verdwijnen vaak, omdat ze het niet kunnen opnemen tegen de aantrekkingskracht van de wereldwijde populaire cultuur. Steeds meer kinderen kennen wel de naam van elke superheld, maar niet meer de naam van de plaatselijke heilige of een oud volksverhaal uit hun streek. Veel Europese landen proberen daarom hun eigen cultuur te beschermen, bijvoorbeeld via quota voor eigen muziek op de radio (Frankrijk eist dat een deel van de radiomuziek Frans is) of subsidies voor nationale films.</p>
+
+    <div class="visueel-proces">
+      <div class="stap">🎬 Hollywood-films</div>
+      <div class="pijl">→</div>
+      <div class="stap">🍔 Fastfood overal</div>
+      <div class="pijl">→</div>
+      <div class="stap">🎵 Engelse popmuziek</div>
+      <div class="pijl">→</div>
+      <div class="stap">📱 Wereldwijde memes</div>
+    </div>
+
+    <table class="vergelijk-tabel">
+      <thead><tr><th>✅ Voordeel</th><th>❌ Nadeel</th></tr></thead>
+      <tbody>
+        <tr><td>Andere culturen leren kennen</td><td>Lokale tradities verdwijnen</td></tr>
+        <tr><td>Engels als wereldtaal verbindt</td><td>Dialecten en streektalen sterven uit</td></tr>
+        <tr><td>Goedkoper en makkelijker reizen</td><td>Steden lijken steeds meer op elkaar</td></tr>
+        <tr><td>Gedeelde popcultuur (memes, K-pop)</td><td>Minder ruimte voor eigen ambachten</td></tr>
+      </tbody>
+    </table>
+
+    <div class="echte-wereld">
+      <h4>📱 In jouw leven</h4>
+      <p>Open je TikTok-feed en tel: hoeveel filmpjes zijn in het Engels? Hoeveel zijn van Amerikaanse, Koreaanse of Japanse makers? En hoeveel van Nederlandse makers in het Nederlands? Waarschijnlijk is de balans behoorlijk scheef.</p>
+      <p><strong>Vraag voor jou:</strong> Welke trends op je telefoon komen NIET uit Nederland? Noem er drie.</p>
+    </div>
+  </div>
+
+  <!-- Opdracht 7.1 MC -->
+  <div class="opdracht" data-opdracht-id="7.1">
+    <h4>✏️ Opdracht 1: Voordeel van globalisering</h4>
+    <p class="opdracht-vraag">Welk van de onderstaande is een VOORDEEL van globalisering voor de Europese cultuur?</p>
+    <div class="mc-opties">
+      <button class="mc-optie" data-correct="false">Lokale dialecten verdwijnen sneller</button>
+      <button class="mc-optie" data-correct="true">Je leert makkelijker over andere culturen via internet</button>
+      <button class="mc-optie" data-correct="false">Steden lijken steeds meer op elkaar</button>
+      <button class="mc-optie" data-correct="false">Buitenlandse fastfood verdringt lokaal eten</button>
+    </div>
+    <div class="feedback"></div>
+  </div>
+
+  <!-- Opdracht 7.2 KOPPELEN voor/nadeel -->
+  <div class="opdracht" data-opdracht-id="7.2">
+    <h4>🔗 Opdracht 2: Voordeel of nadeel?</h4>
+    <p class="opdracht-vraag">Klik op een gevolg (links), klik dan op "Voordeel" of "Nadeel" (rechts). Elke categorie kan meerdere gevolgen krijgen.</p>
+    <div class="koppel-wrap">
+      <div class="koppel-kolom">
+        <h5>📌 Gevolg</h5>
+        <div class="koppel-bron" data-bron="muziek">🎵 K-pop is populair in heel Europa</div>
+        <div class="koppel-bron" data-bron="dialect">🗣️ Friese dialecten worden minder gesproken</div>
+        <div class="koppel-bron" data-bron="reizen">✈️ Mensen reizen meer en kennen meer culturen</div>
+        <div class="koppel-bron" data-bron="mcdonalds">🍔 McDonald's vervangt lokale eetkraampjes</div>
+      </div>
+      <div class="koppel-kolom">
+        <h5>⚖️ Categorie</h5>
+        <div class="koppel-doel" data-doel="voordeel">✅ Voordeel
+          <div class="gekoppelde-lijst"></div>
+        </div>
+        <div class="koppel-doel" data-doel="nadeel">❌ Nadeel
+          <div class="gekoppelde-lijst"></div>
+        </div>
+      </div>
+    </div>
+    <p class="koppel-info">Tip: meerdere gevolgen kunnen onder dezelfde categorie vallen.</p>
+    <button class="knop koppel-check">🔍 Controleer koppelingen</button>
+    <button class="knop secundair klein koppel-reset">🔄 Wis koppelingen</button>
+    <div class="feedback"></div>
+  </div>
+
+  <!-- Opdracht 7.3 OPEN -->
+  <div class="opdracht" data-opdracht-id="7.3">
+    <h4>✍️ Opdracht 3: Voor- en nadeel van globalisering</h4>
+    <p class="opdracht-vraag">Leg in eigen woorden uit hoe globalisering de cultuur van Europese landen beïnvloedt. Noem minstens één voordeel én één nadeel. (minimaal 20 woorden)</p>
+    <textarea class="open-vraag" placeholder="Globalisering beïnvloedt cultuur doordat..."></textarea>
+    <div class="woorden-teller">Aantal woorden: <span class="aantal">0</span> <span class="vinkje-w">✓</span></div>
+    <button class="knop secundair toon-voorbeeld" disabled>💡 Toon voorbeeldantwoord</button>
+    <div class="voorbeeld-antwoord">
+      <h5>📌 Voorbeeldantwoord:</h5>
+      <p>Globalisering beïnvloedt cultuur doordat mensen overal ter wereld dezelfde films kijken, dezelfde muziek luisteren en hetzelfde eten eten. Een voordeel is dat je makkelijk vrienden kunt maken over de hele wereld, omdat je dezelfde dingen kent. Een nadeel is dat lokale tradities en dialecten verdwijnen, omdat ze niet zo populair zijn als de wereldwijde trends. Daardoor lijken Europese landen steeds meer op elkaar.</p>
+      <div class="zelf-beoordeling">
+        <span class="zelf-beoordeling-tekst">Hoe vond je je eigen antwoord?</span>
+        <button class="knop groen klein zelf-goed">Goed ✓</button>
+        <button class="knop rood klein zelf-fout">Kon beter ✗</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="nav-onder">
+    <button class="knop secundair btn-vorige">← Vorige</button>
+    <button class="btn-reset-tab">🔄 Reset dit onderdeel</button>
+    <button class="knop btn-volgende">Volgende →</button>
+  </div>
+</section>
+
+<!-- ============ SECTIE 8: KAART + DATA ============ -->
+<section class="sectie" data-sectie="8">
+  <h2 class="sectie-titel">📊 Talen in Europa</h2>
+  <p class="sectie-intro">Bekijk de talen op de kaart en analyseer hoe taal samenhangt met identiteit.</p>
+
+  <div class="uitleg-blok">
+    <h3>📖 Uitleg: Taal als identiteitsmarker</h3>
+    <p>Taal is een van de sterkste markers van culturele identiteit. Het is niet alleen een manier om te communiceren — het is ook een manier om te denken, te dromen en te voelen. Wanneer een groep mensen een eigen taal heeft, voelt die groep zich vaak ook duidelijk een aparte gemeenschap. In Europa worden meer dan 200 talen gesproken, waarvan ongeveer 24 erkend zijn als officiële EU-taal.</p>
+    <p>Sommige talen worden door miljoenen mensen gesproken: Duits, Frans, Italiaans, Engels, Spaans. Andere talen zijn klein maar zeer belangrijk voor de identiteit van hun sprekers: Catalaans, Welsh, Baskisch, Fries. De Europese Unie investeert veel geld in het beschermen van kleine talen, omdat ze deel uitmaken van het culturele erfgoed van Europa.</p>
+    <p>Wanneer een minderheidstaal onder druk staat, voelt de groep zich vaak bedreigd. Zo voert de Catalaanse regering bewust beleid om Catalaans op scholen te stimuleren — anders zou Spaans het langzaam overnemen. In Wales (Verenigd Koninkrijk) is hetzelfde gebeurd: Welsh werd bijna uitgestorven, maar dankzij actief beleid spreken nu weer veel jongeren de taal.</p>
+
+    <div class="echte-wereld">
+      <h4>📱 In jouw leven</h4>
+      <p>In welke taal heb jij je telefoon ingesteld? Engels? Nederlands? En in welke taal scheld je als je struikelt? Dat laatste is vaak je echte "moedertaal" — de taal waarin je voelt.</p>
+      <p><strong>Vraag voor jou:</strong> Ken je iemand die twee of meer talen vloeiend spreekt? In welke taal voelt hij/zij zich het meest "thuis"?</p>
+    </div>
+  </div>
+
+  <div class="kaart-wrap">
+    <h3 style="margin-bottom: 12px;">🗺️ Belangrijke (minderheids)talen in Europa</h3>
+    <div id="kaart-talen" class="leaflet-map"></div>
+  </div>
+
+  <div class="grafiek-wrap">
+    <h3 style="margin-bottom: 12px;">📊 Aantal sprekers per Europese taal (miljoenen, moedertaal in EU)</h3>
+    <canvas id="grafiek-talen" class="grafiek-canvas"></canvas>
+  </div>
+
+  <!-- Opdracht 8.1 -->
+  <div class="opdracht" data-opdracht-id="8.1">
+    <h4>📊 Opdracht 1: Lezen van de grafiek</h4>
+    <p class="opdracht-vraag">Welke taal heeft de meeste moedertaal-sprekers in de EU?</p>
+    <div class="mc-opties">
+      <button class="mc-optie" data-correct="false">Engels</button>
+      <button class="mc-optie" data-correct="false">Frans</button>
+      <button class="mc-optie" data-correct="true">Duits</button>
+      <button class="mc-optie" data-correct="false">Italiaans</button>
+    </div>
+    <div class="feedback"></div>
+  </div>
+
+  <!-- Opdracht 8.2 -->
+  <div class="opdracht" data-opdracht-id="8.2">
+    <h4>📊 Opdracht 2: Interpretatie</h4>
+    <p class="opdracht-vraag">Klik op de marker in Catalonië. Waarom is de Catalaanse taal zo belangrijk voor de identiteit van Catalanen?</p>
+    <div class="mc-opties">
+      <button class="mc-optie" data-correct="false">Omdat het de officiële taal van Spanje is</button>
+      <button class="mc-optie" data-correct="true">Omdat het hen onderscheidt van de rest van Spanje en hun eigen geschiedenis benadrukt</button>
+      <button class="mc-optie" data-correct="false">Omdat alle Spanjaarden Catalaans leren op school</button>
+      <button class="mc-optie" data-correct="false">Omdat het op de EU-vlag staat</button>
+    </div>
+    <div class="feedback"></div>
+  </div>
+
+  <!-- Opdracht 8.3 OPEN -->
+  <div class="opdracht" data-opdracht-id="8.3">
+    <h4>✍️ Opdracht 3: Taal & identiteit</h4>
+    <p class="opdracht-vraag">Bekijk de kaart én de grafiek. Leg uit waarom kleine talen zoals Fries, Welsh of Catalaans extra bescherming nodig hebben. Wat zou er anders gebeuren? (minimaal 20 woorden)</p>
+    <textarea class="open-vraag" placeholder="Kleine talen hebben bescherming nodig omdat..."></textarea>
+    <div class="woorden-teller">Aantal woorden: <span class="aantal">0</span> <span class="vinkje-w">✓</span></div>
+    <button class="knop secundair toon-voorbeeld" disabled>💡 Toon voorbeeldantwoord</button>
+    <div class="voorbeeld-antwoord">
+      <h5>📌 Voorbeeldantwoord:</h5>
+      <p>Kleine talen hebben bescherming nodig omdat veel minder mensen ze spreken. Zonder hulp van de regering en het onderwijs zouden veel jongeren de taal niet meer leren en zouden ze uiteindelijk verdwijnen. Dat zou betekenen dat een hele cultuur en geschiedenis verloren gaan, want taal hangt sterk samen met identiteit. Daarom worden talen zoals Fries en Welsh op school gegeven en gesteund door de overheid.</p>
+      <div class="zelf-beoordeling">
+        <span class="zelf-beoordeling-tekst">Hoe vond je je eigen antwoord?</span>
+        <button class="knop groen klein zelf-goed">Goed ✓</button>
+        <button class="knop rood klein zelf-fout">Kon beter ✗</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="nav-onder">
+    <button class="knop secundair btn-vorige">← Vorige</button>
+    <button class="btn-reset-tab">🔄 Reset dit onderdeel</button>
+    <button class="knop btn-volgende">Volgende →</button>
+  </div>
+</section>
+
+<!-- ============ SECTIE 9: AFSLUITING ============ -->
+<section class="sectie" data-sectie="9">
+  <h2 class="sectie-titel">🏁 Afsluiting & reflectie</h2>
+  <p class="sectie-intro">Je bent klaar! Tijd om terug te kijken op wat je hebt geleerd.</p>
+
+  <div class="eind-score">
+    <h2>🎉 Jouw eindscore</h2>
+    <div class="score-getal" id="eind-percentage">0%</div>
+    <p><span id="eind-aantal">0</span> van <span id="eind-totaal">0</span> opdrachten gemaakt</p>
+  </div>
+
+  <div class="uitleg-blok">
+    <h3>🎯 Wat heb je geleerd?</h3>
+    <ul class="leerdoelen-lijst">
+      <li>Ik kan uitleggen wat cultuur betekent en drie voorbeelden noemen van culturele uitingen.</li>
+      <li>Ik kan beschrijven hoe tradities en gewoonten kunnen verschillen tussen Europese landen en daar een voorbeeld van geven.</li>
+      <li>Ik kan uitleggen wat culturele identiteit is en beschrijven hoe die gevormd wordt door geschiedenis, religie en taal.</li>
+      <li>Ik kan een spanning beschrijven tussen een nationale of regionale identiteit en een gezamenlijke Europese identiteit.</li>
+      <li>Ik kan uitleggen hoe globalisering de cultuur van Europese landen beïnvloedt en daar een voor- en een nadeel van noemen.</li>
+    </ul>
+  </div>
+
+  <!-- Reflectievragen -->
+  <div class="opdracht" data-opdracht-id="9.1">
+    <h4>🤔 Reflectie 1: Wat vond je het lastigst?</h4>
+    <p class="opdracht-vraag">Welk onderdeel van deze les vond je het lastigst, en waarom? (minimaal 20 woorden)</p>
+    <textarea class="open-vraag" placeholder="Het lastigst vond ik..."></textarea>
+    <div class="woorden-teller">Aantal woorden: <span class="aantal">0</span> <span class="vinkje-w">✓</span></div>
+    <button class="knop secundair toon-voorbeeld" disabled>💡 Toon voorbeeldantwoord</button>
+    <div class="voorbeeld-antwoord">
+      <h5>📌 Voorbeeldantwoord:</h5>
+      <p>Het lastigst vond ik het verschil tussen nationale en regionale identiteit. Het verhaal van Marta uit Barcelona hielp me wel om het beter te begrijpen, maar het is moeilijk voor te stellen dat je je in jouw eigen land toch niet helemaal thuis voelt. In Nederland hebben we dat verschil veel minder.</p>
+      <div class="zelf-beoordeling">
+        <span class="zelf-beoordeling-tekst">Hoe vond je je eigen antwoord?</span>
+        <button class="knop groen klein zelf-goed">Goed ✓</button>
+        <button class="knop rood klein zelf-fout">Kon beter ✗</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="opdracht" data-opdracht-id="9.2">
+    <h4>🤔 Reflectie 2: Aan een klasgenoot uitleggen</h4>
+    <p class="opdracht-vraag">Stel: een klasgenoot was vandaag ziek en moet weten waar deze les over ging. Hoe zou je hem of haar in twee zinnen uitleggen wat culturele identiteit is? (minimaal 20 woorden)</p>
+    <textarea class="open-vraag" placeholder="Culturele identiteit is..."></textarea>
+    <div class="woorden-teller">Aantal woorden: <span class="aantal">0</span> <span class="vinkje-w">✓</span></div>
+    <button class="knop secundair toon-voorbeeld" disabled>💡 Toon voorbeeldantwoord</button>
+    <div class="voorbeeld-antwoord">
+      <h5>📌 Voorbeeldantwoord:</h5>
+      <p>Culturele identiteit is het gevoel ergens bij te horen. Het wordt gevormd door taal, geschiedenis, religie en gewoonten die je deelt met een groep. Je kunt meerdere identiteiten tegelijk hebben — Nederlander én Europeaan én Utrechter — en welke het sterkst voelt, kan per situatie verschillen.</p>
+      <div class="zelf-beoordeling">
+        <span class="zelf-beoordeling-tekst">Hoe vond je je eigen antwoord?</span>
+        <button class="knop groen klein zelf-goed">Goed ✓</button>
+        <button class="knop rood klein zelf-fout">Kon beter ✗</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="opdracht" data-opdracht-id="9.3">
+    <h4>🤔 Reflectie 3: In jouw omgeving</h4>
+    <p class="opdracht-vraag">Hoe zou je het onderwerp "culturele identiteit" herkennen in jouw eigen omgeving — op school, in je buurt of op social media? Geef een concreet voorbeeld. (minimaal 20 woorden)</p>
+    <textarea class="open-vraag" placeholder="In mijn omgeving zie ik..."></textarea>
+    <div class="woorden-teller">Aantal woorden: <span class="aantal">0</span> <span class="vinkje-w">✓</span></div>
+    <button class="knop secundair toon-voorbeeld" disabled>💡 Toon voorbeeldantwoord</button>
+    <div class="voorbeeld-antwoord">
+      <h5>📌 Voorbeeldantwoord:</h5>
+      <p>In mijn klas zitten kinderen met ouders uit Turkije, Marokko, Polen en Nederland. Iedereen viert andere feesten thuis: Suikerfeest, Kerst, Sinterklaas. Op TikTok zie ik vaak filmpjes waarin mensen trots hun "roots" laten zien met vlaggen of typische gerechten. Dat is culturele identiteit in actie: laten zien wie je bent en waar je bij hoort.</p>
+      <div class="zelf-beoordeling">
+        <span class="zelf-beoordeling-tekst">Hoe vond je je eigen antwoord?</span>
+        <button class="knop groen klein zelf-goed">Goed ✓</button>
+        <button class="knop rood klein zelf-fout">Kon beter ✗</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="nav-onder">
+    <button class="knop secundair btn-vorige">← Vorige</button>
+    <button class="btn-reset-tab">🔄 Reset dit onderdeel</button>
+    <button class="knop" disabled>Einde 🎉</button>
+  </div>
+</section>
+
+</main>
+
+<script>
+// ============ CONFIG ============
+const STORAGE_PREFIX = 'geo_les_cultuur_';
+const TAB_NAMEN = [
+  { id: 1, naam: '🎭 Cultuur' },
+  { id: 2, naam: '🎉 Tradities' },
+  { id: 3, naam: '🗺️ Kaart' },
+  { id: 4, naam: '🪞 Identiteit' },
+  { id: 5, naam: '⚔️ Regio vs Land' },
+  { id: 6, naam: '🇪🇺 Europa' },
+  { id: 7, naam: '🌐 Globalisering' },
+  { id: 8, naam: '📊 Talen' },
+  { id: 9, naam: '🏁 Reflectie' }
+];
+
+// State
+let state = {
+  huidigeSectie: 1,
+  opdrachten: {},
+  voltooide_secties: {}
+};
+
+// ============ STORAGE ============
+function storageSet(key, value) {
+  try { localStorage.setItem(STORAGE_PREFIX + key, JSON.stringify(value)); } catch(e) {}
+}
+function storageGet(key) {
+  try {
+    const v = localStorage.getItem(STORAGE_PREFIX + key);
+    return v ? JSON.parse(v) : null;
+  } catch(e) { return null; }
+}
+function storageRemove(key) {
+  try { localStorage.removeItem(STORAGE_PREFIX + key); } catch(e) {}
+}
+function storageClearAll() {
+  try {
+    const keys = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k && k.startsWith(STORAGE_PREFIX)) keys.push(k);
+    }
+    keys.forEach(k => localStorage.removeItem(k));
+  } catch(e) {}
+}
+
+function saveState() {
+  storageSet('state', state);
+  storageSet('tijdstip', new Date().toISOString());
+}
+function loadState() {
+  const saved = storageGet('state');
+  if (saved) state = saved;
+}
+
+// ============ TABS RENDEREN ============
+function renderTabs() {
+  const tabsDiv = document.getElementById('tabs');
+  tabsDiv.innerHTML = '';
+  TAB_NAMEN.forEach(t => {
+    const btn = document.createElement('button');
+    btn.className = 'tab';
+    btn.dataset.tab = t.id;
+    btn.innerHTML = `${t.naam} <span class="vinkje">✓</span>`;
+    if (t.id === state.huidigeSectie) btn.classList.add('actief');
+    if (state.voltooide_secties[t.id]) btn.classList.add('voltooid');
+    btn.addEventListener('click', () => gaNaarSectie(t.id));
+    tabsDiv.appendChild(btn);
+  });
+  document.getElementById('tab-totaal').textContent = TAB_NAMEN.length;
+  document.getElementById('tab-huidig').textContent = state.huidigeSectie;
+}
+
+function gaNaarSectie(nr) {
+  state.huidigeSectie = nr;
+  document.querySelectorAll('.sectie').forEach(s => s.classList.remove('actief'));
+  const sec = document.querySelector(`.sectie[data-sectie="${nr}"]`);
+  if (sec) sec.classList.add('actief');
+  document.querySelectorAll('.tab').forEach(t => {
+    t.classList.toggle('actief', parseInt(t.dataset.tab) === nr);
+  });
+  document.getElementById('tab-huidig').textContent = nr;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  // invalidateSize voor kaarten
+  setTimeout(() => {
+    if (window.kaartTradities) window.kaartTradities.invalidateSize();
+    if (window.kaartTalen) window.kaartTalen.invalidateSize();
+  }, 100);
+  // Eindscore updaten
+  if (nr === 9) updateEindScore();
+  saveState();
+}
+
+// ============ VOORTGANG ============
+function getTotaalOpdrachten() {
+  return document.querySelectorAll('.opdracht').length;
+}
+function getVoltooideOpdrachten() {
+  let count = 0;
+  for (const id in state.opdrachten) {
+    if (state.opdrachten[id] && state.opdrachten[id].voltooid) count++;
+  }
+  return count;
+}
+function updateVoortgang() {
+  const totaal = getTotaalOpdrachten();
+  const voltooid = getVoltooideOpdrachten();
+  const pct = totaal > 0 ? Math.round((voltooid / totaal) * 100) : 0;
+  document.getElementById('voortgang-percentage').textContent = pct;
+  document.getElementById('voortgang-fill').style.width = pct + '%';
+  // Check welke secties voltooid zijn
+  TAB_NAMEN.forEach(t => {
+    const opdrachtenInSectie = document.querySelectorAll(`.sectie[data-sectie="${t.id}"] .opdracht`);
+    if (opdrachtenInSectie.length === 0) return;
+    let alleVoltooid = true;
+    opdrachtenInSectie.forEach(op => {
+      const oid = op.dataset.opdrachtId;
+      if (!state.opdrachten[oid] || !state.opdrachten[oid].voltooid) alleVoltooid = false;
+    });
+    if (alleVoltooid) {
+      state.voltooide_secties[t.id] = true;
+      const tab = document.querySelector(`.tab[data-tab="${t.id}"]`);
+      if (tab) tab.classList.add('voltooid');
+    } else {
+      delete state.voltooide_secties[t.id];
+      const tab = document.querySelector(`.tab[data-tab="${t.id}"]`);
+      if (tab) tab.classList.remove('voltooid');
+    }
+  });
+}
+
+function markeerVoltooid(oid, correct) {
+  state.opdrachten[oid] = { voltooid: true, correct: correct };
+  updateVoortgang();
+  saveState();
+}
+
+// ============ MULTIPLE CHOICE ============
+function setupMC() {
+  document.querySelectorAll('.opdracht').forEach(op => {
+    const opties = op.querySelectorAll('.mc-optie');
+    if (opties.length === 0) return;
+    const oid = op.dataset.opdrachtId;
+    if (!state.opdrachten[oid]) state.opdrachten[oid] = { pogingen: 0, voltooid: false };
+
+    const feedback = op.querySelector('.feedback');
+
+    // Herstel als al voltooid
+    if (state.opdrachten[oid].voltooid) {
+      opties.forEach(o => {
+        o.disabled = true;
+        if (o.dataset.correct === 'true') o.classList.add('goed');
+      });
+      if (feedback) {
+        feedback.className = 'feedback goed actief';
+        feedback.textContent = state.opdrachten[oid].correct
+          ? '✅ Goed gedaan!'
+          : '📚 Het juiste antwoord is groen gemarkeerd. Bekijk het nog eens goed.';
+      }
+    }
+
+    opties.forEach(opt => {
+      opt.addEventListener('click', () => handleMCKlik(op, opt));
+    });
+  });
+}
+
+function handleMCKlik(opdracht, optie) {
+  const oid = opdracht.dataset.opdrachtId;
+  const feedback = opdracht.querySelector('.feedback');
+  const opties = opdracht.querySelectorAll('.mc-optie');
+  const correct = optie.dataset.correct === 'true';
+
+  if (state.opdrachten[oid].voltooid) return;
+
+  state.opdrachten[oid].pogingen = (state.opdrachten[oid].pogingen || 0) + 1;
+
+  if (correct) {
+    optie.classList.add('goed');
+    opties.forEach(o => o.disabled = true);
+    feedback.className = 'feedback goed actief';
+    feedback.innerHTML = state.opdrachten[oid].pogingen === 1
+      ? '🎉 Helemaal goed! Top.'
+      : '✅ Eindelijk goed — top dat je doorzette!';
+    markeerVoltooid(oid, state.opdrachten[oid].pogingen === 1);
+  } else {
+    optie.classList.add('fout');
+    optie.disabled = true;
+    const pogingen = state.opdrachten[oid].pogingen;
+    if (pogingen >= 3) {
+      // Toon juiste antwoord
+      opties.forEach(o => {
+        o.disabled = true;
+        if (o.dataset.correct === 'true') o.classList.add('goed');
+      });
+      feedback.className = 'feedback fout actief';
+      feedback.innerHTML = '📚 Geen probleem — het juiste antwoord is nu groen gemarkeerd. Lees de uitleg hierboven nog eens.';
+      markeerVoltooid(oid, false);
+    } else {
+      feedback.className = 'feedback hint actief';
+      const hints = [
+        '🤔 Je zit op het goede spoor! Lees de uitleg nog eens en denk: wat is het meest specifieke kenmerk?',
+        '💡 Bijna! Kijk nog eens wat in de tekst staat. Wat zou er gebeuren als je de andere opties uitsluit?'
+      ];
+      feedback.innerHTML = hints[pogingen - 1] + ` (Poging ${pogingen} van 3)`;
+    }
+  }
+  saveState();
+}
+
+// ============ OPEN VRAGEN ============
+function setupOpen() {
+  document.querySelectorAll('.open-vraag').forEach(ta => {
+    const op = ta.closest('.opdracht');
+    const oid = op.dataset.opdrachtId;
+    const teller = op.querySelector('.woorden-teller');
+    const aantalSpan = teller.querySelector('.aantal');
+    const toonKnop = op.querySelector('.toon-voorbeeld');
+    const voorbeeld = op.querySelector('.voorbeeld-antwoord');
+
+    if (!state.opdrachten[oid]) state.opdrachten[oid] = { pogingen: 0, voltooid: false };
+
+    // Herstel
+    if (state.opdrachten[oid].antwoord) {
+      ta.value = state.opdrachten[oid].antwoord;
+    }
+    updateWoordenTeller(ta, aantalSpan, teller, toonKnop);
+
+    if (state.opdrachten[oid].voorbeeld_getoond) {
+      voorbeeld.classList.add('actief');
+      toonKnop.disabled = true;
+      toonKnop.textContent = '💡 Voorbeeldantwoord getoond';
+    }
+
+    if (state.opdrachten[oid].voltooid) {
+      ta.disabled = true;
+    }
+
+    ta.addEventListener('input', () => {
+      updateWoordenTeller(ta, aantalSpan, teller, toonKnop);
+      state.opdrachten[oid].antwoord = ta.value;
+      saveState();
+    });
+
+    if (toonKnop) {
+      toonKnop.addEventListener('click', () => {
+        voorbeeld.classList.add('actief');
+        toonKnop.disabled = true;
+        toonKnop.textContent = '💡 Voorbeeldantwoord getoond';
+        state.opdrachten[oid].voorbeeld_getoond = true;
+        saveState();
+      });
+    }
+
+    // Zelfbeoordeling
+    const knopGoed = op.querySelector('.zelf-goed');
+    const knopFout = op.querySelector('.zelf-fout');
+    if (knopGoed) {
+      knopGoed.addEventListener('click', () => {
+        zelfBeoordeel(op, true);
+      });
+    }
+    if (knopFout) {
+      knopFout.addEventListener('click', () => {
+        zelfBeoordeel(op, false);
+      });
+    }
+  });
+}
+
+function zelfBeoordeel(op, goed) {
+  const oid = op.dataset.opdrachtId;
+  const knopGoed = op.querySelector('.zelf-goed');
+  const knopFout = op.querySelector('.zelf-fout');
+  const ta = op.querySelector('.open-vraag');
+  knopGoed.disabled = true;
+  knopFout.disabled = true;
+  if (goed) {
+    knopGoed.style.background = 'var(--groen)';
+    knopFout.style.opacity = '0.4';
+  } else {
+    knopFout.style.background = 'var(--rood-zacht)';
+    knopGoed.style.opacity = '0.4';
+  }
+  if (ta) ta.disabled = true;
+  markeerVoltooid(oid, goed);
+}
+
+function telWoorden(text) {
+  if (!text) return 0;
+  return text.trim().split(/\s+/).filter(w => w.length > 0).length;
+}
+
+function updateWoordenTeller(ta, aantalSpan, teller, toonKnop) {
+  const n = telWoorden(ta.value);
+  aantalSpan.textContent = n;
+  if (n >= 20) {
+    teller.classList.add('voldoende');
+    if (toonKnop) toonKnop.disabled = false;
+  } else {
+    teller.classList.remove('voldoende');
+    if (toonKnop && !toonKnop.classList.contains('getoond')) toonKnop.disabled = true;
+  }
+}
+
+// ============ DRAG AND DROP SORTEREN ============
+function setupDrag() {
+  document.querySelectorAll('.drag-lijst').forEach(lijst => {
+    const items = lijst.querySelectorAll('.drag-item');
+    let draggedItem = null;
+
+    items.forEach(item => {
+      item.addEventListener('dragstart', e => {
+        draggedItem = item;
+        item.classList.add('dragging');
+        e.dataTransfer.effectAllowed = 'move';
+      });
+      item.addEventListener('dragend', () => {
+        item.classList.remove('dragging');
+        document.querySelectorAll('.drop-over').forEach(el => el.classList.remove('drop-over'));
+      });
+      item.addEventListener('dragover', e => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        if (draggedItem && draggedItem !== item) {
+          item.classList.add('drop-over');
+        }
+      });
+      item.addEventListener('dragleave', () => {
+        item.classList.remove('drop-over');
+      });
+      item.addEventListener('drop', e => {
+        e.preventDefault();
+        item.classList.remove('drop-over');
+        if (draggedItem && draggedItem !== item) {
+          const rect = item.getBoundingClientRect();
+          const after = e.clientY > rect.top + rect.height / 2;
+          if (after) {
+            lijst.insertBefore(draggedItem, item.nextSibling);
+          } else {
+            lijst.insertBefore(draggedItem, item);
+          }
+          saveDragOrder(lijst);
+        }
+      });
+    });
+
+    // Herstel volgorde
+    const op = lijst.closest('.opdracht');
+    const oid = op.dataset.opdrachtId;
+    if (state.opdrachten[oid] && state.opdrachten[oid].volgorde) {
+      const order = state.opdrachten[oid].volgorde;
+      order.forEach(id => {
+        const it = lijst.querySelector(`[data-id="${id}"]`);
+        if (it) lijst.appendChild(it);
+      });
+    }
+
+    if (state.opdrachten[oid] && state.opdrachten[oid].voltooid) {
+      items.forEach(i => i.draggable = false);
+      const checkBtn = op.querySelector('.sort-check');
+      if (checkBtn) checkBtn.disabled = true;
+    }
+  });
+
+  document.querySelectorAll('.sort-check').forEach(btn => {
+    btn.addEventListener('click', () => {
+      checkSortVolgorde(btn);
+    });
+  });
+}
+
+function saveDragOrder(lijst) {
+  const op = lijst.closest('.opdracht');
+  const oid = op.dataset.opdrachtId;
+  const items = lijst.querySelectorAll('.drag-item');
+  const order = Array.from(items).map(i => i.dataset.id);
+  if (!state.opdrachten[oid]) state.opdrachten[oid] = { pogingen: 0, voltooid: false };
+  state.opdrachten[oid].volgorde = order;
+  saveState();
+}
+
+function checkSortVolgorde(btn) {
+  const op = btn.closest('.opdracht');
+  const lijst = op.querySelector('.drag-lijst');
+  const oid = op.dataset.opdrachtId;
+  const feedback = op.querySelector('.feedback');
+  const juist = lijst.dataset.juist.split(',');
+  const items = lijst.querySelectorAll('.drag-item');
+  const huidig = Array.from(items).map(i => i.dataset.id);
+
+  if (!state.opdrachten[oid]) state.opdrachten[oid] = { pogingen: 0, voltooid: false };
+  state.opdrachten[oid].pogingen = (state.opdrachten[oid].pogingen || 0) + 1;
+
+  let goedeCount = 0;
+  items.forEach((item, idx) => {
+    if (huidig[idx] === juist[idx]) {
+      item.classList.add('juist');
+      item.classList.remove('onjuist');
+      goedeCount++;
+    } else {
+      item.classList.add('onjuist');
+      item.classList.remove('juist');
+    }
+  });
+
+  const allesGoed = goedeCount === juist.length;
+
+  if (allesGoed) {
+    feedback.className = 'feedback goed actief';
+    feedback.innerHTML = '🎉 Helemaal goed! Je hebt alle laagjes in de juiste volgorde gezet.';
+    items.forEach(i => i.draggable = false);
+    btn.disabled = true;
+    markeerVoltooid(oid, true);
+  } else if (state.opdrachten[oid].pogingen >= 3) {
+    // Toon juiste volgorde
+    juist.forEach(id => {
+      const it = lijst.querySelector(`[data-id="${id}"]`);
+      if (it) lijst.appendChild(it);
+    });
+    items.forEach(i => {
+      i.classList.remove('onjuist');
+      i.classList.add('juist');
+      i.draggable = false;
+    });
+    btn.disabled = true;
+    feedback.className = 'feedback fout actief';
+    feedback.innerHTML = '📚 De juiste volgorde is nu zichtbaar. Lees het nog eens rustig door — van klein (ik) naar groot (wereld).';
+    markeerVoltooid(oid, false);
+  } else {
+    feedback.className = 'feedback hint actief';
+    feedback.innerHTML = `🤔 ${goedeCount} van ${juist.length} op de goede plek. Denk: wat is de KLEINSTE groep waar je bij hoort? Probeer opnieuw! (Poging ${state.opdrachten[oid].pogingen} van 3)`;
+  }
+  saveState();
+}
+
+// ============ KOPPELEN ============
+// State per opdracht: { koppelingen: { bronId: doelId, ... } }
+let koppelGeselecteerd = {};
+
+const KOPPELING_JUIST = {
+  '2.1': {
+    'siesta': 'spanje',
+    'sauna': 'finland',
+    'koningsdag': 'nederland',
+    'processie': 'polen'
+  },
+  '7.2': {
+    'muziek': 'voordeel',
+    'dialect': 'nadeel',
+    'reizen': 'voordeel',
+    'mcdonalds': 'nadeel'
+  }
+};
+
+function setupKoppel() {
+  document.querySelectorAll('.opdracht').forEach(op => {
+    const oid = op.dataset.opdrachtId;
+    const bronnen = op.querySelectorAll('.koppel-bron');
+    const doelen = op.querySelectorAll('.koppel-doel');
+    if (bronnen.length === 0) return;
+
+    if (!state.opdrachten[oid]) state.opdrachten[oid] = { pogingen: 0, voltooid: false, koppelingen: {} };
+    if (!state.opdrachten[oid].koppelingen) state.opdrachten[oid].koppelingen = {};
+    koppelGeselecteerd[oid] = null;
+
+    // Herstel
+    Object.entries(state.opdrachten[oid].koppelingen).forEach(([bronId, doelId]) => {
+      const bron = op.querySelector(`.koppel-bron[data-bron="${bronId}"]`);
+      const doel = op.querySelector(`.koppel-doel[data-doel="${doelId}"]`);
+      if (bron && doel) {
+        bron.classList.add('gekoppeld');
+        bron.dataset.huidigDoel = doelId;
+        bron.style.borderLeft = '6px solid var(--blauw-licht)';
+        voegToeAanDoelLijst(doel, bron);
+      }
+    });
+
+    bronnen.forEach(bron => {
+      bron.addEventListener('click', () => {
+        if (state.opdrachten[oid].voltooid) return;
+        bronnen.forEach(b => b.classList.remove('geselecteerd'));
+        bron.classList.add('geselecteerd');
+        koppelGeselecteerd[oid] = bron;
+      });
+    });
+
+    doelen.forEach(doel => {
+      doel.addEventListener('click', () => {
+        if (state.opdrachten[oid].voltooid) return;
+        const sel = koppelGeselecteerd[oid];
+        if (!sel) {
+          // niks geselecteerd
+          return;
+        }
+        // Bestaat al een koppeling? Eerst verwijderen uit oude doel.
+        const oudDoelId = sel.dataset.huidigDoel;
+        if (oudDoelId) {
+          const oudDoel = op.querySelector(`.koppel-doel[data-doel="${oudDoelId}"]`);
+          if (oudDoel) verwijderUitDoelLijst(oudDoel, sel);
+        }
+        // Nieuwe koppeling toevoegen
+        sel.classList.add('gekoppeld');
+        sel.classList.remove('geselecteerd');
+        sel.dataset.huidigDoel = doel.dataset.doel;
+        sel.style.borderLeft = '6px solid var(--blauw-licht)';
+        voegToeAanDoelLijst(doel, sel);
+
+        state.opdrachten[oid].koppelingen[sel.dataset.bron] = doel.dataset.doel;
+        koppelGeselecteerd[oid] = null;
+        saveState();
+      });
+    });
+
+    const checkBtn = op.querySelector('.koppel-check');
+    const resetBtn = op.querySelector('.koppel-reset');
+    if (checkBtn) {
+      checkBtn.addEventListener('click', () => checkKoppelingen(op));
+    }
+    if (resetBtn) {
+      resetBtn.addEventListener('click', () => resetKoppelingen(op));
+    }
+
+    if (state.opdrachten[oid].voltooid) {
+      bronnen.forEach(b => b.style.cursor = 'default');
+      doelen.forEach(d => d.style.cursor = 'default');
+      if (checkBtn) checkBtn.disabled = true;
+      if (resetBtn) resetBtn.disabled = true;
+    }
+  });
+}
+
+function voegToeAanDoelLijst(doel, bron) {
+  const lijst = doel.querySelector('.gekoppelde-lijst');
+  if (!lijst) return;
+  // Eerst verwijderen als al aanwezig
+  const bestaand = lijst.querySelector(`[data-bron-ref="${bron.dataset.bron}"]`);
+  if (bestaand) bestaand.remove();
+  const span = document.createElement('span');
+  span.className = 'gek-item';
+  span.dataset.bronRef = bron.dataset.bron;
+  // Pak alleen de tekst zonder emoji bij gekoppelde-lijst (we hergebruiken)
+  span.textContent = bron.textContent.split('\n')[0].trim();
+  lijst.appendChild(span);
+}
+
+function verwijderUitDoelLijst(doel, bron) {
+  const lijst = doel.querySelector('.gekoppelde-lijst');
+  if (!lijst) return;
+  const bestaand = lijst.querySelector(`[data-bron-ref="${bron.dataset.bron}"]`);
+  if (bestaand) bestaand.remove();
+}
+
+function checkKoppelingen(op) {
+  const oid = op.dataset.opdrachtId;
+  const juist = KOPPELING_JUIST[oid];
+  const feedback = op.querySelector('.feedback');
+  const bronnen = op.querySelectorAll('.koppel-bron');
+  const doelen = op.querySelectorAll('.koppel-doel');
+
+  state.opdrachten[oid].pogingen = (state.opdrachten[oid].pogingen || 0) + 1;
+
+  // Check of alle bronnen gekoppeld
+  const koppelingen = state.opdrachten[oid].koppelingen;
+  if (Object.keys(koppelingen).length < Object.keys(juist).length) {
+    feedback.className = 'feedback hint actief';
+    feedback.innerHTML = '🤔 Je hebt nog niet alles gekoppeld. Klik eerst op een item links, daarna op het bijbehorende item rechts.';
+    return;
+  }
+
+  let alleGoed = true;
+  let goedeCount = 0;
+  bronnen.forEach(bron => {
+    const bronId = bron.dataset.bron;
+    bron.classList.remove('juist', 'onjuist');
+    if (koppelingen[bronId] === juist[bronId]) {
+      bron.classList.add('juist');
+      goedeCount++;
+    } else {
+      bron.classList.add('onjuist');
+      alleGoed = false;
+    }
+  });
+
+  if (alleGoed) {
+    feedback.className = 'feedback goed actief';
+    feedback.innerHTML = '🎉 Helemaal goed! Alle koppelingen kloppen.';
+    bronnen.forEach(b => b.style.cursor = 'default');
+    doelen.forEach(d => d.style.cursor = 'default');
+    op.querySelector('.koppel-check').disabled = true;
+    op.querySelector('.koppel-reset').disabled = true;
+    markeerVoltooid(oid, true);
+  } else if (state.opdrachten[oid].pogingen >= 3) {
+    // Toon juiste antwoord
+    bronnen.forEach(bron => {
+      bron.classList.remove('juist', 'onjuist');
+      const oldDoelId = bron.dataset.huidigDoel;
+      if (oldDoelId) {
+        const oldDoel = op.querySelector(`.koppel-doel[data-doel="${oldDoelId}"]`);
+        if (oldDoel) verwijderUitDoelLijst(oldDoel, bron);
+      }
+      const goedeDoelId = juist[bron.dataset.bron];
+      const goedeDoel = op.querySelector(`.koppel-doel[data-doel="${goedeDoelId}"]`);
+      if (goedeDoel) {
+        bron.classList.add('juist');
+        bron.dataset.huidigDoel = goedeDoelId;
+        voegToeAanDoelLijst(goedeDoel, bron);
+      }
+    });
+    feedback.className = 'feedback fout actief';
+    feedback.innerHTML = '📚 De juiste koppelingen zijn nu groen gemarkeerd. Bekijk ze rustig.';
+    bronnen.forEach(b => b.style.cursor = 'default');
+    doelen.forEach(d => d.style.cursor = 'default');
+    op.querySelector('.koppel-check').disabled = true;
+    op.querySelector('.koppel-reset').disabled = true;
+    markeerVoltooid(oid, false);
+  } else {
+    feedback.className = 'feedback hint actief';
+    feedback.innerHTML = `🤔 ${goedeCount} van ${Object.keys(juist).length} koppelingen klopt. De rode zijn nog niet goed — denk nog eens na en probeer opnieuw. (Poging ${state.opdrachten[oid].pogingen} van 3)`;
+  }
+  saveState();
+}
+
+function resetKoppelingen(op) {
+  const oid = op.dataset.opdrachtId;
+  if (state.opdrachten[oid] && state.opdrachten[oid].voltooid) return;
+  const bronnen = op.querySelectorAll('.koppel-bron');
+  const doelen = op.querySelectorAll('.koppel-doel');
+  bronnen.forEach(b => {
+    b.classList.remove('gekoppeld', 'juist', 'onjuist', 'geselecteerd');
+    b.style.borderLeft = '';
+    delete b.dataset.huidigDoel;
+  });
+  doelen.forEach(d => {
+    const lijst = d.querySelector('.gekoppelde-lijst');
+    if (lijst) lijst.innerHTML = '';
+  });
+  state.opdrachten[oid].koppelingen = {};
+  koppelGeselecteerd[oid] = null;
+  saveState();
+}
+
+// ============ NAVIGATIE ============
+function setupNav() {
+  document.querySelectorAll('.btn-vorige').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (state.huidigeSectie > 1) gaNaarSectie(state.huidigeSectie - 1);
+    });
+  });
+  document.querySelectorAll('.btn-volgende').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (state.huidigeSectie < TAB_NAMEN.length) gaNaarSectie(state.huidigeSectie + 1);
+    });
+  });
+  document.querySelectorAll('.btn-reset-tab').forEach(btn => {
+    btn.addEventListener('click', () => resetTab());
+  });
+  document.getElementById('btn-wissen-alles').addEventListener('click', () => {
+    if (confirm('Weet je zeker dat je ALLE voortgang wilt wissen? Dit kan niet ongedaan worden gemaakt.')) {
+      storageClearAll();
+      location.reload();
+    }
+  });
+}
+
+function resetTab() {
+  const sec = document.querySelector(`.sectie[data-sectie="${state.huidigeSectie}"]`);
+  if (!sec) return;
+  const opdrachten = sec.querySelectorAll('.opdracht');
+  if (!confirm('Weet je zeker dat je dit onderdeel opnieuw wilt maken?')) return;
+  opdrachten.forEach(op => {
+    const oid = op.dataset.opdrachtId;
+    delete state.opdrachten[oid];
+  });
+  delete state.voltooide_secties[state.huidigeSectie];
+  saveState();
+  // Rebuild ALLE handlers door pagina re-init
+  herinitialiseerSectie(sec);
+  updateVoortgang();
+}
+
+function herinitialiseerSectie(sec) {
+  // Reset MC
+  sec.querySelectorAll('.opdracht').forEach(op => {
+    const opties = op.querySelectorAll('.mc-optie');
+    opties.forEach(o => {
+      o.classList.remove('goed', 'fout');
+      o.disabled = false;
+    });
+    const feedback = op.querySelector('.feedback');
+    if (feedback) {
+      feedback.className = 'feedback';
+      feedback.innerHTML = '';
+    }
+    // Reset open vragen
+    const ta = op.querySelector('.open-vraag');
+    if (ta) {
+      ta.value = '';
+      ta.disabled = false;
+      const teller = op.querySelector('.woorden-teller');
+      if (teller) {
+        teller.classList.remove('voldoende');
+        const aantalSpan = teller.querySelector('.aantal');
+        if (aantalSpan) aantalSpan.textContent = '0';
+      }
+      const toonKnop = op.querySelector('.toon-voorbeeld');
+      if (toonKnop) {
+        toonKnop.disabled = true;
+        toonKnop.textContent = '💡 Toon voorbeeldantwoord';
+      }
+      const voorbeeld = op.querySelector('.voorbeeld-antwoord');
+      if (voorbeeld) voorbeeld.classList.remove('actief');
+      const knopGoed = op.querySelector('.zelf-goed');
+      const knopFout = op.querySelector('.zelf-fout');
+      if (knopGoed) { knopGoed.disabled = false; knopGoed.style.background = ''; knopGoed.style.opacity = ''; }
+      if (knopFout) { knopFout.disabled = false; knopFout.style.background = ''; knopFout.style.opacity = ''; }
+    }
+    // Reset drag
+    const lijst = op.querySelector('.drag-lijst');
+    if (lijst) {
+      lijst.querySelectorAll('.drag-item').forEach(i => {
+        i.classList.remove('juist', 'onjuist', 'dragging');
+        i.draggable = true;
+      });
+      const checkBtn = op.querySelector('.sort-check');
+      if (checkBtn) checkBtn.disabled = false;
+    }
+    // Reset koppel
+    const koppelBronnen = op.querySelectorAll('.koppel-bron');
+    const koppelDoelen = op.querySelectorAll('.koppel-doel');
+    if (koppelBronnen.length > 0) {
+      koppelBronnen.forEach(b => {
+        b.classList.remove('gekoppeld', 'juist', 'onjuist', 'geselecteerd');
+        b.style.borderLeft = '';
+        b.style.cursor = 'pointer';
+        delete b.dataset.huidigDoel;
+      });
+      koppelDoelen.forEach(d => {
+        d.style.cursor = 'pointer';
+        const l = d.querySelector('.gekoppelde-lijst');
+        if (l) l.innerHTML = '';
+      });
+      const checkBtn = op.querySelector('.koppel-check');
+      const resetBtn = op.querySelector('.koppel-reset');
+      if (checkBtn) checkBtn.disabled = false;
+      if (resetBtn) resetBtn.disabled = false;
+      koppelGeselecteerd[op.dataset.opdrachtId] = null;
+    }
+  });
+  // Tab-vinkje weghalen
+  const tab = document.querySelector(`.tab[data-tab="${state.huidigeSectie}"]`);
+  if (tab) tab.classList.remove('voltooid');
+}
+
+// ============ KAARTEN ============
+function initKaarten() {
+  // Kaart tradities
+  const kaartDiv = document.getElementById('kaart-tradities');
+  if (kaartDiv && !window.kaartTradities) {
+    window.kaartTradities = L.map('kaart-tradities').setView([52, 14], 4);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap', maxZoom: 18
+    }).addTo(window.kaartTradities);
+
+    const traditiePunten = [
+      { lat: 40.42, lng: -3.70, naam: 'Spanje (Madrid)', emoji: '😴', traditie: 'Siësta — middagrust vanwege het warme klimaat.' },
+      { lat: 60.17, lng: 24.93, naam: 'Finland (Helsinki)', emoji: '🧖', traditie: 'Sauna-cultuur — sociaal gebruik in elk huishouden.' },
+      { lat: 52.37, lng: 4.90, naam: 'Nederland (Amsterdam)', emoji: '👑', traditie: 'Koningsdag — iedereen in oranje op straat.' },
+      { lat: 52.23, lng: 21.01, naam: 'Polen (Warschau)', emoji: '⛪', traditie: 'Kerst- en Paasprocessies — religie is heel zichtbaar in het openbare leven.' },
+      { lat: 45.44, lng: 12.32, naam: 'Italië (Venetië)', emoji: '🎭', traditie: 'Carnevale di Venezia — maskerade met eeuwenoude tradities.' },
+      { lat: 48.85, lng: 2.35, naam: 'Frankrijk (Parijs)', emoji: '🥖', traditie: 'Bastilledag (14 juli) — nationale feestdag met grote militaire parade.' },
+      { lat: 64.13, lng: -21.95, naam: 'IJsland (Reykjavik)', emoji: '🌋', traditie: 'Þorrablót — midwinterfeest met traditionele gerechten.' },
+      { lat: 50.07, lng: 14.43, naam: 'Tsjechië (Praag)', emoji: '🍺', traditie: 'Bierfestivals — bier is een belangrijk onderdeel van het sociale leven.' },
+      { lat: 38.72, lng: -9.13, naam: 'Portugal (Lissabon)', emoji: '🎶', traditie: 'Fado-muziek — typisch Portugees melancholiek genre.' }
+    ];
+
+    traditiePunten.forEach(p => {
+      L.marker([p.lat, p.lng]).addTo(window.kaartTradities)
+        .bindPopup(`<strong>${p.emoji} ${p.naam}</strong><br>${p.traditie}`);
+    });
+  }
+
+  // Kaart talen
+  const kaartTalenDiv = document.getElementById('kaart-talen');
+  if (kaartTalenDiv && !window.kaartTalen) {
+    window.kaartTalen = L.map('kaart-talen').setView([50, 10], 4);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap', maxZoom: 18
+    }).addTo(window.kaartTalen);
+
+    const taalPunten = [
+      { lat: 41.39, lng: 2.17, naam: 'Catalonië (Barcelona)', taal: 'Catalaans', info: 'Eigen taal die door miljoenen mensen wordt gesproken. Belangrijk voor de Catalaanse identiteit.' },
+      { lat: 56.95, lng: -3.5, naam: 'Schotland', taal: 'Schots Gaelisch', info: 'Oude Keltische taal, nog door een kleine groep gesproken in de Hooglanden.' },
+      { lat: 52.42, lng: -3.84, naam: 'Wales', taal: 'Welsh (Cymraeg)', info: 'Keltische taal die dankzij actief beleid weer opbloeit.' },
+      { lat: 53.18, lng: 5.79, naam: 'Friesland (NL)', taal: 'Fries', info: 'Officieel erkende minderheidstaal in Nederland.' },
+      { lat: 43.0, lng: -2.62, naam: 'Baskenland', taal: 'Baskisch (Euskara)', info: 'Een van de oudste talen van Europa — niet verwant aan andere talen.' },
+      { lat: 50.5, lng: 4.5, naam: 'België (Vlaanderen)', taal: 'Vlaams (Nederlands)', info: 'Vlamingen spreken Nederlands; identiteitsverschil met Franstalige Walen.' },
+      { lat: 47.0, lng: 8.5, naam: 'Zwitserland', taal: '4 officiële talen', info: 'Duits, Frans, Italiaans en Reto-Romaans — een land, vier talen.' },
+      { lat: 68.0, lng: 25.0, naam: 'Noord-Lapland', taal: 'Samisch', info: 'Inheemse taal van het Sami-volk in Noord-Scandinavië.' }
+    ];
+
+    taalPunten.forEach(p => {
+      L.marker([p.lat, p.lng]).addTo(window.kaartTalen)
+        .bindPopup(`<strong>${p.naam}</strong><br><em>${p.taal}</em><br>${p.info}`);
+    });
+  }
+}
+
+// ============ GRAFIEKEN ============
+function initGrafieken() {
+  // Identiteitsgevoel per leeftijd
+  const ctx1 = document.getElementById('grafiek-identiteit');
+  if (ctx1 && !ctx1.dataset.geinit) {
+    ctx1.dataset.geinit = '1';
+    new Chart(ctx1, {
+      type: 'bar',
+      data: {
+        labels: ['15-24 jaar', '25-39 jaar', '40-54 jaar', '55+ jaar'],
+        datasets: [{
+          label: '% voelt zich (ook) Europeaan',
+          data: [72, 64, 58, 51],
+          backgroundColor: ['#F4B400', '#FF8C42', '#E63946', '#8E5CD9'],
+          borderColor: '#2D2A26',
+          borderWidth: 2,
+          borderRadius: 8
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+          legend: { display: true, position: 'bottom' },
+          tooltip: { callbacks: { label: c => c.parsed.y + '%' } }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            max: 100,
+            ticks: { callback: v => v + '%' },
+            title: { display: true, text: 'Percentage' }
+          },
+          x: { title: { display: true, text: 'Leeftijdsgroep' } }
+        }
+      }
+    });
+  }
+
+  // Talen per aantal sprekers
+  const ctx2 = document.getElementById('grafiek-talen');
+  if (ctx2 && !ctx2.dataset.geinit) {
+    ctx2.dataset.geinit = '1';
+    new Chart(ctx2, {
+      type: 'bar',
+      data: {
+        labels: ['Duits', 'Frans', 'Italiaans', 'Spaans', 'Pools', 'Nederlands', 'Catalaans', 'Fries'],
+        datasets: [{
+          label: 'Aantal moedertaal-sprekers in EU (miljoenen)',
+          data: [95, 65, 60, 42, 38, 23, 4.5, 0.5],
+          backgroundColor: ['#F4B400', '#FF8C42', '#E63946', '#8E5CD9', '#4A90E2', '#6BBF59', '#FFD93D', '#FFB347'],
+          borderColor: '#2D2A26',
+          borderWidth: 2,
+          borderRadius: 6
+        }]
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+          legend: { display: true, position: 'bottom' },
+          tooltip: { callbacks: { label: c => c.parsed.x + ' miljoen' } }
+        },
+        scales: {
+          x: {
+            beginAtZero: true,
+            title: { display: true, text: 'Sprekers (miljoenen)' }
+          }
+        }
+      }
+    });
+  }
+}
+
+// ============ EINDSCORE ============
+function updateEindScore() {
+  const totaal = getTotaalOpdrachten();
+  const voltooid = getVoltooideOpdrachten();
+  const pct = totaal > 0 ? Math.round((voltooid / totaal) * 100) : 0;
+  const eindPct = document.getElementById('eind-percentage');
+  const eindAant = document.getElementById('eind-aantal');
+  const eindTot = document.getElementById('eind-totaal');
+  if (eindPct) eindPct.textContent = pct + '%';
+  if (eindAant) eindAant.textContent = voltooid;
+  if (eindTot) eindTot.textContent = totaal;
+}
+
+// ============ INIT ============
+window.addEventListener('DOMContentLoaded', function() {
+  loadState();
+  renderTabs();
+  setupMC();
+  setupOpen();
+  setupDrag();
+  setupKoppel();
+  setupNav();
+  initKaarten();
+  initGrafieken();
+  updateVoortgang();
+
+  // Zorg dat de juiste sectie zichtbaar is bij herladen
+  document.querySelectorAll('.sectie').forEach(s => s.classList.remove('actief'));
+  const sec = document.querySelector(`.sectie[data-sectie="${state.huidigeSectie}"]`);
+  if (sec) sec.classList.add('actief');
+  document.getElementById('tab-huidig').textContent = state.huidigeSectie;
+
+  if (state.huidigeSectie === 9) updateEindScore();
+
+  // Map invalidate na render
+  setTimeout(() => {
+    if (window.kaartTradities) window.kaartTradities.invalidateSize();
+    if (window.kaartTalen) window.kaartTalen.invalidateSize();
+  }, 300);
+});
+</script>
+
+</body>
+</html>
