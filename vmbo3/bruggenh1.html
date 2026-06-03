@@ -1,0 +1,1578 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Welvaart & Welzijn — Aardrijkskunde VMBO 3</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700;9..144,900&display=swap" rel="stylesheet" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+:root{
+  --bg:#f5f2ea;
+  --paper:#fffdf8;
+  --surface:#ffffff;
+  --ink:#22302a;
+  --muted:#6c7d73;
+  --line:#e6e0d2;
+  --emerald-900:#0c4d3c;
+  --emerald-700:#0f6b53;
+  --emerald-600:#138a6a;
+  --emerald-500:#1aa37f;
+  --emerald-100:#dcefe7;
+  --emerald-50:#eef7f2;
+  --clay:#c47a4f;
+  --clay-soft:#f1e2d4;
+  --sand:#e9dcc4;
+  --gold:#d9a441;
+  --ok:#1f8f5f;
+  --ok-bg:#e4f3ea;
+  --warn:#b65b38;
+  --warn-bg:#f7e7df;
+  --radius:18px;
+  --radius-sm:12px;
+  --shadow:0 10px 30px -18px rgba(20,60,45,.35);
+  --shadow-soft:0 4px 16px -10px rgba(20,60,45,.3);
+  --sp:22px;
+  --maxw:980px;
+  --font:"Fraunces",Georgia,serif;
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  margin:0;
+  font-family:var(--font);
+  color:var(--ink);
+  background:
+    radial-gradient(1200px 600px at 100% -10%, #e8f1ea 0%, transparent 55%),
+    radial-gradient(900px 500px at -10% 10%, #f3ecdd 0%, transparent 50%),
+    var(--bg);
+  line-height:1.7;
+  font-size:17px;
+  -webkit-font-smoothing:antialiased;
+  font-optical-sizing:auto;
+}
+h1,h2,h3,h4{line-height:1.2;font-weight:600;letter-spacing:-.01em;margin:0 0 .4em;}
+h2{font-size:1.9rem;font-weight:700;color:var(--emerald-900);}
+h3{font-size:1.25rem;color:var(--emerald-800,#0f5c46);margin-top:1.4em;}
+p{margin:0 0 1em;}
+a{color:var(--emerald-700);}
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 20px;}
+
+/* ---------- Sticky top ---------- */
+.topbar{
+  position:sticky;top:0;z-index:1200;
+  background:rgba(255,253,248,.92);
+  backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--line);
+}
+.progress-wrap{max-width:var(--maxw);margin:0 auto;padding:12px 20px 10px;}
+.progress-top{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;}
+.progress-title{font-weight:700;color:var(--emerald-900);font-size:1.02rem;}
+.progress-pct{font-weight:700;color:var(--emerald-600);font-variant-numeric:tabular-nums;}
+.progress-track{height:12px;background:var(--sand);border-radius:99px;overflow:hidden;margin-top:8px;box-shadow:inset 0 1px 3px rgba(0,0,0,.08);}
+.progress-fill{height:100%;width:0;background:linear-gradient(90deg,var(--emerald-600),var(--emerald-500),var(--gold));border-radius:99px;transition:width .5s cubic-bezier(.4,0,.2,1);}
+
+/* ---------- Tab nav ---------- */
+.tabnav-outer{border-bottom:1px solid var(--line);background:rgba(255,253,248,.7);}
+.tabnav{max-width:var(--maxw);margin:0 auto;display:flex;gap:8px;overflow-x:auto;padding:10px 20px;scrollbar-width:thin;}
+.tabnav::-webkit-scrollbar{height:6px;}
+.tabnav::-webkit-scrollbar-thumb{background:var(--sand);border-radius:99px;}
+.tabbtn{
+  flex:0 0 auto;border:1px solid var(--line);background:var(--paper);
+  color:var(--muted);font-family:var(--font);font-size:.92rem;font-weight:600;
+  padding:8px 14px;border-radius:99px;cursor:pointer;white-space:nowrap;
+  transition:all .2s;display:flex;align-items:center;gap:7px;
+}
+.tabbtn:hover{border-color:var(--emerald-500);color:var(--emerald-700);}
+.tabbtn.active{background:var(--emerald-700);color:#fff;border-color:var(--emerald-700);box-shadow:var(--shadow-soft);}
+.tabbtn .tick{width:18px;height:18px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:.7rem;background:transparent;border:1.5px solid currentColor;opacity:.5;}
+.tabbtn.done .tick{background:var(--gold);border-color:var(--gold);color:#3a2a00;opacity:1;}
+.tabbtn.active.done .tick{background:var(--gold);border-color:var(--gold);}
+
+.counter-row{max-width:var(--maxw);margin:0 auto;padding:8px 20px 0;color:var(--muted);font-size:.9rem;font-weight:600;}
+
+/* ---------- Sections ---------- */
+main{padding:14px 0 80px;}
+.tab-content{display:none;animation:fade .35s ease;}
+.tab-content.active{display:block;}
+@keyframes fade{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+
+.lead{
+  background:linear-gradient(135deg,var(--emerald-700),var(--emerald-900));
+  color:#fff;border-radius:var(--radius);padding:26px 28px;margin:18px 0 26px;
+  box-shadow:var(--shadow);position:relative;overflow:hidden;
+}
+.lead::after{content:"";position:absolute;right:-40px;top:-40px;width:180px;height:180px;border-radius:50%;background:rgba(255,255,255,.07);}
+.lead h2{color:#fff;margin-bottom:.2em;}
+.lead .eyebrow{text-transform:uppercase;letter-spacing:.14em;font-size:.72rem;font-weight:700;opacity:.85;margin-bottom:6px;}
+.lead p{color:#eaf5ef;margin-bottom:0;position:relative;}
+
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:24px 26px;margin:18px 0;box-shadow:var(--shadow-soft);}
+.card.theory{background:var(--paper);}
+
+/* info / explanation blocks */
+.flow{display:flex;flex-wrap:wrap;align-items:center;gap:10px;background:var(--emerald-50);border:1px dashed var(--emerald-500);border-radius:var(--radius-sm);padding:16px 18px;margin:16px 0;font-weight:600;color:var(--emerald-900);}
+.flow .step{background:#fff;border:1px solid var(--emerald-100);border-radius:10px;padding:8px 12px;display:inline-flex;align-items:center;gap:8px;}
+.flow .arrow{color:var(--emerald-500);font-size:1.3rem;font-weight:700;}
+.flow .emo{font-size:1.3rem;}
+
+.callout{border-left:5px solid var(--gold);background:#fcf6e8;border-radius:0 var(--radius-sm) var(--radius-sm) 0;padding:14px 18px;margin:16px 0;}
+.callout.real{border-left-color:var(--clay);background:var(--clay-soft);}
+.callout .label{font-weight:700;display:flex;align-items:center;gap:8px;margin-bottom:4px;color:var(--emerald-900);}
+.callout.real .label{color:#8a4a29;}
+
+.deftable{width:100%;border-collapse:collapse;margin:16px 0;font-size:.96rem;}
+.deftable th,.deftable td{border:1px solid var(--line);padding:10px 12px;text-align:left;vertical-align:top;}
+.deftable th{background:var(--emerald-50);color:var(--emerald-900);font-weight:700;}
+.deftable tr:nth-child(even) td{background:#fbfaf6;}
+
+.kpis{display:flex;flex-wrap:wrap;gap:12px;margin:16px 0;}
+.kpi{flex:1 1 150px;background:var(--emerald-50);border:1px solid var(--emerald-100);border-radius:var(--radius-sm);padding:14px;text-align:center;}
+.kpi .big{font-size:1.7rem;font-weight:900;color:var(--emerald-700);display:block;}
+.kpi .lab{font-size:.82rem;color:var(--muted);font-weight:600;}
+
+.chart-box{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-sm);padding:16px;margin:16px 0;}
+.chart-box canvas{max-width:100%;}
+.chart-cap{font-size:.85rem;color:var(--muted);text-align:center;margin-top:8px;}
+
+.mapbox{height:430px;border-radius:var(--radius-sm);overflow:hidden;border:1px solid var(--line);margin:16px 0;box-shadow:var(--shadow-soft);}
+.leaflet-popup-content{font-family:var(--font);font-size:.92rem;line-height:1.5;}
+.leaflet-popup-content b{color:var(--emerald-700);}
+
+/* ---------- Tasks ---------- */
+.task{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);padding:20px 22px;margin:18px 0;box-shadow:var(--shadow-soft);}
+.task .qhead{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.task .badge{font-size:.7rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:4px 9px;border-radius:99px;background:var(--emerald-100);color:var(--emerald-900);white-space:nowrap;}
+.task .badge.open{background:var(--clay-soft);color:#8a4a29;}
+.task .badge.drag{background:#e6e9f5;color:#3a4a8a;}
+.task .badge.match{background:#f0e7f5;color:#6a3a8a;}
+.task .badge.data{background:#eaf3df;color:#4a7a2a;}
+.task .badge.map{background:#dcefe7;color:var(--emerald-900);}
+.task .qnum{font-size:.8rem;color:var(--muted);font-weight:700;}
+.task .question{font-weight:600;font-size:1.06rem;margin:0 0 12px;}
+.task.done-correct{border-color:var(--ok);}
+.task.done-help{border-color:var(--gold);}
+
+.options{display:flex;flex-direction:column;gap:9px;}
+.opt{
+  text-align:left;border:1.5px solid var(--line);background:#fff;color:var(--ink);
+  font-family:var(--font);font-size:1rem;padding:12px 15px;border-radius:12px;cursor:pointer;
+  transition:all .15s;display:flex;gap:10px;align-items:center;
+}
+.opt:hover:not(:disabled){border-color:var(--emerald-500);background:var(--emerald-50);}
+.opt:disabled{cursor:default;}
+.opt .ltr{width:26px;height:26px;flex:0 0 auto;border-radius:50%;background:var(--emerald-50);color:var(--emerald-700);font-weight:700;display:inline-flex;align-items:center;justify-content:center;font-size:.85rem;}
+.opt.correct{border-color:var(--ok);background:var(--ok-bg);}
+.opt.correct .ltr{background:var(--ok);color:#fff;}
+.opt.wrong{border-color:var(--warn);background:var(--warn-bg);}
+.opt.wrong .ltr{background:var(--warn);color:#fff;}
+
+.feedback{margin-top:12px;padding:12px 15px;border-radius:12px;font-size:.95rem;display:none;}
+.feedback.show{display:block;}
+.feedback.hint{background:#fcf6e8;border:1px solid var(--gold);color:#6b520f;}
+.feedback.good{background:var(--ok-bg);border:1px solid var(--ok);color:#11603e;}
+.feedback.reveal{background:var(--emerald-50);border:1px solid var(--emerald-500);color:var(--emerald-900);}
+.attempts{font-size:.82rem;color:var(--muted);margin-top:8px;}
+
+textarea{width:100%;min-height:110px;border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;font-family:var(--font);font-size:1rem;color:var(--ink);resize:vertical;background:#fff;}
+textarea:focus{outline:none;border-color:var(--emerald-500);box-shadow:0 0 0 3px var(--emerald-50);}
+.wordrow{display:flex;justify-content:space-between;align-items:center;margin-top:8px;flex-wrap:wrap;gap:8px;}
+.wordcount{font-size:.85rem;color:var(--muted);font-weight:600;}
+.wordcount.ok{color:var(--ok);}
+
+.btn{font-family:var(--font);font-weight:700;font-size:.95rem;border:none;border-radius:99px;padding:10px 18px;cursor:pointer;transition:all .18s;display:inline-flex;align-items:center;gap:7px;}
+.btn:disabled{opacity:.45;cursor:not-allowed;}
+.btn-primary{background:var(--emerald-700);color:#fff;}
+.btn-primary:hover:not(:disabled){background:var(--emerald-900);}
+.btn-ghost{background:transparent;color:var(--emerald-700);border:1.5px solid var(--emerald-500);}
+.btn-ghost:hover:not(:disabled){background:var(--emerald-50);}
+.btn-sm{padding:7px 13px;font-size:.85rem;}
+.btn-ok{background:var(--ok);color:#fff;}
+.btn-warn{background:var(--warn);color:#fff;}
+
+.example{margin-top:12px;padding:14px 16px;border-radius:12px;background:var(--emerald-50);border:1px solid var(--emerald-100);display:none;}
+.example.show{display:block;}
+.example h4{margin:0 0 6px;color:var(--emerald-900);font-size:.95rem;}
+.example .exmodel{background:#fff;border:1px dashed var(--emerald-500);border-radius:10px;padding:10px 12px;margin:8px 0;font-size:.95rem;}
+.self-assess{margin-top:12px;display:none;gap:10px;align-items:center;flex-wrap:wrap;}
+.self-assess.show{display:flex;}
+.self-assess .q{font-weight:600;font-size:.92rem;}
+
+/* drag sort */
+.sortlist{list-style:none;margin:8px 0 0;padding:0;display:flex;flex-direction:column;gap:8px;}
+.sortlist li{
+  background:#fff;border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;cursor:grab;
+  display:flex;align-items:center;gap:12px;transition:all .15s;user-select:none;
+}
+.sortlist li .grip{color:var(--muted);font-size:1.1rem;cursor:grab;}
+.sortlist li .pos{width:24px;height:24px;flex:0 0 auto;border-radius:6px;background:var(--emerald-50);color:var(--emerald-700);font-weight:700;display:inline-flex;align-items:center;justify-content:center;font-size:.8rem;}
+.sortlist li.dragging{opacity:.4;}
+.sortlist li.over{border-color:var(--emerald-500);}
+.sortlist li.picked{border-color:var(--gold);background:#fcf6e8;}
+.sortlist li.pos-correct{border-color:var(--ok);background:var(--ok-bg);}
+.sortlist li.pos-wrong{border-color:var(--warn);background:var(--warn-bg);}
+.sorthint{font-size:.82rem;color:var(--muted);margin-top:8px;}
+
+/* matching */
+.match-grid{display:grid;grid-template-columns:1fr 1.15fr;gap:18px;margin-top:8px;}
+@media(max-width:680px){.match-grid{grid-template-columns:1fr;}}
+.match-pool{display:flex;flex-direction:column;gap:9px;align-content:start;}
+.match-pool .pool-label,.match-targets .tlabel{font-size:.8rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;}
+.chip{
+  background:#fff;border:1.5px solid var(--emerald-500);color:var(--emerald-900);border-radius:99px;
+  padding:9px 14px;cursor:grab;font-weight:600;font-size:.92rem;user-select:none;transition:all .15s;
+}
+.chip:hover{background:var(--emerald-50);}
+.chip.picked{background:var(--gold);border-color:var(--gold);color:#3a2a00;}
+.chip.placed-correct{border-color:var(--ok);background:var(--ok-bg);}
+.chip.placed-wrong{border-color:var(--warn);background:var(--warn-bg);}
+.chip.dragging{opacity:.4;}
+.match-targets{display:flex;flex-direction:column;gap:10px;}
+.match-target{border:1.5px dashed var(--line);border-radius:12px;padding:10px 12px;min-height:58px;background:#fff;transition:all .15s;}
+.match-target.over{border-color:var(--emerald-500);background:var(--emerald-50);}
+.match-target .ttitle{font-weight:700;font-size:.95rem;color:var(--emerald-900);margin-bottom:6px;}
+.match-target .dropzone{display:flex;flex-wrap:wrap;gap:7px;min-height:24px;}
+.match-target .hint-empty{color:var(--muted);font-size:.82rem;font-style:italic;}
+
+.taskbar{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;align-items:center;}
+
+/* nav buttons */
+.section-nav{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:30px 0 8px;flex-wrap:wrap;}
+.reset-tab{margin-top:16px;text-align:center;}
+.reset-tab button{background:none;border:none;color:var(--muted);font-family:var(--font);font-size:.85rem;text-decoration:underline;cursor:pointer;}
+.reset-tab button:hover{color:var(--warn);}
+
+.goal-list{list-style:none;padding:0;margin:14px 0;}
+.goal-list li{display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-bottom:1px solid var(--line);}
+.goal-list li .gi{flex:0 0 auto;width:24px;height:24px;border-radius:50%;background:var(--emerald-100);color:var(--emerald-700);display:inline-flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:700;}
+
+.score-ring{display:flex;gap:20px;align-items:center;flex-wrap:wrap;justify-content:center;margin:20px 0;}
+.ring{width:150px;height:150px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;background:conic-gradient(var(--gold) 0deg, var(--sand) 0deg);}
+.ring .inner{width:118px;height:118px;border-radius:50%;background:var(--emerald-900);display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.ring .inner .num{font-size:2rem;font-weight:900;}
+.ring .inner .lab{font-size:.75rem;opacity:.85;}
+.score-detail{font-size:.95rem;}
+
+.footer-note{text-align:center;color:var(--muted);font-size:.85rem;margin-top:30px;}
+.global-reset{text-align:center;margin:20px 0;}
+
+.pill-legend{display:flex;gap:14px;flex-wrap:wrap;font-size:.85rem;margin:10px 0;}
+.pill-legend span{display:inline-flex;align-items:center;gap:6px;}
+.dot{width:13px;height:13px;border-radius:50%;display:inline-block;border:2px solid #fff;box-shadow:0 0 0 1px #ccc;}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="progress-wrap">
+    <div class="progress-top">
+      <span class="progress-title">🌿 Welvaart &amp; Welzijn</span>
+      <span class="progress-pct" id="pctLabel">0% voltooid</span>
+    </div>
+    <div class="progress-track"><div class="progress-fill" id="progFill"></div></div>
+  </div>
+  <div class="tabnav-outer">
+    <div class="tabnav" id="tabnav"></div>
+  </div>
+  <div class="counter-row"><span id="counterLabel">Onderdeel 1 van 10</span></div>
+</div>
+<main>
+<div class="wrap" id="content">
+
+<!-- ============ TAB 0: WELKOM ============ -->
+<section class="tab-content" data-tab="0" data-title="Welkom" data-icon="🌍">
+  <div class="lead">
+    <div class="eyebrow">Aardrijkskunde · VMBO · Leerjaar 3</div>
+    <h2>Welvaart &amp; Welzijn in de wereld en in Nederland</h2>
+    <p>Waarom leeft de ene baby waarschijnlijk 30 jaar langer dan de andere? Waarom verdient de buurt naast die van jou misschien dubbel zoveel? In deze les ontdek je hoe rijkdom, gezondheid en je woonomgeving met elkaar samenhangen — wereldwijd én in je eigen straat.</p>
+  </div>
+
+  <div class="card theory">
+    <h3>📖 Het verhaal van Edna</h3>
+    <p>Edna haalt binnenkort haar diploma van de middelbare school in Nairobi, de hoofdstad van Kenia. Anders dan haar moeder wil ze niet jong trouwen en meteen een gezin beginnen. Ze gaat studeren voor verpleegkundige en wil daarna op het platteland gaan werken, waar ze baby's vaccinaties kan geven.</p>
+    <p>Het verhaal van Edna gaat over keuzes, kansen en geld. In een land als Kenia zijn die kansen anders verdeeld dan in Nederland of Frankrijk. Dat heeft alles te maken met twee begrippen die in deze hele les terugkomen: <b>welvaart</b> (hoeveel mensen verdienen en bezitten) en <b>welzijn</b> (hoe goed mensen kunnen leven — gezondheid, onderwijs, omgeving).</p>
+    <p>In de loop van deze les zoom je steeds verder in: van de hele wereldkaart, naar Nederland, naar de provincie, en uiteindelijk naar de buurt en de straat. Aan het eind kun je een wereldkaart in grote lijnen in drie delen verdelen op basis van welvaart, en kun je aan een buurt aflezen wie er ongeveer woont.</p>
+
+    <div class="flow">
+      <span class="step"><span class="emo">🌍</span> Wereld</span>
+      <span class="arrow">→</span>
+      <span class="step"><span class="emo">🇳🇱</span> Nederland</span>
+      <span class="arrow">→</span>
+      <span class="step"><span class="emo">🏙️</span> Stad &amp; platteland</span>
+      <span class="arrow">→</span>
+      <span class="step"><span class="emo">🏘️</span> Wijk &amp; buurt</span>
+      <span class="arrow">→</span>
+      <span class="step"><span class="emo">🚪</span> Jouw straat</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>🎯 Wat ga je leren?</h3>
+    <p>Aan het eind van deze les kun je het volgende. Streep ze in gedachten af terwijl je verder werkt.</p>
+    <ul class="goal-list">
+      <li><span class="gi">1</span><span>Je kunt op een wereldkaart in grote lijnen een driedeling maken op basis van welvaart.</span></li>
+      <li><span class="gi">2</span><span>Je begrijpt hoe welvaart en welzijn met elkaar samenhangen.</span></li>
+      <li><span class="gi">3</span><span>Je kent manieren om welvaart en welzijn van gebieden te vergelijken (bbp/pp, HDI, brp).</span></li>
+      <li><span class="gi">4</span><span>Je weet dat er in Nederland regionale verschillen zijn in welvaart, woonomgeving en gezondheid.</span></li>
+      <li><span class="gi">5</span><span>Je begrijpt het verband tussen opleiding, manier van leven en gezondheid.</span></li>
+      <li><span class="gi">6</span><span>Je kunt op een inkomenskaart gebieden met lagere en hogere levensverwachting aanwijzen.</span></li>
+      <li><span class="gi">7</span><span>Je kent bewonerskenmerken en de samenhang tussen buurt- en bewonerskenmerken.</span></li>
+    </ul>
+    <div class="callout real">
+      <div class="label">📱 Even nadenken</div>
+      <p style="margin:0;">Scroll je weleens door video's van mensen in andere landen? Je ziet dan razendsnel verschillen in huizen, straten en spullen. In deze les leer je <b>waarom</b> die verschillen er zijn — en dat dezelfde verschillen ook bestaan tussen wijken in jouw eigen stad of dorp.</p>
+    </div>
+    <p style="margin-top:14px;">Klik hieronder op <b>Volgende</b> om te beginnen. Je voortgang wordt automatisch bewaard, dus je kunt later verdergaan waar je gebleven was.</p>
+  </div>
+</section>
+
+<!-- ============ TAB 1: WELVAART ============ -->
+<section class="tab-content" data-tab="1" data-title="Welvaart" data-icon="💶">
+  <div class="lead">
+    <div class="eyebrow">Onderdeel 1</div>
+    <h2>Welvaart: wat verdienen mensen?</h2>
+    <p>Welvaart gaat over geld en bezit. Hoeveel verdienen mensen, hebben ze werk, en wat kunnen ze met dat geld kopen? We bekijken drie meetmanieren.</p>
+  </div>
+
+  <div class="card theory">
+    <h3>📚 Hoe meet je de welvaart van een land?</h3>
+    <p>De welvaart van een land wordt vooral bepaald door wat de mensen er verdienen. Je kunt de welvaart van een land op verschillende manieren bekijken. De eerste is het <b>bbp per persoon</b>. Het bruto binnenlands product per inwoner (bbp/pp) is alles wat in een jaar in een land wordt verdiend, gedeeld door het aantal inwoners. Daarnaast telt de <b>koopkracht</b> mee: dat is hoeveel je voor één euro of één dollar kunt kopen. In ieder land zijn er mensen die onder de <b>armoedegrens</b> leven: hun inkomen is te laag om in basisbehoeften als kleding, onderdak en voedsel te voorzien.</p>
+    <p>De tweede manier is de <b>werkgelegenheid</b>: kunnen mensen makkelijk werk vinden? In arme landen is het vaak moeilijk om aan werk te komen. In Kenia is ongeveer 40% van de inwoners op zoek naar werk; in Frankrijk is dat ongeveer 7%. Hoe meer mensen werk hebben, hoe meer geld er in een land verdiend wordt en hoe hoger de welvaart.</p>
+    <p>De derde manier is de <b>verdeling van de beroepsbevolking</b>: hoeveel mensen werken er in de landbouw, de industrie en de diensten? De vuistregel is: hoe armer een land, hoe meer mensen in de landbouw werken. In Kenia werkt ongeveer 61% van de beroepsbevolking in de landbouw, in Frankrijk nog geen 2%. Tot slot is er een verschil tussen de <b>formele sector</b> (vast loon, recht op een uitkering, je betaalt belasting) en de <b>informele sector</b> (los-vast werk, geen vast inkomen). In rijke landen werken de meeste mensen formeel, in arme landen werken veel mensen informeel.</p>
+
+    <div class="flow">
+      <span class="step"><span class="emo">🧑‍🌾</span> Veel landbouw</span>
+      <span class="arrow">→</span>
+      <span class="step"><span class="emo">🏭</span> Meer industrie</span>
+      <span class="arrow">→</span>
+      <span class="step"><span class="emo">🏢</span> Veel diensten</span>
+      <span class="arrow">=</span>
+      <span class="step"><span class="emo">💶</span> Hogere welvaart</span>
+    </div>
+
+    <table class="deftable">
+      <tr><th>Begrip</th><th>Wat het betekent</th></tr>
+      <tr><td><b>bbp/pp</b></td><td>Alles wat in een jaar verdiend wordt ÷ aantal inwoners.</td></tr>
+      <tr><td><b>Koopkracht</b></td><td>Hoeveel je voor 1 euro/dollar kunt kopen.</td></tr>
+      <tr><td><b>Armoedegrens</b></td><td>Inkomen te laag voor basisbehoeften.</td></tr>
+      <tr><td><b>Formele sector</b></td><td>Vast loon, uitkering bij werkloosheid, belasting.</td></tr>
+      <tr><td><b>Informele sector</b></td><td>Los-vast werk, geen vast inkomen.</td></tr>
+    </table>
+
+    <div class="callout real">
+      <div class="label">📱 Uit jouw wereld</div>
+      <p style="margin:0;">Ken je iemand die geld verdient met video's maken, kleding doorverkopen via Vinted, of klusjes via een appje? Vaak is dat <b>informeel</b> werk: geen vast contract, geen vaste maandloon. Een baan bij een supermarkt met een loonstrook is juist <b>formeel</b>.</p>
+    </div>
+  </div>
+
+  <div class="chart-box">
+    <h3 style="margin-top:0;">📊 Beroepsbevolking: Kenia vs. Frankrijk</h3>
+    <canvas id="chart-beroep" height="150"></canvas>
+    <div class="chart-cap">Verdeling van de werkende mensen over landbouw, industrie en diensten (in %).</div>
+  </div>
+
+  <!-- TASK w1: MC -->
+  <div class="task" data-task-id="w1" data-type="mc" data-correct="b"
+       data-hint1="Lees nog eens: bbp = álles wat verdiend wordt. Maar telt het voor het hele land, of per inwoner?"
+       data-hint2="Het woord 'per persoon' (pp) is de sleutel. Wat doe je met het aantal inwoners?"
+       data-explain="Het bbp/pp is het totale verdiende bedrag van een land gedeeld door het aantal inwoners. Zo kun je grote en kleine landen eerlijk vergelijken.">
+    <div class="qhead"><span class="badge">Quiz</span><span class="qnum">Vraag 1</span></div>
+    <p class="question">Wat betekent het <b>bbp per persoon</b> (bbp/pp)?</p>
+    <div class="options">
+      <button class="opt" data-value="a"><span class="ltr">A</span><span>Het loon van de rijkste persoon in een land.</span></button>
+      <button class="opt" data-value="b"><span class="ltr">B</span><span>Alles wat in een jaar verdiend wordt, gedeeld door het aantal inwoners.</span></button>
+      <button class="opt" data-value="c"><span class="ltr">C</span><span>Het aantal mensen dat in de landbouw werkt.</span></button>
+      <button class="opt" data-value="d"><span class="ltr">D</span><span>Hoeveel belasting een land per jaar ophaalt.</span></button>
+    </div>
+    <div class="feedback"></div>
+    <div class="attempts"></div>
+  </div>
+
+  <!-- TASK w2: SORT -->
+  <div class="task" data-task-id="w2" data-type="sort"
+       data-order="afg,ken,bra,fra"
+       data-explain="Op volgorde van laag naar hoog bbp/pp: Afghanistan (laag inkomen) → Kenia → Brazilië (opkomende economie) → Frankrijk (hoog inkomen).">
+    <div class="qhead"><span class="badge drag">Sleep</span><span class="qnum">Opdracht 2</span></div>
+    <p class="question">Sleep de landen in de juiste volgorde: van het <b>laagste</b> bbp/pp (bovenaan) naar het <b>hoogste</b> bbp/pp (onderaan).</p>
+    <ul class="sortlist">
+      <li draggable="true" data-id="fra"><span class="grip">⋮⋮</span><span class="pos">1</span><span>🇫🇷 Frankrijk</span></li>
+      <li draggable="true" data-id="afg"><span class="grip">⋮⋮</span><span class="pos">2</span><span>🇦🇫 Afghanistan</span></li>
+      <li draggable="true" data-id="bra"><span class="grip">⋮⋮</span><span class="pos">3</span><span>🇧🇷 Brazilië</span></li>
+      <li draggable="true" data-id="ken"><span class="grip">⋮⋮</span><span class="pos">4</span><span>🇰🇪 Kenia</span></li>
+    </ul>
+    <div class="sorthint">Tip: pak een land op en laat het op een andere plek los. Op een tablet: tik een land aan en tik daarna op het land waarmee je wilt wisselen.</div>
+    <div class="taskbar"><button class="btn btn-primary btn-sm check-sort">Controleer volgorde</button></div>
+    <div class="feedback"></div>
+    <div class="attempts"></div>
+  </div>
+
+  <!-- TASK w3: OPEN -->
+  <div class="task" data-task-id="w3" data-type="open"
+       data-ex1="Een voorbeeld van formeel werk is een baantje bij de Albert Heijn: ik krijg elke maand loon op mijn rekening en er gaat belasting af. Informeel werk is bijvoorbeeld een vriend die spullen doorverkoopt via Marktplaats of geld verdient met TikTok-video's zonder vast contract. Het verschil is dat formeel werk vast en geregeld is, en informeel werk los-vast en onzeker."
+       data-ex2="In arme landen werken veel mensen informeel omdat er weinig vaste banen zijn; ze verkopen bijvoorbeeld eten op straat. In Nederland is het meeste werk formeel: met een contract, loonstrook en uitkering als je je baan verliest.">
+    <div class="qhead"><span class="badge open">Schrijven</span><span class="qnum">Opdracht 3</span></div>
+    <p class="question">Leg in je eigen woorden het verschil uit tussen de <b>formele</b> en de <b>informele sector</b>. Geef van allebei een voorbeeld uit jouw eigen omgeving (denk aan bijbaantjes, online verkopen of geld verdienen via social media). Schrijf minimaal 2-3 zinnen.</p>
+    <textarea placeholder="Typ hier je antwoord..."></textarea>
+    <div class="wordrow"><span class="wordcount">0 woorden</span><button class="btn btn-ghost btn-sm show-example" disabled>Toon voorbeeldantwoord</button></div>
+    <div class="example"></div>
+    <div class="self-assess"></div>
+  </div>
+
+  <!-- TASK w4: DATA ANALYSE OPEN -->
+  <div class="task" data-task-id="w4" data-type="open"
+       data-ex1="In Kenia werkt ongeveer 61% in de landbouw en in Frankrijk nog geen 2%. Dat verschil laat zien dat Kenia een armer land is: hoe armer een land, hoe meer mensen in de landbouw werken. In Frankrijk werken juist veel mensen in de diensten, wat hoort bij een rijk land."
+       data-ex2="De grafiek laat zien dat de beroepsbevolking in Frankrijk vooral in diensten en industrie werkt, terwijl in Kenia de landbouw veruit het grootst is. Daaruit kun je afleiden dat de welvaart in Frankrijk hoger is dan in Kenia.">
+    <div class="qhead"><span class="badge data">Data</span><span class="qnum">Opdracht 4</span></div>
+    <p class="question">Bekijk de grafiek hierboven. Lees eerst <b>af</b> hoeveel procent van de Keniaanse beroepsbevolking in de landbouw werkt, en hoeveel in Frankrijk. <b>Verklaar</b> daarna wat dit verschil zegt over de welvaart van de twee landen. Schrijf minimaal 2-3 zinnen.</p>
+    <textarea placeholder="Eerst aflezen, dan verklaren..."></textarea>
+    <div class="wordrow"><span class="wordcount">0 woorden</span><button class="btn btn-ghost btn-sm show-example" disabled>Toon voorbeeldantwoord</button></div>
+    <div class="example"></div>
+    <div class="self-assess"></div>
+  </div>
+</section>
+
+<!-- ============ TAB 2: WELZIJN ============ -->
+<section class="tab-content" data-tab="2" data-title="Welzijn" data-icon="❤️‍🩹">
+  <div class="lead">
+    <div class="eyebrow">Onderdeel 2</div>
+    <h2>Welzijn: hoe goed kun je leven?</h2>
+    <p>Geld is niet alles. Welzijn gaat over je levensomstandigheden: word je oud, kun je naar school, en heb je genoeg inkomen? De VN vangen dit in één getal: de HDI.</p>
+  </div>
+
+  <div class="card theory">
+    <h3>📚 De Human Development Index (HDI)</h3>
+    <p>Met <b>welzijn</b> bedoelen we de levensomstandigheden van de mensen in een land. Welvaart en welzijn hangen sterk samen: in landen waar mensen meer verdienen, is er meestal ook meer geld voor goede ziekenhuizen, scholen en schoon water. Tóch zijn welvaart en welzijn niet hetzelfde — een land kan rijk zijn maar de rijkdom slecht verdelen, waardoor het welzijn van veel mensen alsnog laag blijft.</p>
+    <p>De Verenigde Naties (VN) maken elk jaar een welzijnsindex: de <b>Human Development Index (HDI)</b>. Daarin krijgen landen een score op basis van hun levensomstandigheden. De HDI is een combinatie van drie dingen: de <b>levensverwachting</b> (hoe oud worden mensen gemiddeld?), de <b>alfabetiseringsgraad</b> (welk deel van de mensen kan lezen en schrijven?) en het <b>gemiddeld inkomen</b>. Een hoge HDI betekent: mensen worden oud, gaan naar school én verdienen genoeg.</p>
+    <p>Een paar getallen maken het concreet. Een baby die nu in Frankrijk wordt geboren, wordt waarschijnlijk 82,5 jaar oud. Een baby in Afghanistan wordt waarschijnlijk nog geen 53 jaar, en maar 37% van de mensen in Afghanistan is alfabeet (kan lezen en schrijven). Een Afghaan verdient gemiddeld zo'n $2000 per jaar — een laag inkomen. Je ziet hier alle drie de HDI-onderdelen tegelijk: gezondheid, onderwijs én inkomen liggen in Afghanistan een stuk lager dan in Frankrijk.</p>
+
+    <div class="kpis">
+      <div class="kpi"><span class="big">82,5</span><span class="lab">🇫🇷 levensverwachting Frankrijk (jaar)</span></div>
+      <div class="kpi"><span class="big">&lt;53</span><span class="lab">🇦🇫 levensverwachting Afghanistan (jaar)</span></div>
+      <div class="kpi"><span class="big">37%</span><span class="lab">🇦🇫 alfabeet in Afghanistan</span></div>
+      <div class="kpi"><span class="big">$2000</span><span class="lab">🇦🇫 gem. inkomen Afghanistan/jaar</span></div>
+    </div>
+
+    <div class="flow">
+      <span class="step"><span class="emo">🏥</span> Levensverwachting</span>
+      <span class="arrow">+</span>
+      <span class="step"><span class="emo">📚</span> Alfabetisering</span>
+      <span class="arrow">+</span>
+      <span class="step"><span class="emo">💰</span> Inkomen</span>
+      <span class="arrow">=</span>
+      <span class="step"><span class="emo">📈</span> HDI-score</span>
+    </div>
+
+    <div class="callout real">
+      <div class="label">📱 Uit jouw wereld</div>
+      <p style="margin:0;">Online zie je soms challenges of acties voor "een jaar gratis school" of "schoon drinkwater" in arme landen. Dat zijn precies de dingen die de <b>HDI</b> meet: onderwijs en gezondheid. Welk van de drie HDI-onderdelen zie jij het vaakst terugkomen in goede-doelen-acties op social media?</p>
+    </div>
+  </div>
+
+  <div class="chart-box">
+    <h3 style="margin-top:0;">📊 Levensverwachting per land</h3>
+    <canvas id="chart-leeftijd" height="150"></canvas>
+    <div class="chart-cap">Gemiddelde leeftijd die een pasgeboren baby waarschijnlijk bereikt (in jaren).</div>
+  </div>
+
+  <!-- wz1 MC -->
+  <div class="task" data-task-id="wz1" data-type="mc" data-correct="c"
+       data-hint1="De HDI gaat over méér dan alleen geld. Welke drie dingen meet de VN samen?"
+       data-hint2="Denk aan: word je oud (gezondheid), kun je lezen (onderwijs) en wat verdien je (inkomen)?"
+       data-explain="De HDI is een combinatie van levensverwachting, alfabetiseringsgraad én gemiddeld inkomen. Zo meet je niet alleen rijkdom, maar ook gezondheid en onderwijs.">
+    <div class="qhead"><span class="badge">Quiz</span><span class="qnum">Vraag 1</span></div>
+    <p class="question">Uit welke drie onderdelen bestaat de <b>HDI</b>?</p>
+    <div class="options">
+      <button class="opt" data-value="a"><span class="ltr">A</span><span>Inkomen, koopkracht en werkloosheid.</span></button>
+      <button class="opt" data-value="b"><span class="ltr">B</span><span>Landbouw, industrie en diensten.</span></button>
+      <button class="opt" data-value="c"><span class="ltr">C</span><span>Levensverwachting, alfabetiseringsgraad en gemiddeld inkomen.</span></button>
+      <button class="opt" data-value="d"><span class="ltr">D</span><span>Bevolkingsaantal, oppervlakte en hoofdstad.</span></button>
+    </div>
+    <div class="feedback"></div>
+    <div class="attempts"></div>
+  </div>
+
+  <!-- wz2 MATCH -->
+  <div class="task" data-task-id="wz2" data-type="match"
+       data-explain="Welvaart = wat je verdient (inkomen). Welzijn = je levensomstandigheden (gezondheid, onderwijs). De HDI combineert alle welzijnsmaten in één score.">
+    <div class="qhead"><span class="badge match">Koppel</span><span class="qnum">Opdracht 2</span></div>
+    <p class="question">Sleep elk begrip naar de juiste beschrijving. Tip: een beschrijving kan meer dan één begrip krijgen.</p>
+    <div class="match-grid">
+      <div class="match-pool">
+        <div class="pool-label">Begrippen</div>
+        <div class="chip" draggable="true" data-id="m-levens" data-match="t-welzijn">Levensverwachting</div>
+        <div class="chip" draggable="true" data-id="m-alfa" data-match="t-welzijn">Alfabetiseringsgraad</div>
+        <div class="chip" draggable="true" data-id="m-bbp" data-match="t-welvaart">bbp per persoon</div>
+        <div class="chip" draggable="true" data-id="m-koop" data-match="t-welvaart">Koopkracht</div>
+        <div class="chip" draggable="true" data-id="m-hdi" data-match="t-index">HDI</div>
+      </div>
+      <div class="match-targets">
+        <div class="tlabel">Beschrijvingen</div>
+        <div class="match-target" data-target-id="t-welvaart">
+          <div class="ttitle">💶 Hoort bij WELVAART (geld &amp; bezit)</div>
+          <div class="dropzone"><span class="hint-empty">Sleep hierheen…</span></div>
+        </div>
+        <div class="match-target" data-target-id="t-welzijn">
+          <div class="ttitle">❤️‍🩹 Hoort bij WELZIJN (gezondheid &amp; onderwijs)</div>
+          <div class="dropzone"><span class="hint-empty">Sleep hierheen…</span></div>
+        </div>
+        <div class="match-target" data-target-id="t-index">
+          <div class="ttitle">📈 Combineert welzijn in één VN-score</div>
+          <div class="dropzone"><span class="hint-empty">Sleep hierheen…</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="taskbar"><button class="btn btn-primary btn-sm check-match">Controleer koppelingen</button></div>
+    <div class="feedback"></div>
+    <div class="attempts"></div>
+  </div>
+
+  <!-- wz3 DATA OPEN -->
+  <div class="task" data-task-id="wz3" data-type="open"
+       data-ex1="Een baby in Frankrijk wordt waarschijnlijk 82,5 jaar, een baby in Afghanistan nog geen 53 jaar. Dat is een verschil van bijna 30 jaar. Dat komt doordat er in Afghanistan minder goede ziekenhuizen, minder schoon water en minder geld zijn. Het welzijn is daar dus veel lager dan in Frankrijk."
+       data-ex2="De grafiek laat zien dat mensen in rijke landen zoals Frankrijk veel ouder worden dan in arme landen zoals Afghanistan. Dat verschil hangt samen met gezondheidszorg, voeding en onderwijs — allemaal dingen die met welvaart te maken hebben.">
+    <div class="qhead"><span class="badge data">Data</span><span class="qnum">Opdracht 3</span></div>
+    <p class="question">Bekijk de grafiek met de levensverwachting. Lees het verschil tussen Frankrijk en Afghanistan af. Verklaar daarna in je eigen woorden waaróm baby's in het ene land zoveel ouder worden dan in het andere. Minimaal 2-3 zinnen.</p>
+    <textarea placeholder="Lees af en verklaar..."></textarea>
+    <div class="wordrow"><span class="wordcount">0 woorden</span><button class="btn btn-ghost btn-sm show-example" disabled>Toon voorbeeldantwoord</button></div>
+    <div class="example"></div>
+    <div class="self-assess"></div>
+  </div>
+
+  <!-- wz4 OPEN -->
+  <div class="task" data-task-id="wz4" data-type="open"
+       data-ex1="Welvaart en welzijn hangen samen omdat een land met veel geld vaak ook goede scholen en ziekenhuizen kan betalen. Maar het is niet altijd hetzelfde: een land kan rijk zijn terwijl het geld bij een kleine groep zit, waardoor de rest weinig welzijn heeft."
+       data-ex2="Meer welvaart betekent meestal meer welzijn, want met geld kun je zorgen voor gezondheid en onderwijs. Toch kan een rijk land toch een laag welzijn hebben als de rijkdom oneerlijk verdeeld is.">
+    <div class="qhead"><span class="badge open">Schrijven</span><span class="qnum">Opdracht 4</span></div>
+    <p class="question">Leg uit hoe <b>welvaart</b> en <b>welzijn</b> met elkaar samenhangen. Geef ook aan waarom een rijk land tóch een laag welzijn kan hebben. Minimaal 2-3 zinnen.</p>
+    <textarea placeholder="Typ hier je antwoord..."></textarea>
+    <div class="wordrow"><span class="wordcount">0 woorden</span><button class="btn btn-ghost btn-sm show-example" disabled>Toon voorbeeldantwoord</button></div>
+    <div class="example"></div>
+    <div class="self-assess"></div>
+  </div>
+</section>
+
+<!-- ============ TAB 3: ARM EN RIJK IN DE WERELD ============ -->
+<section class="tab-content" data-tab="3" data-title="Arm &amp; rijk" data-icon="🌍">
+  <div class="lead">
+    <div class="eyebrow">Onderdeel 3</div>
+    <h2>Arm en rijk in de wereld</h2>
+    <p>Verdeel de wereld in grote lijnen in drie delen: hoge-, midden- en lage-inkomenslanden. En let op de snelle middengroep: de opkomende economieën.</p>
+  </div>
+
+  <div class="card theory">
+    <h3>📚 De driedeling van de wereld</h3>
+    <p>Er zijn rijke en arme landen, en heel veel landen die daar tussenin zitten. Op basis van de welvaart kun je de landen in de wereld in grote lijnen in drie groepen verdelen: <b>hoge-inkomenslanden</b> (zoals Frankrijk, Nederland, de VS, Japan), <b>midden-inkomenslanden</b> (zoals Brazilië, China, Indonesië) en <b>lage-inkomenslanden</b> (zoals Afghanistan en een groot deel van landen in Afrika ten zuiden van de Sahara). Deze driedeling helpt je om snel een wereldkaart te "lezen".</p>
+    <p>Heel belangrijk is een groep daar middenin: de <b>opkomende economieën</b>. Dit zijn landen die de laatste decennia een stuk welvarender zijn geworden. Omdat het vaak om landen met heel veel inwoners gaat, vormen ze samen een groot deel van de wereldbevolking. Voorbeelden zijn Brazilië, China, Egypte, Zuid-Afrika, India, Indonesië, Rusland en Turkije. In deze landen is het inkomen van veel mensen gestegen, en daarmee ook hun welzijn — meer mensen kunnen naar school, naar de dokter, en kopen telefoons en auto's.</p>
+    <p>Op de kaart hieronder zie je een aantal landen met een gekleurde marker. <span style="color:var(--emerald-700);font-weight:700;">Groen</span> = hoog inkomen, <span style="color:var(--gold);font-weight:700;">geel/oranje</span> = midden inkomen / opkomend, <span style="color:var(--clay);font-weight:700;">bruin</span> = laag inkomen. Klik op de markers en lees de informatie in de pop-ups voordat je de opdrachten maakt.</p>
+
+    <div class="pill-legend">
+      <span><span class="dot" style="background:#138a6a"></span> Hoog inkomen</span>
+      <span><span class="dot" style="background:#d9a441"></span> Midden / opkomend</span>
+      <span><span class="dot" style="background:#c47a4f"></span> Laag inkomen</span>
+    </div>
+  </div>
+
+  <div class="mapbox" id="map-wereld" data-map="wereld"></div>
+
+  <!-- wd1 MC -->
+  <div class="task" data-task-id="wd1" data-type="mc" data-correct="b"
+       data-hint1="Klik op de marker van India op de kaart. Wat staat er in de pop-up over de groep waar India bij hoort?"
+       data-hint2="India is een land met heel veel inwoners waar het inkomen de laatste jaren flink is gestegen. Welke term hoort daarbij?"
+       data-explain="India is een opkomende economie / midden-inkomensland. Door de enorme bevolking en de gestegen inkomens vormt het samen met landen als China en Brazilië een groot deel van de wereldbevolking.">
+    <div class="qhead"><span class="badge map">Kaart</span><span class="qnum">Vraag 1</span></div>
+    <p class="question">Bekijk de kaart. Bij welke groep hoort <b>India</b> vooral?</p>
+    <div class="options">
+      <button class="opt" data-value="a"><span class="ltr">A</span><span>Hoge-inkomenslanden.</span></button>
+      <button class="opt" data-value="b"><span class="ltr">B</span><span>Opkomende economie / midden-inkomensland.</span></button>
+      <button class="opt" data-value="c"><span class="ltr">C</span><span>Lage-inkomensland zonder groei.</span></button>
+      <button class="opt" data-value="d"><span class="ltr">D</span><span>Het rijkste land ter wereld.</span></button>
+    </div>
+    <div class="feedback"></div>
+    <div class="attempts"></div>
+  </div>
+
+  <!-- wd2 MATCH many-to-one -->
+  <div class="task" data-task-id="wd2" data-type="match"
+       data-explain="Hoog inkomen: Frankrijk, Japan. Midden/opkomend: Brazilië, China, India, Turkije. Laag inkomen: Afghanistan. Meerdere landen horen bij dezelfde groep — dat is een veel-op-één-koppeling.">
+    <div class="qhead"><span class="badge match">Koppel</span><span class="qnum">Opdracht 2</span></div>
+    <p class="question">Sleep elk land naar de juiste inkomensgroep. Let op: bij elke groep horen meerdere landen.</p>
+    <div class="match-grid">
+      <div class="match-pool">
+        <div class="pool-label">Landen</div>
+        <div class="chip" draggable="true" data-id="c-fra" data-match="g-hoog">🇫🇷 Frankrijk</div>
+        <div class="chip" draggable="true" data-id="c-jap" data-match="g-hoog">🇯🇵 Japan</div>
+        <div class="chip" draggable="true" data-id="c-bra" data-match="g-mid">🇧🇷 Brazilië</div>
+        <div class="chip" draggable="true" data-id="c-chi" data-match="g-mid">🇨🇳 China</div>
+        <div class="chip" draggable="true" data-id="c-ind" data-match="g-mid">🇮🇳 India</div>
+        <div class="chip" draggable="true" data-id="c-afg" data-match="g-laag">🇦🇫 Afghanistan</div>
+      </div>
+      <div class="match-targets">
+        <div class="tlabel">Inkomensgroepen</div>
+        <div class="match-target" data-target-id="g-hoog">
+          <div class="ttitle">🟢 Hoge-inkomenslanden</div>
+          <div class="dropzone"><span class="hint-empty">Sleep hierheen…</span></div>
+        </div>
+        <div class="match-target" data-target-id="g-mid">
+          <div class="ttitle">🟡 Midden-inkomens / opkomende economieën</div>
+          <div class="dropzone"><span class="hint-empty">Sleep hierheen…</span></div>
+        </div>
+        <div class="match-target" data-target-id="g-laag">
+          <div class="ttitle">🟤 Lage-inkomenslanden</div>
+          <div class="dropzone"><span class="hint-empty">Sleep hierheen…</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="taskbar"><button class="btn btn-primary btn-sm check-match">Controleer koppelingen</button></div>
+    <div class="feedback"></div>
+    <div class="attempts"></div>
+  </div>
+
+  <!-- wd3 OPEN -->
+  <div class="task" data-task-id="wd3" data-type="open"
+       data-ex1="Opkomende economieën zoals China en India hebben heel veel inwoners. Voor bedrijven die apps of telefoons maken zijn dat enorme markten: als steeds meer mensen daar een smartphone kopen, krijgen ze ineens miljoenen nieuwe gebruikers. Daarom richten social-mediabedrijven zich juist op die landen."
+       data-ex2="Doordat het inkomen in opkomende economieën stijgt, kunnen meer mensen een telefoon en internet betalen. Daardoor groeit het aantal gebruikers van social media in landen als India en Indonesië heel snel, terwijl dat in rijke landen al bijna iedereen is.">
+    <div class="qhead"><span class="badge open">Schrijven</span><span class="qnum">Opdracht 3</span></div>
+    <p class="question">📱 Veel social-mediabedrijven willen graag groeien in <b>opkomende economieën</b> zoals India en Indonesië. Leg uit waarom juist die landen interessant voor hen zijn. Gebruik de woorden 'inkomen' en 'bevolking'. Minimaal 2-3 zinnen.</p>
+    <textarea placeholder="Denk aan: stijgend inkomen + veel inwoners..."></textarea>
+    <div class="wordrow"><span class="wordcount">0 woorden</span><button class="btn btn-ghost btn-sm show-example" disabled>Toon voorbeeldantwoord</button></div>
+    <div class="example"></div>
+    <div class="self-assess"></div>
+  </div>
+</section>
+
+<!-- ============ TAB 4: REGIONALE VERSCHILLEN IN WELVAART (NL) ============ -->
+<section class="tab-content" data-tab="4" data-title="Welvaart in NL" data-icon="🇳🇱">
+  <div class="lead">
+    <div class="eyebrow">Onderdeel 4</div>
+    <h2>Regionale verschillen in welvaart</h2>
+    <p>We zoomen in op Nederland. Ook binnen één land zijn er rijke en armere gebieden. We noemen dat regionale ongelijkheid — en we meten het met het brp per persoon.</p>
+  </div>
+
+  <div class="card theory">
+    <h3>📚 Middenland en randland</h3>
+    <p>We spreken van <b>regionale ongelijkheid</b> wanneer er binnen één land verschillen in welvaart bestaan tussen gebieden. Je meet die verschillen met het <b>brp per persoon</b> (bruto regionaal product per inwoner): alles wat in een bepaald gebied wordt verdiend, gedeeld door het aantal inwoners van dat gebied. Het is dus eigenlijk hetzelfde idee als het bbp/pp, maar dan voor een streek of provincie in plaats van voor een heel land. Uit gebieden met een laag brp/pp trekken vaak mensen weg naar de rijkere gebieden, op zoek naar werk.</p>
+    <p>In Nederland verschilt het gemiddelde inkomen per gebied. Gemeenten met veel <b>lage inkomens</b> liggen vooral in het noorden en langs de randen van het land. Dit gebied noemen we het <b>randland</b>. De rijkere gemeenten liggen vooral in het westen en het midden: het <b>middenland</b>. Opvallend: het gemiddelde inkomen ligt vaak hóger in kleine gemeenten dan in de grote steden, omdat in grote steden veel mensen met lagere inkomens dicht bij elkaar wonen.</p>
+    <p>Waarom liggen de rijkere gebieden in het westen? In de <b>Randstad</b> liggen de mainports (zoals de haven van Rotterdam en luchthaven Schiphol) en de grootste steden. Daar is veel moderne werkgelegenheid in de industrie en de diensten. In het noorden en langs de randen is economisch minder te doen en is de landbouw belangrijker. Deze verschillen hangen samen met opleiding, beroepen, leeftijdsopbouw, bevolkingssamenstelling en de kwaliteit van de woningen. Zo ontstaat <b>sociale ongelijkheid</b>: verschillen in welvaart tussen groepen mensen.</p>
+
+    <div class="flow">
+      <span class="step"><span class="emo">⬇️</span> Laag brp/pp (randland)</span>
+      <span class="arrow">→</span>
+      <span class="step"><span class="emo">🚚</span> Mensen verhuizen</span>
+      <span class="arrow">→</span>
+      <span class="step"><span class="emo">⬆️</span> Hoog brp/pp (Randstad)</span>
+    </div>
+
+    <div class="pill-legend">
+      <span><span class="dot" style="background:#138a6a"></span> Middenland (hoger inkomen)</span>
+      <span><span class="dot" style="background:#c47a4f"></span> Randland (lager inkomen)</span>
+    </div>
+  </div>
+
+  <div class="mapbox" id="map-nl" data-map="nl"></div>
+
+  <div class="chart-box">
+    <h3 style="margin-top:0;">📊 Gemiddeld besteedbaar inkomen per landsdeel</h3>
+    <canvas id="chart-inkomen" height="150"></canvas>
+    <div class="chart-cap">Vereenvoudigde weergave: het westen/midden ligt gemiddeld hoger dan de randen (indexcijfers, NL-gemiddelde = 100).</div>
+  </div>
+
+  <!-- nl1 MC -->
+  <div class="task" data-task-id="nl1" data-type="mc" data-correct="c"
+       data-hint1="Kijk op de kaart waar de groene (rijkere) markers liggen. Is dat in het noorden, of in het westen/midden?"
+       data-hint2="Het 'middenland' dankt zijn naam aan de ligging. Waar liggen de Randstad en de mainports?"
+       data-explain="Het middenland (hoger inkomen) ligt in het westen en midden van Nederland, met de Randstad als kern. Het randland met lagere inkomens ligt in het noorden en langs de randen.">
+    <div class="qhead"><span class="badge map">Kaart</span><span class="qnum">Vraag 1</span></div>
+    <p class="question">Waar ligt in Nederland vooral het <b>middenland</b> met de hogere inkomens?</p>
+    <div class="options">
+      <button class="opt" data-value="a"><span class="ltr">A</span><span>In het uiterste noorden en oosten.</span></button>
+      <button class="opt" data-value="b"><span class="ltr">B</span><span>Alleen op de Waddeneilanden.</span></button>
+      <button class="opt" data-value="c"><span class="ltr">C</span><span>In het westen en midden, met de Randstad als kern.</span></button>
+      <button class="opt" data-value="d"><span class="ltr">D</span><span>Verspreid, er is geen enkel patroon.</span></button>
+    </div>
+    <div class="feedback"></div>
+    <div class="attempts"></div>
+  </div>
+
+  <!-- nl2 OPEN -->
+  <div class="task" data-task-id="nl2" data-type="open"
+       data-ex1="Mensen trekken uit het randland weg omdat daar minder werk is; de landbouw levert weinig nieuwe banen op. In de Randstad zijn juist de mainports, de grote steden en veel banen in de industrie en diensten. Daarom verhuizen vooral jongeren naar het westen om daar werk of een opleiding te zoeken."
+       data-ex2="In gebieden met een laag brp/pp is weinig werk. Mensen verhuizen naar de Randstad, waar het brp/pp hoog is door de haven, Schiphol en veel kantoorbanen. Zo lopen de verschillen tussen randland en middenland verder op.">
+    <div class="qhead"><span class="badge open">Schrijven</span><span class="qnum">Opdracht 2</span></div>
+    <p class="question">Leg uit waarom veel mensen uit het <b>randland</b> verhuizen naar de <b>Randstad</b>. Gebruik in je antwoord het begrip 'werkgelegenheid' of 'brp per persoon'. Minimaal 2-3 zinnen.</p>
+    <textarea placeholder="Denk aan werk, mainports en het brp/pp..."></textarea>
+    <div class="wordrow"><span class="wordcount">0 woorden</span><button class="btn btn-ghost btn-sm show-example" disabled>Toon voorbeeldantwoord</button></div>
+    <div class="example"></div>
+    <div class="self-assess"></div>
+  </div>
+
+  <!-- nl3 DATA OPEN -->
+  <div class="task" data-task-id="nl3" data-type="open"
+       data-ex1="In de grafiek zie je dat het westen boven de 100 ligt en het noorden eronder. Dat betekent dat het gemiddelde inkomen in het westen hoger is dan het Nederlandse gemiddelde, en in het noorden lager. Dit klopt met de verdeling middenland (rijk) en randland (armer)."
+       data-ex2="De staaf van het westen is het hoogst en die van het noorden het laagst. Het westen verdient dus bovengemiddeld, het noorden ondergemiddeld. Dat past bij de mainports en banen in de Randstad tegenover de landbouw in het noorden.">
+    <div class="qhead"><span class="badge data">Data</span><span class="qnum">Opdracht 3</span></div>
+    <p class="question">Bekijk de inkomensgrafiek. Welk landsdeel ligt het hóógst en welk het láágst? Leg uit hoe dit past bij de begrippen 'middenland' en 'randland'. Minimaal 2-3 zinnen.</p>
+    <textarea placeholder="Lees de staven af en koppel aan middenland/randland..."></textarea>
+    <div class="wordrow"><span class="wordcount">0 woorden</span><button class="btn btn-ghost btn-sm show-example" disabled>Toon voorbeeldantwoord</button></div>
+    <div class="example"></div>
+    <div class="self-assess"></div>
+  </div>
+</section>
+
+<!-- ============ TAB 5: WOONOMGEVING ============ -->
+<section class="tab-content" data-tab="5" data-title="Woonomgeving" data-icon="🏙️">
+  <div class="lead">
+    <div class="eyebrow">Onderdeel 5</div>
+    <h2>Regionale verschillen in woonomgeving</h2>
+    <p>Hoe je woont, verschilt enorm tussen stad en platteland. Dichtbebouwd of juist veel ruimte? En waar komt de vervuiling vandaan? We bekijken de kwaliteit van de leefomgeving.</p>
+  </div>
+
+  <div class="card theory">
+    <h3>📚 Vol of leeg, en de prijs van drukte</h3>
+    <p>In stedelijke gebieden wonen veel mensen op een kleine ruimte. De <b>bebouwingsdichtheid</b> is er hoog: dat is het aantal huizen per vierkante kilometer. In landelijke gebieden staan de huizen veel verder uit elkaar en is de bebouwingsdichtheid laag. In het westen van Nederland (de Randstad) zijn er zóveel bedrijven en mensen bij elkaar dat de kwaliteit van de woonomgeving daalt. Dat zie je bijvoorbeeld aan files op de weg en aan lucht-, water- en bodemvervuiling.</p>
+    <p>Maar denk niet dat het op het platteland altijd schoon is. In landelijke gebieden zorgt de <b>intensieve landbouw</b> voor stoffen als <b>stikstof</b> en <b>fijnstof</b> in de omgeving. Die stoffen zijn schadelijk voor mensen én voor de natuur. De overheid neemt maatregelen om dit op te lossen, bijvoorbeeld door regels voor boerenbedrijven en het verminderen van uitstoot. Stad en platteland hebben dus allebei hun eigen milieuproblemen — alleen de oorzaak verschilt.</p>
+    <p>Vervuiling stopt niet bij de grens. Via de <b>wind</b> en de <b>rivieren</b> komt er ook verontreiniging vanuit het buitenland Nederland binnen. Lucht uit het Ruhrgebied of vuil rivierwater uit Duitsland en Frankrijk heeft dus invloed op de woonomgeving hier. Dat maakt het oplossen van milieuproblemen ingewikkeld: één land kan het niet alleen.</p>
+
+    <table class="deftable">
+      <tr><th>Kenmerk</th><th>🏙️ Stedelijk gebied</th><th>🌾 Landelijk gebied</th></tr>
+      <tr><td>Bebouwingsdichtheid</td><td>Hoog (veel huizen per km²)</td><td>Laag (huizen ver uit elkaar)</td></tr>
+      <tr><td>Belangrijkste vervuiling</td><td>Files, lucht- en waterverontreiniging</td><td>Stikstof en fijnstof uit landbouw</td></tr>
+      <tr><td>Ruimte per persoon</td><td>Weinig</td><td>Veel</td></tr>
+    </table>
+
+    <div class="callout real">
+      <div class="label">📱 Uit jouw wereld</div>
+      <p style="margin:0;">Heb je weleens van die "ochtend-routine"-video's gezien waarin iemand uit het raam kijkt? In de stad zie je dan een straat vol gebouwen, op het platteland weilanden tot de horizon. Dat verschil in uitzicht ís bebouwingsdichtheid in beeld.</p>
+    </div>
+  </div>
+
+  <!-- wo1 MC -->
+  <div class="task" data-task-id="wo1" data-type="mc" data-correct="b"
+       data-hint1="Let op het woord 'dichtheid'. Dat gaat over hoeveel er op een bepaalde ruimte staat."
+       data-hint2="Bebouwing = gebouwen/huizen. Dichtheid = hoeveel per oppervlakte. Wat meet je dan?"
+       data-explain="Bebouwingsdichtheid is het aantal huizen (gebouwen) per vierkante kilometer. In de stad is die hoog, op het platteland laag.">
+    <div class="qhead"><span class="badge">Quiz</span><span class="qnum">Vraag 1</span></div>
+    <p class="question">Wat is de <b>bebouwingsdichtheid</b>?</p>
+    <div class="options">
+      <button class="opt" data-value="a"><span class="ltr">A</span><span>Hoe hoog de gebouwen in een gebied zijn.</span></button>
+      <button class="opt" data-value="b"><span class="ltr">B</span><span>Het aantal huizen per vierkante kilometer.</span></button>
+      <button class="opt" data-value="c"><span class="ltr">C</span><span>Hoeveel files er per dag zijn.</span></button>
+      <button class="opt" data-value="d"><span class="ltr">D</span><span>De hoeveelheid stikstof in de lucht.</span></button>
+    </div>
+    <div class="feedback"></div>
+    <div class="attempts"></div>
+  </div>
+
+  <!-- wo2 MATCH many-to-one -->
+  <div class="task" data-task-id="wo2" data-type="match"
+       data-explain="Stedelijk: hoge bebouwingsdichtheid, files, weinig ruimte. Landelijk: stikstof/fijnstof uit landbouw, veel ruimte, lage bebouwingsdichtheid. Sommige problemen horen bij allebei.">
+    <div class="qhead"><span class="badge match">Koppel</span><span class="qnum">Opdracht 2</span></div>
+    <p class="question">Sleep elk kenmerk naar het juiste gebied. Bij elk gebied horen meerdere kenmerken.</p>
+    <div class="match-grid">
+      <div class="match-pool">
+        <div class="pool-label">Kenmerken</div>
+        <div class="chip" draggable="true" data-id="k-files" data-match="z-stad">Veel files</div>
+        <div class="chip" draggable="true" data-id="k-hoog" data-match="z-stad">Hoge bebouwingsdichtheid</div>
+        <div class="chip" draggable="true" data-id="k-lucht" data-match="z-stad">Luchtvervuiling door verkeer</div>
+        <div class="chip" draggable="true" data-id="k-stik" data-match="z-land">Stikstof uit landbouw</div>
+        <div class="chip" draggable="true" data-id="k-ruimte" data-match="z-land">Veel ruimte per persoon</div>
+        <div class="chip" draggable="true" data-id="k-laag" data-match="z-land">Lage bebouwingsdichtheid</div>
+      </div>
+      <div class="match-targets">
+        <div class="tlabel">Gebieden</div>
+        <div class="match-target" data-target-id="z-stad">
+          <div class="ttitle">🏙️ Stedelijk gebied</div>
+          <div class="dropzone"><span class="hint-empty">Sleep hierheen…</span></div>
+        </div>
+        <div class="match-target" data-target-id="z-land">
+          <div class="ttitle">🌾 Landelijk gebied</div>
+          <div class="dropzone"><span class="hint-empty">Sleep hierheen…</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="taskbar"><button class="btn btn-primary btn-sm check-match">Controleer koppelingen</button></div>
+    <div class="feedback"></div>
+    <div class="attempts"></div>
+  </div>
+
+  <!-- wo3 OPEN -->
+  <div class="task" data-task-id="wo3" data-type="open"
+       data-ex1="Op mijn route naar school fiets ik door een wijk met veel rijtjeshuizen die dicht op elkaar staan, dus daar is de bebouwingsdichtheid hoog. Aan de rand kom ik langs een weiland, daar staan bijna geen huizen en is de dichtheid laag. Ik merk de drukte vooral aan het verkeer en de files bij het kruispunt."
+       data-ex2="Ik woon in een dorp met veel ruimte tussen de huizen, dus een lage bebouwingsdichtheid. Onderweg naar school ruik ik soms de boerderijen — dat hoort bij de stikstof en geur van de landbouw op het platteland.">
+    <div class="qhead"><span class="badge open">Schrijven</span><span class="qnum">Opdracht 3</span></div>
+    <p class="question">🚲 Denk aan je route naar school. Is de <b>bebouwingsdichtheid</b> onderweg hoog of laag, en hoe merk je dat? Beschrijf minstens één teken van drukte óf milieuoverlast dat je zelf weleens ziet of ruikt. Minimaal 2-3 zinnen.</p>
+    <textarea placeholder="Beschrijf jouw eigen woonomgeving of route..."></textarea>
+    <div class="wordrow"><span class="wordcount">0 woorden</span><button class="btn btn-ghost btn-sm show-example" disabled>Toon voorbeeldantwoord</button></div>
+    <div class="example"></div>
+    <div class="self-assess"></div>
+  </div>
+</section>
+
+<!-- ============ TAB 6: GEZONDHEID ============ -->
+<section class="tab-content" data-tab="6" data-title="Gezondheid" data-icon="🩺">
+  <div class="lead">
+    <div class="eyebrow">Onderdeel 6</div>
+    <h2>Regionale verschillen in gezondheid</h2>
+    <p>Hoe oud je wordt, hangt samen met waar je woont én met je opleiding en inkomen. We lezen een inkomenskaart en zoeken het verband tussen opleiding, leefstijl en gezondheid.</p>
+  </div>
+
+  <div class="card theory">
+    <h3>📚 Opleiding, inkomen en hoe oud je wordt</h3>
+    <p>De levensverwachting verschilt binnen Nederland. In de grote steden van de Randstad is de levensverwachting <b>lager</b> dan het landelijke gemiddelde. Maar — en dat is opvallend — in de dorpen rónd die grote steden blijven mensen juist gemiddeld langer leven. Het ligt dus niet simpelweg aan "stad versus platteland", maar aan wie er woont.</p>
+    <p>De belangrijkste verklaring is het verband tussen <b>opleiding, manier van leven en gezondheid</b>. Mensen met een hogere opleiding en een beter inkomen leven gemiddeld gezonder dan mensen met een kortere opleiding en een lager inkomen. Wie meer verdient, kan vaker kiezen voor gezonde voeding, sport, een goede woning en op tijd naar de dokter gaan. In buurten waar veel mensen met een laag inkomen wonen, stapelen die nadelen zich op, en daardoor ligt de levensverwachting er lager.</p>
+    <p>Daarom kun je een <b>inkomenskaart</b> ook bijna lezen als een gezondheidskaart: gebieden met lage inkomens hebben vaak ook een lagere levensverwachting, en gebieden met hoge inkomens een hogere. Op de kaart hieronder zie je een paar Nederlandse plekken met een marker. Klik erop en lees in de pop-up het inkomen én de levensverwachting. Zo oefen je het aanwijzen van gebieden met een lagere en een hogere levensverwachting.</p>
+
+    <div class="flow">
+      <span class="step"><span class="emo">🎓</span> Meer opleiding</span>
+      <span class="arrow">→</span>
+      <span class="step"><span class="emo">💰</span> Hoger inkomen</span>
+      <span class="arrow">→</span>
+      <span class="step"><span class="emo">🥗</span> Gezonder leven</span>
+      <span class="arrow">→</span>
+      <span class="step"><span class="emo">🕰️</span> Langer leven</span>
+    </div>
+
+    <div class="pill-legend">
+      <span><span class="dot" style="background:#138a6a"></span> Hoger inkomen &amp; langere levensverwachting</span>
+      <span><span class="dot" style="background:#c47a4f"></span> Lager inkomen &amp; kortere levensverwachting</span>
+    </div>
+  </div>
+
+  <div class="mapbox" id="map-gezond" data-map="gezond"></div>
+
+  <div class="chart-box">
+    <h3 style="margin-top:0;">📊 Levensverwachting: grote stad vs. omliggend dorp</h3>
+    <canvas id="chart-gezond" height="150"></canvas>
+    <div class="chart-cap">Vereenvoudigde weergave van het verschil in gemiddelde levensverwachting (in jaren).</div>
+  </div>
+
+  <!-- gz1 DATA OPEN -->
+  <div class="task" data-task-id="gz1" data-type="open"
+       data-ex1="In de grafiek is de staaf van het dorp hoger dan die van de grote stad. Mensen in het dorp worden dus gemiddeld ouder. Dat komt doordat in de dorpen rond de stad vaak mensen met een hoger inkomen en een betere opleiding wonen, en die leven gezonder."
+       data-ex2="De levensverwachting in de grote stad is lager dan in het omliggende dorp. Dat past bij de uitleg: in de stad wonen meer mensen met een laag inkomen en korte opleiding, en die hebben gemiddeld een lagere levensverwachting.">
+    <div class="qhead"><span class="badge data">Data</span><span class="qnum">Opdracht 1</span></div>
+    <p class="question">Bekijk de grafiek. Waar is de levensverwachting hoger: in de grote stad of in het omliggende dorp? Verklaar dit verschil met het verband tussen opleiding, inkomen en gezondheid. Minimaal 2-3 zinnen.</p>
+    <textarea placeholder="Lees de staven af en verklaar..."></textarea>
+    <div class="wordrow"><span class="wordcount">0 woorden</span><button class="btn btn-ghost btn-sm show-example" disabled>Toon voorbeeldantwoord</button></div>
+    <div class="example"></div>
+    <div class="self-assess"></div>
+  </div>
+
+  <!-- gz2 MC -->
+  <div class="task" data-task-id="gz2" data-type="mc" data-correct="c"
+       data-hint1="Wat zou er gebeuren met iemands gezondheid als hij meer geld heeft voor gezond eten, sport en de dokter?"
+       data-hint2="De tekst zegt: mensen met meer opleiding en inkomen leven gemiddeld... wat?"
+       data-explain="Mensen met een hogere opleiding en een hoger inkomen leven gemiddeld gezonder en daardoor langer. Ze kunnen makkelijker kiezen voor gezonde voeding, sport en goede zorg.">
+    <div class="qhead"><span class="badge">Quiz</span><span class="qnum">Vraag 2</span></div>
+    <p class="question">Wat is het verband tussen opleiding/inkomen en gezondheid?</p>
+    <div class="options">
+      <button class="opt" data-value="a"><span class="ltr">A</span><span>Opleiding en inkomen hebben niets met gezondheid te maken.</span></button>
+      <button class="opt" data-value="b"><span class="ltr">B</span><span>Hoe hoger het inkomen, hoe ongezonder mensen leven.</span></button>
+      <button class="opt" data-value="c"><span class="ltr">C</span><span>Mensen met meer opleiding en inkomen leven gemiddeld gezonder en langer.</span></button>
+      <button class="opt" data-value="d"><span class="ltr">D</span><span>Alleen de leeftijd bepaalt hoe gezond je bent.</span></button>
+    </div>
+    <div class="feedback"></div>
+    <div class="attempts"></div>
+  </div>
+
+  <!-- gz3 OPEN -->
+  <div class="task" data-task-id="gz3" data-type="open"
+       data-ex1="In mijn buurt zie ik dat er een sportveld en een groot park zijn, waar veel mensen hardlopen en sporten. Bij ons in de straat wonen vooral gezinnen met werk. Dat past bij de theorie dat mensen met een hoger inkomen meer mogelijkheden hebben om gezond te leven."
+       data-ex2="Ik zie in mijn omgeving veel snackbars en weinig groen, en ik weet dat hier veel mensen met een lager inkomen wonen. Volgens de theorie kan de levensverwachting hier dan lager liggen dan in een rijkere buurt met meer sportclubs en parken.">
+    <div class="qhead"><span class="badge open">Schrijven</span><span class="qnum">Opdracht 3</span></div>
+    <p class="question">Kijk naar je eigen buurt of dorp. Zie je dingen die met gezond (of juist ongezond) leven te maken hebben — denk aan sportvelden, parken, snackbars, drukte? Koppel wat je ziet aan het verband tussen inkomen en gezondheid. Minimaal 2-3 zinnen.</p>
+    <textarea placeholder="Beschrijf jouw buurt en koppel aan de theorie..."></textarea>
+    <div class="wordrow"><span class="wordcount">0 woorden</span><button class="btn btn-ghost btn-sm show-example" disabled>Toon voorbeeldantwoord</button></div>
+    <div class="example"></div>
+    <div class="self-assess"></div>
+  </div>
+</section>
+
+<!-- ============ TAB 7: BEWONERS ============ -->
+<section class="tab-content" data-tab="7" data-title="Bewoners" data-icon="🧑‍🤝‍🧑">
+  <div class="lead">
+    <div class="eyebrow">Onderdeel 7</div>
+    <h2>Bewoners: wie woont er in een buurt?</h2>
+    <p>We zoomen helemaal in: van woonplaats naar wijk naar buurt. Aan de bewonerskenmerken kun je veel aflezen — en andersom kun je aan een buurt vaak zien wie er woont.</p>
+  </div>
+
+  <div class="card theory">
+    <h3>📚 Wijk, buurt en bewonerskenmerken</h3>
+    <p>Nederlanders wonen in steden of dorpen, en die kun je verder verdelen in <b>wijken</b> en <b>buurten</b>. Een wijk komt vaak overeen met een hele woonplaats of een deel van een grotere woonplaats. Een wijk bestaat uit één of meerdere buurten. Een <b>buurt</b> is een onderdeel van een wijk waarin meestal één functie het belangrijkst is: bijvoorbeeld wonen (een woongebied), werken (een industriegebied) of recreatie (een natuurgebied). Soms komen die functies ook gemengd voor.</p>
+    <p>Je kunt buurten en wijken beschrijven met hun <b>bewonerskenmerken</b> (de bevolkingssamenstelling). Voorbeelden van zulke kenmerken zijn: het <b>inkomen</b> (er zijn buurten met veel mensen met een hoog inkomen, die vaak in de dienstensector werken — bij banken, in de handel of het onderwijs), de <b>leeftijd</b> (in sommige buurten zijn de kinderen het huis uit en worden de bewoners steeds ouder; dat noemen we <b>ontgroening</b> — minder jongeren — en <b>vergrijzing</b> — meer ouderen), de <b>herkomst</b> (in sommige stadsbuurten wonen veel mensen die in het buitenland geboren zijn, bijvoorbeeld in Polen of Marokko) en het <b>opleidingsniveau</b> van de bewoners.</p>
+    <p>Als je naar al deze kenmerken samen kijkt, kun je zeggen dat Nederland een <b>pluriforme samenleving</b> is geworden. Dat betekent dat er mensen met verschillende culturen, levensstijlen en religies met en naast elkaar leven. Het mooie is: bewonerskenmerken werken twee kanten op. Aan de kenmerken van een buurt (veel studenten, veel ouderen, dure of goedkope huizen) kun je een uitspraak doen over de bewoners — en andersom, als je de bewoners kent, kun je iets zeggen over hoe de buurt eruitziet.</p>
+
+    <div class="flow">
+      <span class="step"><span class="emo">🏙️</span> Woonplaats</span>
+      <span class="arrow">→</span>
+      <span class="step"><span class="emo">🏘️</span> Wijk</span>
+      <span class="arrow">→</span>
+      <span class="step"><span class="emo">🏠</span> Buurt</span>
+      <span class="arrow">→</span>
+      <span class="step"><span class="emo">🚪</span> Straat</span>
+    </div>
+
+    <table class="deftable">
+      <tr><th>Bewonerskenmerk</th><th>Wat het zegt</th></tr>
+      <tr><td>Inkomen</td><td>Veel hoge inkomens = vaak werk in de diensten (bank, handel, onderwijs).</td></tr>
+      <tr><td>Leeftijd</td><td>Veel ouderen = vergrijzing; weinig jongeren = ontgroening.</td></tr>
+      <tr><td>Herkomst</td><td>Veel mensen geboren in het buitenland (bv. Polen, Marokko).</td></tr>
+      <tr><td>Opleidingsniveau</td><td>Gemiddeld hoog of laag opgeleid.</td></tr>
+    </table>
+
+    <div class="callout real">
+      <div class="label">📱 Uit jouw wereld</div>
+      <p style="margin:0;">Online zie je vaak buurten met een "vibe": een studentenbuurt vol fietsen en kroegen, of een rustige buurt met grote tuinen. Die sfeer komt rechtstreeks uit de <b>bewonerskenmerken</b>. Welk kenmerk past het best bij jouw eigen buurt?</p>
+    </div>
+  </div>
+
+  <!-- be1 MC -->
+  <div class="task" data-task-id="be1" data-type="mc" data-correct="a"
+       data-hint1="Welke is groter: een wijk of een buurt? Lees: 'een wijk bestaat uit één of meerdere...'"
+       data-hint2="De buurt is het kleinste deel, met meestal één hoofdfunctie (wonen, werken of recreatie)."
+       data-explain="Een wijk bestaat uit één of meerdere buurten. De buurt is dus het kleinere deel, en heeft vaak één hoofdfunctie zoals wonen, werken of recreatie.">
+    <div class="qhead"><span class="badge">Quiz</span><span class="qnum">Vraag 1</span></div>
+    <p class="question">Wat is de juiste verhouding tussen een <b>wijk</b> en een <b>buurt</b>?</p>
+    <div class="options">
+      <button class="opt" data-value="a"><span class="ltr">A</span><span>Een wijk bestaat uit één of meerdere buurten.</span></button>
+      <button class="opt" data-value="b"><span class="ltr">B</span><span>Een buurt bestaat uit meerdere wijken.</span></button>
+      <button class="opt" data-value="c"><span class="ltr">C</span><span>Een wijk en een buurt zijn precies hetzelfde.</span></button>
+      <button class="opt" data-value="d"><span class="ltr">D</span><span>Een buurt is altijd groter dan een hele stad.</span></button>
+    </div>
+    <div class="feedback"></div>
+    <div class="attempts"></div>
+  </div>
+
+  <!-- be2 MATCH -->
+  <div class="task" data-task-id="be2" data-type="match"
+       data-explain="Vergrijzing = steeds meer ouderen. Ontgroening = steeds minder jongeren. Pluriforme samenleving = veel culturen naast elkaar. Diensten = werk bij bank/handel/onderwijs (vaak hoog inkomen).">
+    <div class="qhead"><span class="badge match">Koppel</span><span class="qnum">Opdracht 2</span></div>
+    <p class="question">Sleep elk begrip naar de juiste beschrijving.</p>
+    <div class="match-grid">
+      <div class="match-pool">
+        <div class="pool-label">Begrippen</div>
+        <div class="chip" draggable="true" data-id="b-vergr" data-match="d-oud">Vergrijzing</div>
+        <div class="chip" draggable="true" data-id="b-ontgr" data-match="d-jong">Ontgroening</div>
+        <div class="chip" draggable="true" data-id="b-plur" data-match="d-cult">Pluriforme samenleving</div>
+        <div class="chip" draggable="true" data-id="b-dienst" data-match="d-werk">Dienstensector</div>
+      </div>
+      <div class="match-targets">
+        <div class="tlabel">Beschrijvingen</div>
+        <div class="match-target" data-target-id="d-oud">
+          <div class="ttitle">👵 Steeds meer ouderen in een buurt</div>
+          <div class="dropzone"><span class="hint-empty">Sleep hierheen…</span></div>
+        </div>
+        <div class="match-target" data-target-id="d-jong">
+          <div class="ttitle">🧒 Steeds minder jongeren in een buurt</div>
+          <div class="dropzone"><span class="hint-empty">Sleep hierheen…</span></div>
+        </div>
+        <div class="match-target" data-target-id="d-cult">
+          <div class="ttitle">🌍 Veel culturen, levensstijlen en religies naast elkaar</div>
+          <div class="dropzone"><span class="hint-empty">Sleep hierheen…</span></div>
+        </div>
+        <div class="match-target" data-target-id="d-werk">
+          <div class="ttitle">🏦 Werk bij banken, handel en onderwijs</div>
+          <div class="dropzone"><span class="hint-empty">Sleep hierheen…</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="taskbar"><button class="btn btn-primary btn-sm check-match">Controleer koppelingen</button></div>
+    <div class="feedback"></div>
+    <div class="attempts"></div>
+  </div>
+
+  <!-- be3 OPEN reasoning -->
+  <div class="task" data-task-id="be3" data-type="open"
+       data-ex1="In een buurt met veel studentenhuizen, fietsen en kleine kamers wonen waarschijnlijk veel jonge, hoogopgeleide mensen met een laag inkomen. Aan de buurtkenmerken (kleine woningen, veel fietsen) kun je dus iets zeggen over de bewoners: jong en studerend."
+       data-ex2="Als ik weet dat er veel ouderen wonen (vergrijzing), verwacht ik in de buurt rustige straten, gelijkvloerse woningen of seniorenflats en weinig speeltuinen. De bewonerskenmerken en de buurtkenmerken passen dus bij elkaar.">
+    <div class="qhead"><span class="badge open">Schrijven</span><span class="qnum">Opdracht 3</span></div>
+    <p class="question">Stel je voor: in een buurt staan veel kleine appartementen, er staan overal fietsen en er zijn studentenkroegen. Welke uitspraak kun je doen over de <b>bewoners</b>? Leg uit hoe je dat uit de buurtkenmerken afleidt. Minimaal 2-3 zinnen.</p>
+    <textarea placeholder="Wat zeggen die buurtkenmerken over de bewoners?"></textarea>
+    <div class="wordrow"><span class="wordcount">0 woorden</span><button class="btn btn-ghost btn-sm show-example" disabled>Toon voorbeeldantwoord</button></div>
+    <div class="example"></div>
+    <div class="self-assess"></div>
+  </div>
+
+  <!-- be4 SORT -->
+  <div class="task" data-task-id="be4" data-type="sort"
+       data-order="plaats,wijk,buurt,straat"
+       data-explain="Van groot naar klein: woonplaats → wijk → buurt → straat. Een woonplaats bevat wijken, een wijk bevat buurten, en een buurt bestaat uit straten.">
+    <div class="qhead"><span class="badge drag">Sleep</span><span class="qnum">Opdracht 4</span></div>
+    <p class="question">Sleep de gebieden van <b>groot</b> (boven) naar <b>klein</b> (onder).</p>
+    <ul class="sortlist">
+      <li draggable="true" data-id="buurt"><span class="grip">⋮⋮</span><span class="pos">1</span><span>🏠 Buurt</span></li>
+      <li draggable="true" data-id="straat"><span class="grip">⋮⋮</span><span class="pos">2</span><span>🚪 Straat</span></li>
+      <li draggable="true" data-id="plaats"><span class="grip">⋮⋮</span><span class="pos">3</span><span>🏙️ Woonplaats</span></li>
+      <li draggable="true" data-id="wijk"><span class="grip">⋮⋮</span><span class="pos">4</span><span>🏘️ Wijk</span></li>
+    </ul>
+    <div class="sorthint">Tip: sleep een item naar een nieuwe plek, of tik op een tablet twee items aan om ze te wisselen.</div>
+    <div class="taskbar"><button class="btn btn-primary btn-sm check-sort">Controleer volgorde</button></div>
+    <div class="feedback"></div>
+    <div class="attempts"></div>
+  </div>
+</section>
+
+<!-- ============ TAB 8: BEBOUWING & OPENBARE RUIMTE ============ -->
+<section class="tab-content" data-tab="8" data-title="Bebouwing &amp; ruimte" data-icon="🏗️">
+  <div class="lead">
+    <div class="eyebrow">Onderdeel 8</div>
+    <h2>Bebouwing en openbare ruimte</h2>
+    <p>Behalve naar wie er woont, kijk je ook naar hoe een buurt eruitziet: de gebouwen én de gedeelde ruimte daartussen. Daaraan zie je veel over de kwaliteit van een buurt.</p>
+  </div>
+
+  <div class="card theory">
+    <h3>📚 Hoe ziet de buurt eruit?</h3>
+    <p>Naast de bewoners kun je een buurt ook beschrijven door te kijken naar de <b>bebouwing</b>. Hierbij hoort opnieuw de <b>bebouwingsdichtheid</b>: hoeveel eigen woonruimte heeft een bewoner, hoe groot is de tuin of het balkon, en wat voor woningen staan er? Denk aan <b>vrijstaande huizen</b> (los, met veel ruimte), <b>rijtjeshuizen</b> (aan elkaar gebouwd), <b>flatgebouwen</b> en <b>appartementencomplexen</b>. Vaak geldt: als de bebouwingsdichtheid hoog is, is de bevolkingsdichtheid ook hoog. Maar dat geldt niet overal — op een bedrijventerrein staan veel grote gebouwen, terwijl er bijna niemand woont.</p>
+    <p>Het tweede waar je naar kijkt is de <b>openbare ruimte</b>. Dat is de gemeenschappelijke (publieke) ruimte in een wijk of buurt: alles wat van iedereen samen is. Hoe dicht staan de huizen op elkaar? Wat voor ruimtes zitten ertussen — speelterreintjes, pleintjes, plantsoenen? Kun je ergens voetballen of skaten zonder dat de buren klagen? De openbare ruimte bepaalt voor een groot deel hoe prettig het is om in een buurt te wonen.</p>
+    <p>Belangrijk bij de openbare ruimte is het <b>onderhoud</b>. Bij goed onderhoud zijn de stoepen heel, de plantsoenen verzorgd en is het schoon. Bij slecht onderhoud liggen er overal lege snackbakjes en stap je zo in de hondenpoep. Aan het onderhoud van de openbare ruimte kun je dus aflezen hoe goed er voor een buurt wordt gezorgd — en dat hangt vaak weer samen met de bewonerskenmerken en het inkomen uit het vorige onderdeel.</p>
+
+    <table class="deftable">
+      <tr><th>Je kijkt naar…</th><th>Voorbeelden</th></tr>
+      <tr><td>🏗️ Bebouwing</td><td>Vrijstaande huizen, rijtjeshuizen, flats, grootte van tuin/balkon, bebouwingsdichtheid.</td></tr>
+      <tr><td>🌳 Openbare ruimte</td><td>Pleintjes, plantsoenen, speelterreinen, ruimte om te voetballen/skaten.</td></tr>
+      <tr><td>🧹 Onderhoud</td><td>Schoon en heel (goed) of zwerfvuil en hondenpoep (slecht).</td></tr>
+    </table>
+
+    <div class="callout real">
+      <div class="label">📱 Uit jouw wereld</div>
+      <p style="margin:0;">Je hebt vast weleens een filmpje gezien waarin iemand klaagt over zwerfvuil of een kapotte speeltuin in de buurt — of juist een trotse "kijk-onze-nieuwe-buurttuin"-post. Dat gaat allemaal over de <b>openbare ruimte</b> en het <b>onderhoud</b> ervan.</p>
+    </div>
+  </div>
+
+  <!-- bb1 MC -->
+  <div class="task" data-task-id="bb1" data-type="mc" data-correct="b"
+       data-hint1="Het woord 'openbaar' betekent: van iedereen, voor iedereen. Wat past daarbij?"
+       data-hint2="Denk aan plekken die niemand persoonlijk bezit: pleinen, plantsoenen, speeltuinen."
+       data-explain="De openbare ruimte is de gemeenschappelijke, publieke ruimte in een buurt — pleintjes, plantsoenen, speelterreinen — die van iedereen samen is.">
+    <div class="qhead"><span class="badge">Quiz</span><span class="qnum">Vraag 1</span></div>
+    <p class="question">Wat wordt bedoeld met de <b>openbare ruimte</b>?</p>
+    <div class="options">
+      <button class="opt" data-value="a"><span class="ltr">A</span><span>De woonkamer van een vrijstaand huis.</span></button>
+      <button class="opt" data-value="b"><span class="ltr">B</span><span>De gemeenschappelijke ruimte van iedereen, zoals pleintjes en plantsoenen.</span></button>
+      <button class="opt" data-value="c"><span class="ltr">C</span><span>Alleen de snelweg buiten de stad.</span></button>
+      <button class="opt" data-value="d"><span class="ltr">D</span><span>De privétuin achter je huis.</span></button>
+    </div>
+    <div class="feedback"></div>
+    <div class="attempts"></div>
+  </div>
+
+  <!-- bb2 MATCH many-to-one -->
+  <div class="task" data-task-id="bb2" data-type="match"
+       data-explain="Bij BEBOUWING horen woningtypes en bebouwingsdichtheid. Bij OPENBARE RUIMTE horen plantsoenen, speelterreinen en het onderhoud (zwerfvuil).">
+    <div class="qhead"><span class="badge match">Koppel</span><span class="qnum">Opdracht 2</span></div>
+    <p class="question">Sleep elk kenmerk naar de juiste categorie. Bij elke categorie horen meerdere kenmerken.</p>
+    <div class="match-grid">
+      <div class="match-pool">
+        <div class="pool-label">Kenmerken</div>
+        <div class="chip" draggable="true" data-id="x-rijtjes" data-match="cat-beb">Rijtjeshuizen</div>
+        <div class="chip" draggable="true" data-id="x-flat" data-match="cat-beb">Flatgebouwen</div>
+        <div class="chip" draggable="true" data-id="x-dicht" data-match="cat-beb">Bebouwingsdichtheid</div>
+        <div class="chip" draggable="true" data-id="x-plant" data-match="cat-open">Plantsoen</div>
+        <div class="chip" draggable="true" data-id="x-speel" data-match="cat-open">Speelterrein</div>
+        <div class="chip" draggable="true" data-id="x-vuil" data-match="cat-open">Zwerfvuil / onderhoud</div>
+      </div>
+      <div class="match-targets">
+        <div class="tlabel">Categorieën</div>
+        <div class="match-target" data-target-id="cat-beb">
+          <div class="ttitle">🏗️ Bebouwing</div>
+          <div class="dropzone"><span class="hint-empty">Sleep hierheen…</span></div>
+        </div>
+        <div class="match-target" data-target-id="cat-open">
+          <div class="ttitle">🌳 Openbare ruimte</div>
+          <div class="dropzone"><span class="hint-empty">Sleep hierheen…</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="taskbar"><button class="btn btn-primary btn-sm check-match">Controleer koppelingen</button></div>
+    <div class="feedback"></div>
+    <div class="attempts"></div>
+  </div>
+
+  <!-- bb3 OPEN -->
+  <div class="task" data-task-id="bb3" data-type="open"
+       data-ex1="In mijn buurt is een pleintje met een voetbalkooi en een paar bankjes; dat is goed onderhouden en schoon. Soms ligt er wel rommel van de snackbar. Ik zou de openbare ruimte een 7 geven: er is genoeg ruimte om te chillen, maar het onderhoud kan beter."
+       data-ex2="Bij ons in de buurt zijn weinig speelplekken en de stoepen zijn kapot, dus het onderhoud is slecht. Ik geef de openbare ruimte een 5. Een goede 'buurt-post' op social media zou laten zien hoe het opgeknapt zou kunnen worden met meer groen en een schone speeltuin.">
+    <div class="qhead"><span class="badge open">Schrijven</span><span class="qnum">Opdracht 3</span></div>
+    <p class="question">📱 Stel je maakt een korte video over de <b>openbare ruimte</b> in jouw eigen buurt. Beschrijf wat er te zien is (pleintjes, groen, speelplekken) en hoe het <b>onderhoud</b> is. Geef de openbare ruimte een cijfer van 1 tot 10 en leg uit waarom. Minimaal 2-3 zinnen.</p>
+    <textarea placeholder="Beschrijf, beoordeel en geef een cijfer..."></textarea>
+    <div class="wordrow"><span class="wordcount">0 woorden</span><button class="btn btn-ghost btn-sm show-example" disabled>Toon voorbeeldantwoord</button></div>
+    <div class="example"></div>
+    <div class="self-assess"></div>
+  </div>
+</section>
+
+<!-- ============ TAB 9: REFLECTIE ============ -->
+<section class="tab-content" data-tab="9" data-title="Reflectie" data-icon="🏁">
+  <div class="lead">
+    <div class="eyebrow">Afronding</div>
+    <h2>Terugblik &amp; reflectie</h2>
+    <p>Je bent er bijna! Bekijk je score, loop de leerdoelen na en denk na over hoe het leren ging. Reflecteren helpt je om de stof beter te onthouden.</p>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-top:0;">🏆 Jouw score</h3>
+    <div class="score-ring">
+      <div class="ring" id="scoreRing"><div class="inner"><span class="num" id="scoreNum">0%</span><span class="lab">goed</span></div></div>
+      <div class="score-detail">
+        <p id="scoreText">Maak eerst de opdrachten in de andere onderdelen. Je score verschijnt hier vanzelf.</p>
+        <p style="margin:0;color:var(--muted);font-size:.9rem;">Voortgang (afgeronde opdrachten): <b id="scoreProgress">0%</b></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card theory">
+    <h3 style="margin-top:0;">🎯 Leerdoelen — wat heb je geleerd?</h3>
+    <p>Loop ze na. Kun je elk leerdoel met "ja" beantwoorden? Zo niet, blader dan terug naar het bijbehorende onderdeel.</p>
+    <ul class="goal-list">
+      <li><span class="gi">✓</span><span>Ik kan op een wereldkaart een driedeling maken op basis van welvaart (hoog/midden/laag).</span></li>
+      <li><span class="gi">✓</span><span>Ik begrijp hoe welvaart en welzijn samenhangen (en wanneer niet).</span></li>
+      <li><span class="gi">✓</span><span>Ik ken meetmanieren: bbp/pp, koopkracht, HDI en brp/pp.</span></li>
+      <li><span class="gi">✓</span><span>Ik weet dat er in Nederland regionale verschillen zijn in welvaart, woonomgeving en gezondheid.</span></li>
+      <li><span class="gi">✓</span><span>Ik begrijp het verband tussen opleiding, leefstijl en gezondheid.</span></li>
+      <li><span class="gi">✓</span><span>Ik kan op een inkomenskaart gebieden met lagere/hogere levensverwachting aanwijzen.</span></li>
+      <li><span class="gi">✓</span><span>Ik ken bewonerskenmerken en kan buurt en bewoners aan elkaar koppelen.</span></li>
+    </ul>
+  </div>
+
+  <!-- reflect 1 -->
+  <div class="task" data-task-id="rf1" data-type="reflect">
+    <div class="qhead"><span class="badge open">Reflectie</span><span class="qnum">Vraag 1</span></div>
+    <p class="question">Wat vond je in deze les het <b>lastigst</b>, en waarom? Schrijf minimaal 20 woorden.</p>
+    <textarea placeholder="Wat was lastig en hoe kwam dat?"></textarea>
+    <div class="wordrow"><span class="wordcount">0 woorden</span></div>
+    <div class="feedback"></div>
+  </div>
+
+  <!-- reflect 2 -->
+  <div class="task" data-task-id="rf2" data-type="reflect">
+    <div class="qhead"><span class="badge open">Reflectie</span><span class="qnum">Vraag 2</span></div>
+    <p class="question">Stel je legt dit onderwerp uit aan een klasgenoot die de les miste. Wat zou je in het kort vertellen over het verschil tussen <b>welvaart</b> en <b>welzijn</b>? Minimaal 20 woorden.</p>
+    <textarea placeholder="Leg het uit alsof je het aan een klasgenoot vertelt..."></textarea>
+    <div class="wordrow"><span class="wordcount">0 woorden</span></div>
+    <div class="feedback"></div>
+  </div>
+
+  <!-- reflect 3 -->
+  <div class="task" data-task-id="rf3" data-type="reflect">
+    <div class="qhead"><span class="badge open">Reflectie</span><span class="qnum">Vraag 3</span></div>
+    <p class="question">Hoe zou je dit onderwerp herkennen in je <b>eigen omgeving</b>? Noem één ding uit je buurt, je route naar school of je social-mediafeed dat te maken heeft met welvaart, welzijn of bewonerskenmerken. Minimaal 20 woorden.</p>
+    <textarea placeholder="Koppel de stof aan iets uit jouw eigen wereld..."></textarea>
+    <div class="wordrow"><span class="wordcount">0 woorden</span></div>
+    <div class="feedback"></div>
+  </div>
+
+  <div class="global-reset">
+    <button class="btn btn-ghost btn-sm" id="clearAll">🗑️ Voortgang volledig wissen</button>
+  </div>
+  <p class="footer-note">Goed gedaan! 🌿 Je hebt de hele les over welvaart en welzijn doorgewerkt. Je voortgang blijft bewaard op dit apparaat.</p>
+</section>
+
+</div><!-- /#content -->
+</main>
+<script>
+(function(){
+  "use strict";
+  /* ============================ STATE & OPSLAG ============================ */
+  var PREFIX='geo_les_';
+  var KEY=PREFIX+'state';
+  function blankState(){return {v:1,mc:{},open:{},sort:{},match:{},reflect:{},visited:{},ts:null};}
+  function load(){ try{ var raw=localStorage.getItem(KEY); if(raw){ var p=JSON.parse(raw); var b=blankState(); for(var k in b){ if(p[k]!==undefined) b[k]=p[k]; } return b; } }catch(e){} return blankState(); }
+  function save(){ try{ state.ts=Date.now(); localStorage.setItem(KEY,JSON.stringify(state)); }catch(e){} }
+  var state=load();
+
+  /* ============================ HELPERS ============================ */
+  function countWords(t){ var m=(t||'').trim().match(/\S+/g); return m?m.length:0; }
+  function bucket(type){ return {mc:state.mc,open:state.open,sort:state.sort,match:state.match,reflect:state.reflect}[type]; }
+
+  var sections=[].slice.call(document.querySelectorAll('.tab-content'));
+  function allTasks(){ return [].slice.call(document.querySelectorAll('.task[data-task-id]')); }
+  function tabTasks(tab){ var sec=document.querySelector('.tab-content[data-tab="'+tab+'"]'); return [].slice.call(sec.querySelectorAll('.task[data-task-id]')); }
+
+  var originalHTML={};
+  allTasks().forEach(function(t){ originalHTML[t.dataset.taskId]=t.innerHTML; });
+
+  function isDone(task){ var b=bucket(task.dataset.type); var e=b[task.dataset.taskId]; return !!(e&&e.done); }
+  function isCorrect(task){ var b=bucket(task.dataset.type); var e=b[task.dataset.taskId]; return !!(e&&e.correct); }
+
+  /* ============================ MULTIPLE CHOICE ============================ */
+  function initMc(task){
+    var id=task.dataset.taskId, correct=task.dataset.correct;
+    var fb=task.querySelector('.feedback'), att=task.querySelector('.attempts');
+    var opts=[].slice.call(task.querySelectorAll('.opt'));
+    var s=state.mc[id]||(state.mc[id]={attempts:0,done:false,correct:false,chosen:null,wrong:[]});
+    if(!s.wrong) s.wrong=[];
+    function lock(){ opts.forEach(function(o){o.disabled=true;}); }
+    function showCorrect(){ opts.forEach(function(o){ if(o.dataset.value===correct)o.classList.add('correct'); }); }
+    function finish(){
+      lock(); showCorrect();
+      if(s.chosen && s.chosen!==correct){ var c=opts.filter(function(o){return o.dataset.value===s.chosen;})[0]; if(c)c.classList.add('wrong'); }
+      if(s.correct){ fb.className='feedback show good'; fb.innerHTML='✅ Helemaal goed! '+(task.dataset.explain||''); task.classList.add('done-correct'); }
+      else { fb.className='feedback show reveal'; fb.innerHTML='💡 Geen probleem — je hebt het geprobeerd. Het juiste antwoord: '+(task.dataset.explain||''); task.classList.add('done-help'); }
+      att.textContent='';
+    }
+    opts.forEach(function(o){ o.addEventListener('click',function(){
+      if(s.done) return;
+      var val=o.dataset.value; s.chosen=val; s.attempts++;
+      if(val===correct){ s.done=true; s.correct=true; finish(); }
+      else {
+        if(s.wrong.indexOf(val)<0) s.wrong.push(val);
+        o.classList.add('wrong'); o.disabled=true;
+        if(s.attempts>=3){ s.done=true; s.correct=false; finish(); }
+        else {
+          var h=task.dataset['hint'+s.attempts]||'Kijk nog eens goed naar de uitleg hierboven.';
+          fb.className='feedback show hint'; fb.innerHTML='🤔 '+h;
+          att.textContent='Poging '+s.attempts+' van 3';
+        }
+      }
+      save(); updateProgress();
+    }); });
+    // restore
+    if(s.done){ finish(); }
+    else if(s.attempts>0){
+      s.wrong.forEach(function(v){ var w=opts.filter(function(o){return o.dataset.value===v;})[0]; if(w){w.classList.add('wrong');w.disabled=true;} });
+      var h2=task.dataset['hint'+Math.min(s.attempts,2)]; if(h2){ fb.className='feedback show hint'; fb.innerHTML='🤔 '+h2; }
+      att.textContent='Poging '+s.attempts+' van 3';
+    }
+  }
+
+  /* ============================ OPEN VRAGEN ============================ */
+  function initOpen(task){
+    var id=task.dataset.taskId, MIN=20;
+    var ta=task.querySelector('textarea'), wc=task.querySelector('.wordcount');
+    var showBtn=task.querySelector('.show-example'), exBox=task.querySelector('.example'), self=task.querySelector('.self-assess');
+    var s=state.open[id]||(state.open[id]={text:'',exampleShown:false,done:false,correct:false,self:null});
+    function setWC(){ var n=countWords(ta.value); wc.textContent=n+' woord'+(n===1?'':'en'); wc.classList.toggle('ok',n>=MIN); showBtn.disabled=(n<MIN)||s.done; }
+    function buildExample(){
+      var html='<h4>📝 Voorbeeldantwoorden (ter vergelijking)</h4><div class="exmodel">'+task.dataset.ex1+'</div>';
+      if(task.dataset.ex2) html+='<div class="exmodel">'+task.dataset.ex2+'</div>';
+      html+='<p style="margin:.5em 0 0;font-size:.85rem;">Dit zijn voorbeelden — jouw antwoord mag er anders uitzien. Vergelijk: heb je dezelfde kern te pakken?</p>';
+      exBox.innerHTML=html; exBox.classList.add('show');
+    }
+    function buildSelf(){
+      self.innerHTML='<span class="q">Vergelijk met je eigen antwoord — beoordeel jezelf:</span>'+
+        '<button class="btn btn-ok btn-sm sa-good">Goed ✓</button>'+
+        '<button class="btn btn-warn btn-sm sa-bad">Kan beter ✗</button>';
+      self.classList.add('show');
+      self.querySelector('.sa-good').addEventListener('click',function(){ setSelf('goed'); });
+      self.querySelector('.sa-bad').addEventListener('click',function(){ setSelf('fout'); });
+    }
+    function setSelf(v){
+      s.self=v; s.done=true; s.correct=(v==='goed'); ta.disabled=true; showBtn.disabled=true;
+      self.innerHTML = v==='goed'
+        ? '<span class="q" style="color:var(--ok)">✅ Mooi, je hebt jezelf als <b>goed</b> beoordeeld.</span>'
+        : '<span class="q" style="color:var(--warn)">📌 Genoteerd als <b>kan beter</b> — knap dat je eerlijk reflecteert. Lees het voorbeeld nog eens.</span>';
+      task.classList.add(s.correct?'done-correct':'done-help');
+      save(); updateProgress();
+    }
+    ta.addEventListener('input',function(){ if(s.done)return; s.text=ta.value; setWC(); save(); });
+    showBtn.addEventListener('click',function(){ if(s.done)return; s.exampleShown=true; buildExample(); if(!self.classList.contains('show')) buildSelf(); save(); });
+    // restore
+    ta.value=s.text||''; setWC();
+    if(s.exampleShown){ buildExample(); buildSelf(); }
+    if(s.done){
+      ta.disabled=true; showBtn.disabled=true;
+      if(!s.exampleShown){ buildExample(); }
+      self.classList.add('show');
+      self.innerHTML = s.self==='goed'
+        ? '<span class="q" style="color:var(--ok)">✅ Beoordeeld als <b>goed</b>.</span>'
+        : '<span class="q" style="color:var(--warn)">📌 Beoordeeld als <b>kan beter</b>.</span>';
+      task.classList.add(s.correct?'done-correct':'done-help');
+    }
+  }
+
+  /* ============================ REFLECTIE ============================ */
+  function initReflect(task){
+    var id=task.dataset.taskId, MIN=20;
+    var ta=task.querySelector('textarea'), wc=task.querySelector('.wordcount'), fb=task.querySelector('.feedback');
+    var s=state.reflect[id]||(state.reflect[id]={text:'',done:false});
+    function evalNow(){
+      var n=countWords(ta.value); wc.textContent=n+' woord'+(n===1?'':'en'); wc.classList.toggle('ok',n>=MIN);
+      if(n>=MIN){ s.done=true; fb.className='feedback show good'; fb.innerHTML='✅ Dank voor je reflectie — dit onderdeel is afgerond.'; task.classList.add('done-correct'); }
+      else { s.done=false; fb.className='feedback'; fb.innerHTML=''; task.classList.remove('done-correct'); }
+    }
+    ta.addEventListener('input',function(){ s.text=ta.value; evalNow(); save(); updateProgress(); });
+    ta.value=s.text||''; evalNow();
+  }
+
+  /* ============================ SORTEREN (drag + tap) ============================ */
+  function swapNodes(a,b){ var tmp=document.createElement('span'); a.parentNode.insertBefore(tmp,a); b.parentNode.insertBefore(a,b); tmp.parentNode.insertBefore(b,tmp); tmp.parentNode.removeChild(tmp); }
+  function initSort(task){
+    var id=task.dataset.taskId;
+    var list=task.querySelector('.sortlist');
+    var correct=task.dataset.order.split(',');
+    var checkBtn=task.querySelector('.check-sort');
+    var fb=task.querySelector('.feedback'), att=task.querySelector('.attempts');
+    var s=state.sort[id]||(state.sort[id]={order:null,attempts:0,done:false,correct:false});
+    var items=[].slice.call(list.children);
+    var byId={}; items.forEach(function(li){ byId[li.dataset.id]=li; });
+    function order(){ return [].slice.call(list.children).map(function(li){return li.dataset.id;}); }
+    function renderPos(){ [].slice.call(list.children).forEach(function(li,i){ li.querySelector('.pos').textContent=i+1; }); }
+    function apply(arr){ arr.forEach(function(k){ if(byId[k]) list.appendChild(byId[k]); }); renderPos(); }
+    function clearMarks(){ [].slice.call(list.children).forEach(function(li){ li.classList.remove('pos-correct','pos-wrong'); }); }
+    function lock(){ checkBtn.disabled=true; [].slice.call(list.children).forEach(function(li){ li.setAttribute('draggable','false'); li.style.cursor='default'; li.classList.remove('picked'); }); }
+    function finish(ok){
+      lock();
+      if(ok){ fb.className='feedback show good'; fb.innerHTML='✅ Perfecte volgorde! '+(task.dataset.explain||''); task.classList.add('done-correct'); }
+      else { fb.className='feedback show reveal'; fb.innerHTML='💡 De juiste volgorde staat nu hierboven. '+(task.dataset.explain||''); task.classList.add('done-help'); }
+      att.textContent='';
+    }
+    // initial order
+    if(s.order){ apply(s.order); } else {
+      var ids=order(); for(var i=ids.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=ids[i]; ids[i]=ids[j]; ids[j]=t; } apply(ids); s.order=order();
+    }
+    var dragEl=null, picked=null;
+    items.forEach(function(li){
+      li.addEventListener('dragstart',function(e){ if(s.done){e.preventDefault();return;} dragEl=li; li.classList.add('dragging'); e.dataTransfer.effectAllowed='move'; });
+      li.addEventListener('dragend',function(){ li.classList.remove('dragging'); [].slice.call(list.children).forEach(function(x){x.classList.remove('over');}); if(!s.done){ renderPos(); clearMarks(); s.order=order(); save(); } });
+      li.addEventListener('dragover',function(e){ if(s.done)return; e.preventDefault(); [].slice.call(list.children).forEach(function(x){x.classList.remove('over');}); li.classList.add('over');
+        if(dragEl && dragEl!==li){ var after=e.clientY > (li.getBoundingClientRect().top + li.offsetHeight/2); if(after){ li.parentNode.insertBefore(dragEl, li.nextSibling); } else { li.parentNode.insertBefore(dragEl, li); } } });
+      li.addEventListener('click',function(){ if(s.done)return;
+        if(!picked){ picked=li; li.classList.add('picked'); }
+        else if(picked===li){ li.classList.remove('picked'); picked=null; }
+        else { swapNodes(picked,li); picked.classList.remove('picked'); picked=null; renderPos(); clearMarks(); s.order=order(); save(); }
+      });
+    });
+    checkBtn.addEventListener('click',function(){ if(s.done)return; s.attempts++; clearMarks();
+      var cur=order(), allgood=true;
+      [].slice.call(list.children).forEach(function(li,i){ if(li.dataset.id===correct[i]){ li.classList.add('pos-correct'); } else { li.classList.add('pos-wrong'); allgood=false; } });
+      if(allgood){ s.done=true; s.correct=true; finish(true); }
+      else if(s.attempts>=3){ s.done=true; s.correct=false; apply(correct); clearMarks(); [].slice.call(list.children).forEach(function(li){li.classList.add('pos-correct');}); finish(false); }
+      else { fb.className='feedback show hint'; fb.innerHTML='🤔 Bijna! De groene items staan goed, de rode nog niet. Denk aan de richting (laag→hoog of groot→klein). Poging '+s.attempts+' van 3.'; }
+      s.order=order(); save(); updateProgress();
+    });
+    // restore done
+    if(s.done){ if(!s.correct){ apply(correct); } renderPos(); [].slice.call(list.children).forEach(function(li){ li.classList.add('pos-correct'); }); lock();
+      if(s.correct){ fb.className='feedback show good'; fb.innerHTML='✅ Volgorde goed! '+(task.dataset.explain||''); task.classList.add('done-correct'); }
+      else { fb.className='feedback show reveal'; fb.innerHTML='💡 De juiste volgorde staat hierboven. '+(task.dataset.explain||''); task.classList.add('done-help'); }
+    }
+  }
+
+  /* ============================ KOPPELEN (match, veel-op-één) ============================ */
+  function initMatch(task){
+    var id=task.dataset.taskId;
+    var pool=task.querySelector('.match-pool');
+    var targets=[].slice.call(task.querySelectorAll('.match-target'));
+    var chips=[].slice.call(task.querySelectorAll('.chip'));
+    var checkBtn=task.querySelector('.check-match');
+    var fb=task.querySelector('.feedback'), att=task.querySelector('.attempts');
+    var s=state.match[id]||(state.match[id]={placements:{},attempts:0,done:false,correct:false});
+    var chipById={}; chips.forEach(function(c){ chipById[c.dataset.id]=c; });
+    var targetById={}; targets.forEach(function(t){ targetById[t.dataset.targetId]=t; });
+    var dragId=null, picked=null;
+    function zone(t){ return t.querySelector('.dropzone'); }
+    function refreshEmpty(){ targets.forEach(function(t){ var z=zone(t); var has=z.querySelectorAll('.chip').length>0; var hint=z.querySelector('.hint-empty');
+      if(has){ if(hint)hint.parentNode.removeChild(hint); } else if(!hint){ var h=document.createElement('span'); h.className='hint-empty'; h.textContent='Sleep hierheen…'; z.appendChild(h); } }); }
+    function clearPick(){ chips.forEach(function(c){c.classList.remove('picked');}); picked=null; }
+    function placeChip(chip,t){ zone(t).appendChild(chip); s.placements[chip.dataset.id]=t.dataset.targetId; chip.classList.remove('placed-correct','placed-wrong'); refreshEmpty(); }
+    function returnChip(chip){ pool.appendChild(chip); delete s.placements[chip.dataset.id]; chip.classList.remove('placed-correct','placed-wrong'); refreshEmpty(); }
+    function lock(){ checkBtn.disabled=true; chips.forEach(function(c){ c.setAttribute('draggable','false'); c.style.cursor='default'; c.classList.remove('picked'); }); }
+    function finish(ok){ lock();
+      if(ok){ fb.className='feedback show good'; fb.innerHTML='✅ Alle koppelingen kloppen! '+(task.dataset.explain||''); task.classList.add('done-correct'); }
+      else { fb.className='feedback show reveal'; fb.innerHTML='💡 De juiste koppelingen staan nu hierboven. '+(task.dataset.explain||''); task.classList.add('done-help'); }
+      att.textContent='';
+    }
+    chips.forEach(function(chip){
+      chip.addEventListener('dragstart',function(e){ if(s.done){e.preventDefault();return;} dragId=chip.dataset.id; chip.classList.add('dragging'); e.dataTransfer.effectAllowed='move'; e.dataTransfer.setData('text/plain',chip.dataset.id); });
+      chip.addEventListener('dragend',function(){ chip.classList.remove('dragging'); });
+      chip.addEventListener('click',function(){ if(s.done)return;
+        var inPool=chip.parentNode.classList.contains('match-pool');
+        if(!inPool){ returnChip(chip); clearPick(); save(); return; }
+        if(picked===chip){ clearPick(); } else { clearPick(); picked=chip; chip.classList.add('picked'); }
+      });
+    });
+    targets.forEach(function(t){
+      t.addEventListener('dragover',function(e){ if(s.done)return; e.preventDefault(); t.classList.add('over'); });
+      t.addEventListener('dragleave',function(){ t.classList.remove('over'); });
+      t.addEventListener('drop',function(e){ if(s.done)return; e.preventDefault(); t.classList.remove('over'); if(dragId){ placeChip(chipById[dragId],t); dragId=null; clearPick(); save(); } });
+      t.addEventListener('click',function(e){ if(s.done)return; if(picked && !e.target.classList.contains('chip')){ placeChip(picked,t); clearPick(); save(); } });
+    });
+    pool.addEventListener('dragover',function(e){ if(s.done)return; e.preventDefault(); });
+    pool.addEventListener('drop',function(e){ if(s.done)return; e.preventDefault(); if(dragId){ returnChip(chipById[dragId]); dragId=null; clearPick(); save(); } });
+    checkBtn.addEventListener('click',function(){ if(s.done)return;
+      var placed=Object.keys(s.placements).length;
+      if(placed<chips.length){ fb.className='feedback show hint'; fb.innerHTML='🤔 Je hebt nog niet alle begrippen gesleept. Plaats ze eerst allemaal en controleer dan opnieuw.'; return; }
+      s.attempts++; var allgood=true;
+      chips.forEach(function(c){ c.classList.remove('placed-correct','placed-wrong');
+        if(s.placements[c.dataset.id]===c.dataset.match){ c.classList.add('placed-correct'); } else { c.classList.add('placed-wrong'); allgood=false; } });
+      if(allgood){ s.done=true; s.correct=true; finish(true); }
+      else if(s.attempts>=3){ s.done=true; s.correct=false; chips.forEach(function(c){ placeChip(c,targetById[c.dataset.match]); c.classList.add('placed-correct'); }); finish(false); }
+      else { fb.className='feedback show hint'; fb.innerHTML='🤔 Nog niet alles klopt. De groene chips staan goed, de rode horen ergens anders. Sleep ze naar een andere plek. Poging '+s.attempts+' van 3.'; }
+      save(); updateProgress();
+    });
+    // restore placements
+    Object.keys(s.placements).forEach(function(cid){ var c=chipById[cid], t=targetById[s.placements[cid]]; if(c&&t) placeChip(c,t); });
+    refreshEmpty();
+    if(s.done){ if(!s.correct){ chips.forEach(function(c){ placeChip(c,targetById[c.dataset.match]); }); } chips.forEach(function(c){ c.classList.add('placed-correct'); }); finish(s.correct); }
+  }
+
+  /* ============================ INIT TASK DISPATCH ============================ */
+  function initTask(task){ var t=task.dataset.type;
+    if(t==='mc') initMc(task);
+    else if(t==='open') initOpen(task);
+    else if(t==='sort') initSort(task);
+    else if(t==='match') initMatch(task);
+    else if(t==='reflect') initReflect(task);
+  }
+
+  /* ============================ VOORTGANG & SCORE ============================ */
+  var progFill=document.getElementById('progFill');
+  var pctLabel=document.getElementById('pctLabel');
+  var counterLabel=document.getElementById('counterLabel');
+  function tabDone(tab){ var ts=tabTasks(tab); if(ts.length===0){ return !!state.visited[tab]; } return ts.every(isDone); }
+  var tabBtns=[];
+  function updateTabTicks(){ tabBtns.forEach(function(b){ b.classList.toggle('done',tabDone(b.dataset.tab)); }); }
+  function updateScore(){
+    var tasks=allTasks(); var done=tasks.filter(isDone).length; var total=tasks.length;
+    var scored=tasks.filter(function(t){return t.dataset.type!=='reflect';});
+    var corr=scored.filter(isCorrect).length; var spct=scored.length?Math.round(corr/scored.length*100):0;
+    var ring=document.getElementById('scoreRing'); if(ring){ ring.style.background='conic-gradient(var(--gold) '+(spct*3.6)+'deg, var(--sand) '+(spct*3.6)+'deg)'; }
+    var num=document.getElementById('scoreNum'); if(num) num.textContent=spct+'%';
+    var sp=document.getElementById('scoreProgress'); if(sp) sp.textContent=(total?Math.round(done/total*100):0)+'%';
+    var st=document.getElementById('scoreText'); if(st){ st.textContent = done===0
+      ? 'Maak eerst de opdrachten in de andere onderdelen. Je score verschijnt hier vanzelf.'
+      : ('Je hebt '+corr+' van de '+scored.length+' beoordeelde opdrachten goed beantwoord. In totaal heb je '+done+' van de '+total+' opdrachten afgerond.'); }
+  }
+  function updateProgress(){
+    var tasks=allTasks(); var done=tasks.filter(isDone).length; var pct=tasks.length?Math.round(done/tasks.length*100):0;
+    progFill.style.width=pct+'%'; pctLabel.textContent=pct+'% voltooid';
+    updateTabTicks(); updateScore();
+  }
+
+  /* ============================ TABNAVIGATIE ============================ */
+  var tabnav=document.getElementById('tabnav');
+  var maps={};
+  function showTab(tab){
+    sections.forEach(function(s){ s.classList.toggle('active', s.dataset.tab===String(tab)); });
+    tabBtns.forEach(function(b){ b.classList.toggle('active', b.dataset.tab===String(tab)); });
+    state.visited[tab]=true; save();
+    counterLabel.textContent='Onderdeel '+(parseInt(tab,10)+1)+' van '+sections.length;
+    window.scrollTo({top:0,behavior:'smooth'});
+    setTimeout(function(){ for(var k in maps){ try{ maps[k].invalidateSize(); }catch(e){} } },130);
+    var ab=tabBtns.filter(function(b){return b.dataset.tab===String(tab);})[0]; if(ab) ab.scrollIntoView({inline:'center',block:'nearest'});
+    updateProgress();
+  }
+  sections.forEach(function(sec,i){
+    var tab=sec.dataset.tab;
+    var btn=document.createElement('button'); btn.className='tabbtn'; btn.dataset.tab=tab;
+    btn.innerHTML='<span>'+sec.dataset.icon+' '+sec.dataset.title+'</span><span class="tick">✓</span>';
+    btn.addEventListener('click',function(){ showTab(tab); });
+    tabnav.appendChild(btn); tabBtns.push(btn);
+    // section nav
+    var nav=document.createElement('div'); nav.className='section-nav';
+    var prev=document.createElement('button'); prev.className='btn btn-ghost'; prev.textContent='← Vorige';
+    var next=document.createElement('button'); next.className='btn btn-primary'; next.textContent='Volgende →';
+    if(i===0) prev.style.visibility='hidden';
+    if(i===sections.length-1){ next.textContent='Afronden ✓'; }
+    prev.addEventListener('click',function(){ showTab(i-1); });
+    next.addEventListener('click',function(){ if(i<sections.length-1) showTab(i+1); else showTab(i); });
+    nav.appendChild(prev); nav.appendChild(next); sec.appendChild(nav);
+    // reset tab
+    var rt=document.createElement('div'); rt.className='reset-tab';
+    var rb=document.createElement('button'); rb.textContent='↺ Reset dit onderdeel';
+    rb.addEventListener('click',function(){ resetTab(tab); });
+    rt.appendChild(rb); sec.appendChild(rt);
+  });
+
+  /* ============================ RESET ============================ */
+  function resetTask(task){
+    var t=task.dataset.type, id=task.dataset.taskId, b=bucket(t);
+    delete b[id];
+    task.className='task';
+    task.innerHTML=originalHTML[id];
+    initTask(task);
+  }
+  function resetTab(tab){
+    if(!confirm('Dit onderdeel opnieuw maken? Je antwoorden hier worden gewist.')) return;
+    tabTasks(tab).forEach(resetTask);
+    save(); updateProgress();
+  }
+  var clearAllBtn=document.getElementById('clearAll');
+  if(clearAllBtn) clearAllBtn.addEventListener('click',function(){
+    if(!confirm('Weet je zeker dat je ALLE voortgang wilt wissen?')) return;
+    try{ var rm=[]; for(var i=0;i<localStorage.length;i++){ var k=localStorage.key(i); if(k&&k.indexOf(PREFIX)===0) rm.push(k); } rm.forEach(function(k){localStorage.removeItem(k);}); }catch(e){}
+    state=blankState();
+    allTasks().forEach(function(task){ task.className='task'; task.innerHTML=originalHTML[task.dataset.taskId]; initTask(task); });
+    save(); updateProgress(); showTab(0);
+  });
+
+  /* ============================ GRAFIEKEN (Chart.js) ============================ */
+  function initCharts(){
+    if(typeof Chart==='undefined') return;
+    Chart.defaults.font.family="Fraunces, Georgia, serif";
+    Chart.defaults.color="#3a4a42";
+    var EM='#138a6a', GOLD='#d9a441', CLAY='#c47a4f', EM2='#0c4d3c';
+    function make(elId,cfg){ var el=document.getElementById(elId); if(el && typeof Chart!=='undefined'){ new Chart(el.getContext('2d'),cfg); } }
+    make('chart-beroep',{ type:'bar', data:{ labels:['Landbouw','Industrie','Diensten'],
+      datasets:[ {label:'Kenia',data:[61,7,32],backgroundColor:CLAY,borderRadius:6}, {label:'Frankrijk',data:[2,20,78],backgroundColor:EM,borderRadius:6} ] },
+      options:{responsive:true,plugins:{legend:{position:'top'},title:{display:false}},scales:{y:{beginAtZero:true,max:100,title:{display:true,text:'% van de beroepsbevolking'}}}} });
+    make('chart-leeftijd',{ type:'bar', data:{ labels:['Afghanistan','Kenia','Brazilië','Frankrijk'],
+      datasets:[ {label:'Levensverwachting (jaar)',data:[53,67,76,82.5],backgroundColor:[CLAY,GOLD,EM,EM2],borderRadius:6} ] },
+      options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,max:90,title:{display:true,text:'gemiddelde leeftijd'}}}} });
+    make('chart-inkomen',{ type:'bar', data:{ labels:['West','Midden','Oost','Noord'],
+      datasets:[ {label:'Inkomensindex (NL = 100)',data:[108,103,95,92],backgroundColor:[EM2,EM,GOLD,CLAY],borderRadius:6} ] },
+      options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{beginAtZero:false,suggestedMin:85,suggestedMax:112,title:{display:true,text:'index'}}}} });
+    make('chart-gezond',{ type:'bar', data:{ labels:['Grote stad','Omliggend dorp'],
+      datasets:[ {label:'Levensverwachting (jaar)',data:[79,83],backgroundColor:[CLAY,EM],borderRadius:6} ] },
+      options:{indexAxis:'y',responsive:true,plugins:{legend:{display:false}},scales:{x:{beginAtZero:false,suggestedMin:74,suggestedMax:86,title:{display:true,text:'gemiddelde leeftijd'}}}} });
+  }
+
+  /* ============================ KAARTEN (Leaflet) ============================ */
+  function initMaps(){
+    if(typeof L==='undefined') return;
+    function tiles(){ return L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18,attribution:'© OpenStreetMap'}); }
+    function mk(map,lat,lng,color,title,html){ var m=L.circleMarker([lat,lng],{radius:9,color:'#ffffff',weight:2,fillColor:color,fillOpacity:0.95}); m.addTo(map); m.bindPopup('<b>'+title+'</b><br>'+html); return m; }
+    var EM='#138a6a', GOLD='#d9a441', CLAY='#c47a4f';
+
+    var w=document.getElementById('map-wereld');
+    if(w){ var mw=L.map(w,{scrollWheelZoom:false}).setView([20,10],1.4); tiles().addTo(mw); maps.wereld=mw;
+      mk(mw,46.6,2.4,EM,'Frankrijk 🇫🇷','Hoge-inkomensland. Veel werk in de diensten, hoge levensverwachting.');
+      mk(mw,36,138,EM,'Japan 🇯🇵','Hoge-inkomensland in Azië.');
+      mk(mw,39,-98,EM,'Verenigde Staten 🇺🇸','Hoge-inkomensland.');
+      mk(mw,-10,-52,GOLD,'Brazilië 🇧🇷','Opkomende economie / midden-inkomensland.');
+      mk(mw,35,103,GOLD,'China 🇨🇳','Opkomende economie met heel veel inwoners.');
+      mk(mw,22,79,GOLD,'India 🇮🇳','Opkomende economie / midden-inkomensland; enorme bevolking.');
+      mk(mw,-2,118,GOLD,'Indonesië 🇮🇩','Opkomende economie met veel inwoners.');
+      mk(mw,39,35,GOLD,'Turkije 🇹🇷','Opkomende economie / midden-inkomensland.');
+      mk(mw,-29,24,GOLD,'Zuid-Afrika 🇿🇦','Opkomende economie in Afrika.');
+      mk(mw,0.5,37.9,CLAY,'Kenia 🇰🇪','Laag/midden-inkomensland. ~61% werkt in de landbouw.');
+      mk(mw,34,66,CLAY,'Afghanistan 🇦🇫','Laag-inkomensland. Lage levensverwachting (~53 jaar).');
+    }
+
+    var n=document.getElementById('map-nl');
+    if(n){ var mn=L.map(n,{scrollWheelZoom:false}).setView([52.2,5.4],7); tiles().addTo(mn); maps.nl=mn;
+      mk(mn,52.37,4.90,EM,'Amsterdam (Randstad)','Middenland. Hoog brp/pp, veel banen in diensten.');
+      mk(mn,51.92,4.48,EM,'Rotterdam (mainport)','Middenland. Grootste haven van Europa.');
+      mk(mn,52.08,4.31,EM,'Den Haag','Middenland. Bestuur en diensten.');
+      mk(mn,52.09,5.12,EM,'Utrecht','Middenland, centraal en welvarend.');
+      mk(mn,52.31,4.76,EM,'Schiphol (mainport)','Luchthaven: veel moderne werkgelegenheid.');
+      mk(mn,53.22,6.57,CLAY,'Groningen (noorden)','Randland. Lager gemiddeld inkomen.');
+      mk(mn,53.20,5.80,CLAY,'Leeuwarden (Friesland)','Randland. Landbouw belangrijk.');
+      mk(mn,51.50,3.61,CLAY,'Zeeland (rand)','Randland aan de kust.');
+      mk(mn,52.78,6.90,CLAY,'Drenthe (noordoosten)','Randland, landelijk gebied.');
+    }
+
+    var g=document.getElementById('map-gezond');
+    if(g){ var mg=L.map(g,{scrollWheelZoom:false}).setView([52.2,5.0],8); tiles().addTo(mg); maps.gezond=mg;
+      mk(mg,52.06,4.30,EM,'Welvarend dorp bij Den Haag','Hoger inkomen → hogere levensverwachting (~84 jaar).');
+      mk(mg,52.36,4.92,CLAY,'Grootstedelijke wijk Amsterdam','Lager inkomen in de wijk → lagere levensverwachting (~79 jaar).');
+      mk(mg,52.13,5.29,EM,'Rustig dorp bij Amersfoort','Hoog opgeleid, gezonde leefstijl, langere levensverwachting.');
+      mk(mg,51.92,4.48,CLAY,'Stadswijk Rotterdam','Veel lage inkomens → levensverwachting onder gemiddelde.');
+      mk(mg,53.22,6.57,CLAY,'Wijk in Groningen','Randland + laag inkomen → kortere levensverwachting.');
+    }
+  }
+
+  /* ============================ START ============================ */
+  document.addEventListener('DOMContentLoaded',function(){
+    allTasks().forEach(initTask);
+    initCharts();
+    initMaps();
+    state.visited['0']=true;
+    showTab(0);
+    updateProgress();
+  });
+})();
+</script>
+</body>
+</html>
