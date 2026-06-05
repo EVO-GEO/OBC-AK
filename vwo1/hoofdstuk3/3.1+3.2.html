@@ -1,0 +1,1978 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Expeditie Klimaten — Aardrijkskunde VWO 1</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700;9..144,900&display=swap" rel="stylesheet">
+<style>
+/* ====================== DESIGN TOKENS ====================== */
+:root{
+  --bg:#06231b;
+  --bg2:#0a3a2a;
+  --panel:#fbf6ea;
+  --panel-2:#f3ead4;
+  --ink:#1c2a22;
+  --ink-soft:#4a5a4f;
+  --emerald:#0f7a55;
+  --emerald-d:#0a5b3f;
+  --emerald-l:#19a172;
+  --emerald-xl:#36c690;
+  --mint:#e6f6ec;
+  --mint-d:#cdeed9;
+  --brass:#bb8a2c;
+  --brass-l:#e2b657;
+  --coral:#bf4630;
+  --coral-soft:#f7e3df;
+  --ok:#1c8a4c;
+  --ok-soft:#dff3e4;
+  --line:rgba(20,40,30,.14);
+  --line-strong:rgba(20,40,30,.28);
+  --radius:16px;
+  --radius-sm:10px;
+  --sp:18px;
+  --shadow:0 14px 34px rgba(2,20,14,.28);
+  --shadow-sm:0 6px 16px rgba(2,20,14,.16);
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  font-family:'Fraunces', Georgia, serif;
+  color:var(--ink);
+  background:
+    radial-gradient(1200px 700px at 12% -8%, #0e4a35 0%, transparent 60%),
+    radial-gradient(1000px 600px at 105% 8%, #0c3f2e 0%, transparent 55%),
+    linear-gradient(160deg, var(--bg) 0%, var(--bg2) 100%);
+  background-attachment:fixed;
+  min-height:100vh;
+  line-height:1.62;
+  -webkit-font-smoothing:antialiased;
+}
+/* topographic texture overlay */
+body::before{
+  content:"";
+  position:fixed; inset:0; z-index:0; pointer-events:none; opacity:.16;
+  background-image:
+    repeating-radial-gradient(circle at 20% 30%, transparent 0 38px, rgba(54,198,144,.5) 38px 39px),
+    repeating-radial-gradient(circle at 78% 72%, transparent 0 46px, rgba(226,182,87,.35) 46px 47px);
+  background-size:520px 520px, 640px 640px;
+  mix-blend-mode:screen;
+}
+.wrap{position:relative; z-index:1; max-width:1080px; margin:0 auto; padding:0 16px 70px;}
+
+/* ====================== HEADER ====================== */
+.topbar{
+  position:sticky; top:0; z-index:600;
+  background:linear-gradient(180deg, rgba(5,28,21,.97), rgba(7,40,30,.95));
+  backdrop-filter:blur(6px);
+  border-bottom:2px solid rgba(226,182,87,.35);
+  box-shadow:0 6px 22px rgba(0,0,0,.35);
+}
+.topbar-inner{max-width:1080px; margin:0 auto; padding:10px 16px 12px;}
+.brandline{display:flex; align-items:center; gap:12px; flex-wrap:wrap;}
+.compass{
+  width:42px;height:42px;border-radius:50%;flex:none;
+  background:radial-gradient(circle at 50% 38%, var(--brass-l), var(--brass) 70%);
+  border:2px solid #f3dca0; color:#3a2a05; font-weight:900; font-size:20px;
+  display:grid;place-items:center; box-shadow:0 4px 12px rgba(0,0,0,.4); position:relative;
+}
+.compass::after{content:"N"; font-size:13px; position:absolute; top:2px; letter-spacing:0;}
+.brand h1{
+  font-size:clamp(19px,3.2vw,27px); margin:0; color:#fff; font-weight:900; letter-spacing:.3px;
+  text-shadow:0 2px 8px rgba(0,0,0,.4);
+}
+.brand p{margin:0; color:var(--emerald-xl); font-size:13px; font-weight:600; letter-spacing:.4px;}
+.topbar-actions{margin-left:auto; display:flex; gap:8px;}
+.mini-btn{
+  font-family:inherit; cursor:pointer; border:1px solid rgba(226,182,87,.45);
+  background:rgba(255,255,255,.06); color:#f3dca0; padding:7px 12px; border-radius:999px;
+  font-size:12px; font-weight:700; transition:.18s;
+}
+.mini-btn:hover{background:rgba(226,182,87,.18); color:#fff;}
+
+/* progress */
+.progress-row{display:flex; align-items:center; gap:12px; margin-top:11px;}
+.progress-track{flex:1; height:13px; border-radius:999px; background:rgba(255,255,255,.12); overflow:hidden; border:1px solid rgba(255,255,255,.12);}
+.progress-fill{height:100%; width:0%; border-radius:999px;
+  background:linear-gradient(90deg, var(--emerald-l), var(--emerald-xl) 60%, var(--brass-l));
+  transition:width .5s cubic-bezier(.2,.8,.2,1);}
+.progress-label{color:#fff; font-weight:800; font-size:13px; white-space:nowrap;}
+
+/* tab bar */
+.tabbar{display:flex; gap:7px; overflow-x:auto; padding:11px 16px 4px; max-width:1080px; margin:0 auto;
+  scrollbar-width:thin;}
+.tabbar::-webkit-scrollbar{height:6px;}
+.tabbar::-webkit-scrollbar-thumb{background:rgba(226,182,87,.4); border-radius:9px;}
+.tab-btn{
+  font-family:inherit; cursor:pointer; flex:none; white-space:nowrap;
+  border:1px solid rgba(255,255,255,.16); background:rgba(255,255,255,.05); color:#cfeede;
+  padding:8px 13px; border-radius:11px 11px 0 0; font-size:13px; font-weight:700; transition:.18s;
+  display:flex; align-items:center; gap:7px;
+}
+.tab-btn:hover{background:rgba(255,255,255,.12); color:#fff;}
+.tab-btn.active{background:var(--panel); color:var(--emerald-d); border-color:transparent;}
+.tab-btn .num{
+  width:20px;height:20px;border-radius:6px;display:grid;place-items:center;font-size:11px;
+  background:rgba(0,0,0,.18); color:inherit;
+}
+.tab-btn.active .num{background:var(--emerald); color:#fff;}
+.tab-btn .chk{display:none; color:var(--ok); font-weight:900;}
+.tab-btn.done .chk{display:inline;}
+.tab-btn.active.done .chk{color:var(--emerald-d);}
+
+.counter-line{max-width:1080px; margin:0 auto; padding:4px 18px 0; color:#bfe6d2; font-size:12.5px; font-weight:700; letter-spacing:.3px;}
+
+/* ====================== PANELS ====================== */
+.tab-panel{display:none; animation:fade .35s ease;}
+.tab-panel.active{display:block;}
+@keyframes fade{from{opacity:0; transform:translateY(8px);}to{opacity:1; transform:none;}}
+
+.section-head{margin:22px 0 6px; color:#fff;}
+.section-kicker{display:inline-block; background:var(--brass); color:#2a1d02; font-size:11px; font-weight:900;
+  letter-spacing:1px; text-transform:uppercase; padding:4px 11px; border-radius:999px; margin-bottom:8px;}
+.section-head h2{font-size:clamp(24px,4vw,34px); margin:0; font-weight:900; line-height:1.12; text-shadow:0 2px 10px rgba(0,0,0,.35);}
+
+.card{
+  background:var(--panel); border-radius:var(--radius); padding:22px 22px 24px; margin:16px 0;
+  box-shadow:var(--shadow); border:1px solid rgba(255,255,255,.4); position:relative;
+}
+.card.lesson{background:linear-gradient(180deg, var(--panel) 0%, var(--panel-2) 100%);}
+.card h3{font-size:21px; margin:2px 0 8px; color:var(--emerald-d); font-weight:800;}
+.card h4{font-size:16.5px; margin:18px 0 6px; color:var(--emerald-d); font-weight:800;}
+.card p{margin:9px 0; font-size:16.5px; color:var(--ink);}
+.card p.lead{font-size:17.5px;}
+strong{color:var(--emerald-d);}
+.term{background:var(--mint); border-bottom:2px solid var(--emerald-l); padding:0 4px; border-radius:4px; font-weight:700; color:var(--emerald-d);}
+
+/* emoji process flow */
+.flow{display:flex; flex-wrap:wrap; align-items:stretch; gap:10px; margin:16px 0; }
+.flow .step{
+  flex:1 1 130px; min-width:120px; background:linear-gradient(160deg,#0f7a55,#0a5b3f); color:#eafff4;
+  border-radius:14px; padding:14px 12px; text-align:center; box-shadow:var(--shadow-sm);
+}
+.flow .step .e{font-size:30px; display:block; line-height:1.1;}
+.flow .step .t{font-size:13px; font-weight:700; margin-top:5px; display:block;}
+.flow .arrow{align-self:center; font-size:24px; color:var(--brass); font-weight:900;}
+
+/* info banner */
+.banner{
+  border-radius:14px; padding:16px 18px; margin:16px 0; color:#062018;
+  background:linear-gradient(135deg,#d8f3e2,#bfe9cf);
+  border-left:7px solid var(--emerald); box-shadow:var(--shadow-sm);
+}
+.banner.brass{background:linear-gradient(135deg,#f7ead0,#f0dcae); border-left-color:var(--brass);}
+.banner .bh{font-weight:900; font-size:16px; margin:0 0 6px; display:flex; align-items:center; gap:8px; color:var(--emerald-d);}
+.banner.brass .bh{color:#6e4f0c;}
+.banner p{margin:5px 0; font-size:15.5px;}
+
+/* real-world prompt */
+.realworld{
+  border-radius:14px; padding:15px 18px; margin:16px 0;
+  background:#062f22; color:#dff7ea; border:1px dashed var(--emerald-xl);
+}
+.realworld .bh{font-weight:900; color:var(--emerald-xl); margin:0 0 5px; display:flex; gap:8px; align-items:center;}
+.realworld p{margin:4px 0; font-size:15.5px; color:#dff7ea;}
+
+/* comparison table */
+.cmp{width:100%; border-collapse:collapse; margin:16px 0; font-size:15px; overflow:hidden; border-radius:12px; box-shadow:var(--shadow-sm);}
+.cmp th, .cmp td{padding:10px 12px; text-align:left; border-bottom:1px solid var(--line);}
+.cmp thead th{background:var(--emerald-d); color:#eafff4; font-weight:800;}
+.cmp tbody tr:nth-child(odd){background:#fff;}
+.cmp tbody tr:nth-child(even){background:var(--mint);}
+.cmp td:first-child{font-weight:800; color:var(--emerald-d);}
+
+/* ====================== TASKS ====================== */
+.task{
+  background:#fff; border:1px solid var(--line); border-left:6px solid var(--brass-l);
+  border-radius:12px; padding:18px 18px 16px; margin:16px 0; box-shadow:var(--shadow-sm); position:relative;
+}
+.task.is-done{border-left-color:var(--ok);}
+.task .task-tag{display:inline-block; font-size:10.5px; font-weight:900; letter-spacing:.6px; text-transform:uppercase;
+  color:#6e4f0c; background:#f3e2bb; padding:3px 9px; border-radius:999px; margin-bottom:9px;}
+.task.is-done .task-tag{background:var(--ok-soft); color:#0f5e30;}
+.task .task-q{font-size:16.5px; font-weight:700; margin:0 0 12px; color:var(--ink);}
+.done-badge{position:absolute; top:14px; right:14px; background:var(--ok); color:#fff; font-size:11px; font-weight:900;
+  padding:4px 10px; border-radius:999px; display:none;}
+.task.is-done .done-badge{display:inline-block;}
+
+/* MC */
+.mc-options{display:grid; gap:9px;}
+.mc-opt{
+  font-family:inherit; text-align:left; cursor:pointer; border:2px solid var(--line-strong);
+  background:#fbfdfb; padding:12px 14px; border-radius:11px; font-size:15.5px; color:var(--ink); transition:.15s; font-weight:600;
+}
+.mc-opt:hover:not(:disabled){border-color:var(--emerald-l); background:var(--mint); transform:translateY(-1px);}
+.mc-opt:disabled{cursor:default;}
+.mc-opt.chosen-wrong{border-color:var(--coral); background:var(--coral-soft); color:var(--coral);}
+.mc-opt.correct{border-color:var(--ok); background:var(--ok-soft); color:#0f5e30;}
+.mc-opt.dim{opacity:.5;}
+
+/* feedback */
+.feedback{margin-top:12px; font-size:15px; font-weight:600; border-radius:10px; padding:0; max-height:0; overflow:hidden; transition:.25s;}
+.feedback.show{padding:12px 14px; max-height:420px;}
+.feedback.hint{background:#fff6e0; color:#6e4f0c; border:1px solid #ecd79a;}
+.feedback.good{background:var(--ok-soft); color:#0f5e30; border:1px solid #aedcbb;}
+.feedback.bad{background:var(--coral-soft); color:var(--coral); border:1px solid #e8c2b8;}
+.feedback.reveal{background:#eef6ff; color:#1d3a5c; border:1px solid #c3d9f0;}
+
+/* open / textarea */
+textarea.answer{
+  width:100%; min-height:108px; resize:vertical; font-family:inherit; font-size:15.5px; color:var(--ink);
+  border:2px solid var(--line-strong); border-radius:11px; padding:12px 13px; background:#fbfdfb; line-height:1.55;
+}
+textarea.answer:focus{outline:none; border-color:var(--emerald-l); box-shadow:0 0 0 3px rgba(25,161,114,.15);}
+textarea.answer:disabled{background:#f1f4f1; color:var(--ink-soft);}
+.open-foot{display:flex; align-items:center; gap:12px; margin-top:9px; flex-wrap:wrap;}
+.wordcount{font-size:13px; font-weight:800; color:var(--ink-soft);}
+.wordcount.ok{color:var(--ok);}
+.wordcount .tick{display:none;}
+.wordcount.ok .tick{display:inline;}
+
+.btn{
+  font-family:inherit; cursor:pointer; border:none; border-radius:10px; padding:10px 16px;
+  font-size:14px; font-weight:800; transition:.16s; letter-spacing:.2px;
+}
+.btn:disabled{opacity:.45; cursor:not-allowed;}
+.btn-primary{background:var(--emerald); color:#fff; box-shadow:var(--shadow-sm);}
+.btn-primary:hover:not(:disabled){background:var(--emerald-d); transform:translateY(-1px);}
+.btn-ghost{background:var(--mint); color:var(--emerald-d); border:1px solid var(--emerald-l);}
+.btn-ghost:hover:not(:disabled){background:var(--mint-d);}
+.btn-brass{background:var(--brass); color:#231803;}
+.btn-brass:hover:not(:disabled){background:var(--brass-l);}
+
+.sample{margin-top:13px; background:#eef6ff; border:1px solid #c3d9f0; border-radius:11px; padding:14px 16px; display:none;}
+.sample.show{display:block;}
+.sample .sh{font-weight:900; color:#1d3a5c; margin:0 0 7px; font-size:14.5px;}
+.sample p{margin:7px 0; font-size:15px; color:#23364d;}
+.sample .note{font-size:12.5px; color:#5a6b7d; font-style:italic;}
+.self-assess{display:flex; gap:10px; margin-top:13px;}
+.self-assess .lbl{font-size:13.5px; font-weight:800; color:#1d3a5c; align-self:center;}
+.sa-btn{font-family:inherit; cursor:pointer; border-radius:10px; padding:8px 16px; font-size:14px; font-weight:800; border:2px solid;}
+.sa-good{border-color:var(--ok); color:#0f5e30; background:#fff;}
+.sa-good:hover{background:var(--ok-soft);}
+.sa-good.active{background:var(--ok); color:#fff;}
+.sa-bad{border-color:var(--coral); color:var(--coral); background:#fff;}
+.sa-bad:hover{background:var(--coral-soft);}
+.sa-bad.active{background:var(--coral); color:#fff;}
+
+/* sort / drag */
+.sortable{list-style:none; margin:6px 0 0; padding:0; display:grid; gap:9px;}
+.sortable li{
+  background:linear-gradient(180deg,#fff,#f4faf6); border:2px solid var(--line-strong); border-radius:11px;
+  padding:13px 14px 13px 40px; font-size:15.5px; font-weight:700; color:var(--ink); cursor:grab; position:relative;
+  box-shadow:var(--shadow-sm); transition:border-color .15s, transform .05s;
+}
+.sortable li::before{content:"⠿"; position:absolute; left:13px; top:50%; transform:translateY(-50%); color:var(--brass); font-size:18px;}
+.sortable li:active{cursor:grabbing;}
+.sortable li.dragging{opacity:.4; border-style:dashed; border-color:var(--emerald-l);}
+.sortable li.pos-ok{border-color:var(--ok); background:var(--ok-soft);}
+.sortable li.pos-bad{border-color:var(--coral); background:var(--coral-soft);}
+.sortable.locked li{cursor:default;}
+.sortable.locked li::before{content:"🔒"; font-size:13px;}
+
+/* match */
+.match-grid{display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:8px;}
+@media(max-width:640px){.match-grid{grid-template-columns:1fr;}}
+.match-col-title{font-size:13px; font-weight:900; text-transform:uppercase; letter-spacing:.6px; color:var(--ink-soft); margin:0 0 8px;}
+.match-pool{min-height:54px; background:#f4faf6; border:2px dashed var(--line-strong); border-radius:12px; padding:9px; display:flex; flex-direction:column; gap:8px;}
+.match-pool.over{border-color:var(--emerald-l); background:var(--mint);}
+.match-src{
+  background:linear-gradient(180deg,#fff,#f1f8f3); border:2px solid var(--brass-l); border-radius:10px;
+  padding:10px 12px; font-size:14.5px; font-weight:700; color:var(--ink); cursor:grab; box-shadow:var(--shadow-sm);
+}
+.match-src:active{cursor:grabbing;}
+.match-src.dragging{opacity:.4;}
+.match-src.m-ok{border-color:var(--ok); background:var(--ok-soft);}
+.match-src.m-bad{border-color:var(--coral); background:var(--coral-soft);}
+.match-targets{display:grid; gap:10px;}
+.match-target{background:#fff; border:2px solid var(--emerald-l); border-radius:12px; padding:11px 12px;}
+.match-target .mt-title{font-weight:900; color:var(--emerald-d); font-size:14.5px; display:flex; align-items:center; gap:7px; margin-bottom:7px;}
+.dropzone{min-height:40px; border:2px dashed var(--line); border-radius:9px; padding:7px; display:flex; flex-direction:column; gap:7px; background:#fbfdfb;}
+.dropzone.over{border-color:var(--brass); background:#fdf6e6;}
+.match.locked .match-src, .match.locked .match-pool, .match.locked .dropzone{cursor:default;}
+
+/* charts & maps */
+.map{height:420px; width:100%; border-radius:14px; border:3px solid var(--emerald-d); box-shadow:var(--shadow); margin-top:6px;}
+@media(max-width:768px){.map{height:340px;}}
+.map-legend{display:flex; flex-wrap:wrap; gap:10px; margin-top:11px;}
+.map-legend .li{display:flex; align-items:center; gap:6px; font-size:13px; font-weight:700; color:var(--ink); background:#fff; border:1px solid var(--line); padding:5px 10px; border-radius:999px;}
+.dot{width:13px;height:13px;border-radius:50%; flex:none;}
+.chart-box{position:relative; height:340px; background:#fff; border-radius:12px; padding:10px; border:1px solid var(--line); box-shadow:var(--shadow-sm);}
+.chart-grid{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
+@media(max-width:768px){.chart-grid{grid-template-columns:1fr;}}
+
+/* nav footer */
+.nav-foot{display:flex; align-items:center; gap:10px; margin:26px 0 6px; flex-wrap:wrap;}
+.nav-foot .spacer{flex:1;}
+.reset-tab{margin-left:auto; font-size:12px; font-weight:700; color:#b9d8c8; background:none; border:1px solid rgba(255,255,255,.25);
+  padding:7px 12px; border-radius:999px; cursor:pointer; font-family:inherit;}
+.reset-tab:hover{background:rgba(255,255,255,.1); color:#fff;}
+
+/* reflection */
+.goal-list{list-style:none; padding:0; margin:8px 0;}
+.goal-list li{display:flex; gap:11px; align-items:flex-start; padding:11px 13px; background:#fff; border:1px solid var(--line);
+  border-radius:11px; margin-bottom:9px; font-size:15.5px; font-weight:600;}
+.goal-list .gi{flex:none; width:28px; height:28px; border-radius:50%; background:var(--mint); color:var(--emerald-d);
+  display:grid; place-items:center; font-weight:900;}
+.scorebox{text-align:center; padding:24px; background:linear-gradient(160deg,#0f7a55,#0a5b3f); color:#eafff4; border-radius:16px; margin:16px 0;}
+.scorebox .big{font-size:54px; font-weight:900; line-height:1; color:var(--brass-l); text-shadow:0 2px 10px rgba(0,0,0,.3);}
+.scorebox .sub{font-size:15px; font-weight:700; margin-top:6px;}
+.scorebox .msg{font-size:15px; margin-top:10px;}
+
+.footer-note{text-align:center; color:#8fbfa9; font-size:12.5px; margin-top:34px;}
+</style>
+</head>
+<body>
+
+<!-- ============ STICKY HEADER ============ -->
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="brandline">
+      <div class="compass">✦</div>
+      <div class="brand">
+        <h1>Expeditie Klimaten</h1>
+        <p>Aardrijkskunde · VWO leerjaar 1 · Reis mee als ontdekkingsreiziger 🧭</p>
+      </div>
+      <div class="topbar-actions">
+        <button class="mini-btn" id="wipeBtn">Voortgang wissen</button>
+      </div>
+    </div>
+    <div class="progress-row">
+      <div class="progress-track"><div class="progress-fill" id="progFill"></div></div>
+      <div class="progress-label"><span id="progPct">0%</span> voltooid</div>
+    </div>
+  </div>
+  <nav class="tabbar" id="tabbar"></nav>
+  <div class="counter-line" id="counterLine">Onderdeel 1 van 9</div>
+</header>
+
+<div class="wrap">
+
+<!-- ============================================================= -->
+<!-- TAB 0 — WEER & KLIMAAT -->
+<!-- ============================================================= -->
+<section class="tab-panel" data-title="Weer &amp; klimaat" data-map="">
+  <div class="section-head">
+    <span class="section-kicker">Expeditie · Basiskamp</span>
+    <h2>Weer & klimaat: wat is het verschil?</h2>
+  </div>
+
+  <div class="card lesson">
+    <h3>🌦️ Vandaag regen, morgen zon — maar wat is het klimaat?</h3>
+    <p class="lead">Stel je voor: je staat klaar voor een grote reis en je wilt weten welke kleren je inpakt. Je kijkt niet alleen naar het weer van vandaag, maar naar het <span class="term">klimaat</span> van je bestemming. Het <strong>weer</strong> is wat er op dit moment buiten gebeurt: regen, zon, wind of sneeuw. Het verandert van dag tot dag en zelfs van uur tot uur. Kijk maar eens uit het raam — is het nu hetzelfde weer als gisteren?</p>
+    <p>Het <strong>klimaat</strong> is iets heel anders. Het klimaat beschrijft het <strong>gemiddelde weer over een lange periode: ongeveer 30 jaar</strong>. Eén koude dag in de zomer verandert het klimaat dus niet. In een warm land kan het best een keer fris zijn, maar gemiddeld over al die jaren blijft het er warm. Klimaat is dus het "karakter" van het weer in een gebied, terwijl het weer de bui van vandaag is.</p>
+    <p>Waarom verschilt het klimaat zo sterk tussen landen? Een belangrijke reden is de <span class="term">geografische breedte</span>: de afstand van een plaats tot de <strong>evenaar</strong>. De simpele vuistregel luidt: hoe dichter bij de evenaar, hoe warmer het gemiddeld is. Hoe verder je naar het noorden of zuiden reist — richting de polen — hoe kouder het wordt. Een vliegreis van Nederland naar de tropen brengt je daarom van een koele naar een hete wereld.</p>
+
+    <div class="flow">
+      <div class="step"><span class="e">🌍</span><span class="t">Plaats op aarde</span></div>
+      <div class="arrow">→</div>
+      <div class="step"><span class="e">📏</span><span class="t">Afstand tot evenaar</span></div>
+      <div class="arrow">→</div>
+      <div class="step"><span class="e">🌡️</span><span class="t">Gemiddelde temperatuur</span></div>
+      <div class="arrow">→</div>
+      <div class="step"><span class="e">🏞️</span><span class="t">Het klimaat</span></div>
+    </div>
+
+    <div class="banner">
+      <p class="bh">🧭 Onthoud dit</p>
+      <p><strong>Weer</strong> = nu, verandert snel. &nbsp;•&nbsp; <strong>Klimaat</strong> = gemiddelde over ±30 jaar. &nbsp;•&nbsp; Dichter bij de evenaar = warmer.</p>
+    </div>
+
+    <div class="realworld">
+      <p class="bh">✈️ Herken het in je eigen wereld</p>
+      <p>Als jij vanochtend naar school fietste, voelde je het <em>weer</em> van vandaag. Maar als je ouders een zomervakantie naar Spanje boeken, gokken ze op het <em>klimaat</em>: ze weten dat het daar in juli bijna altijd warm en droog is.</p>
+    </div>
+  </div>
+
+  <!-- TASK 0.1 open -->
+  <div class="task" data-task-id="t01" data-type="open" data-minwords="20">
+    <span class="task-tag">✍️ Open opdracht — denken</span>
+    <span class="done-badge">Voltooid ✓</span>
+    <p class="task-q">Kijk nu echt even uit het raam. Beschrijf in minstens 20 woorden het <strong>weer</strong> van dit moment, en leg daarna uit waarom dat iets anders is dan het <strong>klimaat</strong> van jouw woonplaats.</p>
+    <textarea class="answer" placeholder="Vandaag is het buiten... Dit is het weer omdat... Het klimaat is anders, want..."></textarea>
+    <div class="open-foot">
+      <span class="wordcount">0 woorden <span class="tick">✓</span></span>
+      <button class="btn btn-ghost show-sample" disabled>Toon voorbeeldantwoord</button>
+    </div>
+    <div class="sample"
+      data-sample="&lt;p&gt;&lt;b&gt;Voorbeeld 1:&lt;/b&gt; Vandaag is het bewolkt met een beetje motregen, ongeveer 14 graden. Dat is het weer van dit moment en het kan morgen al weer anders zijn. Het klimaat van mijn woonplaats is een gematigd zeeklimaat: gemiddeld over 30 jaar zijn de zomers mild en de winters niet heel koud, ook al regent het vandaag.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Voorbeeld 2:&lt;/b&gt; Het is nu zonnig en koud. Dit is weer, want het verandert per dag. Het klimaat is het gemiddelde van al die dagen samen over zo&#39;n 30 jaar, dus één zonnige dag verandert het klimaat niet.&lt;/p&gt;">
+    </div>
+  </div>
+
+  <!-- TASK 0.2 mc -->
+  <div class="task" data-task-id="t02" data-type="mc" data-correct="c"
+       data-hint="Denk eraan: het klimaat gaat niet over vandaag of deze week. Het is een gemiddelde over een héél lange tijd."
+       data-explain="Het klimaat is het gemiddelde weer over ongeveer 30 jaar. Eén dag of één seizoen zegt nog niets over het klimaat.">
+    <span class="task-tag">◉ Meerkeuze</span>
+    <span class="done-badge">Voltooid ✓</span>
+    <p class="task-q">Over welke periode wordt het gemiddelde genomen om het klimaat van een gebied te bepalen?</p>
+    <div class="mc-options">
+      <button class="mc-opt" data-value="a">Over 1 dag</button>
+      <button class="mc-opt" data-value="b">Over 1 jaar</button>
+      <button class="mc-opt" data-value="c">Over ongeveer 30 jaar</button>
+      <button class="mc-opt" data-value="d">Over 1000 jaar</button>
+    </div>
+    <div class="feedback"></div>
+  </div>
+
+  <!-- TASK 0.3 mc -->
+  <div class="task" data-task-id="t03" data-type="mc" data-correct="b"
+       data-hint="Welke aardrijkskundige term gebruiken we voor 'de afstand tot de evenaar'? Die afstand bepaalt grotendeels hoe warm het is."
+       data-explain="De geografische breedte (de afstand tot de evenaar) is een hoofdoorzaak van temperatuurverschillen: hoe dichter bij de evenaar, hoe warmer.">
+    <span class="task-tag">◉ Meerkeuze</span>
+    <span class="done-badge">Voltooid ✓</span>
+    <p class="task-q">Een belangrijke oorzaak van het temperatuurverschil tussen landen is...</p>
+    <div class="mc-options">
+      <button class="mc-opt" data-value="a">de hoeveelheid inwoners</button>
+      <button class="mc-opt" data-value="b">de geografische breedte (afstand tot de evenaar)</button>
+      <button class="mc-opt" data-value="c">de taal die er gesproken wordt</button>
+      <button class="mc-opt" data-value="d">het aantal vliegvelden</button>
+    </div>
+    <div class="feedback"></div>
+  </div>
+
+  <div class="nav-foot">
+    <button class="btn btn-primary nav-next">Volgende onderdeel →</button>
+    <div class="spacer"></div>
+    <button class="reset-tab">↺ Reset dit onderdeel</button>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- TAB 1 — KLIMATEN OP LAGE BREEDTE -->
+<!-- ============================================================= -->
+<section class="tab-panel" data-title="Lage breedte" data-map="low">
+  <div class="section-head">
+    <span class="section-kicker">Expeditie · Richting de evenaar</span>
+    <h2>Klimaten op lage breedte</h2>
+  </div>
+
+  <div class="card lesson">
+    <h3>🌴 Heet het hele jaar — alleen de regen verschilt</h3>
+    <p class="lead">Onze expeditie begint in het warme hart van de aarde: de gebieden rond de evenaar, op <strong>lage breedte</strong>. Hier is het het hele jaar door warm en zijn er nauwelijks seizoenen. Het grote verschil tussen de klimaten hier zit niet in de temperatuur, maar in de <strong>hoeveelheid neerslag</strong>. Hoe verder je van de evenaar wegtrekt, hoe droger het meestal wordt.</p>
+    <p>Vlak bij de evenaar vind je het <span class="term">tropisch regenwoudklimaat</span>. Het wordt er nooit echt koud en het regent bijna elke dag. Door de hoge temperatuur verdampt er veel water, waardoor de lucht heel vochtig en benauwd aanvoelt. Die vochtige lucht zorgt vrijwel dagelijks voor een flinke regenbui. Met veel warmte én veel water is dit een ideale plek voor alles wat groeit en bloeit: de jungle staat hier vol leven. Een nadeel voor een reiziger: er zijn geen seizoenen, dus het weer is elke dag bijna hetzelfde.</p>
+    <p>Reis je iets verder noordelijk of zuidelijk, dan kom je in het <span class="term">savanneklimaat</span>. Hier is er wél afwisseling: een droge tijd en een regentijd. Na de droge, hete periode spoelt de regen al het stof weg en wordt alles weer groen. Het landschap bestaat uit lage bomen, struiken en hoge grassen. Nog verder van de evenaar wordt het droger: in het <span class="term">steppeklimaat</span> groeien vooral grassen en struiken en wonen weinig mensen — vaak nomaden die rondtrekken op zoek naar water en voedsel voor hun vee. Helemaal aan de rand ligt het <span class="term">woestijnklimaat</span>: bijna geen regen, met zand- en rotswoestijnen.</p>
+
+    <table class="cmp">
+      <thead><tr><th>Klimaat</th><th>Neerslag</th><th>Begroeiing</th><th>Icoon</th></tr></thead>
+      <tbody>
+        <tr><td>Tropisch regenwoud</td><td>Heel veel, bijna dagelijks</td><td>Dichte jungle, hoge bomen</td><td>🌴</td></tr>
+        <tr><td>Savanne</td><td>Droge tijd + regentijd</td><td>Hoge grassen, lage bomen</td><td>🦒</td></tr>
+        <tr><td>Steppe</td><td>Weinig regen</td><td>Grassen en struiken</td><td>🐎</td></tr>
+        <tr><td>Woestijn</td><td>Bijna geen regen</td><td>Zand en rotsen, kaal</td><td>🏜️</td></tr>
+      </tbody>
+    </table>
+
+    <div class="banner brass">
+      <p class="bh">🌡️ Kernidee</p>
+      <p>Op lage breedte is het <strong>altijd warm</strong>. De klimaten verschillen vooral in <strong>hoeveel neerslag</strong> er valt — van kletsnat regenwoud tot kurkdroge woestijn.</p>
+    </div>
+
+    <div class="realworld">
+      <p class="bh">✈️ Herken het in je eigen wereld</p>
+      <p>Bananen, cacao (chocola!) en koffie groeien bijna allemaal in tropische gebieden. Pak eens een reep chocola of een banaan uit huis: die heeft waarschijnlijk een reis gemaakt vanuit een tropisch regenwoud- of savanneklimaat. <strong>Vraag:</strong> welk product in jouw keukenkastje komt waarschijnlijk uit de tropen?</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>🗺️ Interactieve kaart — klik op de locaties</h3>
+    <p>Hieronder zie je plaatsen op lage breedte. Klik op een markering om te ontdekken welk klimaat er heerst. Let op hoe ze allemaal dicht bij de evenaar liggen.</p>
+    <div id="mapLow" class="map"></div>
+    <div class="map-legend">
+      <span class="li"><span class="dot" style="background:#1b9e3f"></span> Tropisch regenwoud</span>
+      <span class="li"><span class="dot" style="background:#c79a2b"></span> Savanne</span>
+      <span class="li"><span class="dot" style="background:#b07a2e"></span> Steppe</span>
+      <span class="li"><span class="dot" style="background:#c4612e"></span> Woestijn</span>
+    </div>
+  </div>
+
+  <!-- TASK 1.1 sort -->
+  <div class="task" data-task-id="t11" data-type="sort" data-correct="rw,sa,st,wo"
+       data-explain="Van nat naar droog: tropisch regenwoud (meeste neerslag) → savanne → steppe → woestijn (minste neerslag).">
+    <span class="task-tag">⠿ Sleep & rangschik</span>
+    <span class="done-badge">Voltooid ✓</span>
+    <p class="task-q">Sleep de klimaten in de juiste volgorde, van <strong>meeste neerslag</strong> (boven) naar <strong>minste neerslag</strong> (onder). Pak een blok op en laat het op de juiste plek los.</p>
+    <ul class="sortable">
+      <li draggable="true" data-item="wo">🏜️ Woestijnklimaat</li>
+      <li draggable="true" data-item="rw">🌴 Tropisch regenwoudklimaat</li>
+      <li draggable="true" data-item="st">🐎 Steppeklimaat</li>
+      <li draggable="true" data-item="sa">🦒 Savanneklimaat</li>
+    </ul>
+    <div class="open-foot"><button class="btn btn-primary check-sort">Controleer volgorde</button></div>
+    <div class="feedback"></div>
+  </div>
+
+  <!-- TASK 1.2 match many-to-one -->
+  <div class="task" data-task-id="t12" data-type="match"
+       data-explain="Regenwoud: dagelijkse regen + dichte jungle. Savanne: droge tijd én regentijd, hoge grassen. Woestijn: bijna geen regen, zand en rotsen.">
+    <span class="task-tag">🔗 Koppel de kenmerken</span>
+    <span class="done-badge">Voltooid ✓</span>
+    <p class="task-q">Sleep elk kenmerk naar het juiste klimaat. Let op: een klimaat kan <strong>meerdere</strong> kenmerken krijgen!</p>
+    <div class="match-grid">
+      <div>
+        <p class="match-col-title">Kenmerken (sleep deze)</p>
+        <div class="match-pool" data-pool="1">
+          <div class="match-src" draggable="true" data-match="m_rw">☔ Bijna elke dag een regenbui</div>
+          <div class="match-src" draggable="true" data-match="m_wo">🌵 Zand- en rotsen, bijna geen regen</div>
+          <div class="match-src" draggable="true" data-match="m_sa">🌧️ Een droge tijd én een regentijd</div>
+          <div class="match-src" draggable="true" data-match="m_rw">🌳 Dichte, groene jungle</div>
+          <div class="match-src" draggable="true" data-match="m_sa">🌾 Hoge grassen met lage bomen</div>
+          <div class="match-src" draggable="true" data-match="m_wo">🥵 Het droogste van allemaal</div>
+        </div>
+      </div>
+      <div>
+        <p class="match-col-title">Klimaten (laat hier los)</p>
+        <div class="match-targets">
+          <div class="match-target" data-target="m_rw"><div class="mt-title">🌴 Tropisch regenwoud</div><div class="dropzone"></div></div>
+          <div class="match-target" data-target="m_sa"><div class="mt-title">🦒 Savanne</div><div class="dropzone"></div></div>
+          <div class="match-target" data-target="m_wo"><div class="mt-title">🏜️ Woestijn</div><div class="dropzone"></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="open-foot"><button class="btn btn-primary check-match">Controleer koppelingen</button></div>
+    <div class="feedback"></div>
+  </div>
+
+  <!-- TASK 1.3 open -->
+  <div class="task" data-task-id="t13" data-type="open" data-minwords="20">
+    <span class="task-tag">✍️ Open opdracht — reizigersblik</span>
+    <span class="done-badge">Voltooid ✓</span>
+    <p class="task-q">Je plant een rugzakreis langs de evenaar. Leg in minstens 20 woorden uit waarom je in het <strong>regenwoudklimaat</strong> andere spullen nodig hebt dan in het <strong>woestijnklimaat</strong>, terwijl het in beide gebieden warm is.</p>
+    <textarea class="answer" placeholder="In het regenwoud heb ik ... nodig omdat ... In de woestijn juist ... want ..."></textarea>
+    <div class="open-foot">
+      <span class="wordcount">0 woorden <span class="tick">✓</span></span>
+      <button class="btn btn-ghost show-sample" disabled>Toon voorbeeldantwoord</button>
+    </div>
+    <div class="sample"
+      data-sample="&lt;p&gt;&lt;b&gt;Voorbeeld:&lt;/b&gt; In het regenwoud is het warm én erg nat, dus ik neem een regenjas, waterdichte schoenen en muggenspray mee, want het regent bijna elke dag en de lucht is vochtig. In de woestijn is het ook heet, maar juist kurkdroog. Daar heb ik vooral veel water, zonnebrand en kleding tegen de zon nodig, en bescherming tegen de grote temperatuurverschillen tussen dag en nacht.&lt;/p&gt;&lt;p class=&#39;note&#39;&gt;(Dit is een voorbeeld — jouw antwoord mag anders zijn, zolang je het verschil in neerslag noemt.)&lt;/p&gt;">
+    </div>
+  </div>
+
+  <div class="nav-foot">
+    <button class="btn btn-ghost nav-prev">← Vorige</button>
+    <button class="btn btn-primary nav-next">Volgende onderdeel →</button>
+    <div class="spacer"></div>
+    <button class="reset-tab">↺ Reset dit onderdeel</button>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- TAB 2 — KLIMATEN OP HOGE BREEDTE -->
+<!-- ============================================================= -->
+<section class="tab-panel" data-title="Hoge breedte" data-map="high">
+  <div class="section-head">
+    <span class="section-kicker">Expeditie · Richting de pool</span>
+    <h2>Klimaten op hogere breedte</h2>
+  </div>
+
+  <div class="card lesson">
+    <h3>❄️ Hier bestaan wél seizoenen</h3>
+    <p class="lead">We trekken nu verder van de evenaar af, naar <strong>hogere breedte</strong>. Het grootste verschil met de tropen: hier zijn er <strong>echte seizoenen</strong> — een zomer én een winter. Het verschil tússen de klimaten op hoge breedte zit vooral in de hoogte van de zomer- en wintertemperatuur, en in de lengte van het <span class="term">groeiseizoen</span>: het deel van het jaar waarin het warm genoeg is voor planten om te groeien.</p>
+    <p>Nederland heeft een <span class="term">gematigd zeeklimaat</span>. We hebben een winter en een zomer, maar de temperatuurverschillen zijn niet extreem groot. Dat komt door de invloed van de zee, die de temperatuur afzwakt. We denken vaak dat het hier veel regent, maar vergeleken met veel andere gebieden valt dat best mee. Verder landinwaarts vind je het <span class="term">landklimaat</span>: daar is het verschil tussen zomer en winter juist heel groot — hete zomers en ijskoude winters. Sommige landklimaten liggen zo dicht bij de Noordpoolcirkel dat de sneeuw er maandenlang blijft liggen.</p>
+    <p>Nog dichter bij de polen verandert het landschap drastisch. In het <span class="term">toendraklimaat</span> groeien geen bomen meer en is de grond lang bevroren. Een deel van de bodem ontdooit zelfs nooit: dat heet <span class="term">permafrost</span>. In de korte zomer smelt alleen de bovenste laag, maar omdat de grond eronder bevroren blijft, kan het water niet wegzakken en wordt de bodem drassig. Waar het bijna het hele jaar onder nul is, heerst het <span class="term">poolklimaat</span>. En hoog in de bergen, waar het ook nooit echt warm wordt, vind je het <span class="term">hooggebergteklimaat</span>.</p>
+
+    <div class="flow">
+      <div class="step"><span class="e">🌊</span><span class="t">Zeeklimaat<br>milde seizoenen</span></div>
+      <div class="arrow">→</div>
+      <div class="step"><span class="e">🌾</span><span class="t">Landklimaat<br>heet & ijskoud</span></div>
+      <div class="arrow">→</div>
+      <div class="step"><span class="e">🦌</span><span class="t">Toendra<br>permafrost</span></div>
+      <div class="arrow">→</div>
+      <div class="step"><span class="e">🧊</span><span class="t">Poolklimaat<br>altijd ijzig</span></div>
+    </div>
+
+    <div class="banner">
+      <p class="bh">🧭 Kernidee</p>
+      <p>Alle klimaten op hoge breedte hebben een <strong>zomer en een winter</strong>. Ze verschillen in temperatuur en in de lengte van het <strong>groeiseizoen</strong>. Hoe dichter bij de pool, hoe kouder en korter de zomer.</p>
+    </div>
+
+    <div class="realworld">
+      <p class="bh">✈️ Herken het in je eigen wereld</p>
+      <p>Jij woont zelf in een gematigd zeeklimaat. Daarom kun je in de zomer in een T-shirt fietsen en heb je in de winter een dikke jas nodig — maar het wordt zelden -30 °C zoals in een echt landklimaat. <strong>Vraag:</strong> merk jij in jouw omgeving het groeiseizoen? Wanneer staan de bomen vol blad en wanneer zijn ze kaal?</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>🗺️ Interactieve kaart — van mild naar ijzig</h3>
+    <p>Klik op de markeringen. Zie je hoe de plaatsen steeds verder van de evenaar liggen naarmate het kouder wordt?</p>
+    <div id="mapHigh" class="map"></div>
+    <div class="map-legend">
+      <span class="li"><span class="dot" style="background:#2f8fd6"></span> Gematigd zeeklimaat</span>
+      <span class="li"><span class="dot" style="background:#7a8a3a"></span> Landklimaat</span>
+      <span class="li"><span class="dot" style="background:#6d8f9c"></span> Toendra</span>
+      <span class="li"><span class="dot" style="background:#9fb6c4"></span> Poolklimaat</span>
+      <span class="li"><span class="dot" style="background:#8a6fae"></span> Hooggebergte</span>
+    </div>
+  </div>
+
+  <!-- TASK 2.1 mc -->
+  <div class="task" data-task-id="t21" data-type="mc" data-correct="b"
+       data-hint="Denk aan het woord 'perma' (= permanent, altijd). Wat gebeurt er met díe grondlaag, ook in de zomer?"
+       data-explain="Permafrost is grond die nooit ontdooit. In de korte zomer smelt alleen de bovenlaag; daaronder blijft de bodem bevroren, waardoor het water niet wegzakt en de grond drassig wordt.">
+    <span class="task-tag">◉ Meerkeuze</span>
+    <span class="done-badge">Voltooid ✓</span>
+    <p class="task-q">Wat betekent <strong>permafrost</strong> in een toendraklimaat?</p>
+    <div class="mc-options">
+      <button class="mc-opt" data-value="a">Grond die alleen 's winters bevroren is</button>
+      <button class="mc-opt" data-value="b">Een bodemlaag die nooit ontdooit</button>
+      <button class="mc-opt" data-value="c">Een laag warm zand onder de sneeuw</button>
+      <button class="mc-opt" data-value="d">Grond waar het hele jaar bomen groeien</button>
+    </div>
+    <div class="feedback"></div>
+  </div>
+
+  <!-- TASK 2.2 match -->
+  <div class="task" data-task-id="t22" data-type="match"
+       data-explain="Zeeklimaat: milde, kleine verschillen door de zee. Landklimaat: grote verschillen, hete zomer + koude winter. Toendra: bomenloos, permafrost.">
+    <span class="task-tag">🔗 Koppel de kenmerken</span>
+    <span class="done-badge">Voltooid ✓</span>
+    <p class="task-q">Sleep elk kenmerk naar het juiste klimaat. Een klimaat mag meerdere kenmerken krijgen.</p>
+    <div class="match-grid">
+      <div>
+        <p class="match-col-title">Kenmerken (sleep deze)</p>
+        <div class="match-pool" data-pool="1">
+          <div class="match-src" draggable="true" data-match="h_zee">🌊 Kleine verschillen tussen zomer en winter</div>
+          <div class="match-src" draggable="true" data-match="h_land">🔥 Hete zomer én ijskoude winter</div>
+          <div class="match-src" draggable="true" data-match="h_toe">🌳 Helemaal geen bomen</div>
+          <div class="match-src" draggable="true" data-match="h_zee">🇳🇱 Het klimaat van Nederland</div>
+          <div class="match-src" draggable="true" data-match="h_toe">🧊 Permafrost in de bodem</div>
+          <div class="match-src" draggable="true" data-match="h_land">📈 Heel grote temperatuurschommelingen</div>
+        </div>
+      </div>
+      <div>
+        <p class="match-col-title">Klimaten (laat hier los)</p>
+        <div class="match-targets">
+          <div class="match-target" data-target="h_zee"><div class="mt-title">🌊 Gematigd zeeklimaat</div><div class="dropzone"></div></div>
+          <div class="match-target" data-target="h_land"><div class="mt-title">🌾 Landklimaat</div><div class="dropzone"></div></div>
+          <div class="match-target" data-target="h_toe"><div class="mt-title">🦌 Toendraklimaat</div><div class="dropzone"></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="open-foot"><button class="btn btn-primary check-match">Controleer koppelingen</button></div>
+    <div class="feedback"></div>
+  </div>
+
+  <!-- TASK 2.3 open -->
+  <div class="task" data-task-id="t23" data-type="open" data-minwords="20">
+    <span class="task-tag">✍️ Open opdracht — uitleggen</span>
+    <span class="done-badge">Voltooid ✓</span>
+    <p class="task-q">Leg in minstens 20 woorden uit waarom het <strong>groeiseizoen</strong> bij een poolklimaat veel korter is dan bij een gematigd zeeklimaat. Wat betekent dat voor de planten en mensen die er wonen?</p>
+    <textarea class="answer" placeholder="Het groeiseizoen is het deel van het jaar dat... Bij de pool is dat korter omdat... Daardoor..."></textarea>
+    <div class="open-foot">
+      <span class="wordcount">0 woorden <span class="tick">✓</span></span>
+      <button class="btn btn-ghost show-sample" disabled>Toon voorbeeldantwoord</button>
+    </div>
+    <div class="sample"
+      data-sample="&lt;p&gt;&lt;b&gt;Voorbeeld:&lt;/b&gt; Het groeiseizoen is het deel van het jaar waarin het warm genoeg is voor planten om te groeien. Bij een poolklimaat is het bijna het hele jaar te koud, dus die warme periode is heel kort of bestaat nauwelijks. Daardoor groeien er weinig planten en is het moeilijk om voedsel te verbouwen, terwijl in een gematigd zeeklimaat de mildere temperaturen een veel langer groeiseizoen geven.&lt;/p&gt;&lt;p class=&#39;note&#39;&gt;(Voorbeeldantwoord — vergelijk het met dat van jou.)&lt;/p&gt;">
+    </div>
+  </div>
+
+  <div class="nav-foot">
+    <button class="btn btn-ghost nav-prev">← Vorige</button>
+    <button class="btn btn-primary nav-next">Volgende onderdeel →</button>
+    <div class="spacer"></div>
+    <button class="reset-tab">↺ Reset dit onderdeel</button>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- TAB 3 — ZEE, LAND EN HOOGTE -->
+<!-- ============================================================= -->
+<section class="tab-panel" data-title="Zee, land &amp; hoogte" data-map="">
+  <div class="section-head">
+    <span class="section-kicker">Expeditie · Detective van de temperatuur</span>
+    <h2>De invloed van zee, land en hoogte</h2>
+  </div>
+
+  <div class="card lesson">
+    <h3>🏖️ Heet zand, koud water — hoe kan dat?</h3>
+    <p class="lead">Op een warme zomerdag voelt het strand gloeiend heet aan je blote voeten, terwijl het zeewater nog ijskoud kan zijn. Hoe kan dat, als de zon op allebei schijnt? Het geheim: het dunne laagje <strong>zand warmt heel snel op</strong>, maar <strong>water warmt juist heel langzaam op</strong>. In de winter is het precies andersom — dan is het zeewater minder koud dan het strand, omdat water ook langzaam afkoelt.</p>
+    <p>Dat geldt ook voor de lucht erboven, want <strong>lucht wordt van onderaf verwarmd</strong> — door de grond of het water eronder. In de zomer is de lucht boven zee dus koeler dan boven land, en in de winter warmer. Daarom is het verschil tussen zomer en winter <strong>kleiner aan de kust</strong> dan diep in het binnenland. De zee werkt als een soort thermostaat die de uitersten afzwakt. Dit verklaart waarom een <span class="term">zeeklimaat</span> milde seizoenen heeft en een <span class="term">landklimaat</span> juist extreme.</p>
+    <p>Ook <strong>hoogte</strong> speelt een grote rol. Hoog in de bergen verandert de begroeiing, omdat het er kouder wordt. Dat is logisch als je bedenkt dat de lucht van onderaf wordt opgewarmd: hoe verder je van de warme grond af komt, hoe kouder de lucht. De temperatuur neemt gemiddeld met ongeveer <strong>6 °C per kilometer</strong> af. Bij hele droge lucht kan dat zelfs oplopen tot wel <strong>10 °C per kilometer</strong>. Zo kan het gebeuren dat midden in het hete Afrika, hoog op een berg, de temperatuur altijd onder 0 °C blijft!</p>
+
+    <div class="flow">
+      <div class="step"><span class="e">☀️</span><span class="t">Zon schijnt</span></div>
+      <div class="arrow">→</div>
+      <div class="step"><span class="e">🏖️</span><span class="t">Zand: snel warm</span></div>
+      <div class="arrow">vs</div>
+      <div class="step"><span class="e">🌊</span><span class="t">Water: traag warm</span></div>
+      <div class="arrow">→</div>
+      <div class="step"><span class="e">⚖️</span><span class="t">Kust = mild</span></div>
+    </div>
+
+    <div class="banner brass">
+      <p class="bh">📐 Rekenregel hoogte</p>
+      <p>Per kilometer omhoog daalt de temperatuur gemiddeld <strong>6 °C</strong> (droge lucht zelfs tot <strong>10 °C</strong>). Sta je onderaan op 30 °C, dan is het op 3 km hoogte ongeveer 30 − (3 × 6) = <strong>12 °C</strong>.</p>
+    </div>
+
+    <div class="realworld">
+      <p class="bh">✈️ Herken het in je eigen wereld</p>
+      <p>Wie weleens op wintersport gaat, weet het: in het dorp regent het, maar boven op de piste ligt sneeuw — puur door het hoogteverschil. En woon je vlak bij de Noordzee, dan vriest het 's winters minder snel dan in het oosten van het land. <strong>Vraag:</strong> woon jij dichter bij de kust of in het binnenland, en merk je dat aan het weer?</p>
+    </div>
+  </div>
+
+  <!-- TASK 3.1 mc -->
+  <div class="task" data-task-id="t31" data-type="mc" data-correct="c"
+       data-hint="Water warmt langzaam op én koelt langzaam af. Wat doet dat met de uitersten van zomer en winter aan de kust?"
+       data-explain="Water warmt traag op en koelt traag af, waardoor de zee de temperatuur afzwakt. Daarom is het verschil tussen zomer en winter kleiner aan de kust.">
+    <span class="task-tag">◉ Meerkeuze</span>
+    <span class="done-badge">Voltooid ✓</span>
+    <p class="task-q">Waarom is het verschil tussen zomer en winter <strong>kleiner aan de kust</strong> dan in het binnenland?</p>
+    <div class="mc-options">
+      <button class="mc-opt" data-value="a">Omdat er aan de kust meer mensen wonen</button>
+      <button class="mc-opt" data-value="b">Omdat de zon aan de kust feller schijnt</button>
+      <button class="mc-opt" data-value="c">Omdat de zee langzaam opwarmt én afkoelt en zo de uitersten afzwakt</button>
+      <button class="mc-opt" data-value="d">Omdat het aan de kust altijd waait</button>
+    </div>
+    <div class="feedback"></div>
+  </div>
+
+  <!-- TASK 3.2 mc rekenen -->
+  <div class="task" data-task-id="t32" data-type="mc" data-correct="b"
+       data-hint="Gebruik de regel: 6 °C per kilometer. Hoeveel kilometer ga je omhoog, en hoeveel graden daalt het dan in totaal?"
+       data-explain="2 km omhoog × 6 °C = 12 °C daling. 26 °C − 12 °C = 14 °C op de top.">
+    <span class="task-tag">🧮 Reken & lees af</span>
+    <span class="done-badge">Voltooid ✓</span>
+    <p class="task-q">Aan de voet van een berg is het <strong>26 °C</strong>. De top ligt <strong>2 km</strong> hoger. Gebruik de gemiddelde regel van 6 °C per kilometer. Hoe warm is het ongeveer op de top?</p>
+    <div class="mc-options">
+      <button class="mc-opt" data-value="a">20 °C</button>
+      <button class="mc-opt" data-value="b">14 °C</button>
+      <button class="mc-opt" data-value="c">2 °C</button>
+      <button class="mc-opt" data-value="d">26 °C, hoogte maakt niet uit</button>
+    </div>
+    <div class="feedback"></div>
+  </div>
+
+  <!-- TASK 3.3 open -->
+  <div class="task" data-task-id="t33" data-type="open" data-minwords="20">
+    <span class="task-tag">✍️ Open opdracht — verklaren</span>
+    <span class="done-badge">Voltooid ✓</span>
+    <p class="task-q">In een reisgids lees je: "Midden in het hete Afrika ligt een berg met sneeuw op de top." Leg in minstens 20 woorden uit hoe dat kan, ook al is het in dat land bloedheet.</p>
+    <textarea class="answer" placeholder="Dat kan doordat de temperatuur daalt met de hoogte, ongeveer ... per kilometer. Op de top is het daarom ..."></textarea>
+    <div class="open-foot">
+      <span class="wordcount">0 woorden <span class="tick">✓</span></span>
+      <button class="btn btn-ghost show-sample" disabled>Toon voorbeeldantwoord</button>
+    </div>
+    <div class="sample"
+      data-sample="&lt;p&gt;&lt;b&gt;Voorbeeld:&lt;/b&gt; De lucht wordt van onderaf, door de grond, opgewarmd. Hoe hoger je komt, hoe kouder het wordt: gemiddeld zo&#39;n 6 °C per kilometer, en bij droge lucht nog meer. Een berg in Afrika kan kilometers hoog zijn, waardoor de temperatuur op de top ver onder nul zakt. Daardoor blijft daar sneeuw liggen, terwijl het beneden in het dal heel heet is.&lt;/p&gt;&lt;p class=&#39;note&#39;&gt;(Voorbeeld — de kern is dat de temperatuur daalt met de hoogte.)&lt;/p&gt;">
+    </div>
+  </div>
+
+  <div class="nav-foot">
+    <button class="btn btn-ghost nav-prev">← Vorige</button>
+    <button class="btn btn-primary nav-next">Volgende onderdeel →</button>
+    <div class="spacer"></div>
+    <button class="reset-tab">↺ Reset dit onderdeel</button>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- TAB 4 — EEN DEKEN RONDOM DE AARDE (ATMOSFEER) -->
+<!-- ============================================================= -->
+<section class="tab-panel" data-title="De atmosfeer" data-map="">
+  <div class="section-head">
+    <span class="section-kicker">Expeditie · Onze beschermlaag</span>
+    <h2>Een deken rondom de aarde</h2>
+  </div>
+
+  <div class="card lesson">
+    <h3>🌍 Waarom kunnen wij hier leven en op Mars niet?</h3>
+    <p class="lead">Heb je je ooit afgevraagd hoe het kan dat wij op aarde kunnen leven, terwijl andere planeten te heet of te koud zijn? Het antwoord ligt in de zon én in de luchtlaag rondom onze planeet: de <span class="term">atmosfeer</span> (ook wel dampkring genoemd). Deze laag werkt als een warme deken. Zonder die deken zou het 's nachts steenkoud en overdag bloedheet worden — precies wat er op planeten zonder dikke atmosfeer gebeurt.</p>
+    <p>Hoe werkt die deken precies? De zon stuurt <span class="term">kortgolvige straling</span> naar de aarde. Deze straling gaat dwars door de atmosfeer heen. Een deel ervan wordt teruggekaatst en bereikt de aarde nooit, maar het deel dat doorkomt verwarmt eerst het <strong>aardoppervlak</strong> — de grond, de zeeën, de daken. Let op: de lucht zelf wordt dus <strong>niet direct</strong> door de zon verwarmd.</p>
+    <p>Daarna gebeurt het slimme deel. De opgewarmde grond straalt zelf warmte terug omhoog, maar nu als <span class="term">langgolvige straling</span>. Deze langgolvige straling verwarmt de lucht <strong>van onderaf</strong>. De atmosfeer houdt een deel van die warmte vast, net zoals een deken jouw lichaamswarmte vasthoudt. Daarom is het op aarde gemiddeld niet te warm en niet te koud: precies goed om te leven.</p>
+
+    <div class="flow">
+      <div class="step"><span class="e">☀️</span><span class="t">Zon: kortgolvige straling</span></div>
+      <div class="arrow">→</div>
+      <div class="step"><span class="e">🌫️</span><span class="t">Door de atmosfeer heen</span></div>
+      <div class="arrow">→</div>
+      <div class="step"><span class="e">🟫</span><span class="t">Grond warmt op</span></div>
+      <div class="arrow">→</div>
+      <div class="step"><span class="e">♨️</span><span class="t">Langgolvige straling omhoog</span></div>
+      <div class="arrow">→</div>
+      <div class="step"><span class="e">🛏️</span><span class="t">Atmosfeer houdt warmte vast</span></div>
+    </div>
+
+    <div class="banner">
+      <p class="bh">🔑 Onthoud het verschil</p>
+      <p><strong>Kortgolvige straling</strong> = van de zon, gaat dóór de atmosfeer en verwarmt de grond. &nbsp;•&nbsp; <strong>Langgolvige straling</strong> = van de opgewarmde grond omhoog, verwarmt de lucht en wordt deels door de atmosfeer vastgehouden.</p>
+    </div>
+
+    <div class="realworld">
+      <p class="bh">✈️ Herken het in je eigen wereld</p>
+      <p>Een heldere winternacht voelt veel kouder dan een bewolkte nacht. Dat komt doordat wolken — onderdeel van onze "deken" — de langgolvige straling van de aarde tegenhouden, zodat de warmte minder snel ontsnapt. <strong>Vraag:</strong> heb jij weleens gemerkt dat het na een heldere nacht 's ochtends extra koud (of zelfs bevroren) is?</p>
+    </div>
+  </div>
+
+  <!-- TASK 4.1 mc -->
+  <div class="task" data-task-id="t41" data-type="mc" data-correct="b"
+       data-hint="Wat verwarmt de zon eigenlijk eerst: de lucht of de grond? En welk soort straling komt van de zon?"
+       data-explain="Kortgolvige straling komt van de zon en gaat dwars door de atmosfeer om de grond te verwarmen. De grond zendt daarna langgolvige straling uit die de lucht verwarmt.">
+    <span class="task-tag">◉ Meerkeuze</span>
+    <span class="done-badge">Voltooid ✓</span>
+    <p class="task-q">Welke uitspraak over de straling klopt?</p>
+    <div class="mc-options">
+      <button class="mc-opt" data-value="a">De zon verwarmt eerst direct de lucht, daarna pas de grond</button>
+      <button class="mc-opt" data-value="b">Kortgolvige straling van de zon verwarmt eerst de grond; de grond zendt daarna langgolvige straling uit</button>
+      <button class="mc-opt" data-value="c">Alle straling van de zon wordt door de atmosfeer tegengehouden</button>
+      <button class="mc-opt" data-value="d">Langgolvige straling komt rechtstreeks van de zon</button>
+    </div>
+    <div class="feedback"></div>
+  </div>
+
+  <!-- TASK 4.2 sort -->
+  <div class="task" data-task-id="t42" data-type="sort" data-correct="s1,s2,s3,s4"
+       data-explain="De juiste volgorde: 1) zon stuurt kortgolvige straling → 2) straling gaat door de atmosfeer → 3) de grond warmt op → 4) de grond zendt langgolvige straling uit die de lucht verwarmt.">
+    <span class="task-tag">⠿ Sleep & rangschik</span>
+    <span class="done-badge">Voltooid ✓</span>
+    <p class="task-q">Zet de stappen van het verwarmingsproces in de <strong>juiste volgorde</strong> (eerste stap bovenaan). Sleep de blokken op hun plek.</p>
+    <ul class="sortable">
+      <li draggable="true" data-item="s3">🟫 De grond warmt op</li>
+      <li draggable="true" data-item="s1">☀️ De zon stuurt kortgolvige straling</li>
+      <li draggable="true" data-item="s4">♨️ De grond zendt langgolvige straling uit, de lucht warmt op</li>
+      <li draggable="true" data-item="s2">🌫️ De straling gaat dwars door de atmosfeer</li>
+    </ul>
+    <div class="open-foot"><button class="btn btn-primary check-sort">Controleer volgorde</button></div>
+    <div class="feedback"></div>
+  </div>
+
+  <!-- TASK 4.3 open -->
+  <div class="task" data-task-id="t43" data-type="open" data-minwords="20">
+    <span class="task-tag">✍️ Open opdracht — redeneren</span>
+    <span class="done-badge">Voltooid ✓</span>
+    <p class="task-q">Wetenschappers dromen van wonen op Mars. Mars heeft bijna geen atmosfeer. Leg in minstens 20 woorden uit wat dat betekent voor de temperatuur op Mars, en gebruik daarbij het woord <strong>"deken"</strong>.</p>
+    <textarea class="answer" placeholder="Omdat Mars bijna geen atmosfeer (deken) heeft, ... Daardoor wordt het 's nachts ... en overdag ..."></textarea>
+    <div class="open-foot">
+      <span class="wordcount">0 woorden <span class="tick">✓</span></span>
+      <button class="btn btn-ghost show-sample" disabled>Toon voorbeeldantwoord</button>
+    </div>
+    <div class="sample"
+      data-sample="&lt;p&gt;&lt;b&gt;Voorbeeld:&lt;/b&gt; De atmosfeer werkt als een deken die warmte vasthoudt. Omdat Mars bijna geen atmosfeer heeft, mist de planeet die deken. Daardoor kan de warmte van de zon niet worden vastgehouden: overdag kan het redelijk opwarmen, maar 's nachts ontsnapt de warmte meteen en wordt het ijzig koud. Op aarde houdt onze dikke atmosfeer de temperatuur juist mooi gelijkmatig.&lt;/p&gt;&lt;p class=&#39;note&#39;&gt;(Voorbeeldantwoord — vergelijk met dat van jou.)&lt;/p&gt;">
+    </div>
+  </div>
+
+  <div class="nav-foot">
+    <button class="btn btn-ghost nav-prev">← Vorige</button>
+    <button class="btn btn-primary nav-next">Volgende onderdeel →</button>
+    <div class="spacer"></div>
+    <button class="reset-tab">↺ Reset dit onderdeel</button>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- TAB 5 — DE STAND VAN DE ZON -->
+<!-- ============================================================= -->
+<section class="tab-panel" data-title="Stand van de zon" data-map="">
+  <div class="section-head">
+    <span class="section-kicker">Expeditie · Het geheim van de zonnehoek</span>
+    <h2>De stand van de zon</h2>
+  </div>
+
+  <div class="card lesson">
+    <h3>🌅 Waarom is de middagzon zo veel feller?</h3>
+    <p class="lead">Het temperatuurverschil op aarde kun je ook verklaren door naar de <strong>stand van de zon</strong> te kijken. 's Middags staat de zon op haar hoogste punt en is ze het krachtigst — daarom doen mensen in Spanje vaak een middagdutje, de <span class="term">siësta</span>, om de heetste uren binnen door te brengen. 's Ochtends en vlak voor zonsondergang staat de zon laag en geeft ze veel minder warmte.</p>
+    <p>Hoe komt dat? Als de zon laag staat, vallen de stralen <strong>schuin</strong> op het aardoppervlak. Dezelfde hoeveelheid warmte moet dan over een <strong>groter oppervlak</strong> worden verdeeld, dus wordt elk plekje minder warm. Staat de zon hoog, dan vallen de stralen recht naar beneden op een klein oppervlak — geconcentreerd en dus veel heter. Een lage zon legt bovendien een langere weg af door de atmosfeer, waardoor er onderweg meer warmte verloren gaat. Dat de zon 's ochtends en 's avonds soms rood kleurt komt ook door die lange weg: bijna alle kleuren worden verstrooid, behalve het rode licht.</p>
+    <p>Het allerbelangrijkste: de stand van de zon verschilt met de <span class="term">geografische breedte</span>, omdat de aarde een <strong>bol</strong> is. Op elke breedte vallen de stralen onder een andere <span class="term">invalshoek</span>. Rond de evenaar staat de zon hoog en vallen de stralen recht in — daar is het het warmst. Naar de polen toe vallen de stralen steeds schuiner, verdelen ze hun warmte over een groter oppervlak en leggen ze een langere weg af door de atmosfeer. Zo verklaar je dat het richting de polen steeds kouder wordt.</p>
+
+    <div class="banner brass">
+      <p class="bh">📐 Invalshoek in het kort</p>
+      <p><strong>Recht invallende stralen</strong> (evenaar, middag) = warmte op klein oppervlak = heet. &nbsp;•&nbsp; <strong>Schuin invallende stralen</strong> (polen, ochtend/avond) = warmte over groot oppervlak = koeler.</p>
+    </div>
+
+    <div class="card" style="margin:14px 0 0; box-shadow:none; border:1px dashed var(--emerald-l); background:#f4faf6;">
+      <h4>🔦 Mini-experiment om thuis te doen</h4>
+      <p style="margin:6px 0;">Schijn met een zaklamp recht op tafel: je ziet een kleine, felle cirkel. Kantel de lamp schuin: dezelfde lichtbundel wordt een grote, vage ovaal. Dat is precies het verschil tussen de zon op de evenaar en bij de pool!</p>
+    </div>
+
+    <div class="realworld">
+      <p class="bh">✈️ Herken het in je eigen wereld</p>
+      <p>In de zomervakantie waarschuwt iedereen je: smeer je goed in tussen 12 en 15 uur. Dan staat de zon het hoogst en is de straling het sterkst — precies wat je nu kunt verklaren. <strong>Vraag:</strong> op welk moment van de dag is jouw schaduw het kortst, en wat zegt dat over de zonnestand?</p>
+    </div>
+  </div>
+
+  <!-- TASK 5.1 mc -->
+  <div class="task" data-task-id="t51" data-type="mc" data-correct="c"
+       data-hint="De aarde is een bol. Vallen de zonnestralen op de evenaar recht of schuin in? En wat doet dat met de warmte per stukje grond?"
+       data-explain="Rond de evenaar vallen de zonnestralen vrijwel recht in, waardoor de warmte op een klein oppervlak wordt geconcentreerd. Daarom is het er het warmst.">
+    <span class="task-tag">◉ Meerkeuze</span>
+    <span class="done-badge">Voltooid ✓</span>
+    <p class="task-q">Waarom is het rond de evenaar gemiddeld het warmst?</p>
+    <div class="mc-options">
+      <button class="mc-opt" data-value="a">Omdat de evenaar het dichtst bij de zon ligt</button>
+      <button class="mc-opt" data-value="b">Omdat het daar nooit nacht wordt</button>
+      <button class="mc-opt" data-value="c">Omdat de zonnestralen er recht invallen en de warmte op een klein oppervlak terechtkomt</button>
+      <button class="mc-opt" data-value="d">Omdat er geen atmosfeer boven de evenaar zit</button>
+    </div>
+    <div class="feedback"></div>
+  </div>
+
+  <!-- TASK 5.2 match -->
+  <div class="task" data-task-id="t52" data-type="match"
+       data-explain="Hoge zon (recht): klein oppervlak, veel warmte, korte weg door de atmosfeer. Lage zon (schuin): groot oppervlak, minder warmte, lange weg (rode kleur).">
+    <span class="task-tag">🔗 Koppel de kenmerken</span>
+    <span class="done-badge">Voltooid ✓</span>
+    <p class="task-q">Sleep elk kenmerk naar de juiste zonnestand. Een stand mag meerdere kenmerken krijgen.</p>
+    <div class="match-grid">
+      <div>
+        <p class="match-col-title">Kenmerken (sleep deze)</p>
+        <div class="match-pool" data-pool="1">
+          <div class="match-src" draggable="true" data-match="z_hoog">🎯 Stralen recht in, klein oppervlak</div>
+          <div class="match-src" draggable="true" data-match="z_laag">📐 Stralen schuin in, groot oppervlak</div>
+          <div class="match-src" draggable="true" data-match="z_hoog">🔥 Veel warmte (heetst op de dag)</div>
+          <div class="match-src" draggable="true" data-match="z_laag">🟥 Lange weg door de atmosfeer, rode zon</div>
+          <div class="match-src" draggable="true" data-match="z_hoog">🕛 De zon rond het middaguur</div>
+          <div class="match-src" draggable="true" data-match="z_laag">🌇 De zon vlak voor zonsondergang</div>
+        </div>
+      </div>
+      <div>
+        <p class="match-col-title">Zonnestand (laat hier los)</p>
+        <div class="match-targets">
+          <div class="match-target" data-target="z_hoog"><div class="mt-title">☀️ Hoge zon (recht invallend)</div><div class="dropzone"></div></div>
+          <div class="match-target" data-target="z_laag"><div class="mt-title">🌄 Lage zon (schuin invallend)</div><div class="dropzone"></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="open-foot"><button class="btn btn-primary check-match">Controleer koppelingen</button></div>
+    <div class="feedback"></div>
+  </div>
+
+  <!-- TASK 5.3 open -->
+  <div class="task" data-task-id="t53" data-type="open" data-minwords="20">
+    <span class="task-tag">✍️ Open opdracht — uitleggen</span>
+    <span class="done-badge">Voltooid ✓</span>
+    <p class="task-q">Je bent op vakantie in Spanje en je hotel is rond drie uur 's middags bijna leeg: iedereen houdt siësta. Leg in minstens 20 woorden uit, met de stand van de zon, waarom dat een slim idee is.</p>
+    <textarea class="answer" placeholder="Rond het middaguur staat de zon ... waardoor de stralen ... Daarom is het dan ..."></textarea>
+    <div class="open-foot">
+      <span class="wordcount">0 woorden <span class="tick">✓</span></span>
+      <button class="btn btn-ghost show-sample" disabled>Toon voorbeeldantwoord</button>
+    </div>
+    <div class="sample"
+      data-sample="&lt;p&gt;&lt;b&gt;Voorbeeld:&lt;/b&gt; Rond het middaguur staat de zon op haar hoogste punt. De zonnestralen vallen dan recht naar beneden op een klein oppervlak, waardoor de warmte heel geconcentreerd is en het op het heetst van de dag is. Door dan binnen te blijven en een siësta te houden, vermijden mensen de felste hitte en zonkracht, en gaan ze pas weer naar buiten als de zon lager staat en het koeler is.&lt;/p&gt;&lt;p class=&#39;note&#39;&gt;(Voorbeeld — let erop dat je de hoge zonnestand noemt.)&lt;/p&gt;">
+    </div>
+  </div>
+
+  <div class="nav-foot">
+    <button class="btn btn-ghost nav-prev">← Vorige</button>
+    <button class="btn btn-primary nav-next">Volgende onderdeel →</button>
+    <div class="spacer"></div>
+    <button class="reset-tab">↺ Reset dit onderdeel</button>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- TAB 6 — KLIMAATDATA ANALYSEREN -->
+<!-- ============================================================= -->
+<section class="tab-panel" data-title="Data &amp; grafieken" data-map="">
+  <div class="section-head">
+    <span class="section-kicker">Expeditie · Lees de klimaatdiagrammen</span>
+    <h2>Klimaatdata analyseren</h2>
+  </div>
+
+  <div class="card lesson">
+    <h3>📊 Een klimaat in één grafiek</h3>
+    <p class="lead">Geografen vatten het klimaat van een plaats samen in een <span class="term">klimaatdiagram</span>. Daarin zie je voor elke maand twee dingen: de gemiddelde <strong>temperatuur</strong> (de lijn) en de gemiddelde <strong>neerslag</strong> (de balken). Door zo'n diagram te lezen, kun je razendsnel bepalen met welk klimaat je te maken hebt — zonder dat je er ooit geweest bent. Een echte ontdekkingsreiziger leest een klimaatdiagram als een landkaart.</p>
+    <p>Let bij het aflezen op twee dingen. <strong>Eén:</strong> hoe hoog en hoe vlak is de temperatuurlijn? Een vlakke, hoge lijn betekent: altijd warm, geen seizoenen — typisch voor de tropen. Een lijn die sterk op en neer gaat, betekent grote verschillen tussen zomer en winter — typisch voor een landklimaat. <strong>Twee:</strong> hoe hoog zijn de neerslagbalken en zijn ze gelijkmatig of juist heel ongelijk verdeeld? Veel regen elke maand wijst op regenwoud; bijna geen balken wijst op woestijn.</p>
+    <p>Hieronder staan twee echte voorbeelden naast elkaar. Bekijk ze goed en gebruik ze bij de opdrachten. Vergelijk steeds de <strong>vorm van de lijn</strong> en de <strong>hoogte van de balken</strong> — dat zijn jouw twee belangrijkste aanwijzingen.</p>
+
+    <div class="chart-grid">
+      <div>
+        <h4 style="text-align:center;">📍 Stad A</h4>
+        <div class="chart-box"><canvas id="chartA"></canvas></div>
+      </div>
+      <div>
+        <h4 style="text-align:center;">📍 Stad B</h4>
+        <div class="chart-box"><canvas id="chartB"></canvas></div>
+      </div>
+    </div>
+
+    <div class="banner">
+      <p class="bh">🔎 Zo lees je het diagram</p>
+      <p><strong>Lijn vlak + hoog</strong> = altijd warm (tropen). &nbsp;•&nbsp; <strong>Lijn golft sterk</strong> = grote seizoensverschillen (landklimaat). &nbsp;•&nbsp; <strong>Hoge balken elke maand</strong> = veel regen. &nbsp;•&nbsp; <strong>Bijna geen balken</strong> = woestijn.</p>
+    </div>
+
+    <div class="realworld">
+      <p class="bh">✈️ Herken het in je eigen wereld</p>
+      <p>Wanneer je een vakantie boekt, kijk je eigenlijk naar een soort klimaatdiagram: "in juli gemiddeld 28 °C en weinig regen". Reisbureaus gebruiken precies deze data. <strong>Vraag:</strong> in welke maand zou jij volgens een klimaatdiagram het best naar een regenwoudgebied gaan — en maakt dat eigenlijk wel uit?</p>
+    </div>
+  </div>
+
+  <!-- TASK 6.1 mc chart -->
+  <div class="task" data-task-id="t61" data-type="mc" data-correct="a"
+       data-hint="Kijk naar Stad A: hoe vlak en hoog is de temperatuurlijn, en regent het elke maand veel? Welk klimaat past daarbij?"
+       data-explain="Stad A heeft een hoge, vlakke temperatuurlijn (altijd warm, geen seizoenen) en veel neerslag elke maand. Dat is een tropisch regenwoudklimaat.">
+    <span class="task-tag">📊 Grafiek analyseren</span>
+    <span class="done-badge">Voltooid ✓</span>
+    <p class="task-q">Bekijk <strong>Stad A</strong>. De temperatuurlijn is hoog en vlak en het regent elke maand flink. Welk klimaat is dit?</p>
+    <div class="mc-options">
+      <button class="mc-opt" data-value="a">Tropisch regenwoudklimaat</button>
+      <button class="mc-opt" data-value="b">Woestijnklimaat</button>
+      <button class="mc-opt" data-value="c">Poolklimaat</button>
+      <button class="mc-opt" data-value="d">Landklimaat</button>
+    </div>
+    <div class="feedback"></div>
+  </div>
+
+  <!-- TASK 6.2 mc chart aflezen -->
+  <div class="task" data-task-id="t62" data-type="mc" data-correct="c"
+       data-hint="Zoek bij Stad B de laagste temperatuur in de winter. Hoe ver onder nul zakt de lijn ongeveer?"
+       data-explain="Bij Stad B zakt de temperatuurlijn in de wintermaanden tot ongeveer -15 °C. De grote verschillen tussen zomer en winter horen bij een landklimaat.">
+    <span class="task-tag">📊 Lees de waarde af</span>
+    <span class="done-badge">Voltooid ✓</span>
+    <p class="task-q">Lees <strong>Stad B</strong> af: tot ongeveer welke temperatuur zakt de lijn in de koudste maand (januari)?</p>
+    <div class="mc-options">
+      <button class="mc-opt" data-value="a">Ongeveer +20 °C</button>
+      <button class="mc-opt" data-value="b">Ongeveer +5 °C</button>
+      <button class="mc-opt" data-value="c">Ongeveer -15 °C</button>
+      <button class="mc-opt" data-value="d">Ongeveer -50 °C</button>
+    </div>
+    <div class="feedback"></div>
+  </div>
+
+  <!-- TASK 6.3 open chart -->
+  <div class="task" data-task-id="t63" data-type="open" data-minwords="20">
+    <span class="task-tag">✍️ Analyseren & vergelijken</span>
+    <span class="done-badge">Voltooid ✓</span>
+    <p class="task-q">Vergelijk Stad A en Stad B in minstens 20 woorden. Beschrijf <strong>twee verschillen</strong> die je in de grafieken ziet (denk aan de vorm van de lijn én de neerslagbalken) en wat die verschillen over hun klimaat zeggen.</p>
+    <textarea class="answer" placeholder="Bij Stad A is de temperatuurlijn ..., bij Stad B juist ... Ook de neerslag verschilt: ... Dat betekent dat ..."></textarea>
+    <div class="open-foot">
+      <span class="wordcount">0 woorden <span class="tick">✓</span></span>
+      <button class="btn btn-ghost show-sample" disabled>Toon voorbeeldantwoord</button>
+    </div>
+    <div class="sample"
+      data-sample="&lt;p&gt;&lt;b&gt;Voorbeeld:&lt;/b&gt; Bij Stad A is de temperatuurlijn het hele jaar hoog en vlak, terwijl die bij Stad B sterk golft: warme zomers en ijskoude winters tot ver onder nul. Dat betekent dat Stad A geen seizoenen kent (tropen) en Stad B juist grote seizoensverschillen heeft (landklimaat). Ook valt er bij Stad A elke maand veel regen, terwijl Stad B veel minder en ongelijker verdeelde neerslag krijgt.&lt;/p&gt;&lt;p class=&#39;note&#39;&gt;(Voorbeeld — twee duidelijke verschillen benoemen is genoeg.)&lt;/p&gt;">
+    </div>
+  </div>
+
+  <div class="nav-foot">
+    <button class="btn btn-ghost nav-prev">← Vorige</button>
+    <button class="btn btn-primary nav-next">Volgende onderdeel →</button>
+    <div class="spacer"></div>
+    <button class="reset-tab">↺ Reset dit onderdeel</button>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- TAB 7 — DE GROTE EXPEDITIE (SCENARIO) -->
+<!-- ============================================================= -->
+<section class="tab-panel" data-title="De grote expeditie" data-map="exp">
+  <div class="section-head">
+    <span class="section-kicker">Expeditie · De eindreis</span>
+    <h2>De grote expeditie: van evenaar tot pool</h2>
+  </div>
+
+  <div class="card lesson">
+    <h3>🧭 Jouw reis dwars over de aardbol</h3>
+    <p class="lead">Tijd voor de echte test, ontdekkingsreiziger! Je vertrekt vanaf de <strong>evenaar</strong> en reist in een rechte lijn helemaal naar de <strong>Noordpool</strong>. Onderweg kom je door alle klimaten die je geleerd hebt. Bij elke halte moet je beslissen wat je inpakt en uitleggen wat je ziet. Gebruik alles uit de vorige onderdelen — dit is waar de stof samenkomt.</p>
+    <p>Je begint in een kletsnat <strong>tropisch regenwoud</strong>, trekt door de <strong>savanne</strong> met haar droge en natte tijd, doorkruist een brandend hete <strong>woestijn</strong>, bereikt het milde <strong>gematigde zeeklimaat</strong> rond Nederland, en eindigt in de ijzige <strong>toendra</strong> en het <strong>poolklimaat</strong>. Elke stap brengt je verder van de evenaar — en dus, zoals je weet, naar steeds koudere gebieden, omdat de zonnestralen er steeds schuiner invallen.</p>
+    <p>Op de kaart hieronder zie je de haltes van je expeditie als genummerde markeringen. Klik erop om te zien waar je bent. Beantwoord daarna de opdrachten om je reis te voltooien en je ontdekkingsreiziger-diploma te verdienen.</p>
+
+    <div id="mapExp" class="map"></div>
+    <div class="map-legend">
+      <span class="li">① Singapore — regenwoud</span>
+      <span class="li">② Serengeti — savanne</span>
+      <span class="li">③ Sahara — woestijn</span>
+      <span class="li">④ Nederland — zeeklimaat</span>
+      <span class="li">⑤ Noord-Siberië — toendra</span>
+      <span class="li">⑥ Noordpool — poolklimaat</span>
+    </div>
+  </div>
+
+  <!-- TASK 7.1 sort route -->
+  <div class="task" data-task-id="t71" data-type="sort" data-correct="rw,sa,wo,ze,to,po"
+       data-explain="Van de evenaar naar de pool kom je achtereenvolgens door: regenwoud → savanne → woestijn → gematigd zeeklimaat → toendra → poolklimaat.">
+    <span class="task-tag">⠿ Sleep & rangschik je route</span>
+    <span class="done-badge">Voltooid ✓</span>
+    <p class="task-q">Rangschik de klimaten in de volgorde waarin je ze tegenkomt op je reis van de <strong>evenaar</strong> (boven) naar de <strong>Noordpool</strong> (onder).</p>
+    <ul class="sortable">
+      <li draggable="true" data-item="po">🧊 Poolklimaat</li>
+      <li draggable="true" data-item="rw">🌴 Tropisch regenwoud</li>
+      <li draggable="true" data-item="to">🦌 Toendra</li>
+      <li draggable="true" data-item="sa">🦒 Savanne</li>
+      <li draggable="true" data-item="ze">🌊 Gematigd zeeklimaat</li>
+      <li draggable="true" data-item="wo">🏜️ Woestijn</li>
+    </ul>
+    <div class="open-foot"><button class="btn btn-primary check-sort">Controleer volgorde</button></div>
+    <div class="feedback"></div>
+  </div>
+
+  <!-- TASK 7.2 mc scenario -->
+  <div class="task" data-task-id="t72" data-type="mc" data-correct="b"
+       data-hint="Je staat halverwege in de toendra. Waarom wordt het kouder naarmate je verder van de evenaar reist? Denk aan de invalshoek van de zon."
+       data-explain="Hoe verder van de evenaar, hoe schuiner de zonnestralen invallen. De warmte wordt over een groter oppervlak verdeeld, dus het wordt kouder.">
+    <span class="task-tag">◉ Meerkeuze in het verhaal</span>
+    <span class="done-badge">Voltooid ✓</span>
+    <p class="task-q">Halverwege je reis merk je dat het steeds kouder wordt. Wat is de belangrijkste oorzaak?</p>
+    <div class="mc-options">
+      <button class="mc-opt" data-value="a">Je loopt steeds langzamer, dus je hebt het kouder</button>
+      <button class="mc-opt" data-value="b">Hoe verder van de evenaar, hoe schuiner de zonnestralen invallen — de warmte spreidt over een groter oppervlak</button>
+      <button class="mc-opt" data-value="c">De zon gaat zelf minder warmte geven in het noorden</button>
+      <button class="mc-opt" data-value="d">De atmosfeer verdwijnt naar het noorden toe</button>
+    </div>
+    <div class="feedback"></div>
+  </div>
+
+  <!-- TASK 7.3 open scenario -->
+  <div class="task" data-task-id="t73" data-type="open" data-minwords="20">
+    <span class="task-tag">✍️ Pak je rugzak in</span>
+    <span class="done-badge">Voltooid ✓</span>
+    <p class="task-q">Je staat op het punt om van de hete <strong>woestijn</strong> (halte 3) door te reizen naar de <strong>toendra</strong> (halte 5). Beschrijf in minstens 20 woorden welke spullen je nu uit je rugzak haalt en welke je erin stopt, en leg uit waarom — gebruik wat je over deze klimaten weet.</p>
+    <textarea class="answer" placeholder="Uit de woestijn haal ik ... weg omdat ... Voor de toendra pak ik ... in, want het is daar ..."></textarea>
+    <div class="open-foot">
+      <span class="wordcount">0 woorden <span class="tick">✓</span></span>
+      <button class="btn btn-ghost show-sample" disabled>Toon voorbeeldantwoord</button>
+    </div>
+    <div class="sample"
+      data-sample="&lt;p&gt;&lt;b&gt;Voorbeeld:&lt;/b&gt; In de woestijn had ik vooral lichte kleding, een zonnehoed, zonnebrand en heel veel water nodig vanwege de hitte en droogte. Op weg naar de toendra ruil ik dat in voor een dikke winterjas, handschoenen, een muts en warme laarzen, want daar is het ijskoud en is de grond bevroren (permafrost). Het wordt namelijk steeds kouder doordat ik verder van de evenaar af reis.&lt;/p&gt;&lt;p class=&#39;note&#39;&gt;(Voorbeeld — koppel je keuze aan de kenmerken van beide klimaten.)&lt;/p&gt;">
+    </div>
+  </div>
+
+  <div class="nav-foot">
+    <button class="btn btn-ghost nav-prev">← Vorige</button>
+    <button class="btn btn-primary nav-next">Naar de afsluiting →</button>
+    <div class="spacer"></div>
+    <button class="reset-tab">↺ Reset dit onderdeel</button>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- TAB 8 — AFSLUITING & REFLECTIE -->
+<!-- ============================================================= -->
+<section class="tab-panel" data-title="Afsluiting" data-map="">
+  <div class="section-head">
+    <span class="section-kicker">Expeditie · Terug in het basiskamp</span>
+    <h2>Afsluiting & reflectie</h2>
+  </div>
+
+  <div class="card lesson">
+    <h3>🏅 Je hebt de hele aardbol verkend!</h3>
+    <p class="lead">Goed gedaan, ontdekkingsreiziger. Je bent van de hete evenaar tot de ijzige pool gereisd en hebt onderweg alle klimaten leren kennen. Hieronder zie je je score en check je of je alle leerdoelen hebt gehaald.</p>
+
+    <div class="scorebox">
+      <div class="big"><span id="finalPct">0%</span></div>
+      <div class="sub"><span id="finalDone">0</span> van <span id="finalTotal">0</span> opdrachten gemaakt · <span id="finalCorrect">0</span> goed</div>
+      <div class="msg" id="finalMsg">Maak de opdrachten af om je expeditie te voltooien.</div>
+    </div>
+
+    <h4>🎯 Heb je de leerdoelen gehaald?</h4>
+    <ul class="goal-list">
+      <li><span class="gi">1</span><span>Ik weet welke <strong>klimaten</strong> er op aarde voorkomen (regenwoud, savanne, steppe, woestijn, zee-, land-, toendra-, pool- en hooggebergteklimaat).</span></li>
+      <li><span class="gi">2</span><span>Ik kan uitleggen waarom de <strong>begroeiing</strong> tussen klimaten verschilt (door temperatuur en neerslag).</span></li>
+      <li><span class="gi">3</span><span>Ik begrijp het verschil tussen klimaten op <strong>hoge en lage breedte</strong> (seizoenen vs. altijd warm).</span></li>
+      <li><span class="gi">4</span><span>Ik weet hoe de <strong>atmosfeer</strong> de temperatuur beïnvloedt (kort- en langgolvige straling, de "deken").</span></li>
+      <li><span class="gi">5</span><span>Ik kan de invloed van <strong>land, zee en hoogte</strong> op het klimaat uitleggen.</span></li>
+      <li><span class="gi">6</span><span>Ik begrijp de invloed van de <strong>stand van de zon</strong> en de <strong>geografische breedte</strong> op de temperatuur.</span></li>
+    </ul>
+
+    <div class="banner brass">
+      <p class="bh">🧠 Reflecteren op je leerproces</p>
+      <p>De drie vragen hieronder gaan niet over feitjes, maar over <em>hoe</em> je geleerd hebt. Daar word je een betere leerling van.</p>
+    </div>
+  </div>
+
+  <!-- REFLECTION open questions -->
+  <div class="task" data-task-id="r1" data-type="open" data-minwords="20">
+    <span class="task-tag">🪞 Reflectie</span>
+    <span class="done-badge">Voltooid ✓</span>
+    <p class="task-q">Wat vond je tijdens deze les het <strong>lastigst</strong>, en waarom? Beschrijf het in minstens 20 woorden.</p>
+    <textarea class="answer" placeholder="Ik vond ... het lastigst, omdat ... Wat me hielp was ..."></textarea>
+    <div class="open-foot">
+      <span class="wordcount">0 woorden <span class="tick">✓</span></span>
+      <button class="btn btn-ghost show-sample" disabled>Toon voorbeeldantwoord</button>
+    </div>
+    <div class="sample"
+      data-sample="&lt;p&gt;&lt;b&gt;Voorbeeld:&lt;/b&gt; Ik vond het lastigst om de kort- en langgolvige straling uit elkaar te houden, omdat het abstract is en je het niet kunt zien. Wat me hielp was het stappenplaatje met de pijlen en het idee van de atmosfeer als een deken; daardoor begreep ik beter in welke volgorde de aarde wordt verwarmd.&lt;/p&gt;&lt;p class=&#39;note&#39;&gt;(Er is geen fout antwoord — dit gaat over jouw eigen ervaring.)&lt;/p&gt;">
+    </div>
+  </div>
+
+  <div class="task" data-task-id="r2" data-type="open" data-minwords="20">
+    <span class="task-tag">🪞 Reflectie</span>
+    <span class="done-badge">Voltooid ✓</span>
+    <p class="task-q">Stel je legt dit onderwerp uit aan een klasgenoot die de les gemist heeft. Wat zou je hem of haar in <strong>één heldere uitleg</strong> vertellen? (minstens 20 woorden)</p>
+    <textarea class="answer" placeholder="Ik zou uitleggen dat het klimaat ... en dat het warmer is bij de evenaar omdat ..."></textarea>
+    <div class="open-foot">
+      <span class="wordcount">0 woorden <span class="tick">✓</span></span>
+      <button class="btn btn-ghost show-sample" disabled>Toon voorbeeldantwoord</button>
+    </div>
+    <div class="sample"
+      data-sample="&lt;p&gt;&lt;b&gt;Voorbeeld:&lt;/b&gt; Ik zou uitleggen dat het klimaat het gemiddelde weer over zo&#39;n 30 jaar is, en dat het warmer is bij de evenaar omdat de zonnestralen daar recht invallen. Hoe verder je naar de pool gaat, hoe schuiner de stralen en hoe kouder het wordt. Daarnaast spelen zee, land, hoogte en de atmosfeer als deken een belangrijke rol bij de temperatuur.&lt;/p&gt;&lt;p class=&#39;note&#39;&gt;(Voorbeeld — een goede uitleg is kort, klopt en gebruikt de juiste begrippen.)&lt;/p&gt;">
+    </div>
+  </div>
+
+  <div class="task" data-task-id="r3" data-type="open" data-minwords="20">
+    <span class="task-tag">🪞 Reflectie</span>
+    <span class="done-badge">Voltooid ✓</span>
+    <p class="task-q">Hoe zou je dit onderwerp <strong>herkennen in je eigen omgeving</strong>? Noem in minstens 20 woorden een concreet voorbeeld uit jouw dagelijks leven (denk aan weer, vakantie, eten of de kust).</p>
+    <textarea class="answer" placeholder="In mijn eigen omgeving herken ik dit aan ... Bijvoorbeeld als ik ..."></textarea>
+    <div class="open-foot">
+      <span class="wordcount">0 woorden <span class="tick">✓</span></span>
+      <button class="btn btn-ghost show-sample" disabled>Toon voorbeeldantwoord</button>
+    </div>
+    <div class="sample"
+      data-sample="&lt;p&gt;&lt;b&gt;Voorbeeld:&lt;/b&gt; In mijn eigen omgeving herken ik dit aan het weer dat per dag verandert, terwijl ons klimaat een gematigd zeeklimaat blijft met milde zomers en winters. Op zomervakantie naar Zuid-Europa merk ik dat het daar veel heter en droger is, en als ik chocola of een banaan eet, besef ik dat die uit een tropisch klimaat komt.&lt;/p&gt;&lt;p class=&#39;note&#39;&gt;(Voorbeeld — elk eigen, concreet voorbeeld is goed.)&lt;/p&gt;">
+    </div>
+  </div>
+
+  <div class="card" style="text-align:center;">
+    <h3>🎒 Klaar met de expeditie?</h3>
+    <p>Wil je opnieuw beginnen of je voortgang wissen? Gebruik de knop hieronder. Let op: dit wist al je antwoorden.</p>
+    <button class="btn btn-brass" id="wipeBtn2">🗑️ Voortgang volledig wissen</button>
+  </div>
+
+  <div class="nav-foot">
+    <button class="btn btn-ghost nav-prev">← Vorige</button>
+    <div class="spacer"></div>
+    <button class="reset-tab">↺ Reset dit onderdeel</button>
+  </div>
+</section>
+
+<p class="footer-note">Expeditie Klimaten · interactieve leeromgeving aardrijkskunde · VWO 1 🧭</p>
+</div>
+
+<script>
+/* ============================================================
+   STATE & STORAGE
+============================================================ */
+var PREFIX = 'geo_les_';
+var KEY = PREFIX + 'state';
+var state = { answers:{}, attempts:{}, completed:{}, correct:{}, self:{}, active:0, ts:null };
+
+function loadState(){
+  try{
+    var raw = localStorage.getItem(KEY);
+    if(raw){
+      var p = JSON.parse(raw);
+      if(p && typeof p === 'object'){
+        state.answers   = p.answers   || {};
+        state.attempts  = p.attempts  || {};
+        state.completed = p.completed || {};
+        state.correct   = p.correct   || {};
+        state.self      = p.self      || {};
+        state.active    = typeof p.active === 'number' ? p.active : 0;
+        state.ts        = p.ts || null;
+      }
+    }
+  }catch(e){ /* localStorage niet beschikbaar */ }
+}
+function saveState(){
+  try{
+    state.ts = Date.now();
+    localStorage.setItem(KEY, JSON.stringify(state));
+  }catch(e){ /* stil falen */ }
+}
+
+/* ============================================================
+   GLOBALS
+============================================================ */
+var panels = [];
+var tabButtons = [];
+var taskSnapshots = {};   // id -> initial outerHTML
+var allTaskIds = [];
+var MAX_ATTEMPTS = 3;
+var maps = { low:null, high:null, exp:null };
+var charts = { A:false, B:false };
+
+/* ============================================================
+   INIT
+============================================================ */
+window.addEventListener('DOMContentLoaded', function(){
+  loadState();
+  panels = Array.prototype.slice.call(document.querySelectorAll('.tab-panel'));
+  buildTabs();
+  snapshotTasks();
+  initAllTasks();
+  bindNavButtons();
+  bindWipeButtons();
+  bindResetButtons();
+  updateProgress();
+  showTab(state.active || 0);
+});
+
+/* ---------- Tabs ---------- */
+function buildTabs(){
+  var bar = document.getElementById('tabbar');
+  bar.innerHTML = '';
+  tabButtons = [];
+  panels.forEach(function(panel, i){
+    var title = panel.getAttribute('data-title') || ('Onderdeel ' + (i+1));
+    var btn = document.createElement('button');
+    btn.className = 'tab-btn';
+    btn.innerHTML = '<span class="num">' + (i+1) + '</span><span class="lbl">' + title + '</span><span class="chk">✓</span>';
+    btn.addEventListener('click', function(){ showTab(i); });
+    bar.appendChild(btn);
+    tabButtons.push(btn);
+  });
+}
+
+function showTab(i){
+  if(i < 0) i = 0;
+  if(i >= panels.length) i = panels.length - 1;
+  panels.forEach(function(p, idx){ p.classList.toggle('active', idx === i); });
+  tabButtons.forEach(function(b, idx){ b.classList.toggle('active', idx === i); });
+  state.active = i;
+  saveState();
+  document.getElementById('counterLine').textContent = 'Onderdeel ' + (i+1) + ' van ' + panels.length;
+  // scroll active tab button into view
+  if(tabButtons[i]){ tabButtons[i].scrollIntoView({behavior:'smooth', block:'nearest', inline:'center'}); }
+  window.scrollTo({ top:0, behavior:'smooth' });
+  // map handling
+  var mapKey = panels[i].getAttribute('data-map');
+  if(mapKey){ ensureMap(mapKey); }
+  // charts on data tab
+  if(panels[i].getAttribute('data-title') === 'Data & grafieken'){ ensureCharts(); }
+  updateFinalSummary();
+}
+
+/* ---------- Snapshots for full reset ---------- */
+function snapshotTasks(){
+  allTaskIds = [];
+  var tasks = document.querySelectorAll('.task');
+  Array.prototype.forEach.call(tasks, function(t){
+    var id = t.getAttribute('data-task-id');
+    taskSnapshots[id] = t.outerHTML;
+    allTaskIds.push(id);
+  });
+}
+
+/* ---------- Init all tasks ---------- */
+function initAllTasks(){
+  var tasks = document.querySelectorAll('.task');
+  Array.prototype.forEach.call(tasks, function(t){ initTask(t); });
+}
+
+function initTask(task){
+  var type = task.getAttribute('data-type');
+  if(type === 'mc')   initMC(task);
+  else if(type === 'open') initOpen(task);
+  else if(type === 'sort') initSort(task);
+  else if(type === 'match') initMatch(task);
+}
+
+/* ============================================================
+   MULTIPLE CHOICE
+============================================================ */
+function initMC(task){
+  var id = task.getAttribute('data-task-id');
+  var correct = task.getAttribute('data-correct');
+  var hint = task.getAttribute('data-hint') || 'Denk er nog eens rustig over na.';
+  var explain = task.getAttribute('data-explain') || '';
+  var opts = task.querySelectorAll('.mc-opt');
+  var fb = task.querySelector('.feedback');
+  if(!state.attempts[id]) state.attempts[id] = 0;
+
+  function lock(){ Array.prototype.forEach.call(opts, function(o){ o.disabled = true; }); }
+
+  function finish(isCorrect){
+    state.completed[id] = true;
+    state.correct[id] = !!isCorrect;
+    task.classList.add('is-done');
+    lock();
+    saveState();
+    updateProgress();
+  }
+
+  // restore completed state
+  if(state.completed[id]){
+    var chosen = state.answers[id];
+    Array.prototype.forEach.call(opts, function(o){
+      var v = o.getAttribute('data-value');
+      if(v === correct) o.classList.add('correct');
+      if(v === chosen && chosen !== correct) o.classList.add('chosen-wrong');
+    });
+    task.classList.add('is-done');
+    lock();
+    if(state.correct[id]){
+      setFb(fb, 'good', '✅ Goed gedaan! Je had het juiste antwoord.');
+    }else{
+      setFb(fb, 'reveal', '🔎 Het juiste antwoord is gemarkeerd. ' + explain);
+    }
+    return;
+  }
+
+  Array.prototype.forEach.call(opts, function(o){
+    o.addEventListener('click', function(){
+      if(state.completed[id]) return;
+      var v = o.getAttribute('data-value');
+      state.answers[id] = v;
+      if(v === correct){
+        o.classList.add('correct');
+        setFb(fb, 'good', '✅ Helemaal goed! ' + explain);
+        finish(true);
+      }else{
+        state.attempts[id] = (state.attempts[id] || 0) + 1;
+        saveState();
+        var n = state.attempts[id];
+        if(n >= MAX_ATTEMPTS){
+          // reveal
+          o.classList.add('chosen-wrong');
+          Array.prototype.forEach.call(opts, function(x){
+            if(x.getAttribute('data-value') === correct) x.classList.add('correct');
+          });
+          setFb(fb, 'reveal', '🔎 Geen zorgen — dit hoort erbij! Het juiste antwoord staat groen. ' + explain);
+          finish(false);
+        }else{
+          o.classList.add('chosen-wrong');
+          // dim after short moment by allowing retry; keep enabled
+          var left = MAX_ATTEMPTS - n;
+          setFb(fb, 'hint', '🤔 Je zit op het goede spoor, maar nog niet helemaal. ' + hint + ' (Nog ' + left + ' poging' + (left===1?'':'en') + '.)');
+          // clear the wrong mark so the student can retry cleanly after a beat
+          setTimeout(function(){ o.classList.remove('chosen-wrong'); }, 900);
+        }
+      }
+    });
+  });
+}
+
+function setFb(el, kind, msg){
+  if(!el) return;
+  el.className = 'feedback show ' + kind;
+  el.innerHTML = msg;
+}
+
+/* ============================================================
+   OPEN QUESTIONS
+============================================================ */
+function countWords(str){
+  var s = (str || '').trim();
+  if(!s) return 0;
+  return s.split(/\s+/).length;
+}
+
+function initOpen(task){
+  var id = task.getAttribute('data-task-id');
+  var min = parseInt(task.getAttribute('data-minwords') || '20', 10);
+  var ta = task.querySelector('textarea.answer');
+  var wc = task.querySelector('.wordcount');
+  var showBtn = task.querySelector('.show-sample');
+  var sample = task.querySelector('.sample');
+
+  // build sample content + self-assess buttons (once)
+  var sampleHTML = sample.getAttribute('data-sample') || '';
+  sample.innerHTML =
+    '<p class="sh">📘 Voorbeeldantwoord(en) ter vergelijking:</p>' +
+    sampleHTML +
+    '<div class="self-assess">' +
+      '<span class="lbl">Beoordeel jezelf eerlijk:</span>' +
+      '<button class="sa-btn sa-good" data-sa="goed">Goed ✓</button>' +
+      '<button class="sa-btn sa-bad" data-sa="fout">Kan beter ✗</button>' +
+    '</div>';
+
+  var saGood = sample.querySelector('.sa-good');
+  var saBad  = sample.querySelector('.sa-bad');
+
+  function refreshCount(){
+    var n = countWords(ta.value);
+    wc.firstChild.nodeValue = n + ' woord' + (n===1?'':'en') + ' ';
+    if(n >= min){ wc.classList.add('ok'); showBtn.disabled = false; }
+    else { wc.classList.remove('ok'); if(!sample.classList.contains('show')) showBtn.disabled = true; }
+  }
+
+  function applyAssessment(val){
+    state.self[id] = val;
+    state.completed[id] = true;
+    state.correct[id] = (val === 'goed');
+    saGood.classList.toggle('active', val === 'goed');
+    saBad.classList.toggle('active', val === 'fout');
+    task.classList.add('is-done');
+    ta.disabled = true;
+    saveState();
+    updateProgress();
+  }
+
+  // restore text
+  if(typeof state.answers[id] === 'string'){ ta.value = state.answers[id]; }
+  refreshCount();
+
+  // restore completed/self state
+  if(state.self[id]){
+    sample.classList.add('show');
+    showBtn.disabled = false;
+    applyAssessmentVisualOnly(state.self[id]);
+  }
+  function applyAssessmentVisualOnly(val){
+    saGood.classList.toggle('active', val === 'goed');
+    saBad.classList.toggle('active', val === 'fout');
+    task.classList.add('is-done');
+    ta.disabled = true;
+  }
+
+  ta.addEventListener('input', function(){
+    state.answers[id] = ta.value;
+    refreshCount();
+    saveState();  // save after each interaction
+  });
+
+  showBtn.addEventListener('click', function(){
+    if(showBtn.disabled) return;
+    sample.classList.add('show');
+  });
+
+  saGood.addEventListener('click', function(){ if(!state.completed[id] || state.self[id]) applyAssessment('goed'); });
+  saBad.addEventListener('click',  function(){ if(!state.completed[id] || state.self[id]) applyAssessment('fout'); });
+}
+
+/* ============================================================
+   SORT (drag & drop)
+============================================================ */
+function getDragAfterElement(container, y){
+  var els = Array.prototype.slice.call(container.querySelectorAll('li:not(.dragging)'));
+  var closest = { offset: Number.NEGATIVE_INFINITY, element: null };
+  els.forEach(function(child){
+    var box = child.getBoundingClientRect();
+    var offset = y - box.top - box.height/2;
+    if(offset < 0 && offset > closest.offset){ closest = { offset: offset, element: child }; }
+  });
+  return closest.element;
+}
+
+function initSort(task){
+  var id = task.getAttribute('data-task-id');
+  var correctStr = task.getAttribute('data-correct') || '';
+  var correctArr = correctStr.split(',');
+  var explain = task.getAttribute('data-explain') || '';
+  var list = task.querySelector('.sortable');
+  var checkBtn = task.querySelector('.check-sort');
+  var fb = task.querySelector('.feedback');
+  if(!state.attempts[id]) state.attempts[id] = 0;
+
+  function currentOrder(){
+    return Array.prototype.map.call(list.querySelectorAll('li'), function(li){ return li.getAttribute('data-item'); });
+  }
+  function reorderTo(arr){
+    arr.forEach(function(item){
+      var li = list.querySelector('li[data-item="' + item + '"]');
+      if(li) list.appendChild(li);
+    });
+  }
+  function lock(){
+    list.classList.add('locked');
+    Array.prototype.forEach.call(list.querySelectorAll('li'), function(li){ li.setAttribute('draggable','false'); });
+    checkBtn.disabled = true;
+  }
+  function finish(isCorrect){
+    state.completed[id] = true;
+    state.correct[id] = !!isCorrect;
+    task.classList.add('is-done');
+    lock();
+    saveState();
+    updateProgress();
+  }
+
+  // restore completed: show correct order locked
+  if(state.completed[id]){
+    reorderTo(correctArr);
+    Array.prototype.forEach.call(list.querySelectorAll('li'), function(li){ li.classList.add('pos-ok'); });
+    lock();
+    if(state.correct[id]) setFb(fb,'good','✅ Goede volgorde! ' + explain);
+    else setFb(fb,'reveal','🔎 De juiste volgorde staat nu klaar. ' + explain);
+    return;
+  }
+
+  // drag handlers
+  Array.prototype.forEach.call(list.querySelectorAll('li'), function(li){ attachDrag(li); });
+  function attachDrag(li){
+    li.addEventListener('dragstart', function(){ li.classList.add('dragging'); });
+    li.addEventListener('dragend', function(){ li.classList.remove('dragging'); });
+  }
+  list.addEventListener('dragover', function(e){
+    e.preventDefault();
+    var dragging = list.querySelector('.dragging');
+    if(!dragging) return;
+    var after = getDragAfterElement(list, e.clientY);
+    if(after == null){ list.appendChild(dragging); }
+    else { list.insertBefore(dragging, after); }
+  });
+
+  checkBtn.addEventListener('click', function(){
+    if(state.completed[id]) return;
+    var order = currentOrder();
+    var allOk = true;
+    var lis = list.querySelectorAll('li');
+    Array.prototype.forEach.call(lis, function(li, idx){
+      li.classList.remove('pos-ok','pos-bad');
+      if(order[idx] === correctArr[idx]) li.classList.add('pos-ok');
+      else { li.classList.add('pos-bad'); allOk = false; }
+    });
+    if(allOk){
+      setFb(fb,'good','✅ Perfect! Alle blokken staan op de juiste plek. ' + explain);
+      finish(true);
+    }else{
+      state.attempts[id] = (state.attempts[id]||0)+1;
+      saveState();
+      var n = state.attempts[id];
+      if(n >= MAX_ATTEMPTS){
+        reorderTo(correctArr);
+        Array.prototype.forEach.call(list.querySelectorAll('li'), function(li){ li.classList.remove('pos-bad'); li.classList.add('pos-ok'); });
+        setFb(fb,'reveal','🔎 Geen probleem! Ik heb de juiste volgorde voor je neergezet. ' + explain);
+        finish(false);
+      }else{
+        var left = MAX_ATTEMPTS - n;
+        setFb(fb,'hint','🤔 De groene blokken staan goed, de rode nog niet. Kijk nog eens: welk klimaat hoort echt bovenaan? (Nog ' + left + ' poging' + (left===1?'':'en') + '.)');
+      }
+    }
+  });
+}
+
+/* ============================================================
+   MATCH (many-to-one drag & drop)
+============================================================ */
+function initMatch(task){
+  var id = task.getAttribute('data-task-id');
+  var explain = task.getAttribute('data-explain') || '';
+  var pool = task.querySelector('.match-pool');
+  var dropzones = task.querySelectorAll('.dropzone');
+  var targets = task.querySelectorAll('.match-target');
+  var checkBtn = task.querySelector('.check-match');
+  var fb = task.querySelector('.feedback');
+  if(!state.attempts[id]) state.attempts[id] = 0;
+
+  var dragged = null;
+
+  function attachSrc(src){
+    src.setAttribute('draggable','true');
+    src.addEventListener('dragstart', function(){ dragged = src; src.classList.add('dragging'); });
+    src.addEventListener('dragend', function(){ src.classList.remove('dragging'); dragged = null; });
+  }
+  function dropTargetsList(){ return [pool].concat(Array.prototype.slice.call(dropzones)); }
+
+  function lock(){
+    task.querySelector('.match').classList ? null : null;
+    task.classList.add('is-done');
+    var matchWrap = task.querySelector('.match-grid');
+    Array.prototype.forEach.call(task.querySelectorAll('.match-src'), function(s){ s.setAttribute('draggable','false'); s.style.cursor='default'; });
+    checkBtn.disabled = true;
+  }
+  function placeAllCorrect(){
+    Array.prototype.forEach.call(task.querySelectorAll('.match-src'), function(s){
+      var want = s.getAttribute('data-match');
+      var tz = task.querySelector('.match-target[data-target="' + want + '"] .dropzone');
+      if(tz) tz.appendChild(s);
+      s.classList.remove('m-bad'); s.classList.add('m-ok');
+    });
+  }
+  function finish(isCorrect){
+    state.completed[id] = true;
+    state.correct[id] = !!isCorrect;
+    task.classList.add('is-done');
+    lock();
+    saveState();
+    updateProgress();
+  }
+
+  // restore completed
+  if(state.completed[id]){
+    placeAllCorrect();
+    lock();
+    if(state.correct[id]) setFb(fb,'good','✅ Alle koppelingen klopten! ' + explain);
+    else setFb(fb,'reveal','🔎 De juiste koppelingen staan nu klaar. ' + explain);
+    return;
+  }
+
+  // attach sources
+  Array.prototype.forEach.call(task.querySelectorAll('.match-src'), function(s){ attachSrc(s); });
+
+  // attach dropzones
+  dropTargetsList().forEach(function(zone){
+    zone.addEventListener('dragover', function(e){ e.preventDefault(); zone.classList.add('over'); });
+    zone.addEventListener('dragleave', function(){ zone.classList.remove('over'); });
+    zone.addEventListener('drop', function(e){
+      e.preventDefault();
+      zone.classList.remove('over');
+      if(dragged){
+        dragged.classList.remove('m-ok','m-bad');
+        zone.appendChild(dragged);
+      }
+    });
+  });
+
+  checkBtn.addEventListener('click', function(){
+    if(state.completed[id]) return;
+    var srcs = task.querySelectorAll('.match-src');
+    var total = srcs.length;
+    var placed = 0, correctCount = 0;
+    Array.prototype.forEach.call(srcs, function(s){
+      s.classList.remove('m-ok','m-bad');
+      var parentTarget = s.closest('.match-target');
+      if(parentTarget){
+        placed++;
+        var got = parentTarget.getAttribute('data-target');
+        var want = s.getAttribute('data-match');
+        if(got === want){ s.classList.add('m-ok'); correctCount++; }
+        else { s.classList.add('m-bad'); }
+      }
+    });
+    if(placed < total){
+      setFb(fb,'hint','🤔 Je hebt nog niet alles gekoppeld. Sleep elk kenmerk naar een klimaat voordat je controleert.');
+      return;
+    }
+    if(correctCount === total){
+      setFb(fb,'good','✅ Top! Alle kenmerken staan bij het juiste klimaat. ' + explain);
+      finish(true);
+    }else{
+      state.attempts[id] = (state.attempts[id]||0)+1;
+      saveState();
+      var n = state.attempts[id];
+      if(n >= MAX_ATTEMPTS){
+        placeAllCorrect();
+        setFb(fb,'reveal','🔎 Geen zorgen! Ik heb de kenmerken bij het juiste klimaat gezet. ' + explain);
+        finish(false);
+      }else{
+        var left = MAX_ATTEMPTS - n;
+        setFb(fb,'hint','🤔 ' + correctCount + ' van de ' + total + ' staan goed (groen). Verplaats de rode kenmerken: welk klimaat past er echt bij? (Nog ' + left + ' poging' + (left===1?'':'en') + '.)');
+      }
+    }
+  });
+}
+
+/* ============================================================
+   PROGRESS & TAB CHECKMARKS
+============================================================ */
+function completedCount(){
+  var c = 0;
+  allTaskIds.forEach(function(id){ if(state.completed[id]) c++; });
+  return c;
+}
+function correctCount(){
+  var c = 0;
+  allTaskIds.forEach(function(id){ if(state.completed[id] && state.correct[id]) c++; });
+  return c;
+}
+
+function updateProgress(){
+  var total = allTaskIds.length;
+  var done = completedCount();
+  var pct = total ? Math.round(done/total*100) : 0;
+  document.getElementById('progFill').style.width = pct + '%';
+  document.getElementById('progPct').textContent = pct + '%';
+  updateTabChecks();
+  updateFinalSummary();
+}
+
+function updateTabChecks(){
+  panels.forEach(function(panel, i){
+    var tasks = panel.querySelectorAll('.task');
+    var btn = tabButtons[i];
+    if(!btn) return;
+    if(tasks.length === 0){ btn.classList.remove('done'); return; }
+    var all = true;
+    Array.prototype.forEach.call(tasks, function(t){
+      if(!state.completed[t.getAttribute('data-task-id')]) all = false;
+    });
+    btn.classList.toggle('done', all);
+  });
+}
+
+function updateFinalSummary(){
+  var total = allTaskIds.length;
+  var done = completedCount();
+  var corr = correctCount();
+  var pct = total ? Math.round(corr/total*100) : 0;
+  var fp = document.getElementById('finalPct');
+  if(!fp) return;
+  fp.textContent = pct + '%';
+  document.getElementById('finalDone').textContent = done;
+  document.getElementById('finalTotal').textContent = total;
+  document.getElementById('finalCorrect').textContent = corr;
+  var msg = document.getElementById('finalMsg');
+  if(done < total){
+    msg.textContent = 'Je hebt nog ' + (total-done) + ' opdracht' + ((total-done)===1?'':'en') + ' te gaan. Doorzetten, ontdekkingsreiziger!';
+  }else if(pct >= 80){
+    msg.textContent = '🏅 Indrukwekkend! Je beheerst de klimaten van de hele wereld.';
+  }else if(pct >= 50){
+    msg.textContent = '👍 Goed bezig! Bekijk de lastige onderdelen nog eens om je score te verhogen.';
+  }else{
+    msg.textContent = '💪 Je hebt alles afgerond. Lees de uitleg nog eens rustig door en probeer opdrachten opnieuw via "Reset dit onderdeel".';
+  }
+}
+
+/* ============================================================
+   NAVIGATION BUTTONS
+============================================================ */
+function bindNavButtons(){
+  document.querySelectorAll('.nav-next').forEach(function(b){
+    b.addEventListener('click', function(){ showTab(state.active + 1); });
+  });
+  document.querySelectorAll('.nav-prev').forEach(function(b){
+    b.addEventListener('click', function(){ showTab(state.active - 1); });
+  });
+}
+
+/* ============================================================
+   RESET PER TAB (full UI restore)
+============================================================ */
+function bindResetButtons(){
+  document.querySelectorAll('.reset-tab').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var panel = btn.closest('.tab-panel');
+      resetPanel(panel);
+    });
+  });
+}
+
+function resetPanel(panel){
+  var tasks = Array.prototype.slice.call(panel.querySelectorAll('.task'));
+  tasks.forEach(function(task){
+    var id = task.getAttribute('data-task-id');
+    // clear state
+    delete state.answers[id];
+    delete state.attempts[id];
+    delete state.completed[id];
+    delete state.correct[id];
+    delete state.self[id];
+    // rebuild from snapshot
+    var temp = document.createElement('div');
+    temp.innerHTML = taskSnapshots[id];
+    var fresh = temp.firstElementChild;
+    task.parentNode.replaceChild(fresh, task);
+    initTask(fresh);
+  });
+  saveState();
+  updateProgress();
+}
+
+/* ============================================================
+   WIPE ALL
+============================================================ */
+function bindWipeButtons(){
+  var b1 = document.getElementById('wipeBtn');
+  var b2 = document.getElementById('wipeBtn2');
+  function wipe(){
+    if(!confirm('Weet je zeker dat je ALLE voortgang wilt wissen? Dit kan niet ongedaan worden gemaakt.')) return;
+    try{ localStorage.removeItem(KEY); }catch(e){}
+    location.reload();
+  }
+  if(b1) b1.addEventListener('click', wipe);
+  if(b2) b2.addEventListener('click', wipe);
+}
+
+/* ============================================================
+   LEAFLET MAPS
+============================================================ */
+function makeIcon(color){
+  return L.divIcon({
+    className:'',
+    html:'<div style="width:20px;height:20px;border-radius:50% 50% 50% 0;background:'+color+';border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.4);transform:rotate(-45deg);"></div>',
+    iconSize:[20,20], iconAnchor:[10,18], popupAnchor:[0,-16]
+  });
+}
+function addMarker(map, lat, lng, color, title, body){
+  L.marker([lat,lng], { icon: makeIcon(color) }).addTo(map)
+   .bindPopup('<strong style="color:#0a5b3f;font-size:14px;">'+title+'</strong><br>'+body);
+}
+
+function ensureMap(key){
+  if(key === 'low'){
+    if(!maps.low){ maps.low = buildMapLow(); }
+    setTimeout(function(){ if(maps.low) maps.low.invalidateSize(); }, 120);
+  }else if(key === 'high'){
+    if(!maps.high){ maps.high = buildMapHigh(); }
+    setTimeout(function(){ if(maps.high) maps.high.invalidateSize(); }, 120);
+  }else if(key === 'exp'){
+    if(!maps.exp){ maps.exp = buildMapExp(); }
+    setTimeout(function(){ if(maps.exp) maps.exp.invalidateSize(); }, 120);
+  }
+}
+function baseLayer(){
+  return L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 9, attribution: '© OpenStreetMap'
+  });
+}
+
+function buildMapLow(){
+  var m = L.map('mapLow', { worldCopyJump:true }).setView([5, 20], 2);
+  baseLayer().addTo(m);
+  addMarker(m, 1.35, 103.82, '#1b9e3f', 'Singapore 🌴', 'Tropisch regenwoudklimaat: het hele jaar warm en bijna dagelijks regen. Dichte, groene begroeiing.');
+  addMarker(m, -3.12, -60.02, '#1b9e3f', 'Manaus (Amazone) 🌴', 'Midden in het Amazoneregenwoud. Warm en zeer vochtig, ideaal voor de jungle.');
+  addMarker(m, -2.33, 34.83, '#c79a2b', 'Serengeti 🦒', 'Savanneklimaat: een droge tijd en een regentijd. Hoge grassen en lage bomen, veel grote dieren.');
+  addMarker(m, 13.51, 2.11, '#b07a2e', 'Niamey (Sahel) 🐎', 'Steppeklimaat: weinig regen, vooral grassen en struiken. Hier trekken nomaden rond met hun vee.');
+  addMarker(m, 22.79, 5.53, '#c4612e', 'Tamanrasset (Sahara) 🏜️', 'Woestijnklimaat: bijna geen regen, rots- en zandwoestijn. Overdag heet, ’s nachts koud.');
+  addMarker(m, -4.32, 15.31, '#1b9e3f', 'Kinshasa 🌴', 'Vlak bij de evenaar in Afrika: warm en vochtig regenwoudklimaat.');
+  return m;
+}
+
+function buildMapHigh(){
+  var m = L.map('mapHigh', { worldCopyJump:true }).setView([55, 40], 2);
+  baseLayer().addTo(m);
+  addMarker(m, 52.10, 5.18, '#2f8fd6', 'De Bilt (Nederland) 🌊', 'Gematigd zeeklimaat: milde zomers en winters dankzij de invloed van de zee.');
+  addMarker(m, 55.75, 37.62, '#7a8a3a', 'Moskou 🌾', 'Landklimaat: hete zomers en strenge, ijskoude winters. Grote verschillen tussen de seizoenen.');
+  addMarker(m, 67.55, 133.39, '#6d8f9c', 'Verchojansk (Siberië) 🦌', 'Toendra/extreem landklimaat: bevroren bodem (permafrost), heel korte zomer, geen bomen.');
+  addMarker(m, 78.22, 15.65, '#9fb6c4', 'Spitsbergen 🧊', 'Bijna poolklimaat: vrijwel het hele jaar koud, ijs en sneeuw overheersen.');
+  addMarker(m, 46.02, 7.75, '#8a6fae', 'Zermatt (Alpen) ⛰️', 'Hooggebergteklimaat: door de hoogte blijft het koud, met sneeuw op de toppen.');
+  return m;
+}
+
+function buildMapExp(){
+  var m = L.map('mapExp', { worldCopyJump:true }).setView([35, 30], 2);
+  baseLayer().addTo(m);
+  addMarker(m, 1.35, 103.82, '#1b9e3f', '① Singapore', 'Start: tropisch regenwoud, warm en nat.');
+  addMarker(m, -2.33, 34.83, '#c79a2b', '② Serengeti', 'Savanne: droge tijd en regentijd.');
+  addMarker(m, 22.79, 5.53, '#c4612e', '③ Sahara', 'Woestijn: extreem droog en heet.');
+  addMarker(m, 52.10, 5.18, '#2f8fd6', '④ Nederland', 'Gematigd zeeklimaat: milde seizoenen.');
+  addMarker(m, 67.55, 133.39, '#6d8f9c', '⑤ Noord-Siberië', 'Toendra: permafrost, geen bomen.');
+  addMarker(m, 84.0, 30.0, '#9fb6c4', '⑥ Noordpoolgebied', 'Eindpunt: poolklimaat, altijd ijzig.');
+  return m;
+}
+
+/* ============================================================
+   CHART.JS — KLIMAATDIAGRAMMEN
+============================================================ */
+var MONTHS = ['J','F','M','A','M','J','J','A','S','O','N','D'];
+
+function makeClimateChart(canvasId, temps, precip, tempColor){
+  var ctx = document.getElementById(canvasId).getContext('2d');
+  return new Chart(ctx, {
+    data: {
+      labels: MONTHS,
+      datasets: [
+        {
+          type:'bar', label:'Neerslag (mm)', data:precip,
+          backgroundColor:'rgba(47,143,214,.55)', borderColor:'rgba(47,143,214,1)', borderWidth:1,
+          yAxisID:'yP', order:2
+        },
+        {
+          type:'line', label:'Temperatuur (°C)', data:temps,
+          borderColor:tempColor, backgroundColor:tempColor, borderWidth:3, tension:.35,
+          pointRadius:3, yAxisID:'yT', order:1
+        }
+      ]
+    },
+    options: {
+      responsive:true, maintainAspectRatio:false,
+      interaction:{ mode:'index', intersect:false },
+      plugins:{ legend:{ labels:{ font:{ family:'Fraunces', size:11 } } } },
+      scales:{
+        yT:{ position:'left', title:{ display:true, text:'°C' }, suggestedMin:-25, suggestedMax:35,
+             grid:{ color:'rgba(0,0,0,.06)' } },
+        yP:{ position:'right', title:{ display:true, text:'mm' }, suggestedMin:0, suggestedMax:350,
+             grid:{ display:false } },
+        x:{ grid:{ display:false } }
+      }
+    }
+  });
+}
+
+function ensureCharts(){
+  // Stad A — tropisch regenwoud (Singapore-achtig): hoog & vlak, veel regen
+  if(!charts.A){
+    makeClimateChart('chartA',
+      [26,27,27,28,28,28,27,27,27,27,26,26],
+      [240,160,170,150,170,130,150,170,180,210,250,280],
+      '#bf4630');
+    charts.A = true;
+  }
+  // Stad B — landklimaat (Moskou-achtig): sterk golvend, winter ver onder nul
+  if(!charts.B){
+    makeClimateChart('chartB',
+      [-15,-13,-6,5,13,17,19,17,11,4,-4,-11],
+      [40,35,35,40,50,75,85,75,65,55,50,45],
+      '#bf4630');
+    charts.B = true;
+  }
+}
+</script>
+</body>
+</html>
