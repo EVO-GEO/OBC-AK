@@ -1,0 +1,2073 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Energie &amp; energiebronnen — Aardrijkskunde VMBO 3</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,400;0,600;0,700;0,800;0,900;1,600&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+:root{
+  --bg:#FDF6E3;
+  --surface:#FFFFFF;
+  --surface-2:#FFFBF0;
+  --primary:#F4A300;
+  --primary-dark:#C97E00;
+  --primary-light:#FFE3A8;
+  --accent:#E0701F;
+  --accent-soft:#FBE3CC;
+  --grass:#6E7A3A;
+  --grass-soft:#EAEFD6;
+  --text:#3A2E1C;
+  --muted:#8A7B62;
+  --good:#3E8E41;
+  --good-soft:#E2F3E0;
+  --bad:#C0392B;
+  --bad-soft:#FBE4E0;
+  --border:#EBDFC2;
+  --shadow:0 6px 22px rgba(120,90,20,.10);
+  --shadow-sm:0 2px 8px rgba(120,90,20,.08);
+  --radius:18px;
+  --radius-sm:12px;
+  --sp:18px;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  font-family:'Nunito',system-ui,sans-serif;
+  background:
+    radial-gradient(900px 380px at 88% -8%, rgba(244,163,0,.16), transparent 60%),
+    radial-gradient(700px 320px at -6% 4%, rgba(224,112,31,.10), transparent 60%),
+    var(--bg);
+  color:var(--text);
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,h4{line-height:1.2;margin:0 0 .4em;font-weight:800;}
+p{margin:0 0 .9em;}
+a{color:var(--primary-dark);}
+
+/* ---------- Sticky header + progress ---------- */
+.appbar{
+  position:sticky;top:0;z-index:1000;
+  background:linear-gradient(180deg,#fffdf6 0%, #fdf3dd 100%);
+  border-bottom:2px solid var(--border);
+  box-shadow:0 4px 14px rgba(120,90,20,.07);
+  padding:12px clamp(14px,3vw,34px) 14px;
+}
+.appbar-top{display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
+.brand{display:flex;align-items:center;gap:12px;margin-right:auto;}
+.brand .sun{
+  width:46px;height:46px;border-radius:50%;flex:none;
+  background:radial-gradient(circle at 35% 30%, #FFD45E, #F4A300 60%, #E0701F);
+  box-shadow:0 0 0 5px rgba(244,163,0,.18), inset 0 -4px 8px rgba(180,110,0,.35);
+  display:grid;place-items:center;font-size:24px;
+}
+.brand h1{font-size:clamp(17px,2.3vw,22px);margin:0;}
+.brand .sub{font-size:12.5px;color:var(--muted);font-weight:700;letter-spacing:.3px;text-transform:uppercase;}
+.progress-wrap{display:flex;align-items:center;gap:12px;margin-top:11px;}
+.progress-track{
+  flex:1;height:16px;border-radius:20px;background:#f1e4c4;
+  overflow:hidden;border:1px solid var(--border);position:relative;
+}
+.progress-fill{
+  height:100%;width:0%;border-radius:20px;
+  background:linear-gradient(90deg,#FFD45E,#F4A300 55%,#E0701F);
+  transition:width .5s cubic-bezier(.2,.8,.2,1);
+  box-shadow:inset 0 -3px 6px rgba(160,90,0,.25);
+}
+.progress-label{font-weight:900;font-size:14px;color:var(--primary-dark);white-space:nowrap;min-width:128px;text-align:right;}
+.btn-clear{
+  border:1.5px solid var(--border);background:var(--surface);color:var(--muted);
+  font-family:inherit;font-weight:700;font-size:12.5px;border-radius:30px;
+  padding:7px 13px;cursor:pointer;white-space:nowrap;
+}
+.btn-clear:hover{border-color:var(--accent);color:var(--accent);}
+
+/* ---------- Tab bar ---------- */
+.tabbar-shell{
+  position:sticky;top:0;z-index:900;background:transparent;
+  padding:0 clamp(10px,3vw,34px);margin-top:14px;
+}
+.tabcount{
+  font-size:13px;font-weight:800;color:var(--muted);
+  margin:0 4px 6px;display:flex;align-items:center;gap:8px;
+}
+.tabcount b{color:var(--primary-dark);}
+.tabbar{
+  display:flex;gap:9px;overflow-x:auto;padding:4px 2px 12px;
+  scrollbar-width:thin;
+}
+.tabbar::-webkit-scrollbar{height:7px;}
+.tabbar::-webkit-scrollbar-thumb{background:var(--primary-light);border-radius:8px;}
+.tab{
+  flex:none;border:1.5px solid var(--border);background:var(--surface);
+  color:var(--text);font-family:inherit;font-weight:800;font-size:13.5px;
+  border-radius:30px;padding:9px 15px;cursor:pointer;display:flex;align-items:center;gap:7px;
+  transition:.15s;white-space:nowrap;
+}
+.tab .num{
+  width:21px;height:21px;border-radius:50%;background:var(--accent-soft);color:var(--accent);
+  font-size:11.5px;font-weight:900;display:grid;place-items:center;flex:none;
+}
+.tab:hover{border-color:var(--primary);}
+.tab.active{background:linear-gradient(180deg,#F4A300,#E0701F);color:#fff;border-color:transparent;box-shadow:var(--shadow-sm);}
+.tab.active .num{background:rgba(255,255,255,.28);color:#fff;}
+.tab.done .check{color:var(--good);font-size:15px;}
+.tab.active.done .check{color:#fff;}
+
+/* ---------- Main / panels ---------- */
+main{max-width:1080px;margin:0 auto;padding:8px clamp(12px,3vw,30px) 60px;}
+.panel{display:none;animation:fade .35s ease;}
+.panel.active{display:block;}
+@keyframes fade{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+
+.panel-head{margin:6px 0 18px;}
+.eyebrow{display:inline-block;font-size:12px;font-weight:900;letter-spacing:1.2px;text-transform:uppercase;
+  color:var(--accent);background:var(--accent-soft);padding:5px 12px;border-radius:30px;margin-bottom:10px;}
+.panel-head h2{font-size:clamp(22px,3.6vw,30px);}
+.panel-head .lead{color:var(--muted);font-size:15.5px;max-width:62ch;font-weight:600;}
+
+/* ---------- Cards ---------- */
+.card{
+  background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);
+  padding:clamp(16px,2.4vw,26px);margin-bottom:20px;box-shadow:var(--shadow-sm);
+}
+.card h3{font-size:19px;display:flex;align-items:center;gap:10px;}
+.card h3 .ic{font-size:24px;}
+.card p{font-size:15.5px;}
+
+/* explainer hero block */
+.explain{
+  background:linear-gradient(135deg,#fff8e8,#fdeccb);
+  border:1.5px solid var(--primary-light);border-radius:var(--radius);
+  padding:clamp(16px,2.4vw,26px);margin-bottom:20px;box-shadow:var(--shadow-sm);
+}
+.explain h3{color:var(--primary-dark);}
+
+/* flow / kringloop strip */
+.flow{
+  display:flex;flex-wrap:wrap;align-items:stretch;gap:10px;margin:14px 0 4px;
+}
+.flow .step{
+  flex:1 1 130px;min-width:120px;background:var(--surface);border:1.5px solid var(--border);
+  border-radius:var(--radius-sm);padding:12px 10px;text-align:center;box-shadow:var(--shadow-sm);
+}
+.flow .step .emo{font-size:30px;display:block;margin-bottom:4px;}
+.flow .step b{font-size:13.5px;display:block;}
+.flow .step small{color:var(--muted);font-size:12px;}
+.flow .arrow{align-self:center;font-size:22px;color:var(--accent);font-weight:900;}
+
+/* info grid (comparison) */
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;margin:8px 0;}
+.tile{border-radius:var(--radius-sm);padding:15px;border:1.5px solid var(--border);background:var(--surface-2);}
+.tile .emo{font-size:30px;}
+.tile h4{font-size:16px;margin:6px 0 4px;}
+.tile.warm{background:var(--accent-soft);border-color:#f3cda3;}
+.tile.green{background:var(--grass-soft);border-color:#d4dcae;}
+.tile.sun{background:var(--primary-light);border-color:#f3d68a;}
+
+/* pros/cons */
+.pc{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:10px 0;}
+.pc .col{border-radius:var(--radius-sm);padding:13px 15px;}
+.pc .pro{background:var(--good-soft);border:1.5px solid #bfe0bc;}
+.pc .con{background:var(--bad-soft);border:1.5px solid #f0c4bc;}
+.pc h4{font-size:14.5px;margin-bottom:6px;}
+.pc ul{margin:0;padding-left:18px;}
+.pc li{font-size:14px;margin-bottom:3px;}
+
+/* comparison table */
+table.cmp{width:100%;border-collapse:collapse;margin:10px 0;font-size:14.5px;overflow:hidden;border-radius:var(--radius-sm);}
+table.cmp th,table.cmp td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--border);}
+table.cmp th{background:var(--primary);color:#fff;font-weight:800;}
+table.cmp tr:nth-child(even) td{background:var(--surface-2);}
+table.cmp td:first-child{font-weight:800;}
+
+/* real world callout */
+.realworld{
+  border-left:6px solid var(--accent);background:var(--accent-soft);
+  border-radius:0 var(--radius-sm) var(--radius-sm) 0;padding:13px 16px;margin:14px 0;font-size:14.5px;
+}
+.realworld b{color:var(--accent);}
+.spotvraag{
+  border-left:6px solid var(--grass);background:var(--grass-soft);
+  border-radius:0 var(--radius-sm) var(--radius-sm) 0;padding:13px 16px;margin:14px 0;font-size:14.5px;font-weight:700;
+}
+.spotvraag b{color:var(--grass);}
+
+/* ---------- Exercises ---------- */
+.ex{
+  background:var(--surface);border:1.5px solid var(--border);border-left:6px solid var(--primary);
+  border-radius:var(--radius-sm);padding:16px 18px;margin:16px 0;box-shadow:var(--shadow-sm);
+}
+.ex.locked{opacity:.96;}
+.ex-tag{display:inline-block;font-size:11px;font-weight:900;letter-spacing:.8px;text-transform:uppercase;
+  color:var(--primary-dark);background:var(--primary-light);padding:3px 10px;border-radius:20px;margin-bottom:9px;}
+.ex-q{font-weight:800;font-size:15.5px;margin-bottom:12px;}
+.ex-q .small{display:block;font-weight:600;font-size:13px;color:var(--muted);margin-top:3px;}
+
+.opts{display:flex;flex-direction:column;gap:9px;}
+.opt{
+  text-align:left;font-family:inherit;font-size:14.5px;font-weight:700;color:var(--text);
+  background:var(--surface-2);border:1.5px solid var(--border);border-radius:var(--radius-sm);
+  padding:11px 14px;cursor:pointer;transition:.12s;display:flex;align-items:center;gap:10px;
+}
+.opt:hover:not(:disabled){border-color:var(--primary);background:#fff8e8;}
+.opt .mark{width:22px;height:22px;border-radius:50%;border:2px solid var(--border);flex:none;display:grid;place-items:center;font-size:13px;}
+.opt:disabled{cursor:default;}
+.opt.correct{background:var(--good-soft);border-color:var(--good);color:#27632a;}
+.opt.correct .mark{border-color:var(--good);background:var(--good);color:#fff;}
+.opt.wrong{background:var(--bad-soft);border-color:var(--bad);color:#9c2c20;}
+.opt.wrong .mark{border-color:var(--bad);background:var(--bad);color:#fff;}
+
+/* feedback boxes */
+.ex-fb{margin-top:12px;font-size:14.5px;border-radius:var(--radius-sm);padding:0;max-height:0;overflow:hidden;transition:.25s;}
+.ex-fb.show{padding:12px 14px;max-height:600px;}
+.ex-fb.hint{background:var(--primary-light);border:1.5px solid #f0cf86;color:#7a5600;}
+.ex-fb.ok{background:var(--good-soft);border:1.5px solid #bfe0bc;color:#27632a;}
+.ex-fb.no{background:var(--bad-soft);border:1.5px solid #f0c4bc;color:#9c2c20;}
+.ex-fb b{font-weight:900;}
+
+/* textarea / open */
+textarea.answer{
+  width:100%;min-height:104px;resize:vertical;font-family:inherit;font-size:14.5px;line-height:1.55;
+  border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:12px;background:var(--surface-2);color:var(--text);
+}
+textarea.answer:focus{outline:none;border-color:var(--primary);background:#fff;}
+.open-meta{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:8px;flex-wrap:wrap;}
+.wordcount{font-size:13px;font-weight:800;color:var(--muted);display:flex;align-items:center;gap:6px;}
+.wordcount.ok{color:var(--good);}
+.example-box{margin-top:12px;background:var(--grass-soft);border:1.5px solid #d4dcae;border-radius:var(--radius-sm);padding:13px 15px;font-size:14px;display:none;}
+.example-box.show{display:block;}
+.example-box h5{margin:0 0 7px;font-size:13px;text-transform:uppercase;letter-spacing:.6px;color:var(--grass);}
+.example-box .ref{background:#fff;border:1px dashed #c3cd95;border-radius:10px;padding:9px 11px;margin-bottom:8px;}
+.example-box .ref:last-child{margin-bottom:0;}
+.selfassess{display:none;gap:10px;margin-top:12px;align-items:center;flex-wrap:wrap;}
+.selfassess.show{display:flex;}
+.selfassess .q{font-weight:800;font-size:14px;}
+.selfassess .sel{outline:3px solid rgba(0,0,0,.12);transform:scale(1.03);}
+.energy-pin{background:none;border:none;}
+
+/* buttons */
+.btn{
+  font-family:inherit;font-weight:800;font-size:14px;border-radius:30px;padding:10px 18px;cursor:pointer;
+  border:none;transition:.15s;
+}
+.btn-primary{background:linear-gradient(180deg,#F4A300,#E0701F);color:#fff;box-shadow:var(--shadow-sm);}
+.btn-primary:hover{filter:brightness(1.05);}
+.btn-ghost{background:var(--surface);border:1.5px solid var(--border);color:var(--text);}
+.btn-ghost:hover{border-color:var(--primary);}
+.btn-good{background:var(--good);color:#fff;}
+.btn-bad{background:var(--bad);color:#fff;}
+.btn:disabled{opacity:.5;cursor:default;filter:none;}
+.btn-sm{padding:7px 13px;font-size:13px;}
+
+/* drag order */
+.order-list{list-style:none;margin:6px 0 12px;padding:0;display:flex;flex-direction:column;gap:9px;}
+.order-list li{
+  background:var(--surface-2);border:1.5px solid var(--border);border-radius:var(--radius-sm);
+  padding:12px 14px;font-size:14.5px;font-weight:700;cursor:grab;display:flex;align-items:center;gap:11px;
+  user-select:none;transition:border-color .12s, background .12s, transform .08s;
+}
+.order-list li .grip{color:var(--muted);font-size:18px;flex:none;}
+.order-list li .pos{width:24px;height:24px;border-radius:7px;background:var(--primary-light);color:var(--primary-dark);
+  font-weight:900;font-size:13px;display:grid;place-items:center;flex:none;}
+.order-list li.dragging{opacity:.45;border-style:dashed;border-color:var(--primary);}
+.order-list li.over{transform:scale(1.01);border-color:var(--primary);background:#fff8e8;}
+.order-list li.good{background:var(--good-soft);border-color:var(--good);}
+.order-list li.bad{background:var(--bad-soft);border-color:var(--bad);}
+.order-list li.locked{cursor:default;}
+
+/* match */
+.match-pool{
+  display:flex;flex-wrap:wrap;gap:9px;min-height:54px;padding:11px;margin-bottom:14px;
+  background:var(--surface-2);border:1.5px dashed var(--border);border-radius:var(--radius-sm);align-content:flex-start;
+}
+.match-pool .pool-label{width:100%;font-size:12px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:2px;}
+.chip{
+  background:#fff;border:1.5px solid var(--accent);color:var(--accent);border-radius:30px;
+  padding:8px 14px;font-size:13.5px;font-weight:800;cursor:grab;user-select:none;transition:.12s;
+}
+.chip.dragging{opacity:.45;}
+.chip.good{background:var(--good-soft);border-color:var(--good);color:#27632a;}
+.chip.bad{background:var(--bad-soft);border-color:var(--bad);color:#9c2c20;}
+.chip.locked{cursor:default;}
+.match-targets{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;}
+.target{border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:12px;background:var(--surface);transition:.12s;}
+.target.over{border-color:var(--primary);background:#fff8e8;}
+.target h4{font-size:14px;margin:0 0 9px;display:flex;align-items:center;gap:7px;color:var(--primary-dark);}
+.target .drop{min-height:42px;display:flex;flex-wrap:wrap;gap:7px;align-content:flex-start;}
+
+/* maps & charts */
+.mapbox{height:430px;border-radius:var(--radius-sm);border:1.5px solid var(--border);overflow:hidden;margin:6px 0 4px;}
+.leaflet-popup-content{font-family:'Nunito',sans-serif;font-size:13.5px;}
+.leaflet-popup-content b{color:var(--primary-dark);}
+.chartbox{position:relative;height:320px;margin:8px 0 6px;background:var(--surface-2);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:12px;}
+.legend-note{font-size:12.5px;color:var(--muted);font-style:italic;}
+.map-legend{display:flex;flex-wrap:wrap;gap:10px;margin:6px 0;font-size:13px;}
+.map-legend span{display:flex;align-items:center;gap:6px;font-weight:700;}
+.dot{width:13px;height:13px;border-radius:50%;display:inline-block;border:2px solid #fff;box-shadow:0 0 0 1px rgba(0,0,0,.15);}
+
+/* nav */
+.panel-nav{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:26px;flex-wrap:wrap;}
+.panel-nav .spacer{flex:1;}
+.reset-tab{background:none;border:none;color:var(--muted);font-family:inherit;font-weight:700;font-size:12.5px;
+  cursor:pointer;text-decoration:underline;text-underline-offset:3px;}
+.reset-tab:hover{color:var(--accent);}
+
+/* reflection / scores */
+.doelen{list-style:none;margin:0;padding:0;}
+.doelen li{display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);font-size:14.5px;font-weight:600;}
+.doelen li .dchk{width:24px;height:24px;border-radius:7px;flex:none;display:grid;place-items:center;font-size:14px;
+  background:var(--grass-soft);color:var(--grass);font-weight:900;}
+.scorecard{display:flex;flex-wrap:wrap;gap:14px;margin:6px 0 4px;}
+.scorebox{flex:1 1 150px;background:linear-gradient(135deg,#fff8e8,#fdeccb);border:1.5px solid var(--primary-light);
+  border-radius:var(--radius);padding:16px;text-align:center;}
+.scorebox .big{font-size:34px;font-weight:900;color:var(--primary-dark);line-height:1;}
+.scorebox .lbl{font-size:12.5px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-top:6px;}
+.ring{width:120px;height:120px;margin:0 auto;}
+.scorebox .emo{display:block;font-size:26px;margin-bottom:6px;line-height:1;}
+.dchk.on{background:var(--good-soft);color:var(--good);}
+.doelen li.done{color:var(--text);}
+
+.finish-banner{margin-top:18px;text-align:center;padding:26px 20px;border-radius:var(--radius);
+  background:linear-gradient(135deg,var(--primary),var(--accent));color:#fff;box-shadow:var(--shadow);}
+.finish-banner.show{animation:pop .4s ease;}
+.finish-banner .finish-emo{font-size:46px;display:block;margin-bottom:6px;}
+.finish-banner h3{margin:4px 0 8px;font-size:22px;color:#fff;}
+.finish-banner p{margin:0 auto;max-width:560px;color:#fff;opacity:.96;font-weight:600;}
+@keyframes pop{0%{transform:scale(.94);opacity:0;}100%{transform:scale(1);opacity:1;}}
+
+.foot{text-align:center;color:var(--muted);font-size:12.5px;margin-top:30px;}
+
+@media (max-width:760px){
+  .pc{grid-template-columns:1fr;}
+  .progress-label{min-width:0;}
+}
+</style>
+</head>
+<body>
+<!-- ================= HEADER ================= -->
+<header class="appbar">
+  <div class="appbar-top">
+    <div class="brand">
+      <div class="sun">☀️</div>
+      <div>
+        <h1>Energie &amp; energiebronnen</h1>
+        <div class="sub">Aardrijkskunde · VMBO · Leerjaar 3</div>
+      </div>
+    </div>
+    <button class="btn-clear" id="clearBtn">🗑️ Voortgang wissen</button>
+  </div>
+  <div class="progress-wrap">
+    <div class="progress-track"><div class="progress-fill" id="progFill"></div></div>
+    <div class="progress-label" id="progLabel">0% voltooid</div>
+  </div>
+</header>
+
+<!-- ================= TAB BAR ================= -->
+<div class="tabbar-shell">
+  <div class="tabcount">📚 Onderdeel <b id="tabNow">1</b> van <b id="tabTotal">12</b> · klik op een tab om te wisselen</div>
+  <div class="tabbar" id="tabbar"></div>
+</div>
+
+<main id="main">
+<!-- panels injected/placed below -->
+
+<!-- ===================== TAB 1: ENERGIE OVERAL ===================== -->
+<section class="panel" data-tab="1" data-title="Energie overal" data-icon="⚡">
+  <div class="panel-head">
+    <span class="eyebrow">Introductie</span>
+    <h2>Energie zit overal — ook in jouw dag</h2>
+    <p class="lead">Waarom is energie zo belangrijk voor mensen over de hele wereld, en waarom groeit de vraag steeds verder?</p>
+  </div>
+
+  <div class="explain">
+    <h3><span class="ic">🔋</span> Wij kunnen slecht zonder energie</h3>
+    <p>Laten we eerlijk zijn: zonder energie loopt jouw dag vast. Eén dag geen stroom betekent een lege telefoon, een trein die niet rijdt en lauwe frisdrank uit de koelkast. Maar energie zit in veel méér dan je denkt. Elke keer dat je een TikTok of YouTube-filmpje bekijkt, een Snap verstuurt of online een spel speelt, draaien er ergens grote computers in een <b>datacenter</b>. Die datacenters slurpen enorme hoeveelheden elektriciteit — alleen al om jouw berichten en video's rond te sturen.</p>
+    <p>Energie heb je niet alleen nodig voor apparaten. Ook het <b>maken en vervoeren</b> van spullen kost energie: je kleding, het staal in een fiets, en het voedsel in de supermarkt. Bij elke stap — fabriek, vrachtwagen, koeling — wordt brandstof of elektriciteit gebruikt. Energie is dus de motor achter bijna alles wat je om je heen ziet.</p>
+    <p>En de vraag blijft stijgen. Wereldwijd gebruiken we nu ruim <b>twintig keer zo veel</b> energie als 100 jaar geleden. Dat komt doordat er steeds meer mensen op aarde zijn én doordat de welvaart gemiddeld stijgt: meer mensen kopen een telefoon, een koelkast of een scooter. De honger naar energie wordt voorlopig dus alleen maar groter.</p>
+    <div class="flow">
+      <div class="step"><span class="emo">☀️</span><b>Energiebron</b><small>zon, gas, kolen…</small></div>
+      <div class="arrow">→</div>
+      <div class="step"><span class="emo">🏭</span><b>Centrale</b><small>maakt stroom</small></div>
+      <div class="arrow">→</div>
+      <div class="step"><span class="emo">🔌</span><b>Stopcontact</b><small>thuis &amp; school</small></div>
+      <div class="arrow">→</div>
+      <div class="step"><span class="emo">📱</span><b>Jouw scherm</b><small>scrollen &amp; gamen</small></div>
+    </div>
+    <div class="realworld"><b>Uit jouw leven:</b> Als jij vanochtend je telefoon van de oplader haalde, had die de hele nacht stroom getrokken uit het stopcontact. Die stroom kwam van een energiebron ver weg en reisde via kabels naar jouw kamer.</div>
+    <div class="spotvraag"><b>🔎 Kijk om je heen:</b> Tel snel hoeveel apparaten in jouw kamer nú stroom gebruiken (ook standby-lampjes en opladers). Schrik je van het aantal?</div>
+  </div>
+
+  <div class="card">
+    <h3><span class="ic">📈</span> Hoe hard groeit het energiegebruik?</h3>
+    <p>De grafiek hieronder laat het wereldwijde energiegebruik zien als een <b>indexcijfer</b>: het jaar 1920 is op 100 gezet. Zo kun je makkelijk zien hoeveel keer het gebruik is toegenomen.</p>
+    <div class="chartbox"><canvas id="chart1"></canvas></div>
+    <p class="legend-note">Cijfers bij benadering, bedoeld om de groei te laten zien.</p>
+  </div>
+
+  <div class="ex" data-eid="t1q1" data-type="mc" data-correct="c"
+    data-hint1="Lees nog eens de derde alinea van de uitleg. Het getal staat er letterlijk."
+    data-hint2="Het is veel meer dan een paar keer — denk aan tientallen keren."
+    data-explain="We gebruiken ruim 20 keer zo veel energie als 100 jaar geleden, doordat de bevolking groeide en de welvaart steeg.">
+    <span class="ex-tag">Quiz</span>
+    <p class="ex-q">Hoeveel keer zo veel energie gebruiken we wereldwijd ongeveer, vergeleken met 100 jaar geleden?</p>
+    <div class="opts">
+      <button class="opt" data-val="a"><span class="mark"></span><span>Ongeveer 2 keer zo veel</span></button>
+      <button class="opt" data-val="b"><span class="mark"></span><span>Ongeveer 5 keer zo veel</span></button>
+      <button class="opt" data-val="c"><span class="mark"></span><span>Ruim 20 keer zo veel</span></button>
+      <button class="opt" data-val="d"><span class="mark"></span><span>Precies 100 keer zo veel</span></button>
+    </div>
+    <div class="ex-fb"></div>
+  </div>
+
+  <div class="ex" data-eid="t1q2" data-type="open" data-min="20" data-scored="1"
+    data-example="De grafiek loopt steeds steiler omhoog: het energiegebruik wordt elk jaar groter en is nu ruim twintig keer zo hoog als in 1920. Dat komt doordat er steeds meer mensen op aarde zijn en doordat de welvaart stijgt, waardoor mensen meer apparaten gebruiken. ||| Je ziet een sterke stijging. Twee redenen: de wereldbevolking groeit hard, en gemiddeld worden mensen rijker, dus kopen ze meer spullen die stroom of brandstof nodig hebben, zoals telefoons en auto's.">
+    <span class="ex-tag">Grafiek analyseren</span>
+    <p class="ex-q">Bekijk de grafiek hierboven. Beschrijf in je eigen woorden wat er met het energiegebruik gebeurt, en noem twee redenen waarom.<span class="small">Lees de grafiek af én leg uit (minimaal 20 woorden).</span></p>
+    <textarea class="answer" placeholder="Schrijf hier je antwoord…"></textarea>
+    <div class="open-meta">
+      <span class="wordcount">0 woorden</span>
+      <button class="btn btn-ghost btn-sm show-example" disabled>Toon voorbeeldantwoord</button>
+    </div>
+    <div class="example-box"></div>
+    <div class="selfassess"></div>
+    <div class="ex-fb"></div>
+  </div>
+
+  <div class="ex" data-eid="t1q3" data-type="open" data-min="20" data-scored="1"
+    data-example="Vanochtend ging mijn wekker op mijn telefoon af, die de hele nacht aan de oplader had gehangen. Ik deed het licht aan, nam een warme douche en at een boterham uit de koelkast. Daarna fietste ik naar school. Bijna alles, behalve het fietsen, kostte stroom of gas. ||| Mijn ochtend kostte op veel momenten energie: de verwarming stond aan (gas), ik laadde mijn telefoon op, gebruikte de waterkoker voor thee en deed de lampen aan. Zelfs mijn ontbijt was gekoeld in de koelkast, die de hele dag stroom gebruikt.">
+    <span class="ex-tag">Open opdracht</span>
+    <p class="ex-q">Beschrijf jouw ochtend van vandaag. Op welke momenten kostte het energie (stroom, gas of brandstof)? Denk aan je telefoon, ontbijt en de weg naar school.<span class="small">Minimaal 20 woorden — schrijf in volledige zinnen.</span></p>
+    <textarea class="answer" placeholder="Schrijf hier je antwoord…"></textarea>
+    <div class="open-meta">
+      <span class="wordcount">0 woorden</span>
+      <button class="btn btn-ghost btn-sm show-example" disabled>Toon voorbeeldantwoord</button>
+    </div>
+    <div class="example-box"></div>
+    <div class="selfassess"></div>
+    <div class="ex-fb"></div>
+  </div>
+</section>
+
+<!-- ===================== TAB 2: FOSSIELE BRANDSTOFFEN ===================== -->
+<section class="panel" data-tab="2" data-title="Aardolie &amp; kolen" data-icon="🛢️">
+  <div class="panel-head">
+    <span class="eyebrow">Veelgebruikte energiebronnen</span>
+    <h2>Fossiele brandstoffen: aardolie &amp; kolen</h2>
+    <p class="lead">De meest gebruikte energiebronnen op aarde zijn fossiele brandstoffen. We beginnen met de twee bekendste: aardolie en kolen.</p>
+  </div>
+
+  <div class="explain">
+    <h3><span class="ic">🦕</span> Wat zijn fossiele brandstoffen?</h3>
+    <p>De meest gebruikte energiebronnen op aarde zijn <b>aardolie, aardgas en kolen</b>. Het zijn brandstoffen die lang, lang geleden zijn ontstaan uit de resten van planten en dieren. Daarom noemen we ze <b>fossiele brandstoffen</b> — net als een fossiel zijn ze miljoenen jaren oud. Op deze pagina kijken we naar aardolie en kolen; aardgas en kernenergie komen in het volgende onderdeel.</p>
+    <p><b>Aardolie</b> is ontstaan uit enorme stapels dood plankton op de zeebodem. Onder de druk van steeds nieuwe bodemlagen veranderde dat heel langzaam in olie. Aardolie is de grondstof van <b>benzine, diesel en kerosine</b> en wordt vooral gebruikt in de industrie en in het transport — denk aan auto's, vrachtwagens en vliegtuigen. Olie is zó waardevol dat het ook wel <b>het zwarte goud</b> wordt genoemd. Elke dag wordt er meer dan 10 miljard liter uit de grond gehaald; daarmee kun je de Johan Cruijff ArenA twee keer tot het dak vullen.</p>
+    <p><b>Kolen</b> komen er in twee soorten: bruinkool en steenkool. Ze zijn ontstaan uit plantenresten. Steenkool is <b>goedkoper</b> dan aardolie, omdat het op meer plekken en makkelijker te winnen is. Kolen worden vooral gebruikt om <b>stroom</b> te maken in elektriciteitscentrales.</p>
+    <div class="grid2">
+      <div class="tile warm"><span class="emo">🛢️</span><h4>Aardolie</h4><p style="font-size:13.5px;margin:0;">Uit dood plankton. Grondstof van benzine, diesel en kerosine. Vooral voor industrie en transport.</p></div>
+      <div class="tile"><span class="emo">⛏️</span><h4>Kolen</h4><p style="font-size:13.5px;margin:0;">Bruinkool en steenkool, uit plantenresten. Goedkoop en makkelijk te winnen. Vooral voor stroom.</p></div>
+    </div>
+    <div class="realworld"><b>Uit jouw leven:</b> De bus of scooter waarmee je reist rijdt vaak op diesel of benzine — beide gemaakt van aardolie. En de oplaadbeurt van je telefoon kwam misschien deels uit een kolencentrale.</div>
+    <div class="spotvraag"><b>🔎 Kijk om je heen:</b> Welk vervoermiddel dat jij regelmatig gebruikt, rijdt op een product van aardolie? Bedenk er minstens één.</div>
+  </div>
+
+  <div class="ex" data-eid="t2q1" data-type="mc" data-correct="b"
+    data-hint1="Aardolie ontstond op de zeebodem. Welke kleine zeediertjes en -plantjes vind je daar?"
+    data-hint2="Het zijn hele kleine organismen die in zeewater zweven."
+    data-explain="Aardolie is ontstaan uit stapels dood plankton op de zeebodem, dat onder druk langzaam in olie veranderde.">
+    <span class="ex-tag">Quiz</span>
+    <p class="ex-q">Waaruit is aardolie ontstaan?</p>
+    <div class="opts">
+      <button class="opt" data-val="a"><span class="mark"></span><span>Uit gesmolten gesteente diep in de aarde</span></button>
+      <button class="opt" data-val="b"><span class="mark"></span><span>Uit stapels dood plankton op de zeebodem</span></button>
+      <button class="opt" data-val="c"><span class="mark"></span><span>Uit zand en klei door de zon verhit</span></button>
+      <button class="opt" data-val="d"><span class="mark"></span><span>Uit uranium dat uit elkaar valt</span></button>
+    </div>
+    <div class="ex-fb"></div>
+  </div>
+
+  <div class="ex" data-eid="t2q2" data-type="match" data-scored="1"
+    data-hint1="Denk aan waar elke brandstof vooral voor gebruikt wordt en waaruit hij ontstond."
+    data-hint2="Benzine en kerosine horen bij olie. Stroom uit centrales hoort vaak bij kolen.">
+    <span class="ex-tag">Koppelen</span>
+    <p class="ex-q">Sleep elk kenmerk naar de juiste energiebron. Eén energiebron kan meerdere kenmerken krijgen.<span class="small">Sleep de bolletjes naar het juiste vak en klik daarna op Controleer.</span></p>
+    <div class="match-pool" data-zone="pool">
+      <span class="pool-label">Sleep deze kenmerken:</span>
+      <span class="chip" data-correct="z1">Grondstof van kerosine</span>
+      <span class="chip" data-correct="z1">Ontstaan uit plankton</span>
+      <span class="chip" data-correct="z1">Het zwarte goud</span>
+      <span class="chip" data-correct="z2">Bruinkool en steenkool</span>
+      <span class="chip" data-correct="z2">Goedkoop en makkelijk te winnen</span>
+      <span class="chip" data-correct="z2">Vooral voor stroom in centrales</span>
+    </div>
+    <div class="match-targets">
+      <div class="target" data-zone="z1"><h4>🛢️ Aardolie</h4><div class="drop"></div></div>
+      <div class="target" data-zone="z2"><h4>⛏️ Kolen</h4><div class="drop"></div></div>
+    </div>
+    <button class="btn btn-primary btn-sm check-match">Controleer</button>
+    <div class="ex-fb"></div>
+  </div>
+
+  <div class="ex" data-eid="t2q3" data-type="open" data-min="20" data-scored="1"
+    data-example="Aardolie wordt het zwarte goud genoemd omdat het heel waardevol is, net als echt goud. We hebben het overal voor nodig: voor benzine, diesel en kerosine, en voor de industrie. Landen die veel olie hebben, kunnen er veel geld mee verdienen. ||| Het heet zwart goud omdat olie zwart van kleur is en tegelijk heel kostbaar, zoals goud. Bijna de hele wereld draait op olie, dus de vraag is enorm en de prijs hoog. Wie olie bezit, bezit dus iets heel waardevols.">
+    <span class="ex-tag">Open opdracht</span>
+    <p class="ex-q">Leg in je eigen woorden uit waarom aardolie ook wel het zwarte goud wordt genoemd.<span class="small">Minimaal 20 woorden.</span></p>
+    <textarea class="answer" placeholder="Schrijf hier je antwoord…"></textarea>
+    <div class="open-meta">
+      <span class="wordcount">0 woorden</span>
+      <button class="btn btn-ghost btn-sm show-example" disabled>Toon voorbeeldantwoord</button>
+    </div>
+    <div class="example-box"></div>
+    <div class="selfassess"></div>
+    <div class="ex-fb"></div>
+  </div>
+</section>
+
+<!-- ===================== TAB 3: AARDGAS & KERNENERGIE ===================== -->
+<section class="panel" data-tab="3" data-title="Aardgas &amp; kernenergie" data-icon="🔥">
+  <div class="panel-head">
+    <span class="eyebrow">Veelgebruikte energiebronnen</span>
+    <h2>Aardgas &amp; kernenergie</h2>
+    <p class="lead">Na aardolie en kolen bekijken we de twee andere veelgebruikte bronnen: het schoonste fossiele gas en de krachtige kernenergie.</p>
+  </div>
+
+  <div class="explain">
+    <h3><span class="ic">🔥</span> Aardgas: de schoonste fossiele brandstof</h3>
+    <p>Uit steenkool en aardolie kan onder hoge druk <b>aardgas</b> ontstaan. Van alle fossiele brandstoffen is dit de <b>schoonste</b>: bij verbranding komen er veel minder CO₂ en roetdeeltjes vrij dan bij kolen. Net als aardolie wordt aardgas via <b>boringen</b> uit de grond gehaald. We gebruiken het vooral voor <b>verwarming</b> van huizen en voor het maken van stroom.</p>
+    <p>Waarschijnlijk woon jij in een huis dat (deels) op aardgas wordt verwarmd. Als je vanochtend onder een warme douche stond, kwam die warmte er misschien dankzij aardgas. In Nederland zijn we daarom lange tijd erg afhankelijk geweest van gas.</p>
+    <p><b>Kernenergie</b> is in een aantal rijke landen een belangrijke energiebron. Het wordt opgewekt met <b>uranium</b>, een stof die — net als ijzer of goud — van nature in de aarde voorkomt. Kernenergie is ongelooflijk krachtig: met slechts <b>één kilo uranium</b> kun je vijfduizend huishoudens een heel jaar lang van stroom voorzien. Dat is een gigantische hoeveelheid energie uit een klein beetje materiaal.</p>
+    <table class="cmp">
+      <tr><th>Bron</th><th>Opgewekt met</th><th>Vooral gebruikt voor</th><th>Bijzonder</th></tr>
+      <tr><td>🔥 Aardgas</td><td>Gas uit boringen</td><td>Verwarming &amp; stroom</td><td>Schoonste fossiele brandstof</td></tr>
+      <tr><td>⚛️ Kernenergie</td><td>Uranium</td><td>Stroom</td><td>1 kg uranium = 5000 huishoudens/jaar</td></tr>
+    </table>
+    <div class="realworld"><b>Uit jouw leven:</b> De warme douche waarmee je je dag begint, draait in veel huizen op aardgas. En als jouw stroom uit een land als Frankrijk komt, zit daar waarschijnlijk kernenergie in.</div>
+    <div class="spotvraag"><b>🔎 Kijk om je heen:</b> Weet jij waarmee jouw huis wordt verwarmd — met gas, met een warmtepomp of met iets anders? Vraag het thuis na.</div>
+  </div>
+
+  <div class="ex" data-eid="t3q1" data-type="mc" data-correct="c"
+    data-hint1="Welke fossiele brandstof geeft bij verbranding het minste CO2 en roet?"
+    data-hint2="Het wordt vaak gebruikt om je huis te verwarmen en komt via boringen omhoog."
+    data-explain="Aardgas is de schoonste fossiele brandstof: bij verbranding komen er veel minder CO2 en roetdeeltjes vrij dan bij kolen.">
+    <span class="ex-tag">Quiz</span>
+    <p class="ex-q">Welke fossiele brandstof is het schoonst bij verbranding?</p>
+    <div class="opts">
+      <button class="opt" data-val="a"><span class="mark"></span><span>Steenkool</span></button>
+      <button class="opt" data-val="b"><span class="mark"></span><span>Bruinkool</span></button>
+      <button class="opt" data-val="c"><span class="mark"></span><span>Aardgas</span></button>
+      <button class="opt" data-val="d"><span class="mark"></span><span>Aardolie</span></button>
+    </div>
+    <div class="ex-fb"></div>
+  </div>
+
+  <div class="ex" data-eid="t3q2" data-type="order" data-scored="1"
+    data-hint1="Welke fossiele brandstof gaf de minste vervuiling, en welke de meeste?"
+    data-hint2="Aardgas is het schoonst, kolen het meest vervuilend. Olie zit ertussenin.">
+    <span class="ex-tag">Rangschikken</span>
+    <p class="ex-q">Zet deze fossiele brandstoffen op volgorde, van het schoonst (bovenaan) naar het meest vervuilend (onderaan) bij verbranding.<span class="small">Sleep de blokken in de juiste volgorde en klik op Controleer.</span></p>
+    <ul class="order-list">
+      <li draggable="true" data-pos="3"><span class="grip">⠿</span><span class="pos"></span><span>Kolen</span></li>
+      <li draggable="true" data-pos="1"><span class="grip">⠿</span><span class="pos"></span><span>Aardgas (schoonst)</span></li>
+      <li draggable="true" data-pos="2"><span class="grip">⠿</span><span class="pos"></span><span>Aardolie</span></li>
+    </ul>
+    <button class="btn btn-primary btn-sm check-order">Controleer volgorde</button>
+    <div class="ex-fb"></div>
+  </div>
+
+  <div class="ex" data-eid="t3q3" data-type="open" data-min="20" data-scored="1"
+    data-example="Kernenergie is heel krachtig omdat er uit een kleine hoeveelheid uranium ontzettend veel energie komt. Met maar een kilo uranium kun je al vijfduizend huishoudens een jaar lang van stroom voorzien. Daarvoor zou je heel veel kolen of gas nodig hebben. ||| Met een minieme hoeveelheid uranium maak je enorm veel stroom: een kilo is genoeg voor vijfduizend huishoudens, een heel jaar lang. Eén kilo kolen of gas levert juist maar heel weinig energie. Daarom noemen we kernenergie zo krachtig.">
+    <span class="ex-tag">Open opdracht</span>
+    <p class="ex-q">Leg uit waarom kernenergie zo krachtig wordt genoemd. Gebruik in je antwoord het voorbeeld van de kilo uranium.<span class="small">Minimaal 20 woorden.</span></p>
+    <textarea class="answer" placeholder="Schrijf hier je antwoord…"></textarea>
+    <div class="open-meta">
+      <span class="wordcount">0 woorden</span>
+      <button class="btn btn-ghost btn-sm show-example" disabled>Toon voorbeeldantwoord</button>
+    </div>
+    <div class="example-box"></div>
+    <div class="selfassess"></div>
+    <div class="ex-fb"></div>
+  </div>
+</section>
+
+<!-- ===================== TAB 4: VOOR- EN NADELEN FOSSIEL & KERN ===================== -->
+<section class="panel" data-tab="4" data-title="Voor- &amp; nadelen" data-icon="⚖️">
+  <div class="panel-head">
+    <span class="eyebrow">Voor- en nadelen</span>
+    <h2>Wat kost energie ons écht?</h2>
+    <p class="lead">Fossiele brandstoffen en kernenergie zijn handig en krachtig — maar er zitten flinke nadelen aan. Welke?</p>
+  </div>
+
+  <div class="explain">
+    <h3><span class="ic">⚖️</span> Goedkoop, maar niet zonder prijs</h3>
+    <p>Fossiele energiebronnen blijven nog lange tijd belangrijk voor warmte, stroom en brandstoffen zoals benzine en diesel. Dat komt onder andere doordat ze nog <b>relatief goedkoop</b> zijn. Toch hebben ze grote nadelen. Bij de verbranding van fossiele brandstoffen ontstaat <b>vervuiling</b> en komt er <b>CO₂</b> vrij.</p>
+    <p>Al die extra CO₂ in de atmosfeer versterkt het natuurlijke <b>broeikaseffect</b>. Daardoor warmt de aarde steeds sneller op. Bovendien kunnen we niet eindeloos olie, gas en kolen uit de aarde halen: de voorraden raken op. We noemen ze daarom <b>uitputbare</b> energiebronnen — op een dag zijn ze gewoon op.</p>
+    <p>Het grote nadeel van <b>kernenergie</b> is dat er gevaarlijke straling — <b>radioactiviteit</b> — vrijkomt bij de productie. Ook het afval van een kerncentrale is radioactief en kan nog <b>duizenden jaren</b> levensgevaarlijke straling afgeven. Aan de meest gebruikte energiebronnen op aarde zitten dus stevige nadelen.</p>
+    <div class="flow">
+      <div class="step"><span class="emo">🔥</span><b>Verbranding</b><small>olie, gas, kolen</small></div>
+      <div class="arrow">→</div>
+      <div class="step"><span class="emo">💨</span><b>CO₂ erbij</b><small>in de atmosfeer</small></div>
+      <div class="arrow">→</div>
+      <div class="step"><span class="emo">🌡️</span><b>Broeikaseffect</b><small>wordt sterker</small></div>
+      <div class="arrow">→</div>
+      <div class="step"><span class="emo">🌍</span><b>Opwarming</b><small>aarde warmt op</small></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3><span class="ic">📊</span> Hoeveel CO₂ per energiebron?</h3>
+    <p>Deze grafiek geeft bij benadering aan hoeveel CO₂ er per energiebron vrijkomt om dezelfde hoeveelheid stroom te maken. Hoe hoger de staaf, hoe vervuilender.</p>
+    <div class="chartbox"><canvas id="chart2"></canvas></div>
+    <p class="legend-note">Relatieve waarden ter vergelijking, bij benadering.</p>
+  </div>
+
+  <div class="ex" data-eid="t4q1" data-type="mc" data-correct="b"
+    data-hint1="Denk aan het woord zelf: iets dat uitgeput raakt."
+    data-hint2="Het gaat erover dat er een einde komt aan de voorraad in de grond."
+    data-explain="Uitputbaar betekent dat de voorraden opraken. Olie, gas en kolen kunnen we niet eindeloos uit de aarde halen.">
+    <span class="ex-tag">Quiz</span>
+    <p class="ex-q">Wat bedoelen we als we zeggen dat fossiele brandstoffen uitputbaar zijn?</p>
+    <div class="opts">
+      <button class="opt" data-val="a"><span class="mark"></span><span>Ze zijn altijd vies en geven veel rook</span></button>
+      <button class="opt" data-val="b"><span class="mark"></span><span>De voorraden raken op — ze zijn niet eindeloos</span></button>
+      <button class="opt" data-val="c"><span class="mark"></span><span>Ze zijn heel duur om te kopen</span></button>
+      <button class="opt" data-val="d"><span class="mark"></span><span>Ze geven straling af</span></button>
+    </div>
+    <div class="ex-fb"></div>
+  </div>
+
+  <div class="ex" data-eid="t4q2" data-type="match" data-scored="1"
+    data-hint1="Een voordeel is iets goeds, een nadeel iets vervelends. Lees elke kaart goed."
+    data-hint2="CO2, opraken en radioactief afval zijn nadelen. Goedkoop en krachtig zijn voordelen.">
+    <span class="ex-tag">Koppelen</span>
+    <p class="ex-q">Sleep elke eigenschap naar Voordeel of Nadeel. Beide vakken kunnen meerdere kaarten krijgen.<span class="small">Sleep en klik daarna op Controleer.</span></p>
+    <div class="match-pool" data-zone="pool">
+      <span class="pool-label">Sleep deze eigenschappen:</span>
+      <span class="chip" data-correct="z1">Nog relatief goedkoop</span>
+      <span class="chip" data-correct="z1">Levert veel warmte en stroom</span>
+      <span class="chip" data-correct="z2">Stoot CO₂ uit</span>
+      <span class="chip" data-correct="z2">Raakt op (uitputbaar)</span>
+      <span class="chip" data-correct="z2">Levert radioactief afval</span>
+      <span class="chip" data-correct="z2">Versterkt het broeikaseffect</span>
+    </div>
+    <div class="match-targets">
+      <div class="target" data-zone="z1"><h4>👍 Voordeel</h4><div class="drop"></div></div>
+      <div class="target" data-zone="z2"><h4>👎 Nadeel</h4><div class="drop"></div></div>
+    </div>
+    <button class="btn btn-primary btn-sm check-match">Controleer</button>
+    <div class="ex-fb"></div>
+  </div>
+
+  <div class="ex" data-eid="t4q3" data-type="open" data-min="20" data-scored="1"
+    data-example="Ik zou twijfelen over een kerncentrale dichtbij. Voordeel: het levert heel veel stroom en stoot geen CO2 uit, dus het is goed tegen de opwarming. Nadeel: er komt radioactiviteit vrij en het afval blijft duizenden jaren gevaarlijk. Dat vind ik eng zo dicht bij mijn huis. ||| Een kerncentrale dichtbij heeft voor- en nadelen. Voordeel: veel stroom zonder CO2. Nadeel: gevaarlijke straling en afval dat duizenden jaren radioactief blijft. Ik zou hem liever ver van bewoning bouwen, zodat mensen veilig zijn als er iets misgaat.">
+    <span class="ex-tag">Open opdracht · jouw mening</span>
+    <p class="ex-q">Zou jij het goed vinden als er een kerncentrale dichtbij jouw woonplaats werd gebouwd? Noem minstens één voordeel én één nadeel en geef je mening.<span class="small">Minimaal 20 woorden. Er is geen fout antwoord, als je het maar uitlegt.</span></p>
+    <textarea class="answer" placeholder="Schrijf hier je antwoord…"></textarea>
+    <div class="open-meta">
+      <span class="wordcount">0 woorden</span>
+      <button class="btn btn-ghost btn-sm show-example" disabled>Toon voorbeeldantwoord</button>
+    </div>
+    <div class="example-box"></div>
+    <div class="selfassess"></div>
+    <div class="ex-fb"></div>
+  </div>
+</section>
+
+<!-- ===================== TAB 5: WATER & ZON ===================== -->
+<section class="panel" data-tab="5" data-title="Water &amp; zon" data-icon="💧">
+  <div class="panel-head">
+    <span class="eyebrow">Duurzame energiebronnen</span>
+    <h2>Groene energie: water &amp; zon</h2>
+    <p class="lead">Hernieuwbare bronnen raken nooit op. Toch is wereldwijd nog maar een klein deel van onze energie groen. We beginnen met water en zon.</p>
+  </div>
+
+  <div class="explain">
+    <h3><span class="ic">♻️</span> Het raakt niet op!</h3>
+    <p>De nadelen van fossiele brandstoffen en kernenergie ken je nu: ze zijn eindig en vervuilend. <b>Hernieuwbare</b> (duurzame, groene) energiebronnen zijn het alternatief — die raken nooit op. Toch is wereldwijd nog maar ongeveer <b>11%</b> van alle verbruikte energie duurzaam. Dat komt doordat de productie van duurzame energie vaak nog <b>duur</b> is, en doordat groene bronnen niet altijd even krachtig en betrouwbaar zijn als fossiele brandstoffen.</p>
+    <p><b>Waterkracht</b> is wereldwijd de meest gebruikte duurzame energiebron. In rivieren wordt stromend water gebruikt om elektriciteit op te wekken: je plaatst een dam met <b>turbines</b>. Minder bekend is het opwekken van stroom uit de <b>golfslag</b> of de <b>getijden</b> in zee. Waterkracht levert behoorlijk <b>constant</b> stroom, maar de aanleg van een waterkrachtcentrale heeft flinke gevolgen voor de omgeving (een heel dal kan onder water komen te staan).</p>
+    <p><b>Zonne-energie</b> kun je op twee manieren benutten: via warmte en via licht. <b>Zonnecollectoren</b> gebruiken de warmte (bijvoorbeeld om water te verwarmen), terwijl <b>zonnepanelen</b> het licht omzetten in elektriciteit. Zonnepanelen kun je op heel veel plekken neerleggen en zijn dus makkelijk in te zetten. Nadeel: niet iedereen vindt ze mooi, en de opbrengst wisselt, want de zon schijnt niet altijd (even fel).</p>
+    <div class="grid2">
+      <div class="tile green"><span class="emo">💧</span><h4>Waterkracht</h4><p style="font-size:13.5px;margin:0;">Dammen met turbines in rivieren, plus golf- en getijdenenergie in zee. Behoorlijk constant, maar grote gevolgen voor de omgeving.</p></div>
+      <div class="tile sun"><span class="emo">☀️</span><h4>Zonne-energie</h4><p style="font-size:13.5px;margin:0;">Collectoren (warmte) en panelen (elektriciteit). Makkelijk in te zetten, maar wisselende opbrengst.</p></div>
+    </div>
+    <div class="realworld"><b>Uit jouw leven:</b> Misschien liggen er zonnepanelen op het dak van jouw school of huis. Op een zonnige dag maken ze veel stroom; op een grijze winterdag bijna niets.</div>
+    <div class="spotvraag"><b>🔎 Kijk om je heen:</b> Zie jij op weg naar school zonnepanelen op daken? Waar zou jij er nog meer neerleggen in jouw buurt?</div>
+  </div>
+
+  <div class="card">
+    <h3><span class="ic">🥧</span> Hoe groen is onze energie?</h3>
+    <p>Dit cirkeldiagram laat bij benadering zien hoe de wereldwijde energie verdeeld is over fossiele brandstoffen, kernenergie en duurzame bronnen.</p>
+    <div class="chartbox"><canvas id="chart3"></canvas></div>
+    <p class="legend-note">Cijfers bij benadering.</p>
+  </div>
+
+  <div class="ex" data-eid="t5q1" data-type="mc" data-correct="a"
+    data-hint1="Welke bron gebruikt stromend water in rivieren met dammen en turbines?"
+    data-hint2="Het is de duurzame bron die wereldwijd het meest gebruikt wordt."
+    data-explain="Waterkracht is wereldwijd de meest gebruikte duurzame energiebron, vooral via dammen met turbines in rivieren.">
+    <span class="ex-tag">Quiz</span>
+    <p class="ex-q">Welke duurzame energiebron wordt wereldwijd het meest gebruikt?</p>
+    <div class="opts">
+      <button class="opt" data-val="a"><span class="mark"></span><span>Waterkracht</span></button>
+      <button class="opt" data-val="b"><span class="mark"></span><span>Zonne-energie</span></button>
+      <button class="opt" data-val="c"><span class="mark"></span><span>Windenergie</span></button>
+      <button class="opt" data-val="d"><span class="mark"></span><span>Aardwarmte</span></button>
+    </div>
+    <div class="ex-fb"></div>
+  </div>
+
+  <div class="ex" data-eid="t5q2" data-type="open" data-min="20" data-scored="1"
+    data-example="In het diagram zie ik dat maar ongeveer 11 procent van de energie duurzaam is. De rest is fossiel of kernenergie. Dat vind ik weinig, want fossiele brandstoffen zijn vervuilend en raken op. Er is dus nog een lange weg te gaan voor de wereld echt groen is. ||| Het diagram laat zien dat het grootste deel fossiel is en maar een klein deel, rond de 11 procent, duurzaam. Dat is weinig. Het komt doordat groene energie nog duur is en niet altijd betrouwbaar. We moeten dus nog flink uitbreiden.">
+    <span class="ex-tag">Grafiek analyseren</span>
+    <p class="ex-q">Bekijk het cirkeldiagram. Hoeveel procent van de wereldwijde energie is ongeveer duurzaam? Vind je dat veel of weinig, en waarom?<span class="small">Lees af én geef je mening (minimaal 20 woorden).</span></p>
+    <textarea class="answer" placeholder="Schrijf hier je antwoord…"></textarea>
+    <div class="open-meta">
+      <span class="wordcount">0 woorden</span>
+      <button class="btn btn-ghost btn-sm show-example" disabled>Toon voorbeeldantwoord</button>
+    </div>
+    <div class="example-box"></div>
+    <div class="selfassess"></div>
+    <div class="ex-fb"></div>
+  </div>
+
+  <div class="ex" data-eid="t5q3" data-type="open" data-min="20" data-scored="1"
+    data-example="Op ons dak zou een zonnepaneel best goed werken, want het dak ligt op het zuiden en er staan geen hoge bomen voor. In de zomer zou het veel stroom opleveren. In de winter en bij bewolking minder, dus we zouden niet altijd genoeg hebben. ||| Bij ons zou het minder goed gaan, want het dak ligt in de schaduw van een flatgebouw. Daardoor valt er weinig zon op. Op een huis zonder schaduw, met het dak naar het zuiden, zou een paneel veel beter werken.">
+    <span class="ex-tag">Open opdracht</span>
+    <p class="ex-q">Zou een zonnepaneel goed werken op het dak van jouw huis (of je school)? Denk aan de ligging, schaduw van bomen of gebouwen, en het seizoen.<span class="small">Minimaal 20 woorden.</span></p>
+    <textarea class="answer" placeholder="Schrijf hier je antwoord…"></textarea>
+    <div class="open-meta">
+      <span class="wordcount">0 woorden</span>
+      <button class="btn btn-ghost btn-sm show-example" disabled>Toon voorbeeldantwoord</button>
+    </div>
+    <div class="example-box"></div>
+    <div class="selfassess"></div>
+    <div class="ex-fb"></div>
+  </div>
+</section>
+
+<!-- ===================== TAB 6: WIND, AARDWARMTE & BIOMASSA ===================== -->
+<section class="panel" data-tab="6" data-title="Wind, aardwarmte &amp; biomassa" data-icon="🌬️">
+  <div class="panel-head">
+    <span class="eyebrow">Duurzame energiebronnen</span>
+    <h2>Wind, aardwarmte &amp; biomassa</h2>
+    <p class="lead">Nog drie groene bronnen met elk hun eigen sterke en zwakke kanten.</p>
+  </div>
+
+  <div class="explain">
+    <h3><span class="ic">🌬️</span> Drie krachtige groene bronnen</h3>
+    <p><b>Windenergie:</b> zodra het waait, levert een windturbine stroom. Wind is een <b>sterke</b> energiebron. Een gemiddelde windturbine levert stroom voor ruim <b>1500 huishoudens</b> — daar zou je duizenden zonnepanelen voor nodig hebben! De ene regio is geschikter voor wind dan de andere. Vooral windparken op <b>zee</b> zijn populair, want daar waait het harder (meer opbrengst) en is er minder <b>horizonvervuiling</b>.</p>
+    <p><b>Aardwarmte (geothermie):</b> hoe dieper je de aarde in gaat, hoe warmer het wordt. Op twee kilometer diepte heeft het grondwater in Nederland al een temperatuur van meer dan <b>70 °C</b>. In IJsland is dat al op tien meter diepte het geval, doordat daar vulkanen zitten. Met dat warme grondwater kun je bijvoorbeeld een groot <b>kassencomplex</b> verwarmen. Na gebruik gaat het water weer de grond in om opnieuw op te warmen. Aardwarmte werkt altijd — dag en nacht — maar is nu nog erg <b>duur</b>.</p>
+    <p><b>Biomassa:</b> dit zijn materialen en afval van biologische aard, zoals mest, plantenresten of frituurvet. Door bijvoorbeeld <b>houtsnippers</b> te verbranden, wek je stroom op. Ook maken we van planten zoals koolzaad en suikerriet <b>biobrandstof</b>. Voordeel: energie uit biomassa brengt relatief <b>weinig extra CO₂</b> in de lucht. Nadeel: er is al veel natuur verdwenen om plaats te maken voor gewassen die als energiebron dienen.</p>
+    <table class="cmp">
+      <tr><th>Bron</th><th>Sterk punt</th><th>Zwak punt</th></tr>
+      <tr><td>🌬️ Wind</td><td>Krachtig: 1 turbine ≈ 1500 huishoudens</td><td>Werkt alleen als het waait; horizonvervuiling</td></tr>
+      <tr><td>♨️ Aardwarmte</td><td>Werkt altijd, dag en nacht</td><td>Nu nog erg duur</td></tr>
+      <tr><td>🌾 Biomassa</td><td>Weinig extra CO₂</td><td>Kost natuur door extra landbouw</td></tr>
+    </table>
+    <div class="realworld"><b>Uit jouw leven:</b> Heb je ooit op de snelweg of langs de kust grote windturbines zien draaien? Eén zo'n paal levert al genoeg stroom voor een hele buurt.</div>
+    <div class="spotvraag"><b>🔎 Kijk om je heen:</b> Welke van deze drie bronnen — wind, aardwarmte of biomassa — zou jij in jouw eigen regio het makkelijkst kunnen plaatsen, denk je?</div>
+  </div>
+
+  <div class="ex" data-eid="t6q1" data-type="mc" data-correct="c"
+    data-hint1="Lees de eerste alinea nog eens: hoeveel huishoudens noemt de tekst bij één turbine?"
+    data-hint2="Het zijn er meer dan duizend, maar minder dan vijfduizend."
+    data-explain="Een gemiddelde windturbine levert stroom voor ruim 1500 huishoudens — daarvoor heb je duizenden zonnepanelen nodig.">
+    <span class="ex-tag">Quiz</span>
+    <p class="ex-q">Voor ongeveer hoeveel huishoudens levert één gemiddelde windturbine stroom?</p>
+    <div class="opts">
+      <button class="opt" data-val="a"><span class="mark"></span><span>Ongeveer 50 huishoudens</span></button>
+      <button class="opt" data-val="b"><span class="mark"></span><span>Ongeveer 300 huishoudens</span></button>
+      <button class="opt" data-val="c"><span class="mark"></span><span>Ruim 1500 huishoudens</span></button>
+      <button class="opt" data-val="d"><span class="mark"></span><span>Ongeveer 50.000 huishoudens</span></button>
+    </div>
+    <div class="ex-fb"></div>
+  </div>
+
+  <div class="ex" data-eid="t6q2" data-type="match" data-scored="1"
+    data-hint1="Denk aan wat elke bron bijzonder maakt: waait, warmte uit de grond, of verbranden van resten."
+    data-hint2="Houtsnippers en frituurvet horen bij biomassa. Warm grondwater hoort bij aardwarmte.">
+    <span class="ex-tag">Koppelen</span>
+    <p class="ex-q">Sleep elk kenmerk naar de juiste duurzame bron. Eén bron mag meerdere kenmerken krijgen.<span class="small">Sleep en klik daarna op Controleer.</span></p>
+    <div class="match-pool" data-zone="pool">
+      <span class="pool-label">Sleep deze kenmerken:</span>
+      <span class="chip" data-correct="z1">Parken op zee zijn populair</span>
+      <span class="chip" data-correct="z1">Werkt alleen als het waait</span>
+      <span class="chip" data-correct="z2">Warm grondwater uit de diepte</span>
+      <span class="chip" data-correct="z2">Verwarmt kassencomplexen</span>
+      <span class="chip" data-correct="z3">Verbranden van houtsnippers</span>
+      <span class="chip" data-correct="z3">Gemaakt van frituurvet of mest</span>
+    </div>
+    <div class="match-targets">
+      <div class="target" data-zone="z1"><h4>🌬️ Wind</h4><div class="drop"></div></div>
+      <div class="target" data-zone="z2"><h4>♨️ Aardwarmte</h4><div class="drop"></div></div>
+      <div class="target" data-zone="z3"><h4>🌾 Biomassa</h4><div class="drop"></div></div>
+    </div>
+    <button class="btn btn-primary btn-sm check-match">Controleer</button>
+    <div class="ex-fb"></div>
+  </div>
+
+  <div class="ex" data-eid="t6q3" data-type="open" data-min="20" data-scored="1"
+    data-example="Voor Nederland past windenergie heel goed, want het waait hier vaak, vooral aan de kust en op zee. We hebben veel ruimte op de Noordzee voor windparken. Aardwarmte kan ook, maar is nu nog duur. Zo levert wind het meeste op zonder veel natuur te kosten. ||| Ik denk dat wind het beste past bij Nederland, omdat het hier veel waait en we een lange kust hebben. Op zee staan al grote windparken. Aardwarmte werkt wel altijd, maar is nog te duur om overal te gebruiken.">
+    <span class="ex-tag">Open opdracht</span>
+    <p class="ex-q">Welke duurzame bron (wind, aardwarmte of biomassa) past volgens jou het best bij Nederland? Leg uit waarom, met minstens één argument over ons land.<span class="small">Minimaal 20 woorden.</span></p>
+    <textarea class="answer" placeholder="Schrijf hier je antwoord…"></textarea>
+    <div class="open-meta">
+      <span class="wordcount">0 woorden</span>
+      <button class="btn btn-ghost btn-sm show-example" disabled>Toon voorbeeldantwoord</button>
+    </div>
+    <div class="example-box"></div>
+    <div class="selfassess"></div>
+    <div class="ex-fb"></div>
+  </div>
+</section>
+
+<!-- ===================== TAB 7: DUURZAAM VOOR- EN NADELEN ===================== -->
+<section class="panel" data-tab="7" data-title="Duurzaam: voor &amp; nadelen" data-icon="♻️">
+  <div class="panel-head">
+    <span class="eyebrow">Voor- en nadelen</span>
+    <h2>Hoe groen is groene energie écht?</h2>
+    <p class="lead">Duurzame bronnen raken nooit op, maar ze hebben ook nadelen. Daarom is nog maar 11% van onze energie groen.</p>
+  </div>
+
+  <div class="explain">
+    <h3><span class="ic">⚖️</span> De voor- en nadelen op een rij</h3>
+    <p>Het grote <b>voordeel</b> van alle duurzame bronnen is hetzelfde: ze <b>raken nooit op</b> en geven weinig of geen CO₂. Daarmee helpen ze tegen de opwarming van de aarde. Toch is wereldwijd nog maar ongeveer 11% van de energie groen. Hoe kan dat?</p>
+    <p>Het eerste nadeel is de <b>prijs</b>: het bouwen van windparken, waterkrachtcentrales en aardwarmte-installaties kost veel geld. Het tweede nadeel is de <b>betrouwbaarheid</b>. Sommige groene bronnen leveren niet altijd evenveel: een zonnepaneel doet 's nachts niets, en een windturbine staat stil als het windstil is. Andere bronnen, zoals aardwarmte en waterkracht, leveren juist heel <b>constant</b> energie.</p>
+    <p>Daarnaast hebben sommige bronnen gevolgen voor de <b>omgeving</b>. Een grote dam kan een heel dal onder water zetten, windturbines geven horizonvervuiling, en voor biomassa verdwijnt natuur om gewassen te telen. Bij het kiezen van een energiebron moet je dus altijd voor- en nadelen tegen elkaar afwegen.</p>
+    <div class="pc">
+      <div class="col pro"><h4>👍 Voordelen</h4><ul>
+        <li>Raken nooit op (hernieuwbaar)</li>
+        <li>Weinig of geen CO₂</li>
+        <li>Aardwarmte en water: heel constant</li>
+      </ul></div>
+      <div class="col con"><h4>👎 Nadelen</h4><ul>
+        <li>Bouwen is vaak duur</li>
+        <li>Zon en wind: wisselende opbrengst</li>
+        <li>Kunnen de omgeving of natuur schaden</li>
+      </ul></div>
+    </div>
+    <div class="realworld"><b>Uit jouw leven:</b> Stel je voor dat jouw huis alleen op zonnepanelen draait. Dan zou je op een donkere winteravond geen stroom hebben om je telefoon te laden — daarom combineren we meestal meerdere bronnen.</div>
+    <div class="spotvraag"><b>🔎 Kijk om je heen:</b> Welke groene bron in jouw omgeving levert volgens jou het meest constant energie, en welke is het meest afhankelijk van het weer?</div>
+  </div>
+
+  <div class="ex" data-eid="t7q1" data-type="order" data-scored="1"
+    data-hint1="Welke bron werkt dag én nacht, en welke staat 's nachts of bij windstilte stil?"
+    data-hint2="Aardwarmte werkt altijd. Water is behoorlijk constant. Wind hangt af van de wind, zon van de dag.">
+    <span class="ex-tag">Rangschikken</span>
+    <p class="ex-q">Zet deze duurzame bronnen op volgorde, van het meest betrouwbaar/constant (boven) naar het meest afhankelijk van het weer (onder).<span class="small">Sleep in de juiste volgorde en klik op Controleer.</span></p>
+    <ul class="order-list">
+      <li draggable="true" data-pos="4"><span class="grip">⠿</span><span class="pos"></span><span>Zonne-energie (alleen overdag &amp; bij zon)</span></li>
+      <li draggable="true" data-pos="1"><span class="grip">⠿</span><span class="pos"></span><span>Aardwarmte (werkt altijd)</span></li>
+      <li draggable="true" data-pos="3"><span class="grip">⠿</span><span class="pos"></span><span>Windenergie (alleen als het waait)</span></li>
+      <li draggable="true" data-pos="2"><span class="grip">⠿</span><span class="pos"></span><span>Waterkracht (behoorlijk constant)</span></li>
+    </ul>
+    <button class="btn btn-primary btn-sm check-order">Controleer volgorde</button>
+    <div class="ex-fb"></div>
+  </div>
+
+  <div class="ex" data-eid="t7q2" data-type="match" data-scored="1"
+    data-hint1="Een voordeel maakt de bron aantrekkelijk, een nadeel maakt het lastig."
+    data-hint2="Nooit opraken en geen CO2 zijn voordelen. Duur en wisselend zijn nadelen.">
+    <span class="ex-tag">Koppelen</span>
+    <p class="ex-q">Sleep elke eigenschap van duurzame energie naar Voordeel of Nadeel.<span class="small">Beide vakken kunnen meerdere kaarten krijgen.</span></p>
+    <div class="match-pool" data-zone="pool">
+      <span class="pool-label">Sleep deze eigenschappen:</span>
+      <span class="chip" data-correct="z1">Raakt nooit op</span>
+      <span class="chip" data-correct="z1">Weinig of geen CO₂</span>
+      <span class="chip" data-correct="z2">Bouwen is vaak duur</span>
+      <span class="chip" data-correct="z2">Niet altijd betrouwbaar</span>
+      <span class="chip" data-correct="z2">Kan de omgeving schaden</span>
+    </div>
+    <div class="match-targets">
+      <div class="target" data-zone="z1"><h4>👍 Voordeel</h4><div class="drop"></div></div>
+      <div class="target" data-zone="z2"><h4>👎 Nadeel</h4><div class="drop"></div></div>
+    </div>
+    <button class="btn btn-primary btn-sm check-match">Controleer</button>
+    <div class="ex-fb"></div>
+  </div>
+
+  <div class="ex" data-eid="t7q3" data-type="open" data-min="20" data-scored="1"
+    data-example="Voor mijn regio zou ik wind en zon combineren. Wind levert het meeste op, vooral in de winter als het vaak waait. Zonnepanelen vullen dat aan in de zomer, als de zon fel schijnt. Zo heb je het hele jaar door stroom, ook als één bron even weinig levert. ||| Ik kies aardwarmte en zon. Aardwarmte werkt dag en nacht en is heel betrouwbaar, dat is de basis. Zonnepanelen leveren extra stroom op zonnige dagen. Samen heb je een stabiele mix, al is aardwarmte nu nog duur om aan te leggen.">
+    <span class="ex-tag">Open opdracht · redeneren</span>
+    <p class="ex-q">Ontwerp een energiemix voor jouw regio. Kies twee duurzame bronnen die elkaar goed aanvullen en leg uit waarom die combinatie slim is.<span class="small">Minimaal 20 woorden. Denk aan betrouwbaarheid: vullen ze elkaar aan?</span></p>
+    <textarea class="answer" placeholder="Schrijf hier je antwoord…"></textarea>
+    <div class="open-meta">
+      <span class="wordcount">0 woorden</span>
+      <button class="btn btn-ghost btn-sm show-example" disabled>Toon voorbeeldantwoord</button>
+    </div>
+    <div class="example-box"></div>
+    <div class="selfassess"></div>
+    <div class="ex-fb"></div>
+  </div>
+</section>
+
+<!-- ===================== TAB 8: ENERGIE WERELDWIJD (KAART) ===================== -->
+<section class="panel" data-tab="8" data-title="Energie wereldwijd" data-icon="🗺️">
+  <div class="panel-head">
+    <span class="eyebrow">Interactieve kaart</span>
+    <h2>Energie kent geen grenzen</h2>
+    <p class="lead">Niet elk land heeft genoeg eigen energiebronnen. Daarom reist energie de hele wereld over. Verken de kaart!</p>
+  </div>
+
+  <div class="explain">
+    <h3><span class="ic">🌍</span> Wie heeft wat?</h3>
+    <p>Energiebronnen liggen niet eerlijk verdeeld over de aarde. Sommige landen zwemmen in de olie of het gas, terwijl andere bijna niets in eigen grond hebben. Die laatste landen moeten energie <b>importeren</b> uit het buitenland. <b>België</b> en <b>Japan</b> importeren beide zelfs meer dan <b>80%</b> van hun energie!</p>
+    <p>In het wereldwijde energienetwerk zijn <b>havens</b> belangrijke knooppunten. Het zijn aan- en doorvoerplekken waar brandstoffen tijdelijk worden opgeslagen. Vaak staan er ook elektriciteitscentrales en <b>raffinaderijen</b>, waar ruwe olie en gas geschikt gemaakt worden voor gebruik. De haven van Rotterdam is zo'n gigantisch knooppunt voor heel West-Europa.</p>
+    <p>Op de kaart hieronder staan plekken die belangrijk zijn voor de wereldwijde energievoorziening. <b>Klik op de markers</b> en lees in de pop-ups welke rol elke plek speelt. Je hebt deze informatie nodig voor de opdrachten.</p>
+    <div class="map-legend">
+      <span><i class="dot" style="background:#C0392B"></i> Fossiele bron / export</span>
+      <span><i class="dot" style="background:#3E8E41"></i> Duurzame bron</span>
+      <span><i class="dot" style="background:#F4A300"></i> Knooppunt / haven</span>
+      <span><i class="dot" style="background:#2c6fbb"></i> Importland</span>
+    </div>
+    <div class="mapbox" id="map8"></div>
+    <p class="legend-note">Klik op een marker voor uitleg. Gebruik scrollen of de + / − knoppen om in te zoomen.</p>
+  </div>
+
+  <div class="ex" data-eid="t8q1" data-type="mc" data-correct="d"
+    data-hint1="Klik op de blauwe marker bij Japan en lees de pop-up."
+    data-hint2="In de uitleg staat het percentage voor zowel België als Japan letterlijk genoemd."
+    data-explain="Japan importeert meer dan 80% van zijn energie, net als België. Beide landen hebben weinig eigen energiebronnen.">
+    <span class="ex-tag">Kaartopdracht · quiz</span>
+    <p class="ex-q">Klik op de marker bij Japan. Hoeveel procent van zijn energie importeert Japan ongeveer?</p>
+    <div class="opts">
+      <button class="opt" data-val="a"><span class="mark"></span><span>Ongeveer 10%</span></button>
+      <button class="opt" data-val="b"><span class="mark"></span><span>Ongeveer 40%</span></button>
+      <button class="opt" data-val="c"><span class="mark"></span><span>Ongeveer 60%</span></button>
+      <button class="opt" data-val="d"><span class="mark"></span><span>Meer dan 80%</span></button>
+    </div>
+    <div class="ex-fb"></div>
+  </div>
+
+  <div class="ex" data-eid="t8q2" data-type="open" data-min="20" data-scored="1"
+    data-example="Landen als België en Japan importeren veel energie omdat ze zelf bijna geen olie, gas of kolen in de grond hebben. Het risico is dat ze afhankelijk zijn van andere landen. Als de invoer stopt, bijvoorbeeld door ruzie of oorlog, kunnen ze in de problemen komen met te weinig stroom of brandstof. ||| Omdat ze weinig eigen bronnen hebben, moeten België en Japan energie uit het buitenland halen. Dat maakt ze kwetsbaar: als een leverancier de kraan dichtdraait of er problemen zijn met transport, hebben ze ineens te weinig energie en stijgen de prijzen.">
+    <span class="ex-tag">Open opdracht</span>
+    <p class="ex-q">Waarom moeten landen als België en Japan zo veel energie importeren? Noem ook één risico van die afhankelijkheid.<span class="small">Minimaal 20 woorden. Gebruik de kaart en de uitleg.</span></p>
+    <textarea class="answer" placeholder="Schrijf hier je antwoord…"></textarea>
+    <div class="open-meta">
+      <span class="wordcount">0 woorden</span>
+      <button class="btn btn-ghost btn-sm show-example" disabled>Toon voorbeeldantwoord</button>
+    </div>
+    <div class="example-box"></div>
+    <div class="selfassess"></div>
+    <div class="ex-fb"></div>
+  </div>
+
+  <div class="ex" data-eid="t8q3" data-type="open" data-min="20" data-scored="1"
+    data-example="Ik koos de marker bij IJsland. Daar wordt aardwarmte gebruikt, omdat er veel vulkanen zijn en de aarde al vlak onder het oppervlak heet is. IJsland kan daardoor heel veel duurzame energie maken zonder fossiele brandstoffen, en is bijna niet afhankelijk van import. ||| Ik koos de haven van Rotterdam. Dat is een knooppunt: hier komen tankschepen met olie en gas binnen, die worden opgeslagen en in raffinaderijen verwerkt. Vanuit Rotterdam gaat de energie verder naar de rest van West-Europa. Zonder zo'n haven zou de verdeling veel lastiger zijn.">
+    <span class="ex-tag">Kaartopdracht · open</span>
+    <p class="ex-q">Kies één marker op de kaart. Leg in eigen woorden uit welke rol die plek speelt in de wereldwijde energievoorziening.<span class="small">Minimaal 20 woorden. Noem de plek die je koos.</span></p>
+    <textarea class="answer" placeholder="Schrijf hier je antwoord…"></textarea>
+    <div class="open-meta">
+      <span class="wordcount">0 woorden</span>
+      <button class="btn btn-ghost btn-sm show-example" disabled>Toon voorbeeldantwoord</button>
+    </div>
+    <div class="example-box"></div>
+    <div class="selfassess"></div>
+    <div class="ex-fb"></div>
+  </div>
+</section>
+
+<!-- ===================== TAB 9: TRANSPORT VAN BRANDSTOFFEN ===================== -->
+<section class="panel" data-tab="9" data-title="Transport van brandstoffen" data-icon="🚢">
+  <div class="panel-head">
+    <span class="eyebrow">Transport &amp; infrastructuur</span>
+    <h2>Hoe komt de brandstof bij jou?</h2>
+    <p class="lead">Brandstof reist soms duizenden kilometers voordat jij er iets aan hebt. Daarvoor is een enorm netwerk nodig.</p>
+  </div>
+
+  <div class="explain">
+    <h3><span class="ic">🚢</span> Een netwerk over de hele wereld</h3>
+    <p>Omdat niet elk land genoeg eigen bronnen heeft, is er een uitgebreid <b>netwerk</b> nodig om energie op de juiste plaats te krijgen. <b>Havens</b> zijn daarin de belangrijkste knooppunten: het zijn aan- en doorvoerplekken waar brandstoffen tijdelijk worden <b>opgeslagen</b>. Vaak staan hier ook elektriciteitscentrales en <b>raffinaderijen</b>, waarin ruwe olie en gas geschikt gemaakt worden voor gebruik.</p>
+    <p>Over grote afstanden gebruiken we vooral <b>tankschepen</b>. Die zijn perfect voor steenkool, aardolie, vloeibaar aardgas (<b>LNG</b> = Liquefied Natural Gas) of biomassa, en kunnen enorme hoeveelheden tegelijk vervoeren. Vanuit de havens gaat het verder met <b>tankwagens</b>, <b>binnenvaartschepen</b> of <b>pijpleidingen</b>. De pijpleidingen waar aardolie doorheen stroomt, zijn soms zo groot dat je er rechtop in kunt staan; gasleidingen zijn smaller.</p>
+    <p>Sommige leidingen zijn enorm lang. De aardgasleidingen die vanuit Rusland naar Europa lopen, zijn heel uitgestrekt. Het duurt wel <b>twaalf dagen</b> voordat aardgas uit Siberië in Nederland is en jij een warme douche kunt nemen!</p>
+    <div class="flow">
+      <div class="step"><span class="emo">⛏️</span><b>Bron</b><small>winning</small></div>
+      <div class="arrow">→</div>
+      <div class="step"><span class="emo">🚢</span><b>Tankschip</b><small>over zee</small></div>
+      <div class="arrow">→</div>
+      <div class="step"><span class="emo">⚓</span><b>Haven</b><small>opslag &amp; raffinaderij</small></div>
+      <div class="arrow">→</div>
+      <div class="step"><span class="emo">🚚</span><b>Naar gebruiker</b><small>wagen of pijpleiding</small></div>
+    </div>
+    <div class="realworld"><b>Uit jouw leven:</b> Het gas waarmee jij vanochtend doucht, kan twaalf dagen onderweg zijn geweest vanuit Siberië. Jouw warme water heeft dus een wereldreis gemaakt.</div>
+    <div class="spotvraag"><b>🔎 Kijk om je heen:</b> Heb jij weleens een tankwagen of binnenvaartschip met brandstof gezien? Waar zou die naartoe zijn geweest?</div>
+  </div>
+
+  <div class="ex" data-eid="t9q1" data-type="order" data-scored="1"
+    data-hint1="Begin bij waar de brandstof uit de grond komt en eindig bij de gebruiker."
+    data-hint2="Eerst winnen, dan met een groot schip over zee, via de haven, en als laatste naar de gebruiker.">
+    <span class="ex-tag">Rangschikken</span>
+    <p class="ex-q">Zet de stappen van het transport van brandstof in de juiste volgorde, van de bron (boven) tot bij de gebruiker (onder).<span class="small">Sleep de stappen op volgorde en klik op Controleer.</span></p>
+    <ul class="order-list">
+      <li draggable="true" data-pos="3"><span class="grip">⠿</span><span class="pos"></span><span>Opslag en bewerking in de haven (raffinaderij)</span></li>
+      <li draggable="true" data-pos="1"><span class="grip">⠿</span><span class="pos"></span><span>Winning van de brandstof bij de bron</span></li>
+      <li draggable="true" data-pos="4"><span class="grip">⠿</span><span class="pos"></span><span>Met tankwagen of pijpleiding naar de gebruiker</span></li>
+      <li draggable="true" data-pos="2"><span class="grip">⠿</span><span class="pos"></span><span>Met een groot tankschip over zee</span></li>
+    </ul>
+    <button class="btn btn-primary btn-sm check-order">Controleer volgorde</button>
+    <div class="ex-fb"></div>
+  </div>
+
+  <div class="ex" data-eid="t9q2" data-type="mc" data-correct="b"
+    data-hint1="Lees de derde alinea nog eens: hoeveel dagen is gas onderweg vanuit Siberië?"
+    data-hint2="Het zijn er meer dan een week, maar minder dan drie weken."
+    data-explain="Het duurt ongeveer twaalf dagen voordat aardgas uit Siberië via lange pijpleidingen in Nederland aankomt.">
+    <span class="ex-tag">Quiz</span>
+    <p class="ex-q">Hoe lang duurt het ongeveer voordat aardgas uit Siberië in Nederland aankomt?</p>
+    <div class="opts">
+      <button class="opt" data-val="a"><span class="mark"></span><span>Ongeveer 1 dag</span></button>
+      <button class="opt" data-val="b"><span class="mark"></span><span>Ongeveer 12 dagen</span></button>
+      <button class="opt" data-val="c"><span class="mark"></span><span>Ongeveer 3 maanden</span></button>
+      <button class="opt" data-val="d"><span class="mark"></span><span>Ongeveer 1 jaar</span></button>
+    </div>
+    <div class="ex-fb"></div>
+  </div>
+
+  <div class="ex" data-eid="t9q3" data-type="open" data-min="20" data-scored="1"
+    data-example="Havens zijn knooppunten omdat daar heel veel samenkomt. Grote tankschepen brengen er olie, gas en kolen aan. In de haven wordt de brandstof opgeslagen en in raffinaderijen geschikt gemaakt. Daarna gaat het met pijpleidingen, vrachtwagens of binnenvaartschepen verder het land in. Zonder havens zou de verdeling van energie veel moeilijker zijn. ||| Een haven is een knooppunt omdat aanvoer en doorvoer er bij elkaar komen. Schepen lossen er hun lading, die wordt opgeslagen en bewerkt, en gaat dan verder naar gebruikers. Er staan vaak ook centrales en raffinaderijen. De haven verbindt zo het transport over zee met het transport over land.">
+    <span class="ex-tag">Open opdracht</span>
+    <p class="ex-q">Leg uit waarom havens belangrijke knooppunten worden genoemd in het energienetwerk. Noem minstens twee dingen die er gebeuren.<span class="small">Minimaal 20 woorden.</span></p>
+    <textarea class="answer" placeholder="Schrijf hier je antwoord…"></textarea>
+    <div class="open-meta">
+      <span class="wordcount">0 woorden</span>
+      <button class="btn btn-ghost btn-sm show-example" disabled>Toon voorbeeldantwoord</button>
+    </div>
+    <div class="example-box"></div>
+    <div class="selfassess"></div>
+    <div class="ex-fb"></div>
+  </div>
+</section>
+
+<!-- ===================== TAB 10: TRANSPORT VAN ELEKTRICITEIT ===================== -->
+<section class="panel" data-tab="10" data-title="Transport van elektriciteit" data-icon="🔌">
+  <div class="panel-head">
+    <span class="eyebrow">Van centrale naar stopcontact</span>
+    <h2>Hoe komt de stroom bij jou thuis?</h2>
+    <p class="lead">Brandstoffen reizen met schepen, maar elektriciteit reist door kabels en over hoge palen. Hoe werkt dat precies?</p>
+  </div>
+
+  <div class="explain">
+    <h3><span class="ic">🏭</span> Van hitte naar stroom</h3>
+    <p>In een <b>thermische centrale</b> worden brandstoffen zoals kolen, gas of biomassa verbrand. De <b>hitte</b> die daarbij vrijkomt, verandert water in <b>stoom</b>. Die stoom heeft veel kracht en laat een <b>turbine</b> razendsnel ronddraaien. Die draaiende turbine wekt vervolgens <b>elektriciteit</b> op. Je kunt dit vergelijken met de <b>dynamo</b> op je fiets: zolang het wiel draait, brandt je lampje. In de centrale is het alleen veel groter en draait de turbine niet door spierkracht, maar door stoom.</p>
+    <p>De opgewekte stroom moet daarna naar de gebruikers: huizen, scholen, fabriken en datacenters. Dat gebeurt via <b>hoogspanningsleidingen</b>. De hoge stalen palen met dikke kabels heb je vast wel eens in het landschap zien staan. Stroom kan ook <b>ondergronds</b> reizen, via dikke kabels onder de grond. Zo komt de elektriciteit uiteindelijk bij het stopcontact waar jij je telefoon oplaadt.</p>
+    <p>Er is wel een nadeel aan het vervoeren van stroom over <b>grote afstanden</b>: een deel van de energie gaat onderweg verloren als warmte in de kabels. Hoe verder de stroom moet reizen, hoe meer er verloren gaat. Dat verlies is veel <b>kleiner</b> als de stroom dicht bij huis wordt opgewekt — bijvoorbeeld met <b>zonnepanelen op je eigen dak</b>. Dan hoeft de energie maar een paar meter te reizen in plaats van honderden kilometers.</p>
+    <div class="flow">
+      <div class="step"><span class="emo">🔥</span><b>Verbranden</b><small>kolen / gas</small></div>
+      <div class="arrow">→</div>
+      <div class="step"><span class="emo">💨</span><b>Stoom</b><small>water kookt</small></div>
+      <div class="arrow">→</div>
+      <div class="step"><span class="emo">⚙️</span><b>Turbine draait</b><small>als een dynamo</small></div>
+      <div class="arrow">→</div>
+      <div class="step"><span class="emo">⚡</span><b>Stroom</b><small>elektriciteit</small></div>
+      <div class="arrow">→</div>
+      <div class="step"><span class="emo">🗼</span><b>Hoogspanning</b><small>naar gebruiker</small></div>
+    </div>
+    <div class="realworld"><b>Uit jouw leven:</b> Het filmpje dat jij streamt, draait op een datacenter dat stroom krijgt via precies deze route. En als jouw buurman zonnepanelen op zijn dak heeft, gebruikt hij stroom die bijna geen reis hoefde te maken.</div>
+    <div class="spotvraag"><b>🔎 Kijk om je heen:</b> Zie jij op weg naar school of vanuit je raam hoogspanningsmasten of zonnepanelen? Welke route legt jouw stroom ongeveer af?</div>
+  </div>
+
+  <div class="ex" data-eid="t10q1" data-type="order" data-scored="1"
+    data-hint1="Begin bij de brandstof die verbrand wordt en eindig bij de gebruiker."
+    data-hint2="Eerst hitte, dan stoom, dan een draaiende turbine, dan stroom, en als laatste het transport via hoogspanning.">
+    <span class="ex-tag">Rangschikken</span>
+    <p class="ex-q">Zet de stappen waarmee stroom in een thermische centrale wordt opgewekt en vervoerd in de juiste volgorde, van eerst (boven) tot laatst (onder).<span class="small">Sleep de stappen op volgorde en klik op Controleer.</span></p>
+    <ul class="order-list">
+      <li draggable="true" data-pos="3"><span class="grip">⠿</span><span class="pos"></span><span>De turbine gaat snel draaien</span></li>
+      <li draggable="true" data-pos="5"><span class="grip">⠿</span><span class="pos"></span><span>Via hoogspanningsleidingen naar de gebruiker</span></li>
+      <li draggable="true" data-pos="1"><span class="grip">⠿</span><span class="pos"></span><span>De brandstof wordt verbrand en geeft hitte</span></li>
+      <li draggable="true" data-pos="4"><span class="grip">⠿</span><span class="pos"></span><span>De draaiende turbine wekt elektriciteit op</span></li>
+      <li draggable="true" data-pos="2"><span class="grip">⠿</span><span class="pos"></span><span>De hitte verandert water in stoom</span></li>
+    </ul>
+    <button class="btn btn-primary btn-sm check-order">Controleer volgorde</button>
+    <div class="ex-fb"></div>
+  </div>
+
+  <div class="ex" data-eid="t10q2" data-type="mc" data-correct="b"
+    data-hint1="Denk aan wat er met stroom gebeurt als die een heel lange weg door de kabels moet afleggen."
+    data-hint2="Over een lange afstand gaat er onderweg iets verloren. Wat win je dus als de afstand klein is?"
+    data-explain="Bij transport over grote afstanden gaat energie verloren als warmte in de kabels. Wek je de stroom lokaal op (zoals met zonnepanelen op je dak), dan hoeft die nauwelijks te reizen en gaat er veel minder energie verloren.">
+    <span class="ex-tag">Quiz</span>
+    <p class="ex-q">Waarom is het gunstig om stroom lokaal op te wekken, bijvoorbeeld met zonnepanelen op je eigen dak?</p>
+    <div class="opts">
+      <button class="opt" data-val="a"><span class="mark"></span><span>Omdat zonnepanelen geen onderhoud nodig hebben</span></button>
+      <button class="opt" data-val="b"><span class="mark"></span><span>Omdat er dan minder energie verloren gaat onderweg</span></button>
+      <button class="opt" data-val="c"><span class="mark"></span><span>Omdat de zon krachtiger is dan een centrale</span></button>
+      <button class="opt" data-val="d"><span class="mark"></span><span>Omdat hoogspanningsmasten verboden zijn</span></button>
+    </div>
+    <div class="ex-fb"></div>
+  </div>
+
+  <div class="ex" data-eid="t10q3" data-type="open" data-min="20" data-scored="1"
+    data-example="Een dynamo op je fiets werkt doordat je trapt: het wiel draait en laat een klein rolletje meedraaien, en daardoor gaat je lampje branden. In een centrale gebeurt bijna hetzelfde, alleen veel groter. Daar draait een turbine niet door trappen, maar door stoom van verbrande brandstof. Het draaien wekt in beide gevallen elektriciteit op. ||| Bij een fietsdynamo zorgt het draaiende wiel ervoor dat er stroom wordt opgewekt voor je lampje. In een thermische centrale draait een grote turbine, aangedreven door stoom. In beide gevallen wordt beweging omgezet in elektriciteit. Het verschil is de schaal en wat de beweging veroorzaakt: spierkracht versus stoom.">
+    <span class="ex-tag">Open opdracht</span>
+    <p class="ex-q">Leg uit waarom je het opwekken van stroom in een centrale kunt vergelijken met de dynamo op je fiets. Wat is hetzelfde en wat is anders?<span class="small">Minimaal 20 woorden.</span></p>
+    <textarea class="answer" placeholder="Schrijf hier je antwoord…"></textarea>
+    <div class="open-meta">
+      <span class="wordcount">0 woorden</span>
+      <button class="btn btn-ghost btn-sm show-example" disabled>Toon voorbeeldantwoord</button>
+    </div>
+    <div class="example-box"></div>
+    <div class="selfassess"></div>
+    <div class="ex-fb"></div>
+  </div>
+</section>
+
+<!-- ===================== TAB 11: BETROUWBARE ENERGIEVOORZIENING ===================== -->
+<section class="panel" data-tab="11" data-title="Betrouwbare voorziening" data-icon="🔧">
+  <div class="panel-head">
+    <span class="eyebrow">Uitbreiding &amp; onderhoud</span>
+    <h2>Waarom stroom niet vanzelfsprekend is</h2>
+    <p class="lead">Een land draaiende houden op energie is topsport. Het netwerk moet groeien, onderhouden worden én bestand zijn tegen problemen.</p>
+  </div>
+
+  <div class="explain">
+    <h3><span class="ic">🚧</span> Het netwerk moet steeds meegroeien</h3>
+    <p>Je leerde al dat de vraag naar energie steeds groter wordt. Dat betekent dat ook alle <b>infrastructuur</b> moet meegroeien: meer <b>pijpleidingen</b>, meer <b>kabels</b>, meer <b>tankschepen</b> en nog meer <b>raffinaderijen</b>. Dit kost ontzettend veel <b>geld</b>, en door alle regels en vergunningen ook veel <b>tijd</b>. Een nieuwe hoogspanningsverbinding aanleggen kan jaren duren.</p>
+    <p>Daarbij is het vaak lastig zoeken naar de juiste <b>locatie</b>. Niet op elke plek is het wenselijk om een <b>transformatorstation</b>, een <b>hoogspanningsmast</b> of een groot <b>zonnepaneelveld</b> neer te zetten. Bewoners willen ze liever niet in hun achtertuin, boeren willen hun land houden, en de natuur moet beschermd worden. Elke nieuwe plek is dus een puzzel waar veel mensen iets van vinden.</p>
+    <p>En als het netwerk er eenmaal ligt, is het nog niet klaar: er is voortdurend <b>onderhoud</b> nodig. Centrales, kabels en leidingen kunnen <b>beschadigd</b> raken. Dat kan gebeuren door een harde <b>storm</b> of een <b>aardbeving</b>, maar soms ook <b>met opzet</b>, bijvoorbeeld door sabotage. Geen enkel land wordt blij van een haperende energievoorziening: zonder stroom valt het dagelijks leven snel stil. Een betrouwbare energievoorziening is dus echt niet vanzelfsprekend — er werken voortdurend mensen aan om jouw stopcontact te laten werken.</p>
+    <div class="flow">
+      <div class="step"><span class="emo">📈</span><b>Meer vraag</b><small>groei</small></div>
+      <div class="arrow">→</div>
+      <div class="step"><span class="emo">🏗️</span><b>Uitbreiden</b><small>kost geld + tijd</small></div>
+      <div class="arrow">→</div>
+      <div class="step"><span class="emo">📍</span><b>Locatie zoeken</b><small>lastige keuze</small></div>
+      <div class="arrow">→</div>
+      <div class="step"><span class="emo">🔧</span><b>Onderhoud</b><small>tegen schade</small></div>
+    </div>
+    <div class="realworld"><b>Uit jouw leven:</b> Stel je voor dat de stroom een hele dag uitvalt. Je telefoon loopt leeg, wifi werkt niet, de pinautomaat is dood en je kunt niets meer posten of streamen. Dan merk je pas hoe afhankelijk je bent van een netwerk dat normaal gewoon werkt.</div>
+    <div class="spotvraag"><b>🔎 Kijk om je heen:</b> Heb jij weleens een stroomstoring meegemaakt? Wat werkte er toen niet meer, en hoe voelde dat?</div>
+  </div>
+
+  <div class="ex" data-eid="t11q1" data-type="mc" data-correct="c"
+    data-hint1="Lees nog eens waarom uitbreiden moeilijk is. Het gaat niet alleen om geld."
+    data-hint2="Denk aan tijd, regels, lastige locaties én schade door storm of opzet. Eén antwoord noemt meerdere van die zaken."
+    data-explain="Een betrouwbare voorziening is niet vanzelfsprekend omdat uitbreiden veel geld en tijd kost, goede locaties lastig te vinden zijn, en het netwerk beschadigd kan raken door storm, aardbeving of sabotage.">
+    <span class="ex-tag">Quiz</span>
+    <p class="ex-q">Waarom is een betrouwbare energievoorziening niet vanzelfsprekend?</p>
+    <div class="opts">
+      <button class="opt" data-val="a"><span class="mark"></span><span>Omdat energie tegenwoordig gratis is geworden</span></button>
+      <button class="opt" data-val="b"><span class="mark"></span><span>Omdat niemand meer energie nodig heeft</span></button>
+      <button class="opt" data-val="c"><span class="mark"></span><span>Omdat uitbreiden duur en traag is, locaties lastig zijn en het netwerk kan beschadigen</span></button>
+      <button class="opt" data-val="d"><span class="mark"></span><span>Omdat er te veel zonnepanelen zijn</span></button>
+    </div>
+    <div class="ex-fb"></div>
+  </div>
+
+  <div class="ex" data-eid="t11q2" data-type="match" data-scored="1"
+    data-hint1="Koppel elk probleem aan de juiste hoofdoorzaak: gaat het om geld/tijd, om de locatie, of om schade?"
+    data-hint2="Vergunningen en kosten horen bij uitbreiden. Protest van bewoners hoort bij locatie. Storm en sabotage horen bij schade.">
+    <span class="ex-tag">Koppelen</span>
+    <p class="ex-q">Sleep elk voorbeeld naar de juiste categorie. Eén categorie kan meerdere voorbeelden krijgen.<span class="small">Sleep de bolletjes naar het juiste vak en klik daarna op Controleer.</span></p>
+    <div class="match-pool" data-zone="pool">
+      <span class="pool-label">Sleep deze voorbeelden:</span>
+      <span class="chip" data-correct="z1">Lange wachttijd door vergunningen</span>
+      <span class="chip" data-correct="z1">Aanleg kost miljarden euro's</span>
+      <span class="chip" data-correct="z2">Bewoners willen geen mast in de buurt</span>
+      <span class="chip" data-correct="z2">Boer wil zijn land niet afstaan</span>
+      <span class="chip" data-correct="z3">Kabel knapt door een zware storm</span>
+      <span class="chip" data-correct="z3">Sabotage van een gasleiding</span>
+    </div>
+    <div class="match-targets">
+      <div class="target" data-zone="z1"><h4>💶 Uitbreiden (geld &amp; tijd)</h4><div class="drop"></div></div>
+      <div class="target" data-zone="z2"><h4>📍 Locatie kiezen</h4><div class="drop"></div></div>
+      <div class="target" data-zone="z3"><h4>⚠️ Schade aan het netwerk</h4><div class="drop"></div></div>
+    </div>
+    <button class="btn btn-primary btn-sm check-match">Controleer</button>
+    <div class="ex-fb"></div>
+  </div>
+
+  <div class="ex" data-eid="t11q3" data-type="open" data-min="20" data-scored="1"
+    data-example="Als de stroom een dag uitvalt in mijn stad, werkt bijna niets meer. Mijn telefoon loopt leeg en ik kan niet meer op social media, want de wifi en het mobiele netwerk vallen weg. De trein en de stoplichten doen het niet, pinautomaten werken niet en winkels kunnen niet afrekenen. Ook de koelkast thuis wordt warm. Je merkt dan hoe afhankelijk we van stroom zijn. ||| Bij een stroomuitval van een dag staat alles stil. Geen internet, dus geen Snapchat, TikTok of online games. Het verkeer wordt gevaarlijk zonder stoplichten, de pin doet het niet en eten in de koelkast bederft. Ziekenhuizen moeten op noodaggregaten draaien. Het laat zien dat een betrouwbare energievoorziening heel belangrijk is.">
+    <span class="ex-tag">Open opdracht · scenario</span>
+    <p class="ex-q">Stel: in jouw stad valt de stroom een hele dag uit. Beschrijf wat er allemaal niet meer werkt. Denk ook aan je telefoon en social media.<span class="small">Minimaal 20 woorden. Noem minstens drie dingen.</span></p>
+    <textarea class="answer" placeholder="Schrijf hier je antwoord…"></textarea>
+    <div class="open-meta">
+      <span class="wordcount">0 woorden</span>
+      <button class="btn btn-ghost btn-sm show-example" disabled>Toon voorbeeldantwoord</button>
+    </div>
+    <div class="example-box"></div>
+    <div class="selfassess"></div>
+    <div class="ex-fb"></div>
+  </div>
+</section>
+
+<!-- ===================== TAB 12: AFSLUITING & REFLECTIE ===================== -->
+<section class="panel" data-tab="12" data-title="Afsluiting &amp; reflectie" data-icon="🎯">
+  <div class="panel-head">
+    <span class="eyebrow">Afronding</span>
+    <h2>Je bent er bijna! Kijk terug op wat je leerde</h2>
+    <p class="lead">Hieronder zie je je resultaat en de leerdoelen. Sluit af met een paar vragen over hoe het leren ging.</p>
+  </div>
+
+  <div class="scorecard">
+    <div class="scorebox">
+      <span class="emo">📊</span>
+      <span class="big" id="finalProgress">0%</span>
+      <span class="lbl">opdrachten gemaakt</span>
+    </div>
+    <div class="scorebox">
+      <span class="emo">🎯</span>
+      <span class="big" id="finalScore">0 / 0</span>
+      <span class="lbl">goed beantwoord</span>
+    </div>
+    <div class="scorebox">
+      <span class="emo">✅</span>
+      <span class="big" id="finalTabs">0 / 12</span>
+      <span class="lbl">onderdelen af</span>
+    </div>
+  </div>
+  <p class="legend-note" id="scoreNote">Maak eerst alle opdrachten om je volledige resultaat te zien.</p>
+
+  <div class="card">
+    <h3><span class="ic">🎓</span> De leerdoelen van deze les</h3>
+    <p>Dit zijn de doelen waar je vandaag aan hebt gewerkt. Loop ze na: kun je elk doel uitleggen aan iemand anders? Vink af wat je beheerst.</p>
+    <ul class="doelen" id="doelenList">
+      <li data-doel="1"><span class="dchk">○</span><span>Ik weet welke veelgebruikte energiebronnen er zijn en ken hun belangrijke kenmerken.</span></li>
+      <li data-doel="2"><span class="dchk">○</span><span>Ik kan de voor- en nadelen van de veelgebruikte energiebronnen uitleggen.</span></li>
+      <li data-doel="3"><span class="dchk">○</span><span>Ik begrijp hoe belangrijk energie(bronnen) wereldwijd voor mensen zijn.</span></li>
+      <li data-doel="4"><span class="dchk">○</span><span>Ik weet welke soorten duurzame energiebronnen er zijn.</span></li>
+      <li data-doel="5"><span class="dchk">○</span><span>Ik begrijp de voor- en nadelen van duurzame energiebronnen.</span></li>
+      <li data-doel="6"><span class="dchk">○</span><span>Ik begrijp waarom transport van energie nodig is.</span></li>
+      <li data-doel="7"><span class="dchk">○</span><span>Ik kan uitleggen welke infrastructuur nodig is voor het transport van energie.</span></li>
+      <li data-doel="8"><span class="dchk">○</span><span>Ik begrijp waarom een betrouwbare energievoorziening niet vanzelfsprekend is.</span></li>
+    </ul>
+    <p class="legend-note">Tik op een doel om het af te vinken. Dit is voor jezelf — het telt niet mee in je score.</p>
+  </div>
+
+  <div class="ex" data-eid="t12q1" data-type="open" data-min="20"
+    data-example="Ik vond de volgorde-opdrachten over transport het lastigst, omdat ik de stappen eerst door elkaar haalde. Pas toen ik de uitleg nog eens las, snapte ik dat eerst de brandstof wordt verbrand en de stroom pas later via hoogspanning reist. Door het opnieuw te proberen werd het duidelijk. ||| Het lastigst vond ik de verschillen tussen alle duurzame bronnen onthouden, want het zijn er veel. De koppelopdrachten hielpen me wel om voor- en nadelen uit elkaar te houden.">
+    <span class="ex-tag">Reflectie</span>
+    <p class="ex-q">Wat vond je het lastigst aan deze les, en waarom? Hoe ben je er toch uitgekomen?<span class="small">Minimaal 20 woorden. Dit gaat over hoe het leren ging.</span></p>
+    <textarea class="answer" placeholder="Schrijf hier je antwoord…"></textarea>
+    <div class="open-meta">
+      <span class="wordcount">0 woorden</span>
+      <button class="btn btn-ghost btn-sm show-example" disabled>Toon voorbeeldantwoord</button>
+    </div>
+    <div class="example-box"></div>
+    <div class="selfassess"></div>
+    <div class="ex-fb"></div>
+  </div>
+
+  <div class="ex" data-eid="t12q2" data-type="open" data-min="20"
+    data-example="Ik zou een klasgenoot uitleggen dat onze energie uit verschillende bronnen komt: fossiele brandstoffen zoals olie, gas en kolen, en duurzame bronnen zoals zon, wind en water. De fossiele raken op en vervuilen, de duurzame raken nooit op maar zijn nog duur of wisselend. Ik zou ook uitleggen dat energie via schepen, pijpleidingen en kabels naar ons toe reist. ||| Ik zou vertellen dat energie overal voor nodig is en dat de vraag steeds groeit. Daarna zou ik de bronnen vergelijken: fossiel is goedkoop maar vies en eindig, duurzaam is schoon maar nog niet altijd betrouwbaar. En dat een betrouwbaar netwerk veel onderhoud kost.">
+    <span class="ex-tag">Reflectie</span>
+    <p class="ex-q">Wat zou je een klasgenoot uitleggen die deze les gemist heeft? Vat in eigen woorden het belangrijkste samen.<span class="small">Minimaal 20 woorden.</span></p>
+    <textarea class="answer" placeholder="Schrijf hier je antwoord…"></textarea>
+    <div class="open-meta">
+      <span class="wordcount">0 woorden</span>
+      <button class="btn btn-ghost btn-sm show-example" disabled>Toon voorbeeldantwoord</button>
+    </div>
+    <div class="example-box"></div>
+    <div class="selfassess"></div>
+    <div class="ex-fb"></div>
+  </div>
+
+  <div class="ex" data-eid="t12q3" data-type="open" data-min="20"
+    data-example="Ik herken dit onderwerp als ik mijn telefoon oplaad of zie hoeveel ik stream — dat kost allemaal stroom uit een datacenter. Op weg naar school zie ik hoogspanningsmasten en bij sommige huizen zonnepanelen op het dak. Bij het tankstation denk ik nu aan de lange reis die benzine heeft afgelegd voordat die in de pomp zit. ||| Ik herken het thuis aan de cv-ketel die op gas draait en aan het stopcontact waar al mijn apparaten op zitten. In de buurt staat een transformatorhuisje, en in het weiland verderop ligt een zonnepark. Zo zie ik de stof echt om me heen.">
+    <span class="ex-tag">Reflectie</span>
+    <p class="ex-q">Hoe herken je dit onderwerp in je eigen omgeving? Noem concrete dingen die je nu met andere ogen bekijkt.<span class="small">Minimaal 20 woorden.</span></p>
+    <textarea class="answer" placeholder="Schrijf hier je antwoord…"></textarea>
+    <div class="open-meta">
+      <span class="wordcount">0 woorden</span>
+      <button class="btn btn-ghost btn-sm show-example" disabled>Toon voorbeeldantwoord</button>
+    </div>
+    <div class="example-box"></div>
+    <div class="selfassess"></div>
+    <div class="ex-fb"></div>
+  </div>
+
+  <div class="finish-banner" id="finishBanner">
+    <span class="finish-emo">🌟</span>
+    <h3>Goed gewerkt!</h3>
+    <p>Je hebt de hele leeromgeving over energie doorlopen. Je weet nu welke energiebronnen er zijn, wat hun voor- en nadelen zijn, en hoe energie de hele wereld over reist tot in jouw stopcontact.</p>
+  </div>
+</section>
+
+</main>
+
+<footer class="foot">
+  Interactieve leeromgeving · Aardrijkskunde · Energie &amp; energiebronnen · VMBO leerjaar 3 · jouw voortgang wordt automatisch op dit apparaat bewaard.
+</footer>
+
+<script>
+/* =========================================================================
+   ENERGIE & ENERGIEBRONNEN — interactieve leeromgeving
+   Alle logica: tabs, oefeningen (mc/open/order/match), voortgang, opslag,
+   grafieken (Chart.js) en kaart (Leaflet).
+   ========================================================================= */
+(function () {
+  'use strict';
+
+  var PREFIX = 'geo_les_';
+  var MAX_ATTEMPTS = 3;
+
+  /* ---- state ---- */
+  var state = {};        // eid -> {type, status, correct, attempts, scored, payload}
+  var snapshots = {};    // eid -> originele innerHTML van het .ex blok
+  var panels = [];       // lijst van panel-elementen
+  var currentTab = 1;
+  var tabInited = {};    // tabId -> bool (charts/maps eenmalig)
+
+  /* ===================== OPSLAG ===================== */
+  function save() {
+    try {
+      var slim = {};
+      Object.keys(state).forEach(function (eid) {
+        var s = state[eid];
+        slim[eid] = { s: s.status, c: s.correct, a: s.attempts, p: s.payload || null };
+      });
+      localStorage.setItem(PREFIX + 'state', JSON.stringify(slim));
+      localStorage.setItem(PREFIX + 'tab', String(currentTab));
+      localStorage.setItem(PREFIX + 'time', new Date().toISOString());
+    } catch (e) { /* opslag niet beschikbaar — stil negeren */ }
+  }
+  function loadSaved() {
+    var out = { state: {}, tab: 1, doelen: {} };
+    try {
+      var raw = localStorage.getItem(PREFIX + 'state');
+      if (raw) out.state = JSON.parse(raw) || {};
+      var t = parseInt(localStorage.getItem(PREFIX + 'tab'), 10);
+      if (t >= 1 && t <= panels.length) out.tab = t;
+      var d = localStorage.getItem(PREFIX + 'doelen');
+      if (d) out.doelen = JSON.parse(d) || {};
+    } catch (e) { /* negeren */ }
+    return out;
+  }
+  function saveDoelen(map) {
+    try { localStorage.setItem(PREFIX + 'doelen', JSON.stringify(map)); } catch (e) {}
+  }
+
+  /* ===================== HELPERS ===================== */
+  function $(sel, ctx) { return (ctx || document).querySelector(sel); }
+  function $all(sel, ctx) { return Array.prototype.slice.call((ctx || document).querySelectorAll(sel)); }
+  function countWords(txt) {
+    var t = (txt || '').trim();
+    if (!t) return 0;
+    return t.split(/\s+/).length;
+  }
+  function setFeedback(ex, kind, html) {
+    var fb = $('.ex-fb', ex);
+    if (!fb) return;
+    fb.className = 'ex-fb show ' + kind;
+    fb.innerHTML = html;
+  }
+  function clearFeedback(ex) {
+    var fb = $('.ex-fb', ex);
+    if (fb) { fb.className = 'ex-fb'; fb.innerHTML = ''; }
+  }
+
+  /* ===================== EXERCISE REGISTRY ===================== */
+  function exType(ex) { return ex.getAttribute('data-type'); }
+  function exScored(ex) {
+    var t = exType(ex);
+    if (t === 'mc' || t === 'order' || t === 'match') return true;
+    return ex.getAttribute('data-scored') === '1';
+  }
+
+  function ensureState(eid, ex) {
+    if (!state[eid]) {
+      state[eid] = {
+        type: exType(ex),
+        status: 'todo',
+        correct: null,
+        attempts: 0,
+        scored: exScored(ex),
+        payload: null
+      };
+    }
+    return state[eid];
+  }
+
+  /* ===================== INIT PER OEFENING ===================== */
+  function initExercise(ex) {
+    var eid = ex.getAttribute('data-eid');
+    if (!eid) return;
+    if (!(eid in snapshots)) snapshots[eid] = ex.innerHTML; // eerste keer = origineel
+    var s = ensureState(eid, ex);
+    var type = exType(ex);
+
+    if (type === 'mc') initMC(ex, eid, s);
+    else if (type === 'open') initOpen(ex, eid, s);
+    else if (type === 'order') initOrder(ex, eid, s);
+    else if (type === 'match') initMatch(ex, eid, s);
+  }
+
+  /* ---------- MULTIPLE CHOICE ---------- */
+  function initMC(ex, eid, s) {
+    var correct = ex.getAttribute('data-correct');
+    var opts = $all('.opt', ex);
+
+    function lockReveal(lastPick) {
+      opts.forEach(function (o) {
+        o.disabled = true;
+        var v = o.getAttribute('data-val');
+        if (v === correct) { o.classList.add('correct'); $('.mark', o).textContent = '✓'; }
+        else if (v === lastPick) { o.classList.add('wrong'); $('.mark', o).textContent = '✗'; }
+      });
+      ex.classList.add('locked');
+    }
+
+    if (s.status === 'done') {
+      var pick = s.payload && s.payload.pick;
+      lockReveal(pick);
+      var ex0 = ex.getAttribute('data-explain') || '';
+      if (s.correct) setFeedback(ex, 'ok', '<b>Goed gedaan! ✓</b> ' + ex0);
+      else setFeedback(ex, 'no', '<b>Het juiste antwoord is gemarkeerd.</b> ' + ex0);
+      return;
+    }
+
+    opts.forEach(function (o) {
+      o.addEventListener('click', function () {
+        if (s.status === 'done') return;
+        var val = o.getAttribute('data-val');
+        s.attempts++;
+        if (val === correct) {
+          opts.forEach(function (b) { b.disabled = true; b.classList.remove('wrong'); $('.mark', b).textContent = ''; });
+          o.classList.add('correct'); $('.mark', o).textContent = '✓';
+          ex.classList.add('locked');
+          setFeedback(ex, 'ok', '<b>Goed gedaan! ✓</b> ' + (ex.getAttribute('data-explain') || ''));
+          markDone(eid, true, { pick: val });
+        } else {
+          o.classList.add('wrong'); $('.mark', o).textContent = '✗';
+          if (s.attempts >= MAX_ATTEMPTS) {
+            lockReveal(val);
+            setFeedback(ex, 'no', '<b>Geen punt — kijk goed naar het juiste antwoord.</b> ' + (ex.getAttribute('data-explain') || ''));
+            markDone(eid, false, { pick: val });
+          } else {
+            var hint = ex.getAttribute('data-hint' + s.attempts) || ex.getAttribute('data-hint1') || 'Probeer het nog eens.';
+            setFeedback(ex, 'hint', '<b>Je bent op het goede spoor 💡</b> ' + hint + ' <span class="small">(poging ' + s.attempts + ' van ' + MAX_ATTEMPTS + ')</span>');
+            setTimeout(function () { o.classList.remove('wrong'); $('.mark', o).textContent = ''; }, 900);
+            save();
+          }
+        }
+      });
+    });
+  }
+
+  /* ---------- OPEN VRAAG ---------- */
+  function buildExampleBox(ex) {
+    var raw = ex.getAttribute('data-example') || '';
+    var parts = raw.split(' ||| ');
+    var box = $('.example-box', ex);
+    var html = '<h5>📋 Voorbeeldantwoorden — vergelijk met dat van jou</h5>';
+    parts.forEach(function (p) { html += '<div class="ref">' + p.trim() + '</div>'; });
+    box.innerHTML = html;
+  }
+  function renderSelfAssess(ex, eid, s) {
+    var sa = $('.selfassess', ex);
+    sa.classList.add('show');
+    sa.innerHTML = '<span class="q">Hoe ging het? Beoordeel jezelf eerlijk:</span>' +
+      '<button class="btn btn-good btn-sm sa-good">Goed ✓</button>' +
+      '<button class="btn btn-bad btn-sm sa-bad">Kan beter ✗</button>';
+    var bg = $('.sa-good', sa), bb = $('.sa-bad', sa);
+    function choose(correct) {
+      bg.disabled = true; bb.disabled = true;
+      if (correct) { bg.classList.add('sel'); setFeedback(ex, 'ok', '<b>Top, opgeslagen als goed ✓</b>'); }
+      else { bb.classList.add('sel'); setFeedback(ex, 'no', '<b>Genoteerd. Lees het voorbeeld nog eens — je snapt het vast bijna!</b>'); }
+      markDone(eid, !!correct, { text: $('.answer', ex).value, shown: true, assessed: correct ? 'good' : 'bad' });
+    }
+    bg.addEventListener('click', function () { choose(true); });
+    bb.addEventListener('click', function () { choose(false); });
+  }
+  function initOpen(ex, eid, s) {
+    var ta = $('.answer', ex);
+    var wc = $('.wordcount', ex);
+    var showBtn = $('.show-example', ex);
+    var min = parseInt(ex.getAttribute('data-min'), 10) || 20;
+    var scored = exScored(ex);
+
+    function refreshCount() {
+      var n = countWords(ta.value);
+      wc.textContent = n + (n === 1 ? ' woord' : ' woorden');
+      if (n >= min) { wc.classList.add('ok'); wc.textContent = '✓ ' + wc.textContent; showBtn.disabled = false; }
+      else { wc.classList.remove('ok'); showBtn.disabled = true; }
+    }
+
+    // herstel afgeronde / ingevulde staat
+    if (s.payload && typeof s.payload.text === 'string') ta.value = s.payload.text;
+    refreshCount();
+
+    if (s.status === 'done') {
+      ta.disabled = false; // mag nog herlezen, maar telt al mee
+      if (s.payload && s.payload.shown) {
+        buildExampleBox(ex); $('.example-box', ex).classList.add('show');
+        if (scored) {
+          var sa = $('.selfassess', ex); sa.classList.add('show');
+          sa.innerHTML = '<span class="q">Jouw beoordeling:</span>' +
+            '<button class="btn btn-good btn-sm" disabled>' + (s.correct ? 'Goed ✓' : 'Goed') + '</button>' +
+            '<button class="btn btn-bad btn-sm" disabled>' + (s.correct ? 'Kan beter' : 'Kan beter ✗') + '</button>';
+          setFeedback(ex, s.correct ? 'ok' : 'no', s.correct ? '<b>Opgeslagen als goed ✓</b>' : '<b>Genoteerd — blijf oefenen!</b>');
+        } else {
+          setFeedback(ex, 'ok', '<b>Antwoord opgeslagen ✓</b>');
+        }
+      } else {
+        setFeedback(ex, 'ok', '<b>Antwoord opgeslagen ✓</b>');
+      }
+      ta.addEventListener('input', function () { refreshCount(); persistOpenText(eid, ta.value); });
+      return;
+    }
+
+    ta.addEventListener('input', function () { refreshCount(); persistOpenText(eid, ta.value); });
+
+    showBtn.addEventListener('click', function () {
+      if (showBtn.disabled) return;
+      buildExampleBox(ex);
+      $('.example-box', ex).classList.add('show');
+      showBtn.disabled = true;
+      if (scored) {
+        renderSelfAssess(ex, eid, s);
+      } else {
+        // reflectievraag: telt voor voortgang, niet voor score
+        markDone(eid, null, { text: ta.value, shown: true, assessed: null });
+        setFeedback(ex, 'ok', '<b>Bedankt voor je reflectie ✓</b> Vergelijk je antwoord gerust met de voorbeelden.');
+      }
+    });
+  }
+  function persistOpenText(eid, text) {
+    var s = state[eid];
+    if (!s) return;
+    if (!s.payload) s.payload = {};
+    s.payload.text = text;
+    save();
+  }
+
+  /* ---------- ORDER (sleep-volgorde) ---------- */
+  function initOrder(ex, eid, s) {
+    var list = $('.order-list', ex);
+    var btn = $('.check-order', ex);
+    var items = $all('li', list);
+
+    function renumber() {
+      $all('li', list).forEach(function (li, i) {
+        var pos = $('.pos', li); if (pos) pos.textContent = (i + 1);
+      });
+    }
+    function arrangeCorrect() {
+      var sorted = $all('li', list).sort(function (a, b) {
+        return parseInt(a.getAttribute('data-pos'), 10) - parseInt(b.getAttribute('data-pos'), 10);
+      });
+      sorted.forEach(function (li) { list.appendChild(li); });
+      renumber();
+    }
+    function lockDone(gotRight) {
+      arrangeCorrect();
+      $all('li', list).forEach(function (li) {
+        li.setAttribute('draggable', 'false');
+        li.classList.remove('bad', 'dragging', 'over');
+        li.classList.add('good', 'locked');
+      });
+      btn.disabled = true;
+      ex.classList.add('locked');
+    }
+
+    if (s.status === 'done') {
+      lockDone(s.correct);
+      setFeedback(ex, s.correct ? 'ok' : 'no',
+        s.correct ? '<b>Helemaal goed! ✓</b> Je had alle stappen in de juiste volgorde.'
+                  : '<b>De juiste volgorde staat nu hieronder.</b> Lees hem rustig na.');
+      return;
+    }
+
+    renumber();
+
+    // drag & drop (HTML5)
+    var dragEl = null;
+    items.forEach(function (li) {
+      li.addEventListener('dragstart', function () { dragEl = li; li.classList.add('dragging'); });
+      li.addEventListener('dragend', function () { li.classList.remove('dragging'); $all('li', list).forEach(function (x) { x.classList.remove('over'); }); renumber(); });
+      li.addEventListener('dragover', function (e) {
+        e.preventDefault();
+        if (!dragEl || dragEl === li) return;
+        li.classList.add('over');
+        var rect = li.getBoundingClientRect();
+        var after = (e.clientY - rect.top) > rect.height / 2;
+        if (after) { li.parentNode.insertBefore(dragEl, li.nextSibling); }
+        else { li.parentNode.insertBefore(dragEl, li); }
+      });
+      li.addEventListener('dragleave', function () { li.classList.remove('over'); });
+      li.addEventListener('drop', function (e) { e.preventDefault(); li.classList.remove('over'); });
+
+      // lichte touch-fallback: tik = wissel met buur naar boven (bonus)
+      li.addEventListener('touchend', function (e) {
+        if (s.status === 'done') return;
+        var grip = e.target.closest('.grip');
+        if (!grip) return;
+        var prev = li.previousElementSibling;
+        if (prev) { list.insertBefore(li, prev); renumber(); }
+      });
+    });
+
+    btn.addEventListener('click', function () {
+      if (s.status === 'done') return;
+      s.attempts++;
+      var cur = $all('li', list);
+      var allOk = true;
+      cur.forEach(function (li, i) {
+        var ok = parseInt(li.getAttribute('data-pos'), 10) === (i + 1);
+        li.classList.toggle('good', ok);
+        li.classList.toggle('bad', !ok);
+        if (!ok) allOk = false;
+      });
+      if (allOk) {
+        lockDone(true);
+        setFeedback(ex, 'ok', '<b>Helemaal goed! ✓</b> Alle stappen staan op de juiste plek.');
+        markDone(eid, true, { gotRight: true });
+      } else if (s.attempts >= MAX_ATTEMPTS) {
+        lockDone(false);
+        setFeedback(ex, 'no', '<b>Geen probleem — dit is de juiste volgorde.</b> De stappen zijn nu goed gezet.');
+        markDone(eid, false, { gotRight: false });
+      } else {
+        var hint = ex.getAttribute('data-hint' + s.attempts) || ex.getAttribute('data-hint1') || '';
+        setFeedback(ex, 'hint', '<b>Bijna! 💡</b> De groene staan goed, de rode nog niet. ' + hint + ' <span class="small">(poging ' + s.attempts + ' van ' + MAX_ATTEMPTS + ')</span>');
+        save();
+      }
+    });
+  }
+
+  /* ---------- MATCH (koppelen, veel-op-één) ---------- */
+  function initMatch(ex, eid, s) {
+    var pool = $('.match-pool', ex);
+    var targets = $all('.target', ex);
+    var btn = $('.check-match', ex);
+    var chips = $all('.chip', ex);
+
+    function dropOf(zone) {
+      var t = ex.querySelector('.target[data-zone="' + zone + '"]');
+      return t ? $('.drop', t) : null;
+    }
+    function placeAllCorrect() {
+      chips.forEach(function (c) {
+        var d = dropOf(c.getAttribute('data-correct'));
+        if (d) d.appendChild(c);
+      });
+    }
+    function lockDone(gotRight) {
+      placeAllCorrect();
+      chips.forEach(function (c) {
+        c.setAttribute('draggable', 'false');
+        c.classList.remove('bad', 'dragging');
+        c.classList.add('good', 'locked');
+      });
+      btn.disabled = true;
+      ex.classList.add('locked');
+    }
+
+    if (s.status === 'done') {
+      lockDone(s.correct);
+      setFeedback(ex, s.correct ? 'ok' : 'no',
+        s.correct ? '<b>Alles goed gekoppeld! ✓</b>'
+                  : '<b>De juiste koppelingen staan nu klaar.</b> Bekijk ze nog eens.');
+      return;
+    }
+
+    // dragging chips
+    var dragChip = null;
+    chips.forEach(function (c) {
+      c.addEventListener('dragstart', function () { dragChip = c; c.classList.add('dragging'); });
+      c.addEventListener('dragend', function () { c.classList.remove('dragging'); });
+      c.addEventListener('touchend', function () {
+        // touch-fallback: tik laat chip rouleren naar volgende target (bonus)
+        if (s.status === 'done') return;
+        var zones = targets.map(function (t) { return t.getAttribute('data-zone'); });
+        var parentZone = c.parentNode.closest('.target');
+        var idx = parentZone ? zones.indexOf(parentZone.getAttribute('data-zone')) : -1;
+        var next = dropOf(zones[(idx + 1) % zones.length]);
+        if (next) next.appendChild(c);
+      });
+    });
+
+    function addDropZone(el) {
+      el.addEventListener('dragover', function (e) { e.preventDefault(); el.classList.add('over'); });
+      el.addEventListener('dragleave', function () { el.classList.remove('over'); });
+      el.addEventListener('drop', function (e) {
+        e.preventDefault(); el.classList.remove('over');
+        if (!dragChip || s.status === 'done') return;
+        var d = $('.drop', el) || el; // op target valt in zijn .drop
+        d.appendChild(dragChip);
+        dragChip.classList.remove('good', 'bad');
+      });
+    }
+    targets.forEach(function (t) { addDropZone(t); });
+    addDropZone(pool); // terug naar de pool slepen mag ook
+
+    btn.addEventListener('click', function () {
+      if (s.status === 'done') return;
+      // alle chips moeten geplaatst zijn (niet meer in de pool)
+      var inPool = $all('.chip', pool);
+      if (inPool.length > 0) {
+        setFeedback(ex, 'hint', '<b>Bijna! 💡</b> Sleep eerst alle ' + chips.length + ' bolletjes naar een vak. Er staan er nog ' + inPool.length + ' klaar om te koppelen.');
+        return;
+      }
+      s.attempts++;
+      var allOk = true;
+      chips.forEach(function (c) {
+        var inTarget = c.parentNode.closest('.target');
+        var ok = inTarget && inTarget.getAttribute('data-zone') === c.getAttribute('data-correct');
+        c.classList.toggle('good', ok);
+        c.classList.toggle('bad', !ok);
+        if (!ok) allOk = false;
+      });
+      if (allOk) {
+        lockDone(true);
+        setFeedback(ex, 'ok', '<b>Alles goed gekoppeld! ✓</b>');
+        markDone(eid, true, { gotRight: true });
+      } else if (s.attempts >= MAX_ATTEMPTS) {
+        lockDone(false);
+        setFeedback(ex, 'no', '<b>Geen zorgen — de juiste koppelingen staan nu klaar.</b> Bekijk ze rustig.');
+        markDone(eid, false, { gotRight: false });
+      } else {
+        var hint = ex.getAttribute('data-hint' + s.attempts) || ex.getAttribute('data-hint1') || '';
+        setFeedback(ex, 'hint', '<b>Goed bezig! 💡</b> De groene staan goed, de rode horen ergens anders. ' + hint + ' <span class="small">(poging ' + s.attempts + ' van ' + MAX_ATTEMPTS + ')</span>');
+        save();
+      }
+    });
+  }
+
+  /* ===================== MARK DONE + VOORTGANG ===================== */
+  function markDone(eid, correct, payload) {
+    var s = state[eid];
+    if (!s) return;
+    s.status = 'done';
+    s.correct = correct; // true / false / null (reflectie)
+    s.payload = payload || s.payload || null;
+    save();
+    updateProgress();
+  }
+
+  function tabExercises(panel) { return $all('.ex', panel); }
+
+  function updateProgress() {
+    var allEx = $all('.ex');
+    var total = allEx.length, done = 0;
+    var scoreTotal = 0, scoreGot = 0;
+    allEx.forEach(function (ex) {
+      var eid = ex.getAttribute('data-eid');
+      var s = state[eid];
+      var isDone = s && s.status === 'done';
+      if (isDone) done++;
+      if (exScored(ex)) {
+        scoreTotal++;
+        if (isDone && s.correct === true) scoreGot++;
+      }
+    });
+    var pct = total ? Math.round(done / total * 100) : 0;
+
+    var pf = $('#progFill'), pl = $('#progLabel');
+    if (pf) pf.style.width = pct + '%';
+    if (pl) pl.textContent = pct + '% voltooid';
+
+    // tab-vinkjes
+    var doneTabs = 0;
+    panels.forEach(function (panel) {
+      var tabId = panel.getAttribute('data-tab');
+      var exs = tabExercises(panel);
+      var allDone = exs.length > 0 && exs.every(function (ex) {
+        var s2 = state[ex.getAttribute('data-eid')];
+        return s2 && s2.status === 'done';
+      });
+      var btn = $('.tab[data-tab="' + tabId + '"]', tabbarEl);
+      if (btn) {
+        btn.classList.toggle('done', allDone);
+        var ck = $('.check', btn);
+        if (ck) ck.textContent = allDone ? '✓' : '';
+      }
+      if (allDone) doneTabs++;
+    });
+
+    // eindscherm (tab 12)
+    var fp = $('#finalProgress'), fs = $('#finalScore'), ft = $('#finalTabs'), note = $('#scoreNote');
+    if (fp) fp.textContent = pct + '%';
+    if (fs) fs.textContent = scoreGot + ' / ' + scoreTotal;
+    if (ft) ft.textContent = doneTabs + ' / ' + panels.length;
+    if (note) {
+      if (done >= total && total > 0) note.textContent = 'Klaar! Je hebt alle ' + total + ' opdrachten gemaakt. Knap gedaan! 🎉';
+      else note.textContent = 'Je hebt ' + done + ' van de ' + total + ' opdrachten gemaakt. Ga zo door!';
+    }
+    var banner = $('#finishBanner');
+    if (banner) banner.classList.toggle('show', done >= total && total > 0);
+  }
+
+  /* ===================== TABS ===================== */
+  var tabbarEl, mainEl;
+
+  function buildTabs() {
+    tabbarEl.innerHTML = '';
+    panels.forEach(function (panel) {
+      var id = panel.getAttribute('data-tab');
+      var title = panel.getAttribute('data-title') || ('Onderdeel ' + id);
+      var icon = panel.getAttribute('data-icon') || '';
+      var b = document.createElement('button');
+      b.className = 'tab';
+      b.setAttribute('data-tab', id);
+      b.innerHTML = '<span class="num">' + id + '</span><span class="ttl">' + icon + ' ' + title + '</span><span class="check"></span>';
+      b.addEventListener('click', function () { showTab(parseInt(id, 10)); });
+      tabbarEl.appendChild(b);
+
+      // navigatie onderaan elk paneel injecteren
+      injectNav(panel, parseInt(id, 10));
+    });
+  }
+
+  function injectNav(panel, id) {
+    if ($('.panel-nav', panel)) return;
+    var nav = document.createElement('div');
+    nav.className = 'panel-nav';
+    var prev = '<button class="btn btn-ghost btn-sm nav-prev"' + (id === 1 ? ' disabled' : '') + '>← Vorige</button>';
+    var reset = '<button class="reset-tab">↺ Reset dit onderdeel</button>';
+    var spacer = '<span class="spacer"></span>';
+    var next = '<button class="btn btn-primary btn-sm nav-next"' + (id === panels.length ? ' disabled' : '') + '>Volgende →</button>';
+    nav.innerHTML = prev + reset + spacer + next;
+    panel.appendChild(nav);
+
+    var p = $('.nav-prev', nav), n = $('.nav-next', nav), r = $('.reset-tab', nav);
+    if (p) p.addEventListener('click', function () { showTab(id - 1); });
+    if (n) n.addEventListener('click', function () { showTab(id + 1); });
+    if (r) r.addEventListener('click', function () { resetTab(id); });
+  }
+
+  function showTab(id) {
+    if (id < 1 || id > panels.length) return;
+    currentTab = id;
+    panels.forEach(function (panel) {
+      panel.classList.toggle('active', parseInt(panel.getAttribute('data-tab'), 10) === id);
+    });
+    $all('.tab', tabbarEl).forEach(function (b) {
+      b.classList.toggle('active', parseInt(b.getAttribute('data-tab'), 10) === id);
+    });
+    var now = $('#tabNow'); if (now) now.textContent = id;
+
+    // actieve tab in beeld scrollen
+    var actBtn = $('.tab[data-tab="' + id + '"]', tabbarEl);
+    if (actBtn && actBtn.scrollIntoView) actBtn.scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'smooth' });
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    initTabContentOnce(id);
+    onTabShow(id);
+    save();
+  }
+
+  /* ===================== RESET ===================== */
+  function resetTab(id) {
+    var panel = panels[id - 1];
+    if (!panel) return;
+    tabExercises(panel).forEach(function (ex) {
+      var eid = ex.getAttribute('data-eid');
+      if (eid in snapshots) ex.innerHTML = snapshots[eid]; // volledige UI herstellen
+      delete state[eid];
+      ensureState(eid, ex);
+      initExercise(ex);
+    });
+    save();
+    updateProgress();
+  }
+
+  function clearAll() {
+    try {
+      Object.keys(localStorage).forEach(function (k) { if (k.indexOf(PREFIX) === 0) localStorage.removeItem(k); });
+    } catch (e) {}
+    location.reload();
+  }
+
+  /* ===================== LAZY: CHARTS & MAP ===================== */
+  function initTabContentOnce(id) {
+    if (tabInited[id]) return;
+    tabInited[id] = true;
+    if (id === 1) buildChart1();
+    if (id === 4) buildChart2();
+    if (id === 5) buildChart3();
+    if (id === 8) buildMap8();
+  }
+  function onTabShow(id) {
+    if (id === 8 && map8) { setTimeout(function () { map8.invalidateSize(); }, 200); }
+  }
+
+  function chartReady() { return typeof window.Chart !== 'undefined'; }
+
+  function buildChart1() {
+    if (!chartReady()) return;
+    var el = document.getElementById('chart1'); if (!el) return;
+    new Chart(el, {
+      type: 'line',
+      data: {
+        labels: ['1920', '1940', '1960', '1980', '2000', '2020'],
+        datasets: [{
+          label: 'Energiegebruik wereldwijd (indexcijfer, 1920 = 100)',
+          data: [100, 170, 360, 720, 1300, 2050],
+          borderColor: '#E0701F', backgroundColor: 'rgba(244,163,0,.18)',
+          borderWidth: 3, fill: true, tension: .3, pointBackgroundColor: '#C97E00', pointRadius: 4
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { labels: { font: { family: 'Nunito', weight: '700' } } } },
+        scales: {
+          y: { beginAtZero: true, title: { display: true, text: 'Index (1920 = 100)', font: { family: 'Nunito', weight: '700' } } },
+          x: { title: { display: true, text: 'Jaar', font: { family: 'Nunito', weight: '700' } } }
+        }
+      }
+    });
+  }
+
+  function buildChart2() {
+    if (!chartReady()) return;
+    var el = document.getElementById('chart2'); if (!el) return;
+    new Chart(el, {
+      type: 'bar',
+      data: {
+        labels: ['Kolen', 'Aardolie', 'Aardgas', 'Kernenergie'],
+        datasets: [{
+          label: 'CO₂-uitstoot per eenheid energie (relatief)',
+          data: [100, 78, 56, 4],
+          backgroundColor: ['#5d4037', '#3A2E1C', '#C97E00', '#6E7A3A'],
+          borderRadius: 8
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { labels: { font: { family: 'Nunito', weight: '700' } } } },
+        scales: {
+          y: { beginAtZero: true, title: { display: true, text: 'Relatieve CO₂ (kolen = 100)', font: { family: 'Nunito', weight: '700' } } }
+        }
+      }
+    });
+  }
+
+  function buildChart3() {
+    if (!chartReady()) return;
+    var el = document.getElementById('chart3'); if (!el) return;
+    new Chart(el, {
+      type: 'doughnut',
+      data: {
+        labels: ['Fossiele brandstoffen (≈84%)', 'Kernenergie (≈5%)', 'Duurzaam / groen (≈11%)'],
+        datasets: [{
+          data: [84, 5, 11],
+          backgroundColor: ['#3A2E1C', '#C97E00', '#6E7A3A'],
+          borderColor: '#fff', borderWidth: 3
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { position: 'bottom', labels: { font: { family: 'Nunito', weight: '700' }, padding: 14 } } }
+      }
+    });
+  }
+
+  /* ---------- LEAFLET MAP ---------- */
+  var map8 = null;
+  function buildMap8() {
+    if (typeof window.L === 'undefined') return;
+    var el = document.getElementById('map8'); if (!el) return;
+    map8 = L.map('map8', { scrollWheelZoom: true, worldCopyJump: true }).setView([30, 20], 2);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 18, attribution: '© OpenStreetMap'
+    }).addTo(map8);
+
+    function dot(color) {
+      return L.divIcon({
+        className: 'energy-pin',
+        html: '<span style="display:block;width:18px;height:18px;border-radius:50%;background:' + color +
+              ';border:3px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.4);"></span>',
+        iconSize: [18, 18], iconAnchor: [9, 9], popupAnchor: [0, -10]
+      });
+    }
+    var FOSSIL = '#C0392B', GREEN = '#3E8E41', HUB = '#F4A300', IMPORT = '#2c6fbb';
+
+    var markers = [
+      { lat: 51.95, lng: 4.14, c: HUB, t: '🛢️ Haven van Rotterdam',
+        d: 'De grootste haven van Europa en een enorm <b>knooppunt</b>. Hier komen tankschepen met olie, gas en kolen binnen. In raffinaderijen wordt de brandstof geschikt gemaakt en daarna verder verdeeld over West-Europa.' },
+      { lat: 66.0, lng: 76.0, c: FOSSIL, t: '🔥 Siberië (Rusland) — aardgas',
+        d: 'Rusland heeft enorme <b>aardgasvelden</b>. Via heel lange pijpleidingen reist het gas naar Europa. Vanuit Siberië duurt die reis ongeveer <b>twaalf dagen</b> voordat het in Nederland is.' },
+      { lat: 64.9, lng: -19.0, c: GREEN, t: '🌋 IJsland — aardwarmte',
+        d: 'In IJsland is de aarde al vlak onder het oppervlak heet door vulkanen. Het land gebruikt veel <b>aardwarmte (geothermie)</b> en is daardoor bijna onafhankelijk van fossiele import.' },
+      { lat: 54.5, lng: 3.5, c: GREEN, t: '🌬️ Windpark Noordzee',
+        d: 'Op zee waait het hard en constant. <b>Windparken</b> op de Noordzee leveren veel stroom met weinig horizonvervuiling. Eén turbine levert al stroom voor ruim 1500 huishoudens.' },
+      { lat: 30.8, lng: 111.0, c: GREEN, t: '💧 Three Gorges-dam (China)',
+        d: 'De grootste <b>waterkrachtcentrale</b> ter wereld. Stromend rivierwater laat reusachtige turbines draaien en wekt zo enorm veel duurzame stroom op.' },
+      { lat: 25.0, lng: 45.0, c: FOSSIL, t: '🛢️ Saoedi-Arabië — aardolie',
+        d: 'Een van de grootste <b>olie-exporteurs</b> ter wereld. Veel landen zijn afhankelijk van de olie die hier uit de woestijn wordt gepompt.' },
+      { lat: 36.2, lng: 138.2, c: IMPORT, t: '🇯🇵 Japan — importland',
+        d: 'Japan heeft bijna geen eigen energiebronnen en moet daardoor <b>meer dan 80%</b> van zijn energie importeren. Dat maakt het land kwetsbaar als de aanvoer stokt.' },
+      { lat: 50.85, lng: 4.35, c: IMPORT, t: '🇧🇪 België — importland',
+        d: 'Net als Japan importeert België <b>meer dan 80%</b> van zijn energie. Het land leunt sterk op aanvoer uit het buitenland via havens en pijpleidingen.' }
+    ];
+    markers.forEach(function (m) {
+      L.marker([m.lat, m.lng], { icon: dot(m.c) }).addTo(map8)
+        .bindPopup('<b>' + m.t + '</b><br>' + m.d, { maxWidth: 240 });
+    });
+    setTimeout(function () { map8.invalidateSize(); }, 250);
+  }
+
+  /* ===================== LEERDOELEN (tab 12) ===================== */
+  function initDoelen(savedDoelen) {
+    var list = document.getElementById('doelenList');
+    if (!list) return;
+    $all('li', list).forEach(function (li) {
+      var nr = li.getAttribute('data-doel');
+      var chk = $('.dchk', li);
+      function render(on) {
+        li.classList.toggle('done', on);
+        chk.classList.toggle('on', on);
+        chk.textContent = on ? '✓' : '○';
+      }
+      render(!!savedDoelen[nr]);
+      li.addEventListener('click', function () {
+        var on = !li.classList.contains('done');
+        render(on);
+        savedDoelen[nr] = on;
+        saveDoelen(savedDoelen);
+      });
+    });
+  }
+
+  /* ===================== START ===================== */
+  function boot() {
+    tabbarEl = document.getElementById('tabbar');
+    mainEl = document.getElementById('main');
+    panels = $all('.panel', mainEl);
+
+    var tt = document.getElementById('tabTotal'); if (tt) tt.textContent = panels.length;
+
+    var saved = loadSaved();
+    // herstel state-records vóór init zodat done-staat meteen rendert
+    Object.keys(saved.state).forEach(function (eid) {
+      var r = saved.state[eid];
+      state[eid] = { type: null, status: r.s, correct: r.c, attempts: r.a || 0, scored: true, payload: r.p || null };
+    });
+
+    buildTabs();
+
+    // init alle oefeningen
+    $all('.ex').forEach(function (ex) {
+      var eid = ex.getAttribute('data-eid');
+      if (state[eid]) { state[eid].type = exType(ex); state[eid].scored = exScored(ex); }
+      initExercise(ex);
+    });
+
+    initDoelen(saved.doelen);
+    updateProgress();
+
+    // start-tab
+    showTab(saved.tab || 1);
+
+    // globale knop
+    var cb = document.getElementById('clearBtn');
+    if (cb) cb.addEventListener('click', function () {
+      if (window.confirm('Weet je zeker dat je alle voortgang wilt wissen? Dit kan niet ongedaan worden gemaakt.')) clearAll();
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', boot);
+  } else {
+    boot();
+  }
+})();
+</script>
+</body>
+</html>
