@@ -1,1 +1,1680 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rusland — Lappendeken van Volken en Grondstoffen</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+  :root {
+    --rood-diep: #8B2419;
+    --rood-vuur: #C0392B;
+    --rood-licht: #E74C3C;
+    --rood-zacht: #FADBD8;
+    --aarde-donker: #3E2723;
+    --aarde-warm: #6D4C41;
+    --aarde-licht: #D7CCC8;
+    --crème: #FAF3E7;
+    --wit: #FFFFFF;
+    --tekst: #2C2118;
+    --tekst-zacht: #5D4E42;
+    --groen: #6B8E5A;
+    --groen-licht: #DDE7D6;
+    --goud: #B8860B;
+    --space-xs: 6px;
+    --space-sm: 12px;
+    --space-md: 20px;
+    --space-lg: 32px;
+    --space-xl: 48px;
+    --radius-sm: 8px;
+    --radius-md: 14px;
+    --radius-lg: 22px;
+    --schaduw: 0 4px 16px rgba(62, 39, 35, 0.08);
+    --schaduw-diep: 0 8px 28px rgba(62, 39, 35, 0.15);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: var(--crème);
+    color: var(--tekst);
+    line-height: 1.65;
+    min-height: 100vh;
+  }
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 var(--space-md);
+  }
+  /* HEADER */
+  header.hero {
+    background: linear-gradient(135deg, var(--rood-diep) 0%, var(--rood-vuur) 60%, var(--aarde-warm) 100%);
+    color: var(--wit);
+    padding: var(--space-xl) var(--space-md);
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  header.hero::before {
+    content: '';
+    position: absolute;
+    top: -50px;
+    right: -50px;
+    width: 200px;
+    height: 200px;
+    background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+  header.hero::after {
+    content: '';
+    position: absolute;
+    bottom: -80px;
+    left: -80px;
+    width: 250px;
+    height: 250px;
+    background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+  header.hero h1 {
+    font-size: 2.4rem;
+    font-weight: 800;
+    margin-bottom: var(--space-sm);
+    letter-spacing: -0.5px;
+    position: relative;
+  }
+  header.hero p.subtitle {
+    font-size: 1.15rem;
+    opacity: 0.95;
+    font-weight: 400;
+    max-width: 700px;
+    margin: 0 auto;
+    position: relative;
+  }
+  .onion-decor {
+    font-size: 2rem;
+    margin-bottom: var(--space-sm);
+    letter-spacing: 8px;
+  }
+  /* STICKY PROGRESS */
+  .progress-bar-wrap {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--wit);
+    border-bottom: 2px solid var(--aarde-licht);
+    box-shadow: var(--schaduw);
+    padding: var(--space-sm) 0;
+  }
+  .progress-inner {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    flex-wrap: wrap;
+  }
+  .progress-track {
+    flex: 1;
+    min-width: 200px;
+    height: 14px;
+    background: var(--aarde-licht);
+    border-radius: 50px;
+    overflow: hidden;
+    position: relative;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--rood-vuur), var(--rood-licht));
+    width: 0%;
+    transition: width 0.5s ease;
+    border-radius: 50px;
+  }
+  .progress-text {
+    font-weight: 700;
+    color: var(--rood-diep);
+    font-size: 0.95rem;
+    white-space: nowrap;
+  }
+  .wipe-btn {
+    background: transparent;
+    border: 1.5px solid var(--aarde-licht);
+    color: var(--tekst-zacht);
+    padding: 6px 14px;
+    border-radius: var(--radius-sm);
+    font-family: inherit;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .wipe-btn:hover { background: var(--rood-zacht); border-color: var(--rood-vuur); color: var(--rood-diep); }
+  /* TAB NAV */
+  .tab-section-info {
+    text-align: center;
+    padding: var(--space-sm) 0 0;
+    color: var(--tekst-zacht);
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+  .tab-nav-wrap {
+    background: var(--wit);
+    border-bottom: 1px solid var(--aarde-licht);
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .tab-nav {
+    display: flex;
+    gap: 4px;
+    padding: var(--space-sm) var(--space-md);
+    min-width: max-content;
+    margin: 0 auto;
+    max-width: 1100px;
+  }
+  .tab-btn {
+    background: transparent;
+    border: none;
+    padding: 10px 18px;
+    border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+    font-family: inherit;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--tekst-zacht);
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    transition: all 0.2s;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .tab-btn:hover { color: var(--rood-diep); background: var(--rood-zacht); }
+  .tab-btn.active {
+    color: var(--rood-diep);
+    border-bottom-color: var(--rood-vuur);
+    background: var(--rood-zacht);
+  }
+  .tab-btn .check { color: var(--groen); font-weight: 800; }
+  /* TAB CONTENT */
+  main.content {
+    padding: var(--space-lg) var(--space-md) var(--space-xl);
+  }
+  .tab-panel { display: none; animation: fadeIn 0.4s ease; }
+  .tab-panel.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  .tab-panel h2 {
+    color: var(--rood-diep);
+    font-size: 1.9rem;
+    font-weight: 800;
+    margin-bottom: var(--space-md);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-bottom: 3px solid var(--rood-zacht);
+    padding-bottom: var(--space-sm);
+  }
+  .tab-panel h3 {
+    color: var(--aarde-donker);
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin: var(--space-lg) 0 var(--space-sm);
+  }
+  .tab-panel p {
+    margin-bottom: var(--space-md);
+    color: var(--tekst);
+  }
+  /* INFO BLOCKS */
+  .info-block {
+    background: var(--wit);
+    border-radius: var(--radius-md);
+    padding: var(--space-md);
+    margin-bottom: var(--space-md);
+    box-shadow: var(--schaduw);
+    border-left: 5px solid var(--rood-vuur);
+  }
+  .info-block.warm {
+    background: linear-gradient(135deg, #FFF8F3 0%, #FAF3E7 100%);
+    border-left-color: var(--goud);
+  }
+  .info-block.aarde {
+    background: linear-gradient(135deg, #F5EDE5 0%, #EFE6DA 100%);
+    border-left-color: var(--aarde-warm);
+  }
+  .begrip-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: var(--space-md);
+    margin: var(--space-md) 0;
+  }
+  .begrip-card {
+    background: var(--wit);
+    padding: var(--space-md);
+    border-radius: var(--radius-md);
+    box-shadow: var(--schaduw);
+    border-top: 4px solid var(--rood-vuur);
+  }
+  .begrip-card h4 {
+    color: var(--rood-diep);
+    font-size: 1.1rem;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .begrip-card p { font-size: 0.95rem; margin: 0; }
+  /* PROCESS FLOW */
+  .flow-block {
+    background: linear-gradient(135deg, var(--rood-zacht) 0%, #FFF 100%);
+    padding: var(--space-md);
+    border-radius: var(--radius-md);
+    margin: var(--space-md) 0;
+    font-size: 1.05rem;
+    text-align: center;
+    font-weight: 600;
+    line-height: 2;
+  }
+  /* MAPS */
+  .map-container {
+    height: 450px;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    box-shadow: var(--schaduw-diep);
+    margin: var(--space-md) 0;
+    border: 3px solid var(--wit);
+  }
+  /* CHARTS */
+  .chart-container {
+    background: var(--wit);
+    border-radius: var(--radius-md);
+    padding: var(--space-md);
+    box-shadow: var(--schaduw);
+    margin: var(--space-md) 0;
+    height: 380px;
+    position: relative;
+  }
+  /* OPDRACHTEN */
+  .opdracht {
+    background: var(--wit);
+    border-radius: var(--radius-md);
+    padding: var(--space-md);
+    margin: var(--space-md) 0;
+    box-shadow: var(--schaduw);
+    border: 2px solid var(--aarde-licht);
+  }
+  .opdracht.voltooid { border-color: var(--groen); background: linear-gradient(135deg, #F4F8F0 0%, #FFF 100%); }
+  .opdracht-titel {
+    font-weight: 800;
+    color: var(--rood-diep);
+    margin-bottom: var(--space-sm);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1.05rem;
+  }
+  .opdracht-titel .nr {
+    background: var(--rood-vuur);
+    color: var(--wit);
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    font-weight: 800;
+  }
+  .opdracht.voltooid .nr { background: var(--groen); }
+  .opdracht-vraag { font-weight: 600; margin-bottom: var(--space-sm); }
+  /* MC OPTIONS */
+  .mc-opties { display: flex; flex-direction: column; gap: 8px; margin: var(--space-sm) 0; }
+  .mc-opt {
+    background: var(--crème);
+    border: 2px solid var(--aarde-licht);
+    padding: 12px 16px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 1rem;
+    text-align: left;
+    transition: all 0.2s;
+    color: var(--tekst);
+  }
+  .mc-opt:hover:not(:disabled) { background: var(--rood-zacht); border-color: var(--rood-vuur); }
+  .mc-opt:disabled { cursor: default; opacity: 0.7; }
+  .mc-opt.juist { background: var(--groen-licht); border-color: var(--groen); color: var(--aarde-donker); font-weight: 700; }
+  .mc-opt.fout { background: var(--rood-zacht); border-color: var(--rood-licht); opacity: 0.7; }
+  /* FEEDBACK */
+  .feedback {
+    margin-top: var(--space-sm);
+    padding: 12px 14px;
+    border-radius: var(--radius-sm);
+    font-size: 0.95rem;
+    display: none;
+  }
+  .feedback.show { display: block; }
+  .feedback.coach { background: #FFF8E1; border-left: 4px solid var(--goud); color: var(--aarde-donker); }
+  .feedback.correct { background: var(--groen-licht); border-left: 4px solid var(--groen); color: var(--aarde-donker); }
+  .feedback.reveal { background: var(--rood-zacht); border-left: 4px solid var(--rood-vuur); color: var(--aarde-donker); }
+  /* OPEN VRAGEN */
+  textarea.open-antwoord {
+    width: 100%;
+    min-height: 100px;
+    padding: 12px;
+    border: 2px solid var(--aarde-licht);
+    border-radius: var(--radius-sm);
+    font-family: inherit;
+    font-size: 1rem;
+    resize: vertical;
+    background: var(--crème);
+    color: var(--tekst);
+    transition: border-color 0.2s;
+  }
+  textarea.open-antwoord:focus { outline: none; border-color: var(--rood-vuur); background: var(--wit); }
+  .word-counter {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 6px;
+    font-size: 0.85rem;
+    color: var(--tekst-zacht);
+  }
+  .word-counter .voldoende { color: var(--groen); font-weight: 700; }
+  .btn {
+    background: var(--rood-vuur);
+    color: var(--wit);
+    border: none;
+    padding: 10px 20px;
+    border-radius: var(--radius-sm);
+    font-family: inherit;
+    font-weight: 700;
+    cursor: pointer;
+    font-size: 0.95rem;
+    transition: all 0.2s;
+  }
+  .btn:hover:not(:disabled) { background: var(--rood-diep); transform: translateY(-1px); }
+  .btn:disabled { background: var(--aarde-licht); cursor: not-allowed; color: var(--tekst-zacht); }
+  .btn.secondary { background: transparent; color: var(--rood-diep); border: 2px solid var(--rood-vuur); }
+  .btn.secondary:hover:not(:disabled) { background: var(--rood-zacht); }
+  .btn.small { padding: 6px 12px; font-size: 0.85rem; }
+  .btn.success { background: var(--groen); }
+  .btn.success:hover { background: #557146; }
+  .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: var(--space-sm); }
+  .voorbeeld-antwoord {
+    background: #FFF8E1;
+    border-left: 4px solid var(--goud);
+    padding: 14px;
+    border-radius: var(--radius-sm);
+    margin-top: var(--space-sm);
+    display: none;
+  }
+  .voorbeeld-antwoord.show { display: block; }
+  .voorbeeld-antwoord h5 { color: var(--aarde-donker); margin-bottom: 6px; }
+  /* KOPPEL OPDRACHT */
+  .koppel-wrap { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-md); margin: var(--space-sm) 0; }
+  @media (max-width: 600px) { .koppel-wrap { grid-template-columns: 1fr; } }
+  .koppel-kolom { background: var(--crème); padding: var(--space-sm); border-radius: var(--radius-sm); }
+  .koppel-kolom h5 { margin-bottom: 8px; color: var(--rood-diep); }
+  .koppel-item {
+    background: var(--wit);
+    border: 2px solid var(--aarde-licht);
+    padding: 10px 12px;
+    border-radius: var(--radius-sm);
+    margin-bottom: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.95rem;
+  }
+  .koppel-item:hover:not(.gekoppeld) { border-color: var(--rood-vuur); background: var(--rood-zacht); }
+  .koppel-item.geselecteerd { border-color: var(--rood-vuur); background: var(--rood-zacht); font-weight: 700; }
+  .koppel-item.gekoppeld { cursor: default; }
+  .koppel-item.kleur-1 { background: #FCE4D6; border-color: #E67E22; }
+  .koppel-item.kleur-2 { background: #D6E9FC; border-color: #3498DB; }
+  .koppel-item.kleur-3 { background: #DDE7D6; border-color: var(--groen); }
+  .koppel-item.kleur-4 { background: #F4D6FC; border-color: #9B59B6; }
+  .koppel-item.kleur-5 { background: #FCF5D6; border-color: var(--goud); }
+  /* TAB NAV BOTTOM */
+  .tab-nav-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: var(--space-xl);
+    padding-top: var(--space-md);
+    border-top: 2px solid var(--aarde-licht);
+    flex-wrap: wrap;
+    gap: var(--space-sm);
+  }
+  /* LEERDOELEN */
+  .leerdoelen-lijst {
+    list-style: none;
+    padding: 0;
+  }
+  .leerdoelen-lijst li {
+    padding: 8px 0 8px 32px;
+    position: relative;
+    border-bottom: 1px dashed var(--aarde-licht);
+  }
+  .leerdoelen-lijst li::before {
+    content: '🎯';
+    position: absolute;
+    left: 0;
+  }
+  /* COMPARE TABLE */
+  .vergelijk-tabel {
+    width: 100%;
+    border-collapse: collapse;
+    margin: var(--space-md) 0;
+    background: var(--wit);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    box-shadow: var(--schaduw);
+  }
+  .vergelijk-tabel th {
+    background: var(--rood-vuur);
+    color: var(--wit);
+    padding: 12px;
+    text-align: left;
+    font-weight: 700;
+  }
+  .vergelijk-tabel td {
+    padding: 12px;
+    border-bottom: 1px solid var(--aarde-licht);
+  }
+  .vergelijk-tabel tr:last-child td { border-bottom: none; }
+  .vergelijk-tabel tr:nth-child(even) td { background: var(--crème); }
+  /* REFLECTIE */
+  .reflectie-card {
+    background: linear-gradient(135deg, var(--rood-zacht) 0%, #FFF8F3 100%);
+    padding: var(--space-md);
+    border-radius: var(--radius-md);
+    margin-bottom: var(--space-md);
+    box-shadow: var(--schaduw);
+  }
+  .leerlingvraag {
+    font-style: italic;
+    color: var(--aarde-warm);
+    font-size: 0.95rem;
+    padding: var(--space-sm);
+    background: rgba(255,255,255,0.6);
+    border-radius: var(--radius-sm);
+    margin-top: var(--space-sm);
+  }
+  .leerlingvraag::before { content: '💭 '; }
+  /* SCORE GROOT */
+  .eind-score {
+    text-align: center;
+    padding: var(--space-lg);
+    background: linear-gradient(135deg, var(--rood-vuur) 0%, var(--rood-diep) 100%);
+    color: var(--wit);
+    border-radius: var(--radius-lg);
+    margin: var(--space-md) 0;
+  }
+  .eind-score .perc {
+    font-size: 4rem;
+    font-weight: 800;
+    line-height: 1;
+    margin: var(--space-sm) 0;
+  }
+  /* RESPONSIVE TWEAKS */
+  @media (max-width: 768px) {
+    header.hero h1 { font-size: 1.8rem; }
+    .tab-panel h2 { font-size: 1.5rem; }
+  }
+</style>
+</head>
+<body>
 
+<header class="hero">
+  <div class="onion-decor">🧅 ⛪ 🧅</div>
+  <h1>Rusland — Een lappendeken van volken en grondstoffen</h1>
+  <p class="subtitle">Aardrijkskunde · VMBO leerjaar 3 · Ontdek het grootste land ter wereld</p>
+</header>
+
+<div class="progress-bar-wrap">
+  <div class="container progress-inner">
+    <span style="font-size: 1.5rem;">🔥</span>
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    <span class="progress-text" id="progressText">0% voltooid</span>
+    <button class="wipe-btn" id="wipeBtn">🗑️ Voortgang wissen</button>
+  </div>
+  <div class="container tab-section-info" id="tabCounter">Onderdeel 1 van 5</div>
+</div>
+
+<div class="tab-nav-wrap">
+  <nav class="tab-nav" id="tabNav">
+    <button class="tab-btn active" data-tab="0">🗺️ Lappendeken</button>
+    <button class="tab-btn" data-tab="1">⚔️ Spanningen</button>
+    <button class="tab-btn" data-tab="2">⛽ Grondstoffen</button>
+    <button class="tab-btn" data-tab="3">🧊 Noordpool</button>
+    <button class="tab-btn" data-tab="4">🪞 Reflectie</button>
+  </nav>
+</div>
+
+<main class="content">
+  <div class="container">
+
+    <!-- ===== TAB 0: LAPPENDEKEN ===== -->
+    <section class="tab-panel active" data-panel="0">
+      <h2>🗺️ Rusland — een lappendeken van volken</h2>
+
+      <div class="info-block">
+        <p><strong>Rusland is gigantisch.</strong> Het is met afstand het grootste land ter wereld: bijna twee keer zo groot als de Verenigde Staten. Het strekt zich uit van Europa in het westen tot aan de Stille Oceaan in het oosten, en heeft maar liefst 11 tijdzones. Als jij in Sint-Petersburg een TikTok-video post om 8 uur 's ochtends, is het in Vladivostok aan de andere kant al 3 uur 's middags.</p>
+        <p>Door die enorme grootte wonen er ook héél veel verschillende volken in Rusland. Naast de Russen zelf wonen er onder andere Tsjetsjenen, Tataren, Boerjaten, Jakoeten, Tsjoektsjen en nog tientallen andere volken. Elk volk heeft zijn eigen taal, eigen tradities, eigen religie en eigen culturele identiteit. Daarom noemen we Rusland een <strong>lappendeken</strong>: net als een quilt is het land samengesteld uit allemaal verschillende stukjes.</p>
+        <p>Rusland is officieel een <strong>federatie</strong>. Dat betekent dat het land bestaat uit verschillende <em>deelgebieden</em> (republieken, oblasten en autonome districten) die binnen Rusland een zekere mate van zelfbestuur hebben. Sommige van die republieken — zoals Tsjetsjenië, Tatarstan of Dagestan — hebben hun eigen president, eigen taal als ambtstaal, en soms zelfs hun eigen wetten naast die van Moskou.</p>
+      </div>
+
+      <div class="info-block warm">
+        <h3 style="margin-top:0;">🧩 Waarom zijn er culturele verschillen?</h3>
+        <div class="flow-block">
+          🌍 <strong>Enorm gebied</strong> → 🏔️ <strong>Verschillende landschappen</strong> → 👥 <strong>Verschillende volken</strong> → 🗣️ <strong>Eigen taal & religie</strong> → 🎭 <strong>Eigen cultuur</strong>
+        </div>
+        <p>Doordat Rusland zo groot is en bestaat uit zoveel verschillende landschappen (toendra, taiga, steppe, bergen), hebben volken zich eeuwenlang relatief afzonderlijk ontwikkeld. Een Tsjetsjeen in de Kaukasus heeft heel andere tradities dan een Jakoet in het ijskoude Siberië.</p>
+      </div>
+
+      <h3>🗺️ Kaart: belangrijke volken en gebieden</h3>
+      <p>Bekijk de kaart hieronder. Klik op de markers om meer te weten te komen over de verschillende deelgebieden en volken van Rusland.</p>
+      <div class="map-container" id="map1"></div>
+
+      <!-- OPDRACHT 1 -->
+      <div class="opdracht" data-opdracht-id="t0-o1">
+        <div class="opdracht-titel"><span class="nr">1</span> Multiple choice — Wat is een federatie?</div>
+        <div class="opdracht-vraag">Rusland is een federatie. Wat betekent dat?</div>
+        <div class="mc-opties">
+          <button class="mc-opt" data-correct="false" data-hint="Niet helemaal. Eén taal is geen kenmerk van een federatie — denk eerder aan hoe het land is opgedeeld.">Een land waar iedereen dezelfde taal spreekt</button>
+          <button class="mc-opt" data-correct="true" data-hint="">Een land dat bestaat uit deelgebieden met een eigen bestuur naast de centrale regering</button>
+          <button class="mc-opt" data-correct="false" data-hint="Bijna! Het gaat niet om wie er wint, maar over hoe het land bestuurlijk is ingedeeld.">Een land waar de president alle macht heeft</button>
+          <button class="mc-opt" data-correct="false" data-hint="Kijk nog eens: federatie heeft te maken met de indeling van een land, niet met andere landen.">Een land dat alleen handelt met buurlanden</button>
+        </div>
+        <div class="feedback"></div>
+      </div>
+
+      <!-- OPDRACHT 2 -->
+      <div class="opdracht" data-opdracht-id="t0-o2">
+        <div class="opdracht-titel"><span class="nr">2</span> Koppelopdracht — Volken en gebieden</div>
+        <div class="opdracht-vraag">Koppel elk volk aan het juiste deelgebied. Klik eerst op een volk, dan op het bijbehorende gebied.</div>
+        <div class="koppel-wrap">
+          <div class="koppel-kolom">
+            <h5>Volk</h5>
+            <div id="koppel-links-1"></div>
+          </div>
+          <div class="koppel-kolom">
+            <h5>Deelgebied / regio</h5>
+            <div id="koppel-rechts-1"></div>
+          </div>
+        </div>
+        <div class="feedback"></div>
+        <div class="btn-row"><button class="btn small secondary reset-koppel" data-koppel="1">↻ Opnieuw</button></div>
+      </div>
+
+      <!-- OPDRACHT 3 -->
+      <div class="opdracht" data-opdracht-id="t0-o3">
+        <div class="opdracht-titel"><span class="nr">3</span> Open vraag — Jouw eigen omgeving</div>
+        <div class="opdracht-vraag">In Nederland wonen ook veel mensen met verschillende achtergronden, talen en culturen. Denk na: in welke opzichten lijkt Nederland op een 'mini-lappendeken' zoals Rusland, en in welke opzichten verschilt het juist? Geef minstens twee voorbeelden uit je eigen omgeving (school, buurt, sociale media).</div>
+        <textarea class="open-antwoord" placeholder="Schrijf hier je antwoord (minimaal 20 woorden)..."></textarea>
+        <div class="word-counter"><span class="words">0 woorden</span><span class="status"></span></div>
+        <div class="btn-row">
+          <button class="btn toon-voorbeeld" disabled>💡 Toon voorbeeldantwoord</button>
+        </div>
+        <div class="voorbeeld-antwoord">
+          <h5>📖 Voorbeeldantwoord:</h5>
+          <p><em>Net als Rusland is Nederland ook een soort lappendeken. Op mijn school zitten kinderen met Turkse, Marokkaanse, Surinaamse en Poolse achtergrond, en op Instagram en TikTok zie ik content in allerlei talen. Toch is Nederland veel kleiner en hebben we maar één officiële taal, terwijl Russische deelrepublieken hun eigen taal als ambtstaal hebben. Ook hebben we geen autonome regio's met eigen wetten.</em></p>
+          <p>Beoordeel jezelf eerlijk:</p>
+          <div class="btn-row">
+            <button class="btn small success self-goed">Goed ✓</button>
+            <button class="btn small secondary self-fout">Fout ✗</button>
+          </div>
+        </div>
+        <div class="feedback"></div>
+      </div>
+
+      <div class="leerlingvraag">Heb jij wel eens iemand op social media gezien die uit een Russische deelrepubliek komt? Welke taal of cultuur kwam je dan tegen?</div>
+
+      <div class="tab-nav-bottom">
+        <button class="btn secondary" disabled>← Vorige</button>
+        <button class="btn small secondary reset-tab" data-tab-reset="0">↻ Reset dit onderdeel</button>
+        <button class="btn next-tab" data-next="1">Volgende →</button>
+      </div>
+    </section>
+
+    <!-- ===== TAB 1: SPANNINGEN ===== -->
+    <section class="tab-panel" data-panel="1">
+      <h2>⚔️ Spanningen: russificatie, nationalisme & separatisme</h2>
+
+      <div class="info-block">
+        <p>Een lappendeken van volken klinkt mooi, maar het zorgt ook voor <strong>spanningen</strong>. De Russische regering in Moskou wil dat het land één geheel blijft, maar veel volken willen graag hun eigen identiteit behouden — of zelfs onafhankelijk worden. Dat botst. Om dat te begrijpen, moet je drie belangrijke begrippen kennen.</p>
+        <p>Deze begrippen zie je niet alleen in Rusland: ook op social media kom je ze tegen. Denk aan video's waarin een Russische influencer trots zijn Boerjatische traditionele dansen laat zien (nationalisme van een minderheid), of juist aan accounts die alles Russisch willen maken (russificatie).</p>
+      </div>
+
+      <div class="begrip-grid">
+        <div class="begrip-card">
+          <h4>🇷🇺 Russificatie</h4>
+          <p>De Russische taal, cultuur en gewoonten opleggen aan andere volken in Rusland. Bijvoorbeeld: alle scholen verplicht in het Russisch, of straatnaambordjes alleen in het Russisch.</p>
+        </div>
+        <div class="begrip-card">
+          <h4>🚩 Nationalisme</h4>
+          <p>Een sterk gevoel van trots op je eigen volk en land. Mensen voelen zich verbonden door taal, cultuur en geschiedenis. Kan positief zijn, maar ook leiden tot uitsluiting van anderen.</p>
+        </div>
+        <div class="begrip-card">
+          <h4>🗡️ Separatisme</h4>
+          <p>Een volk of regio wil zich <em>afscheiden</em> van een groter land en een eigen, onafhankelijk land worden. Voorbeeld: Tsjetsjenië wilde zich begin jaren '90 afsplitsen van Rusland.</p>
+        </div>
+      </div>
+
+      <div class="info-block aarde">
+        <h3 style="margin-top:0;">⚡ Hoe leiden deze tot problemen?</h3>
+        <div class="flow-block">
+          🇷🇺 <strong>Moskou drukt door</strong> (russificatie) → 😡 <strong>Volk wordt boos</strong> → 🚩 <strong>Nationalisme groeit</strong> → 🗡️ <strong>Roep om afscheiding</strong> (separatisme) → ⚔️ <strong>Conflict</strong>
+        </div>
+        <p>Een goed voorbeeld is de oorlog in Tsjetsjenië (jaren '90 en begin 2000) waarbij duizenden doden vielen. Ook met buurlanden ontstaan problemen: denk aan Oekraïne, waar Rusland zegt op te komen voor "Russischsprekenden" — een argument dat lijkt op russificatie omgekeerd.</p>
+      </div>
+
+      <h3>🗺️ Conflictzones rondom Rusland</h3>
+      <p>Op deze kaart zie je gebieden waar de afgelopen jaren spanningen en conflicten waren. Klik op de markers voor uitleg.</p>
+      <div class="map-container" id="map2"></div>
+
+      <!-- OPDRACHT 1 -->
+      <div class="opdracht" data-opdracht-id="t1-o1">
+        <div class="opdracht-titel"><span class="nr">1</span> Koppelopdracht — Begrippen aan voorbeelden</div>
+        <div class="opdracht-vraag">Welk begrip hoort bij welk voorbeeld? Klik eerst op een begrip, dan op het voorbeeld.</div>
+        <div class="koppel-wrap">
+          <div class="koppel-kolom">
+            <h5>Begrip</h5>
+            <div id="koppel-links-2"></div>
+          </div>
+          <div class="koppel-kolom">
+            <h5>Voorbeeld</h5>
+            <div id="koppel-rechts-2"></div>
+          </div>
+        </div>
+        <div class="feedback"></div>
+        <div class="btn-row"><button class="btn small secondary reset-koppel" data-koppel="2">↻ Opnieuw</button></div>
+      </div>
+
+      <!-- OPDRACHT 2 -->
+      <div class="opdracht" data-opdracht-id="t1-o2">
+        <div class="opdracht-titel"><span class="nr">2</span> Multiple choice — Waarom problemen met buurlanden?</div>
+        <div class="opdracht-vraag">Waarom ontstaan er regelmatig spanningen tussen Rusland en zijn buurlanden?</div>
+        <div class="mc-opties">
+          <button class="mc-opt" data-correct="false" data-hint="Het klimaat speelt nauwelijks een rol in deze conflicten. Denk aan grenzen, volken en geschiedenis.">Omdat het klimaat in buurlanden veel kouder is</button>
+          <button class="mc-opt" data-correct="true" data-hint="">Omdat in veel buurlanden Russischsprekende minderheden wonen en de grenzen historisch betwist zijn</button>
+          <button class="mc-opt" data-correct="false" data-hint="Bijna! Religie speelt soms een rol, maar het is niet de hoofdreden. Denk aan taal en grenzen.">Omdat alle buurlanden een andere religie hebben dan Rusland</button>
+          <button class="mc-opt" data-correct="false" data-hint="Toerisme is geen oorzaak van politieke conflicten. Kijk naar bevolking en grenzen.">Omdat buurlanden geen Russische toeristen meer willen</button>
+        </div>
+        <div class="feedback"></div>
+      </div>
+
+      <!-- OPDRACHT 3: OPEN -->
+      <div class="opdracht" data-opdracht-id="t1-o3">
+        <div class="opdracht-titel"><span class="nr">3</span> Open vraag — Scenario op social media</div>
+        <div class="opdracht-vraag"><strong>Scenario:</strong> Stel je voor: jij scrolt op TikTok en ziet een video van een jonge Tsjetsjeense vrouw die haar traditionele dans laat zien, met Tsjetsjeense ondertitels. In de comments zie je twee soorten reacties: sommigen zeggen "Trots op onze cultuur!" (nationalisme), anderen zeggen "Spreek Russisch, dit is Rusland!" (russificatie). Leg in eigen woorden uit waarom deze twee reacties zo botsen, en hoe dit kan leiden tot grotere conflicten.</div>
+        <textarea class="open-antwoord" placeholder="Schrijf hier je antwoord (minimaal 20 woorden)..."></textarea>
+        <div class="word-counter"><span class="words">0 woorden</span><span class="status"></span></div>
+        <div class="btn-row">
+          <button class="btn toon-voorbeeld" disabled>💡 Toon voorbeeldantwoord</button>
+        </div>
+        <div class="voorbeeld-antwoord">
+          <h5>📖 Voorbeeldantwoord:</h5>
+          <p><em>De reactie "trots op onze cultuur" is een uiting van nationalisme: de Tsjetsjeense vrouw is trots op haar eigen volk en taal. De reactie "spreek Russisch" is russificatie: iemand wil dat alleen het Russisch telt. Deze botsen omdat de eerste juist een eigen identiteit wil behouden, en de tweede die identiteit wil wegdrukken. Op grote schaal kan dit leiden tot boosheid bij minderheden en uiteindelijk tot roep om separatisme of zelfs gewapend conflict, zoals eerder in Tsjetsjenië gebeurde.</em></p>
+          <div class="btn-row">
+            <button class="btn small success self-goed">Goed ✓</button>
+            <button class="btn small secondary self-fout">Fout ✗</button>
+          </div>
+        </div>
+        <div class="feedback"></div>
+      </div>
+
+      <div class="leerlingvraag">Heb jij op social media wel eens conflicten gezien tussen mensen van verschillende culturen of nationaliteiten? Welke vorm (russificatie, nationalisme, separatisme) zou daarbij passen?</div>
+
+      <div class="tab-nav-bottom">
+        <button class="btn secondary prev-tab" data-prev="0">← Vorige</button>
+        <button class="btn small secondary reset-tab" data-tab-reset="1">↻ Reset dit onderdeel</button>
+        <button class="btn next-tab" data-next="2">Volgende →</button>
+      </div>
+    </section>
+
+    <!-- ===== TAB 2: GRONDSTOFFEN ===== -->
+    <section class="tab-panel" data-panel="2">
+      <h2>⛽ Grondstoffen: rijkdom én risico</h2>
+
+      <div class="info-block">
+        <p>Rusland is enorm rijk aan natuurlijke grondstoffen. Onder de Russische bodem zitten gigantische voorraden <strong>aardgas, aardolie, kolen, ijzererts, goud en hout</strong>. Vooral aardgas en aardolie zijn belangrijk: Rusland is wereldwijd één van de grootste leveranciers. Toen jij vanochtend warm douchte of je telefoon oplaadde, kwam een deel van die energie misschien indirect uit Russisch gas of olie.</p>
+        <p>Maar deze rijkdom is tegelijk een probleem. De Russische economie is voor een heel groot deel afhankelijk van slechts een paar grondstoffen — vooral olie en gas. Dit heet een <strong>monocultuur-economie</strong>. Als de olieprijs zakt, zakt heel de Russische economie mee. Als landen besluiten geen Russisch gas meer te kopen (zoals veel Europese landen na 2022 deden), heeft Rusland direct een groot probleem.</p>
+      </div>
+
+      <div class="info-block warm">
+        <h3 style="margin-top:0;">🚨 De vier grote problemen rond grondstoffen</h3>
+        <table class="vergelijk-tabel">
+          <thead>
+            <tr><th>Probleem</th><th>Uitleg</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>1. 💰 Afhankelijkheid</strong></td><td>De economie leunt te zwaar op olie en gas. Daalt de prijs, dan stort de economie in.</td></tr>
+            <tr><td><strong>2. 🌍 Milieuschade</strong></td><td>Boren, leidingen en mijnbouw vervuilen lucht, water en bodem — vooral in Siberië en de Arctische gebieden.</td></tr>
+            <tr><td><strong>3. ⚖️ Ongelijkheid</strong></td><td>De winst gaat naar een kleine groep rijken (oligarchen) en Moskou. De gewone bevolking in de regio's profiteert nauwelijks.</td></tr>
+            <tr><td><strong>4. 🗺️ Conflict met buurlanden</strong></td><td>Pijpleidingen lopen door buurlanden. Rusland gebruikt gas als drukmiddel ("gaskraan dicht!").</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>📊 Grafiek: Russische export</h3>
+      <p>Bekijk hoe sterk de Russische export leunt op slechts enkele grondstoffen. Wat valt je op?</p>
+      <div class="chart-container"><canvas id="exportChart"></canvas></div>
+
+      <h3>🗺️ Kaart: belangrijkste grondstofgebieden</h3>
+      <div class="map-container" id="map3"></div>
+
+      <!-- OPDRACHT 1 -->
+      <div class="opdracht" data-opdracht-id="t2-o1">
+        <div class="opdracht-titel"><span class="nr">1</span> Data-analyse — De grafiek lezen</div>
+        <div class="opdracht-vraag">Kijk goed naar de grafiek hierboven. Welke twee grondstoffen samen vormen het grootste deel van de Russische export?</div>
+        <div class="mc-opties">
+          <button class="mc-opt" data-correct="false" data-hint="Kijk nog eens naar de grootste twee taarten in de grafiek. Goud is wel belangrijk maar niet de grootste.">Goud en hout</button>
+          <button class="mc-opt" data-correct="true" data-hint="">Aardolie en aardgas</button>
+          <button class="mc-opt" data-correct="false" data-hint="Bijna! Eén van deze twee zit in de top, maar kijk welke écht het grootste segment is.">Kolen en ijzererts</button>
+          <button class="mc-opt" data-correct="false" data-hint="Landbouwproducten staan niet eens in de grafiek. Welke segmenten zijn juist het grootst?">Landbouwproducten en goud</button>
+        </div>
+        <div class="feedback"></div>
+      </div>
+
+      <!-- OPDRACHT 2 -->
+      <div class="opdracht" data-opdracht-id="t2-o2">
+        <div class="opdracht-titel"><span class="nr">2</span> Open vraag — Waarom is afhankelijkheid gevaarlijk?</div>
+        <div class="opdracht-vraag">Leg in eigen woorden uit waarom het voor Rusland gevaarlijk is dat de economie zo afhankelijk is van olie en gas. Noem minstens twee redenen en geef een concreet voorbeeld.</div>
+        <textarea class="open-antwoord" placeholder="Schrijf hier je antwoord (minimaal 20 woorden)..."></textarea>
+        <div class="word-counter"><span class="words">0 woorden</span><span class="status"></span></div>
+        <div class="btn-row">
+          <button class="btn toon-voorbeeld" disabled>💡 Toon voorbeeldantwoord</button>
+        </div>
+        <div class="voorbeeld-antwoord">
+          <h5>📖 Voorbeeldantwoord:</h5>
+          <p><em>Het is gevaarlijk omdat Rusland weinig andere inkomsten heeft. Ten eerste: als de wereldprijs van olie of gas zakt, zakt de hele Russische economie mee. Ten tweede: als landen besluiten geen Russisch gas meer te kopen, zoals Europa deed na 2022, verliest Rusland enorm veel geld. Een land met een gevarieerde economie (industrie, technologie, landbouw) kan zo'n klap veel beter opvangen.</em></p>
+          <div class="btn-row">
+            <button class="btn small success self-goed">Goed ✓</button>
+            <button class="btn small secondary self-fout">Fout ✗</button>
+          </div>
+        </div>
+        <div class="feedback"></div>
+      </div>
+
+      <!-- OPDRACHT 3 -->
+      <div class="opdracht" data-opdracht-id="t2-o3">
+        <div class="opdracht-titel"><span class="nr">3</span> Multiple choice — De vier problemen</div>
+        <div class="opdracht-vraag">Welk probleem hoort NIET bij de vier hoofdproblemen rond Russische grondstoffen?</div>
+        <div class="mc-opties">
+          <button class="mc-opt" data-correct="false" data-hint="Dit is wél een probleem. Denk aan de monocultuur-economie.">Te grote afhankelijkheid van olie en gas</button>
+          <button class="mc-opt" data-correct="false" data-hint="Dit is wél een probleem. Boren en mijnbouw veroorzaken vervuiling.">Milieuschade door boren en mijnbouw</button>
+          <button class="mc-opt" data-correct="true" data-hint="">Te weinig grondstoffen in de Russische bodem</button>
+          <button class="mc-opt" data-correct="false" data-hint="Dit is wél een probleem. Rusland gebruikt gas als politiek wapen tegen buurlanden.">Conflict met buurlanden door pijpleidingen</button>
+        </div>
+        <div class="feedback"></div>
+      </div>
+
+      <div class="leerlingvraag">Bedenk: jouw smartphone heeft metalen nodig zoals lithium en kobalt. Hoe zou jouw leven veranderen als één land plotseling de export daarvan stopzet? Dat is wat met Russisch gas gebeurde.</div>
+
+      <div class="tab-nav-bottom">
+        <button class="btn secondary prev-tab" data-prev="1">← Vorige</button>
+        <button class="btn small secondary reset-tab" data-tab-reset="2">↻ Reset dit onderdeel</button>
+        <button class="btn next-tab" data-next="3">Volgende →</button>
+      </div>
+    </section>
+
+    <!-- ===== TAB 3: NOORDPOOL ===== -->
+    <section class="tab-panel" data-panel="3">
+      <h2>🧊 De Noordelijke IJszee — kans of bedreiging?</h2>
+
+      <div class="info-block">
+        <p>Helemaal in het noorden van Rusland (en Canada, de VS, Noorwegen en Denemarken/Groenland) ligt de <strong>Noordelijke IJszee</strong> rond de Noordpool. De omstandigheden daar zijn extreem: het is er ongelooflijk koud (tot -50°C in de winter), er ligt grote delen van het jaar zee-ijs, en de zomer is heel kort. Toch is dit gebied de laatste jaren in het nieuws — en vaak op social media — omdat het zee-ijs door klimaatverandering snel smelt.</p>
+        <p>Dat smeltende ijs zorgt voor twee soorten kansen én problemen tegelijk:</p>
+      </div>
+
+      <div class="info-block warm">
+        <div class="flow-block">
+          🧊 <strong>Zee-ijs smelt</strong> → 🚢 <strong>Nieuwe scheepvaartroutes</strong> + ⛽ <strong>Boren naar olie/gas wordt mogelijk</strong> → 💰 <strong>Veel landen willen claimen</strong> → ⚔️ <strong>Conflict over grenzen</strong>
+        </div>
+      </div>
+
+      <h3>🌍 Welke landen hebben belang in de Noordpool?</h3>
+      <p>Acht landen liggen rond of dichtbij de Noordpool en hebben directe belangen. Bekijk de kaart en klik op elk land om de belangen te zien.</p>
+      <div class="map-container" id="map4"></div>
+
+      <h3>📜 Het Earth Charter en de Arctische Raad</h3>
+      <div class="info-block aarde">
+        <p>Om het gebied te beschermen, hebben veel landen en organisaties afspraken gemaakt:</p>
+        <p><strong>🌱 Het Earth Charter</strong> is een internationale verklaring met richtlijnen voor het beschermen van het milieu, sociale rechtvaardigheid en vrede. Het zegt onder andere: we moeten zuinig zijn met natuurlijke hulpbronnen en kwetsbare gebieden niet uitbuiten.</p>
+        <p><strong>❄️ De Arctische Raad</strong> is een samenwerkingsverband van de acht landen rond de Noordpool, samen met inheemse volken zoals de Saami en Inuit. Ze overleggen over milieubescherming, scheepvaart en duurzaam gebruik van het gebied.</p>
+        <p><strong>🤝 NGO's</strong> (niet-gouvernementele organisaties zoals Greenpeace en het WWF) vinden deze afspraken superbelangrijk, omdat zonder regels grote bedrijven snel zouden gaan boren, waardoor olielekken een ramp zouden zijn — koude zeeën breken olie heel langzaam af.</p>
+      </div>
+
+      <h3>📊 Voor en tegen: boren in het Noordpoolgebied</h3>
+      <table class="vergelijk-tabel">
+        <thead>
+          <tr><th>✅ Voor (argumenten)</th><th>❌ Tegen (argumenten)</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Veel olie en gas onder de bodem — economisch enorm waardevol</td>
+            <td>Grote kans op olielekken die het kwetsbare ecosysteem ruïneren</td>
+          </tr>
+          <tr>
+            <td>Banen voor mensen in afgelegen regio's</td>
+            <td>Bedreiging voor inheemse volken die afhankelijk zijn van jacht en visserij</td>
+          </tr>
+          <tr>
+            <td>Minder afhankelijk van olie uit het Midden-Oosten</td>
+            <td>Versterkt klimaatverandering verder — meer fossiele brandstof verbranden</td>
+          </tr>
+          <tr>
+            <td>Nieuwe vaarroutes verkorten transport tussen Azië en Europa</td>
+            <td>Dieren zoals ijsberen, walrussen en zeehonden verliezen hun leefgebied</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- OPDRACHT 1 -->
+      <div class="opdracht" data-opdracht-id="t3-o1">
+        <div class="opdracht-titel"><span class="nr">1</span> Multiple choice — De Arctische Raad</div>
+        <div class="opdracht-vraag">Wat is de belangrijkste functie van de Arctische Raad?</div>
+        <div class="mc-opties">
+          <button class="mc-opt" data-correct="false" data-hint="Niet juist. De Raad gaat juist over samenwerking, niet over wie iets in z'n eentje mag.">Beslissen welk land alle olie in het gebied mag oppompen</button>
+          <button class="mc-opt" data-correct="true" data-hint="">De acht Arctische landen en inheemse volken laten samenwerken over milieu, scheepvaart en duurzaamheid</button>
+          <button class="mc-opt" data-correct="false" data-hint="Bijna goed, maar de Raad regelt veel meer dan alleen toerisme. Denk breder.">Toeristen begeleiden naar de Noordpool</button>
+          <button class="mc-opt" data-correct="false" data-hint="Klopt niet. De Raad gaat juist over vreedzame samenwerking, niet over militair optreden.">Een gezamenlijk leger in het Noordpoolgebied vormen</button>
+        </div>
+        <div class="feedback"></div>
+      </div>
+
+      <!-- OPDRACHT 2 -->
+      <div class="opdracht" data-opdracht-id="t3-o2">
+        <div class="opdracht-titel"><span class="nr">2</span> Open vraag — Jouw standpunt</div>
+        <div class="opdracht-vraag">Stel: er wordt een online petitie op Instagram rondgedeeld om boren naar olie en gas in de Noordelijke IJszee te verbieden. Zou jij die petitie tekenen? Geef minstens twee argumenten vóór en twee argumenten tegen het boren, en sluit af met jouw eigen mening en waarom.</div>
+        <textarea class="open-antwoord" placeholder="Schrijf hier je antwoord (minimaal 20 woorden)..."></textarea>
+        <div class="word-counter"><span class="words">0 woorden</span><span class="status"></span></div>
+        <div class="btn-row">
+          <button class="btn toon-voorbeeld" disabled>💡 Toon voorbeeldantwoord</button>
+        </div>
+        <div class="voorbeeld-antwoord">
+          <h5>📖 Voorbeeldantwoord:</h5>
+          <p><em>Argumenten vóór boren: er ligt veel olie en gas dat economisch waardevol is, en het levert banen op in afgelegen gebieden. Argumenten tegen: olielekken zijn rampzalig in koude zeeën, en het verbranden van meer fossiele brandstoffen versnelt de klimaatverandering juist. Ik zou de petitie tekenen, omdat het Noordpoolgebied een uniek en kwetsbaar ecosysteem is. Als wij nu boren voor kortetermijnwinst, betalen toekomstige generaties — en de ijsberen — daar de prijs voor.</em></p>
+          <div class="btn-row">
+            <button class="btn small success self-goed">Goed ✓</button>
+            <button class="btn small secondary self-fout">Fout ✗</button>
+          </div>
+        </div>
+        <div class="feedback"></div>
+      </div>
+
+      <!-- OPDRACHT 3 -->
+      <div class="opdracht" data-opdracht-id="t3-o3">
+        <div class="opdracht-titel"><span class="nr">3</span> Koppelopdracht — Landen en belangen</div>
+        <div class="opdracht-vraag">Koppel elk land aan zijn belangrijkste belang in het Noordpoolgebied.</div>
+        <div class="koppel-wrap">
+          <div class="koppel-kolom">
+            <h5>Land</h5>
+            <div id="koppel-links-3"></div>
+          </div>
+          <div class="koppel-kolom">
+            <h5>Belang</h5>
+            <div id="koppel-rechts-3"></div>
+          </div>
+        </div>
+        <div class="feedback"></div>
+        <div class="btn-row"><button class="btn small secondary reset-koppel" data-koppel="3">↻ Opnieuw</button></div>
+      </div>
+
+      <div class="leerlingvraag">Zou jij een vakantie naar de Noordpool boeken als die ooit beschikbaar wordt door smeltend ijs? Wat zou je vóór- en nadeel zijn voor het gebied?</div>
+
+      <div class="tab-nav-bottom">
+        <button class="btn secondary prev-tab" data-prev="2">← Vorige</button>
+        <button class="btn small secondary reset-tab" data-tab-reset="3">↻ Reset dit onderdeel</button>
+        <button class="btn next-tab" data-next="4">Volgende →</button>
+      </div>
+    </section>
+
+    <!-- ===== TAB 4: REFLECTIE ===== -->
+    <section class="tab-panel" data-panel="4">
+      <h2>🪞 Reflectie en afsluiting</h2>
+
+      <div class="eind-score">
+        <div style="font-size: 1.1rem; opacity: 0.9;">Jouw eindscore</div>
+        <div class="perc" id="eindPercentage">0%</div>
+        <div id="eindBericht">Vul de opdrachten in om je score te zien</div>
+      </div>
+
+      <h3>🎯 Leerdoelen — wat heb je geleerd?</h3>
+      <div class="info-block">
+        <ul class="leerdoelen-lijst">
+          <li>Ik begrijp waarom er culturele verschillen zijn in het grote Rusland</li>
+          <li>Ik kan met kaarten aantonen dat Rusland een lappendeken van volken en gebieden is</li>
+          <li>Ik weet dat Rusland een federatie is van deelgebieden met eigen culturele identiteit</li>
+          <li>Ik kan uitleggen waarom er problemen zijn tussen Rusland en buurlanden</li>
+          <li>Ik weet wat russificatie, nationalisme en separatisme betekenen</li>
+          <li>Ik kan de vier problemen met betrekking tot grondstoffen noemen</li>
+          <li>Ik begrijp waarom afhankelijkheid van grondstoffen tot problemen leidt</li>
+          <li>Ik ken de natuurlijke omstandigheden in de Noordelijke IJszee</li>
+          <li>Ik weet welke landen belangen hebben in het Noordpoolgebied</li>
+          <li>Ik weet wat het Earth Charter en de Arctische Raad zijn</li>
+          <li>Ik kan argumenten vóór en tegen boren in de Noordpool noemen</li>
+        </ul>
+      </div>
+
+      <h3>💭 Reflectievragen</h3>
+      <p>Deze vragen gaan over <strong>hoe</strong> je geleerd hebt, niet alleen over wat je geleerd hebt.</p>
+
+      <div class="reflectie-card opdracht" data-opdracht-id="t4-o1">
+        <div class="opdracht-titel"><span class="nr">1</span> Wat vond je het lastigst en waarom?</div>
+        <div class="opdracht-vraag">Beschrijf welk onderwerp of welke opdracht je het moeilijkst vond. Wat maakte het lastig? Een nieuw begrip, een ingewikkelde kaart, of misschien een open vraag waar je over moest nadenken?</div>
+        <textarea class="open-antwoord" placeholder="Schrijf hier je antwoord (minimaal 20 woorden)..."></textarea>
+        <div class="word-counter"><span class="words">0 woorden</span><span class="status"></span></div>
+        <div class="btn-row">
+          <button class="btn toon-voorbeeld" disabled>💡 Toon hulpvragen</button>
+        </div>
+        <div class="voorbeeld-antwoord">
+          <h5>📖 Hulpvragen om over na te denken:</h5>
+          <p><em>Was het lastig omdat je het onderwerp helemaal nieuw vond? Of omdat je veel namen en plekken moest onthouden? Lag het aan hoe het werd uitgelegd, of aan de tijd die je had? Goede zelfreflectie helpt je om bij een volgend onderwerp slimmer te studeren.</em></p>
+          <div class="btn-row">
+            <button class="btn small success self-goed">Goed ✓</button>
+            <button class="btn small secondary self-fout">Fout ✗</button>
+          </div>
+        </div>
+        <div class="feedback"></div>
+      </div>
+
+      <div class="reflectie-card opdracht" data-opdracht-id="t4-o2">
+        <div class="opdracht-titel"><span class="nr">2</span> Wat zou je een klasgenoot uitleggen?</div>
+        <div class="opdracht-vraag">Stel je voor: een klasgenoot heeft deze les gemist. Welke drie belangrijkste dingen uit deze les zou je hem of haar uitleggen? Doe alsof je een korte TikTok-video maakt: kort, helder en duidelijk.</div>
+        <textarea class="open-antwoord" placeholder="Schrijf hier je antwoord (minimaal 20 woorden)..."></textarea>
+        <div class="word-counter"><span class="words">0 woorden</span><span class="status"></span></div>
+        <div class="btn-row">
+          <button class="btn toon-voorbeeld" disabled>💡 Toon voorbeeldantwoord</button>
+        </div>
+        <div class="voorbeeld-antwoord">
+          <h5>📖 Voorbeeldantwoord:</h5>
+          <p><em>"Hey! Als je vandaag aardrijkskunde miste: Rusland is mega-groot en een lappendeken van volken — een federatie. Drie belangrijke begrippen: russificatie (alles Russisch maken), nationalisme (trots op je volk) en separatisme (zich willen afsplitsen). De Russische economie leunt heel erg op olie en gas, wat risico's geeft. En in de Noordelijke IJszee willen veel landen straks gaan boren, maar dat kan schadelijk zijn voor het milieu en de dieren daar. Easy!"</em></p>
+          <div class="btn-row">
+            <button class="btn small success self-goed">Goed ✓</button>
+            <button class="btn small secondary self-fout">Fout ✗</button>
+          </div>
+        </div>
+        <div class="feedback"></div>
+      </div>
+
+      <div class="reflectie-card opdracht" data-opdracht-id="t4-o3">
+        <div class="opdracht-titel"><span class="nr">3</span> Hoe zou je dit onderwerp herkennen in jouw omgeving?</div>
+        <div class="opdracht-vraag">Op welke manier komen de thema's van deze les (verschillende culturen, afhankelijkheid van grondstoffen, klimaatverandering) terug in jouw eigen leven, op school of in je social media feed? Geef minstens twee voorbeelden.</div>
+        <textarea class="open-antwoord" placeholder="Schrijf hier je antwoord (minimaal 20 woorden)..."></textarea>
+        <div class="word-counter"><span class="words">0 woorden</span><span class="status"></span></div>
+        <div class="btn-row">
+          <button class="btn toon-voorbeeld" disabled>💡 Toon voorbeeldantwoord</button>
+        </div>
+        <div class="voorbeeld-antwoord">
+          <h5>📖 Voorbeeldantwoord:</h5>
+          <p><em>Op mijn school zitten leerlingen met allerlei achtergronden — net als Rusland zijn we een soort mini-lappendeken. Op TikTok zie ik regelmatig filmpjes over klimaatverandering en smeltend ijs in de Noordpool. En toen er minder Russisch gas naar Europa kwam, ging mijn moeder klagen over de hoge energierekening — dat liet zien hoe afhankelijk we eigenlijk zijn van grondstoffen uit andere landen.</em></p>
+          <div class="btn-row">
+            <button class="btn small success self-goed">Goed ✓</button>
+            <button class="btn small secondary self-fout">Fout ✗</button>
+          </div>
+        </div>
+        <div class="feedback"></div>
+      </div>
+
+      <div class="tab-nav-bottom">
+        <button class="btn secondary prev-tab" data-prev="3">← Vorige</button>
+        <button class="btn small secondary reset-tab" data-tab-reset="4">↻ Reset dit onderdeel</button>
+        <span style="color: var(--rood-diep); font-weight: 700;">🏁 Einde van de les</span>
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<script>
+'use strict';
+
+// ============ LOCALSTORAGE WRAPPERS ============
+const STORAGE_PREFIX = 'geo_les_rusland_';
+function saveState(key, value) {
+  try { localStorage.setItem(STORAGE_PREFIX + key, JSON.stringify(value)); } catch (e) {}
+}
+function loadState(key) {
+  try {
+    const v = localStorage.getItem(STORAGE_PREFIX + key);
+    return v ? JSON.parse(v) : null;
+  } catch (e) { return null; }
+}
+function clearAllState() {
+  try {
+    Object.keys(localStorage).filter(k => k.startsWith(STORAGE_PREFIX)).forEach(k => localStorage.removeItem(k));
+  } catch (e) {}
+}
+
+// ============ GLOBAL STATE ============
+const TOTAL_TABS = 5;
+let currentTab = 0;
+// opdracht state: { id: { voltooid: bool, pogingen: 0, gegevenAntwoord: ... } }
+let opdrachtState = loadState('opdrachten') || {};
+let mapsInitialized = { map1: false, map2: false, map3: false, map4: false };
+let chartInitialized = false;
+let mapRefs = {};
+
+// ============ KOPPELOPDRACHT DATA ============
+const koppelData = {
+  '1': {
+    links: [
+      { id: 'L1', tekst: 'Tsjetsjenen', match: 'R1' },
+      { id: 'L2', tekst: 'Tataren', match: 'R2' },
+      { id: 'L3', tekst: 'Jakoeten', match: 'R3' },
+      { id: 'L4', tekst: 'Boerjaten', match: 'R4' }
+    ],
+    rechts: [
+      { id: 'R1', tekst: 'Tsjetsjenië (Kaukasus)' },
+      { id: 'R2', tekst: 'Tatarstan (centraal Rusland)' },
+      { id: 'R3', tekst: 'Jakoetië / Sacha (Oost-Siberië)' },
+      { id: 'R4', tekst: 'Boerjatië (rond Baikalmeer)' }
+    ]
+  },
+  '2': {
+    links: [
+      { id: 'L1', tekst: 'Russificatie', match: 'R1' },
+      { id: 'L2', tekst: 'Nationalisme', match: 'R2' },
+      { id: 'L3', tekst: 'Separatisme', match: 'R3' }
+    ],
+    rechts: [
+      { id: 'R1', tekst: 'In een Tsjetsjeense school worden alle vakken verplicht in het Russisch gegeven' },
+      { id: 'R2', tekst: 'Mensen lopen trots met de Tatarse vlag op straat tijdens een cultureel feest' },
+      { id: 'R3', tekst: 'Een regio organiseert een referendum om los te komen van Rusland' }
+    ]
+  },
+  '3': {
+    links: [
+      { id: 'L1', tekst: 'Rusland', match: 'R1' },
+      { id: 'L2', tekst: 'Verenigde Staten', match: 'R2' },
+      { id: 'L3', tekst: 'Canada', match: 'R3' },
+      { id: 'L4', tekst: 'Noorwegen', match: 'R4' },
+      { id: 'L5', tekst: 'Denemarken', match: 'R5' }
+    ],
+    rechts: [
+      { id: 'R1', tekst: 'Grootste kustlijn aan de Noordelijke IJszee, claimt veel zeebodem voor gas/olie' },
+      { id: 'R2', tekst: 'Heeft via Alaska toegang tot de Noordpool en boort daar al olie' },
+      { id: 'R3', tekst: 'Grote arctische archipel; veel inheemse Inuit-gemeenschappen' },
+      { id: 'R4', tekst: 'Lid Arctische Raad; vist en boort rond Spitsbergen' },
+      { id: 'R5', tekst: 'Belang via Groenland: rijk aan grondstoffen onder het ijs' }
+    ]
+  }
+};
+
+// ============ PROGRESS BAR ============
+function getAllOpdrachtIds() {
+  return Array.from(document.querySelectorAll('.opdracht')).map(el => el.dataset.opdrachtId);
+}
+function updateProgress() {
+  const all = getAllOpdrachtIds();
+  const total = all.length;
+  const done = all.filter(id => opdrachtState[id] && opdrachtState[id].voltooid).length;
+  const pct = total === 0 ? 0 : Math.round((done / total) * 100);
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressText').textContent = pct + '% voltooid (' + done + '/' + total + ')';
+  // Update tab checkmarks
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    const idx = parseInt(btn.dataset.tab);
+    const tabOpdrachten = Array.from(document.querySelectorAll('[data-panel="' + idx + '"] .opdracht'))
+      .map(el => el.dataset.opdrachtId);
+    if (tabOpdrachten.length > 0 && tabOpdrachten.every(id => opdrachtState[id] && opdrachtState[id].voltooid)) {
+      if (!btn.querySelector('.check')) {
+        const c = document.createElement('span');
+        c.className = 'check';
+        c.textContent = '✓';
+        btn.appendChild(c);
+      }
+    } else {
+      const c = btn.querySelector('.check');
+      if (c) c.remove();
+    }
+  });
+  // Update final score
+  const eindEl = document.getElementById('eindPercentage');
+  if (eindEl) {
+    eindEl.textContent = pct + '%';
+    const ber = document.getElementById('eindBericht');
+    if (ber) {
+      if (pct >= 90) ber.textContent = '🏆 Uitstekend! Je beheerst de stof helemaal.';
+      else if (pct >= 70) ber.textContent = '👍 Goed gedaan! Je weet veel over Rusland.';
+      else if (pct >= 50) ber.textContent = '💪 Op de helft! Doe nog een paar opdrachten.';
+      else if (pct > 0) ber.textContent = '🚀 Goed begin — ga door!';
+      else ber.textContent = 'Vul de opdrachten in om je score te zien';
+    }
+  }
+}
+function markVoltooid(id, data) {
+  if (!opdrachtState[id]) opdrachtState[id] = { voltooid: false, pogingen: 0 };
+  opdrachtState[id].voltooid = true;
+  if (data) Object.assign(opdrachtState[id], data);
+  opdrachtState[id].tijd = Date.now();
+  saveState('opdrachten', opdrachtState);
+  const el = document.querySelector('[data-opdracht-id="' + id + '"]');
+  if (el) el.classList.add('voltooid');
+  updateProgress();
+}
+
+// ============ TAB SWITCHING ============
+function switchTab(idx) {
+  currentTab = idx;
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', parseInt(b.dataset.tab) === idx));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', parseInt(p.dataset.panel) === idx));
+  document.getElementById('tabCounter').textContent = 'Onderdeel ' + (idx + 1) + ' van ' + TOTAL_TABS;
+  // Init maps on demand
+  if (idx === 0) initMap1();
+  if (idx === 1) initMap2();
+  if (idx === 2) { initMap3(); initChart(); }
+  if (idx === 3) initMap4();
+  // Invalidate all map sizes
+  setTimeout(() => {
+    Object.values(mapRefs).forEach(m => { if (m && m.invalidateSize) m.invalidateSize(); });
+  }, 100);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  saveState('currentTab', idx);
+}
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => switchTab(parseInt(btn.dataset.tab)));
+});
+document.querySelectorAll('.next-tab').forEach(btn => {
+  btn.addEventListener('click', () => switchTab(parseInt(btn.dataset.next)));
+});
+document.querySelectorAll('.prev-tab').forEach(btn => {
+  btn.addEventListener('click', () => switchTab(parseInt(btn.dataset.prev)));
+});
+
+// ============ MULTIPLE CHOICE ============
+function setupMC() {
+  document.querySelectorAll('.opdracht').forEach(opdrachtEl => {
+    const id = opdrachtEl.dataset.opdrachtId;
+    const opties = opdrachtEl.querySelectorAll('.mc-opt');
+    if (opties.length === 0) return;
+    const feedback = opdrachtEl.querySelector('.feedback');
+    opties.forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (opdrachtState[id] && opdrachtState[id].voltooid) return;
+        if (!opdrachtState[id]) opdrachtState[id] = { voltooid: false, pogingen: 0 };
+        opdrachtState[id].pogingen = (opdrachtState[id].pogingen || 0) + 1;
+        const correct = btn.dataset.correct === 'true';
+        if (correct) {
+          btn.classList.add('juist');
+          opties.forEach(o => o.disabled = true);
+          feedback.className = 'feedback show correct';
+          feedback.innerHTML = '✅ <strong>Goed!</strong> Mooi gedaan.';
+          markVoltooid(id, { antwoord: btn.textContent });
+        } else {
+          btn.classList.add('fout');
+          btn.disabled = true;
+          if (opdrachtState[id].pogingen >= 3) {
+            // Toon juiste antwoord
+            opties.forEach(o => {
+              if (o.dataset.correct === 'true') o.classList.add('juist');
+              o.disabled = true;
+            });
+            feedback.className = 'feedback show reveal';
+            feedback.innerHTML = '💡 <strong>Het juiste antwoord is gemarkeerd.</strong> Bij ' + btn.textContent + ' was de gedachte: ' + (btn.dataset.hint || '');
+            markVoltooid(id, { antwoord: 'na 3 pogingen' });
+          } else {
+            feedback.className = 'feedback show coach';
+            feedback.innerHTML = '🤔 <strong>Nog niet helemaal.</strong> ' + (btn.dataset.hint || 'Probeer het nog eens.');
+          }
+          saveState('opdrachten', opdrachtState);
+        }
+      });
+    });
+  });
+}
+
+// ============ OPEN VRAGEN ============
+function setupOpen() {
+  document.querySelectorAll('.opdracht').forEach(opdrachtEl => {
+    const id = opdrachtEl.dataset.opdrachtId;
+    const ta = opdrachtEl.querySelector('textarea.open-antwoord');
+    if (!ta) return;
+    const wordsEl = opdrachtEl.querySelector('.words');
+    const statusEl = opdrachtEl.querySelector('.status');
+    const toonBtn = opdrachtEl.querySelector('.toon-voorbeeld');
+    const voorbeeld = opdrachtEl.querySelector('.voorbeeld-antwoord');
+    const feedback = opdrachtEl.querySelector('.feedback');
+
+    function updateCount() {
+      const w = ta.value.trim() === '' ? 0 : ta.value.trim().split(/\s+/).length;
+      wordsEl.textContent = w + ' woorden';
+      if (w >= 20) {
+        statusEl.innerHTML = '<span class="voldoende">✓ voldoende</span>';
+        toonBtn.disabled = false;
+      } else {
+        statusEl.textContent = '(min. 20)';
+        toonBtn.disabled = true;
+      }
+      // Save answer
+      if (!opdrachtState[id]) opdrachtState[id] = { voltooid: false, pogingen: 0 };
+      opdrachtState[id].tekst = ta.value;
+      saveState('opdrachten', opdrachtState);
+    }
+    ta.addEventListener('input', updateCount);
+
+    toonBtn.addEventListener('click', () => {
+      voorbeeld.classList.add('show');
+      toonBtn.style.display = 'none';
+    });
+
+    const goed = opdrachtEl.querySelector('.self-goed');
+    const fout = opdrachtEl.querySelector('.self-fout');
+    if (goed) goed.addEventListener('click', () => {
+      feedback.className = 'feedback show correct';
+      feedback.innerHTML = '✅ <strong>Top!</strong> Je hebt jezelf eerlijk beoordeeld. Goed bezig.';
+      markVoltooid(id, { zelfbeoordeling: 'goed' });
+      goed.disabled = true; if (fout) fout.disabled = true;
+      ta.disabled = true;
+    });
+    if (fout) fout.addEventListener('click', () => {
+      feedback.className = 'feedback show coach';
+      feedback.innerHTML = '💪 <strong>Goed dat je eerlijk bent!</strong> Lees het voorbeeld nog eens door — bij een volgend vergelijkbaar onderwerp lukt het beter.';
+      markVoltooid(id, { zelfbeoordeling: 'fout' });
+      goed.disabled = true; fout.disabled = true;
+      ta.disabled = true;
+    });
+
+    // Restore
+    if (opdrachtState[id] && opdrachtState[id].tekst) {
+      ta.value = opdrachtState[id].tekst;
+      updateCount();
+    }
+    if (opdrachtState[id] && opdrachtState[id].voltooid) {
+      opdrachtEl.classList.add('voltooid');
+      ta.disabled = true;
+      voorbeeld.classList.add('show');
+      toonBtn.style.display = 'none';
+      if (goed) goed.disabled = true;
+      if (fout) fout.disabled = true;
+      const z = opdrachtState[id].zelfbeoordeling;
+      if (z === 'goed') {
+        feedback.className = 'feedback show correct';
+        feedback.innerHTML = '✅ <strong>Voltooid!</strong>';
+      } else if (z === 'fout') {
+        feedback.className = 'feedback show coach';
+        feedback.innerHTML = '💪 <strong>Voltooid!</strong> Bekijk het voorbeeld nog eens.';
+      }
+    }
+  });
+}
+
+// ============ KOPPELOPDRACHT ============
+function buildKoppel(koppelId) {
+  const data = koppelData[koppelId];
+  const linksEl = document.getElementById('koppel-links-' + koppelId);
+  const rechtsEl = document.getElementById('koppel-rechts-' + koppelId);
+  if (!linksEl || !rechtsEl) return;
+  linksEl.innerHTML = '';
+  rechtsEl.innerHTML = '';
+
+  // Shuffle rechts for fairness
+  const rechtsShuffled = [...data.rechts].sort(() => Math.random() - 0.5);
+
+  data.links.forEach((item, i) => {
+    const d = document.createElement('div');
+    d.className = 'koppel-item';
+    d.dataset.id = item.id;
+    d.dataset.match = item.match;
+    d.dataset.side = 'links';
+    d.dataset.koppel = koppelId;
+    d.textContent = item.tekst;
+    linksEl.appendChild(d);
+  });
+  rechtsShuffled.forEach(item => {
+    const d = document.createElement('div');
+    d.className = 'koppel-item';
+    d.dataset.id = item.id;
+    d.dataset.side = 'rechts';
+    d.dataset.koppel = koppelId;
+    d.textContent = item.tekst;
+    rechtsEl.appendChild(d);
+  });
+}
+
+let koppelSelected = {};  // { koppelId: { side: 'links'|'rechts', id: ... } }
+let koppelMatches = {};   // { koppelId: { L_id: R_id, ... } }
+let koppelKleur = {};     // { koppelId: nextKleurNr }
+
+function setupKoppel() {
+  Object.keys(koppelData).forEach(k => {
+    buildKoppel(k);
+    koppelMatches[k] = {};
+    koppelKleur[k] = 1;
+  });
+
+  document.body.addEventListener('click', e => {
+    const it = e.target.closest('.koppel-item');
+    if (!it) return;
+    if (it.classList.contains('gekoppeld')) return;
+    const k = it.dataset.koppel;
+    const side = it.dataset.side;
+    const id = it.dataset.id;
+
+    if (!koppelSelected[k]) koppelSelected[k] = null;
+
+    if (koppelSelected[k] === null) {
+      koppelSelected[k] = { side, id, el: it };
+      it.classList.add('geselecteerd');
+      return;
+    }
+    // Already something selected
+    const sel = koppelSelected[k];
+    if (sel.side === side) {
+      // Switch selection
+      sel.el.classList.remove('geselecteerd');
+      koppelSelected[k] = { side, id, el: it };
+      it.classList.add('geselecteerd');
+      return;
+    }
+    // Different side - try to match
+    const linksEl = sel.side === 'links' ? sel.el : it;
+    const rechtsEl = sel.side === 'rechts' ? sel.el : it;
+    const linksId = sel.side === 'links' ? sel.id : id;
+    const rechtsId = sel.side === 'rechts' ? sel.id : id;
+    const expectedMatch = linksEl.dataset.match;
+
+    sel.el.classList.remove('geselecteerd');
+    koppelSelected[k] = null;
+
+    const opdrachtEl = it.closest('.opdracht');
+    const feedback = opdrachtEl.querySelector('.feedback');
+    const opdrachtId = opdrachtEl.dataset.opdrachtId;
+
+    if (expectedMatch === rechtsId) {
+      // Correct match
+      const kleurNr = koppelKleur[k];
+      koppelKleur[k] = (kleurNr % 5) + 1;
+      linksEl.classList.add('gekoppeld', 'kleur-' + kleurNr);
+      rechtsEl.classList.add('gekoppeld', 'kleur-' + kleurNr);
+      koppelMatches[k][linksId] = rechtsId;
+
+      // Check if complete
+      if (Object.keys(koppelMatches[k]).length === koppelData[k].links.length) {
+        feedback.className = 'feedback show correct';
+        feedback.innerHTML = '🎉 <strong>Alle koppelingen kloppen!</strong> Mooi werk.';
+        markVoltooid(opdrachtId, { koppelingen: koppelMatches[k] });
+      } else {
+        feedback.className = 'feedback show correct';
+        feedback.innerHTML = '✓ Koppeling klopt! Ga door met de volgende.';
+      }
+    } else {
+      // Wrong match
+      if (!opdrachtState[opdrachtId]) opdrachtState[opdrachtId] = { voltooid: false, pogingen: 0 };
+      opdrachtState[opdrachtId].pogingen = (opdrachtState[opdrachtId].pogingen || 0) + 1;
+      feedback.className = 'feedback show coach';
+      feedback.innerHTML = '🤔 <strong>Die past niet bij elkaar.</strong> Denk nog eens na: welk volk woont in dat gebied? Of welke beschrijving past bij dat begrip?';
+      saveState('opdrachten', opdrachtState);
+
+      // After 3 wrong tries, autocomplete
+      if (opdrachtState[opdrachtId].pogingen >= 6 && Object.keys(koppelMatches[k]).length < koppelData[k].links.length) {
+        // Autocomplete remaining
+        document.querySelectorAll('#koppel-links-' + k + ' .koppel-item').forEach(linksItem => {
+          if (linksItem.classList.contains('gekoppeld')) return;
+          const matchId = linksItem.dataset.match;
+          const rechtsItem = document.querySelector('#koppel-rechts-' + k + ' .koppel-item[data-id="' + matchId + '"]');
+          if (rechtsItem && !rechtsItem.classList.contains('gekoppeld')) {
+            const kleurNr = koppelKleur[k];
+            koppelKleur[k] = (kleurNr % 5) + 1;
+            linksItem.classList.add('gekoppeld', 'kleur-' + kleurNr);
+            rechtsItem.classList.add('gekoppeld', 'kleur-' + kleurNr);
+            koppelMatches[k][linksItem.dataset.id] = matchId;
+          }
+        });
+        feedback.className = 'feedback show reveal';
+        feedback.innerHTML = '💡 <strong>De juiste koppelingen zijn nu zichtbaar.</strong> Bekijk ze goed.';
+        markVoltooid(opdrachtId, { koppelingen: koppelMatches[k], autocomplete: true });
+      }
+    }
+  });
+
+  document.querySelectorAll('.reset-koppel').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const k = btn.dataset.koppel;
+      resetKoppel(k);
+    });
+  });
+}
+
+function resetKoppel(k) {
+  buildKoppel(k);
+  koppelMatches[k] = {};
+  koppelSelected[k] = null;
+  koppelKleur[k] = 1;
+}
+
+// ============ TAB RESET ============
+function resetTab(tabIdx) {
+  const panel = document.querySelector('[data-panel="' + tabIdx + '"]');
+  if (!panel) return;
+  panel.querySelectorAll('.opdracht').forEach(op => {
+    const id = op.dataset.opdrachtId;
+    delete opdrachtState[id];
+    op.classList.remove('voltooid');
+    // Reset MC
+    op.querySelectorAll('.mc-opt').forEach(b => {
+      b.classList.remove('juist', 'fout');
+      b.disabled = false;
+    });
+    // Reset open
+    const ta = op.querySelector('textarea.open-antwoord');
+    if (ta) {
+      ta.value = '';
+      ta.disabled = false;
+      const wordsEl = op.querySelector('.words');
+      const statusEl = op.querySelector('.status');
+      if (wordsEl) wordsEl.textContent = '0 woorden';
+      if (statusEl) statusEl.textContent = '(min. 20)';
+      const toonBtn = op.querySelector('.toon-voorbeeld');
+      if (toonBtn) { toonBtn.disabled = true; toonBtn.style.display = ''; }
+      const vb = op.querySelector('.voorbeeld-antwoord');
+      if (vb) vb.classList.remove('show');
+      op.querySelectorAll('.self-goed, .self-fout').forEach(b => b.disabled = false);
+    }
+    // Reset feedback
+    const fb = op.querySelector('.feedback');
+    if (fb) { fb.className = 'feedback'; fb.innerHTML = ''; }
+  });
+  // Reset koppel within this tab
+  panel.querySelectorAll('[id^="koppel-links-"]').forEach(el => {
+    const k = el.id.split('-')[2];
+    resetKoppel(k);
+  });
+  saveState('opdrachten', opdrachtState);
+  updateProgress();
+}
+document.querySelectorAll('.reset-tab').forEach(b => {
+  b.addEventListener('click', () => resetTab(parseInt(b.dataset.tabReset)));
+});
+
+// ============ WIPE BUTTON ============
+document.getElementById('wipeBtn').addEventListener('click', () => {
+  if (confirm('Weet je zeker dat je alle voortgang wilt wissen?')) {
+    clearAllState();
+    location.reload();
+  }
+});
+
+// ============ RESTORE STATE ============
+function restoreState() {
+  document.querySelectorAll('.opdracht').forEach(op => {
+    const id = op.dataset.opdrachtId;
+    const st = opdrachtState[id];
+    if (!st) return;
+    if (st.voltooid) {
+      op.classList.add('voltooid');
+      // MC restore
+      const opties = op.querySelectorAll('.mc-opt');
+      if (opties.length > 0) {
+        opties.forEach(b => {
+          b.disabled = true;
+          if (b.dataset.correct === 'true') b.classList.add('juist');
+        });
+        const fb = op.querySelector('.feedback');
+        if (fb) {
+          fb.className = 'feedback show correct';
+          fb.innerHTML = '✅ <strong>Voltooid.</strong>';
+        }
+      }
+    }
+  });
+}
+
+// ============ MAPS ============
+function initMap1() {
+  if (mapsInitialized.map1) return;
+  const el = document.getElementById('map1');
+  if (!el) return;
+  const map = L.map('map1').setView([62, 90], 3);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap',
+    maxZoom: 10
+  }).addTo(map);
+  const markers = [
+    { lat: 55.7558, lng: 37.6173, name: 'Moskou', info: 'Hoofdstad van Rusland. Centrum van macht in de federatie.' },
+    { lat: 43.3168, lng: 45.6914, name: 'Grozny (Tsjetsjenië)', info: 'Hoofdstad van de Tsjetsjeense republiek. Tsjetsjenen zijn overwegend moslim.' },
+    { lat: 55.7887, lng: 49.1221, name: 'Kazan (Tatarstan)', info: 'Hoofdstad van Tatarstan. Tataren spreken een Turkse taal en zijn meestal moslim.' },
+    { lat: 62.0339, lng: 129.7331, name: 'Jakoetsk (Sacha)', info: 'Hoofdstad van Sacha (Jakoetië). Jakoeten hebben een eigen taal en cultuur. Een van de koudste steden ter wereld!' },
+    { lat: 51.8335, lng: 107.5839, name: 'Oelan-Oede (Boerjatië)', info: 'Hoofdstad van Boerjatië bij het Baikalmeer. Boerjaten zijn boeddhisten met Mongoolse roots.' },
+    { lat: 59.9311, lng: 30.3609, name: 'Sint-Petersburg', info: 'Tweede stad van Rusland, gesticht door Peter de Grote.' },
+    { lat: 43.1056, lng: 131.8735, name: 'Vladivostok', info: 'Belangrijkste havenstad aan de Stille Oceaan, helemaal in het verre oosten.' },
+    { lat: 42.9849, lng: 47.5048, name: 'Machatsjkala (Dagestan)', info: 'Hoofdstad van Dagestan in de Kaukasus. Heel veel etnische groepen wonen hier samen.' }
+  ];
+  markers.forEach(m => {
+    L.marker([m.lat, m.lng]).addTo(map).bindPopup('<b>' + m.name + '</b><br>' + m.info);
+  });
+  mapRefs.map1 = map;
+  mapsInitialized.map1 = true;
+  setTimeout(() => map.invalidateSize(), 200);
+}
+
+function initMap2() {
+  if (mapsInitialized.map2) return;
+  const el = document.getElementById('map2');
+  if (!el) return;
+  const map = L.map('map2').setView([55, 50], 3);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap',
+    maxZoom: 10
+  }).addTo(map);
+  const conflicten = [
+    { lat: 43.3168, lng: 45.6914, name: 'Tsjetsjenië', info: 'Twee oorlogen (1994-1996, 1999-2009). Wilde zich afsplitsen → separatisme. Tienduizenden doden.' },
+    { lat: 42.1, lng: 44.7, name: 'Georgië (Zuid-Ossetië)', info: 'Korte oorlog in 2008 tussen Rusland en Georgië over de regio Zuid-Ossetië.' },
+    { lat: 50.45, lng: 30.52, name: 'Oekraïne (Kyiv)', info: 'Conflict sinds 2014, grootschalige oorlog sinds 2022. Discussie over Russisch-sprekenden in Oost-Oekraïne.' },
+    { lat: 47.0105, lng: 28.8638, name: 'Moldavië (Transnistrië)', info: 'Russisch-gezinde regio die zich heeft afgescheiden van Moldavië in de jaren \'90.' },
+    { lat: 40.1792, lng: 44.4991, name: 'Armenië/Azerbeidzjan', info: 'Spanningen over Nagorno-Karabach. Rusland speelt een rol als bemiddelaar én partij.' },
+    { lat: 53.9, lng: 27.5667, name: 'Wit-Rusland (Belarus)', info: 'Nauwe bondgenoot van Rusland. Veel spanning met de EU-buren.' }
+  ];
+  conflicten.forEach(m => {
+    L.marker([m.lat, m.lng]).addTo(map).bindPopup('<b>' + m.name + '</b><br>' + m.info);
+  });
+  mapRefs.map2 = map;
+  mapsInitialized.map2 = true;
+  setTimeout(() => map.invalidateSize(), 200);
+}
+
+function initMap3() {
+  if (mapsInitialized.map3) return;
+  const el = document.getElementById('map3');
+  if (!el) return;
+  const map = L.map('map3').setView([62, 80], 3);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap',
+    maxZoom: 10
+  }).addTo(map);
+  const grondstoffen = [
+    { lat: 66.0813, lng: 76.6825, name: 'West-Siberië (gas)', info: '🔥 Grootste aardgasvelden van Rusland. Hier komt het meeste gas vandaan dat naar Europa ging.' },
+    { lat: 60.7333, lng: 77.5333, name: 'Soergoet (olie)', info: '🛢️ Belangrijk olieveld in West-Siberië.' },
+    { lat: 58.6, lng: 49.65, name: 'Oeral-gebergte', info: '⛏️ Rijk aan ijzererts, goud en andere metalen.' },
+    { lat: 55.0, lng: 82.95, name: 'Koeznetskbekken (Kuzbass)', info: '⛏️ Een van de grootste steenkoolwinningsgebieden ter wereld.' },
+    { lat: 67.5, lng: 64.0, name: 'Pechora-bekken', info: '⛽ Olie- en gasreserves dichtbij de Noordpool.' },
+    { lat: 65.0, lng: 130.0, name: 'Jakoetië (diamanten/goud)', info: '💎 Een van de grootste diamantleveranciers ter wereld.' },
+    { lat: 53.0, lng: 158.0, name: 'Kamtsjatka', info: '🌋 Bossen en visgebied. Ook geothermische energie.' }
+  ];
+  grondstoffen.forEach(m => {
+    L.marker([m.lat, m.lng]).addTo(map).bindPopup('<b>' + m.name + '</b><br>' + m.info);
+  });
+  mapRefs.map3 = map;
+  mapsInitialized.map3 = true;
+  setTimeout(() => map.invalidateSize(), 200);
+}
+
+function initMap4() {
+  if (mapsInitialized.map4) return;
+  const el = document.getElementById('map4');
+  if (!el) return;
+  const map = L.map('map4').setView([80, 30], 2);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap',
+    maxZoom: 10
+  }).addTo(map);
+  const noordpool = [
+    { lat: 90, lng: 0, name: 'De Noordpool', info: '🧊 Het geografische middelpunt. Geen land — alleen drijvend zee-ijs (dat smelt!).' },
+    { lat: 71.0, lng: 70.0, name: 'Russische arctische kust', info: '🇷🇺 Langste arctische kustlijn ter wereld. Rusland claimt grote stukken zeebodem.' },
+    { lat: 71.2906, lng: -156.7886, name: 'Alaska (VS)', info: '🇺🇸 De VS is via Alaska aanwezig. Boren al actief.' },
+    { lat: 74.6973, lng: -94.8297, name: 'Canada (Nunavut)', info: '🇨🇦 Grote arctische archipel met veel Inuit-gemeenschappen.' },
+    { lat: 78.2232, lng: 15.6267, name: 'Spitsbergen (Noorwegen)', info: '🇳🇴 Noorwegen is actief in onderzoek, visserij en mogelijke gaswinning.' },
+    { lat: 71.7069, lng: -42.6043, name: 'Groenland (Denemarken)', info: '🇩🇰 Groenland (deel van Denemarken) is rijk aan grondstoffen onder het ijs.' },
+    { lat: 64.9631, lng: -19.0208, name: 'IJsland', info: '🇮🇸 Lid van de Arctische Raad. Strategisch belangrijke ligging.' },
+    { lat: 60.1282, lng: 18.6435, name: 'Zweden', info: '🇸🇪 Lid van de Arctische Raad, vooral betrokken bij milieubescherming.' },
+    { lat: 61.9241, lng: 25.7482, name: 'Finland', info: '🇫🇮 Lid van de Arctische Raad. Lange grens met Rusland.' }
+  ];
+  noordpool.forEach(m => {
+    L.marker([m.lat, m.lng]).addTo(map).bindPopup('<b>' + m.name + '</b><br>' + m.info);
+  });
+  mapRefs.map4 = map;
+  mapsInitialized.map4 = true;
+  setTimeout(() => map.invalidateSize(), 200);
+}
+
+// ============ CHART ============
+function initChart() {
+  if (chartInitialized) return;
+  const ctx = document.getElementById('exportChart');
+  if (!ctx) return;
+  new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: ['Aardolie', 'Aardgas', 'Kolen', 'IJzererts & metalen', 'Goud', 'Hout', 'Overig'],
+      datasets: [{
+        data: [42, 22, 8, 9, 6, 4, 9],
+        backgroundColor: ['#8B2419', '#C0392B', '#6D4C41', '#B8860B', '#D4A847', '#6B8E5A', '#A89B8A'],
+        borderColor: '#FAF3E7',
+        borderWidth: 3
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        title: {
+          display: true,
+          text: 'Russische export — verdeling (% van totaal, geschat)',
+          color: '#3E2723',
+          font: { size: 16, weight: 'bold', family: 'Nunito' }
+        },
+        legend: {
+          position: 'right',
+          labels: { color: '#3E2723', font: { family: 'Nunito', size: 13 }, padding: 12 }
+        }
+      }
+    }
+  });
+  chartInitialized = true;
+}
+
+// ============ INIT ============
+window.addEventListener('DOMContentLoaded', function() {
+  setupMC();
+  setupOpen();
+  setupKoppel();
+  restoreState();
+  updateProgress();
+  // Restore last tab
+  const savedTab = loadState('currentTab');
+  switchTab(savedTab !== null ? savedTab : 0);
+});
+</script>
+
+</body>
+</html>
