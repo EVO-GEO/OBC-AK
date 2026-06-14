@@ -1,0 +1,1804 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Grenzen, identiteit en samenwerking - VMBO 3</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --emerald-900: #064e3b;
+    --emerald-700: #047857;
+    --emerald-600: #059669;
+    --emerald-500: #10b981;
+    --emerald-300: #6ee7b7;
+    --emerald-100: #d1fae5;
+    --emerald-50: #ecfdf5;
+    --earth-dark: #3f3f2e;
+    --earth-mid: #78716c;
+    --earth-light: #e7e5e4;
+    --sand: #faf7f2;
+    --cream: #fdfcf8;
+    --warm-white: #fefefe;
+    --accent-clay: #c2825c;
+    --accent-moss: #84a98c;
+    --shadow-sm: 0 1px 2px rgba(6, 78, 59, 0.06);
+    --shadow-md: 0 4px 12px rgba(6, 78, 59, 0.08);
+    --shadow-lg: 0 10px 30px rgba(6, 78, 59, 0.10);
+    --radius-sm: 8px;
+    --radius-md: 14px;
+    --radius-lg: 22px;
+    --space-xs: 6px;
+    --space-sm: 12px;
+    --space-md: 20px;
+    --space-lg: 32px;
+    --space-xl: 48px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Nunito', system-ui, sans-serif;
+    background: linear-gradient(180deg, var(--sand) 0%, var(--cream) 100%);
+    color: var(--earth-dark);
+    line-height: 1.65;
+    min-height: 100vh;
+    font-weight: 400;
+  }
+
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 var(--space-md);
+  }
+
+  /* HEADER */
+  header.page-header {
+    background: linear-gradient(135deg, var(--emerald-700) 0%, var(--emerald-600) 100%);
+    color: var(--warm-white);
+    padding: var(--space-xl) var(--space-md) var(--space-lg);
+    text-align: center;
+  }
+  header.page-header h1 {
+    font-size: 2.2rem;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    margin-bottom: var(--space-xs);
+  }
+  header.page-header p {
+    font-size: 1.05rem;
+    opacity: 0.92;
+    font-weight: 300;
+  }
+
+  /* PROGRESS - sticky */
+  .progress-wrap {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(253, 252, 248, 0.96);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--earth-light);
+    padding: var(--space-sm) 0;
+    box-shadow: var(--shadow-sm);
+  }
+  .progress-inner {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    flex-wrap: wrap;
+  }
+  .progress-label {
+    font-weight: 700;
+    color: var(--emerald-900);
+    font-size: 0.95rem;
+    min-width: 180px;
+  }
+  .progress-bar {
+    flex: 1;
+    min-width: 200px;
+    height: 12px;
+    background: var(--earth-light);
+    border-radius: 999px;
+    overflow: hidden;
+    position: relative;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--emerald-500), var(--emerald-700));
+    border-radius: 999px;
+    transition: width 0.5s ease;
+    width: 0%;
+  }
+  .progress-percent {
+    font-weight: 700;
+    color: var(--emerald-700);
+    min-width: 50px;
+    text-align: right;
+  }
+  .btn-clear {
+    background: transparent;
+    border: 1px solid var(--earth-mid);
+    color: var(--earth-mid);
+    padding: 6px 14px;
+    border-radius: var(--radius-sm);
+    font-family: inherit;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-clear:hover {
+    background: var(--earth-mid);
+    color: white;
+  }
+
+  /* TABS */
+  .tabs-wrap {
+    background: var(--cream);
+    border-bottom: 1px solid var(--earth-light);
+    padding: var(--space-sm) 0;
+  }
+  .tab-counter {
+    text-align: center;
+    color: var(--earth-mid);
+    font-size: 0.85rem;
+    margin-bottom: 8px;
+    font-weight: 600;
+  }
+  .tabs-bar {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding: 4px 0;
+    scrollbar-width: thin;
+  }
+  .tab-btn {
+    background: var(--warm-white);
+    border: 1.5px solid var(--earth-light);
+    color: var(--earth-dark);
+    padding: 10px 18px;
+    border-radius: var(--radius-md);
+    font-family: inherit;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .tab-btn:hover {
+    border-color: var(--emerald-500);
+    color: var(--emerald-700);
+  }
+  .tab-btn.active {
+    background: var(--emerald-700);
+    color: var(--warm-white);
+    border-color: var(--emerald-700);
+  }
+  .tab-btn .check {
+    color: var(--emerald-500);
+    font-weight: 800;
+  }
+  .tab-btn.active .check {
+    color: var(--emerald-100);
+  }
+
+  /* MAIN */
+  main {
+    padding: var(--space-lg) 0;
+  }
+  .tab-panel {
+    display: none;
+    animation: fadeIn 0.4s ease;
+  }
+  .tab-panel.active {
+    display: block;
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .panel-title {
+    font-size: 1.7rem;
+    font-weight: 800;
+    color: var(--emerald-900);
+    margin-bottom: var(--space-sm);
+    letter-spacing: -0.4px;
+  }
+  .panel-subtitle {
+    color: var(--earth-mid);
+    font-size: 1.05rem;
+    margin-bottom: var(--space-lg);
+    font-weight: 400;
+  }
+
+  /* EXPLANATION BLOCKS */
+  .explain-block {
+    background: var(--warm-white);
+    border-radius: var(--radius-lg);
+    padding: var(--space-lg);
+    margin-bottom: var(--space-md);
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--earth-light);
+  }
+  .explain-block h3 {
+    color: var(--emerald-800, var(--emerald-700));
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-bottom: var(--space-sm);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .explain-block h3 .icon {
+    font-size: 1.6rem;
+  }
+  .explain-block p {
+    margin-bottom: var(--space-sm);
+    color: var(--earth-dark);
+  }
+  .explain-block p:last-child { margin-bottom: 0; }
+  .explain-block strong { color: var(--emerald-700); font-weight: 700; }
+
+  /* Process visual */
+  .process-visual {
+    background: linear-gradient(135deg, var(--emerald-50) 0%, var(--cream) 100%);
+    border-radius: var(--radius-md);
+    padding: var(--space-md);
+    margin: var(--space-md) 0;
+    text-align: center;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--emerald-900);
+    line-height: 2;
+    border: 1px dashed var(--emerald-300);
+  }
+
+  /* Comparison */
+  .comparison {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-sm);
+    margin: var(--space-md) 0;
+  }
+  .comp-card {
+    background: var(--cream);
+    border-radius: var(--radius-md);
+    padding: var(--space-md);
+    border-left: 4px solid var(--emerald-500);
+  }
+  .comp-card.alt {
+    border-left-color: var(--accent-clay);
+  }
+  .comp-card h4 {
+    font-size: 1.05rem;
+    margin-bottom: 8px;
+    color: var(--emerald-900);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .comp-card.alt h4 { color: var(--accent-clay); }
+  .comp-card ul {
+    list-style: none;
+    padding: 0;
+  }
+  .comp-card li {
+    padding: 4px 0;
+    font-size: 0.95rem;
+  }
+  .comp-card li::before {
+    content: "▸ ";
+    color: var(--emerald-500);
+    font-weight: bold;
+  }
+  .comp-card.alt li::before { color: var(--accent-clay); }
+
+  /* Real world box */
+  .real-world {
+    background: linear-gradient(135deg, #fff7ed 0%, var(--cream) 100%);
+    border-left: 4px solid var(--accent-clay);
+    border-radius: var(--radius-md);
+    padding: var(--space-md);
+    margin: var(--space-md) 0;
+  }
+  .real-world h4 {
+    color: var(--accent-clay);
+    font-size: 1.05rem;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* Map */
+  .map-container {
+    height: 450px;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+    margin: var(--space-md) 0;
+    border: 1px solid var(--earth-light);
+  }
+
+  /* Chart */
+  .chart-container {
+    background: var(--warm-white);
+    border-radius: var(--radius-md);
+    padding: var(--space-md);
+    box-shadow: var(--shadow-sm);
+    margin: var(--space-md) 0;
+    border: 1px solid var(--earth-light);
+  }
+  .chart-wrap {
+    position: relative;
+    height: 320px;
+  }
+
+  /* EXERCISE */
+  .exercise {
+    background: var(--warm-white);
+    border-radius: var(--radius-lg);
+    padding: var(--space-lg);
+    margin-bottom: var(--space-md);
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--earth-light);
+  }
+  .exercise-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: var(--space-sm);
+  }
+  .exercise-badge {
+    background: var(--emerald-100);
+    color: var(--emerald-700);
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .exercise-badge.open { background: #fef3c7; color: #92400e; }
+  .exercise-badge.analyse { background: #dbeafe; color: #1e40af; }
+  .exercise h4 {
+    font-size: 1.15rem;
+    color: var(--emerald-900);
+    font-weight: 700;
+  }
+  .exercise > p.question {
+    margin-bottom: var(--space-md);
+    color: var(--earth-dark);
+    font-size: 1.02rem;
+  }
+
+  /* MCQ options */
+  .mcq-options {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: var(--space-sm);
+  }
+  .mcq-btn {
+    background: var(--cream);
+    border: 1.5px solid var(--earth-light);
+    color: var(--earth-dark);
+    padding: 12px 16px;
+    border-radius: var(--radius-sm);
+    font-family: inherit;
+    font-size: 0.98rem;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .mcq-btn:hover:not(:disabled) {
+    border-color: var(--emerald-500);
+    background: var(--emerald-50);
+  }
+  .mcq-btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+  .mcq-btn.correct {
+    background: var(--emerald-100);
+    border-color: var(--emerald-500);
+    color: var(--emerald-900);
+    font-weight: 700;
+  }
+  .mcq-btn.wrong {
+    background: #fee2e2;
+    border-color: #ef4444;
+    color: #7f1d1d;
+  }
+
+  /* Feedback */
+  .feedback {
+    padding: 12px 16px;
+    border-radius: var(--radius-sm);
+    margin-top: 10px;
+    font-size: 0.95rem;
+    display: none;
+  }
+  .feedback.show { display: block; }
+  .feedback.hint {
+    background: #fef3c7;
+    color: #78350f;
+    border-left: 3px solid #f59e0b;
+  }
+  .feedback.success {
+    background: var(--emerald-100);
+    color: var(--emerald-900);
+    border-left: 3px solid var(--emerald-500);
+  }
+  .feedback.reveal {
+    background: #e0e7ff;
+    color: #312e81;
+    border-left: 3px solid #6366f1;
+  }
+
+  /* Textarea */
+  .open-input {
+    width: 100%;
+    min-height: 110px;
+    padding: 12px 14px;
+    border: 1.5px solid var(--earth-light);
+    border-radius: var(--radius-sm);
+    font-family: inherit;
+    font-size: 0.98rem;
+    color: var(--earth-dark);
+    resize: vertical;
+    background: var(--cream);
+    transition: border-color 0.2s;
+  }
+  .open-input:focus {
+    outline: none;
+    border-color: var(--emerald-500);
+    background: var(--warm-white);
+  }
+  .word-counter {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 8px;
+    font-size: 0.85rem;
+    color: var(--earth-mid);
+  }
+  .word-counter .check-icon {
+    color: var(--emerald-500);
+    font-weight: 800;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .word-counter .check-icon.show { opacity: 1; }
+
+  /* Buttons */
+  .btn {
+    background: var(--emerald-700);
+    color: var(--warm-white);
+    border: none;
+    padding: 10px 20px;
+    border-radius: var(--radius-sm);
+    font-family: inherit;
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-right: 8px;
+    margin-top: 8px;
+  }
+  .btn:hover { background: var(--emerald-900); transform: translateY(-1px); }
+  .btn:disabled {
+    background: var(--earth-light);
+    color: var(--earth-mid);
+    cursor: not-allowed;
+    transform: none;
+  }
+  .btn-secondary {
+    background: transparent;
+    color: var(--emerald-700);
+    border: 1.5px solid var(--emerald-700);
+  }
+  .btn-secondary:hover { background: var(--emerald-700); color: white; }
+  .btn-success { background: var(--emerald-500); }
+  .btn-success:hover { background: var(--emerald-700); }
+  .btn-warn { background: var(--accent-clay); }
+  .btn-warn:hover { background: #a06846; }
+  .btn-small { padding: 6px 14px; font-size: 0.85rem; }
+
+  /* Self-rate */
+  .self-rate {
+    display: none;
+    background: var(--emerald-50);
+    border-radius: var(--radius-sm);
+    padding: 12px;
+    margin-top: 10px;
+  }
+  .self-rate.show { display: block; }
+  .self-rate p {
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: var(--emerald-900);
+  }
+
+  /* Sample answer */
+  .sample-answer {
+    background: #f0f9ff;
+    border-left: 3px solid #0284c7;
+    padding: 12px 14px;
+    border-radius: var(--radius-sm);
+    margin-top: 10px;
+    font-size: 0.95rem;
+    display: none;
+  }
+  .sample-answer.show { display: block; }
+  .sample-answer h5 {
+    color: #0c4a6e;
+    margin-bottom: 6px;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .sample-answer .sample {
+    margin-bottom: 8px;
+    padding-bottom: 8px;
+    border-bottom: 1px dashed #bae6fd;
+  }
+  .sample-answer .sample:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+  }
+
+  /* Map question */
+  .map-task {
+    background: var(--emerald-50);
+    border-radius: var(--radius-md);
+    padding: var(--space-md);
+    margin-bottom: var(--space-sm);
+    border-left: 3px solid var(--emerald-500);
+  }
+  .map-task-question {
+    font-weight: 600;
+    color: var(--emerald-900);
+    margin-bottom: 8px;
+  }
+
+  /* Nav between tabs */
+  .tab-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-sm);
+    margin-top: var(--space-lg);
+    padding-top: var(--space-md);
+    border-top: 1px solid var(--earth-light);
+    flex-wrap: wrap;
+  }
+  .tab-nav .reset-section {
+    color: var(--earth-mid);
+    background: transparent;
+    border: 1px solid var(--earth-light);
+    padding: 6px 12px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.8rem;
+  }
+  .tab-nav .reset-section:hover { background: var(--earth-light); }
+
+  /* Reflection */
+  .reflection-summary {
+    background: linear-gradient(135deg, var(--emerald-700) 0%, var(--emerald-900) 100%);
+    color: var(--warm-white);
+    border-radius: var(--radius-lg);
+    padding: var(--space-lg);
+    text-align: center;
+    margin-bottom: var(--space-md);
+  }
+  .reflection-summary h3 {
+    font-size: 1.6rem;
+    margin-bottom: 8px;
+    font-weight: 800;
+  }
+  .reflection-summary .score-big {
+    font-size: 3rem;
+    font-weight: 800;
+    margin: var(--space-sm) 0;
+  }
+  .goals-list {
+    background: var(--warm-white);
+    border-radius: var(--radius-md);
+    padding: var(--space-md);
+    border: 1px solid var(--earth-light);
+  }
+  .goals-list ul { list-style: none; padding: 0; }
+  .goals-list li {
+    padding: 8px 0;
+    border-bottom: 1px solid var(--earth-light);
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .goals-list li:last-child { border-bottom: none; }
+  .goals-list li::before {
+    content: "✓";
+    color: var(--emerald-500);
+    font-weight: 800;
+    flex-shrink: 0;
+  }
+
+  /* Travel context box */
+  .travel-tip {
+    background: linear-gradient(135deg, #ecfeff 0%, var(--cream) 100%);
+    border-radius: var(--radius-md);
+    padding: var(--space-sm) var(--space-md);
+    margin: var(--space-md) 0;
+    border-left: 3px solid #0891b2;
+    font-size: 0.95rem;
+  }
+  .travel-tip strong { color: #0e7490; }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .comparison { grid-template-columns: 1fr; }
+    .panel-title { font-size: 1.4rem; }
+    header.page-header h1 { font-size: 1.6rem; }
+  }
+
+  /* Region grid */
+  .region-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 8px;
+    margin: var(--space-sm) 0;
+  }
+  .region-card {
+    background: var(--cream);
+    border-radius: var(--radius-sm);
+    padding: 12px;
+    text-align: center;
+    border: 1px solid var(--earth-light);
+    font-size: 0.9rem;
+  }
+  .region-card .flag {
+    font-size: 1.8rem;
+    margin-bottom: 4px;
+  }
+  .region-card .label {
+    font-weight: 700;
+    color: var(--emerald-900);
+  }
+</style>
+</head>
+<body>
+
+<header class="page-header">
+  <div class="container">
+    <h1>🌿 Grenzen, identiteit & samenwerking</h1>
+    <p>Nederland en zijn buren — VMBO 3 Aardrijkskunde · ~40 minuten</p>
+  </div>
+</header>
+
+<div class="progress-wrap">
+  <div class="container progress-inner">
+    <div class="progress-label">📊 Jouw voortgang</div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="progress-percent" id="progressPercent">0%</div>
+    <button class="btn-clear" id="clearProgressBtn">Voortgang wissen</button>
+  </div>
+</div>
+
+<div class="tabs-wrap">
+  <div class="container">
+    <div class="tab-counter" id="tabCounter">Onderdeel 1 van 5</div>
+    <div class="tabs-bar" id="tabsBar">
+      <button class="tab-btn active" data-tab="0">1. Grenzen & buren <span class="check" id="check-0"></span></button>
+      <button class="tab-btn" data-tab="1">2. Identiteit & regio's <span class="check" id="check-1"></span></button>
+      <button class="tab-btn" data-tab="2">3. Verschillen NL & BE <span class="check" id="check-2"></span></button>
+      <button class="tab-btn" data-tab="3">4. Samenwerken over de grens <span class="check" id="check-3"></span></button>
+      <button class="tab-btn" data-tab="4">5. Reflectie <span class="check" id="check-4"></span></button>
+    </div>
+  </div>
+</div>
+
+<main>
+  <div class="container">
+
+  <!-- ============= TAB 0: GRENZEN & BUREN ============= -->
+  <section class="tab-panel active" data-panel="0">
+    <h2 class="panel-title">🗺️ Grenzen & buurlanden van Nederland</h2>
+    <p class="panel-subtitle">Wat is een grens eigenlijk? En wat gebeurt er als je er overheen gaat?</p>
+
+    <div class="explain-block">
+      <h3><span class="icon">🌍</span>Wat is een grens?</h3>
+      <p>Een <strong>grens</strong> is een lijn die het einde van het ene gebied en het begin van een ander gebied aangeeft. Op een landkaart lijkt een grens een gewone streep, maar in het echt is dat lang niet altijd zo. Soms loopt een grens midden door een rivier (zoals de Maas), soms door een bos, en soms — zoals in Baarle-Nassau — dwars door een woonwijk of zelfs door een huis heen!</p>
+      <p>Er bestaan verschillende soorten grenzen. <strong>Natuurlijke grenzen</strong> volgen rivieren, bergen of zeeën. <strong>Politieke grenzen</strong> zijn door mensen afgesproken en staan in verdragen. Daarnaast zijn er ook onzichtbare grenzen, zoals taalgrenzen of cultuurgrenzen — denk aan het verschil tussen Vlaanderen (Nederlandstalig) en Wallonië (Franstalig) binnen België.</p>
+      <p>Nederland grenst aan drie landen: in het oosten aan <strong>Duitsland</strong>, in het zuiden aan <strong>België</strong>, en in het westen en noorden aan de <strong>Noordzee</strong>. Via de Noordzee deelt Nederland een zeegrens met onder andere het Verenigd Koninkrijk en Noorwegen.</p>
+
+      <div class="process-visual">
+        🗺️ Politieke grens → 📜 Afgesproken in verdragen → 🚧 Vroeger: paspoortcontrole → ✅ Schengen → 🚗 Vrij verkeer
+      </div>
+
+      <div class="comparison">
+        <div class="comp-card">
+          <h4>🌊 Natuurlijke grens</h4>
+          <ul>
+            <li>Volgt de natuur (rivier, berg, zee)</li>
+            <li>Vaak duidelijk zichtbaar</li>
+            <li>Voorbeeld: de Maas tussen NL/BE op stukken</li>
+          </ul>
+        </div>
+        <div class="comp-card alt">
+          <h4>📐 Politieke grens</h4>
+          <ul>
+            <li>Door mensen vastgelegd</li>
+            <li>Vaak rechte lijnen of bordjes</li>
+            <li>Voorbeeld: NL-DE grens bij Zevenaar</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="explain-block">
+      <h3><span class="icon">🛂</span>Het Verdrag van Schengen</h3>
+      <p>In 1985 sloten verschillende Europese landen het <strong>Verdrag van Schengen</strong> (genoemd naar een dorpje in Luxemburg). Sinds dit verdrag is er <strong>vrij verkeer van personen</strong> tussen deelnemende landen: je hoeft geen paspoort meer te laten zien als je de grens oversteekt. Voor reizen binnen het Schengengebied stap je gewoon in de trein of auto en rijd je door — alsof er geen grens is.</p>
+      <p>Het Schengengebied heeft veel <strong>voordelen</strong>: makkelijker reizen, meer toerisme, snellere handel, en bedrijven in grensgebieden kunnen makkelijker werknemers uit het buurland aannemen. Maar er zijn ook <strong>nadelen</strong>: criminelen kunnen ook makkelijker grenzen oversteken, en het is moeilijker om te controleren wie er een land binnenkomt.</p>
+
+      <div class="travel-tip">
+        ✈️ <strong>Reistip:</strong> Vlieg je vanaf Schiphol naar Spanje of Frankrijk? Dan loop je gewoon door zonder paspoortcontrole — dat komt door Schengen. Vlieg je naar Engeland of de VS? Dan moet je wél door de paspoortcontrole.
+      </div>
+    </div>
+
+    <div class="real-world">
+      <h4>🏠 Herken je dit?</h4>
+      <p>Jij woont in Zevenaar — dat ligt vlak bij de Duitse grens. Misschien gaat jouw familie wel eens tanken in Duitsland (vaak goedkoper), of doe je boodschappen bij een Duitse supermarkt. Dat kan dankzij Schengen zonder paspoort. <strong>Vraag aan jezelf:</strong> wat zou er veranderen als de grenscontroles weer terug zouden komen?</p>
+    </div>
+
+    <h3 style="color:var(--emerald-900); margin: var(--space-lg) 0 var(--space-sm);">📍 Interactieve kaart: Nederland en zijn buren</h3>
+    <p style="color:var(--earth-mid); margin-bottom: var(--space-sm);">Klik op de markers om meer te ontdekken over grenssteden en buurlanden.</p>
+    <div class="map-container" id="map1"></div>
+
+    <!-- OPDRACHT 1.1 -->
+    <div class="exercise" data-exid="ex_1_1">
+      <div class="exercise-header">
+        <span class="exercise-badge">Multiple choice</span>
+        <h4>Opdracht 1.1 — Aan welke landen grenst Nederland?</h4>
+      </div>
+      <p class="question">Aan welke twee landen grenst Nederland over land?</p>
+      <div class="mcq-options" data-mcq="ex_1_1">
+        <button class="mcq-btn" data-correct="false" data-hint="Frankrijk ligt verder weg — je rijdt er niet zo één-twee-drie naartoe over de grens.">Frankrijk en Duitsland</button>
+        <button class="mcq-btn" data-correct="true" data-hint="">België en Duitsland</button>
+        <button class="mcq-btn" data-correct="false" data-hint="Luxemburg grenst wel aan België, maar deelt geen grens met Nederland.">België en Luxemburg</button>
+        <button class="mcq-btn" data-correct="false" data-hint="Denemarken grenst niet aan Nederland — er ligt nog Duitsland tussen.">Denemarken en Duitsland</button>
+      </div>
+      <div class="feedback" id="fb_ex_1_1"></div>
+    </div>
+
+    <!-- OPDRACHT 1.2 -->
+    <div class="exercise" data-exid="ex_1_2">
+      <div class="exercise-header">
+        <span class="exercise-badge open">Open vraag</span>
+        <h4>Opdracht 1.2 — Voor- en nadelen van Schengen</h4>
+      </div>
+      <p class="question">Stel je voor: je gaat met je familie op vakantie naar Spanje per auto. Beschrijf in <strong>minimaal 20 woorden</strong> één voordeel én één nadeel van het Schengenverdrag voor jouw reis en voor Europa als geheel.</p>
+      <textarea class="open-input" data-open="ex_1_2" placeholder="Schrijf hier je antwoord (minstens 20 woorden)..."></textarea>
+      <div class="word-counter">
+        <span><span data-words="ex_1_2">0</span> woorden</span>
+        <span class="check-icon" data-checkicon="ex_1_2">✓ Voldoende lang</span>
+      </div>
+      <button class="btn btn-secondary btn-small" data-showsample="ex_1_2" disabled>Toon voorbeeldantwoord</button>
+      <div class="sample-answer" id="sample_ex_1_2">
+        <h5>Voorbeeldantwoord</h5>
+        <div class="sample"><strong>Voordeel:</strong> Door Schengen kunnen we van Nederland naar Spanje rijden zonder bij elke grens te stoppen voor paspoortcontrole. Dat scheelt veel tijd op vakantie en maakt reizen veel relaxter en sneller.</div>
+        <div class="sample"><strong>Nadeel:</strong> Omdat er geen controles meer zijn aan de binnengrenzen, kunnen ook criminelen makkelijker tussen landen reizen. Politie moet dus op andere manieren samenwerken om misdaad op te sporen.</div>
+      </div>
+      <div class="self-rate" data-selfrate="ex_1_2">
+        <p>Hoe vind jij dat je antwoord was?</p>
+        <button class="btn btn-success btn-small" data-rate="ex_1_2" data-result="good">Goed ✓</button>
+        <button class="btn btn-warn btn-small" data-rate="ex_1_2" data-result="bad">Nog niet ✗</button>
+      </div>
+    </div>
+
+    <!-- OPDRACHT 1.3 - kaart -->
+    <div class="exercise" data-exid="ex_1_3">
+      <div class="exercise-header">
+        <span class="exercise-badge analyse">Kaartanalyse</span>
+        <h4>Opdracht 1.3 — Soorten grenzen</h4>
+      </div>
+      <div class="map-task">
+        <p class="map-task-question">Bekijk de kaart hierboven goed. De grens tussen Nederland en Duitsland in het oosten loopt grotendeels over land en is met bordjes en palen aangegeven. Wat voor soort grens is dit vooral?</p>
+      </div>
+      <div class="mcq-options" data-mcq="ex_1_3">
+        <button class="mcq-btn" data-correct="false" data-hint="Een natuurlijke grens volgt een rivier of berg — die zie je hier niet over de hele lengte.">Een natuurlijke grens (rivier/berg)</button>
+        <button class="mcq-btn" data-correct="true" data-hint="">Een politieke grens (door mensen vastgesteld)</button>
+        <button class="mcq-btn" data-correct="false" data-hint="Een taalgrens scheidt taalgebieden — denk aan het verschil tussen Vlaanderen en Wallonië, niet NL-DE.">Een taalgrens</button>
+      </div>
+      <div class="feedback" id="fb_ex_1_3"></div>
+    </div>
+
+    <div class="tab-nav">
+      <button class="reset-section" data-reset-section="0">↻ Reset dit onderdeel</button>
+      <button class="btn" data-next="1">Volgende onderdeel →</button>
+    </div>
+  </section>
+
+  <!-- ============= TAB 1: IDENTITEIT & REGIO'S ============= -->
+  <section class="tab-panel" data-panel="1">
+    <h2 class="panel-title">🪪 Identiteit & regio's</h2>
+    <p class="panel-subtitle">Voel je je vooral Nederlander, Brabander, of allebei?</p>
+
+    <div class="explain-block">
+      <h3><span class="icon">👥</span>Wat is identiteit?</h3>
+      <p>Je <strong>identiteit</strong> is alles wat jou maakt tot wie je bent: je naam, je taal, je familie, je hobby's, waar je woont, je geloof, je gewoontes. Een land kan ook een identiteit hebben: de <strong>nationale identiteit</strong>. Daar horen bijvoorbeeld de taal, de vlag, het volkslied en bekende gewoontes bij (Sinterklaas, Koningsdag).</p>
+      <p>Maar mensen voelen zich ook vaak verbonden met een kleiner gebied — hun streek of regio. Dat noemen we de <strong>regionale identiteit</strong>. Een Limburger eet zachte broodjes, viert carnaval uitbundig en spreekt vaak dialect. Een Fries voelt zich Fries én Nederlander, maar de Friese taal en vlag zijn voor veel Friezen heel belangrijk.</p>
+      <p>Soms vinden mensen hun <strong>regionale identiteit zelfs belangrijker dan de nationale identiteit</strong>. In Catalonië (Spanje) willen sommigen zelfs een eigen land worden. In België voelen veel Vlamingen zich eerst Vlaming en daarna pas Belg. <strong>Mentaliteit</strong> — de manier van denken en doen van een groep — kan flink verschillen tussen regio's, zelfs binnen één klein land.</p>
+
+      <div class="process-visual">
+        👤 Persoonlijke identiteit → 🏘️ Regionale identiteit → 🇳🇱 Nationale identiteit → 🇪🇺 Europese identiteit
+      </div>
+    </div>
+
+    <div class="explain-block">
+      <h3><span class="icon">🗺️</span>Nederland en België in regio's</h3>
+      <p>Nederland is verdeeld in <strong>12 provincies</strong>. Elke provincie heeft eigen kenmerken: het landschap, de taal of het dialect, het eten, en soms eigen tradities. Denk aan Friesland met de elfstedentocht en Zeeland met mosselen.</p>
+      <p>België is anders ingedeeld. Het land bestaat uit <strong>drie gewesten</strong>: het Vlaams Gewest (Nederlandstalig, in het noorden), het Waals Gewest (Franstalig, in het zuiden) en het Brussels Hoofdstedelijk Gewest (tweetalig). Daarnaast bestaat er een kleine Duitstalige gemeenschap in het oosten. Deze verdeling is heel belangrijk in België — Vlamingen en Walen voelen zich vaak duidelijk verschillend, en er is regelmatig politieke discussie over.</p>
+
+      <div class="region-grid">
+        <div class="region-card"><div class="flag">🇧🇪</div><div class="label">Vlaanderen</div><div>Nederlands</div></div>
+        <div class="region-card"><div class="flag">🇧🇪</div><div class="label">Wallonië</div><div>Frans</div></div>
+        <div class="region-card"><div class="flag">🇧🇪</div><div class="label">Brussel</div><div>Tweetalig</div></div>
+        <div class="region-card"><div class="flag">🇧🇪</div><div class="label">Duitstalig</div><div>Oosten BE</div></div>
+      </div>
+    </div>
+
+    <div class="real-world">
+      <h4>🏠 Herken je dit?</h4>
+      <p>Als jij op vakantie gaat naar Zuid-Limburg, dan klinkt het dialect anders, eten mensen vlaai en wordt carnaval enorm groot gevierd. Toch zit je nog steeds in Nederland! <strong>Vraag:</strong> Hoe zou jij jezelf omschrijven — vooral als Nederlander, vooral als bewoner van jouw eigen provincie/dorp, of allebei evenveel?</p>
+    </div>
+
+    <h3 style="color:var(--emerald-900); margin: var(--space-lg) 0 var(--space-sm);">📊 Hoe sterk is regionale identiteit?</h3>
+    <p style="color:var(--earth-mid); margin-bottom: var(--space-sm);">In deze (vereenvoudigde) grafiek zie je hoeveel procent van de inwoners zich vooral met hun regio identificeert, in plaats van met het hele land.</p>
+    <div class="chart-container">
+      <div class="chart-wrap">
+        <canvas id="chartIdentity"></canvas>
+      </div>
+    </div>
+
+    <!-- OPDRACHT 2.1 -->
+    <div class="exercise" data-exid="ex_2_1">
+      <div class="exercise-header">
+        <span class="exercise-badge analyse">Grafiekanalyse</span>
+        <h4>Opdracht 2.1 — Lees de grafiek</h4>
+      </div>
+      <p class="question">Volgens de grafiek hierboven: in welke regio voelen mensen zich het sterkst verbonden met hun regio (en minder met het land)?</p>
+      <div class="mcq-options" data-mcq="ex_2_1">
+        <button class="mcq-btn" data-correct="false" data-hint="Kijk nog eens — is de balk van Holland echt de hoogste?">Holland (NL)</button>
+        <button class="mcq-btn" data-correct="false" data-hint="Friesland scoort hoog, maar er is er nog eentje die hoger uitkomt op de grafiek.">Friesland (NL)</button>
+        <button class="mcq-btn" data-correct="true" data-hint="">Catalonië (ES)</button>
+        <button class="mcq-btn" data-correct="false" data-hint="Brabant scoort lager dan de bovenste landen op deze grafiek.">Brabant (NL)</button>
+      </div>
+      <div class="feedback" id="fb_ex_2_1"></div>
+    </div>
+
+    <!-- OPDRACHT 2.2 -->
+    <div class="exercise" data-exid="ex_2_2">
+      <div class="exercise-header">
+        <span class="exercise-badge open">Open vraag</span>
+        <h4>Opdracht 2.2 — Jouw eigen identiteit</h4>
+      </div>
+      <p class="question">Beschrijf in <strong>minimaal 20 woorden</strong>: wat is voor jou belangrijker — je nationale identiteit (Nederlander zijn) of je regionale identiteit (bijvoorbeeld Gelderlander, Limburger, Amsterdammer)? Geef minstens twee redenen waarom.</p>
+      <textarea class="open-input" data-open="ex_2_2" placeholder="Schrijf hier je antwoord..."></textarea>
+      <div class="word-counter">
+        <span><span data-words="ex_2_2">0</span> woorden</span>
+        <span class="check-icon" data-checkicon="ex_2_2">✓ Voldoende lang</span>
+      </div>
+      <button class="btn btn-secondary btn-small" data-showsample="ex_2_2" disabled>Toon voorbeeldantwoord</button>
+      <div class="sample-answer" id="sample_ex_2_2">
+        <h5>Voorbeeldantwoord (een voorbeeld — jouw eigen antwoord mag anders zijn!)</h5>
+        <div class="sample"><strong>Voorbeeld 1:</strong> Voor mij is mijn regio belangrijker. Ik voel me echt thuis in mijn dorp, ik ken het landschap en de mensen. Als ik op vakantie ben, zeg ik dat ik uit Gelderland kom, niet alleen uit Nederland.</div>
+        <div class="sample"><strong>Voorbeeld 2:</strong> Voor mij is Nederland belangrijker. Ik ga in Nederland naar school, kijk Nederlandse tv en spreek Nederlands. Mijn provincie maakt voor mijn gevoel weinig verschil — Nederland is het land waar ik me bij hoor.</div>
+      </div>
+      <div class="self-rate" data-selfrate="ex_2_2">
+        <p>Heb je minstens twee redenen genoemd?</p>
+        <button class="btn btn-success btn-small" data-rate="ex_2_2" data-result="good">Goed ✓</button>
+        <button class="btn btn-warn btn-small" data-rate="ex_2_2" data-result="bad">Nog niet ✗</button>
+      </div>
+    </div>
+
+    <!-- OPDRACHT 2.3 -->
+    <div class="exercise" data-exid="ex_2_3">
+      <div class="exercise-header">
+        <span class="exercise-badge">Multiple choice</span>
+        <h4>Opdracht 2.3 — De drie gewesten van België</h4>
+      </div>
+      <p class="question">Welke uitspraak over de drie gewesten van België klopt?</p>
+      <div class="mcq-options" data-mcq="ex_2_3">
+        <button class="mcq-btn" data-correct="false" data-hint="In Wallonië wordt juist Frans gesproken — niet Nederlands.">In Wallonië wordt Nederlands gesproken.</button>
+        <button class="mcq-btn" data-correct="true" data-hint="">Vlaanderen is Nederlandstalig, Wallonië Franstalig en Brussel tweetalig.</button>
+        <button class="mcq-btn" data-correct="false" data-hint="In België zijn er ook andere talen dan Nederlands — denk aan het Frans in het zuiden.">Heel België is Nederlandstalig.</button>
+        <button class="mcq-btn" data-correct="false" data-hint="België heeft juist drie gewesten — Vlaanderen, Wallonië en Brussel.">België heeft maar één gewest.</button>
+      </div>
+      <div class="feedback" id="fb_ex_2_3"></div>
+    </div>
+
+    <div class="tab-nav">
+      <div style="display:flex; gap:8px; flex-wrap:wrap;">
+        <button class="btn btn-secondary" data-prev="0">← Vorige</button>
+        <button class="reset-section" data-reset-section="1">↻ Reset dit onderdeel</button>
+      </div>
+      <button class="btn" data-next="2">Volgende onderdeel →</button>
+    </div>
+  </section>
+
+  <!-- ============= TAB 2: VERSCHILLEN NL & BE ============= -->
+  <section class="tab-panel" data-panel="2">
+    <h2 class="panel-title">🇳🇱 Verschillen tussen Nederlanders en Belgen 🇧🇪</h2>
+    <p class="panel-subtitle">Buurlanden, maar toch best verschillend.</p>
+
+    <div class="explain-block">
+      <h3><span class="icon">🍟</span>Andere gewoonten, ander eten, ander gedrag</h3>
+      <p>Nederlanders en Belgen wonen vlak naast elkaar en spreken (voor een deel) dezelfde taal. Toch zijn er duidelijke <strong>verschillen in mentaliteit en gewoonten</strong>. Nederlanders staan bekend als <strong>direct</strong> — ze zeggen vaak meteen wat ze denken. Belgen zijn meestal <strong>beleefder en voorzichtiger</strong> in wat ze zeggen.</p>
+      <p>Ook in het dagelijks leven zie je verschillen. Belgen eten 's avonds vaak warm en uitgebreid, Nederlanders nemen 's middags vaak een snelle boterham. Frietjes zijn in België een echte traditie met een speciale frietkraam ("frituur"), terwijl ze in Nederland vooral bij de snackbar horen. Op de weg rijden Belgen vaak iets sneller en agressiever, en hun wegen zijn — naast de snelweg — beroemd om hun verlichting bij nacht.</p>
+      <p>Deze verschillen zorgen niet altijd voor problemen, maar ze kunnen voor verrassingen zorgen als je <strong>over de grens reist</strong>. Toeristen, expats en grenswerkers ervaren dit dagelijks. Verschillen vallen vooral op in de <strong>grensgebieden</strong>, waar mensen aan beide kanten leven en werken.</p>
+
+      <div class="comparison">
+        <div class="comp-card">
+          <h4>🇳🇱 Nederland</h4>
+          <ul>
+            <li>Direct en eerlijk</li>
+            <li>Boterham als lunch</li>
+            <li>"Doe maar gewoon, dan doe je al gek genoeg"</li>
+            <li>Veel fietsers</li>
+            <li>Werk en privé strikt gescheiden</li>
+          </ul>
+        </div>
+        <div class="comp-card alt">
+          <h4>🇧🇪 België</h4>
+          <ul>
+            <li>Beleefd en bescheiden</li>
+            <li>Warme maaltijd 's middags of 's avonds</li>
+            <li>"Bourgondisch": lekker eten en drinken</li>
+            <li>Beroemde frituren</li>
+            <li>Veel meer dialect en regionale trots</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="explain-block">
+      <h3><span class="icon">⚠️</span>Botsende belangen aan de grens</h3>
+      <p>Doordat Nederland en België anders met dingen omgaan, kunnen hun <strong>belangen botsen</strong>. Een bekend voorbeeld is de <strong>Westerschelde</strong>. Nederland wil dat de rivier ondiep blijft om de natuur te beschermen. België (Antwerpen heeft een grote haven) wil juist dat de Westerschelde wordt <strong>uitgediept</strong>, zodat grote schepen makkelijker de haven van Antwerpen kunnen bereiken. Een typisch grensoverschrijdend probleem!</p>
+      <p>Ook <strong>milieuvervuiling</strong> stopt niet bij de grens. Als een Belgische fabriek lucht of water vervuilt, krijgt Nederland daar ook last van — en andersom. Stikstofuitstoot, fijnstof en lawaai van vliegvelden zijn voorbeelden van problemen die <strong>grensoverschrijdend</strong> zijn.</p>
+
+      <div class="process-visual">
+        🏭 Belgische fabriek → 💨 Luchtvervuiling → 🌬️ Wind waait noordwaarts → 🇳🇱 Nederlandse lucht vervuild
+      </div>
+    </div>
+
+    <div class="real-world">
+      <h4>🏠 Herken je dit?</h4>
+      <p>Heb jij wel eens in België gereisd? ✈️ Dan heb je misschien gemerkt dat dingen "net iets anders" werken: andere snoepmerken in de supermarkt, andere benamingen ("pintje" voor pils), andere televisiekanalen. <strong>Vraag:</strong> Bedenk minstens één verschil dat jij zelf hebt gemerkt tussen Nederland en België — of dat je vermoedt op basis van wat je hebt gezien.</p>
+    </div>
+
+    <h3 style="color:var(--emerald-900); margin: var(--space-lg) 0 var(--space-sm);">📊 Vergelijk de cijfers: Nederland en België</h3>
+    <p style="color:var(--earth-mid); margin-bottom: var(--space-sm);">Een paar feiten naast elkaar (vereenvoudigde cijfers, afgerond).</p>
+    <div class="chart-container">
+      <div class="chart-wrap">
+        <canvas id="chartCompareNlBe"></canvas>
+      </div>
+    </div>
+
+    <!-- OPDRACHT 3.1 -->
+    <div class="exercise" data-exid="ex_3_1">
+      <div class="exercise-header">
+        <span class="exercise-badge analyse">Grafiekanalyse</span>
+        <h4>Opdracht 3.1 — Lees de cijfers</h4>
+      </div>
+      <p class="question">Welke uitspraak klopt volgens de grafiek hierboven?</p>
+      <div class="mcq-options" data-mcq="ex_3_1">
+        <button class="mcq-btn" data-correct="false" data-hint="Kijk nog eens naar de balk 'Inwoners' — wie heeft er meer?">België heeft meer inwoners dan Nederland.</button>
+        <button class="mcq-btn" data-correct="true" data-hint="">Nederland heeft meer inwoners dan België.</button>
+        <button class="mcq-btn" data-correct="false" data-hint="Volgens de getallen op de grafiek is dat niet wat je ziet.">De oppervlakte van België is veel groter dan die van Nederland.</button>
+        <button class="mcq-btn" data-correct="false" data-hint="In de grafiek zie je twee verschillende landen — dus de cijfers verschillen wel degelijk.">De landen zijn precies even groot en hebben evenveel inwoners.</button>
+      </div>
+      <div class="feedback" id="fb_ex_3_1"></div>
+    </div>
+
+    <!-- OPDRACHT 3.2 -->
+    <div class="exercise" data-exid="ex_3_2">
+      <div class="exercise-header">
+        <span class="exercise-badge open">Open vraag — denkwerk!</span>
+        <h4>Opdracht 3.2 — Grensoverschrijdend probleem</h4>
+      </div>
+      <p class="question">Stel je voor: een grote Belgische fabriek vlak bij de grens met Zeeland stoot veel rook uit. De rook waait richting Nederland en de Nederlanders klagen. Beschrijf in <strong>minimaal 20 woorden</strong>: waarom is dit een typisch grensoverschrijdend probleem, en waarom kan Nederland dit niet alleen oplossen?</p>
+      <textarea class="open-input" data-open="ex_3_2" placeholder="Leg uit waarom dit lastig is over de grens..."></textarea>
+      <div class="word-counter">
+        <span><span data-words="ex_3_2">0</span> woorden</span>
+        <span class="check-icon" data-checkicon="ex_3_2">✓ Voldoende lang</span>
+      </div>
+      <button class="btn btn-secondary btn-small" data-showsample="ex_3_2" disabled>Toon voorbeeldantwoord</button>
+      <div class="sample-answer" id="sample_ex_3_2">
+        <h5>Voorbeeldantwoord</h5>
+        <div class="sample">Het is een grensoverschrijdend probleem omdat de lucht zich niets aantrekt van de landsgrens. De Belgische fabriek staat in België en valt onder Belgische wetten. Nederland kan die fabriek dus niet zelf sluiten of regels opleggen.</div>
+        <div class="sample">Om dit op te lossen moeten Nederland en België <strong>samenwerken</strong>. Ze moeten afspraken maken over uitstoot, of regels via de Europese Unie. Anders blijft Nederland last houden van vervuiling die uit een ander land komt.</div>
+      </div>
+      <div class="self-rate" data-selfrate="ex_3_2">
+        <p>Heb je het uitgelegd in je eigen woorden?</p>
+        <button class="btn btn-success btn-small" data-rate="ex_3_2" data-result="good">Goed ✓</button>
+        <button class="btn btn-warn btn-small" data-rate="ex_3_2" data-result="bad">Nog niet ✗</button>
+      </div>
+    </div>
+
+    <!-- OPDRACHT 3.3 -->
+    <div class="exercise" data-exid="ex_3_3">
+      <div class="exercise-header">
+        <span class="exercise-badge open">Open vraag</span>
+        <h4>Opdracht 3.3 — De Westerschelde</h4>
+      </div>
+      <p class="question">Lees terug wat er staat over de Westerschelde. Beschrijf in <strong>minimaal 20 woorden</strong>: wat wil Nederland, wat wil België, en waarom is dit lastig om op te lossen?</p>
+      <textarea class="open-input" data-open="ex_3_3" placeholder="Leg uit wat beide landen willen..."></textarea>
+      <div class="word-counter">
+        <span><span data-words="ex_3_3">0</span> woorden</span>
+        <span class="check-icon" data-checkicon="ex_3_3">✓ Voldoende lang</span>
+      </div>
+      <button class="btn btn-secondary btn-small" data-showsample="ex_3_3" disabled>Toon voorbeeldantwoord</button>
+      <div class="sample-answer" id="sample_ex_3_3">
+        <h5>Voorbeeldantwoord</h5>
+        <div class="sample">Nederland wil dat de Westerschelde ondiep blijft, omdat dit goed is voor de natuur en de Zeeuwse kust beschermt. België wil juist dat de rivier dieper wordt uitgegraven, zodat grote vrachtschepen makkelijker de haven van Antwerpen kunnen bereiken.</div>
+        <div class="sample">Dit is lastig omdat de rivier door allebei de landen stroomt: de natuur is een Nederlands belang, de haven van Antwerpen een Belgisch belang. Beide landen moeten dus onderhandelen en compromissen sluiten.</div>
+      </div>
+      <div class="self-rate" data-selfrate="ex_3_3">
+        <p>Heb je beide kanten van het probleem genoemd?</p>
+        <button class="btn btn-success btn-small" data-rate="ex_3_3" data-result="good">Goed ✓</button>
+        <button class="btn btn-warn btn-small" data-rate="ex_3_3" data-result="bad">Nog niet ✗</button>
+      </div>
+    </div>
+
+    <div class="tab-nav">
+      <div style="display:flex; gap:8px; flex-wrap:wrap;">
+        <button class="btn btn-secondary" data-prev="1">← Vorige</button>
+        <button class="reset-section" data-reset-section="2">↻ Reset dit onderdeel</button>
+      </div>
+      <button class="btn" data-next="3">Volgende onderdeel →</button>
+    </div>
+  </section>
+
+  <!-- ============= TAB 3: SAMENWERKEN ============= -->
+  <section class="tab-panel" data-panel="3">
+    <h2 class="panel-title">🤝 Samenwerken over de grens</h2>
+    <p class="panel-subtitle">Een case study: euregio Scheldemond</p>
+
+    <div class="explain-block">
+      <h3><span class="icon">🏛️</span>Wat is een euregio?</h3>
+      <p>Een <strong>euregio</strong> (Europese regio) is een gebied waar twee of meer landen samen <strong>over de grens heen samenwerken</strong>. Het is een officiële vorm van samenwerking, waar bestuurders, bedrijven en organisaties uit verschillende landen samen plannen maken. Euregio's krijgen vaak geld van de Europese Unie om grensoverschrijdende projecten uit te voeren.</p>
+      <p>Er bestaan veel euregio's in Europa. Voorbeelden langs de Nederlandse grens zijn: <strong>Euregio Maas-Rijn</strong> (Limburg + België + Duitsland), <strong>Euregio Rijn-Waal</strong> (Gelderland + Duitsland) en <strong>Euregio Scheldemond</strong> (Zeeland + Vlaanderen).</p>
+      <p>Het doel van samenwerking in een euregio is: <strong>problemen oplossen die niet stoppen bij de grens</strong>, en kansen pakken die je samen beter kunt benutten dan alleen. Denk aan natuur die over de grens loopt, vervoer en wegen, gezondheidszorg, of toerisme.</p>
+
+      <div class="process-visual">
+        🤝 Samenwerking → 💼 Banen over de grens → 🏥 Patiënten naar dichtstbijzijnde ziekenhuis → 🌳 Natuur beschermen → ✈️ Toerisme stimuleren
+      </div>
+    </div>
+
+    <div class="explain-block">
+      <h3><span class="icon">⚓</span>Euregio Scheldemond — hoe werkt het?</h3>
+      <p>De <strong>euregio Scheldemond</strong> bestaat uit de Nederlandse provincie <strong>Zeeland</strong> en de Belgische provincies <strong>Oost-Vlaanderen</strong> en <strong>West-Vlaanderen</strong>. Het gebied ligt rond de monding van de Schelde — vandaar de naam.</p>
+      <p>In deze euregio werken Nederland en België samen op veel gebieden. <strong>Waarom?</strong> Omdat ze veel <strong>met elkaar te maken hebben</strong>: de Westerschelde stroomt door beide landen, veel mensen wonen aan de ene kant van de grens en werken aan de andere, en de natuurgebieden lopen over in elkaar.</p>
+      <p>Voorbeelden van samenwerking: <strong>toeristische routes</strong> langs de Scheldekust voor wandelaars en fietsers, <strong>gezamenlijke natuurprojecten</strong> om de kust te beschermen, betere <strong>spoorverbindingen</strong> tussen Zeeland en Vlaanderen, en samenwerking tussen <strong>ziekenhuizen</strong> zodat patiënten naar het dichtstbijzijnde ziekenhuis kunnen — ook als dat in het andere land staat.</p>
+      <div class="travel-tip">
+        ✈️ <strong>Reistip:</strong> Als jij in Sluis (Zeeuws-Vlaanderen) bent en je wilt naar Brugge (België), dan rijd je daar zo naartoe. Dankzij de samenwerking in de euregio is het toerisme over de grens makkelijk en goed georganiseerd: fietsroutes, wandelpaden en bewegwijzering werken aan beide kanten van de grens.
+      </div>
+    </div>
+
+    <div class="real-world">
+      <h4>🏠 Herken je dit?</h4>
+      <p>Misschien woon jij in Gelderland — daar werken de provincie en Duitsland samen in de Euregio Rijn-Waal. Treinen rijden door naar Duitsland, bedrijven werken samen, ziekenhuizen helpen elkaar. <strong>Vraag:</strong> Welke vorm van grensoverschrijdende samenwerking zou jij belangrijk vinden in jouw eigen omgeving?</p>
+    </div>
+
+    <h3 style="color:var(--emerald-900); margin: var(--space-lg) 0 var(--space-sm);">📍 Kaart: Euregio Scheldemond</h3>
+    <p style="color:var(--earth-mid); margin-bottom: var(--space-sm);">De steden in en rond deze euregio. Klik op een marker voor meer info.</p>
+    <div class="map-container" id="map2"></div>
+
+    <!-- OPDRACHT 4.1 - scenario -->
+    <div class="exercise" data-exid="ex_4_1">
+      <div class="exercise-header">
+        <span class="exercise-badge">Scenario — kies</span>
+        <h4>Opdracht 4.1 — Een grensoverschrijdend probleem</h4>
+      </div>
+      <p class="question"><strong>Scenario:</strong> Een Nederlandse en een Belgische gemeente in de euregio willen samen een nieuw fietspad aanleggen langs de Schelde. Het pad moet aan beide kanten van de grens lopen. Wat is hier de <strong>belangrijkste reden</strong> waarom samenwerking via de euregio nodig is?</p>
+      <div class="mcq-options" data-mcq="ex_4_1">
+        <button class="mcq-btn" data-correct="false" data-hint="Fietspaden zijn niet zo duur dat je per se Europees geld nodig hebt — er is iets fundamenteler.">Omdat fietspaden duur zijn.</button>
+        <button class="mcq-btn" data-correct="true" data-hint="">Omdat het project beide landen raakt — afspraken moeten over de grens worden gemaakt.</button>
+        <button class="mcq-btn" data-correct="false" data-hint="Toerisme is een leuk gevolg, maar niet de hoofdreden voor formele samenwerking.">Om meer toeristen te trekken.</button>
+        <button class="mcq-btn" data-correct="false" data-hint="Belgen mogen sowieso in Nederland fietsen door Schengen — dat is niet de kern.">Omdat Belgen anders niet in Nederland mogen fietsen.</button>
+      </div>
+      <div class="feedback" id="fb_ex_4_1"></div>
+    </div>
+
+    <!-- OPDRACHT 4.2 - kaart -->
+    <div class="exercise" data-exid="ex_4_2">
+      <div class="exercise-header">
+        <span class="exercise-badge analyse">Kaartanalyse</span>
+        <h4>Opdracht 4.2 — Welke provincies horen bij euregio Scheldemond?</h4>
+      </div>
+      <p class="question">Bekijk de kaart hierboven en lees terug. Welke combinatie van provincies vormt de euregio Scheldemond?</p>
+      <div class="mcq-options" data-mcq="ex_4_2">
+        <button class="mcq-btn" data-correct="false" data-hint="Limburg hoort bij een andere euregio (Maas-Rijn).">Limburg + Antwerpen</button>
+        <button class="mcq-btn" data-correct="true" data-hint="">Zeeland + Oost-Vlaanderen + West-Vlaanderen</button>
+        <button class="mcq-btn" data-correct="false" data-hint="Noord-Brabant en Wallonië maken geen deel uit van euregio Scheldemond.">Noord-Brabant + Wallonië</button>
+        <button class="mcq-btn" data-correct="false" data-hint="Gelderland hoort bij Euregio Rijn-Waal en grenst aan Duitsland.">Gelderland + Vlaams-Brabant</button>
+      </div>
+      <div class="feedback" id="fb_ex_4_2"></div>
+    </div>
+
+    <!-- OPDRACHT 4.3 -->
+    <div class="exercise" data-exid="ex_4_3">
+      <div class="exercise-header">
+        <span class="exercise-badge open">Open vraag — denkwerk!</span>
+        <h4>Opdracht 4.3 — Bedenk een eigen project</h4>
+      </div>
+      <p class="question">Stel: jij mag een nieuw samenwerkingsproject bedenken voor de euregio Scheldemond. Bedenk in <strong>minimaal 20 woorden</strong>: <strong>welk project</strong> zou jij voorstellen, voor <strong>wie</strong> is het bedoeld, en <strong>waarom</strong> is grensoverschrijdende samenwerking hierbij belangrijk?</p>
+      <textarea class="open-input" data-open="ex_4_3" placeholder="Beschrijf je idee — welk project, voor wie, en waarom samen?"></textarea>
+      <div class="word-counter">
+        <span><span data-words="ex_4_3">0</span> woorden</span>
+        <span class="check-icon" data-checkicon="ex_4_3">✓ Voldoende lang</span>
+      </div>
+      <button class="btn btn-secondary btn-small" data-showsample="ex_4_3" disabled>Toon voorbeeldantwoord</button>
+      <div class="sample-answer" id="sample_ex_4_3">
+        <h5>Voorbeeldantwoorden</h5>
+        <div class="sample"><strong>Idee 1:</strong> Ik zou een tweetalige strandapp bedenken voor toeristen aan de Schelde-kust. De app laat in Nederlands én Frans zien waar je veilig kunt zwemmen, welke restaurants open zijn en welke fietsroutes je kunt nemen. Beide landen werken samen aan de info.</div>
+        <div class="sample"><strong>Idee 2:</strong> Ik zou een gezamenlijk natuurproject bedenken om de duinen langs de kust te beschermen. Zand en wind trekken zich niets aan van de grens, dus moeten Nederlandse en Belgische boswachters samenwerken om de duinen vast te leggen met planten en hekken.</div>
+      </div>
+      <div class="self-rate" data-selfrate="ex_4_3">
+        <p>Heb je een duidelijk idee opgeschreven met uitleg?</p>
+        <button class="btn btn-success btn-small" data-rate="ex_4_3" data-result="good">Goed ✓</button>
+        <button class="btn btn-warn btn-small" data-rate="ex_4_3" data-result="bad">Nog niet ✗</button>
+      </div>
+    </div>
+
+    <div class="tab-nav">
+      <div style="display:flex; gap:8px; flex-wrap:wrap;">
+        <button class="btn btn-secondary" data-prev="2">← Vorige</button>
+        <button class="reset-section" data-reset-section="3">↻ Reset dit onderdeel</button>
+      </div>
+      <button class="btn" data-next="4">Naar reflectie →</button>
+    </div>
+  </section>
+
+  <!-- ============= TAB 4: REFLECTIE ============= -->
+  <section class="tab-panel" data-panel="4">
+    <h2 class="panel-title">🌱 Reflectie & afsluiting</h2>
+    <p class="panel-subtitle">Kijk terug op wat je hebt geleerd.</p>
+
+    <div class="reflection-summary">
+      <h3>Jouw score</h3>
+      <div class="score-big" id="finalScore">0%</div>
+      <p id="scoreMessage">Begin met de andere onderdelen om je score te zien.</p>
+    </div>
+
+    <div class="explain-block">
+      <h3><span class="icon">🎯</span>Wat heb je geleerd?</h3>
+      <div class="goals-list">
+        <ul>
+          <li>Je weet aan welke landen Nederland grenst en welke soorten grenzen er zijn.</li>
+          <li>Je begrijpt het Verdrag van Schengen en kunt voor- en nadelen noemen.</li>
+          <li>Je weet hoe Nederland en België ingedeeld zijn in provincies en gewesten.</li>
+          <li>Je begrijpt het verschil tussen nationale en regionale identiteit.</li>
+          <li>Je kunt verschillen tussen Nederlanders en Belgen beschrijven.</li>
+          <li>Je begrijpt wat grensoverschrijdende problemen zijn en kunt voorbeelden geven.</li>
+          <li>Je weet wat een euregio is en hoe Scheldemond werkt.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- REFLECTIE 1 -->
+    <div class="exercise" data-exid="ex_5_1">
+      <div class="exercise-header">
+        <span class="exercise-badge open">Reflectie</span>
+        <h4>Reflectie 1 — Wat was lastig?</h4>
+      </div>
+      <p class="question">Beschrijf in <strong>minimaal 20 woorden</strong>: wat vond jij het lastigst van deze les en waarom? Was het de kaart, de begrippen, de open vragen, of iets anders?</p>
+      <textarea class="open-input" data-open="ex_5_1" placeholder="Wees eerlijk — wat was lastig en waarom?"></textarea>
+      <div class="word-counter">
+        <span><span data-words="ex_5_1">0</span> woorden</span>
+        <span class="check-icon" data-checkicon="ex_5_1">✓ Voldoende lang</span>
+      </div>
+      <button class="btn btn-secondary btn-small" data-showsample="ex_5_1" disabled>Toon voorbeeldantwoord</button>
+      <div class="sample-answer" id="sample_ex_5_1">
+        <h5>Voorbeeldantwoord</h5>
+        <div class="sample">Ik vond het lastigst om uit te leggen waarom de Westerschelde een probleem is tussen Nederland en België. Het is moeilijk om beide kanten te begrijpen — dat Nederland natuur wil en België de haven. Ik moest het twee keer lezen voor ik het snapte.</div>
+      </div>
+      <div class="self-rate" data-selfrate="ex_5_1">
+        <p>Heb je echt nagedacht over wat lastig was?</p>
+        <button class="btn btn-success btn-small" data-rate="ex_5_1" data-result="good">Goed ✓</button>
+        <button class="btn btn-warn btn-small" data-rate="ex_5_1" data-result="bad">Nog niet ✗</button>
+      </div>
+    </div>
+
+    <!-- REFLECTIE 2 -->
+    <div class="exercise" data-exid="ex_5_2">
+      <div class="exercise-header">
+        <span class="exercise-badge open">Reflectie</span>
+        <h4>Reflectie 2 — Uitleggen aan een klasgenoot</h4>
+      </div>
+      <p class="question">Beschrijf in <strong>minimaal 20 woorden</strong>: hoe zou je aan een klasgenoot uitleggen wat een <strong>euregio</strong> is en waarom euregio's belangrijk zijn? Gebruik je eigen woorden!</p>
+      <textarea class="open-input" data-open="ex_5_2" placeholder="Leg het uit alsof je het aan een vriend(in) vertelt..."></textarea>
+      <div class="word-counter">
+        <span><span data-words="ex_5_2">0</span> woorden</span>
+        <span class="check-icon" data-checkicon="ex_5_2">✓ Voldoende lang</span>
+      </div>
+      <button class="btn btn-secondary btn-small" data-showsample="ex_5_2" disabled>Toon voorbeeldantwoord</button>
+      <div class="sample-answer" id="sample_ex_5_2">
+        <h5>Voorbeeldantwoord</h5>
+        <div class="sample">Een euregio is een gebied waar twee of meer landen over de grens heen samenwerken. Ze pakken samen problemen aan die niet stoppen bij de grens, zoals vervuiling, vervoer of toerisme. Zo helpen ze elkaar en pakken kansen die ze alleen niet zouden hebben.</div>
+      </div>
+      <div class="self-rate" data-selfrate="ex_5_2">
+        <p>Zou een klasgenoot dit begrijpen?</p>
+        <button class="btn btn-success btn-small" data-rate="ex_5_2" data-result="good">Goed ✓</button>
+        <button class="btn btn-warn btn-small" data-rate="ex_5_2" data-result="bad">Nog niet ✗</button>
+      </div>
+    </div>
+
+    <!-- REFLECTIE 3 -->
+    <div class="exercise" data-exid="ex_5_3">
+      <div class="exercise-header">
+        <span class="exercise-badge open">Reflectie — eigen omgeving</span>
+        <h4>Reflectie 3 — In jouw eigen omgeving</h4>
+      </div>
+      <p class="question">Beschrijf in <strong>minimaal 20 woorden</strong>: hoe herken je dit onderwerp in je eigen leefomgeving? Denk aan grenswinkelen, reizen naar Duitsland of België ✈️, dialecten in jouw regio, of een grensoverschrijdend probleem dat jij hebt opgemerkt.</p>
+      <textarea class="open-input" data-open="ex_5_3" placeholder="Schrijf over jouw eigen omgeving..."></textarea>
+      <div class="word-counter">
+        <span><span data-words="ex_5_3">0</span> woorden</span>
+        <span class="check-icon" data-checkicon="ex_5_3">✓ Voldoende lang</span>
+      </div>
+      <button class="btn btn-secondary btn-small" data-showsample="ex_5_3" disabled>Toon voorbeeldantwoord</button>
+      <div class="sample-answer" id="sample_ex_5_3">
+        <h5>Voorbeeldantwoord</h5>
+        <div class="sample">In mijn omgeving in Zevenaar herken ik dit goed. We zitten dicht bij de Duitse grens. Mijn ouders gaan soms naar Emmerich om boodschappen te doen omdat sommige dingen daar goedkoper zijn. Dat kan zonder paspoort dankzij Schengen.</div>
+        <div class="sample">Ik merk ook dat veel Duitse toeristen naar Nederland komen voor stroopwafels. En als er smog is, hoor ik op het nieuws dat de vervuiling vaak uit het Ruhrgebied in Duitsland komt — dat is dus een grensoverschrijdend probleem.</div>
+      </div>
+      <div class="self-rate" data-selfrate="ex_5_3">
+        <p>Heb je het concreet en persoonlijk gemaakt?</p>
+        <button class="btn btn-success btn-small" data-rate="ex_5_3" data-result="good">Goed ✓</button>
+        <button class="btn btn-warn btn-small" data-rate="ex_5_3" data-result="bad">Nog niet ✗</button>
+      </div>
+    </div>
+
+    <div class="tab-nav">
+      <div style="display:flex; gap:8px; flex-wrap:wrap;">
+        <button class="btn btn-secondary" data-prev="3">← Vorige</button>
+        <button class="reset-section" data-reset-section="4">↻ Reset dit onderdeel</button>
+      </div>
+      <div></div>
+    </div>
+  </section>
+
+  </div>
+</main>
+
+<script>
+(function() {
+  'use strict';
+
+  const STORAGE_PREFIX = 'geo_les_';
+  const TOTAL_TABS = 5;
+
+  // All exercise IDs by section
+  const EXERCISES = {
+    0: ['ex_1_1', 'ex_1_2', 'ex_1_3'],
+    1: ['ex_2_1', 'ex_2_2', 'ex_2_3'],
+    2: ['ex_3_1', 'ex_3_2', 'ex_3_3'],
+    3: ['ex_4_1', 'ex_4_2', 'ex_4_3'],
+    4: ['ex_5_1', 'ex_5_2', 'ex_5_3']
+  };
+
+  const ALL_EXERCISES = [].concat(...Object.values(EXERCISES));
+  const MCQ_EXERCISES = ['ex_1_1','ex_1_3','ex_2_1','ex_2_3','ex_3_1','ex_4_1','ex_4_2'];
+  const OPEN_EXERCISES = ['ex_1_2','ex_2_2','ex_3_2','ex_3_3','ex_4_3','ex_5_1','ex_5_2','ex_5_3'];
+
+  // State
+  let state = {
+    completed: {},  // ex_id -> true
+    attempts: {},   // ex_id -> number
+    answers: {},    // ex_id -> string (for open) or correct/wrong (for mcq)
+    timestamp: null
+  };
+
+  // ===== LocalStorage helpers =====
+  function safeGetStorage(key) {
+    try {
+      return localStorage.getItem(STORAGE_PREFIX + key);
+    } catch(e) { return null; }
+  }
+  function safeSetStorage(key, value) {
+    try {
+      localStorage.setItem(STORAGE_PREFIX + key, value);
+    } catch(e) {}
+  }
+  function safeRemoveStorage(key) {
+    try {
+      localStorage.removeItem(STORAGE_PREFIX + key);
+    } catch(e) {}
+  }
+
+  function saveState() {
+    state.timestamp = new Date().toISOString();
+    safeSetStorage('state', JSON.stringify(state));
+  }
+  function loadState() {
+    const raw = safeGetStorage('state');
+    if (raw) {
+      try {
+        const parsed = JSON.parse(raw);
+        state = Object.assign(state, parsed);
+      } catch(e) {}
+    }
+  }
+
+  // ===== Progress =====
+  function updateProgress() {
+    const total = ALL_EXERCISES.length;
+    const done = ALL_EXERCISES.filter(id => state.completed[id]).length;
+    const pct = Math.round((done / total) * 100);
+    document.getElementById('progressFill').style.width = pct + '%';
+    document.getElementById('progressPercent').textContent = pct + '%';
+
+    // Update tab checks
+    for (let i = 0; i < TOTAL_TABS; i++) {
+      const exs = EXERCISES[i];
+      const allDone = exs.every(id => state.completed[id]);
+      const check = document.getElementById('check-' + i);
+      if (check) check.textContent = allDone ? '✓' : '';
+    }
+
+    // Update final score
+    const fs = document.getElementById('finalScore');
+    if (fs) {
+      fs.textContent = pct + '%';
+      const msg = document.getElementById('scoreMessage');
+      if (msg) {
+        if (pct === 100) msg.textContent = '🎉 Geweldig! Je hebt alle onderdelen afgerond.';
+        else if (pct >= 70) msg.textContent = '💪 Goed bezig! Bijna alles is af.';
+        else if (pct >= 40) msg.textContent = '📚 Je bent op de helft — ga zo door!';
+        else if (pct > 0) msg.textContent = '✨ Je bent begonnen — werk de andere onderdelen ook af.';
+        else msg.textContent = 'Begin met de andere onderdelen om je score te zien.';
+      }
+    }
+  }
+
+  function markComplete(exId) {
+    state.completed[exId] = true;
+    saveState();
+    updateProgress();
+  }
+
+  // ===== Tabs =====
+  let currentTab = 0;
+  function switchTab(tabIndex) {
+    currentTab = tabIndex;
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    const btn = document.querySelector('[data-tab="'+tabIndex+'"]');
+    const panel = document.querySelector('[data-panel="'+tabIndex+'"]');
+    if (btn) btn.classList.add('active');
+    if (panel) panel.classList.add('active');
+    document.getElementById('tabCounter').textContent = 'Onderdeel ' + (tabIndex+1) + ' van ' + TOTAL_TABS;
+    window.scrollTo({top: 0, behavior: 'smooth'});
+
+    // Invalidate maps
+    setTimeout(function() {
+      if (window.map1) window.map1.invalidateSize();
+      if (window.map2) window.map2.invalidateSize();
+    }, 100);
+  }
+
+  // ===== MCQ Handler =====
+  function setupMCQ(exId) {
+    const container = document.querySelector('[data-mcq="'+exId+'"]');
+    if (!container) return;
+    const fb = document.getElementById('fb_'+exId);
+    const buttons = container.querySelectorAll('.mcq-btn');
+
+    buttons.forEach(btn => {
+      btn.addEventListener('click', function() {
+        if (state.completed[exId]) return;
+        const isCorrect = btn.getAttribute('data-correct') === 'true';
+        const hint = btn.getAttribute('data-hint');
+
+        state.attempts[exId] = (state.attempts[exId] || 0) + 1;
+
+        if (isCorrect) {
+          btn.classList.add('correct');
+          fb.className = 'feedback show success';
+          fb.innerHTML = '✅ <strong>Goed gedaan!</strong> Dat klopt helemaal.';
+          buttons.forEach(b => b.disabled = true);
+          markComplete(exId);
+        } else {
+          btn.classList.add('wrong');
+          btn.disabled = true;
+          if (state.attempts[exId] >= 3) {
+            // reveal
+            buttons.forEach(b => {
+              if (b.getAttribute('data-correct') === 'true') {
+                b.classList.add('correct');
+              }
+              b.disabled = true;
+            });
+            fb.className = 'feedback show reveal';
+            fb.innerHTML = '💡 <strong>Het juiste antwoord is groen gemarkeerd.</strong> Lees nog eens de uitleg bovenaan deze sectie. Geen zorgen — je hebt deze opdracht nu afgerond.';
+            markComplete(exId);
+          } else {
+            fb.className = 'feedback show hint';
+            fb.innerHTML = '🤔 <strong>Nog niet helemaal.</strong> ' + (hint || 'Probeer het opnieuw.') + ' <em>(poging ' + state.attempts[exId] + ' van 3)</em>';
+          }
+          saveState();
+        }
+      });
+    });
+  }
+
+  // ===== Open question handler =====
+  function setupOpen(exId) {
+    const textarea = document.querySelector('[data-open="'+exId+'"]');
+    if (!textarea) return;
+    const wordsSpan = document.querySelector('[data-words="'+exId+'"]');
+    const checkIcon = document.querySelector('[data-checkicon="'+exId+'"]');
+    const sampleBtn = document.querySelector('[data-showsample="'+exId+'"]');
+    const sampleBox = document.getElementById('sample_'+exId);
+    const selfRate = document.querySelector('[data-selfrate="'+exId+'"]');
+
+    function countWords(text) {
+      return text.trim().split(/\s+/).filter(w => w.length > 0).length;
+    }
+
+    textarea.addEventListener('input', function() {
+      const wc = countWords(textarea.value);
+      wordsSpan.textContent = wc;
+      if (wc >= 20) {
+        checkIcon.classList.add('show');
+        sampleBtn.disabled = false;
+      } else {
+        checkIcon.classList.remove('show');
+        if (!sampleBox.classList.contains('show')) {
+          sampleBtn.disabled = true;
+        }
+      }
+      state.answers[exId] = textarea.value;
+      saveState();
+    });
+
+    sampleBtn.addEventListener('click', function() {
+      sampleBox.classList.add('show');
+      selfRate.classList.add('show');
+      sampleBtn.disabled = true;
+      sampleBtn.textContent = '✓ Voorbeeldantwoord getoond';
+    });
+
+    // Self-rate buttons
+    document.querySelectorAll('[data-rate="'+exId+'"]').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const result = btn.getAttribute('data-result');
+        markComplete(exId);
+        // Disable both
+        document.querySelectorAll('[data-rate="'+exId+'"]').forEach(b => b.disabled = true);
+        if (result === 'good') {
+          btn.textContent = 'Goed ✓ (gemarkeerd)';
+        } else {
+          btn.textContent = 'Nog niet — kun je later opnieuw doen';
+        }
+      });
+    });
+  }
+
+  // ===== Restore state to UI =====
+  function restoreUI() {
+    // Open answers
+    OPEN_EXERCISES.forEach(exId => {
+      const textarea = document.querySelector('[data-open="'+exId+'"]');
+      if (textarea && state.answers[exId]) {
+        textarea.value = state.answers[exId];
+        textarea.dispatchEvent(new Event('input'));
+      }
+      if (state.completed[exId]) {
+        const sampleBtn = document.querySelector('[data-showsample="'+exId+'"]');
+        const sampleBox = document.getElementById('sample_'+exId);
+        const selfRate = document.querySelector('[data-selfrate="'+exId+'"]');
+        if (sampleBox) sampleBox.classList.add('show');
+        if (selfRate) selfRate.classList.add('show');
+        if (sampleBtn) {
+          sampleBtn.disabled = true;
+          sampleBtn.textContent = '✓ Afgerond';
+        }
+        document.querySelectorAll('[data-rate="'+exId+'"]').forEach(b => {
+          b.disabled = true;
+        });
+      }
+    });
+
+    // MCQ completed
+    MCQ_EXERCISES.forEach(exId => {
+      if (state.completed[exId]) {
+        const container = document.querySelector('[data-mcq="'+exId+'"]');
+        if (!container) return;
+        const buttons = container.querySelectorAll('.mcq-btn');
+        buttons.forEach(b => {
+          b.disabled = true;
+          if (b.getAttribute('data-correct') === 'true') {
+            b.classList.add('correct');
+          }
+        });
+        const fb = document.getElementById('fb_'+exId);
+        if (fb) {
+          fb.className = 'feedback show success';
+          fb.innerHTML = '✅ <strong>Afgerond</strong> — je had dit goed.';
+        }
+      }
+    });
+  }
+
+  // ===== Reset section =====
+  function resetSection(tabIndex) {
+    const exs = EXERCISES[tabIndex];
+    exs.forEach(exId => {
+      delete state.completed[exId];
+      delete state.attempts[exId];
+      delete state.answers[exId];
+
+      // Reset MCQ UI
+      const container = document.querySelector('[data-mcq="'+exId+'"]');
+      if (container) {
+        container.querySelectorAll('.mcq-btn').forEach(b => {
+          b.disabled = false;
+          b.classList.remove('correct', 'wrong');
+        });
+        const fb = document.getElementById('fb_'+exId);
+        if (fb) {
+          fb.className = 'feedback';
+          fb.innerHTML = '';
+        }
+      }
+
+      // Reset open UI
+      const textarea = document.querySelector('[data-open="'+exId+'"]');
+      if (textarea) {
+        textarea.value = '';
+        const wordsSpan = document.querySelector('[data-words="'+exId+'"]');
+        const checkIcon = document.querySelector('[data-checkicon="'+exId+'"]');
+        if (wordsSpan) wordsSpan.textContent = '0';
+        if (checkIcon) checkIcon.classList.remove('show');
+      }
+      const sampleBox = document.getElementById('sample_'+exId);
+      const sampleBtn = document.querySelector('[data-showsample="'+exId+'"]');
+      const selfRate = document.querySelector('[data-selfrate="'+exId+'"]');
+      if (sampleBox) sampleBox.classList.remove('show');
+      if (selfRate) selfRate.classList.remove('show');
+      if (sampleBtn) {
+        sampleBtn.disabled = true;
+        sampleBtn.textContent = 'Toon voorbeeldantwoord';
+      }
+      document.querySelectorAll('[data-rate="'+exId+'"]').forEach(b => {
+        b.disabled = false;
+        if (b.getAttribute('data-result') === 'good') b.textContent = 'Goed ✓';
+        else b.textContent = 'Nog niet ✗';
+      });
+    });
+    saveState();
+    updateProgress();
+  }
+
+  // ===== Clear all progress =====
+  function clearAllProgress() {
+    if (!confirm('Weet je zeker dat je alle voortgang wilt wissen?')) return;
+    state = { completed: {}, attempts: {}, answers: {}, timestamp: null };
+    safeRemoveStorage('state');
+    // Reload page for clean reset
+    location.reload();
+  }
+
+  // ===== Initialize =====
+  window.addEventListener('DOMContentLoaded', function() {
+    loadState();
+
+    // Tab navigation
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        switchTab(parseInt(btn.getAttribute('data-tab')));
+      });
+    });
+    document.querySelectorAll('[data-next]').forEach(btn => {
+      btn.addEventListener('click', function() {
+        switchTab(parseInt(btn.getAttribute('data-next')));
+      });
+    });
+    document.querySelectorAll('[data-prev]').forEach(btn => {
+      btn.addEventListener('click', function() {
+        switchTab(parseInt(btn.getAttribute('data-prev')));
+      });
+    });
+    document.querySelectorAll('[data-reset-section]').forEach(btn => {
+      btn.addEventListener('click', function() {
+        if (confirm('Reset dit onderdeel? Alle antwoorden in deze sectie worden gewist.')) {
+          resetSection(parseInt(btn.getAttribute('data-reset-section')));
+        }
+      });
+    });
+
+    document.getElementById('clearProgressBtn').addEventListener('click', clearAllProgress);
+
+    // Setup exercises
+    MCQ_EXERCISES.forEach(setupMCQ);
+    OPEN_EXERCISES.forEach(setupOpen);
+
+    // Restore UI
+    restoreUI();
+    updateProgress();
+
+    // Initialize maps
+    initMaps();
+
+    // Initialize charts
+    initCharts();
+  });
+
+  // ===== Maps =====
+  function initMaps() {
+    // MAP 1: Nederland + buren
+    window.map1 = L.map('map1').setView([52.0, 5.5], 6);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap',
+      maxZoom: 18
+    }).addTo(window.map1);
+
+    const places1 = [
+      {lat: 52.3676, lng: 4.9041, name: 'Amsterdam (NL)', info: 'Hoofdstad van Nederland'},
+      {lat: 50.8503, lng: 4.3517, name: 'Brussel (BE)', info: 'Hoofdstad van België — tweetalig gewest'},
+      {lat: 52.5200, lng: 13.4050, name: 'Berlijn (DE)', info: 'Hoofdstad van Duitsland'},
+      {lat: 51.9281, lng: 6.0734, name: 'Zevenaar (NL)', info: 'Grenstad bij Duitsland — Euregio Rijn-Waal'},
+      {lat: 51.4416, lng: 5.4697, name: 'Eindhoven (NL)', info: 'Stad in Noord-Brabant, dicht bij de Belgische grens'},
+      {lat: 51.2194, lng: 4.4025, name: 'Antwerpen (BE)', info: 'Grote havenstad — Westerschelde is hier belangrijk'},
+      {lat: 50.7747, lng: 6.0833, name: 'Aken (DE)', info: 'Duitse grensstad — onderdeel van Euregio Maas-Rijn'},
+      {lat: 51.4974, lng: 4.7670, name: 'Baarle-Nassau/Hertog', info: 'Beroemd dorp met de meest ingewikkelde grens ter wereld!'}
+    ];
+    places1.forEach(p => {
+      L.marker([p.lat, p.lng]).addTo(window.map1)
+        .bindPopup('<strong>'+p.name+'</strong><br>'+p.info);
+    });
+
+    // MAP 2: Euregio Scheldemond
+    window.map2 = L.map('map2').setView([51.3, 3.7], 8);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap',
+      maxZoom: 18
+    }).addTo(window.map2);
+
+    const places2 = [
+      {lat: 51.4988, lng: 3.6109, name: 'Middelburg (NL)', info: 'Hoofdstad van Zeeland'},
+      {lat: 51.4416, lng: 3.5736, name: 'Vlissingen (NL)', info: 'Havenstad aan de Westerschelde'},
+      {lat: 51.3098, lng: 3.3789, name: 'Sluis (NL)', info: 'Zeeuws-Vlaanderen — dicht bij België'},
+      {lat: 51.2093, lng: 3.2247, name: 'Brugge (BE)', info: 'Historische stad in West-Vlaanderen'},
+      {lat: 51.0543, lng: 3.7174, name: 'Gent (BE)', info: 'Hoofdstad Oost-Vlaanderen'},
+      {lat: 51.3397, lng: 3.2076, name: 'Knokke-Heist (BE)', info: 'Belgische badplaats vlak aan de Nederlandse grens'},
+      {lat: 51.2194, lng: 4.4025, name: 'Antwerpen (BE)', info: 'Grote havenstad — belangrijk voor Westerschelde-discussie'},
+      {lat: 51.4416, lng: 4.0420, name: 'Terneuzen (NL)', info: 'Stad in Zeeuws-Vlaanderen — sluizen naar Gent'}
+    ];
+    places2.forEach(p => {
+      L.marker([p.lat, p.lng]).addTo(window.map2)
+        .bindPopup('<strong>'+p.name+'</strong><br>'+p.info);
+    });
+  }
+
+  // ===== Charts =====
+  function initCharts() {
+    const emerald = '#047857';
+    const emeraldLight = '#6ee7b7';
+    const clay = '#c2825c';
+    const moss = '#84a98c';
+
+    // Chart 1: Identity strength
+    const ctx1 = document.getElementById('chartIdentity');
+    if (ctx1) {
+      new Chart(ctx1, {
+        type: 'bar',
+        data: {
+          labels: ['Catalonië (ES)', 'Friesland (NL)', 'Vlaanderen (BE)', 'Brabant (NL)', 'Holland (NL)'],
+          datasets: [{
+            label: '% voelt zich vooral verbonden met regio',
+            data: [62, 45, 40, 28, 18],
+            backgroundColor: [emerald, emeraldLight, moss, clay, '#a8a29e'],
+            borderRadius: 6
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            title: {
+              display: true,
+              text: 'Regionale identiteit per gebied (geschatte cijfers, %)',
+              font: { size: 14, family: 'Nunito', weight: '700' },
+              color: '#064e3b'
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              max: 80,
+              ticks: { color: '#78716c' },
+              grid: { color: '#e7e5e4' }
+            },
+            x: {
+              ticks: { color: '#3f3f2e', font: { weight: '600' } },
+              grid: { display: false }
+            }
+          }
+        }
+      });
+    }
+
+    // Chart 2: NL vs BE comparison
+    const ctx2 = document.getElementById('chartCompareNlBe');
+    if (ctx2) {
+      new Chart(ctx2, {
+        type: 'bar',
+        data: {
+          labels: ['Inwoners (miljoen)', 'Oppervlakte (× 1000 km²)', 'Lengte grens met buur (× 100 km)'],
+          datasets: [
+            {
+              label: 'Nederland 🇳🇱',
+              data: [17.8, 41.5, 5.7],
+              backgroundColor: emerald,
+              borderRadius: 6
+            },
+            {
+              label: 'België 🇧🇪',
+              data: [11.7, 30.7, 4.5],
+              backgroundColor: clay,
+              borderRadius: 6
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'top',
+              labels: { color: '#064e3b', font: { family: 'Nunito', weight: '700' } }
+            },
+            title: {
+              display: true,
+              text: 'Nederland en België vergeleken',
+              font: { size: 14, family: 'Nunito', weight: '700' },
+              color: '#064e3b'
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: { color: '#78716c' },
+              grid: { color: '#e7e5e4' }
+            },
+            x: {
+              ticks: { color: '#3f3f2e', font: { weight: '600' } },
+              grid: { display: false }
+            }
+          }
+        }
+      });
+    }
+  }
+
+})();
+</script>
+
+</body>
+</html>
