@@ -481,7 +481,7 @@ textarea { resize: vertical; min-height: 85px; }
   </div>
 
   <div style="margin-top:8px; padding:10px 14px; background:var(--accent-light); border:1.5px solid var(--border2); border-radius:var(--r-sm); font-size:12px; color:var(--text2); line-height:1.6;">
-    🤖 <strong style="color:var(--accent-h);">Welk AI-model gebruiken?</strong> Deze prompt is complex en werkt het best met krachtige modellen. Aanbevolen: <strong>Claude Opus</strong> of <strong>GPT-4o</strong>. Kleinere modellen (zoals Claude Sonnet of GPT-4o mini) kunnen fouten in de code produceren.
+    🤖 <strong style="color:var(--accent-h);">Welk AI-model gebruiken?</strong> Aanbevolen: <strong>Claude Opus 4.7</strong> (niet 4.8 — die kapt code af) of <strong>GPT-4o</strong>. Kleinere modellen (Sonnet, GPT-4o mini) kunnen fouten produceren. Start altijd een nieuw gesprek per generatie.
   </div>
 
   <div class="output-box" id="outputBox">
@@ -735,7 +735,7 @@ function generatePrompt() {
   const opdrachtenTekst = state.opdrachten.map((o,i) => `  ${i+1}. ${o}`).join('\n');
   const lesduur = state.lesduur;
   const lesduurMin = parseInt(lesduur);
-  const aantalSecties = lesduurMin <= 40 ? 6 : (lesduurMin <= 60 ? 8 : 10);
+  const aantalSecties = lesduurMin <= 40 ? 4 : (lesduurMin <= 60 ? 6 : 8);
   const isOndersteunend = state.moeilijkheid.startsWith('ondersteunend');
   const isUitdagend = state.moeilijkheid.startsWith('uitdagend');
   const mcVerhouding = isOndersteunend ? 'maximaal 55% multiple choice, minimaal 45% eigen denk- of schrijfwerk' : (isUitdagend ? 'maximaal 30% multiple choice, minimaal 70% eigen denk- of schrijfwerk' : 'maximaal 40% multiple choice, minimaal 60% eigen denk- of schrijfwerk');
@@ -832,27 +832,40 @@ TECHNISCHE EISEN
    ECHTE-WERELD KOPPELING — VERPLICHT:
    Elke sectie moet de stof expliciet verbinden aan de leefwereld van de leerling. Aardrijkskunde gaat niet over abstracte processen — het gaat over de wereld waarin leerlingen leven, waar ze aan bijdragen en die ze dagelijks ervaren. Gebruik herkenbare voorbeelden ("Als jij vanochtend naar school fietste..."), en stel minstens één vraag per sectie die de leerling uitnodigt om de stof te herkennen in de eigen omgeving.
 
-5. LESDUUR: De pagina moet volledig zijn voor ~${lesduurMin} minuten. Minimaal ${aantalSecties} inhoudelijke secties met uitleg én opdrachten.
-   Elke sectie moet substantieel zijn: minimaal 3 alinea's uitleg én minimaal 2-3 opdrachten per sectie. De uitleg moet echt informatief zijn — geen dunne paragraafjes maar rijke tekst waar een leerling van leert. Zorg dat een leerling echt de volle ${lesduurMin} minuten nodig heeft om alles door te werken.
+5. LESDUUR: De pagina moet volledig zijn voor ~${lesduurMin} minuten. Gebruik ${aantalSecties} inhoudelijke secties (tabbladen) met uitleg én opdrachten.
+   Liever minder tabs met rijke inhoud dan veel dunne tabs. Elke sectie moet substantieel zijn: minimaal 3 alinea's uitleg én minimaal 2-3 opdrachten per sectie. Zorg dat een leerling echt de volle ${lesduurMin} minuten nodig heeft.
 
 6. OPDRACHTEN MET DIEPGANG — CRUCIAAL:
-   Niet alleen multiple choice en klik-en-klaar opdrachten. Elke sectie moet minstens één opdracht bevatten die DENKTIJD vereist. Gebruik hiervoor:
-   a) Open vragen met een textarea (minimaal 2-3 zinnen). Toon een woordenteller, geef pas een vinkje bij ≥20 woorden.
-   b) Sorteer- of rangschikopdrachten met drag-and-drop (HTML5 Drag and Drop API). Gebruik GEEN pijltjesknoppen — die werken niet intuïtief. Implementeer draggable items die de leerling kan oppakken en op een andere positie kan loslaten, waarna de lijst zich visueel herschikt. Touch-ondersteuning is een bonus, geen vereiste.
-      Voeg een "Controleer volgorde" knop toe die de huidige volgorde vergelijkt met de juiste volgorde en feedback geeft (welke items goed/fout staan).
-   c) Vergelijkingsopdrachten: tabel invullen of begrippen koppelen aan beschrijvingen.
-      Bij koppelopdrachten: toon na elke koppeling direct visueel dat items gekoppeld zijn (bijv. zet gekoppelde items naast elkaar, gebruik dezelfde achtergrondkleur, of toon een verbindingslijn). De leerling moet duidelijk zien welke koppelingen al gemaakt zijn voordat ze op "Controleer" klikken.
-      BELANGRIJK: ondersteun veel-op-één koppelingen. Een doel-item (bijv. een klimaattype) mag meerdere bronnen ontvangen en mag NIET op slot gaan na de eerste koppeling.
-   d) Analyseopdrachten bij grafieken/kaarten: data aflezen EN interpreteren.
+   Elke sectie moet minstens één opdracht bevatten die DENKTIJD vereist.
    Verhouding: ${mcVerhouding}.
+`;
 
+  const heeftOpen = state.opdrachten.some(o => o.includes('open'));
+  const heeftTijdlijn = state.opdrachten.some(o => o.includes('tijdlijn'));
+  const heeftQuiz = state.opdrachten.some(o => o.includes('quiz'));
+
+  if (heeftOpen) p += `
+   OPEN VRAGEN: gebruik een textarea (minimaal 2-3 zinnen). Toon een woordenteller, geef pas een vinkje bij ≥20 woorden. Voeg een "Toon voorbeeldantwoord"-knop toe die pas na het invullen verschijnt. Toon 1-2 referentieantwoorden. Na het voorbeeldantwoord verschijnen "Goed ✓" en "Fout ✗" knoppen voor zelfbeoordeling (telt mee in voortgang).
+`;
+
+  if (heeftTijdlijn) p += `
+   SORTEER/RANGSCHIKOPDRACHTEN: gebruik drag-and-drop (HTML5 Drag and Drop API). GEEN pijltjesknoppen. Draggable items die de leerling kan verslepen. Touch-ondersteuning is een bonus. Voeg een "Controleer volgorde" knop toe die feedback geeft (welke items goed/fout staan).
+`;
+
+  if (heeftQuiz) p += `
+   KOPPELOPDRACHTEN: begrippen koppelen aan beschrijvingen. Toon na elke koppeling visueel dat items gekoppeld zijn (kleurcodering of naast elkaar plaatsen). Ondersteun veel-op-één koppelingen — een doel-item mag NIET op slot gaan na de eerste koppeling.
+`;
+
+  if (heeftKaart || heeftGrafiek) p += `
+   ANALYSEOPDRACHTEN: bij grafieken/kaarten data aflezen EN interpreteren.
+`;
+
+  p += `
    ALLE VRAGEN MOETEN CONTROLEERBAAR ZIJN:
    - Gesloten vragen: automatische controle met directe feedback.
-   - Open/meningvragen: een "Toon voorbeeldantwoord"-knop die pas na het invullen verschijnt. Toon 1-2 referentieantwoorden ter vergelijking (maak duidelijk dat het voorbeelden zijn).
-   - Na het voorbeeldantwoord verschijnen "Goed ✓" en "Fout ✗" knoppen voor zelfbeoordeling. Telt mee in voortgangsbalk en eindscore.
-   - TECHNISCH: gebruik voor ALLE knoppen en interacties data-attributen (data-answer, data-hint, data-correct) en addEventListener in JavaScript. NOOIT inline onclick met strings of aanhalingstekens — dit breekt de HTML-parsing en maakt vragen oncontroleerbaar.
-   - VOLTOOIINGSGARANTIE: elke interactieve opdracht MOET een pad naar voltooiing hebben, zowel bij correct als bij incorrect antwoord. Na het maximaal aantal pogingen: toon het juiste antwoord, vergrendel de opdracht, en tel het resultaat mee in voortgang en eindscore. Een opdracht mag NOOIT in een "doodlopende" staat blijven.
-   - RESET MOET VOLLEDIG ZIJN: wanneer een leerling een tabblad reset, moet ALLE UI-state worden hersteld: vergrendelde elementen weer ontgrendelen, overschreven knoppen opnieuw opbouwen, pogingentellers op nul, feedback verbergen.
+   - TECHNISCH: gebruik voor ALLE knoppen data-attributen (data-answer, data-hint, data-correct) en addEventListener. NOOIT inline onclick met strings — dit breekt de HTML-parsing.
+   - VOLTOOIINGSGARANTIE: elke opdracht MOET een pad naar voltooiing hebben, ook bij foute antwoorden. Na max. pogingen: toon het juiste antwoord en tel mee in voortgang.
+   - RESET MOET VOLLEDIG ZIJN: bij reset alle UI-state herstellen: vergrendelde elementen ontgrendelen, knoppen opnieuw opbouwen, pogingentellers op nul.
 
 7. NAVIGATIE MET TABBLADEN:
    Verdeel alle secties over tabbladen (NIET één lange scrollpagina).
@@ -898,16 +911,13 @@ TECHNISCHE EISEN
     Schrijf schone, leesbare code. Kies ALTIJD werkbaarheid boven compactheid.
     - Eén Google Font (bijv. Inter of Nunito), variatie via weight/size/kleur.
     - CSS custom properties voor kleuren, spacing, border-radius.
-    - Schrijf de HTML-secties gewoon uit in de HTML — gebruik GEEN data-driven JSON-architectuur of generieke render-functies. Gewone, leesbare HTML-blokken per sectie zijn robuuster en minder foutgevoelig.
-    - JavaScript functies mogen hergebruikt worden voor herhalende logica (quiz-check, voortgang-update), maar houd ze simpel en overzichtelijk.
-    - GEEN inline onclick handlers met strings of aanhalingstekens — dit veroorzaakt quote-conflicten en broken HTML. Gebruik altijd data-attributen (data-answer, data-hint, etc.) op HTML-elementen en koppel functionaliteit via addEventListener in JavaScript.
+    - Schrijf de HTML-secties gewoon uit — geen data-driven JSON of generieke render-functies.
+    - JavaScript functies mogen hergebruikt worden voor herhalende logica, maar houd ze simpel.
     - Als code langer wordt maar wel werkt, is dat altijd beter dan kortere code die crasht.
-
-14. GEEN PLACEHOLDER-CODE: Alles volledig werkend. Geen TODO's, geen lege functies, geen placeholder-tekst.
 
 Kies bij twijfel altijd voor een simpelere implementatie die werkt boven een complexere die kan falen.
 
-Geef ALLEEN de HTML-code terug, zonder uitleg ervoor of erna. Begin direct met <!DOCTYPE html>.`;
+Geef ALLEEN de HTML-code terug. Geen redenatie, geen planning, geen uitleg ervoor of erna. Begin DIRECT met <!DOCTYPE html>.`;
 
   document.getElementById('outputText').textContent = p;
   const box = document.getElementById('outputBox');
